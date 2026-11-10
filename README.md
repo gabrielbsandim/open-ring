@@ -18,6 +18,7 @@ However, the companion apps bundled with these rings (most notably **QRing**, **
 
 - [`docs/product-vision.md`](docs/product-vision.md): Target audience, supported rings, and core value propositions.
 - [`docs/features-benchmark.md`](docs/features-benchmark.md): Comprehensive feature breakdown of QRing vs OpenRing MVP.
+- [`docs/module-specifications.md`](docs/module-specifications.md): Surgical breakdown of every module (Heart Rate, HRV, SpO2, Stress, Temperature, Sleep, Workouts, Gestures).
 - [`docs/market-analysis.md`](docs/market-analysis.md): Review audit from Google Play Store, Apple App Store, and Reddit user communities.
 - [`docs/protocols/realsil-colmi.md`](docs/protocols/realsil-colmi.md): Colmi R09 (Realsil RTL8762) reverse engineering, GATT services, and packet structure.
 - [`docs/protocols/multi-ring-architecture.md`](docs/protocols/multi-ring-architecture.md): Driver abstraction layer to support multiple ring brands and chipsets.

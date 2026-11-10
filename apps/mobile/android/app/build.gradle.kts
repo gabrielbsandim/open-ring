@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.openring.open_ring"
+    namespace = "gbs.openring.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -15,7 +15,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "dev.openring.open_ring"
+        applicationId = "gbs.openring.app"
         minSdk = 28
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

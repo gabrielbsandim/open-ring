@@ -1,4 +1,4 @@
-package dev.openring.open_ring
+package gbs.openring.app
 
 import io.flutter.embedding.android.FlutterActivity
 

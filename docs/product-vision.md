@@ -31,7 +31,7 @@ Despite solid hardware, the software delivered by manufacturers (predominantly *
 ## 4. Supported Hardware Families (Phased)
 
 1. **Phase 1: Realsil / Realtek RTL8762 Series**
-   - Colmi R02, R03, R06, R09, R10
+   - Colmi R09 (tested). R02, R03, R06, R10 share the protocol and may work, untested.
    - QRing-compatible rings (QCWireless firmware)
    - Da Fit Ring family
 2. **Phase 2: JieLi (JL) Series**

@@ -37,7 +37,9 @@ shows honest metrics, and hands every sample to Health Connect and Apple Health.
 
 ### v1 (MVP) does
 
-1. Pair a Colmi ring (R02, R03, R06, R09, R10) and keep it synced without user action.
+1. Pair a COLMI R09 and keep it synced without user action. The R09 is the only
+   ring on the desk, so it is the only model v1 claims. Other Colmi models that
+   share the protocol (R02, R03, R06, R10) are listed as "may work, untested".
 2. Pull and store: steps and activity, heart rate log, SpO2, stress, HRV, sleep stages, battery.
 3. Show: Today, Sleep, Heart, Activity, Ring.
 4. Record a phone-led workout with live HR from the ring.
@@ -168,9 +170,10 @@ SpO2, stress), Workout live, Ring and sync status, Health export settings.
 | 5. Metrics | RHR, HRV baseline, sleep stitching, readiness, `docs/metrics.md` | Unit tests over recorded nights; formulas published |
 | 6. Release | Export, onboarding, store assets, open-source release | Signed APK and TestFlight build |
 
-## 6. Open questions for Gabriel
+## 6. Decisions log
 
-1. Repository visibility. Created private for now because `docs/` holds QRing
-   screenshots and decompilation notes. Making it public needs those reviewed.
-2. App id and name. Placeholder `dev.openring.app`.
-3. Which ring models are physically available for the spike besides the R09.
+| Date | Decision |
+| :--- | :--- |
+| 2026-11-10 | Repository is public. Screenshots and the module audit were reviewed before publishing. |
+| 2026-11-10 | App id `gbs.openring.app` on Android and iOS. Dart package stays `open_ring`. |
+| 2026-11-10 | Only a COLMI R09 is available. Every protocol check and every v1 support claim is about the R09. |

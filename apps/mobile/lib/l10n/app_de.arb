@@ -1,0 +1,20 @@
+{
+  "@@locale": "de",
+  "appTitle": "OpenRing",
+  "tabToday": "Heute",
+  "tabSleep": "Schlaf",
+  "tabHeart": "Herz",
+  "tabActivity": "Aktivität",
+  "tabRing": "Ring",
+  "settingsTitle": "Einstellungen",
+  "todayEmpty": "Kopple deinen Ring, um Schritte, Herzfrequenz und Schlaf von heute zu sehen.",
+  "sleepEmpty": "Trage deinen Ring beim Schlafen und synchronisiere ihn morgens, um deine Nacht zu sehen.",
+  "heartEmpty": "Herzfrequenz, HFV, SpO2 und Stress erscheinen hier nach der ersten Synchronisierung.",
+  "activityEmpty": "Schritte und aktive Energie erscheinen hier nach der ersten Synchronisierung.",
+  "ringEmpty": "Noch kein Ring gekoppelt. Lade den Ring auf und halte ihn in der Nähe dieses Smartphones, um ihn zu koppeln.",
+  "settingsEmpty": "Hier findest du Einheiten, das Synchronisierungsintervall und den Export von Gesundheitsdaten.",
+  "settingsAppearance": "Erscheinungsbild",
+  "themeModeSystem": "Systemeinstellung verwenden",
+  "themeModeLight": "Hell",
+  "themeModeDark": "Dunkel"
+}

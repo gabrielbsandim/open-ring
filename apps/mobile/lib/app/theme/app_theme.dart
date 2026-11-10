@@ -1,66 +1,68 @@
 import 'package:flutter/material.dart';
-
-abstract final class AppColors {
-  static const background = Color(0xFF0E0F13);
-  static const surface = Color(0xFF171920);
-  static const surfaceRaised = Color(0xFF20232C);
-  static const outline = Color(0xFF2C303B);
-  static const textPrimary = Color(0xFFECEDF2);
-  static const textMuted = Color(0xFF9BA1B0);
-  static const error = Color(0xFFFF8A80);
-
-  // One accent per metric family, so a colour means the same thing on every
-  // screen. Each one clears WCAG AA (4.5:1) on background and surface.
-  static const sleep = Color(0xFFA78BFA);
-  static const heart = Color(0xFFFF7A6B);
-  static const activity = Color(0xFF4ADE80);
-  static const oxygen = Color(0xFF22D3EE);
-  static const stress = Color(0xFFFBBF24);
-
-  static const List<Color> metricAccents = [
-    sleep,
-    heart,
-    activity,
-    oxygen,
-    stress,
-  ];
-}
+import 'package:open_ring/app/theme/app_colors.dart';
 
 abstract final class AppTheme {
-  static ThemeData get dark {
-    const scheme = ColorScheme.dark(
-      primary: AppColors.textPrimary,
-      onPrimary: AppColors.background,
-      secondary: AppColors.textMuted,
-      onSecondary: AppColors.background,
-      surface: AppColors.surface,
-      onSurface: AppColors.textPrimary,
-      onSurfaceVariant: AppColors.textMuted,
-      surfaceContainerHighest: AppColors.surfaceRaised,
-      outline: AppColors.outline,
-      error: AppColors.error,
-      onError: AppColors.background,
-    );
+  static ThemeData dark() => _build(AppColors.dark, Brightness.dark);
+
+  static ThemeData light() => _build(AppColors.light, Brightness.light);
+
+  static ColorScheme colorScheme(AppColors colors, Brightness brightness) =>
+      ColorScheme(
+        brightness: brightness,
+        primary: colors.textPrimary,
+        onPrimary: colors.onAccent,
+        primaryContainer: colors.surfaceInner,
+        onPrimaryContainer: colors.textPrimary,
+        secondary: colors.textLabel,
+        onSecondary: colors.onAccent,
+        secondaryContainer: colors.surfaceInner,
+        onSecondaryContainer: colors.textPrimary,
+        tertiary: colors.sleep,
+        onTertiary: colors.onAccent,
+        error: colors.heart,
+        onError: colors.onAccent,
+        surface: colors.surface,
+        onSurface: colors.textPrimary,
+        onSurfaceVariant: colors.textLabel,
+        surfaceDim: colors.background,
+        surfaceBright: colors.surface,
+        surfaceContainerLowest: colors.background,
+        surfaceContainerLow: colors.surface,
+        surfaceContainer: colors.surface,
+        surfaceContainerHigh: colors.surfaceInner,
+        surfaceContainerHighest: colors.surfaceInner,
+        outline: colors.strongBorder,
+        outlineVariant: colors.surfaceBorder,
+        inverseSurface: colors.textPrimary,
+        onInverseSurface: colors.background,
+        inversePrimary: colors.surface,
+        surfaceTint: Colors.transparent,
+      );
+
+  static ThemeData _build(AppColors colors, Brightness brightness) {
+    final scheme = colorScheme(colors, brightness);
     return ThemeData(
       colorScheme: scheme,
-      scaffoldBackgroundColor: AppColors.background,
-      dividerColor: AppColors.outline,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+      scaffoldBackgroundColor: colors.background,
+      canvasColor: colors.background,
+      dividerColor: colors.surfaceBorder,
+      dividerTheme: DividerThemeData(color: colors.surfaceBorder),
+      appBarTheme: AppBarTheme(
+        backgroundColor: colors.background,
+        foregroundColor: colors.textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
       ),
-      navigationBarTheme: const NavigationBarThemeData(
-        backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.surfaceRaised,
-      ),
       cardTheme: CardThemeData(
-        color: AppColors.surface,
+        color: colors.surface,
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: colors.surfaceBorder),
+        ),
       ),
+      extensions: [colors],
     );
   }
 }

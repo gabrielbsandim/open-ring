@@ -1,0 +1,20 @@
+{
+  "@@locale": "ja",
+  "appTitle": "OpenRing",
+  "tabToday": "今日",
+  "tabSleep": "睡眠",
+  "tabHeart": "心臓",
+  "tabActivity": "アクティビティ",
+  "tabRing": "リング",
+  "settingsTitle": "設定",
+  "todayEmpty": "リングをペアリングすると、今日の歩数、心拍数、睡眠を確認できます。",
+  "sleepEmpty": "リングを着けたまま寝て、朝に同期すると昨夜の睡眠を確認できます。",
+  "heartEmpty": "心拍数、心拍変動、血中酸素、ストレスは初回の同期後にここに表示されます。",
+  "activityEmpty": "歩数とアクティブエネルギーは初回の同期後にここに表示されます。",
+  "ringEmpty": "まだリングがペアリングされていません。リングを充電し、このスマートフォンの近くに置いてペアリングしてください。",
+  "settingsEmpty": "単位、同期間隔、健康データのエクスポートはここで設定できます。",
+  "settingsAppearance": "外観",
+  "themeModeSystem": "システムに合わせる",
+  "themeModeLight": "ライト",
+  "themeModeDark": "ダーク"
+}

@@ -12,5 +12,9 @@
   "heartEmpty": "Heart rate, HRV, SpO2 and stress show up here after the first sync.",
   "activityEmpty": "Steps and active energy show up here after the first sync.",
   "ringEmpty": "No ring paired yet. Charge the ring and keep it near this phone to pair it.",
-  "settingsEmpty": "Units, sync interval and health export live here."
+  "settingsEmpty": "Units, sync interval and health export live here.",
+  "settingsAppearance": "Appearance",
+  "themeModeSystem": "Follow system",
+  "themeModeLight": "Light",
+  "themeModeDark": "Dark"
 }

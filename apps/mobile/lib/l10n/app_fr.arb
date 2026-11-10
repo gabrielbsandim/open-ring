@@ -1,0 +1,20 @@
+{
+  "@@locale": "fr",
+  "appTitle": "OpenRing",
+  "tabToday": "Aujourd’hui",
+  "tabSleep": "Sommeil",
+  "tabHeart": "Cœur",
+  "tabActivity": "Activité",
+  "tabRing": "Bague",
+  "settingsTitle": "Réglages",
+  "todayEmpty": "Associez votre bague pour voir vos pas, votre fréquence cardiaque et votre sommeil du jour.",
+  "sleepEmpty": "Portez votre bague pour dormir et synchronisez-la le matin pour voir votre nuit.",
+  "heartEmpty": "La fréquence cardiaque, la VFC, la SpO2 et le stress s’affichent ici après la première synchronisation.",
+  "activityEmpty": "Les pas et l’énergie active s’affichent ici après la première synchronisation.",
+  "ringEmpty": "Aucune bague associée pour l’instant. Rechargez la bague et gardez-la près de ce téléphone pour l’associer.",
+  "settingsEmpty": "Les unités, l’intervalle de synchronisation et l’export des données de santé se trouvent ici.",
+  "settingsAppearance": "Apparence",
+  "themeModeSystem": "Suivre le système",
+  "themeModeLight": "Clair",
+  "themeModeDark": "Sombre"
+}

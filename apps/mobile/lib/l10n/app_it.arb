@@ -1,0 +1,20 @@
+{
+  "@@locale": "it",
+  "appTitle": "OpenRing",
+  "tabToday": "Oggi",
+  "tabSleep": "Sonno",
+  "tabHeart": "Cuore",
+  "tabActivity": "Attività",
+  "tabRing": "Anello",
+  "settingsTitle": "Impostazioni",
+  "todayEmpty": "Abbina il tuo anello per vedere i passi, la frequenza cardiaca e il sonno di oggi.",
+  "sleepEmpty": "Indossa l’anello a letto e sincronizzalo al mattino per vedere com’è andata la notte.",
+  "heartEmpty": "Frequenza cardiaca, HRV, SpO2 e stress compaiono qui dopo la prima sincronizzazione.",
+  "activityEmpty": "Passi ed energia attiva compaiono qui dopo la prima sincronizzazione.",
+  "ringEmpty": "Ancora nessun anello abbinato. Ricarica l’anello e tienilo vicino a questo telefono per abbinarlo.",
+  "settingsEmpty": "Qui trovi unità di misura, intervallo di sincronizzazione ed esportazione dei dati sulla salute.",
+  "settingsAppearance": "Aspetto",
+  "themeModeSystem": "Segui il sistema",
+  "themeModeLight": "Chiaro",
+  "themeModeDark": "Scuro"
+}

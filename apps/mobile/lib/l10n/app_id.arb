@@ -1,0 +1,20 @@
+{
+  "@@locale": "id",
+  "appTitle": "OpenRing",
+  "tabToday": "Hari Ini",
+  "tabSleep": "Tidur",
+  "tabHeart": "Jantung",
+  "tabActivity": "Aktivitas",
+  "tabRing": "Cincin",
+  "settingsTitle": "Pengaturan",
+  "todayEmpty": "Pasangkan cincin Anda untuk melihat langkah, detak jantung, dan tidur hari ini.",
+  "sleepEmpty": "Pakai cincin Anda saat tidur dan sinkronkan di pagi hari untuk melihat data tidur semalam.",
+  "heartEmpty": "Detak jantung, HRV, SpO2, dan stres akan muncul di sini setelah sinkronisasi pertama.",
+  "activityEmpty": "Langkah dan energi aktif akan muncul di sini setelah sinkronisasi pertama.",
+  "ringEmpty": "Belum ada cincin yang dipasangkan. Isi daya cincin dan letakkan di dekat ponsel ini untuk memasangkannya.",
+  "settingsEmpty": "Satuan, interval sinkronisasi, dan ekspor data kesehatan ada di sini.",
+  "settingsAppearance": "Tampilan",
+  "themeModeSystem": "Ikuti sistem",
+  "themeModeLight": "Terang",
+  "themeModeDark": "Gelap"
+}

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:open_ring/app/theme/app_theme.dart';
+import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/widgets/placeholder_view.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -13,7 +13,7 @@ class HeartScreen extends StatelessWidget {
       title: l10n.tabHeart,
       message: l10n.heartEmpty,
       icon: Icons.favorite_rounded,
-      accent: AppColors.heart,
+      accent: AppColors.of(context).heart,
     );
   }
 }

@@ -1,0 +1,20 @@
+{
+  "@@locale": "es",
+  "appTitle": "OpenRing",
+  "tabToday": "Hoy",
+  "tabSleep": "Sueño",
+  "tabHeart": "Corazón",
+  "tabActivity": "Actividad",
+  "tabRing": "Anillo",
+  "settingsTitle": "Configuración",
+  "todayEmpty": "Vincula tu anillo para ver los pasos, la frecuencia cardíaca y el sueño de hoy.",
+  "sleepEmpty": "Duerme con tu anillo puesto y sincronízalo por la mañana para ver cómo fue tu noche.",
+  "heartEmpty": "La frecuencia cardíaca, la VFC, la SpO2 y el estrés aparecen aquí después de la primera sincronización.",
+  "activityEmpty": "Los pasos y la energía activa aparecen aquí después de la primera sincronización.",
+  "ringEmpty": "Aún no hay ningún anillo vinculado. Carga el anillo y mantenlo cerca de este teléfono para vincularlo.",
+  "settingsEmpty": "Aquí encontrarás las unidades, el intervalo de sincronización y la exportación de datos de salud.",
+  "settingsAppearance": "Apariencia",
+  "themeModeSystem": "Predeterminado del sistema",
+  "themeModeLight": "Claro",
+  "themeModeDark": "Oscuro"
+}

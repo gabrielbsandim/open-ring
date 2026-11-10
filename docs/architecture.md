@@ -4,6 +4,11 @@ Comprehensive architectural design for the Flutter cross-platform client (Androi
 
 ## 1. System Context & Layering
 
+> [!NOTE] Hybrid Ingestion Model
+> OpenRing adopts a hybrid telemetry model:
+> 1. **Direct BLE Drivers**: Dedicated to Smart Rings (Colmi, Da Fit, JieLi, generic rings), providing raw sensor acquisition, offline flash history sync, and device controls.
+> 2. **Health Platform Bridge**: Dedicated to external smartwatches and bands (Xiaomi, Garmin, Apple Watch, Samsung Galaxy Watch), reading structured workouts and metrics via Android Health Connect and Apple HealthKit without requiring reverse-engineered proprietary Bluetooth protocols.
+
 ```mermaid
 flowchart TD
     subgraph UI ["Presentation Layer (Flutter)"]

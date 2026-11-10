@@ -33,6 +33,22 @@ However, the companion apps bundled with these rings (most notably **QRing**, **
 - **Android**: Android 9.0+ (API 28+), Android Health Connect integration.
 - **iOS**: iOS 15.0+, Apple HealthKit integration.
 
+## Development
+
+A Dart pub workspace: `apps/mobile` (Flutter app) plus the pure Dart packages
+`packages/ring_protocol`, `packages/ring_driver` and `packages/metrics`.
+Requires Flutter stable with Dart 3.13.5 or newer.
+
+```sh
+flutter pub get                                       # whole workspace, from the repo root
+dart format --output=none --set-exit-if-changed .     # formatting gate
+flutter analyze                                       # lints for every package
+dart test packages/ring_protocol/test                 # same for ring_driver and metrics
+flutter test apps/mobile/test                         # widget tests
+```
+
+CI (`.github/workflows/ci.yml`) runs the same steps on every push and pull request.
+
 ## License
 
 MIT

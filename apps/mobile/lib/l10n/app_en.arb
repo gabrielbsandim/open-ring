@@ -1,0 +1,16 @@
+{
+  "@@locale": "en",
+  "appTitle": "OpenRing",
+  "tabToday": "Today",
+  "tabSleep": "Sleep",
+  "tabHeart": "Heart",
+  "tabActivity": "Activity",
+  "tabRing": "Ring",
+  "settingsTitle": "Settings",
+  "todayEmpty": "Pair your ring to see today's steps, heart rate and sleep.",
+  "sleepEmpty": "Wear your ring to bed and sync in the morning to see your night.",
+  "heartEmpty": "Heart rate, HRV, SpO2 and stress show up here after the first sync.",
+  "activityEmpty": "Steps and active energy show up here after the first sync.",
+  "ringEmpty": "No ring paired yet. Charge the ring and keep it near this phone to pair it.",
+  "settingsEmpty": "Units, sync interval and health export live here."
+}

@@ -1,0 +1,14 @@
+name: open_ring_workspace
+publish_to: none
+
+environment:
+  sdk: ^3.13.5
+
+workspace:
+  - apps/mobile
+  - packages/ring_protocol
+  - packages/ring_driver
+  - packages/metrics
+
+dev_dependencies:
+  very_good_analysis: ^11.0.0

@@ -1,0 +1,19 @@
+import 'package:flutter/material.dart';
+import 'package:open_ring/app/theme/app_theme.dart';
+import 'package:open_ring/core/widgets/placeholder_view.dart';
+import 'package:open_ring/l10n/generated/app_localizations.dart';
+
+class TodayScreen extends StatelessWidget {
+  const new({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return PlaceholderView(
+      title: l10n.tabToday,
+      message: l10n.todayEmpty,
+      icon: Icons.today_rounded,
+      accent: AppColors.textPrimary,
+    );
+  }
+}

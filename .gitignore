@@ -1,0 +1,15 @@
+.DS_Store
+*.swp
+*.log
+
+*.iml
+*.ipr
+*.iws
+.idea/
+
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+coverage/

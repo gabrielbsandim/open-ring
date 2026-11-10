@@ -1,0 +1,16 @@
+{
+  "@@locale": "pt",
+  "appTitle": "OpenRing",
+  "tabToday": "Hoje",
+  "tabSleep": "Sono",
+  "tabHeart": "Coração",
+  "tabActivity": "Atividade",
+  "tabRing": "Anel",
+  "settingsTitle": "Ajustes",
+  "todayEmpty": "Pareie seu anel para ver os passos, a frequência cardíaca e o sono de hoje.",
+  "sleepEmpty": "Durma com o anel e sincronize de manhã para ver a sua noite.",
+  "heartEmpty": "Frequência cardíaca, VFC, SpO2 e estresse aparecem aqui depois da primeira sincronização.",
+  "activityEmpty": "Passos e energia ativa aparecem aqui depois da primeira sincronização.",
+  "ringEmpty": "Nenhum anel pareado ainda. Carregue o anel e deixe-o perto deste celular para parear.",
+  "settingsEmpty": "Unidades, intervalo de sincronização e exportação para apps de saúde ficam aqui."
+}

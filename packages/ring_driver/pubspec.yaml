@@ -1,0 +1,16 @@
+name: ring_driver
+description: SmartRingDriver contract, ring value types and the BleTransport port.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.13.5
+
+resolution: workspace
+
+dependencies:
+  meta: ^1.17.0
+
+dev_dependencies:
+  test: ^1.26.0
+  very_good_analysis: ^11.0.0

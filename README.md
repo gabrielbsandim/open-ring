@@ -16,11 +16,12 @@ However, the companion apps bundled with these rings (most notably **QRing**, **
 
 ## Project Documentation Index
 
+- [`docs/plan.md`](docs/plan.md): **Current plan (v2).** Audit of the discovery docs, scope, architecture, phases. Wins over any older doc.
 - [`docs/product-vision.md`](docs/product-vision.md): Target audience, supported rings, and core value propositions.
-- [`docs/features-benchmark.md`](docs/features-benchmark.md): Comprehensive feature breakdown of QRing vs OpenRing MVP.
+- [`docs/features-benchmark.md`](docs/features-benchmark.md): Feature breakdown of QRing vs OpenRing.
 - [`docs/module-specifications.md`](docs/module-specifications.md): Surgical breakdown of every module (Heart Rate, HRV, SpO2, Stress, Temperature, Sleep, Workouts, Gestures).
 - [`docs/market-analysis.md`](docs/market-analysis.md): Review audit from Google Play Store, Apple App Store, and Reddit user communities.
-- [`docs/protocols/realsil-colmi.md`](docs/protocols/realsil-colmi.md): Colmi R09 (Realsil RTL8762) reverse engineering, GATT services, and packet structure.
+- [`docs/protocols/realsil-colmi.md`](docs/protocols/realsil-colmi.md): Colmi BLE protocol compiled from open implementations, pending verification on the ring.
 - [`docs/protocols/multi-ring-architecture.md`](docs/protocols/multi-ring-architecture.md): Driver abstraction layer to support multiple ring brands and chipsets.
 - [`docs/architecture.md`](docs/architecture.md): Flutter client architecture, Riverpod 3, BLE state machines, and health platform synchronizers.
 - [`docs/reusable-assets-kapi.md`](docs/reusable-assets-kapi.md): Reusable architecture patterns, design tokens, and platform channels from Kapi.

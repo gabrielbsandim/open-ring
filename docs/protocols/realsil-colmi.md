@@ -1,88 +1,101 @@
-# Protocol Reverse Engineering: Colmi R09 (Realsil RTL8762)
+# Colmi Ring BLE Protocol
 
-Technical specification of the BLE communication protocol between the smartphone and the Colmi R09 (marketed as "COLMI Ring 2") running firmware `3.00.03`.
+Status: compiled on 2026-11-10 from open implementations. **Nothing here is
+verified on our ring yet.** Phase 1 marks each row verified or dropped, backed by
+a captured trace in `packages/ring_protocol/test/fixtures`.
 
-## 1. Hardware Architecture
+The previous version of this file listed service `0000fee7` with characteristics
+`fea1`/`fea2`, an `0xAB`/`0xAA` header and commands `0x07`, `0x09`, `0x11`, `0x14`.
+None of those appear in any source below, so they were removed.
 
-* **SoC / MCU**: Realtek (Realsil) RTL8762D / RTL8762E Series (Bluetooth 5.2 Low Energy SoC, ARM Cortex-M4F core, embedded 160KB RAM, external SPI NOR Flash).
-* **Sensors**:
-  * PPG Optical Heart Rate Sensor (dual green + infrared LED, photodiode).
-  * 3-Axis Accelerometer (step counting, motion detection, sleep posture).
-  * High-precision NTC contact temperature sensor.
-* **Storage**: Onboard flash buffer storing up to 7 days of raw step buckets and sleep interval blocks.
+## Sources
 
----
+- Gadgetbridge, `devices/colmi/ColmiR0xConstants.java` (Freeyourgadget/Gadgetbridge, master)
+- `tahnok/colmi_r02_client` (Python client, R02/R06/R10 fully supported)
+- `colmi.puxtril.com` (commands, big data and settings pages, tested on R03)
 
-## 2. Bluetooth GATT Architecture
+## Device
 
-### 1. Advertisement Data
-* **Device Name**: `COLMI Ring 2` (or `QRing`, `R09_*`).
-* **MAC Format**: Standard 48-bit address (e.g., `AA:BB:CC:DD:EE:FF`).
+- Target: COLMI R09 ("COLMI Ring 2"), firmware reported by QRing as `3.00.03`.
+  QRing app version is a separate number; do not conflate them.
+- Advertised names seen in sources: `R02_xxxx`. R09 naming is unconfirmed.
+- Device Information Service `0x180A` is exposed: firmware `0x2A26`, hardware `0x2A27`.
 
-### 2. Primary GATT Services & Characteristics
+## GATT
 
-| Service UUID | Characteristic UUID | Properties | Purpose |
+| Role | Service | Characteristic |
+| :--- | :--- | :--- |
+| V1 command write | `6e40fff0-b5a3-f393-e0a9-e50e24dcca9e` | `6e400002-b5a3-f393-e0a9-e50e24dcca9e` |
+| V1 notify | `6e40fff0-b5a3-f393-e0a9-e50e24dcca9e` | `6e400003-b5a3-f393-e0a9-e50e24dcca9e` |
+| V2 big data write | `de5bf728-d711-4e47-af26-65e3012a5dc7` | `de5bf72a-d711-4e47-af26-65e3012a5dc7` |
+| V2 big data notify | `de5bf728-d711-4e47-af26-65e3012a5dc7` | `de5bf729-d711-4e47-af26-65e3012a5dc7` |
+
+## V1 framing
+
+Every packet is exactly 16 bytes, both directions.
+
+```
+byte 0       command id (bit 7 set on a response means error)
+bytes 1..14  payload, zero padded
+byte 15      checksum
+```
+
+Checksum: sum of bytes 0..14. Puxtril says `& 0xFF`; the tahnok README says
+"modulo 255". **Open: settle with the first captured frame.**
+
+Settings commands put an action in byte 1: `1` read, `2` write, `3` delete.
+
+## V2 big data framing
+
+```
+byte 0      0xBC (188)
+byte 1      data id
+bytes 2..3  data length, uint16
+bytes 4..5  crc16 (requests send length 0 and crc 0xFFFF)
+bytes 6..   payload, may span several notifications
+```
+
+| Data id | Content |
+| :--- | :--- |
+| `0x27` (39) | Sleep, per day: start and end as int16 minutes after midnight, then `{stage, minutes}` pairs |
+| `0x2A` (42) | SpO2 |
+
+No temperature data id is documented. Temperature appears only as notify type 5
+of command `0x73`. Spike item.
+
+## Commands
+
+| Id | Name | Notes | Status |
 | :--- | :--- | :--- | :--- |
-| `0000fee7-0000-1000-8000-00805f9b34fb` | `0000fea1-0000-1000-8000-00805f9b34fb` | Write, Write Without Response | **TX (Phone -> Ring)**: Command dispatch. |
-| `0000fee7-0000-1000-8000-00805f9b34fb` | `0000fea2-0000-1000-8000-00805f9b34fb` | Notify, Read | **RX (Ring -> Phone)**: Telemetry stream and responses. |
-| `0000180a-0000-1000-8000-00805f9b34fb` | `00002a26-0000-1000-8000-00805f9b34fb` | Read | Firmware Version string (`3.00.03`). |
-| `0000180a-0000-1000-8000-00805f9b34fb` | `00002a28-0000-1000-8000-00805f9b34fb` | Read | Software Revision string. |
-| `0000180f-0000-1000-8000-00805f9b34fb` | `00002a19-0000-1000-8000-00805f9b34fb` | Read, Notify | Standard Battery Level percentage (0-100%). |
+| `0x01` | Set date and time | year % 2000, month, day, hour, minute, second | unverified |
+| `0x03` | Battery | response: percent, charging flag | unverified |
+| `0x08` | Power off | Puxtril calls id 8 "reboot"; test with care | unverified |
+| `0x15` | Heart rate log | request carries a unix time; multi-packet response | unverified |
+| `0x16` | Auto heart rate setting | read / write interval | unverified |
+| `0x2C` | Auto SpO2 setting | | unverified |
+| `0x36` | Auto stress setting | | unverified |
+| `0x37` | Stress log | | unverified |
+| `0x38` | Auto HRV setting | | unverified |
+| `0x39` | HRV log | | unverified |
+| `0x43` | Activity log | day index | unverified |
+| `0x48` | Today's activity totals | | unverified |
+| `0x44` | Legacy sleep | superseded by big data `0x27` | unverified |
+| `0x50` | Find device | payload `0x55 0xAA`, green LED for 10 s | unverified |
+| `0x69` | Real-time data request | data type: heart rate 6 (Puxtril) or 1 (tahnok client, from memory, recheck), SpO2 3; action start 1, stop 4 | unverified |
+| `0x73` | Device notify | pushed by the ring; type 5 carries temperature | unverified |
+| `0xBC` | Big data | see V2 framing | unverified |
+| `0xFF` | Factory reset | do not send during the spike | unverified |
 
-*Note: Some hardware revisions also expose the Realtek OTA Service (`000002fd-3c17-d293-8e48-14fe2e4da212`) for firmware upgrades.*
+## Sleep stages (big data 0x27)
 
----
+| Code | Stage | Source agreement |
+| :--- | :--- | :--- |
+| 0 | no data | Puxtril |
+| 1 | error | Puxtril |
+| 2 | light | both |
+| 3 | deep | both |
+| 4 | REM | Gadgetbridge only |
+| 5 | awake | both |
 
-## 3. Packet Framing & Protocol Details
-
-Packets sent between phone and ring follow a fixed 16 or 20-byte payload structure.
-
-### 1. General Packet Structure
-
-```
-+--------+--------+--------+--------+------------------+----------+
-| Byte 0 | Byte 1 | Byte 2 | Byte 3 | Bytes 4..N-1     | Byte N   |
-+--------+--------+--------+--------+------------------+----------+
-| Header | Cmd ID | SubCmd | Length | Payload Data     | Checksum |
-+--------+--------+--------+--------+------------------+----------+
-```
-
-* **Header**: Typically `0xAB` (Command) or `0xAA` (Response).
-* **Length**: Number of payload bytes.
-* **Checksum**: Simple sum modulo 256 (`(sum(bytes[0..N-1])) & 0xFF`).
-
-### 2. Core Command Set
-
-#### Time Synchronization (Handshake Step 1)
-Sent immediately after connection so the ring can accurately timestamp internal sensor events:
-* **Command ID**: `0x01`
-* **Payload**: `[Year - 2000, Month, Day, Hour, Minute, Second]`
-
-#### Read Battery & Device State
-* **Command ID**: `0x03`
-* **Response**: Returns battery percentage, charging state (0=Discharging, 1=Charging, 2=Full).
-
-#### Sync Daily Summary (Steps, Calories, Distance)
-* **Command ID**: `0x07`
-* **Payload**: Date to query (`[Year, Month, Day]`).
-* **Response**: Total steps (4 bytes big-endian), total calories (4 bytes), total distance (4 bytes in decimeters).
-
-#### Sync Sleep History
-The ring records sleep periods into flash in segments.
-* **Command ID**: `0x15` (Subcommand `0x01` for sleep index query).
-* **Response Structure**:
-  * Start timestamp (epoch or date/time structure).
-  * End timestamp.
-  * Array of sleep blocks: duration (minutes) + sleep stage flag (`0x01` = Deep Sleep, `0x02` = Light Sleep, `0x03` = Awake, `0x04` = REM).
-
-#### Real-time Heart Rate Stream (Live PPG)
-* **Start Live Measurement**: `0x09 0x01` (Ring turns on green LED and transmits continuous bpm samples).
-* **Stop Live Measurement**: `0x09 0x00`.
-
-#### Real-time SpO2 Stream
-* **Start SpO2 Measurement**: `0x11 0x01` (Ring turns on red and infrared LEDs).
-* **Stop SpO2 Measurement**: `0x11 0x00`.
-
-#### Skin Temperature Read
-* **Command ID**: `0x14`
-* **Response**: Temperature in hundredths of a degree Celsius (e.g. `3650` = 36.50 °C).
+Whether the R09 ever emits code 4 decides whether REM comes from the ring or
+from our own estimate. Spike item.

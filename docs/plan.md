@@ -21,7 +21,7 @@ What does not hold up, and what changes:
 | The Colmi protocol doc is wrong. UUIDs `fee7/fea1/fea2`, the `0xAB/0xAA` header, `0x07` daily summary, `0x09` live HR, `0x11` SpO2 and `0x14` temperature do not appear in any open implementation. | Gadgetbridge `ColmiR0xConstants.java`, `tahnok/colmi_r02_client`, `colmi.puxtril.com` | `protocols/realsil-colmi.md` rewritten from those sources. Every command is marked verified or unverified until the spike confirms it on the real ring. |
 | The ring is not a Realtek-only story. Colmi rings speak a Nordic-UART-like service plus a second "big data" service. | Same sources | Driver is named `ColmiDriver`, not `RealsilColmiDriver`. Chipset is not the abstraction boundary; protocol is. |
 | Five driver families planned (Realsil, Da Fit, JieLi, Nordic, SIG) with only one ring in hand. The Nordic row lists "Oura Gen 2 clones" with no source. | `multi-ring-architecture.md` | v1 ships one driver. The interface stays, with a capability set, so a second driver can land when a second ring is on the desk. A generic Bluetooth SIG Heart Rate driver is the cheapest second driver and is the only other one on the roadmap. |
-| The "hybrid ingestion" model (also read watches through Health Connect) contradicts the core flow, which writes ring data to Health Connect. Reading and writing the same store creates feedback loops and duplicates. | `architecture.md` section 1 | Deferred past v1. OpenRing writes; it does not read other sources. |
+| The "hybrid ingestion" model (also read watches through Health Connect) contradicts the core flow, which writes ring data to Health Connect. Reading and writing the same store creates feedback loops and duplicates. | `architecture.md` section 1 | In v1, read side is opt-in and origin-filtered: OpenRing reads sleep and workouts other apps wrote, never reads back records whose data origin is its own package, and resolves overlapping periods by a per-type source priority instead of summing. |
 | Isar or Drift left open. Isar is no longer maintained upstream. | `architecture.md` section 4 | Drift (SQLite). Time series fit SQL well and migrations are explicit. |
 | A persistent foreground service keeping the GATT link open all day. This is the same strategy that fails for QRing and drains both batteries. | `architecture.md` section 2 | Sync, do not stream. The ring stores history; the phone reconnects on a schedule, pulls, disconnects. A foreground service runs only during a live workout. |
 | Workouts are started "on the ring". No ring workout command is documented in any source. | `multi-ring-architecture.md` interface | Workouts are phone-led: the phone owns the session clock, the ring streams real-time HR. Ring sport mode is a later spike. |
@@ -41,17 +41,21 @@ shows honest metrics, and hands every sample to Health Connect and Apple Health.
    ring on the desk, so it is the only model v1 claims. Other Colmi models that
    share the protocol (R02, R03, R06, R10) are listed as "may work, untested".
 2. Pull and store: steps and activity, heart rate log, SpO2, stress, HRV, sleep stages, battery.
-3. Show: Today, Sleep, Heart, Activity, Ring.
-4. Record a phone-led workout with live HR from the ring.
-5. Write steps, active energy, heart rate series, sleep stages and workouts to Health Connect and HealthKit.
+3. Show: Today, Sleep, Heart, Activity, Ring, plus home and lock screen widgets on Android and iOS.
+4. Record a phone-led workout with live HR from the ring and, for outdoor types, a GPS route with distance, pace and splits.
+5. Write steps, active energy, heart rate series, sleep stages, SpO2, HRV and workouts with their GPS route to Health Connect and HealthKit.
 6. Export everything to CSV and JSON.
-7. English and Portuguese, written by hand.
+7. Localized in English, Portuguese (Brazil and Portugal), Spanish, French, German, Italian, Russian, Chinese (Simplified), Japanese and Indonesian. English is the fallback for any other locale. Each locale gets a native-speaker review before release.
+8. Read, opt-in, sleep and workouts that other devices wrote to Health Connect or HealthKit, with a per-type source priority.
+9. Export workouts as GPX.
 
-### v1 does not
+### Out of scope by design
 
-Gestures, camera shutter, games, AI chat, couple vibration, prayer times, other
-ring brands, reading other health sources, cloud accounts, GPS routes, widgets.
-Widgets and GPS are the first post-v1 items.
+Gestures, camera shutter, games, AI chat, couple vibration, prayer times and
+cloud accounts. They are the bloat OpenRing exists to remove, not a backlog.
+
+Other ring brands are blocked on hardware, not on scope: the driver interface
+is ready, and a driver lands the day a second ring is on the desk.
 
 ## 3. Architecture
 
@@ -138,14 +142,17 @@ assumptions; ring-side workouts are gone; `BleTransport` is a port with a
 
 `ring_devices`, `sync_cursors`, `activity_buckets`, `hr_samples`, `spo2_samples`,
 `stress_samples`, `hrv_samples`, `sleep_sessions`, `sleep_segments`,
-`workouts`, `workout_hr_samples`, `health_outbox`, `user_profile`.
+`workouts`, `workout_hr_samples`, `workout_route_points`, `health_outbox`,
+`source_priorities`, `user_profile`.
 All timestamps in UTC epoch milliseconds plus the device offset at capture.
 
 ### Stack
 
 Flutter stable (Dart 3.13), `flutter_riverpod` 3, `go_router`, `drift` +
 `sqlite3_flutter_libs`, `flutter_blue_plus`, `health`, `workmanager`,
-`fl_chart` plus custom painters for the hypnogram, `intl`, `very_good_analysis`.
+`fl_chart` plus custom painters for the hypnogram, `geolocator` for routes,
+`home_widget` bridging to native widgets (Jetpack Glance on Android, WidgetKit
+on iOS), `intl`, `very_good_analysis`.
 
 ## 4. Design direction
 
@@ -155,8 +162,10 @@ family so a colour means the same thing on every screen: sleep violet, heart
 coral, activity green, oxygen cyan, stress amber. Every score is tappable and
 shows its inputs. Empty states say what to do, not "No Data Yet".
 
-Screens for the prototype: Today, Sleep detail with hypnogram, Heart (HR, HRV,
-SpO2, stress), Workout live, Ring and sync status, Health export settings.
+The prototype covers every v1 screen: onboarding and pairing, the daily tabs
+and their detail screens, the workout flow with GPS route, ring, settings, data
+sources, Health Connect and export, widgets, and every empty and error state.
+Link: https://claude.ai/artifact/T1qhCioVXT7KAJFzwdz5Ht (private until shared).
 
 ## 5. Phases
 
@@ -165,8 +174,8 @@ SpO2, stress), Workout live, Ring and sync status, Health export settings.
 | 0. Foundation | Monorepo, CI, lint, empty app that runs on both platforms, design prototype | `flutter analyze` clean, `dart test` and `flutter test` green in CI, app launches on an Android device |
 | 1. Protocol spike | Talk to the real ring. Debug screen that logs every frame. Capture traces of each command into `packages/ring_protocol/test/fixtures` | Each command in `realsil-colmi.md` marked verified or dropped; checksum rule settled by a captured frame |
 | 2. Sync core | `ColmiDriver`, drift schema, sync orchestrator, background triggers | Ring left alone for 24 h: zero gaps in HR log compared with QRing for the same day |
-| 3. Screens | Today, Sleep, Heart, Activity, Ring from real data | Every screen in pt and en, every empty and error state designed |
-| 4. Health platforms | Outbox and writers for Health Connect and HealthKit | A workout recorded in OpenRing appears in Google Fit / Apple Health with HR series; sleep stages appear with REM |
+| 3. Screens | Every prototype screen from real data, widgets, GPS workout | Every screen in every shipped locale, every empty and error state built |
+| 4. Health platforms | Outbox and writers for Health Connect and HealthKit, route writer, opt-in readers with source priority | A workout recorded in OpenRing appears in Google Fit / Apple Health with HR series; sleep stages appear with REM |
 | 5. Metrics | RHR, HRV baseline, sleep stitching, readiness, `docs/metrics.md` | Unit tests over recorded nights; formulas published |
 | 6. Release | Export, onboarding, store assets, open-source release | Signed APK and TestFlight build |
 
@@ -177,3 +186,6 @@ SpO2, stress), Workout live, Ring and sync status, Health export settings.
 | 2026-11-10 | Repository is public. Screenshots and the module audit were reviewed before publishing. |
 | 2026-11-10 | App id `gbs.openring.app` on Android and iOS. Dart package stays `open_ring`. |
 | 2026-11-10 | Only a COLMI R09 is available. Every protocol check and every v1 support claim is about the R09. |
+| 2026-11-10 | Widgets, GPS routes, GPX export and opt-in reading of other sources move into v1. Nothing is deferred past v1 except features removed by design. |
+| 2026-11-10 | Locales: en, pt (Brazil), pt-PT, es, fr, de, it, ru, zh (Simplified), ja, id. English is the fallback for every other locale. |
+| 2026-11-10 | Dark and light themes and text scaling from 85% to 200% are foundation work, specified in design-tokens.md and enforced by tests. |

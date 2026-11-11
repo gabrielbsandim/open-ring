@@ -64,10 +64,14 @@ import '../helpers/workout_fakes.dart';
 import 'rgb_png.dart';
 
 // Renders the Play listing graphics only when asked, e.g.
-// OPEN_RING_STORE_DIR=/tmp/store OPEN_RING_STORE_LOCALE=en flutter test test/store
+// OPEN_RING_STORE_DIR=/tmp/store OPEN_RING_STORE_LOCALE=en OPEN_RING_STORE_THEME=dark flutter test test/store
 final String? outputDir = Platform.environment['OPEN_RING_STORE_DIR'];
 final List<String> localeParts =
     (Platform.environment['OPEN_RING_STORE_LOCALE'] ?? 'pt_BR').split('_');
+final ThemeMode storeTheme =
+    ThemeMode.values
+        .asNameMap()[Platform.environment['OPEN_RING_STORE_THEME']] ??
+    ThemeMode.light;
 final Locale storeLocale = Locale(
   localeParts.first,
   localeParts.elementAtOrNull(1),
@@ -146,9 +150,7 @@ DemoData storeData() {
 List<Override> appOverrides(AppDatabase db) => [
   clockProvider.overrideWithValue(() => now),
   syncClockProvider.overrideWithValue(() => now),
-  themeModeStoreProvider.overrideWithValue(
-    InMemoryThemeModeStore(ThemeMode.light),
-  ),
+  themeModeStoreProvider.overrideWithValue(InMemoryThemeModeStore(storeTheme)),
   onboardingStoreProvider.overrideWithValue(
     InMemoryOnboardingStore(completed: true),
   ),

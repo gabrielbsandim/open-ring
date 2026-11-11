@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
 import 'package:open_ring/features/ring/domain/sync_interval.dart';
-import 'package:open_ring/features/settings/application/app_language_controller.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
-import 'package:open_ring/features/settings/domain/app_language.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
 
 // Health Connect and HealthKit records are never touched: the port only owns
@@ -52,8 +51,8 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
 
   Future<void> _resetInMemoryState() async {
     await ref.read(themeModeProvider.notifier).select(ThemeMode.system);
-    await ref.read(appLanguageProvider.notifier).select(AppLanguage.system);
     await ref.read(syncIntervalProvider.notifier).select(SyncInterval.fallback);
+    await ref.read(demoModeProvider.notifier).leave();
     await ref.read(onboardingProvider.notifier).reset();
     await ref.read(todayWidgetConfigProvider.notifier).reset();
     ref

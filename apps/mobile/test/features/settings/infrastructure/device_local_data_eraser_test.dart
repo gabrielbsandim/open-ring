@@ -4,7 +4,7 @@ import 'package:open_ring/features/onboarding/infrastructure/shared_preferences_
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/settings/infrastructure/device_local_data_eraser.dart';
 import 'package:open_ring/features/settings/infrastructure/drift_user_profile_store.dart';
-import 'package:open_ring/features/settings/infrastructure/shared_preferences_app_language_store.dart';
+import 'package:open_ring/features/settings/infrastructure/legacy_preferences.dart';
 import 'package:open_ring/features/settings/infrastructure/shared_preferences_unit_system_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
@@ -17,7 +17,7 @@ void main() {
     SharedPreferencesAsyncPlatform.instance =
         InMemorySharedPreferencesAsync.withData({
           SharedPreferencesUnitSystemStore.key: 'imperial',
-          SharedPreferencesAppLanguageStore.key: 'german',
+          legacyPreferenceKeys.first: 'german',
           SharedPreferencesThemeModeStore.key: 'dark',
           SharedPreferencesOnboardingStore.key: true,
           'some_plugin_key': 'kept',

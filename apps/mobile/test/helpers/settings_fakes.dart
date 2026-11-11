@@ -17,12 +17,10 @@ import 'package:open_ring/features/health_sync/application/health_status_provide
 import 'package:open_ring/features/health_sync/application/health_sync_controller.dart';
 import 'package:open_ring/features/health_sync/domain/health_status.dart';
 import 'package:open_ring/features/settings/application/about_providers.dart';
-import 'package:open_ring/features/settings/application/app_language_controller.dart';
 import 'package:open_ring/features/settings/application/delete_all_data_controller.dart';
 import 'package:open_ring/features/settings/application/notification_providers.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
-import 'package:open_ring/features/settings/domain/app_language.dart';
 import 'package:open_ring/features/settings/domain/external_link_opener.dart';
 import 'package:open_ring/features/settings/domain/notification_access.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
@@ -208,7 +206,6 @@ List<Override> settingsOverrides({
   ExportState? export,
   UserProfileStore? profiles,
   UnitSystemStore? units,
-  AppLanguageStore? languages,
   NotificationAccess? notifications,
   LocalDataEraser? eraser,
   ExternalLinkOpener? links,
@@ -237,9 +234,6 @@ List<Override> settingsOverrides({
     profiles ?? InMemoryUserProfileStore(),
   ),
   unitSystemStoreProvider.overrideWithValue(units ?? InMemoryUnitSystemStore()),
-  appLanguageStoreProvider.overrideWithValue(
-    languages ?? InMemoryAppLanguageStore(),
-  ),
   notificationAccessProvider.overrideWithValue(
     notifications ?? InMemoryNotificationAccess(),
   ),
@@ -263,6 +257,26 @@ Future<void> scrollThrough(WidgetTester tester) =>
         await tester.pumpAndSettle();
       }
     });
+
+Future<Set<String>> shownTexts(WidgetTester tester) async {
+  final seen = <String>{};
+  final scrollable = find.byType(Scrollable).first;
+  for (var step = 0; step < 60; step++) {
+    seen.addAll([
+      for (final text in tester.widgetList<Text>(find.byType(Text))) ?text.data,
+    ]);
+    final position = tester.state<ScrollableState>(scrollable).position;
+    if (position.pixels >= position.maxScrollExtent) return seen;
+    position.jumpTo(
+      math.min(
+        position.pixels + position.viewportDimension * 0.8,
+        position.maxScrollExtent,
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+  return seen;
+}
 
 Future<void> reveal(WidgetTester tester, Finder finder) async {
   await tester.scrollUntilVisible(

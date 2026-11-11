@@ -11,6 +11,8 @@ import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
+import 'package:open_ring/features/demo/presentation/demo_banner.dart';
 import 'package:open_ring/features/ring/application/auto_measurements_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_state.dart';
@@ -26,7 +28,6 @@ class RingScreen extends ConsumerWidget {
   const new({super.key});
 
   static const settingsKey = Key('ring_settings');
-  static const protocolLabKey = Key('ring_protocol_lab');
   static const pairKey = Key('ring_pair');
 
   @override
@@ -38,13 +39,6 @@ class RingScreen extends ConsumerWidget {
       title: l10n.tabRing,
       onRefresh: paired ? () => refreshRing(ref) : null,
       actions: [
-        if (kDebugMode)
-          IconButton(
-            key: protocolLabKey,
-            tooltip: l10n.labOpen,
-            icon: const Icon(Icons.science_rounded),
-            onPressed: () => context.go(AppPaths.protocolLab),
-          ),
         IconButton(
           key: settingsKey,
           tooltip: l10n.settingsTitle,
@@ -131,12 +125,15 @@ class _PairedBody extends ConsumerWidget {
           onSync: () => unawaited(refreshRing(ref)),
         ),
         const SizedBox(height: cardGap),
-        const SyncIntervalCard(),
-        const SizedBox(height: cardGap),
         const AutoMeasurementsCard(),
-        const HealthLinkCard(),
-        const SizedBox(height: cardGap),
-        RingActions(name: ring.name ?? l10n.tabRing, offline: offline),
+        if (ref.watch(demoModeProvider))
+          SecondaryButton(
+            key: DemoKeys.ringLeave,
+            label: l10n.demoLeave,
+            onPressed: () => unawaited(leaveDemo(context, ref)),
+          )
+        else
+          RingActions(name: ring.name ?? l10n.tabRing, offline: offline),
       ],
     );
   }

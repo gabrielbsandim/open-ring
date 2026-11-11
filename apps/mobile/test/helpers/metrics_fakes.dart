@@ -11,7 +11,7 @@ import 'package:open_ring/features/sleep/domain/sleep_history_reader.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/today/domain/ring_status_reader.dart';
 
-import 'protocol_lab_fakes.dart';
+import 'ble_fakes.dart';
 import 'ring_fakes.dart';
 
 final metricsNow = DateTime.utc(2026, 11, 10, 9);
@@ -343,7 +343,7 @@ List<Override> metricsOverrides(
   MetricsScenario scenario, {
   List<Override> ring = const [],
 }) => [
-  ...protocolLabOverrides(),
+  ...bleOverrides(),
   ...(ring.isEmpty
       ? ringOverrides(paired: scenario.pairedRing, clock: () => metricsNow)
       : ring),

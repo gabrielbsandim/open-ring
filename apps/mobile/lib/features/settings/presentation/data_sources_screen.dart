@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
-import 'package:open_ring/core/clock/clock.dart';
-import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/core/records/source_priority.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
@@ -17,39 +15,14 @@ import 'package:open_ring/features/health_sync/domain/health_writer.dart';
 import 'package:open_ring/features/onboarding/presentation/onboarding_page.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/features/settings/presentation/source_labels.dart';
-import 'package:open_ring/features/today/application/today_providers.dart';
-import 'package:open_ring/features/today/domain/ring_status_reader.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
-enum MetricOrigin { ring, phone, computed }
-
-enum SourcedMetric {
-  steps(MetricOrigin.ring),
-  energy(MetricOrigin.ring),
-  heartRate(MetricOrigin.ring),
-  hrv(MetricOrigin.ring),
-  spo2(MetricOrigin.ring),
-  stress(MetricOrigin.ring),
-  sleep(MetricOrigin.ring),
-  battery(MetricOrigin.ring),
-  workouts(MetricOrigin.phone),
-  route(MetricOrigin.phone),
-  scores(MetricOrigin.computed);
-
-  new(this.origin);
-
-  final MetricOrigin origin;
-}
-
 abstract final class DataSourcesKeys {
-  static const ring = Key('sources_ring');
   static const readSleep = Key('sources_read_sleep');
   static const readWorkouts = Key('sources_read_workouts');
   static const openHealth = Key('sources_open_health');
   static const priority = Key('sources_priority');
   static const workoutPriority = Key('sources_priority_workout');
-
-  static Key metric(SourcedMetric metric) => Key('sources_${metric.name}');
 
   static Key read(HealthRecordKind kind) => switch (kind) {
     HealthRecordKind.workout => readWorkouts,
@@ -60,8 +33,6 @@ abstract final class DataSourcesKeys {
     HealthRecordKind.workout => workoutPriority,
     _ => priority,
   };
-
-  static Key app(String source) => Key('sources_app_$source');
 
   static Key rank(String source, {HealthRecordKind kind = _sleep}) =>
       Key('sources_rank_${_scope(kind)}$source');
@@ -87,177 +58,26 @@ class DataSourcesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final colors = AppColors.of(context);
     final platform = healthPlatformName();
-    final sleep = ref.watch(healthReadProvider);
-    final workouts = ref.watch(workoutReadProvider);
     return AppPage(
       title: l10n.sourcesTitle,
       subtitle: l10n.sourcesIntro(platform),
       children: [
-        AsyncBody(
-          value: ref.watch(ringStatusProvider),
-          builder: (ring) => _RingCard(ring: ring),
-        ),
-        SectionHeader(l10n.sourcesPerMetric),
-        TileGroup(
-          children: [
-            for (final metric in SourcedMetric.values)
-              SettingsTile(
-                key: DataSourcesKeys.metric(metric),
-                leading: AccentDot(color: metric.accent(colors)),
-                title: metric.label(l10n),
-                detail: metric.detail(l10n),
-                value: metric.origin.label(l10n),
-                valueColor: colors.textSecondary,
-              ),
-          ],
-        ),
         SectionHeader(l10n.sourcesOtherTitle(platform)),
         AsyncBody(
-          value: sleep,
-          builder: (sleepView) => AsyncBody(
-            value: workouts,
-            builder: (workoutView) => _OtherApps(
-              sleep: sleepView,
-              workouts: workoutView,
-              platform: platform,
-            ),
+          value: ref.watch(healthReadProvider),
+          builder: (sleep) => AsyncBody(
+            value: ref.watch(workoutReadProvider),
+            builder: (workouts) =>
+                _Sources(sleep: sleep, workouts: workouts, platform: platform),
           ),
         ),
-        SectionHeader(l10n.sourcesPriorityTitle),
-        CaptionText(l10n.sourcesPriorityBody),
-        const SizedBox(height: 8),
-        AsyncBody(
-          value: sleep,
-          builder: (view) =>
-              _PriorityCard(kind: HealthRecordKind.sleep, view: view),
-        ),
-        const SizedBox(height: cardGap),
-        AsyncBody(
-          value: workouts,
-          builder: (view) =>
-              _PriorityCard(kind: HealthRecordKind.workout, view: view),
-        ),
-        SectionHeader(l10n.sourcesRulesTitle),
-        NumberedTip(number: 1, body: l10n.healthWriteDefault),
-        NumberedTip(number: 2, body: l10n.sourcesRulePriority),
-        Padding(
-          padding: const EdgeInsetsDirectional.only(start: 40),
-          child: CaptionText(l10n.sourcesRuleExample),
-        ),
-        const SizedBox(height: 8),
-        CaptionText(l10n.sourcesLocalNote(platform)),
-        const SizedBox(height: 8),
-        CaptionText(l10n.sourcesReadNote(platform)),
       ],
     );
   }
 }
 
-class _RingCard extends StatelessWidget {
-  const new({required this.ring});
-
-  final RingStatus ring;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final colors = AppColors.of(context);
-    final theme = Theme.of(context);
-    final name = ring.name ?? ring.model;
-    return MetricCard(
-      key: DataSourcesKeys.ring,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Icon(Icons.radio_button_checked_rounded, color: colors.oxygen),
-              Text(
-                name ?? l10n.sourcesRingTitle,
-                style: theme.textTheme.titleMedium,
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: colors.surfaceInner,
-                  border: Border.all(color: colors.strongBorder),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: CaptionText(
-                  l10n.sourcesRingMain,
-                  color: colors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          BodyText(
-            ring.paired ? l10n.sourcesRingDetail : l10n.sourcesRingUnpaired,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-extension on MetricOrigin {
-  String label(AppLocalizations l10n) => switch (this) {
-    MetricOrigin.ring => l10n.sourcesFromRing,
-    MetricOrigin.phone => l10n.sourcesFromPhone,
-    MetricOrigin.computed => l10n.sourcesComputed,
-  };
-}
-
-extension on SourcedMetric {
-  String label(AppLocalizations l10n) => switch (this) {
-    SourcedMetric.steps => l10n.sourcesSteps,
-    SourcedMetric.energy => l10n.sourcesEnergy,
-    SourcedMetric.heartRate => l10n.sourcesHeartRate,
-    SourcedMetric.hrv => l10n.sourcesHrv,
-    SourcedMetric.spo2 => l10n.sourcesSpo2,
-    SourcedMetric.stress => l10n.sourcesStress,
-    SourcedMetric.sleep => l10n.sourcesSleep,
-    SourcedMetric.battery => l10n.sourcesBattery,
-    SourcedMetric.workouts => l10n.sourcesWorkouts,
-    SourcedMetric.route => l10n.sourcesRoute,
-    SourcedMetric.scores => l10n.sourcesScores,
-  };
-
-  String detail(AppLocalizations l10n) => switch (this) {
-    SourcedMetric.steps => l10n.sourcesStepsDetail,
-    SourcedMetric.energy => l10n.sourcesEnergyDetail,
-    SourcedMetric.heartRate ||
-    SourcedMetric.hrv ||
-    SourcedMetric.spo2 ||
-    SourcedMetric.stress => l10n.sourcesLoggedDetail,
-    SourcedMetric.sleep => l10n.sourcesSleepDetail,
-    SourcedMetric.battery => l10n.sourcesBatteryDetail,
-    SourcedMetric.workouts => l10n.sourcesWorkoutsDetail,
-    SourcedMetric.route => l10n.sourcesRouteDetail,
-    SourcedMetric.scores => l10n.sourcesScoresDetail,
-  };
-
-  Color accent(AppColors colors) => switch (this) {
-    SourcedMetric.steps ||
-    SourcedMetric.energy ||
-    SourcedMetric.workouts ||
-    SourcedMetric.route => colors.activity,
-    SourcedMetric.heartRate || SourcedMetric.hrv => colors.heart,
-    SourcedMetric.spo2 => colors.oxygen,
-    SourcedMetric.stress => colors.stress,
-    SourcedMetric.sleep => colors.sleep,
-    SourcedMetric.battery || SourcedMetric.scores => colors.textLabel,
-  };
-}
-
-typedef _SeenSource = ({String id, int nights, int workouts, DateTime? last});
-
-class _OtherApps extends ConsumerWidget {
+class _Sources extends ConsumerWidget {
   const new({
     required this.sleep,
     required this.workouts,
@@ -271,10 +91,11 @@ class _OtherApps extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final colors = AppColors.of(context);
-    final format = MetricFormat.of(context);
-    final now = ref.watch(clockProvider)();
     final askAgain = _askAgain(sleep) || _askAgain(workouts);
+    final ranked = [
+      if (_choosable(sleep)) (HealthRecordKind.sleep, sleep),
+      if (_choosable(workouts)) (HealthRecordKind.workout, workouts),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -290,13 +111,6 @@ class _OtherApps extends ConsumerWidget {
               view: workouts,
               platform: platform,
             ),
-            for (final source in _seen())
-              SettingsTile(
-                key: DataSourcesKeys.app(source.id),
-                leading: Icon(Icons.watch_outlined, color: colors.textLabel),
-                title: sourceName(source.id, l10n),
-                detail: _sourceDetail(source, l10n, format, now),
-              ),
           ],
         ),
         if (askAgain) ...[
@@ -309,15 +123,15 @@ class _OtherApps extends ConsumerWidget {
           ),
         ],
         const SizedBox(height: 8),
-        if (sleep.enabled && sleep.sources.isEmpty) ...[
-          CaptionText(l10n.sourcesSeenEmpty(platform)),
-          const SizedBox(height: 4),
+        CaptionText(l10n.sourcesReadNote(platform)),
+        if (ranked.isNotEmpty) ...[
+          SectionHeader(l10n.sourcesPriorityTitle),
+          CaptionText(l10n.sourcesPriorityBody),
+          for (final (kind, view) in ranked) ...[
+            const SizedBox(height: cardGap),
+            _PriorityCard(kind: kind, view: view),
+          ],
         ],
-        if (workouts.enabled && workouts.sources.isEmpty) ...[
-          CaptionText(l10n.sourcesSeenWorkoutsEmpty(platform)),
-          const SizedBox(height: 4),
-        ],
-        CaptionText(l10n.sourcesSeenNoteAll(platform)),
       ],
     );
   }
@@ -325,46 +139,7 @@ class _OtherApps extends ConsumerWidget {
   static bool _askAgain(HealthReadView view) =>
       view.declined || (view.enabled && view.access == HealthAccess.denied);
 
-  List<_SeenSource> _seen() {
-    final nights = {
-      if (sleep.enabled)
-        for (final source in sleep.sources) source.id: source,
-    };
-    final sessions = {
-      if (workouts.enabled)
-        for (final source in workouts.sources) source.id: source,
-    };
-    final ids = {...nights.keys, ...sessions.keys}.toList()..sort();
-    return [
-      for (final id in ids)
-        (
-          id: id,
-          nights: nights[id]?.records ?? 0,
-          workouts: sessions[id]?.records ?? 0,
-          last: _latest(nights[id]?.lastEnd, sessions[id]?.lastEnd),
-        ),
-    ];
-  }
-
-  static DateTime? _latest(DateTime? a, DateTime? b) {
-    if (a == null) return b;
-    if (b == null) return a;
-    return a.isAfter(b) ? a : b;
-  }
-
-  static String _sourceDetail(
-    _SeenSource source,
-    AppLocalizations l10n,
-    MetricFormat format,
-    DateTime now,
-  ) {
-    final last = source.last;
-    return [
-      if (source.nights > 0) l10n.sourcesSourceNights(source.nights),
-      if (source.workouts > 0) l10n.sourcesSourceWorkouts(source.workouts),
-      if (last != null) l10n.sourcesSourceLast(format.clockOrDay(last, now)),
-    ].join(' · ');
-  }
+  static bool _choosable(HealthReadView view) => view.enabled && !view.single;
 }
 
 class _ReadTile extends ConsumerWidget {
@@ -477,9 +252,7 @@ class _PriorityCard extends ConsumerWidget {
                 ),
             ],
           ),
-          if (view.single) CaptionText(l10n.sourcesPrioritySingle),
-          if (workouts && !view.single)
-            CaptionText(l10n.sourcesPriorityWorkoutsNote),
+          if (workouts) CaptionText(l10n.sourcesPriorityWorkoutsNote),
         ],
       ),
     );
@@ -510,7 +283,7 @@ class _PriorityRow extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = AppColors.of(context);
     final theme = Theme.of(context);
-    final (name, detail) = _describe(l10n);
+    final name = _name(l10n);
     final label = Row(
       children: [
         ConstrainedBox(
@@ -525,17 +298,11 @@ class _PriorityRow extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: colors.textPrimary,
-                ),
-              ),
-              CaptionText(detail),
-            ],
+          child: Text(
+            name,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: colors.textPrimary,
+            ),
           ),
         ),
       ],
@@ -590,15 +357,10 @@ class _PriorityRow extends StatelessWidget {
     );
   }
 
-  (String, String) _describe(AppLocalizations l10n) {
-    final app = l10n.sourcesPriorityAppDetail(healthPlatformName());
-    if (source != ringSource) return (sourceName(source, l10n), app);
-    return switch (kind) {
-      HealthRecordKind.workout => (
-        _ownWorkoutsName,
-        l10n.sourcesPriorityOwnWorkoutDetail,
-      ),
-      _ => (sourceName(source, l10n), l10n.sourcesPriorityRingDetail),
-    };
+  String _name(AppLocalizations l10n) {
+    if (source == ringSource && kind == HealthRecordKind.workout) {
+      return _ownWorkoutsName;
+    }
+    return sourceName(source, l10n);
   }
 }

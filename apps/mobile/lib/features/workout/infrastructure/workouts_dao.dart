@@ -16,11 +16,15 @@ class WorkoutsDao extends DatabaseAccessor<AppDatabase>
 
   static String clientIdOf(DateTime start) => 'phone:${start.utcMs}';
 
-  Future<int> insertFinished(FinishedWorkout workout) async {
+  Future<int> insertFinished(
+    FinishedWorkout workout, {
+    String? deviceId,
+  }) async {
     final id = await into(workouts).insert(
       WorkoutsCompanion.insert(
         clientId: clientIdOf(workout.start),
         activityType: workout.type.activityType,
+        deviceId: Value(deviceId),
         startUtcMs: workout.start.utcMs,
         endUtcMs: Value(workout.end.utcMs),
         offsetMinutes: workout.start.offsetMinutes,

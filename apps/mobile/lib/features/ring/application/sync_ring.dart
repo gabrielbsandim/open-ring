@@ -26,11 +26,13 @@ final class SyncReport {
     required Map<RecordKind, int> written,
     required Map<RingCapability, Object> failures,
     this.battery,
+    this.heartRateIntervalSeen,
   }) : written = Map.unmodifiable(written),
        failures = Map.unmodifiable(failures);
 
   final DateTime syncedAt;
   final BatteryStatus? battery;
+  final Duration? heartRateIntervalSeen;
   final Map<RecordKind, int> written;
   final Map<RingCapability, Object> failures;
 }
@@ -102,6 +104,7 @@ final class _SyncRun {
   final SyncBatteryListener batteryRead;
   final failures = <RingCapability, Object>{};
   Map<RecordKind, DateTime> cursors = const {};
+  Duration? heartRateIntervalSeen;
 
   SmartRingDriver get driver => sync.driver;
 
@@ -142,6 +145,7 @@ final class _SyncRun {
     return SyncReport(
       syncedAt: batch.syncedAt,
       battery: battery,
+      heartRateIntervalSeen: heartRateIntervalSeen,
       written: written,
       failures: failures,
     );
@@ -153,6 +157,7 @@ final class _SyncRun {
     final wanted = on ? sync.heartRateInterval : null;
     try {
       final current = await driver.readHeartRateInterval();
+      heartRateIntervalSeen = current ?? Duration.zero;
       if (current == wanted) return;
       await driver.setHeartRateInterval(sync.heartRateInterval, enabled: on);
     } on Object catch (error) {

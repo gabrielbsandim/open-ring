@@ -1606,6 +1606,54 @@ class $SyncRunsTable extends SyncRuns
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _batteryPercentMeta = const VerificationMeta(
+    'batteryPercent',
+  );
+  @override
+  late final GeneratedColumn<int> batteryPercent = GeneratedColumn<int>(
+    'battery_percent',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _batteryChargingMeta = const VerificationMeta(
+    'batteryCharging',
+  );
+  @override
+  late final GeneratedColumn<bool> batteryCharging = GeneratedColumn<bool>(
+    'battery_charging',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("battery_charging" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _failuresMeta = const VerificationMeta(
+    'failures',
+  );
+  @override
+  late final GeneratedColumn<String> failures = GeneratedColumn<String>(
+    'failures',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _heartRateIntervalSeenMinutesMeta =
+      const VerificationMeta('heartRateIntervalSeenMinutes');
+  @override
+  late final GeneratedColumn<int> heartRateIntervalSeenMinutes =
+      GeneratedColumn<int>(
+        'heart_rate_interval_seen_minutes',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1614,6 +1662,10 @@ class $SyncRunsTable extends SyncRuns
     outcome,
     kinds,
     recordCount,
+    batteryPercent,
+    batteryCharging,
+    failures,
+    heartRateIntervalSeenMinutes,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1669,6 +1721,39 @@ class $SyncRunsTable extends SyncRuns
         ),
       );
     }
+    if (data.containsKey('battery_percent')) {
+      context.handle(
+        _batteryPercentMeta,
+        batteryPercent.isAcceptableOrUnknown(
+          data['battery_percent']!,
+          _batteryPercentMeta,
+        ),
+      );
+    }
+    if (data.containsKey('battery_charging')) {
+      context.handle(
+        _batteryChargingMeta,
+        batteryCharging.isAcceptableOrUnknown(
+          data['battery_charging']!,
+          _batteryChargingMeta,
+        ),
+      );
+    }
+    if (data.containsKey('failures')) {
+      context.handle(
+        _failuresMeta,
+        failures.isAcceptableOrUnknown(data['failures']!, _failuresMeta),
+      );
+    }
+    if (data.containsKey('heart_rate_interval_seen_minutes')) {
+      context.handle(
+        _heartRateIntervalSeenMinutesMeta,
+        heartRateIntervalSeenMinutes.isAcceptableOrUnknown(
+          data['heart_rate_interval_seen_minutes']!,
+          _heartRateIntervalSeenMinutesMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1702,6 +1787,22 @@ class $SyncRunsTable extends SyncRuns
         DriftSqlType.int,
         data['${effectivePrefix}record_count'],
       )!,
+      batteryPercent: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}battery_percent'],
+      ),
+      batteryCharging: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}battery_charging'],
+      ),
+      failures: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}failures'],
+      )!,
+      heartRateIntervalSeenMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}heart_rate_interval_seen_minutes'],
+      ),
     );
   }
 
@@ -1718,6 +1819,10 @@ class SyncRunRow extends DataClass implements Insertable<SyncRunRow> {
   final String outcome;
   final String kinds;
   final int recordCount;
+  final int? batteryPercent;
+  final bool? batteryCharging;
+  final String failures;
+  final int? heartRateIntervalSeenMinutes;
   const SyncRunRow({
     required this.id,
     required this.deviceId,
@@ -1725,6 +1830,10 @@ class SyncRunRow extends DataClass implements Insertable<SyncRunRow> {
     required this.outcome,
     required this.kinds,
     required this.recordCount,
+    this.batteryPercent,
+    this.batteryCharging,
+    required this.failures,
+    this.heartRateIntervalSeenMinutes,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1735,6 +1844,18 @@ class SyncRunRow extends DataClass implements Insertable<SyncRunRow> {
     map['outcome'] = Variable<String>(outcome);
     map['kinds'] = Variable<String>(kinds);
     map['record_count'] = Variable<int>(recordCount);
+    if (!nullToAbsent || batteryPercent != null) {
+      map['battery_percent'] = Variable<int>(batteryPercent);
+    }
+    if (!nullToAbsent || batteryCharging != null) {
+      map['battery_charging'] = Variable<bool>(batteryCharging);
+    }
+    map['failures'] = Variable<String>(failures);
+    if (!nullToAbsent || heartRateIntervalSeenMinutes != null) {
+      map['heart_rate_interval_seen_minutes'] = Variable<int>(
+        heartRateIntervalSeenMinutes,
+      );
+    }
     return map;
   }
 
@@ -1746,6 +1867,17 @@ class SyncRunRow extends DataClass implements Insertable<SyncRunRow> {
       outcome: Value(outcome),
       kinds: Value(kinds),
       recordCount: Value(recordCount),
+      batteryPercent: batteryPercent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(batteryPercent),
+      batteryCharging: batteryCharging == null && nullToAbsent
+          ? const Value.absent()
+          : Value(batteryCharging),
+      failures: Value(failures),
+      heartRateIntervalSeenMinutes:
+          heartRateIntervalSeenMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(heartRateIntervalSeenMinutes),
     );
   }
 
@@ -1761,6 +1893,12 @@ class SyncRunRow extends DataClass implements Insertable<SyncRunRow> {
       outcome: serializer.fromJson<String>(json['outcome']),
       kinds: serializer.fromJson<String>(json['kinds']),
       recordCount: serializer.fromJson<int>(json['recordCount']),
+      batteryPercent: serializer.fromJson<int?>(json['batteryPercent']),
+      batteryCharging: serializer.fromJson<bool?>(json['batteryCharging']),
+      failures: serializer.fromJson<String>(json['failures']),
+      heartRateIntervalSeenMinutes: serializer.fromJson<int?>(
+        json['heartRateIntervalSeenMinutes'],
+      ),
     );
   }
   @override
@@ -1773,6 +1911,12 @@ class SyncRunRow extends DataClass implements Insertable<SyncRunRow> {
       'outcome': serializer.toJson<String>(outcome),
       'kinds': serializer.toJson<String>(kinds),
       'recordCount': serializer.toJson<int>(recordCount),
+      'batteryPercent': serializer.toJson<int?>(batteryPercent),
+      'batteryCharging': serializer.toJson<bool?>(batteryCharging),
+      'failures': serializer.toJson<String>(failures),
+      'heartRateIntervalSeenMinutes': serializer.toJson<int?>(
+        heartRateIntervalSeenMinutes,
+      ),
     };
   }
 
@@ -1783,6 +1927,10 @@ class SyncRunRow extends DataClass implements Insertable<SyncRunRow> {
     String? outcome,
     String? kinds,
     int? recordCount,
+    Value<int?> batteryPercent = const Value.absent(),
+    Value<bool?> batteryCharging = const Value.absent(),
+    String? failures,
+    Value<int?> heartRateIntervalSeenMinutes = const Value.absent(),
   }) => SyncRunRow(
     id: id ?? this.id,
     deviceId: deviceId ?? this.deviceId,
@@ -1790,6 +1938,16 @@ class SyncRunRow extends DataClass implements Insertable<SyncRunRow> {
     outcome: outcome ?? this.outcome,
     kinds: kinds ?? this.kinds,
     recordCount: recordCount ?? this.recordCount,
+    batteryPercent: batteryPercent.present
+        ? batteryPercent.value
+        : this.batteryPercent,
+    batteryCharging: batteryCharging.present
+        ? batteryCharging.value
+        : this.batteryCharging,
+    failures: failures ?? this.failures,
+    heartRateIntervalSeenMinutes: heartRateIntervalSeenMinutes.present
+        ? heartRateIntervalSeenMinutes.value
+        : this.heartRateIntervalSeenMinutes,
   );
   SyncRunRow copyWithCompanion(SyncRunsCompanion data) {
     return SyncRunRow(
@@ -1801,6 +1959,16 @@ class SyncRunRow extends DataClass implements Insertable<SyncRunRow> {
       recordCount: data.recordCount.present
           ? data.recordCount.value
           : this.recordCount,
+      batteryPercent: data.batteryPercent.present
+          ? data.batteryPercent.value
+          : this.batteryPercent,
+      batteryCharging: data.batteryCharging.present
+          ? data.batteryCharging.value
+          : this.batteryCharging,
+      failures: data.failures.present ? data.failures.value : this.failures,
+      heartRateIntervalSeenMinutes: data.heartRateIntervalSeenMinutes.present
+          ? data.heartRateIntervalSeenMinutes.value
+          : this.heartRateIntervalSeenMinutes,
     );
   }
 
@@ -1812,14 +1980,28 @@ class SyncRunRow extends DataClass implements Insertable<SyncRunRow> {
           ..write('atUtcMs: $atUtcMs, ')
           ..write('outcome: $outcome, ')
           ..write('kinds: $kinds, ')
-          ..write('recordCount: $recordCount')
+          ..write('recordCount: $recordCount, ')
+          ..write('batteryPercent: $batteryPercent, ')
+          ..write('batteryCharging: $batteryCharging, ')
+          ..write('failures: $failures, ')
+          ..write('heartRateIntervalSeenMinutes: $heartRateIntervalSeenMinutes')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, deviceId, atUtcMs, outcome, kinds, recordCount);
+  int get hashCode => Object.hash(
+    id,
+    deviceId,
+    atUtcMs,
+    outcome,
+    kinds,
+    recordCount,
+    batteryPercent,
+    batteryCharging,
+    failures,
+    heartRateIntervalSeenMinutes,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1829,7 +2011,12 @@ class SyncRunRow extends DataClass implements Insertable<SyncRunRow> {
           other.atUtcMs == this.atUtcMs &&
           other.outcome == this.outcome &&
           other.kinds == this.kinds &&
-          other.recordCount == this.recordCount);
+          other.recordCount == this.recordCount &&
+          other.batteryPercent == this.batteryPercent &&
+          other.batteryCharging == this.batteryCharging &&
+          other.failures == this.failures &&
+          other.heartRateIntervalSeenMinutes ==
+              this.heartRateIntervalSeenMinutes);
 }
 
 class SyncRunsCompanion extends UpdateCompanion<SyncRunRow> {
@@ -1839,6 +2026,10 @@ class SyncRunsCompanion extends UpdateCompanion<SyncRunRow> {
   final Value<String> outcome;
   final Value<String> kinds;
   final Value<int> recordCount;
+  final Value<int?> batteryPercent;
+  final Value<bool?> batteryCharging;
+  final Value<String> failures;
+  final Value<int?> heartRateIntervalSeenMinutes;
   const SyncRunsCompanion({
     this.id = const Value.absent(),
     this.deviceId = const Value.absent(),
@@ -1846,6 +2037,10 @@ class SyncRunsCompanion extends UpdateCompanion<SyncRunRow> {
     this.outcome = const Value.absent(),
     this.kinds = const Value.absent(),
     this.recordCount = const Value.absent(),
+    this.batteryPercent = const Value.absent(),
+    this.batteryCharging = const Value.absent(),
+    this.failures = const Value.absent(),
+    this.heartRateIntervalSeenMinutes = const Value.absent(),
   });
   SyncRunsCompanion.insert({
     this.id = const Value.absent(),
@@ -1854,6 +2049,10 @@ class SyncRunsCompanion extends UpdateCompanion<SyncRunRow> {
     required String outcome,
     this.kinds = const Value.absent(),
     this.recordCount = const Value.absent(),
+    this.batteryPercent = const Value.absent(),
+    this.batteryCharging = const Value.absent(),
+    this.failures = const Value.absent(),
+    this.heartRateIntervalSeenMinutes = const Value.absent(),
   }) : deviceId = Value(deviceId),
        atUtcMs = Value(atUtcMs),
        outcome = Value(outcome);
@@ -1864,6 +2063,10 @@ class SyncRunsCompanion extends UpdateCompanion<SyncRunRow> {
     Expression<String>? outcome,
     Expression<String>? kinds,
     Expression<int>? recordCount,
+    Expression<int>? batteryPercent,
+    Expression<bool>? batteryCharging,
+    Expression<String>? failures,
+    Expression<int>? heartRateIntervalSeenMinutes,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1872,6 +2075,11 @@ class SyncRunsCompanion extends UpdateCompanion<SyncRunRow> {
       if (outcome != null) 'outcome': outcome,
       if (kinds != null) 'kinds': kinds,
       if (recordCount != null) 'record_count': recordCount,
+      if (batteryPercent != null) 'battery_percent': batteryPercent,
+      if (batteryCharging != null) 'battery_charging': batteryCharging,
+      if (failures != null) 'failures': failures,
+      if (heartRateIntervalSeenMinutes != null)
+        'heart_rate_interval_seen_minutes': heartRateIntervalSeenMinutes,
     });
   }
 
@@ -1882,6 +2090,10 @@ class SyncRunsCompanion extends UpdateCompanion<SyncRunRow> {
     Value<String>? outcome,
     Value<String>? kinds,
     Value<int>? recordCount,
+    Value<int?>? batteryPercent,
+    Value<bool?>? batteryCharging,
+    Value<String>? failures,
+    Value<int?>? heartRateIntervalSeenMinutes,
   }) {
     return SyncRunsCompanion(
       id: id ?? this.id,
@@ -1890,6 +2102,11 @@ class SyncRunsCompanion extends UpdateCompanion<SyncRunRow> {
       outcome: outcome ?? this.outcome,
       kinds: kinds ?? this.kinds,
       recordCount: recordCount ?? this.recordCount,
+      batteryPercent: batteryPercent ?? this.batteryPercent,
+      batteryCharging: batteryCharging ?? this.batteryCharging,
+      failures: failures ?? this.failures,
+      heartRateIntervalSeenMinutes:
+          heartRateIntervalSeenMinutes ?? this.heartRateIntervalSeenMinutes,
     );
   }
 
@@ -1914,6 +2131,20 @@ class SyncRunsCompanion extends UpdateCompanion<SyncRunRow> {
     if (recordCount.present) {
       map['record_count'] = Variable<int>(recordCount.value);
     }
+    if (batteryPercent.present) {
+      map['battery_percent'] = Variable<int>(batteryPercent.value);
+    }
+    if (batteryCharging.present) {
+      map['battery_charging'] = Variable<bool>(batteryCharging.value);
+    }
+    if (failures.present) {
+      map['failures'] = Variable<String>(failures.value);
+    }
+    if (heartRateIntervalSeenMinutes.present) {
+      map['heart_rate_interval_seen_minutes'] = Variable<int>(
+        heartRateIntervalSeenMinutes.value,
+      );
+    }
     return map;
   }
 
@@ -1925,7 +2156,11 @@ class SyncRunsCompanion extends UpdateCompanion<SyncRunRow> {
           ..write('atUtcMs: $atUtcMs, ')
           ..write('outcome: $outcome, ')
           ..write('kinds: $kinds, ')
-          ..write('recordCount: $recordCount')
+          ..write('recordCount: $recordCount, ')
+          ..write('batteryPercent: $batteryPercent, ')
+          ..write('batteryCharging: $batteryCharging, ')
+          ..write('failures: $failures, ')
+          ..write('heartRateIntervalSeenMinutes: $heartRateIntervalSeenMinutes')
           ..write(')'))
         .toString();
   }

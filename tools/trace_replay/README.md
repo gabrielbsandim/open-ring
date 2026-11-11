@@ -1,12 +1,13 @@
 # trace_replay
 
-Dart CLI for the JSONL sessions that the protocol lab in `apps/mobile` exports.
+Dart CLI for JSONL session logs of ring frames, the format the protocol lab in
+`apps/mobile` exported before it was removed.
 It decodes every frame with `packages/ring_protocol` and replays recorded syncs
 through `ColmiDriver` from `packages/ring_driver`, offline.
 
 ## Input
 
-One JSON object per line, as `FrameLogEntry.toJson` writes it:
+One JSON object per line, as the lab's `FrameLogEntry.toJson` wrote it:
 
 ```json
 {"t":"2024-08-10T23:58:00.000Z","dir":"rx","char":"6e400003-b5a3-f393-e0a9-e50e24dcca9e","hex":"03400000000000000000000000000043"}

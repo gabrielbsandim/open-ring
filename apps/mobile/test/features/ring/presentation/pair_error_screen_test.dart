@@ -4,9 +4,9 @@ import 'package:open_ring/features/ring/application/pair_state.dart';
 import 'package:open_ring/features/ring/presentation/pair_error_screen.dart';
 import 'package:open_ring/features/ring/presentation/pair_screen.dart';
 
+import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/onboarding_app.dart';
 import '../../../helpers/onboarding_fakes.dart';
-import '../../../helpers/protocol_lab_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
 
 Future<FakeAppPermissions> _pump(
@@ -21,7 +21,7 @@ Future<FakeAppPermissions> _pump(
     at: PairFlow.ring.errorPath(failure.name),
     store: InMemoryOnboardingStore(completed: true),
     overrides: [
-      ...protocolLabOverrides(scanner: scanner),
+      ...bleOverrides(scanner: scanner),
       ...ringOverrides(),
       ...onboardingOverrides(permissions: fake),
     ],

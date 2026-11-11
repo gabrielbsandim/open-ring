@@ -12,9 +12,9 @@ import 'package:open_ring/features/workout/domain/workout_history.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
 
+import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/layout_harness.dart';
 import '../../../helpers/metrics_fakes.dart';
-import '../../../helpers/protocol_lab_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
 import '../../../helpers/workout_fakes.dart';
 
@@ -44,7 +44,7 @@ Future<void> pumpWorkout(
   locale: c.locale,
   size: size,
   overrides: [
-    ...protocolLabOverrides(),
+    ...bleOverrides(),
     ...ringOverrides(),
     ...rig.overrides(),
     ringStatusReaderProvider.overrideWithValue(FakeRingStatusReader(ring)),

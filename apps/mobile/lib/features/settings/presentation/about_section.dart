@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/features/settings/application/about_providers.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
@@ -13,6 +15,7 @@ class AboutSection extends ConsumerWidget {
   const new({super.key});
 
   static const versionKey = Key('settings_about_version');
+  static const privacyKey = Key('settings_about_privacy');
   static const githubKey = Key('settings_about_github');
   static const licenseKey = Key('settings_about_license');
   static final Uri repositoryUrl = Uri.parse(
@@ -29,6 +32,12 @@ class AboutSection extends ConsumerWidget {
           key: versionKey,
           title: l10n.settingsVersion,
           value: ref.watch(appVersionProvider).value,
+        ),
+        SettingsTile(
+          key: privacyKey,
+          title: l10n.privacyTitle,
+          chevron: true,
+          onTap: () => unawaited(context.push(AppPaths.privacy)),
         ),
         SettingsTile(
           key: githubKey,

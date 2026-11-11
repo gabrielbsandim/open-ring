@@ -16,9 +16,9 @@ import 'package:open_ring/features/widgets/presentation/today_widget_config_scre
 import 'package:open_ring/features/widgets/presentation/widgets_screen.dart';
 import 'package:open_ring/features/workout/presentation/workout_pick_screen.dart';
 
+import '../../helpers/ble_fakes.dart';
 import '../../helpers/layout_harness.dart';
 import '../../helpers/metrics_fakes.dart';
-import '../../helpers/protocol_lab_fakes.dart';
 import '../../helpers/ring_fakes.dart';
 import '../../helpers/widget_fakes.dart';
 import '../../helpers/workout_fakes.dart';
@@ -34,7 +34,7 @@ Future<void> pumpApp(WidgetTester tester) => pumpScaled(
   locale: const Locale('en'),
   size: const Size(360, 2400),
   overrides: [
-    ...protocolLabOverrides(),
+    ...bleOverrides(),
     ...ringOverrides(),
     ...WorkoutRig().overrides(),
     ringStatusReaderProvider.overrideWithValue(FakeRingStatusReader(freshRing)),

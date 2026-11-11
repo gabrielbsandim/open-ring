@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
-import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/ring/application/ring_alert_providers.dart';
 import 'package:open_ring/features/ring/application/sync_alerts.dart';
 import 'package:open_ring/features/ring/domain/ring_alerts.dart';
@@ -53,22 +52,17 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
         SectionHeader(l10n.settingsNotifications),
         TileGroup(
           children: [
-            SettingsTile(
-              key: NotificationsSection.statusKey,
-              leading: Icon(
-                enabled == false
-                    ? Icons.notifications_off_rounded
-                    : Icons.notifications_active_rounded,
-                color: colors.textLabel,
+            if (enabled == false)
+              SettingsTile(
+                key: NotificationsSection.statusKey,
+                leading: Icon(
+                  Icons.notifications_off_rounded,
+                  color: colors.textLabel,
+                ),
+                title: l10n.settingsNotificationsPermission,
+                value: l10n.settingsNotificationsOff,
+                valueColor: colors.stress,
               ),
-              title: l10n.settingsNotificationsPermission,
-              value: switch (enabled) {
-                true => l10n.settingsNotificationsAllowed,
-                false => l10n.settingsNotificationsOff,
-                null => null,
-              },
-              valueColor: enabled == false ? colors.stress : null,
-            ),
             for (final alert in RingAlert.values)
               SettingsTile(
                 title: alert.title(l10n),
@@ -98,8 +92,6 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
               ),
           ],
         ),
-        const SizedBox(height: 8),
-        CaptionText(l10n.settingsNotificationsWorkoutNote),
       ],
     );
   }

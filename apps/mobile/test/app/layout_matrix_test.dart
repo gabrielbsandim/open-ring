@@ -21,12 +21,10 @@ import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_state.dart';
 import 'package:open_ring/features/ring/domain/auto_measurements.dart';
 import 'package:open_ring/features/ring/domain/discovered_device.dart';
-import 'package:open_ring/features/ring/domain/hex_bytes.dart';
 import 'package:open_ring/features/ring/domain/sync_run.dart';
 import 'package:open_ring/features/ring/domain/sync_store.dart';
 import 'package:open_ring/features/ring/presentation/pair_error_screen.dart';
 import 'package:open_ring/features/ring/presentation/pair_screen.dart';
-import 'package:open_ring/features/ring/presentation/protocol_lab_screen.dart';
 import 'package:open_ring/features/ring/presentation/ring_cards.dart';
 import 'package:open_ring/features/ring/presentation/ring_screen.dart';
 import 'package:open_ring/features/settings/presentation/settings_screen.dart';
@@ -37,10 +35,10 @@ import 'package:open_ring/features/today/presentation/readiness_screen.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
 import 'package:ring_driver/ring_driver.dart';
 
+import '../helpers/ble_fakes.dart';
 import '../helpers/layout_harness.dart';
 import '../helpers/metrics_fakes.dart';
 import '../helpers/onboarding_fakes.dart';
-import '../helpers/protocol_lab_fakes.dart';
 import '../helpers/ring_fakes.dart';
 
 const screens = <String, Widget>{
@@ -52,7 +50,6 @@ const screens = <String, Widget>{
   'Activity': ActivityScreen(),
   'Ring': RingScreen(),
   'Settings': SettingsScreen(),
-  'Protocol lab': ProtocolLabScreen(),
 };
 
 final dataScreens = <String, (Widget, MetricsScenario)>{
@@ -209,7 +206,7 @@ List<Override> Function() _onboarding({
   bool paired = false,
 }) =>
     () => [
-      ...protocolLabOverrides(),
+      ...bleOverrides(),
       ...ringOverrides(
         paired: paired ? const PairedRing(deviceId: fakeRingId) : null,
         written: const {RecordKind.heartRate: 1284, RecordKind.sleep: 7},
@@ -502,30 +499,6 @@ void main() {
           await tester.pumpAndSettle();
         });
         expect(find.byType(BottomSheet), findsOneWidget);
-      });
-    }
-  });
-
-  group('Protocol lab with devices, frames and an error', () {
-    const screen = ProtocolLabScreen();
-    for (final c in layoutMatrix()) {
-      testWidgets('lays out without overflow at $c', (tester) async {
-        await pumpCase(
-          tester,
-          screenHost(screen),
-          c,
-          overrides: protocolLabOverrides(seed: busyLabState()),
-        );
-
-        expect(find.byKey(ProtocolLabScreen.noticeKey), findsOneWidget);
-        await expectNoLayoutOverflow(() async {
-          await tester.scrollUntilVisible(
-            find.text(HexBytes.spaced(busyLabState().log.first.bytes)),
-            200,
-            scrollable: find.byType(Scrollable).first,
-          );
-          await tester.pumpAndSettle();
-        });
       });
     }
   });

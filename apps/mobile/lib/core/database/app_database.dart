@@ -42,7 +42,7 @@ class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -86,6 +86,13 @@ class AppDatabase extends _$AppDatabase {
         await migrator.addColumn(devices, devices.autoStress);
         await migrator.addColumn(devices, devices.autoHrv);
         await migrator.createTable(schema.syncRuns);
+      },
+      from8To9: (migrator, schema) async {
+        final runs = schema.syncRuns;
+        await migrator.addColumn(runs, runs.batteryPercent);
+        await migrator.addColumn(runs, runs.batteryCharging);
+        await migrator.addColumn(runs, runs.failures);
+        await migrator.addColumn(runs, runs.heartRateIntervalSeenMinutes);
       },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),

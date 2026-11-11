@@ -14,6 +14,7 @@ import 'generated/schema_v5.dart' as v5;
 import 'generated/schema_v6.dart' as v6;
 import 'generated/schema_v7.dart' as v7;
 import 'generated/schema_v8.dart' as v8;
+import 'generated/schema_v9.dart' as v9;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -311,4 +312,50 @@ void main() {
       );
     },
   );
+
+  test('v8 migrates to v9 and keeps the sync log', () async {
+    const ring = v8.RingDevicesData(
+      deviceId: ringId,
+      name: 'R09_C0FE',
+      pairedAtUtcMs: 1762732800000,
+      autoHeartRate: 1,
+      autoSpo2: 1,
+      autoStress: 1,
+      autoHrv: 1,
+    );
+    const run = v8.SyncRunsData(
+      id: 1,
+      deviceId: ringId,
+      atUtcMs: 1762765200000,
+      outcome: 'partial',
+      kinds: 'heartRate',
+      recordCount: 12,
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 8,
+      newVersion: 9,
+      createOld: v8.DatabaseAtV8.new,
+      createNew: v9.DatabaseAtV9.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch
+          ..insert(oldDb.ringDevices, ring)
+          ..insert(oldDb.syncRuns, run);
+      },
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.syncRuns).get(), [
+          const v9.SyncRunsData(
+            id: 1,
+            deviceId: ringId,
+            atUtcMs: 1762765200000,
+            outcome: 'partial',
+            kinds: 'heartRate',
+            recordCount: 12,
+            failures: '',
+          ),
+        ]);
+      },
+    );
+  });
 }

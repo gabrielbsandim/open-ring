@@ -30,6 +30,10 @@ class SyncRuns extends Table {
   TextColumn get outcome => text()();
   TextColumn get kinds => text().withDefault(const Constant(''))();
   IntColumn get recordCount => integer().withDefault(const Constant(0))();
+  IntColumn get batteryPercent => integer().nullable()();
+  BoolColumn get batteryCharging => boolean().nullable()();
+  TextColumn get failures => text().withDefault(const Constant(''))();
+  IntColumn get heartRateIntervalSeenMinutes => integer().nullable()();
 }
 
 @DataClassName('SyncCursorRow')

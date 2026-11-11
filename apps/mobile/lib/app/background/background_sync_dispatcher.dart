@@ -4,6 +4,7 @@ import 'package:open_ring/app/background/background_sync_alerts.dart';
 import 'package:open_ring/app/background/background_sync_runner.dart';
 import 'package:open_ring/app/background/background_widget_publish.dart';
 import 'package:open_ring/core/database/open_app_database.dart';
+import 'package:open_ring/features/demo/infrastructure/shared_preferences_demo_mode_store.dart';
 import 'package:open_ring/features/health_sync/infrastructure/health_plugin_gateway.dart';
 import 'package:open_ring/features/health_sync/infrastructure/shared_preferences_health_write_preferences.dart';
 import 'package:open_ring/features/ring/application/sync_alerts.dart';
@@ -13,7 +14,6 @@ import 'package:open_ring/features/ring/infrastructure/flutter_blue_plus_transpo
 import 'package:open_ring/features/ring/infrastructure/method_channel_ring_notifier.dart';
 import 'package:open_ring/features/ring/infrastructure/method_channel_sync_service.dart';
 import 'package:open_ring/features/ring/infrastructure/shared_preferences_ring_alert_preferences.dart';
-import 'package:open_ring/features/settings/infrastructure/shared_preferences_app_language_store.dart';
 import 'package:open_ring/features/widgets/infrastructure/home_widget_plugin_gateway.dart';
 import 'package:ring_driver/ring_driver.dart';
 import 'package:workmanager/workmanager.dart';
@@ -34,9 +34,9 @@ Future<bool> runBackgroundSync() {
   const service = MethodChannelSyncService();
   SyncOutcome? outcome;
   return superviseBackgroundSync(
+    demoMode: readStoredDemoMode,
     keepAlive: () async {
-      final chosen = await readStoredAppLanguage();
-      final strings = ringAlertStrings(chosen?.locale);
+      final strings = ringAlertStrings();
       await service.start(
         channelName: strings.ringSyncServiceChannel,
         title: strings.ringSyncServiceTitle,
@@ -56,7 +56,6 @@ Future<bool> runBackgroundSync() {
       outcome: outcome,
       preferences: SharedPreferencesRingAlertPreferences(),
       notifier: const MethodChannelRingNotifier(),
-      language: readStoredAppLanguage,
     ),
     publishWidgets: () =>
         publishWidgetSnapshot(database, HomeWidgetPluginGateway.forPlatform()),

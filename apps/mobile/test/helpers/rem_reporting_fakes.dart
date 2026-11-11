@@ -7,8 +7,8 @@ import 'package:open_ring/features/sleep/application/sleep_providers.dart';
 import 'package:open_ring/features/sleep/domain/rem_reporting_reader.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 
+import 'ble_fakes.dart';
 import 'metrics_fakes.dart';
-import 'protocol_lab_fakes.dart';
 import 'ring_fakes.dart';
 
 final class FixedRemReportingReader implements RemReportingReader {
@@ -33,7 +33,7 @@ List<SleepSpan> withoutRem(List<SleepSpan> spans) => [
 List<Override> ringWithoutRemOverrides({
   RemReporting reporting = RemReporting.absent,
 }) => [
-  ...protocolLabOverrides(),
+  ...bleOverrides(),
   ...ringOverrides(
     paired: fullDataScenario.pairedRing,
     clock: () => metricsNow,

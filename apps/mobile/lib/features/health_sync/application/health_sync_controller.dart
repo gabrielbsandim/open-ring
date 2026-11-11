@@ -4,6 +4,7 @@ import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/core/database/app_database_provider.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/health_sync/application/process_health_outbox.dart';
 import 'package:open_ring/features/health_sync/domain/health_write_preferences.dart';
 import 'package:open_ring/features/health_sync/domain/health_writer.dart';
@@ -112,10 +113,13 @@ class HealthSyncController extends Notifier<HealthSyncState> {
   @override
   HealthSyncState build() => HealthSyncState();
 
-  Future<void> process() =>
-      _running ??= _process().whenComplete(() => _running = null);
+  Future<void> process() {
+    if (ref.read(demoModeProvider)) return Future.value();
+    return _running ??= _process().whenComplete(() => _running = null);
+  }
 
   Future<bool> requestAccess() async {
+    if (ref.read(demoModeProvider)) return false;
     final granted = await ref
         .read(healthWriterProvider)
         .requestAccess(writableHealthKinds);

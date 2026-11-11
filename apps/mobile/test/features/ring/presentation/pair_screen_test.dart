@@ -7,9 +7,9 @@ import 'package:open_ring/features/ring/presentation/pair_error_screen.dart';
 import 'package:open_ring/features/ring/presentation/pair_screen.dart';
 import 'package:ring_driver/testing.dart';
 
+import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/onboarding_app.dart';
 import '../../../helpers/onboarding_fakes.dart';
-import '../../../helpers/protocol_lab_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
 
 final class _Rig {
@@ -32,7 +32,7 @@ final class _Rig {
         at: flow.path,
         store: onboarding..completed = flow == PairFlow.ring,
         overrides: [
-          ...protocolLabOverrides(scanner: scanner, transport: transport),
+          ...bleOverrides(scanner: scanner, transport: transport),
           ...ringOverrides(),
           ...onboardingOverrides(
             permissions: permissions,

@@ -5,10 +5,10 @@ import 'package:open_ring/features/health_sync/application/health_sync_controlle
 import 'package:open_ring/features/onboarding/presentation/health_permission_screen.dart';
 import 'package:open_ring/features/ring/presentation/pair_screen.dart';
 
+import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/fake_health_writer.dart';
 import '../../../helpers/onboarding_app.dart';
 import '../../../helpers/onboarding_fakes.dart';
-import '../../../helpers/protocol_lab_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
 
 Future<FakeHealthWriter> _pump(
@@ -22,7 +22,7 @@ Future<FakeHealthWriter> _pump(
     tester,
     at: AppPaths.onboardingHealth,
     overrides: [
-      ...protocolLabOverrides(),
+      ...bleOverrides(),
       ...ringOverrides(),
       ...onboardingOverrides(healthWriter: writer),
     ],

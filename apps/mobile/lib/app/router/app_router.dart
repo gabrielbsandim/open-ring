@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
@@ -14,7 +13,6 @@ import 'package:open_ring/features/onboarding/presentation/profile_screen.dart';
 import 'package:open_ring/features/onboarding/presentation/welcome_screen.dart';
 import 'package:open_ring/features/ring/presentation/pair_error_screen.dart';
 import 'package:open_ring/features/ring/presentation/pair_screen.dart';
-import 'package:open_ring/features/ring/presentation/protocol_lab_screen.dart';
 import 'package:open_ring/features/ring/presentation/ring_screen.dart';
 import 'package:open_ring/features/settings/presentation/privacy_policy_screen.dart';
 import 'package:open_ring/features/settings/presentation/settings_routes.dart';
@@ -126,11 +124,6 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
   AppTab.ring => GoRoute(
     path: tab.path,
     builder: (_, _) => const RingScreen(),
-    routes: [
-      settingsRoute(),
-      _pairRoute(PairFlow.ring),
-      if (kDebugMode)
-        GoRoute(path: 'lab', builder: (_, _) => const ProtocolLabScreen()),
-    ],
+    routes: [settingsRoute(), _pairRoute(PairFlow.ring)],
   ),
 };

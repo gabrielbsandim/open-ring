@@ -314,6 +314,19 @@ void main() {
 
     expect(rig.shown, 0);
   });
+
+  group('alert language', () {
+    test('a supported system language is used', () {
+      expect(
+        ringAlertStrings(const [Locale('ja')]).localeName,
+        lookupAppLocalizations(const Locale('ja')).localeName,
+      );
+    });
+
+    test('an unsupported system language falls back to English', () {
+      expect(ringAlertStrings(const [Locale('ko', 'KR')]).localeName, 'en');
+    });
+  });
 }
 
 final class _ThrowingNotifier implements RingNotifier {

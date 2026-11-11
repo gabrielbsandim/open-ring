@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/heart/application/measure_state.dart';
 import 'package:open_ring/features/heart/domain/spot_reading_store.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
@@ -63,6 +64,15 @@ class MeasureController extends Notifier<MeasureState> {
 
   Future<void> start() async {
     if (state.running) return;
+    if (ref.read(demoModeProvider)) {
+      state = MeasureState(
+        kind: state.kind,
+        phase: MeasurePhase.failed,
+        window: state.window,
+        failure: MeasureFailure.noRing,
+      );
+      return;
+    }
     final timing = ref.read(measureTimingProvider);
     final session = _Session(
       kind: state.kind,

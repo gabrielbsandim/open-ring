@@ -1,5 +1,5 @@
-// The sources disagree on the rule (docs/protocols/realsil-colmi.md), so it
-// stays pluggable until a frame captured from the ring settles it.
+// An R09 reply settled the rule as the masked sum; modulo 255 stays for the
+// protocol lab and for other models (docs/protocols/realsil-colmi.md).
 abstract interface class ChecksumStrategy {
   int compute(List<int> bytes);
 }

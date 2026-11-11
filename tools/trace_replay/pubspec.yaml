@@ -1,0 +1,21 @@
+name: trace_replay
+description: CLI that decodes and replays JSONL frame traces exported by the protocol lab.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.13.5
+
+resolution: workspace
+
+executables:
+  trace_replay:
+
+dependencies:
+  meta: ^1.17.0
+  ring_driver: ^0.1.0
+  ring_protocol: ^0.1.0
+
+dev_dependencies:
+  test: ^1.26.0
+  very_good_analysis: ^11.0.0

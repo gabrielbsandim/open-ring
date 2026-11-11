@@ -1,0 +1,34 @@
+OpenRing ist eine kostenlose Open-Source-App für den Smart Ring COLMI R09. Sie hält den Ring von selbst synchron, zeigt Schlaf, Herz und Aktivität auf ruhigen, gut lesbaren Bildschirmen und speichert deine Daten auf deinem Handy.
+
+KEIN KONTO, KEINE CLOUD
+• Keine Registrierung, keine Anmeldung, keine E-Mail. Ring koppeln und loslegen.
+• Deine Daten liegen in einer lokalen Datenbank auf dem Handy, nicht auf einem Server.
+• Keine Nutzungsanalyse, keine Werbung, kein Tracking. Die App nutzt das Internet nur, um eigene Updates herunterzuladen.
+• Daten verlassen das Handy nur, wenn du es willst: an Health Connect oder als CSV-, JSON- oder GPX-Datei, die du exportierst.
+
+WAS DU SIEHST
+• Schlaf als Zeitleiste mit leichtem Schlaf, Tiefschlaf, REM und Wachphasen.
+• Herzfrequenz über den Tag, Ruhepuls, HFV, Blutsauerstoff (SpO2) und Stress.
+• Schritte, Strecke und aktive Energie.
+• Ein Bereitschaftswert, der seine Eingaben zeigt: was jede hinzugefügt oder abgezogen hat, gemessen an deinem eigenen Ausgangswert.
+• Startbildschirm-Widgets für Bereitschaft, den Tag, den Ringakku und den Start eines Trainings.
+
+TRAINING MIT GPS
+Das Handy führt die Zeit, der Ring sendet den Puls live, und draußen zeichnet das GPS des Handys Route, Strecke, Tempo und Zwischenzeiten auf. Der Standort wird nur während eines Trainings genutzt. Jede Route lässt sich als GPX exportieren.
+
+HEALTH CONNECT
+Schritte, aktive Energie, Herzfrequenz, SpO2, HFV, Schlafphasen und Trainings mit Route können in Health Connect geschrieben werden, damit andere Apps deiner Wahl sie nutzen können. Schlaf zu lesen, den andere Apps geschrieben haben, ist optional und standardmäßig aus.
+
+SYNCHRONISIEREN STATT STREAMEN
+Der Ring speichert seinen Verlauf selbst. Das Handy verbindet sich in Abständen (standardmäßig alle 60 Minuten), holt das Neue ab und trennt die Verbindung wieder. Das schont beide Akkus.
+
+UNTERSTÜTZTE RINGE
+• COLMI R09: getestet. Jede Prüfung des Protokolls wird mit diesem Ring gemacht.
+• COLMI R02, R03, R06 und R10: können funktionieren, noch nicht getestet.
+Der Ring spricht immer nur mit einer App. Trenne ihn deshalb von seiner ursprünglichen App, bevor du ihn mit OpenRing koppelst.
+
+SCHÄTZUNGEN, KEINE DIAGNOSE
+OpenRing ist kein Medizinprodukt. Jede Zahl ist eine Schätzung eines Verbraucherrings und dient dazu, Trends zu verfolgen. Die App diagnostiziert, behandelt oder verhindert keine Erkrankung. Wenn dir mit deiner Gesundheit etwas seltsam vorkommt, sprich mit einer Fachperson.
+
+OPEN SOURCE
+MIT-Lizenz, kein Abo. Helles und dunkles Design, Text bis 200 % und 11 Sprachen. Der Code und die Formel hinter jedem Wert sind öffentlich auf GitHub.

@@ -80,11 +80,12 @@ class _Destination extends StatelessWidget {
                   Container(
                     width: 56,
                     height: 32,
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: selected ? colors.surfaceInner : null,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(tab.icon, size: 24, color: foreground),
+                    child: tab.icon(size: 24, color: foreground),
                   ),
                   const SizedBox(height: 4),
                   Text(

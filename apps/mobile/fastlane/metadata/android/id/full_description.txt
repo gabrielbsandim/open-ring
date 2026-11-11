@@ -1,0 +1,34 @@
+OpenRing adalah aplikasi gratis dan open source untuk cincin pintar COLMI R09. Aplikasi ini menyinkronkan cincin dengan sendirinya, menampilkan tidur, jantung, dan aktivitas di layar yang tenang dan mudah dibaca, serta menyimpan data Anda di ponsel.
+
+TANPA AKUN, TANPA CLOUD
+• Tanpa pendaftaran, tanpa login, tanpa email. Sambungkan cincin dan mulai.
+• Data Anda tersimpan di database lokal di ponsel, bukan di server.
+• Tanpa analitik, tanpa iklan, tanpa pelacakan. Aplikasi ini hanya memakai internet untuk mengunduh pembaruannya sendiri.
+• Data hanya keluar dari ponsel saat Anda memilihnya: ke Health Connect, atau dalam file CSV, JSON, atau GPX yang Anda ekspor.
+
+YANG ANDA LIHAT
+• Tidur dalam garis waktu: ringan, nyenyak, REM, dan terjaga.
+• Detak jantung sepanjang hari, detak jantung istirahat, HRV, oksigen darah (SpO2), dan stres.
+• Langkah, jarak, dan energi aktif.
+• Skor kesiapan yang menampilkan masukannya: berapa yang ditambah atau dikurangi tiap masukan, dibandingkan dengan patokan Anda sendiri.
+• Widget layar utama untuk kesiapan, ringkasan hari ini, baterai cincin, dan memulai latihan.
+
+LATIHAN DENGAN GPS
+Ponsel mencatat waktu, cincin mengirim detak jantung secara langsung, dan untuk latihan di luar ruangan GPS ponsel merekam rute, jarak, kecepatan, dan split. Lokasi hanya dipakai selama latihan berjalan. Ekspor rute mana pun sebagai GPX.
+
+HEALTH CONNECT
+Langkah, energi aktif, detak jantung, SpO2, HRV, tahap tidur, dan latihan beserta rutenya bisa ditulis ke Health Connect, sehingga aplikasi lain pilihan Anda bisa memakainya. Membaca data tidur yang ditulis aplikasi lain bersifat opsional dan mati secara bawaan.
+
+SINKRON, BUKAN STREAMING
+Cincin menyimpan riwayatnya sendiri. Ponsel tersambung sesuai jadwal (setiap 60 menit secara bawaan), mengambil data baru, lalu memutus sambungan, sehingga kedua baterai lebih hemat.
+
+CINCIN YANG DIDUKUNG
+• COLMI R09: sudah diuji. Setiap pemeriksaan protokol dilakukan pada cincin ini.
+• COLMI R02, R03, R06, dan R10: mungkin berfungsi, belum diuji.
+Cincin hanya berbicara dengan satu aplikasi dalam satu waktu, jadi putuskan dari aplikasi aslinya sebelum menyambungkannya ke OpenRing.
+
+PERKIRAAN, BUKAN DIAGNOSIS
+OpenRing bukan alat medis. Setiap angka adalah perkiraan dari cincin konsumen dan berguna untuk mengikuti tren. Aplikasi ini tidak mendiagnosis, mengobati, atau mencegah kondisi apa pun. Jika ada yang terasa tidak beres dengan kesehatan Anda, bicarakan dengan tenaga profesional.
+
+OPEN SOURCE
+Lisensi MIT, tanpa langganan. Tema terang dan gelap, teks hingga 200%, dan 11 bahasa. Kode dan rumus setiap skor terbuka untuk umum di GitHub.

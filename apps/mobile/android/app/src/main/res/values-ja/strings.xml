@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_readiness_name">コンディション</string>
+    <string name="widget_readiness_description">スコアと安静時心拍数、心拍変動、睡眠</string>
+    <string name="widget_today_name">今日</string>
+    <string name="widget_today_description">選んだ指標を最大 3 つ</string>
+    <string name="widget_ring_name">リング</string>
+    <string name="widget_ring_description">バッテリーと最後の同期</string>
+    <string name="widget_workout_name">ワークアウトを開始</string>
+    <string name="widget_workout_description">ワークアウトの選択を開きます</string>
+    <string name="widget_estimate">推定</string>
+    <string name="widget_metric_readiness">コンディション</string>
+    <string name="widget_metric_sleep">睡眠</string>
+    <string name="widget_metric_steps">歩数</string>
+    <string name="widget_metric_heart_rate">心拍数</string>
+    <string name="widget_metric_spo2">SpO2</string>
+    <string name="widget_metric_stress">ストレス</string>
+    <string name="widget_metric_battery">バッテリー</string>
+    <string name="widget_sub_sleep_score">スコア %1$s</string>
+    <string name="widget_sub_steps_goal">目標 %1$s</string>
+    <string name="widget_sub_bpm_average">平均 bpm</string>
+    <string name="widget_sub_average">平均</string>
+    <string name="widget_sub_battery">リング</string>
+    <string name="widget_synced">%1$sに同期</string>
+    <string name="widget_stale">%1$sから未同期</string>
+    <string name="widget_never_synced">未同期</string>
+    <string name="widget_unpaired">リングをペアリングするとこのウィジェットに表示されます。</string>
+    <string name="widget_no_data">まだデータがありません。リングを着けたまま同期してください。</string>
+    <string name="widget_no_value" formatted="false">--</string>
+    <string name="widget_resting_hr">安静時心拍</string>
+    <string name="widget_hrv">心拍変動</string>
+    <string name="widget_readiness_pending">まだスコアがありません</string>
+    <string name="widget_no_snapshot">OpenRing を開いてデータを読み込んでください。</string>
+    <string name="widget_today_no_metrics">指標が選ばれていません。OpenRing で選んでください。</string>
+    <string name="widget_workout_subtitle">ワークアウトを選んでスタート</string>
+    <string name="widget_duration_hm">%1$d時間%2$d分</string>
+    <string name="widget_duration_m">%1$d分</string>
+    <string name="widget_percent">%1$s%%</string>
+    <string name="widget_workout_last_today">前回: 今日の%1$s、%2$s</string>
+    <string name="widget_workout_last_yesterday">前回: 昨日の%1$s、%2$s</string>
+    <string name="widget_workout_last_date">前回: %2$sの%1$s、%3$s</string>
+    <string name="widget_distance_km">%1$s km</string>
+    <string name="widget_distance_mi">%1$s mi</string>
+    <string name="widget_workout_type_running">ランニング</string>
+    <string name="widget_workout_type_walking">ウォーキング</string>
+    <string name="widget_workout_type_cycling">サイクリング</string>
+    <string name="widget_workout_type_hiking">ハイキング</string>
+    <string name="widget_workout_type_strength">筋力トレーニング</string>
+    <string name="widget_workout_type_treadmill">トレッドミル</string>
+    <string name="widget_workout_type_stationary_bike">エアロバイク</string>
+    <string name="widget_workout_type_elliptical">エリプティカル</string>
+    <string name="widget_workout_type_yoga">ヨガ</string>
+    <string name="widget_workout_type_other">ワークアウト</string>
+</resources>

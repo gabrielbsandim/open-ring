@@ -16,5 +16,3259 @@
   "settingsAppearance": "Appearance",
   "themeModeSystem": "Follow system",
   "themeModeLight": "Light",
-  "themeModeDark": "Dark"
+  "themeModeDark": "Dark",
+  "labTitle": "Protocol lab",
+  "labOpen": "Open protocol lab",
+  "labDeviceSection": "Device",
+  "labScan": "Scan",
+  "labStopScan": "Stop scan",
+  "labScanning": "Scanning for nearby devices",
+  "labNoDevices": "No devices found yet. Charge the ring, keep it close to this phone and tap Scan.",
+  "labUnnamedDevice": "Unnamed device",
+  "labSignal": "Signal {rssi} dBm",
+  "@labSignal": {
+    "placeholders": {
+      "rssi": {
+        "type": "int"
+      }
+    }
+  },
+  "labColmiBadge": "Looks like a Colmi ring",
+  "labConnect": "Connect",
+  "labDisconnect": "Disconnect",
+  "labLinkDisconnected": "Not connected",
+  "labLinkConnecting": "Connecting to {device}",
+  "@labLinkConnecting": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "labLinkConnected": "Connected to {device}",
+  "@labLinkConnected": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "labCommandsSection": "Commands",
+  "labChecksumTitle": "Checksum for frames the lab builds",
+  "labChecksumMasked": "Sum of bytes & 0xFF",
+  "labChecksumModulo": "Sum of bytes % 255",
+  "labReadBattery": "Read battery",
+  "labFindDevice": "Find device",
+  "labRawLabel": "Raw frame, 16 bytes in hex",
+  "labRawHelper": "Sent as typed, checksum included. Power off and factory reset are blocked.",
+  "labSendRaw": "Send raw frame",
+  "labRawEmpty": "Type a frame first.",
+  "labRawNotHex": "Use hex digits only, two per byte.",
+  "labRawWrongLength": "A frame has 16 bytes, this one has {count}.",
+  "@labRawWrongLength": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labRawBlocked": "Power off and factory reset are blocked in the lab.",
+  "labLogSection": "Frame log",
+  "labLogCount": "{count, plural, =1{1 frame} other{{count} frames}}",
+  "@labLogCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labLogEmpty": "Frames sent and received show up here, newest first.",
+  "labExport": "Export JSON lines",
+  "labClear": "Clear log",
+  "labDirectionTx": "TX",
+  "labDirectionRx": "RX",
+  "labBatteryCharging": "Battery {percent}%, charging",
+  "@labBatteryCharging": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "labBatteryNotCharging": "Battery {percent}%, not charging",
+  "@labBatteryNotCharging": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "labChecksumMatches": "Checksum matches: {rules}",
+  "@labChecksumMatches": {
+    "placeholders": {
+      "rules": {
+        "type": "String"
+      }
+    }
+  },
+  "labChecksumNoMatch": "Checksum matches neither rule",
+  "labErrorTransport": "Bluetooth error: {message}",
+  "@labErrorTransport": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "labErrorExport": "Export failed: {message}",
+  "@labErrorExport": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "labSetTime": "Set time",
+  "labReadSetting": "Read {setting}",
+  "@labReadSetting": {
+    "placeholders": {
+      "setting": {
+        "type": "String"
+      }
+    }
+  },
+  "labTodayTotals": "Read today's totals",
+  "labStopProbe": "Heart rate, then stop",
+  "labStopProbeWaiting": "Waiting for a heart rate above zero before sending stop 0x6A. Readings so far: {count}.",
+  "@labStopProbeWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labStopProbeCounts": "Stop 0x6A sent. Heart rate readings before it: {before}, after it: {after}.",
+  "@labStopProbeCounts": {
+    "placeholders": {
+      "before": {
+        "type": "int"
+      },
+      "after": {
+        "type": "int"
+      }
+    }
+  },
+  "labNotifyHint": "Device notify frames (0x73) are decoded as they arrive.",
+  "labCapabilitiesOn": "Supports: {features}",
+  "@labCapabilitiesOn": {
+    "placeholders": {
+      "features": {
+        "type": "String"
+      }
+    }
+  },
+  "labCapabilitiesOff": "Does not support: {features}",
+  "@labCapabilitiesOff": {
+    "placeholders": {
+      "features": {
+        "type": "String"
+      }
+    }
+  },
+  "labNone": "none",
+  "labCapTemperature": "temperature",
+  "labCapBloodOxygen": "blood oxygen",
+  "labCapBloodPressure": "blood pressure",
+  "labCapNewSleep": "new sleep protocol",
+  "labCapManualHeartRate": "manual heart rate",
+  "labCapBloodSugar": "blood sugar",
+  "labCapStress": "stress",
+  "labCapHrv": "HRV",
+  "labAutoSpo2": "auto SpO2",
+  "labAutoStress": "auto stress",
+  "labAutoHrv": "auto HRV",
+  "labAutoMonitorOn": "Reply: {setting} on (byte 2 = {value})",
+  "@labAutoMonitorOn": {
+    "placeholders": {
+      "setting": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "labAutoMonitorOff": "Reply: {setting} off (byte 2 = {value})",
+  "@labAutoMonitorOff": {
+    "placeholders": {
+      "setting": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "labTotalsBigEndian": "Big endian: {steps} steps, {running} running, {calories} cal, {distance} m, {minutes} min active",
+  "@labTotalsBigEndian": {
+    "placeholders": {
+      "steps": {
+        "type": "int"
+      },
+      "running": {
+        "type": "int"
+      },
+      "calories": {
+        "type": "int"
+      },
+      "distance": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "labTotalsLittleEndian": "Little endian: {steps} steps, {running} running, {calories} cal, {distance} m, {minutes} min active",
+  "@labTotalsLittleEndian": {
+    "placeholders": {
+      "steps": {
+        "type": "int"
+      },
+      "running": {
+        "type": "int"
+      },
+      "calories": {
+        "type": "int"
+      },
+      "distance": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "labRealTimeHeartRate": "Real-time heart rate {value} bpm",
+  "@labRealTimeHeartRate": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "labRealTimeValue": "Real-time type {type}, value {value}",
+  "@labRealTimeValue": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "labRealTimeError": "Real-time type {type} failed, error code {code}",
+  "@labRealTimeError": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "code": {
+        "type": "int"
+      }
+    }
+  },
+  "labStopAck": "Ring acknowledged stop 0x6A",
+  "labNotify": "Device notify {type}: {kind}",
+  "@labNotify": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "labNotifyHeartRate": "heart rate",
+  "labNotifySpo2": "SpO2",
+  "labNotifySteps": "steps",
+  "labNotifyTemperature": "temperature",
+  "labNotifyBattery": "battery",
+  "labNotifyLiveActivity": "live activity",
+  "labNotifyUnknown": "unknown type",
+  "labNotifyNewData": "New data is waiting on the ring",
+  "labLiveActivity": "{steps} steps, {calories} cal, {distance} m",
+  "@labLiveActivity": {
+    "placeholders": {
+      "steps": {
+        "type": "int"
+      },
+      "calories": {
+        "type": "int"
+      },
+      "distance": {
+        "type": "int"
+      }
+    }
+  },
+  "labNotifyTemperatureValue": "Provisional {celsius} °C (byte / 10 + 20)",
+  "@labNotifyTemperatureValue": {
+    "placeholders": {
+      "celsius": {
+        "type": "String"
+      }
+    }
+  },
+  "labPayload": "Payload {bytes}",
+  "@labPayload": {
+    "placeholders": {
+      "bytes": {
+        "type": "String"
+      }
+    }
+  },
+  "labReplyFlagged": "Ring answered {command} with the error bit set",
+  "@labReplyFlagged": {
+    "placeholders": {
+      "command": {
+        "type": "String"
+      }
+    }
+  },
+  "labUnexpectedByte": "{command} reply: byte {index} is {value}, not a known value",
+  "@labUnexpectedByte": {
+    "placeholders": {
+      "command": {
+        "type": "String"
+      },
+      "index": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricEstimateNote": "Estimate, not a medical diagnosis.",
+  "metricLoadError": "Could not read your stored data. Close the app and open it again.",
+  "metricDurationHoursMinutes": "{hours} h {minutes} min",
+  "@metricDurationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "metricDurationHours": "{hours} h",
+  "@metricDurationHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "metricDurationMinutes": "{minutes} min",
+  "@metricDurationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "metricBpm": "{value} bpm",
+  "@metricBpm": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricMs": "{value} ms",
+  "@metricMs": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricPercent": "{value}%",
+  "@metricPercent": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricPoints": "{earned} of {weight} pts",
+  "@metricPoints": {
+    "placeholders": {
+      "earned": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "metricBaselineBuilding": "Learning your baseline: {collected} of {needed} nights.",
+  "@metricBaselineBuilding": {
+    "placeholders": {
+      "collected": {
+        "type": "int"
+      },
+      "needed": {
+        "type": "int"
+      }
+    }
+  },
+  "metricTimeRange": "{start} to {end}",
+  "@metricTimeRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "metricDataUntil": "Data up to {time}",
+  "@metricDataUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "metricNoReading": "No reading",
+  "metricOpenRing": "Open Ring",
+  "metricShowInputs": "show what went into the score",
+  "todayPairAction": "Pair a ring",
+  "todayFirstSync": "Your ring is paired but has not synced yet. Keep it close to this phone and open Ring to sync.",
+  "todayNoRing": "No ring paired",
+  "todayNeverSynced": "Not synced yet",
+  "todaySynced": "Synced {time}",
+  "@todaySynced": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todaySyncedBattery": "Synced {time} · {battery}%",
+  "@todaySyncedBattery": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "battery": {
+        "type": "int"
+      }
+    }
+  },
+  "todayNotSyncedFor": "{hours, plural, =0{Not synced for under an hour} =1{Not synced for 1 hour} other{Not synced for {hours} hours}}",
+  "@todayNotSyncedFor": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "todayOfflineTitle": "Ring not synced since {time}",
+  "@todayOfflineTitle": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todayOfflineReason": "It is probably out of range or out of battery.",
+  "todayOfflineBattery": "At the last reading the battery was at {percent}%.",
+  "@todayOfflineBattery": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "todayOfflineHistory": "The ring keeps its history. When it is back, the app fetches everything since {time}.",
+  "@todayOfflineHistory": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "todayReadinessCompared": "{nights, plural, =1{Compared with your baseline of 1 night} other{Compared with your baseline of {nights} nights}}",
+  "@todayReadinessCompared": {
+    "placeholders": {
+      "nights": {
+        "type": "int"
+      }
+    }
+  },
+  "todayReadinessPending": "Tap to see which inputs are still missing.",
+  "todaySleepScore": "score {score}",
+  "@todaySleepScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "todayStepsOfGoal": "of {goal} steps",
+  "@todayStepsOfGoal": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "todayStepsSemantics": "{steps} of {goal} steps",
+  "@todayStepsSemantics": {
+    "placeholders": {
+      "steps": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "todayActivityDetail": "{kcal} kcal · {km} km",
+  "@todayActivityDetail": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "todayActivityEmpty": "No steps synced today yet. Keep the ring on and sync.",
+  "todayHeartEmpty": "No heart readings yet today. Keep the ring on and sync.",
+  "readinessTitle": "Readiness",
+  "readinessVerdictOptimal": "Optimal readiness",
+  "readinessVerdictGood": "Good readiness",
+  "readinessVerdictFair": "Fair readiness",
+  "readinessVerdictLow": "Low readiness",
+  "readinessOf100": "of 100",
+  "readinessSemantics": "Readiness {score} of 100",
+  "@readinessSemantics": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "readinessPendingSemantics": "Readiness not scored yet",
+  "readinessScoredSummary": "{nights, plural, =1{Based on last night, compared with your baseline of 1 night.} other{Based on last night, compared with your baseline of {nights} nights.}}",
+  "@readinessScoredSummary": {
+    "placeholders": {
+      "nights": {
+        "type": "int"
+      }
+    }
+  },
+  "readinessNeeds": "Readiness needs last night's sleep score, HRV and resting heart rate, each compared with at least 7 earlier nights. Wear the ring to bed and sync in the morning.",
+  "readinessInputsTitle": "What went into it",
+  "readinessFactorSleep": "Sleep score",
+  "readinessFactorHrv": "Overnight HRV",
+  "readinessFactorRestingHr": "Resting heart rate",
+  "readinessFactorLoad": "Activity load",
+  "readinessBaseline": "baseline {value}",
+  "@readinessBaseline": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "readinessNightMissing": "No reading from last night. Wear the ring to bed and sync in the morning.",
+  "readinessSleepMissing": "No scored night yet. A night needs at least 1 h asleep. Wear the ring to bed and sync in the morning.",
+  "readinessSleepNote": "{asleep} asleep, {efficiency} efficiency.",
+  "@readinessSleepNote": {
+    "placeholders": {
+      "asleep": {
+        "type": "String"
+      },
+      "efficiency": {
+        "type": "String"
+      }
+    }
+  },
+  "readinessLoadDetail": "7-day mean {acute} kcal, 28-day mean {chronic} kcal",
+  "@readinessLoadDetail": {
+    "placeholders": {
+      "acute": {
+        "type": "String"
+      },
+      "chronic": {
+        "type": "String"
+      }
+    }
+  },
+  "readinessLoadNote": "Optional input. The acute to chronic ratio is a contested measure, so it carries the least weight.",
+  "readinessLoadMissing": "Needs activity on at least 14 of the last 28 days, 4 of them in the last week. Keep wearing the ring during the day.",
+  "readinessWeightShared": "Missing, so its weight is shared by the other inputs.",
+  "readinessUpTo": "up to {weight} pts",
+  "@readinessUpTo": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "readinessTotal": "Total",
+  "readinessNotScored": "Not scored",
+  "readinessWeights": "Weights: sleep 35, HRV 30, resting heart rate 20, activity load 15 points.",
+  "readinessDisclaimer": "Readiness is an estimate from the ring, not a medical assessment. If something feels wrong with your health, see a professional.",
+  "sleepNoNight": "Nothing recorded for the night ending {date}",
+  "@sleepNoNight": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "sleepAsleep": "Time asleep",
+  "sleepInBed": "In bed {duration} · {range}",
+  "@sleepInBed": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "sleepScoreLabel": "Score",
+  "sleepScoreNone": "Not scored",
+  "sleepDayScore": "{date}, sleep score {score}",
+  "@sleepDayScore": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "sleepDayNoScore": "{date}, no scored night",
+  "@sleepDayNoScore": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "sleepStageAwake": "Awake",
+  "sleepStageRem": "REM",
+  "sleepStageLight": "Light",
+  "sleepStageDeep": "Deep",
+  "sleepStageDuration": "{stage} {duration}",
+  "@sleepStageDuration": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "sleepStagesSemantics": "Light {light}, deep {deep}, REM {rem}, awake {awake}.",
+  "@sleepStagesSemantics": {
+    "placeholders": {
+      "light": {
+        "type": "String"
+      },
+      "deep": {
+        "type": "String"
+      },
+      "rem": {
+        "type": "String"
+      },
+      "awake": {
+        "type": "String"
+      }
+    }
+  },
+  "sleepHypnogramSemantics": "Sleep stages through the night, {awakenings, plural, =0{no awakenings} =1{1 awakening} other{{awakenings} awakenings}}. {stages}",
+  "@sleepHypnogramSemantics": {
+    "placeholders": {
+      "awakenings": {
+        "type": "int"
+      },
+      "stages": {
+        "type": "String"
+      }
+    }
+  },
+  "sleepSplitNight": "{stretches} stretches joined into one night: you woke at {time} for {duration} and went back to sleep.",
+  "@sleepSplitNight": {
+    "placeholders": {
+      "stretches": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "sleepScoreSourceTitle": "Where {score} comes from",
+  "@sleepScoreSourceTitle": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "sleepScoreSourceTitleEmpty": "Where the score comes from",
+  "sleepScoreTooShort": "Too short to score: a night needs at least 1 h asleep.",
+  "sleepFactorDuration": "Duration (goal {goal})",
+  "@sleepFactorDuration": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "sleepFactorEfficiency": "Efficiency",
+  "sleepFactorLatency": "Time to fall asleep",
+  "sleepFactorDeep": "Deep sleep",
+  "sleepFactorRem": "REM sleep",
+  "sleepScoreWeights": "Weights: duration 35, efficiency 20, time to fall asleep 10, deep 20, REM 15 points.",
+  "sleepRemNotMeasured": "This ring does not report REM, so REM is left out and the other weights are scaled up to 100.",
+  "sleepStagesFromRing": "Stages come from the ring.",
+  "heartTodayUntil": "Today until {time}",
+  "@heartTodayUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "heartMetricHeartRate": "HR",
+  "heartMetricHrv": "HRV",
+  "heartMetricSpo2": "SpO2",
+  "heartMetricStress": "Stress",
+  "heartTitleHeartRate": "Heart rate",
+  "heartTitleHrv": "Heart rate variability",
+  "heartTitleSpo2": "Blood oxygen",
+  "heartTitleStress": "Stress",
+  "heartAverageBpm": "bpm average",
+  "heartAverageMs": "ms average",
+  "heartAveragePercent": "% average",
+  "heartAverage": "average",
+  "heartMin": "Min",
+  "heartMax": "Max",
+  "heartChartSemantics": "{metric} per hour today, average {average}, from {min} to {max}",
+  "@heartChartSemantics": {
+    "placeholders": {
+      "metric": {
+        "type": "String"
+      },
+      "average": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "heartNoReadingsToday": "No readings yet today. Keep the ring on and sync.",
+  "heartRestingTitle": "Resting heart rate: {value}",
+  "@heartRestingTitle": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "heartRestingTitleEmpty": "Resting heart rate",
+  "heartRestingVsBaseline": "{delta} bpm against your baseline of {baseline}.",
+  "@heartRestingVsBaseline": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      },
+      "baseline": {
+        "type": "String"
+      }
+    }
+  },
+  "heartRestingMissing": "Needs at least 3 readings within 30 minutes while you sleep. Wear the ring to bed and sync in the morning.",
+  "heartRestingSource": "Lowest 30-minute average while you slept.",
+  "heartHrvTitle": "Overnight HRV: {value}",
+  "@heartHrvTitle": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "heartHrvTitleEmpty": "Overnight HRV",
+  "heartHrvVsBaseline": "{percent}% against your typical {baseline}.",
+  "@heartHrvVsBaseline": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      },
+      "baseline": {
+        "type": "String"
+      }
+    }
+  },
+  "heartHrvMissing": "Needs at least 3 readings while you sleep. Wear the ring to bed and sync in the morning.",
+  "heartHrvSource": "Value in ms reported by the ring. Its method (RMSSD or SDNN) is not confirmed yet.",
+  "heartSpo2NightTitle": "Last night",
+  "heartSpo2Summary": "Average {mean}, lowest {min}.",
+  "@heartSpo2Summary": {
+    "placeholders": {
+      "mean": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "heartSpo2Below": "{count, plural, =0{No hourly reading below 90%.} =1{1 hourly reading below 90%.} other{{count} hourly readings below 90%.}}",
+  "@heartSpo2Below": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "heartSpo2Missing": "Needs at least 3 readings during the night. Wear the ring to bed and sync in the morning.",
+  "heartSpo2Source": "One reading per hour while you sleep. Not an apnea test.",
+  "heartStressDayTitle": "Today",
+  "heartStressSummary": "Average {mean}, from {min} to {max}.",
+  "@heartStressSummary": {
+    "placeholders": {
+      "mean": {
+        "type": "String"
+      },
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "heartStressBandRest": "Rest (1 to 25)",
+  "heartStressBandLow": "Low (26 to 50)",
+  "heartStressBandMedium": "Medium (51 to 75)",
+  "heartStressBandHigh": "High (76 to 100)",
+  "heartStressMissing": "Needs at least 3 half-hour readings today. Keep the ring on.",
+  "heartStressSource": "Level reported by the ring every 30 min. The bands are for display, not clinical.",
+  "activitySteps": "Steps",
+  "activityNoStepsToday": "No steps counted yet today.",
+  "activityHourlySemantics": "Steps per hour. Peak at {time} with {steps} steps.",
+  "@activityHourlySemantics": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "steps": {
+        "type": "String"
+      }
+    }
+  },
+  "activityHourlyEmptySemantics": "Steps per hour. No steps yet today.",
+  "activityActiveEnergy": "Active energy",
+  "activityKcal": "{value} kcal",
+  "@activityKcal": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "activityDistance": "Distance",
+  "activityKm": "{value} km",
+  "@activityKm": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "activityWeekTitle": "Last 7 days",
+  "activityWeekAverage": "Average {steps} steps a day",
+  "@activityWeekAverage": {
+    "placeholders": {
+      "steps": {
+        "type": "String"
+      }
+    }
+  },
+  "activityDayNoData": "No data",
+  "activityDaySteps": "{steps} steps",
+  "@activityDaySteps": {
+    "placeholders": {
+      "steps": {
+        "type": "String"
+      }
+    }
+  },
+  "activityDaySemantics": "{day}: {steps} of {goal} steps",
+  "@activityDaySemantics": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "steps": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "activityDayNoDataSemantics": "{day}: no data",
+  "@activityDayNoDataSemantics": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "activityEstimateNote": "Distance and active energy are estimates the ring derives from your steps.",
+  "syncStepConnecting": "Connecting to the ring",
+  "syncStepSettingTime": "Setting the ring's clock",
+  "syncStepReadingBattery": "Reading the battery",
+  "syncStepPulling": "Fetching history",
+  "syncStepPullingActivity": "Fetching steps",
+  "syncStepPullingHeartRate": "Fetching heart rate",
+  "syncStepPullingSpo2": "Fetching SpO2",
+  "syncStepPullingStress": "Fetching stress",
+  "syncStepPullingHrv": "Fetching HRV",
+  "syncStepPullingSleep": "Fetching sleep",
+  "syncStepSaving": "Saving on this phone",
+  "syncStepDisconnecting": "Disconnecting",
+  "syncInProgress": "Syncing: {step}",
+  "@syncInProgress": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "syncFailedTitle": "Sync failed",
+  "syncPartialTitle": "Sync incomplete",
+  "syncErrorNoRing": "No ring paired. Pair one on the Ring tab to sync.",
+  "syncErrorBusy": "Another sync is running. Try again in a moment.",
+  "syncErrorConnecting": "Could not reach the ring. Keep it close to this phone and try again.",
+  "syncErrorSettingTime": "The ring stopped answering while its clock was set. Try again.",
+  "syncErrorSaving": "The data could not be saved on this phone. Try again.",
+  "syncErrorStopped": "The sync stopped before it finished. Try again.",
+  "syncErrorPartial": "Synced, but this did not arrive: {items}. It is fetched again next time.",
+  "@syncErrorPartial": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "syncRetry": "Try again",
+  "capabilityBattery": "battery",
+  "capabilityActivity": "steps",
+  "capabilityHeartRate": "heart rate",
+  "capabilitySpo2": "SpO2",
+  "capabilityStress": "stress",
+  "capabilityHrv": "HRV",
+  "capabilitySleep": "sleep",
+  "capabilityLiveHeartRate": "live heart rate",
+  "capabilityLiveSpo2": "live SpO2",
+  "capabilityHeartRateInterval": "heart rate interval",
+  "capabilityAutoMonitors": "automatic measurements",
+  "capabilityFindDevice": "find ring",
+  "ringUnpairedTitle": "No ring paired",
+  "ringSupportNote": "Version 1 supports the COLMI R09. The R02, R03, R06 and R10 speak the same protocol and may work, untested.",
+  "ringModel": "Model {model}",
+  "@ringModel": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "ringFirmware": "Firmware {version}",
+  "@ringFirmware": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "ringConnecting": "Connecting",
+  "ringConnected": "Connected, syncing",
+  "ringIdle": "Connects only while it syncs",
+  "ringDisconnected": "Not connected",
+  "ringNeverSynced": "Not synced yet",
+  "ringLastSeen": "Last seen {time}",
+  "@ringLastSeen": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ringLastSeenBattery": "Last seen {time} · battery {percent}% at the last reading",
+  "@ringLastSeenBattery": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "ringBatterySemantics": "Battery {percent}%",
+  "@ringBatterySemantics": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "ringBatteryChargingSemantics": "Battery {percent}%, charging",
+  "@ringBatteryChargingSemantics": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "ringCharging": "charging",
+  "ringTryTitle": "What to try",
+  "ringTryCharge": "Charge the ring",
+  "ringTryChargeDetail": "When the battery runs out, the ring stops answering over Bluetooth.",
+  "ringTryChargeBattery": "The last reading was {percent}%. When the battery runs out, the ring stops answering over Bluetooth.",
+  "@ringTryChargeBattery": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "ringTryClose": "Bring it close to the phone",
+  "ringTryCloseDetail": "The ring's Bluetooth reaches a few meters, and walls and pockets get in the way.",
+  "ringTryBackground": "Let OpenRing run in the background",
+  "ringTryBackgroundDetail": "Otherwise the phone may pause the app and skip syncs. Look for battery optimization in the system settings.",
+  "ringTryOtherApp": "Make sure QRing is not connected",
+  "ringTryOtherAppDetail": "The ring accepts one connection at a time. Close QRing or force stop it.",
+  "ringSyncTitle": "Sync",
+  "ringSyncEvery": "Automatic every {interval}",
+  "@ringSyncEvery": {
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
+  "ringLastSync": "Last",
+  "ringNextSync": "Next",
+  "ringNotYet": "Not yet",
+  "ringDueNow": "Due now",
+  "ringNextNote": "The phone picks the exact time. iOS treats it as the earliest start.",
+  "ringSyncNow": "Sync now",
+  "ringSyncing": "Syncing…",
+  "ringIntervalTitle": "Sync every",
+  "ringIntervalNote": "Shorter intervals use more ring battery.",
+  "ringLogTitle": "Recent syncs",
+  "ringLogEmpty": "No syncs logged yet",
+  "ringLogCompleted": "Synced",
+  "ringLogPartial": "Partly synced",
+  "ringLogFailed": "Failed",
+  "ringLogUnreachable": "Ring out of range or out of battery",
+  "ringLogStopped": "Stopped before it finished",
+  "ringLogRecords": "{count, plural, =0{No new data} =1{1 record} other{{formatted} records}}",
+  "@ringLogRecords": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "ringAutoTitle": "Automatic measurements on the ring",
+  "ringAutoHeartRate": "Heart rate",
+  "ringAutoSpo2": "Blood oxygen",
+  "ringAutoStress": "Stress",
+  "ringAutoHrv": "HRV",
+  "ringAutoEvery": "Every {interval}",
+  "@ringAutoEvery": {
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
+  "ringAutoOff": "Off",
+  "ringAutoHeartRateOff": "Off. Resting heart rate and readiness need it.",
+  "ringAutoNote": "Each measurement uses ring battery. Changes reach the ring at the next sync.",
+  "ringFind": "Find ring",
+  "ringFinding": "Finding…",
+  "ringFindLit": "The ring's green light is on for 10 seconds.",
+  "ringFindFailed": "Could not reach the ring. Bring it close and try again.",
+  "ringFindBusy": "A sync is running. Try again when it ends.",
+  "ringUnpair": "Unpair",
+  "ringUnpairTitle": "Unpair {name}?",
+  "@ringUnpairTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ringUnpairBody": "The phone forgets the ring and stops syncing it. Data already saved stays on this phone and in {platform}. History that is still only on the ring is not fetched. To use it again, pair it again.",
+  "@ringUnpairBody": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "ringUnpairCancel": "Cancel",
+  "ringUnpairFailed": "Could not unpair the ring. Try again.",
+  "ringBatterySettings": "Open Android battery settings",
+  "ringSearchAgain": "Search again",
+  "measureTitle": "Measure now",
+  "measureNoValue": "--",
+  "measureUnitBpm": "bpm",
+  "measureUnitPercent": "%",
+  "measureStatusIdle": "Ready to measure",
+  "measureStatusConnecting": "Connecting to the ring",
+  "measureStatusSearching": "Looking for a pulse",
+  "measureStatusReading": "Reading",
+  "measureStatusDone": "Done",
+  "measureStatusFailed": "Stopped",
+  "measuringHeartRate": "Measuring heart rate",
+  "measuringSpo2": "Measuring blood oxygen",
+  "measureSecondsLeft": "{seconds} s",
+  "@measureSecondsLeft": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "measureTipTitle": "Stay still, ring snug on your finger",
+  "measureTipHeartRate": "Takes {seconds} seconds. Breathe normally.",
+  "@measureTipHeartRate": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "measureTipSpo2": "Hand resting, below heart level.",
+  "measureStart": "Start",
+  "measureAgain": "Measure again",
+  "measureCancel": "Cancel",
+  "measureCancelled": "Measurement cancelled. Nothing was saved.",
+  "measureResultHeartRate": "Heart rate: {value}",
+  "@measureResultHeartRate": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "measureResultSpo2": "Blood oxygen: {value}",
+  "@measureResultSpo2": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "measureResultAt": "today {time}",
+  "@measureResultAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "measureSaved": "Saved · queued for {platform}",
+  "@measureSaved": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "measureNotSaved": "This reading could not be saved. It is only shown here.",
+  "measureNote": "Spot readings vary more than the ones the ring logs at night.",
+  "measureFailedTitle": "Measurement stopped",
+  "measureFailedNoRing": "No ring paired. Pair one on the Ring tab first.",
+  "measureFailedBusy": "The ring is busy with a sync. Try again in a moment.",
+  "measureFailedUnreachable": "Could not reach the ring. Keep it close to this phone and try again.",
+  "measureFailedNoReading": "No pulse found in {seconds} s. Tighten the ring, keep still and try again.",
+  "@measureFailedNoReading": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingStep": "Step {step} of {total}",
+  "@onboardingStep": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingContinue": "Continue",
+  "onboardingSkip": "Skip",
+  "welcomeTitle": "Your ring, your data.",
+  "welcomeIntro": "OpenRing reads your Colmi ring, keeps everything on your phone and sends it to {platform}.",
+  "@welcomeIntro": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "welcomeLocalTitle": "Stays on your device",
+  "welcomeLocalBody": "No account and no cloud. Export whenever you like.",
+  "welcomeSyncTitle": "Syncs on its own",
+  "welcomeSyncBody": "And hands the data to {platform}, where other health apps can read it.",
+  "@welcomeSyncBody": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "welcomeHonestTitle": "Numbers that show their math",
+  "welcomeHonestBody": "Every score shows where it comes from. They are estimates, not a diagnosis.",
+  "welcomeStart": "Get started",
+  "welcomeFootnote": "Open source · tested on the COLMI R09",
+  "permissionsTitle": "Permissions",
+  "permissionsIntro": "Your phone asks you to allow each access yourself. Only Bluetooth is required. We explain each one before the system asks.",
+  "permissionsRequired": "Required",
+  "permissionsOptional": "Optional",
+  "permissionsRecommended": "Recommended",
+  "permissionsBluetoothName": "Nearby devices (Bluetooth)",
+  "permissionsBluetoothWhy": "Lets the app find your ring over Bluetooth and talk to it. Without it no data can be read.",
+  "permissionsNotificationsName": "Notifications",
+  "permissionsNotificationsWhy": "To tell you when the ring battery is low or a sync fails.",
+  "permissionsBackgroundName": "Background activity",
+  "permissionsBackgroundWhy": "Asks your phone not to pause the app to save battery, so it syncs on its own every hour.",
+  "permissionsLocationName": "Location",
+  "permissionsLocationWhy": "Only during GPS workouts, to record your route and distance.",
+  "permissionsAllow": "Allow",
+  "permissionsAllowed": "Allowed",
+  "permissionsNotApplicable": "Not needed on this device",
+  "permissionsOpenSettings": "Open settings",
+  "permissionsFootnote": "We never ask for contacts or photos. Location is never used outside a GPS workout. You can change all of this later in your phone settings.",
+  "permissionsBluetoothNeeded": "Allow Nearby devices to continue. Without it the app cannot talk to the ring.",
+  "profileTitle": "About you",
+  "profileIntro": "We use this to work out your heart rate zones and estimate calories. It stays on your phone.",
+  "profileAge": "Age",
+  "profileHeight": "Height",
+  "profileWeight": "Weight",
+  "profileSex": "Sex",
+  "profileSexFemale": "Female",
+  "profileSexMale": "Male",
+  "profileSexUnspecified": "Prefer not to say",
+  "profileSexNote": "Only used in the calorie formula.",
+  "profileMaxHr": "Maximum heart rate",
+  "profileMaxHrEstimated": "Estimated from your age (220 minus age). Change it if you know yours.",
+  "profileMaxHrNeedsAge": "Enter your age and we estimate it, or type your own.",
+  "profileMaxHrCustom": "Your own value. Used for the heart rate zones in workouts.",
+  "profileMaxHrReset": "Use the age estimate ({bpm} bpm)",
+  "@profileMaxHrReset": {
+    "placeholders": {
+      "bpm": {
+        "type": "int"
+      }
+    }
+  },
+  "profileMaxHrResetNoAge": "Use the age estimate",
+  "profileStepGoal": "Daily step goal",
+  "profileUnitYears": "years",
+  "profileUnitCm": "cm",
+  "profileUnitKg": "kg",
+  "profileUnitBpm": "bpm",
+  "profileUnitSteps": "steps",
+  "profileRangeError": "Enter a value from {min} to {max}.",
+  "@profileRangeError": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "profileSaveFailed": "Your profile could not be saved. Try again.",
+  "profileLoadError": "Your profile could not be read. Close the app and open it again to edit it.",
+  "profileFootnote": "You can change all of this later. Without it we use average values, and calories are less precise.",
+  "healthTitle": "Connect to {platform}",
+  "@healthTitle": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthIntro": "{platform} is where your phone keeps health data. Once OpenRing writes there, other health apps see what your ring measured.",
+  "@healthIntro": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthWritesTitle": "OpenRing will write",
+  "healthWritesCount": "{count, plural, =1{1 type} other{{count} types}}",
+  "@healthWritesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "healthWriteSteps": "Steps",
+  "healthWriteStepsDetail": "every 15 minutes",
+  "healthWriteDistance": "Distance",
+  "healthWriteDistanceDetail": "estimated from steps",
+  "healthWriteEnergy": "Active energy",
+  "healthWriteEnergyDetail": "estimated kcal",
+  "healthWriteHeartRate": "Heart rate",
+  "healthWriteHeartRateDetail": "full series",
+  "healthWriteSleep": "Sleep with stages",
+  "healthWriteSleepDetail": "light, deep, REM",
+  "healthWriteWorkouts": "Workouts",
+  "healthWriteWorkoutsDetail": "with heart rate series",
+  "healthWriteRoutes": "Workout routes (GPS)",
+  "healthWriteRoutesDetail": "only workouts with GPS",
+  "healthWriteSpo2": "SpO2",
+  "healthWriteSpo2Detail": "blood oxygen",
+  "healthWriteHrv": "HRV",
+  "healthWriteHrvDetail": "heart rate variability",
+  "healthWriteDefaultLead": "Writing is the default.",
+  "healthWriteDefault": "OpenRing never reads back what it wrote itself.",
+  "healthNoStress": "Stress and readiness stay in the app: {platform} has no type for them.",
+  "@healthNoStress": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthRevoke": "You can revoke access at any time in the {platform} settings.",
+  "@healthRevoke": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthReadTitle": "Reading (optional)",
+  "healthReadBody": "Read sleep and workouts from other devices to fill gaps in your data. You choose the sources in Settings.",
+  "healthConnect": "Connect {platform}",
+  "@healthConnect": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthNotNow": "Not now",
+  "healthSkipNote": "If you skip, the data stays on the phone and is sent once you connect.",
+  "healthConnectedLead": "{platform} connected.",
+  "@healthConnectedLead": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthConnected": "Writing is allowed. Data goes over after each sync.",
+  "healthDeclined": "{platform} is not connected. Your data stays on the phone, and you can connect later in Settings.",
+  "@healthDeclined": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "pairHeader": "Pair ring",
+  "pairIdleTitle": "No ring paired",
+  "pairIdleBody": "Pair your ring to see sleep, heart and activity. It takes less than a minute.",
+  "pairTipCharge": "Put the ring on its charger for a few seconds to wake it up.",
+  "pairTipUnpair": "If it is paired in QRing, unpair it there first. The ring talks to one app at a time.",
+  "pairTipClose": "Tap Search for ring and keep the ring close to the phone.",
+  "pairSearch": "Search for ring",
+  "pairSearchNote": "We will ask for access to nearby Bluetooth devices.",
+  "pairSupportNote": "Tested on the COLMI R09. The R02, R03, R06 and R10 may work.",
+  "pairScanningTitle": "Searching…",
+  "pairScanningBody": "Tap your ring to pair it.",
+  "pairPickTitle": "Pick your ring",
+  "pairConnectingTitle": "Connecting…",
+  "pairConnectingBody": "Keep the ring close to the phone.",
+  "pairDoneTitle": "All set",
+  "pairDoneBody": "From now on, syncing is automatic.",
+  "pairFoundNearby": "Found nearby",
+  "pairLooking": "Looking for COLMI rings nearby…",
+  "pairCompatible": "compatible",
+  "pairUntested": "may work, untested",
+  "pairSignalStrong": "Strong signal",
+  "pairSignalMedium": "Medium signal",
+  "pairSignalWeak": "Weak signal",
+  "pairAlreadyBonded": "Already paired to this phone",
+  "pairConnectFailed": "Could not connect to {name}. Keep it close to the phone and tap it again.",
+  "@pairConnectFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairSaveFailed": "{name} answered, but the pairing could not be saved on this phone. Tap it again.",
+  "@pairSaveFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairSearchAgain": "Search again",
+  "pairNotFoundLink": "Can't find your ring?",
+  "pairPaired": "{name} paired",
+  "@pairPaired": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairPairedBody": "Next we pull the last 7 days stored on the ring. It can take a minute.",
+  "pairNotFoundTitle": "Ring not found",
+  "pairNotFoundBody": "We searched for 30 seconds and no compatible ring answered. It is almost always one of these four reasons:",
+  "pairNotFoundChargeTitle": "Charge the ring",
+  "pairNotFoundChargeBody": "Leave it on the charger for a few seconds to wake it up. With a flat battery it does not show up in the search.",
+  "pairNotFoundUnpairTitle": "Unpair it in QRing and on the phone",
+  "pairNotFoundUnpairBody": "The ring talks to one app at a time. Remove it in QRing, then forget it in the phone's Bluetooth settings.",
+  "pairNotFoundCloseTitle": "Bring it close to the phone",
+  "pairNotFoundCloseBody": "During the search, keep the ring less than a metre away.",
+  "pairNotFoundBluetoothTitle": "Check Bluetooth",
+  "pairNotFoundBluetoothBody": "It needs to be on. Open the quick settings panel and look at the icon.",
+  "pairModelToggle": "My ring is not a COLMI R09",
+  "pairModelTested": "This version was only tested on the COLMI R09, because it is the only ring we have to test with.",
+  "pairModelOthers": "The R02, R03, R06 and R10 use the same protocol and may work, but we cannot promise it. If yours shows up in the search, it is worth a try.",
+  "pairModelBrands": "Rings from other brands are not supported yet.",
+  "pairErrorRetry": "Try again",
+  "pairDeniedTitle": "Bluetooth access is off",
+  "pairDeniedBody": "OpenRing needs the Nearby devices permission to find your ring and talk to it.",
+  "pairDeniedSettingsTitle": "Open settings",
+  "pairDeniedSettingsBody": "Tap Open settings below to reach the OpenRing app settings.",
+  "pairDeniedAllowTitle": "Allow Nearby devices",
+  "pairDeniedAllowBody": "Under Permissions, set Nearby devices (or Bluetooth) to Allow.",
+  "pairRetryStepTitle": "Come back and try again",
+  "pairRetryStepBody": "Tap Try again and the search starts over.",
+  "pairOffTitle": "Bluetooth is off",
+  "pairOffBody": "The ring talks to the phone over Bluetooth, so it has to be on during the search.",
+  "pairOffTurnOnTitle": "Turn on Bluetooth",
+  "pairOffTurnOnBody": "Open the quick settings panel and tap the Bluetooth icon.",
+  "firstSyncHeader": "First sync",
+  "firstSyncRunningTitle": "Syncing",
+  "firstSyncRunningBody": "Pulling the last 7 days stored on the ring.",
+  "firstSyncDoneTitle": "All synced",
+  "firstSyncDoneBody": "Your last 7 days are in the app.",
+  "firstSyncProgress": "Overall progress",
+  "firstSyncPercent": "{percent}%",
+  "@firstSyncPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "firstSyncKindSteps": "Steps",
+  "firstSyncKindHeartRate": "Heart rate",
+  "firstSyncKindSpo2": "SpO2",
+  "firstSyncKindStress": "Stress",
+  "firstSyncKindHrv": "HRV",
+  "firstSyncKindSleep": "Sleep",
+  "firstSyncKindQueued": "Queued",
+  "firstSyncKindReading": "Reading…",
+  "firstSyncKindRead": "Read",
+  "firstSyncKindNotRead": "Not read",
+  "firstSyncKindCount": "{count, plural, =0{Nothing new} =1{1 record} other{{count} records}}",
+  "@firstSyncKindCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "firstSyncBackgroundLead": "You can leave the app in the background.",
+  "firstSyncBackground": "The sync carries on. Just keep the ring close to the phone.",
+  "firstSyncDuration": "It usually takes less than a minute.",
+  "firstSyncDoneLead": "Import finished.",
+  "firstSyncDoneNote": "Sending to {platform} carries on in the background. From now on the ring syncs on its own every {minutes} minutes.",
+  "@firstSyncDoneNote": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "firstSyncViewDay": "See my day",
+  "firstSyncRetryHint": "Keep the ring close to the phone and try again.",
+  "firstSyncSkip": "Continue without syncing",
+  "workoutTypeRunning": "Running",
+  "workoutTypeWalking": "Walking",
+  "workoutTypeCycling": "Cycling",
+  "workoutTypeHiking": "Hiking",
+  "workoutTypeOther": "Other",
+  "workoutStart": "Start workout",
+  "workoutBackToLive": "Back to the live workout",
+  "workoutPickTitle": "New workout",
+  "workoutPickTypes": "Workout type",
+  "workoutRingBattery": "Ring paired · battery {battery}",
+  "@workoutRingBattery": {
+    "placeholders": {
+      "battery": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutRingPaired": "Ring paired",
+  "workoutRingMissing": "No ring paired. The workout records without heart rate.",
+  "workoutRecordedTitle": "{type} · what is recorded",
+  "@workoutRecordedTitle": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutRecordedOutdoor": "Heart rate every second and estimated energy. With GPS, also route, distance and pace.",
+  "workoutRecordedCycling": "Heart rate every second and estimated energy. With GPS, also route, distance and speed.",
+  "workoutRecordedOther": "Heart rate every second and estimated energy. No distance.",
+  "workoutGpsOnNote": "Uses the phone's location only during the workout. The route stays on the phone and goes to {platform} with the session.",
+  "@workoutGpsOnNote": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutGpsOffNote": "Indoor workout, so GPS stays off to save battery.",
+  "workoutLocationStart": "Start workout",
+  "workoutSwimmingUnavailable": "Swimming · unavailable",
+  "workoutSwimmingReason": "In water the ring's heart rate reading is not reliable, so OpenRing does not offer this workout.",
+  "workoutBegin": "Start",
+  "workoutLocationLead": "Before the workout starts",
+  "workoutLocationTitle": "Record the workout route",
+  "workoutLocationIntro": "To draw your route, OpenRing needs the phone's location. The ring has no GPS.",
+  "workoutLocationRouteTitle": "Accurate route, distance and pace",
+  "workoutLocationRouteBody": "Closer to reality than distance from steps, above all when running and cycling.",
+  "workoutLocationOnlyTitle": "Only during a workout",
+  "workoutLocationOnlyBody": "Location turns on when you tap Start and off when you end. Never outside a workout.",
+  "workoutLocationLocalTitle": "Stays on your phone",
+  "workoutLocationLocalBody": "No account and no server. The route only goes to {platform}, as the route of the exercise session.",
+  "@workoutLocationLocalBody": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutLocationAskHint": "Your phone will ask. Choose \"While using the app\". You can change it later in the phone settings.",
+  "workoutLocationAllow": "Allow location",
+  "workoutLocationGrantedTitle": "Location allowed",
+  "workoutLocationGrantedBody": "GPS ready. Next time the workout starts straight away.",
+  "workoutLocationDeniedTitle": "Location not allowed",
+  "workoutLocationDeniedBody": "Without it the workout records time and heart rate, but no route or distance.",
+  "workoutLocationBlockedTitle": "Location is blocked for OpenRing",
+  "workoutLocationBlockedBody": "Allow it in the phone settings, then come back here.",
+  "workoutLocationOffTitle": "Location is off on this phone",
+  "workoutLocationOffBody": "Turn it on in the phone settings, then come back here.",
+  "workoutLocationRetry": "Try again",
+  "workoutLocationOpenSettings": "Open settings",
+  "workoutWithoutGps": "Train without GPS",
+  "workoutPhaseRunning": "In progress",
+  "workoutPhasePaused": "Paused",
+  "workoutPhaseFinished": "Finished",
+  "workoutPhaseDiscarded": "Discarded",
+  "workoutLinkStreaming": "Ring sending heart rate every second",
+  "workoutLinkWaiting": "Waiting for the ring",
+  "workoutLinkPaused": "Ring connected",
+  "workoutLinkNoRing": "No ring paired",
+  "workoutLinkBusy": "Ring busy with a sync",
+  "workoutLinkLost": "Ring not reachable",
+  "workoutLinkReleased": "Ring released",
+  "workoutGpsGood": "GPS good",
+  "workoutGpsFair": "GPS fair",
+  "workoutGpsSearching": "Searching for GPS",
+  "workoutGpsLost": "GPS signal lost",
+  "workoutGpsOff": "No GPS",
+  "workoutGpsAccuracy": "±{meters} m",
+  "@workoutGpsAccuracy": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutMapSemantics": "Route map, {distance} km so far",
+  "@workoutMapSemantics": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutMapEmpty": "The route appears here after the first good GPS fix.",
+  "workoutGpsDeniedBody": "Location is not allowed, so there is no route. Time and heart rate still record.",
+  "workoutGpsServiceOffBody": "Location is off on the phone, so there is no route. Time and heart rate still record.",
+  "workoutGpsFailedBody": "The phone's GPS stopped working. Time and heart rate still record.",
+  "workoutHeartWaiting": "Waiting for heart rate",
+  "workoutHeartNoRing": "No ring paired, so this workout has no heart rate.",
+  "workoutHeartBusy": "The ring was busy with a sync, so this workout has no heart rate.",
+  "workoutHeartLost": "The ring stopped sending heart rate. The workout keeps recording.",
+  "workoutZone1": "Very light",
+  "workoutZone2": "Light",
+  "workoutZone3": "Aerobic",
+  "workoutZone4": "Threshold",
+  "workoutZone5": "Maximum",
+  "workoutZoneCaption": "Zone {zone} · {name}",
+  "@workoutZoneCaption": {
+    "placeholders": {
+      "zone": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutZoneBelow": "Below zone 1",
+  "workoutZoneBarSemantics": "Zone {zone} of 5 active",
+  "@workoutZoneBarSemantics": {
+    "placeholders": {
+      "zone": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutZoneBarNone": "No zone active",
+  "workoutZonesFromMax": "Zones from your max heart rate of {bpm} bpm. Adjust it in Profile.",
+  "@workoutZonesFromMax": {
+    "placeholders": {
+      "bpm": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutZonesMissing": "Add your birth year or max heart rate in Profile to see zones.",
+  "workoutDistance": "Distance",
+  "workoutCurrentPace": "Current pace",
+  "workoutAveragePace": "Average pace",
+  "workoutCurrentSpeed": "Current speed",
+  "workoutAverageSpeed": "Average speed",
+  "workoutEnergy": "Energy",
+  "workoutAverageHeartRate": "Average HR",
+  "workoutMaxHeartRate": "Max HR",
+  "workoutUnitKm": "km",
+  "workoutUnitPace": "min/km",
+  "workoutUnitSpeed": "km/h",
+  "workoutUnitKcal": "kcal",
+  "workoutUnitBpm": "bpm",
+  "workoutNoValue": "--",
+  "workoutPause": "Pause",
+  "workoutResume": "Resume",
+  "workoutEnd": "End",
+  "workoutConfirmTitle": "End and save the workout?",
+  "workoutConfirmBody": "It goes to {platform} as an exercise session, with the GPS route and the heart rate series.",
+  "@workoutConfirmBody": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutConfirmBodyIndoor": "It goes to {platform} as an exercise session, with the heart rate series.",
+  "@workoutConfirmBodyIndoor": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutContinue": "Continue",
+  "workoutSave": "Save",
+  "workoutDiscard": "Discard workout",
+  "workoutSavingTitle": "Saving the workout…",
+  "workoutSavedTitle": "Workout saved",
+  "workoutSavedBody": "Saved on this phone at {time}. It goes to {platform} with the next sync, where other apps can read it.",
+  "@workoutSavedBody": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutViewSummary": "See workout summary",
+  "workoutSaveFailedTitle": "The workout was not saved",
+  "workoutSaveFailedBody": "Nothing is lost yet. Try again before you leave.",
+  "workoutSaveRetry": "Save again",
+  "workoutDiscardedTitle": "Workout discarded",
+  "workoutDiscardedBody": "Nothing was saved.",
+  "workoutBackToActivity": "Back to Activity",
+  "workoutNoneTitle": "No workout running",
+  "workoutNoneBody": "Choose a workout type to start recording.",
+  "workoutChoose": "Choose a workout",
+  "workoutSummaryTitle": "Workout summary",
+  "workoutSummaryNone": "No finished workout to show.",
+  "workoutSummaryWhen": "{date} · {start} to {end}",
+  "@workoutSummaryWhen": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutDuration": "Duration",
+  "workoutDistanceGps": "Distance · GPS",
+  "workoutRouteTitle": "Route",
+  "workoutRouteAccuracy": "Phone GPS · average accuracy ±{meters} m",
+  "@workoutRouteAccuracy": {
+    "placeholders": {
+      "meters": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutRouteStart": "Start {time}",
+  "@workoutRouteStart": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutRouteEnd": "End {time}",
+  "@workoutRouteEnd": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutRouteSemantics": "Route map of {distance} km",
+  "@workoutRouteSemantics": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutRouteNone": "No route was recorded.",
+  "workoutSummaryNote": "Distance and pace come from the phone's GPS, heart rate from the ring. Energy is an estimate from the workout type, your weight and the time.",
+  "workoutSummaryNoteIndoor": "Heart rate comes from the ring. Energy is an estimate from the workout type, your weight and the time.",
+  "workoutHeartTitle": "Heart rate",
+  "workoutHeartBars": "{count, plural, =1{1 bar per minute} other{1 bar per {count} minutes}}",
+  "@workoutHeartBars": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutHeartSemantics": "Heart rate between {low} and {high} bpm, average {average} bpm",
+  "@workoutHeartSemantics": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      },
+      "average": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutHeartAverage": "Average {bpm} bpm",
+  "@workoutHeartAverage": {
+    "placeholders": {
+      "bpm": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutHeartNone": "No heart rate was recorded.",
+  "workoutZonesTitle": "Time in each zone",
+  "workoutZonesMax": "Max HR {bpm}",
+  "@workoutZonesMax": {
+    "placeholders": {
+      "bpm": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutZoneName": "Z{zone} {name}",
+  "@workoutZoneName": {
+    "placeholders": {
+      "zone": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutZoneRange": "{low} to {high} bpm",
+  "@workoutZoneRange": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutZoneFrom": "{low} bpm and up",
+  "@workoutZoneFrom": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutZonesNote": "Zones as a share of your max heart rate. Adjust it in Profile.",
+  "workoutSummarySaved": "Saved on this phone",
+  "workoutSummarySavedBody": "{count, plural, =1{Exercise session with 1 heart rate sample. It goes to {platform} with the next sync.} other{Exercise session with {count} heart rate samples. It goes to {platform} with the next sync.}}",
+  "@workoutSummarySavedBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsTextSize": "Text size",
+  "settingsTextSizeValue": "Follows the system",
+  "settingsTextSizeNote": "Change it in your phone's display settings. OpenRing follows it up to 200%.",
+  "settingsProfile": "Profile",
+  "settingsProfileNote": "Used for calories, heart rate zones and distance. It stays on this phone.",
+  "settingsAgeDetail": "Basis for the estimated maximum heart rate",
+  "settingsHeightDetail": "Used for stride length",
+  "settingsWeightDetail": "Used for calories",
+  "settingsMaxHrEstimated": "Estimated: 220 minus age",
+  "settingsMaxHrCustom": "Your own value",
+  "settingsStepGoalDetail": "Per day",
+  "settingsNotSet": "Not set",
+  "settingsFeetInches": "{feet} ft {inches} in",
+  "@settingsFeetInches": {
+    "placeholders": {
+      "feet": {
+        "type": "int"
+      },
+      "inches": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPounds": "{value} lb",
+  "@settingsPounds": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsInchesUnit": "in",
+  "settingsPoundsUnit": "lb",
+  "settingsClear": "Clear",
+  "settingsUnits": "Units",
+  "settingsMeasurements": "Distance, height and weight",
+  "settingsMetric": "Metric",
+  "settingsImperial": "Imperial",
+  "settingsData": "Data",
+  "settingsHealthDetail": "Status, send queue and permissions",
+  "settingsExportDetail": "Save your data as CSV or JSON",
+  "settingsSourcesDetail": "What comes from the ring and what from the phone",
+  "settingsAbout": "About",
+  "settingsVersion": "Version",
+  "settingsGitHub": "Open source on GitHub",
+  "settingsGitHubDetail": "See the code, report a problem or contribute",
+  "settingsLicense": "License",
+  "settingsMedicalNote": "OpenRing is not a medical device. Readiness, sleep and stress are estimates and are not meant for diagnosis.",
+  "sourcesTitle": "Data sources",
+  "sourcesIntro": "The ring is the main source. If other devices write to {platform}, OpenRing can read that data to fill gaps, like the night the ring was charging.",
+  "@sourcesIntro": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesRingTitle": "Ring",
+  "sourcesRingMain": "Main",
+  "sourcesRingDetail": "Read directly over Bluetooth: heart rate, sleep, steps, SpO2, HRV and stress.",
+  "sourcesRingUnpaired": "No ring paired yet. Pair one on the Ring tab.",
+  "sourcesPerMetric": "Where each metric comes from",
+  "sourcesFromRing": "Ring",
+  "sourcesFromPhone": "Phone",
+  "sourcesComputed": "Computed here",
+  "sourcesSteps": "Steps",
+  "sourcesStepsDetail": "Counted by the ring every 15 minutes",
+  "sourcesEnergy": "Distance and active energy",
+  "sourcesEnergyDetail": "Estimated from steps",
+  "sourcesHeartRate": "Heart rate",
+  "sourcesHrv": "HRV",
+  "sourcesSpo2": "SpO2",
+  "sourcesStress": "Stress",
+  "sourcesLoggedDetail": "Logged by the ring through the day",
+  "sourcesSleep": "Sleep with stages",
+  "sourcesSleepDetail": "Light, deep, REM and awake, as the ring scores them",
+  "sourcesBattery": "Ring battery",
+  "sourcesBatteryDetail": "Read at every sync",
+  "sourcesWorkouts": "Workouts",
+  "sourcesWorkoutsDetail": "The phone keeps the clock, heart rate streams live from the ring",
+  "sourcesRoute": "Workout route",
+  "sourcesRouteDetail": "Phone GPS, only while an outdoor workout runs",
+  "sourcesScores": "Readiness and scores",
+  "sourcesScoresDetail": "Computed on this phone from the ring data",
+  "sourcesOtherTitle": "Other devices in {platform}",
+  "@sourcesOtherTitle": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesOtherBody": "Reading what other devices wrote to {platform} is not available yet. When it arrives it is off by default, and you choose which source counts first.",
+  "@sourcesOtherBody": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesRulesTitle": "Two fixed rules",
+  "sourcesRulePriority": "When two sources measure the same period, the one with the higher priority counts. Values are never added together.",
+  "sourcesLocalNote": "Ring data stays on this phone. It only leaves through {platform} or an export you start.",
+  "@sourcesLocalNote": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusConnected": "Connected",
+  "healthStatusPartial": "Partly allowed",
+  "healthStatusDenied": "No permission",
+  "healthStatusUnavailable": "Not available",
+  "healthStatusConnectedBody": "Everything the ring collects is written to {platform} after it is saved here. Other health apps read it from there.",
+  "@healthStatusConnectedBody": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusPartialBody": "Some data types are not allowed. They wait on this phone and are sent once you allow them in {platform}.",
+  "@healthStatusPartialBody": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusDeniedBody": "OpenRing cannot write to {platform}. Your data is still saved on this phone and waits in the send queue until access is back.",
+  "@healthStatusDeniedBody": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusUnavailableBody": "{platform} is not installed or not available on this phone. Your data stays here and waits in the send queue.",
+  "@healthStatusUnavailableBody": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusOpen": "Open {platform}",
+  "@healthStatusOpen": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusAskAgain": "Ask for access again",
+  "healthStatusError": "The last send stopped with an error. It is tried again later.",
+  "healthStatusQueue": "Send queue",
+  "healthStatusWaiting": "{count, plural, =0{Nothing waiting} =1{1 record waiting} other{{formatted} records waiting}}",
+  "@healthStatusWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusOldest": "Oldest in the queue: {time}",
+  "@healthStatusOldest": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusLastSent": "Last sent: {time}",
+  "@healthStatusLastSent": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusNeverSent": "Nothing sent yet",
+  "healthStatusSendNow": "Send now",
+  "healthStatusSending": "Sending…",
+  "healthStatusDead": "{count, plural, =1{1 batch failed 8 times and is no longer sent. Its data stays on this phone and in every export.} other{{count} batches failed 8 times and are no longer sent. Their data stays on this phone and in every export.}}",
+  "@healthStatusDead": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "healthStatusFixTitle": "How to fix it",
+  "healthStatusFixOpen": "Tap Open {platform} below.",
+  "@healthStatusFixOpen": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusFixPick": "Find OpenRing in the list of apps with access.",
+  "healthStatusFixAllow": "Allow all data types, or only the ones you want to share.",
+  "healthStatusFixReturn": "Come back here. The queue is sent without you doing anything else.",
+  "healthStatusInstallNote": "On Android 13 or earlier, Health Connect is a separate app and may not be installed. The button then opens its store page.",
+  "healthStatusTypes": "What is written",
+  "healthStatusAllowed": "Allowed",
+  "healthStatusNotAllowed": "Not allowed",
+  "healthStatusKindActivity": "Steps and active energy",
+  "healthStatusExport": "Export works without {platform}: it writes a file with everything saved on this phone.",
+  "@healthStatusExport": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusExportAction": "Export data",
+  "exportTitle": "Export",
+  "exportIntro": "Your data stays on this device. No account and no cloud. Nothing leaves unless you share it.",
+  "exportRange": "Range",
+  "exportRangeWeek": "7 days",
+  "exportRangeMonth": "30 days",
+  "exportRangeAll": "Everything",
+  "exportKinds": "Data",
+  "exportKindSleep": "Sleep",
+  "exportKindHeartRate": "Heart rate",
+  "exportKindHrv": "HRV",
+  "exportKindSpo2": "SpO2",
+  "exportKindStress": "Stress",
+  "exportKindActivity": "Steps and activity",
+  "exportKindWorkouts": "Workouts",
+  "exportPickKind": "Pick at least one data type.",
+  "exportFormat": "Format",
+  "exportCsvNote": "One file per data type, every sample with its time. Several types come in one zip archive.",
+  "exportJsonNote": "One document with every chosen data type, one record per line.",
+  "exportRun": "Export",
+  "exportRunning": "Exporting…",
+  "exportRunningNote": "Writing the file on this phone. Large ranges can take a moment.",
+  "exportDone": "File ready",
+  "exportRecords": "{count, plural, =0{No records in this range} =1{1 record} other{{formatted} records}}",
+  "@exportRecords": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "exportShare": "Share",
+  "exportShareFailed": "The share sheet did not open. Try again.",
+  "exportFailed": "The export failed and nothing was shared. Try again.",
+  "trendsTitle": "History",
+  "trendsMetricGroup": "Metric",
+  "trendsRangeGroup": "Range",
+  "trendsMetricRestingHeartRate": "Resting HR",
+  "trendsMetricHrv": "Overnight HRV",
+  "trendsMetricSleep": "Sleep",
+  "trendsMetricSleepScore": "Sleep score",
+  "trendsMetricSteps": "Steps",
+  "trendsMetricSpo2": "SpO2",
+  "trendsRangeDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@trendsRangeDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trendsChartTitle": "{metric} · {range}",
+  "@trendsChartTitle": {
+    "placeholders": {
+      "metric": {
+        "type": "String"
+      },
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "trendsAverageAsleep": "asleep on average",
+  "trendsAverageScore": "average score",
+  "trendsAverageSteps": "steps a day on average",
+  "trendsAxisToday": "Today",
+  "trendsLegendAverage": "average",
+  "trendsLegendMinMax": "min and max",
+  "trendsLegendBand": "your range {low} to {high}",
+  "@trendsLegendBand": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "trendsChartSemantics": "{metric}, {range}: average {average}, lowest {min}, highest {max}",
+  "@trendsChartSemantics": {
+    "placeholders": {
+      "metric": {
+        "type": "String"
+      },
+      "range": {
+        "type": "String"
+      },
+      "average": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "trendsRangeTitle": "{count, plural, =1{Last day} other{Last {count} days}}",
+  "@trendsRangeTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trendsSummary": "Average {average}, from {min} to {max}.",
+  "@trendsSummary": {
+    "placeholders": {
+      "average": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "trendsMeasuredDays": "{count, plural, =1{A value on 1 of {total} days.} other{Values on {count} of {total} days.}}",
+  "@trendsMeasuredDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "trendsInsideBand": "{count, plural, =1{1 of {measured} days was inside your range ({low} to {high}).} other{{count} of {measured} days were inside your range ({low} to {high}).}}",
+  "@trendsInsideBand": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "measured": {
+        "type": "int"
+      },
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "trendsLastNight": "Last night: {value}.",
+  "@trendsLastNight": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "trendsTodaySoFar": "Today so far: {value}.",
+  "@trendsTodaySoFar": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "trendsTrendStable": "Steady: the second half of the range matched the first.",
+  "trendsTrendUp": "The second half of the range was {delta} above the first.",
+  "@trendsTrendUp": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "trendsTrendDown": "The second half of the range was {delta} below the first.",
+  "@trendsTrendDown": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "trendsTrendNotEnough": "Not enough days yet to compare the first and second half of the range.",
+  "trendsStepsValue": "{value} steps",
+  "@trendsStepsValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "trendsStepsPerDay": "{value} steps a day",
+  "@trendsStepsPerDay": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "trendsPerNight": "{value} a night",
+  "@trendsPerNight": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "trendsPoints": "{count, plural, =1{1 point} other{{count} points}}",
+  "@trendsPoints": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trendsSourceHrv": "Average of the ring's HRV readings while you slept.",
+  "trendsSourceSleep": "Time asleep per night, without the minutes awake.",
+  "trendsSourceSleepScore": "Score of each night from duration, efficiency, time to fall asleep and stages.",
+  "trendsSourceSteps": "Steps per day. Today is still in progress and stays out of the average.",
+  "trendsSourceSpo2": "Average blood oxygen per night. An estimate, not for diagnosis.",
+  "trendsEmpty": "Your history fills in after the first sync. Wear the ring day and night, then sync.",
+  "trendsEmptyNights": "No nights recorded in this range. Wear the ring to bed and sync in the morning.",
+  "trendsEmptySteps": "No steps recorded in this range. Wear the ring during the day and sync.",
+  "widgetsTitle": "Widgets",
+  "widgetsIntro": "Touch and hold your home screen and choose OpenRing. Widgets update after each sync and open the matching screen when tapped.",
+  "widgetsAndroid": "Android home screen",
+  "widgetReadinessName": "Readiness",
+  "widgetReadinessDetail": "2x2 · Score with resting heart rate, HRV and sleep",
+  "widgetTodayName": "Today",
+  "widgetTodayDetail": "4x2 · Up to 3 metrics you choose",
+  "widgetRingName": "Ring",
+  "widgetRingDetail": "2x1 · Battery and the last sync",
+  "widgetWorkoutName": "Start workout",
+  "widgetWorkoutDetail": "4x1 · Opens the workout picker",
+  "widgetsStaleNote": "When the last sync is more than 3 hours old, a widget says so next to its numbers.",
+  "widgetConfigureToday": "Configure the Today widget",
+  "widgetConfigureTodayDetail": "Choose up to 3 metrics and the theme",
+  "widgetSettingsDetail": "Home screen widgets and their metrics",
+  "widgetTodayTitle": "Today widget",
+  "widgetTodaySize": "Size 4x2 · Android home screen",
+  "widgetPreviewSemantics": "Today widget preview: {metrics}",
+  "@widgetPreviewSemantics": {
+    "placeholders": {
+      "metrics": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetPreviewEmptySemantics": "Today widget preview with no metrics",
+  "widgetSynced": "synced {time}",
+  "@widgetSynced": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetStale": "Not synced since {time}",
+  "@widgetStale": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetNeverSynced": "Not synced yet",
+  "widgetUnpaired": "Pair a ring to fill this widget.",
+  "widgetNoData": "No data yet. Keep the ring on and sync.",
+  "widgetNoMetrics": "No metric chosen. Pick at least 1 below.",
+  "widgetThemeNoteAppDark": "Preview in the app theme, dark right now",
+  "widgetThemeNoteAppLight": "Preview in the app theme, light right now",
+  "widgetThemeNoteDark": "Preview in the dark theme",
+  "widgetThemeNoteLight": "Preview in the light theme",
+  "widgetMetrics": "Metrics",
+  "widgetMetricsCount": "{count} of {max}",
+  "@widgetMetricsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "widgetMetricReadiness": "Readiness",
+  "widgetMetricSleep": "Sleep",
+  "widgetMetricSteps": "Steps",
+  "widgetMetricHeartRate": "Heart rate",
+  "widgetMetricSpo2": "SpO2",
+  "widgetMetricStress": "Stress",
+  "widgetMetricBattery": "Battery",
+  "widgetLimitFull": "Limit of 3. Uncheck one to swap.",
+  "widgetLimitEmpty": "Choose 1 to 3 metrics for the widget.",
+  "widgetLimitSome": "You can pick {count} more.",
+  "@widgetLimitSome": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "widgetTheme": "Theme",
+  "widgetThemeApp": "Follow the app",
+  "widgetThemeDark": "Dark",
+  "widgetThemeLight": "Light",
+  "widgetAdd": "Add widget",
+  "widgetPinRequested": "Confirm on your home screen",
+  "widgetPinNote": "To change it later, touch and hold the widget and choose Configure.",
+  "widgetPinUnsupported": "This launcher cannot add widgets from the app. Touch and hold the home screen, open Widgets and choose OpenRing.",
+  "widgetPinFailed": "The widget was not added. Try again, or touch and hold the home screen, open Widgets and choose OpenRing.",
+  "widgetSubEstimate": "estimate",
+  "widgetSubSleepScore": "score {score}",
+  "@widgetSubSleepScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetSubStepsGoal": "of {goal}",
+  "@widgetSubStepsGoal": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetSubBpmAverage": "bpm avg",
+  "widgetSubAverage": "average",
+  "widgetSubBattery": "ring",
+  "widgetNoValue": "--",
+  "pairModelAfterPairing": "model shown after pairing",
+  "@pairModelAfterPairing": {
+    "description": "Pair list: support line for a ring whose advertised name carries no model, such as COLMI Ring 2."
+  },
+  "workoutTypeStrength": "Strength training",
+  "workoutTypeTreadmill": "Treadmill",
+  "workoutTypeStationaryBike": "Stationary bike",
+  "workoutTypeElliptical": "Elliptical",
+  "workoutTypeYoga": "Yoga",
+  "workoutRecordedYoga": "Heart rate every second and estimated energy. Good for watching your heart rate settle through the practice.",
+  "workoutRecordedOptional": "Heart rate every second and estimated energy. With GPS, also route and distance.",
+  "workoutGpsToggle": "Record the route with GPS",
+  "workoutGpsOffOutdoorNote": "Without GPS this workout has no route or distance.",
+  "workoutGpsOptionalNote": "Turn it on if the workout is outdoors, to record route and distance.",
+  "workoutElevationGain": "Climb",
+  "workoutElevationNote": "Distance, pace and climb come from the phone's GPS; the climb is approximate.",
+  "workoutUnitMeters": "m",
+  "workoutSplitsTitle": "Splits per km",
+  "workoutSplitsHint": "Longer bar, faster",
+  "workoutSplitKm": "Km",
+  "workoutSplitPace": "Pace",
+  "workoutSplitHeartRate": "Avg HR",
+  "workoutSplitLastNote": "The last split is {distance} km; its pace is scaled to a full km.",
+  "@workoutSplitLastNote": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutSplitSemantics": "Kilometre {km}, pace {pace} per km, average heart rate {bpm} bpm",
+  "@workoutSplitSemantics": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      },
+      "pace": {
+        "type": "String"
+      },
+      "bpm": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutSplitSemanticsNoHeart": "Kilometre {km}, pace {pace} per km",
+  "@workoutSplitSemanticsNoHeart": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      },
+      "pace": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutPausesTitle": "Pauses",
+  "workoutPausesBody": "{count, plural, =1{1 pause} other{{count} pauses}} · {duration} paused",
+  "@workoutPausesBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutPausesNone": "No pauses",
+  "workoutHealthSent": "In {platform}",
+  "@workoutHealthSent": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutHealthPending": "Waiting for {platform}",
+  "@workoutHealthPending": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutHealthFailed": "Not sent to {platform}",
+  "@workoutHealthFailed": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutHealthLocal": "Only on this phone",
+  "workoutRecentTitle": "Recent workouts",
+  "workoutRecentLine": "{day} · {duration} · avg HR {bpm}",
+  "@workoutRecentLine": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      },
+      "bpm": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutRecentLineNoHeart": "{day} · {duration}",
+  "@workoutRecentLineNoHeart": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutRecentEmpty": "Your saved workouts show up here.",
+  "workoutDayToday": "Today",
+  "workoutDayYesterday": "Yesterday",
+  "workoutExportCsv": "Export CSV",
+  "workoutExportGpx": "Export GPX",
+  "workoutExportFailed": "The file could not be shared. Try again.",
+  "workoutDelete": "Delete workout",
+  "workoutDeleteTitle": "Delete this workout?",
+  "workoutDeleteBody": "It is removed from OpenRing and cannot be undone. A copy already sent to {platform} stays there; remove it in {platform} if you want.",
+  "@workoutDeleteBody": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutDeleteCancel": "Cancel",
+  "workoutDeleteConfirm": "Delete",
+  "workoutDeletedTitle": "Workout deleted",
+  "workoutDeletedBody": "Removed from OpenRing. A copy already sent to {platform} stays there.",
+  "@workoutDeletedBody": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutDeleteFailed": "The workout could not be deleted. Try again.",
+  "workoutSummaryMissing": "This workout is no longer on this phone.",
+  "workoutPauseRange": "{start} to {end}",
+  "@workoutPauseRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLanguage": "Language",
+  "settingsLanguageSystem": "Follow system language",
+  "settingsLanguageSystemNow": "Now: {language}",
+  "@settingsLanguageSystemNow": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLanguageFallbackNote": "If the system language is not on this list, OpenRing uses English.",
+  "settingsNotifications": "Notifications",
+  "settingsNotificationsPermission": "Permission",
+  "settingsNotificationsAllowed": "Allowed",
+  "settingsNotificationsOff": "Off",
+  "settingsNotificationsOpenSettings": "Open notification settings",
+  "settingsNotificationsWorkoutNote": "While a workout records your route, a notification stays up. The system requires it, so it has no switch here.",
+  "settingsDeleteAll": "Delete all data",
+  "settingsDeleteTitle": "Delete everything on this phone?",
+  "settingsDeleteBody": "Sleep, heart rate, workouts, your profile and the send queue are removed from OpenRing, and the ring is unpaired. Anything already sent to {platform} stays there and can be removed in {platform}. Export first if you want to keep a copy.",
+  "@settingsDeleteBody": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDeleteCancel": "Cancel",
+  "settingsDeleteConfirm": "Delete",
+  "settingsDeleteFailed": "The data could not be deleted. Try again.",
+  "healthStatusRetryDead": "Try again",
+  "healthStatusDeadCausePermission": "Last error: {platform} did not allow the write.",
+  "@healthStatusDeadCausePermission": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusDeadCauseUnavailable": "Last error: {platform} did not respond.",
+  "@healthStatusDeadCauseUnavailable": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusDeadCauseRejected": "Last error: {platform} did not accept the data.",
+  "@healthStatusDeadCauseRejected": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusDeadCauseUnknown": "Last error: something unexpected went wrong.",
+  "sleepStagesSemanticsNoRem": "Light {light}, deep {deep}, awake {awake}.",
+  "@sleepStagesSemanticsNoRem": {
+    "placeholders": {
+      "light": {
+        "type": "String"
+      },
+      "deep": {
+        "type": "String"
+      },
+      "awake": {
+        "type": "String"
+      }
+    }
+  },
+  "activityMi": "{value} mi",
+  "@activityMi": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "todayActivityDetailMi": "{kcal} kcal · {mi} mi",
+  "@todayActivityDetailMi": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      },
+      "mi": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutUnitMi": "mi",
+  "workoutUnitPaceMi": "min/mi",
+  "workoutUnitSpeedMph": "mph",
+  "workoutUnitFeet": "ft",
+  "workoutMapSemanticsMi": "Route map, {distance} mi so far",
+  "@workoutMapSemanticsMi": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutRouteSemanticsMi": "Route map of {distance} mi",
+  "@workoutRouteSemanticsMi": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutGpsAccuracyFeet": "±{feet} ft",
+  "@workoutGpsAccuracyFeet": {
+    "placeholders": {
+      "feet": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutRouteAccuracyFeet": "Phone GPS · average accuracy ±{feet} ft",
+  "@workoutRouteAccuracyFeet": {
+    "placeholders": {
+      "feet": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutSplitsTitleMi": "Splits per mile",
+  "workoutSplitMi": "Mile",
+  "workoutSplitLastNoteMi": "The last split is {distance} mi; its pace is scaled to a full mile.",
+  "@workoutSplitLastNoteMi": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutSplitSemanticsMi": "Mile {mile}, pace {pace} per mile, average heart rate {bpm} bpm",
+  "@workoutSplitSemanticsMi": {
+    "placeholders": {
+      "mile": {
+        "type": "String"
+      },
+      "pace": {
+        "type": "String"
+      },
+      "bpm": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutSplitSemanticsNoHeartMi": "Mile {mile}, pace {pace} per mile",
+  "@workoutSplitSemanticsNoHeartMi": {
+    "placeholders": {
+      "mile": {
+        "type": "String"
+      },
+      "pace": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutNotificationTitle": "OpenRing workout",
+  "workoutNotificationText": "Recording your route",
+  "workoutNotificationChannel": "Workout",
+  "sourcesReadSleep": "Sleep from other apps",
+  "sourcesReadWorkouts": "Workouts from other apps",
+  "sourcesComingSoon": "Coming soon",
+  "sourcesReadOff": "Off. Nothing is read.",
+  "sourcesReadAsk": "Off. Turning it on asks {platform} for read access to sleep only.",
+  "@sourcesReadAsk": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesReadOn": "On. Read access is allowed in {platform}.",
+  "@sourcesReadOn": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesReadRevoked": "Read access was removed in {platform}. Nothing new is read.",
+  "@sourcesReadRevoked": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesReadUnavailable": "Not available on this phone yet.",
+  "sourcesSeenEmpty": "No other app has written sleep to {platform} yet.",
+  "@sourcesSeenEmpty": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesSeenNote": "Only apps that already wrote sleep to {platform} appear here. Turning it off stops reading from now on.",
+  "@sourcesSeenNote": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesSourceNights": "{count, plural, =1{1 night} other{{count} nights}}",
+  "@sourcesSourceNights": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sourcesSourceLast": "last data {date}",
+  "@sourcesSourceLast": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesPriorityTitle": "Priority",
+  "sourcesPriorityBody": "The first in the list counts when two sources measure the same night.",
+  "sourcesPrioritySleep": "Sleep",
+  "sourcesPriorityRingDetail": "Read directly from the ring",
+  "sourcesPriorityAppDetail": "Through {platform}",
+  "@sourcesPriorityAppDetail": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesMoveUp": "Move {name} up",
+  "@sourcesMoveUp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesMoveDown": "Move {name} down",
+  "@sourcesMoveDown": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesPrioritySingle": "Only one source measures this now. Turn on another app above to choose the order.",
+  "sourcesReadNote": "Reading uses a {platform} permission you allow once. What is read stays on this phone and is never sent back.",
+  "@sourcesReadNote": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesReadAskWorkouts": "Off. Turning it on asks {platform} for read access to workouts only.",
+  "@sourcesReadAskWorkouts": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesSeenWorkoutsEmpty": "No other app has written workouts to {platform} yet.",
+  "@sourcesSeenWorkoutsEmpty": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesSeenNoteAll": "Only apps that already wrote sleep or workouts to {platform} appear here. Turning a type off stops reading it from now on.",
+  "@sourcesSeenNoteAll": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcesSourceWorkouts": "{count, plural, =1{1 workout} other{{count} workouts}}",
+  "@sourcesSourceWorkouts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sourcesPriorityWorkoutsNote": "When two workouts overlap, only the one from the source higher in the list shows.",
+  "sourcesPriorityOwnWorkoutDetail": "Recorded in this app with the ring",
+  "workoutImportedFrom": "From {app}",
+  "@workoutImportedFrom": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutImportedBody": "Read from {platform}. OpenRing only shows it: to change or delete it, use {app}.",
+  "@workoutImportedBody": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      },
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutImportedNote": "Only the type and the time are read. Heart rate, distance, energy and route stay in {app}.",
+  "@workoutImportedNote": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutRecentEmptyHint": "No workouts yet. Tap \"{action}\" to record your first one.",
+  "@workoutRecentEmptyHint": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutLocationCheckFailedTitle": "Location could not be checked",
+  "workoutLocationCheckFailedBody": "The phone did not answer. Try again, or train without GPS.",
+  "workoutLinkHeartRateLost": "Heart rate lost",
+  "workoutHeartStalled": "The ring has sent no heart rate for a while. That gap stays empty, and the workout keeps recording.",
+  "workoutHeartReconnect": "Reconnect",
+  "todaySyncNow": "Sync now",
+  "todayOfflineTried": "Last try at {time}. {reason}",
+  "@todayOfflineTried": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "todayOfflineWhatToDo": "What to do",
+  "todayWorkoutNeedsRing": "The workout needs the ring nearby to read live heart rate.",
+  "readinessTrendTitle": "Last {days} days",
+  "@readinessTrendTitle": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "readinessTrendAverage": "average {value}",
+  "@readinessTrendAverage": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "readinessTrendSemantics": "Readiness over the last {days} days, from {low} to {high}.",
+  "@readinessTrendSemantics": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "readinessTrendEmpty": "No scored days yet. Each morning with a score adds a bar.",
+  "formulaLink": "How we calculate",
+  "formulaLinkCaption": "Weights, ranges and today's values",
+  "formulaIntro": "Every OpenRing score is an estimate from the ring's data, not a medical diagnosis. These are the same formulas as the code, published in docs/metrics.md in the project repository. The numbers shown are today's.",
+  "formulaRamp": "Each input earns part of its weight in points, along a straight line from the value worth nothing to the value worth all of it. The points are added up and rounded, from 0 to 100.",
+  "formulaToday": "Today: {value}",
+  "@formulaToday": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "formulaDeviation": "{today} against {typical}, z {z}",
+  "@formulaDeviation": {
+    "placeholders": {
+      "today": {
+        "type": "String"
+      },
+      "typical": {
+        "type": "String"
+      },
+      "z": {
+        "type": "String"
+      }
+    }
+  },
+  "formulaReadinessSleep": "Last night's sleep score: 0 points at a score of 0, all of them at 100.",
+  "formulaReadinessHrv": "Last night against your HRV baseline, as z: 0 points at z {zero}, all of them at z {full}.",
+  "@formulaReadinessHrv": {
+    "placeholders": {
+      "zero": {
+        "type": "String"
+      },
+      "full": {
+        "type": "String"
+      }
+    }
+  },
+  "formulaReadinessRestingHr": "Last night against your resting heart rate baseline, as z: 0 points at z {zero}, all of them at z {full}. Higher is worse.",
+  "@formulaReadinessRestingHr": {
+    "placeholders": {
+      "zero": {
+        "type": "String"
+      },
+      "full": {
+        "type": "String"
+      }
+    }
+  },
+  "formulaReadinessLoad": "Active calories of the last {acute} days against the last {chronic}: all points up to {full}, 0 at {zero}. Optional: when it is missing, its weight is shared by the other inputs.",
+  "@formulaReadinessLoad": {
+    "placeholders": {
+      "acute": {
+        "type": "String"
+      },
+      "chronic": {
+        "type": "String"
+      },
+      "full": {
+        "type": "String"
+      },
+      "zero": {
+        "type": "String"
+      }
+    }
+  },
+  "formulaSleepDuration": "Time asleep: 0 points at none, all of them at your goal of {goal}.",
+  "@formulaSleepDuration": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "formulaSleepEfficiency": "Share of the time in bed spent asleep: 0 points at {zero}, all of them at {full}.",
+  "@formulaSleepEfficiency": {
+    "placeholders": {
+      "zero": {
+        "type": "String"
+      },
+      "full": {
+        "type": "String"
+      }
+    }
+  },
+  "formulaSleepLatency": "Time to fall asleep: all points up to {full}, 0 at {zero}.",
+  "@formulaSleepLatency": {
+    "placeholders": {
+      "full": {
+        "type": "String"
+      },
+      "zero": {
+        "type": "String"
+      }
+    }
+  },
+  "formulaSleepDeep": "Share of sleep in deep: 0 points at none, all of them at {full}.",
+  "@formulaSleepDeep": {
+    "placeholders": {
+      "full": {
+        "type": "String"
+      }
+    }
+  },
+  "formulaSleepRem": "Share of sleep in REM: 0 points at none, all of them at {full}.",
+  "@formulaSleepRem": {
+    "placeholders": {
+      "full": {
+        "type": "String"
+      }
+    }
+  },
+  "formulaBaselineTitle": "Personal baseline",
+  "formulaBaselineRule": "Resting heart rate and HRV are compared with your own previous {window} nights, never with a population table, and need at least {min} of them. z is how far last night sits from your usual value, in units of your usual night to night variation.",
+  "@formulaBaselineRule": {
+    "placeholders": {
+      "window": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "ringAlertChannel": "Ring alerts",
+  "ringSyncServiceChannel": "Ring sync",
+  "ringSyncServiceTitle": "Syncing your ring",
+  "ringAlertLowBatteryTitle": "Ring battery low",
+  "ringAlertLowBatteryBody": "The ring is at {percent}. Put it on the charger.",
+  "@ringAlertLowBatteryBody": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "ringAlertSyncFailedTitle": "Ring not syncing",
+  "ringAlertSyncFailedBody": "{attempts} sync attempts in a row failed. Keep the ring close to the phone.",
+  "@ringAlertSyncFailedBody": {
+    "placeholders": {
+      "attempts": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsAlertLowBattery": "Low battery",
+  "settingsAlertLowBatteryDetail": "Alerts when the ring reaches {percent}%",
+  "@settingsAlertLowBatteryDetail": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsAlertSyncFailed": "Sync failed",
+  "settingsAlertSyncFailedDetail": "Alerts after {attempts} attempts without success",
+  "@settingsAlertSyncFailedDetail": {
+    "placeholders": {
+      "attempts": {
+        "type": "int"
+      }
+    }
+  },
+  "healthStatusTypeOff": "{count, plural, =0{Off} =1{Off, {formatted} queued record held} other{Off, {formatted} queued records held}}",
+  "@healthStatusTypeOff": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusWriteNote": "Turning a type off stops new writes of it to Health Connect. Queued records of that type are held, not sent, and go back in the queue when you turn it on again. What was already written stays in Health Connect.",
+  "widgetReadinessPending": "Not scored yet",
+  "widgetWorkoutSubtitle": "Pick a workout and go",
+  "widgetRestingHr": "Resting HR",
+  "privacyTitle": "OpenRing Privacy Policy",
+  "privacyEffective": "Effective 2026-11-10",
+  "privacyShortHeading": "Short version",
+  "privacyShortNoAccount": "OpenRing has no account, no server of its own and no analytics. Nobody behind OpenRing receives your health data.",
+  "privacyShortStored": "Your data is stored on your phone, in the app's private storage.",
+  "privacyShortInternet": "The app uses the internet for one thing only: checking for and downloading app updates. Your health data never goes over the network.",
+  "privacyShortLeaves": "Health data leaves your phone only when you send it: to Health Connect, if you allow it, or in a file you export and share.",
+  "privacyStoresHeading": "What the app stores, and why",
+  "privacyStoresRing": "Ring name, Bluetooth address and battery level",
+  "privacyStoresRingWhy": "To reconnect to your ring and show its battery",
+  "privacyStoresRingData": "Steps, distance, active energy, heart rate, SpO2, stress, HRV and sleep stages",
+  "privacyStoresRingDataWhy": "To show your days and nights and compute the scores",
+  "privacyStoresWorkouts": "Workouts: start, end, type, pauses, heart rate during the workout",
+  "privacyStoresWorkoutsWhy": "To record workouts you start",
+  "privacyStoresRoutes": "Workout routes: location points during an outdoor workout",
+  "privacyStoresRoutesWhy": "To draw the route and compute distance, pace and splits",
+  "privacyStoresProfile": "Age, height, weight, sex, maximum heart rate, step goal (all optional)",
+  "privacyStoresProfileWhy": "Heart rate zones and the calorie estimate",
+  "privacyStoresOtherApps": "Sleep sessions and workouts written by other apps, with the name of the app that wrote them (optional, each off by default)",
+  "privacyStoresOtherAppsWhy": "To show sleep and workouts from another device when you turn that type on",
+  "privacyStoresSettings": "Settings: theme, language, units, sync interval, widget choices",
+  "privacyStoresSettingsWhy": "To remember your choices",
+  "privacyStoresSummary": "A small summary of today's numbers",
+  "privacyStoresSummaryWhy": "To fill the home screen widgets",
+  "privacyHealthHeading": "Health Connect",
+  "privacyHealthWrites": "Health Connect write: steps, active calories, heart rate, oxygen saturation, heart rate variability, sleep, exercise, exercise route, distance",
+  "privacyHealthWritesWhy": "Sending your ring data and workouts to Health Connect, if you allow each type.",
+  "privacyHealthReads": "Health Connect read: sleep, exercise",
+  "privacyHealthReadsWhy": "Each only if you turn on that type from other apps. Records that OpenRing wrote itself are skipped.",
+  "privacyHealthShare": "If you grant write access, OpenRing writes the types above to Health Connect on the phone. Other apps you allow in Health Connect can then read them. Health Connect is part of Android; its own privacy terms apply, and you manage or delete that data in the Health Connect settings.",
+  "privacyDeleteHeading": "How long data is kept, and how to delete it",
+  "privacyDeleteKept": "Data stays on your phone until you remove it. You can:",
+  "privacyDeleteWorkout": "delete a single workout in the app;",
+  "privacyDeleteAll": "remove all OpenRing data with Android Settings, Apps, OpenRing, Storage, Clear storage, or by uninstalling the app;",
+  "privacyDeleteHealthConnect": "delete what OpenRing wrote to Health Connect in the Health Connect settings, which also lets you revoke OpenRing's access at any time.",
+  "privacyRevoke": "Revoking a permission stops the matching feature; it does not delete data the app already stored.",
+  "privacyFullPolicy": "Full policy",
+  "privacyFullPolicyDetail": "Opens in your browser",
+  "todayReadinessNightComplete": "Last night is complete and won't change",
+  "sleepNightOf": "Night of {start} to {end}",
+  "@sleepNightOf": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "sleepSeeFormula": "See formula",
+  "ringHealthLinkTitle": "{platform} and export",
+  "@ringHealthLinkTitle": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "healthStatusQueueEmpty": "queue empty",
+  "ringOfflineHistory": "Nothing is lost: the ring keeps measuring and stores the history. When it is back, OpenRing fetches everything since {time}.",
+  "@ringOfflineHistory": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ringUnpairOffline": "Unpair ring",
+  "ringUnpairedNote": "Ring unpaired. Your data stays on this phone.",
+  "healthDataTitle": "Your data",
+  "healthKindDetailHeartRate": "Every sample, not just the average",
+  "healthKindDetailSleep": "Light, deep, REM and awake",
+  "healthKindDetailWorkout": "Exercise session with heart rate series",
+  "settingsHomeScreen": "Home screen",
+  "settingsStepGoal": "Step goal",
+  "themeModeNowDark": "Now: dark",
+  "themeModeNowLight": "Now: light",
+  "sourcesRuleExample": "Example: ring and watch both record sleep from 23:18 to 06:42. With the ring first, the ring's 6h52 counts, not 13h44 from adding both.",
+  "workoutLastBadge": "last",
+  "workoutSummarySentRoute": "{count, plural, =1{Exercise session with a route and 1 heart rate sample. Other apps can read it now.} other{Exercise session with a route and {formatted} heart rate samples. Other apps can read it now.}}",
+  "@workoutSummarySentRoute": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutSummarySentNoRoute": "{count, plural, =1{Exercise session with 1 heart rate sample. Other apps can read it now.} other{Exercise session with {formatted} heart rate samples. Other apps can read it now.}}",
+  "@workoutSummarySentNoRoute": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  }
 }

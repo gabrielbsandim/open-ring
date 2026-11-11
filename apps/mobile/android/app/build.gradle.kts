@@ -1,8 +1,28 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
+    id("org.jetbrains.kotlin.plugin.compose")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+val releaseKeyFile = rootProject.file("key.properties")
+val releaseKey: Properties? =
+    releaseKeyFile.takeIf { it.exists() }?.let { file ->
+        Properties().apply { file.inputStream().use { load(it) } }
+    }
+val buildsRelease = gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
+
+if (releaseKey == null && buildsRelease) {
+    logger.error(
+        "WARNING: ${releaseKeyFile.path} not found. The release build is signed with the debug key " +
+            "and cannot be uploaded to a store. See docs/release.md.",
+    )
+}
+
+fun Properties.required(name: String): String =
+    getProperty(name)?.takeIf { it.isNotBlank() } ?: error("android/key.properties is missing $name")
 
 android {
     namespace = "gbs.openring.app"
@@ -22,10 +42,28 @@ android {
         versionName = flutter.versionName
     }
 
+    buildFeatures {
+        compose = true
+    }
+
+    signingConfigs {
+        releaseKey?.let { key ->
+            create("release") {
+                storeFile = rootProject.file(key.required("storeFile"))
+                storePassword = key.required("storePassword")
+                keyAlias = key.required("keyAlias")
+                keyPassword = key.required("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // No release keystore yet; debug signing keeps `flutter run --release` working.
-            signingConfig = signingConfigs.getByName("debug")
+            // Without android/key.properties the debug key keeps `flutter build` and `flutter run --release` working.
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }
@@ -38,4 +76,8 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    implementation("androidx.glance:glance-appwidget:1.2.0")
 }

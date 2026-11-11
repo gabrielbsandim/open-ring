@@ -10,7 +10,12 @@ enum RingCapability {
   sleep,
   liveHeartRate,
   liveSpo2,
+  heartRateInterval,
+  autoMonitors,
+  findDevice,
 }
+
+enum RingMonitor { spo2, stress, hrv }
 
 enum RingLinkState { disconnected, connecting, connected, disconnecting }
 

@@ -1,0 +1,55 @@
+name: Patch
+
+# Ships a Dart-only fix over the air to a version already released. Run it on
+# the ref that holds the fix, whose pubspec.yaml must still name that version:
+#   gh workflow run patch.yml --ref hotfix/<slug>      (optionally -f track=stable)
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: '`staging` waits for a promotion in the Shorebird console.'
+        type: choice
+        options: [staging, stable]
+        default: staging
+
+permissions:
+  contents: read
+
+concurrency:
+  group: patch
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: apps/mobile
+
+jobs:
+  patch:
+    name: Android patch
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: shorebirdtech/setup-shorebird@v1
+        with:
+          cache: true
+      - name: Make room on the runner
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/share/swift /opt/ghc /usr/local/.ghcup \
+            /usr/local/share/boost /usr/local/share/powershell /opt/hostedtoolcache/CodeQL
+          df -h /
+      - name: Write the upload key
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/upload-keystore.jks
+          printf 'storeFile=upload-keystore.jks\nstorePassword=%s\nkeyAlias=upload\nkeyPassword=%s\n' \
+            "$ANDROID_KEYSTORE_PASSWORD" "$ANDROID_KEYSTORE_PASSWORD" > android/key.properties
+      - name: Publish the patch
+        run: shorebird patch android --track=${{ inputs.track }} --no-confirm

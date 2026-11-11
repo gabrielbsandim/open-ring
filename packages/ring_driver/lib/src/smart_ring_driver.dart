@@ -9,6 +9,11 @@ abstract interface class SmartRingDriver {
   Future<void> disconnect();
   Future<void> syncTime(DateTime now);
   Future<BatteryStatus> readBattery();
+  Future<Duration?> readHeartRateInterval();
+  Future<void> setHeartRateInterval(Duration interval, {bool enabled = true});
+  Future<bool> readMonitor(RingMonitor monitor);
+  Future<void> setMonitor(RingMonitor monitor, {required bool enabled});
+  Future<void> findDevice();
 
   Future<List<ActivityBucket>> pullActivity(DateTime since);
   Future<List<HeartRateSample>> pullHeartRate(DateTime since);
@@ -19,4 +24,7 @@ abstract interface class SmartRingDriver {
 
   Stream<LiveReading> startLive(LiveKind kind);
   Future<void> stopLive();
+
+  Stream<LiveReading> startHeartRateStream();
+  Future<void> stopHeartRateStream();
 }

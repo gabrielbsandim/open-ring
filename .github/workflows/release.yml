@@ -1,0 +1,144 @@
+name: Release
+
+# Opens or refreshes the develop -> main pull request, bumps the version on
+# develop and starts the gates. Run with: gh workflow run release.yml --ref develop
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Which digit to move. `auto` reads the commits.'
+        type: choice
+        options: [auto, patch, minor, major]
+        default: auto
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: [main]
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-prepare
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Prepare the release pull request
+    if: github.event_name == 'workflow_dispatch' || (github.head_ref == 'develop' && github.actor != 'github-actions[bot]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.13.5
+
+      # Exit 2 means no app change since the last tag, so there is nothing to ship.
+      - name: Work out the next version
+        id: version
+        run: |
+          set +e
+          dart tool/release_version.dart \
+            --bump "${{ inputs.bump || 'auto' }}" \
+            --notes-file "$RUNNER_TEMP/notes.md" > "$RUNNER_TEMP/version.json"
+          status=$?
+          set -e
+          if [ "$status" -eq 2 ]; then
+            echo "app=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$status" -ne 0 ]; then
+            exit "$status"
+          fi
+          cat "$RUNNER_TEMP/version.json"
+          {
+            echo "app=true"
+            echo "version=$(jq -r .version "$RUNNER_TEMP/version.json")"
+            echo "build=$(jq -r .build "$RUNNER_TEMP/version.json")"
+            echo "tag=$(jq -r .tag "$RUNNER_TEMP/version.json")"
+            echo "previous=$(jq -r .previous "$RUNNER_TEMP/version.json")"
+            echo "bump=$(jq -r .bump "$RUNNER_TEMP/version.json")"
+            echo "commits=$(jq -r .commits "$RUNNER_TEMP/version.json")"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Bump the version on develop
+        id: bump
+        if: steps.version.outputs.app == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD: ${{ steps.version.outputs.build }}
+        run: |
+          target="$VERSION+$BUILD"
+          current=$(sed -nE 's/^version:[[:space:]]*([^[:space:]]+).*$/\1/p' pubspec.yaml)
+          if [ "$current" = "$target" ]; then
+            echo "pubspec.yaml is already at $target, nothing to commit."
+            exit 0
+          fi
+          sed -i -E "s/^version:.*/version: $target/" pubspec.yaml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pubspec.yaml
+          git commit -m "build: release v$VERSION"
+          git push origin develop
+          echo "bumped=true" >> "$GITHUB_OUTPUT"
+
+      - name: Write the pull request body
+        if: steps.version.outputs.app == 'true'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          PREVIOUS: ${{ steps.version.outputs.previous }}
+          BUMP: ${{ steps.version.outputs.bump }}
+          COMMITS: ${{ steps.version.outputs.commits }}
+        run: |
+          {
+            echo "Release **$TAG**, a \`$BUMP\` bump from \`v$PREVIOUS\`, covering $COMMITS commits."
+            echo
+            cat <<'EOF'
+          Merge with **Create a merge commit**, not squash: the next release computes
+          its range from this history. Merging tags the release, publishes it and
+          runs the Shorebird Android release. See `docs/release.md`.
+
+          ---
+
+          EOF
+            cat "$RUNNER_TEMP/notes.md"
+          } > "$RUNNER_TEMP/body.md"
+
+      - name: Open or refresh the release pull request
+        if: steps.version.outputs.app == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          gh label create release --color 5319E7 \
+            --description 'Release pull request: develop into main' --force
+          pr=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number // empty')
+          if [ -z "$pr" ]; then
+            gh pr create --base main --head develop \
+              --title "release: $TAG" --body-file "$RUNNER_TEMP/body.md" --label release
+            exit 0
+          fi
+          gh pr edit "$pr" --title "release: $TAG" --body-file "$RUNNER_TEMP/body.md" --add-label release
+
+      # Events raised by GITHUB_TOKEN start no workflow, except a dispatch, and
+      # its checks land on the head commit the pull request shows.
+      - name: Start the gates on the new head
+        if: steps.bump.outputs.bumped == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --ref develop
+
+      - name: Check the Play notes
+        if: steps.version.outputs.app == 'true'
+        env:
+          PREVIOUS: ${{ steps.version.outputs.previous }}
+        run: dart tool/store_notes.dart --since "v$PREVIOUS"

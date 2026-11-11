@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/l10n/app_locales.dart';
 import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/app/theme/theme_mode_store.dart';
+import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
+import 'package:open_ring/features/onboarding/domain/onboarding_store.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 import 'in_memory_theme_mode_store.dart';
+import 'onboarding_fakes.dart';
+import 'protocol_lab_fakes.dart';
+import 'ring_fakes.dart';
 
 const phoneSize = Size(360, 640);
 const layoutScales = [1.0, 1.3, 2.0];
@@ -57,6 +63,8 @@ Future<void> pumpScaled(
   required Brightness brightness,
   required Locale locale,
   ThemeModeStore? themeModeStore,
+  OnboardingStore? onboardingStore,
+  List<Override>? overrides,
   Size size = phoneSize,
 }) async {
   tester.view
@@ -75,6 +83,10 @@ Future<void> pumpScaled(
           themeModeStoreProvider.overrideWithValue(
             themeModeStore ?? InMemoryThemeModeStore(),
           ),
+          onboardingStoreProvider.overrideWithValue(
+            onboardingStore ?? InMemoryOnboardingStore(completed: true),
+          ),
+          ...overrides ?? [...protocolLabOverrides(), ...ringOverrides()],
         ],
         child: MediaQuery(data: data, child: widget),
       ),

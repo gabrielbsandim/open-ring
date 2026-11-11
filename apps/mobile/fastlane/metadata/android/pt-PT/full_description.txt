@@ -1,0 +1,34 @@
+O OpenRing é uma app gratuita e de código aberto para o anel inteligente COLMI R09. Mantém o anel sincronizado sozinho, mostra o sono, o coração e a atividade em ecrãs calmos e fáceis de ler, e guarda os seus dados no seu telemóvel.
+
+SEM CONTA, SEM NUVEM
+• Sem registo, sem início de sessão, sem e-mail. Emparelhe o anel e comece.
+• Os seus dados ficam numa base de dados local no telemóvel, não num servidor.
+• Sem análise de utilização, sem anúncios, sem rastreio. A app só usa a internet para transferir atualizações da própria app.
+• Os dados só saem do telemóvel quando escolher: para o Health Connect, ou num ficheiro CSV, JSON ou GPX que exportar.
+
+O QUE VÊ
+• O sono numa linha temporal com leve, profundo, REM e acordado.
+• Frequência cardíaca ao longo do dia, FC em repouso, VFC, oxigénio no sangue (SpO2) e stress.
+• Passos, distância e energia ativa.
+• Uma pontuação de prontidão que mostra as entradas: quanto cada uma somou ou tirou, face à sua própria base.
+• Widgets no ecrã principal para a prontidão, o dia, a bateria do anel e iniciar um treino.
+
+TREINOS COM GPS
+O telemóvel marca o tempo, o anel envia a FC em direto e, ao ar livre, o GPS do telemóvel grava o percurso, a distância, o ritmo e os parciais. A localização só é usada enquanto o treino decorre. Exporte qualquer percurso em GPX.
+
+HEALTH CONNECT
+Passos, energia ativa, FC, SpO2, VFC, fases do sono e treinos com o percurso podem ser gravados no Health Connect, para que outras apps que escolher os possam usar. Ler o sono gravado por outras apps é opcional e está desligado por omissão.
+
+SINCRONIZA, NÃO TRANSMITE
+O anel guarda o próprio histórico. O telemóvel liga-se de tempos a tempos (a cada 60 minutos por omissão), obtém o que é novo e desliga-se, o que poupa as duas baterias.
+
+ANÉIS SUPORTADOS
+• COLMI R09: testado. Todas as verificações do protocolo são feitas neste anel.
+• COLMI R02, R03, R06 e R10: podem funcionar, ainda não testados.
+O anel fala com uma app de cada vez, por isso desligue-o da app original antes de o emparelhar com o OpenRing.
+
+ESTIMATIVA, NÃO DIAGNÓSTICO
+O OpenRing não é um dispositivo médico. Cada número é uma estimativa feita por um anel de consumo e serve para acompanhar tendências. Não diagnostica, não trata nem previne nenhuma condição. Se algo lhe parecer errado com a sua saúde, fale com um profissional.
+
+CÓDIGO ABERTO
+Licença MIT, sem subscrição. Tema claro e escuro, texto até 200% e 11 idiomas. O código e a fórmula de cada pontuação são públicos no GitHub.

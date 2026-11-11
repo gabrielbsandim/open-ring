@@ -4,13 +4,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/app_navigation_bar.dart';
+import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
+import 'package:open_ring/core/widgets/open_ring_logo.dart';
+import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
+import 'package:open_ring/features/ring/presentation/protocol_lab_screen.dart';
 import 'package:open_ring/features/ring/presentation/ring_screen.dart';
 import 'package:open_ring/features/settings/presentation/settings_screen.dart';
 import 'package:open_ring/features/sleep/presentation/sleep_screen.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
 
 import '../helpers/in_memory_theme_mode_store.dart';
+import '../helpers/onboarding_fakes.dart';
+import '../helpers/protocol_lab_fakes.dart';
+import '../helpers/ring_fakes.dart';
 
 Future<void> pumpApp(
   WidgetTester tester, {
@@ -27,6 +34,11 @@ Future<void> pumpApp(
         themeModeStoreProvider.overrideWithValue(
           store ?? InMemoryThemeModeStore(),
         ),
+        onboardingStoreProvider.overrideWithValue(
+          InMemoryOnboardingStore(completed: true),
+        ),
+        ...protocolLabOverrides(),
+        ...ringOverrides(),
       ],
       child: const OpenRingApp(),
     ),
@@ -76,7 +88,7 @@ void main() {
   testWidgets('Ring opens settings inside its tab', (tester) async {
     await pumpApp(tester, locale: const Locale('en', 'US'));
 
-    await tester.tap(find.byIcon(Icons.radio_button_unchecked_rounded).last);
+    await tester.tap(find.byType(OpenRingMark).last);
     await tester.pumpAndSettle();
     expect(find.byType(RingScreen), findsOneWidget);
 
@@ -84,6 +96,41 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(SettingsScreen), findsOneWidget);
+    expect(find.byType(AppNavigationBar), findsOneWidget);
+  });
+
+  testWidgets('the Ring tab mark takes the nav bar colors', (tester) async {
+    await pumpApp(tester, locale: const Locale('en', 'US'));
+
+    OpenRingMark mark() => tester.widget<OpenRingMark>(
+      find.descendant(
+        of: find.byKey(AppNavigationBar.destinationKey(AppTab.ring)),
+        matching: find.byType(OpenRingMark),
+      ),
+    );
+    final colors = AppColors.of(tester.element(find.byType(AppNavigationBar)));
+
+    expect(mark().size, 24);
+    expect(mark().color, colors.textLabel);
+
+    await tester.tap(find.byKey(AppNavigationBar.destinationKey(AppTab.ring)));
+    await tester.pumpAndSettle();
+
+    expect(mark().color, colors.textPrimary);
+  });
+
+  testWidgets('a debug build opens the protocol lab from the Ring tab', (
+    tester,
+  ) async {
+    await pumpApp(tester, locale: const Locale('en'));
+    await tester.tap(find.byKey(AppNavigationBar.destinationKey(AppTab.ring)));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(RingScreen.protocolLabKey));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ProtocolLabScreen), findsOneWidget);
+    expect(find.text('Protocol lab'), findsOneWidget);
     expect(find.byType(AppNavigationBar), findsOneWidget);
   });
 

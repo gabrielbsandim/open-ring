@@ -1,0 +1,34 @@
+OpenRing es una app gratuita y de código abierto para el anillo inteligente COLMI R09. Mantiene el anillo sincronizado por sí sola, muestra el sueño, el corazón y la actividad en pantallas tranquilas y fáciles de leer, y guarda tus datos en tu teléfono.
+
+SIN CUENTA, SIN NUBE
+• Sin registro, sin inicio de sesión, sin correo. Empareja el anillo y empieza.
+• Tus datos se guardan en una base de datos local del teléfono, no en un servidor.
+• Sin análisis de uso, sin anuncios, sin rastreo. La app solo usa internet para descargar sus propias actualizaciones.
+• Los datos solo salen del teléfono cuando tú decides: a Health Connect, o en un archivo CSV, JSON o GPX que exportas.
+
+LO QUE VES
+• El sueño en una línea de tiempo con ligero, profundo, REM y despierto.
+• Frecuencia cardíaca a lo largo del día, frecuencia en reposo, VFC, oxígeno en sangre (SpO2) y estrés.
+• Pasos, distancia y energía activa.
+• Una puntuación de preparación que muestra sus datos de entrada: cuánto sumó o restó cada uno, frente a tu propia referencia.
+• Widgets en la pantalla de inicio para la preparación, el día, la batería del anillo y empezar un entrenamiento.
+
+ENTRENAMIENTOS CON GPS
+El teléfono lleva el tiempo, el anillo envía la frecuencia cardíaca en directo y, al aire libre, el GPS del teléfono registra la ruta, la distancia, el ritmo y los parciales. La ubicación solo se usa mientras dura el entrenamiento. Exporta cualquier ruta en GPX.
+
+HEALTH CONNECT
+Pasos, energía activa, frecuencia cardíaca, SpO2, VFC, fases del sueño y entrenamientos con su ruta pueden escribirse en Health Connect, para que otras apps que elijas puedan usarlos. Leer el sueño que escribieron otras apps es opcional y está desactivado por defecto.
+
+SINCRONIZA, NO TRANSMITE
+El anillo guarda su propio historial. El teléfono se conecta cada cierto tiempo (cada 60 minutos por defecto), descarga lo nuevo y se desconecta, lo que ahorra las dos baterías.
+
+ANILLOS COMPATIBLES
+• COLMI R09: probado. Cada comprobación del protocolo se hace con este anillo.
+• COLMI R02, R03, R06 y R10: pueden funcionar, aún sin probar.
+El anillo habla con una sola app a la vez, así que desconéctalo de su app original antes de emparejarlo con OpenRing.
+
+ESTIMACIONES, NO DIAGNÓSTICO
+OpenRing no es un dispositivo médico. Cada número es una estimación de un anillo de consumo y sirve para seguir tendencias. No diagnostica, no trata ni previene ninguna afección. Si notas algo raro en tu salud, consulta a un profesional.
+
+CÓDIGO ABIERTO
+Licencia MIT, sin suscripción. Tema claro y oscuro, texto hasta el 200 % y 11 idiomas. El código y la fórmula de cada puntuación son públicos en GitHub.

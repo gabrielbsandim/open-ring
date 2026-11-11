@@ -13,3 +13,7 @@
 .pub/
 build/
 coverage/
+
+key.properties
+*.jks
+*.keystore

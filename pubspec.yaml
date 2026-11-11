@@ -9,6 +9,9 @@ workspace:
   - packages/ring_protocol
   - packages/ring_driver
   - packages/metrics
+  - packages/health_connect_writer
+  - packages/ring_notifications
+  - tools/trace_replay
 
 dev_dependencies:
   very_good_analysis: ^11.0.0

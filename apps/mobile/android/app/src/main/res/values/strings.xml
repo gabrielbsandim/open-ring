@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_readiness_name">Readiness</string>
+    <string name="widget_readiness_description">Score with resting heart rate, HRV and sleep</string>
+    <string name="widget_today_name">Today</string>
+    <string name="widget_today_description">Up to 3 metrics you choose</string>
+    <string name="widget_ring_name">Ring</string>
+    <string name="widget_ring_description">Battery and the last sync</string>
+    <string name="widget_workout_name">Start workout</string>
+    <string name="widget_workout_description">Opens the workout picker</string>
+    <string name="widget_estimate">estimate</string>
+    <string name="widget_metric_readiness">Readiness</string>
+    <string name="widget_metric_sleep">Sleep</string>
+    <string name="widget_metric_steps">Steps</string>
+    <string name="widget_metric_heart_rate">Heart rate</string>
+    <string name="widget_metric_spo2">SpO2</string>
+    <string name="widget_metric_stress">Stress</string>
+    <string name="widget_metric_battery">Battery</string>
+    <string name="widget_sub_sleep_score">score %1$s</string>
+    <string name="widget_sub_steps_goal">of %1$s</string>
+    <string name="widget_sub_bpm_average">bpm avg</string>
+    <string name="widget_sub_average">average</string>
+    <string name="widget_sub_battery">ring</string>
+    <string name="widget_synced">synced %1$s</string>
+    <string name="widget_stale">Not synced since %1$s</string>
+    <string name="widget_never_synced">Not synced yet</string>
+    <string name="widget_unpaired">Pair a ring to fill this widget.</string>
+    <string name="widget_no_data">No data yet. Keep the ring on and sync.</string>
+    <string name="widget_no_value" formatted="false">--</string>
+    <string name="widget_resting_hr">Resting HR</string>
+    <string name="widget_hrv">HRV</string>
+    <string name="widget_readiness_pending">Not scored yet</string>
+    <string name="widget_no_snapshot">Open OpenRing to load your data.</string>
+    <string name="widget_today_no_metrics">No metric chosen. Pick some in OpenRing.</string>
+    <string name="widget_workout_subtitle">Pick a workout and go</string>
+    <string name="widget_duration_hm">%1$d h %2$d min</string>
+    <string name="widget_duration_m">%1$d min</string>
+    <string name="widget_percent">%1$s%%</string>
+    <string name="widget_workout_last_today">Last: %1$s today, %2$s</string>
+    <string name="widget_workout_last_yesterday">Last: %1$s yesterday, %2$s</string>
+    <string name="widget_workout_last_date">Last: %1$s on %2$s, %3$s</string>
+    <string name="widget_distance_km">%1$s km</string>
+    <string name="widget_distance_mi">%1$s mi</string>
+    <string name="widget_workout_type_running">running</string>
+    <string name="widget_workout_type_walking">walking</string>
+    <string name="widget_workout_type_cycling">cycling</string>
+    <string name="widget_workout_type_hiking">hiking</string>
+    <string name="widget_workout_type_strength">strength training</string>
+    <string name="widget_workout_type_treadmill">treadmill</string>
+    <string name="widget_workout_type_stationary_bike">stationary bike</string>
+    <string name="widget_workout_type_elliptical">elliptical</string>
+    <string name="widget_workout_type_yoga">yoga</string>
+    <string name="widget_workout_type_other">workout</string>
+</resources>

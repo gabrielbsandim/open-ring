@@ -4,6 +4,7 @@ enum V1Command {
   powerOff(0x08),
   heartRateLog(0x15),
   autoHeartRateSetting(0x16),
+  continuousHeartRate(0x1E),
   autoSpo2Setting(0x2C),
   autoStressSetting(0x36),
   stressLog(0x37),
@@ -41,6 +42,7 @@ enum SettingAction {
 }
 
 abstract final class BigDataId {
+  static const temperature = 0x25;
   static const sleep = 0x27;
   static const spo2 = 0x2A;
 }

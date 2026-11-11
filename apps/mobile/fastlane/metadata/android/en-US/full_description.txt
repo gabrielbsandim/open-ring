@@ -1,0 +1,34 @@
+OpenRing is a free, open-source companion app for the COLMI R09 smart ring. It keeps the ring synced on its own, shows sleep, heart and activity on calm, readable screens, and keeps your data on your phone.
+
+NO ACCOUNT, NO CLOUD
+• No sign-up, no login, no email. Pair the ring and start.
+• Your data lives in a local database on your phone, not on a server.
+• No analytics, no ads, no tracking. The app only uses the internet to download its own updates.
+• Data leaves the phone only when you choose: to Health Connect, or in a CSV, JSON or GPX file you export.
+
+WHAT YOU SEE
+• Sleep as a timeline of light, deep, REM and awake.
+• Heart rate through the day, resting heart rate, HRV, blood oxygen (SpO2) and stress.
+• Steps, distance and active energy.
+• A readiness score that shows its inputs: what each one added or took away, against your own baseline.
+• Home screen widgets for readiness, today, the ring battery and starting a workout.
+
+WORKOUTS WITH GPS
+The phone keeps the clock, the ring sends live heart rate, and for outdoor workouts the phone's GPS records route, distance, pace and splits. Location is used only while a workout runs. Export any route as GPX.
+
+HEALTH CONNECT
+Steps, active energy, heart rate, SpO2, HRV, sleep stages and workouts with their route can be written to Health Connect, so other apps you choose can use them. Reading sleep that other apps wrote is optional and off by default.
+
+SYNC, NOT STREAM
+The ring stores its own history. The phone connects on a schedule (every 60 minutes by default), pulls what is new and disconnects, which saves both batteries.
+
+SUPPORTED RINGS
+• COLMI R09: tested. Every protocol check is made on this ring.
+• COLMI R02, R03, R06 and R10: may work, not tested yet.
+The ring talks to one app at a time, so disconnect it from its original app before pairing it with OpenRing.
+
+ESTIMATES, NOT DIAGNOSIS
+OpenRing is not a medical device. Every number is an estimate from a consumer ring and is meant for following trends. It does not diagnose, treat or prevent any condition. If something seems wrong with your health, talk to a professional.
+
+OPEN SOURCE
+MIT license, no subscription. Light and dark themes, text up to 200% and 11 languages. The code and the formula behind every score are public on GitHub.

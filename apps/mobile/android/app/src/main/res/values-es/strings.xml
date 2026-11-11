@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_readiness_name">Preparación</string>
+    <string name="widget_readiness_description">Puntuación con frecuencia cardíaca en reposo, VFC y sueño</string>
+    <string name="widget_today_name">Hoy</string>
+    <string name="widget_today_description">Hasta 3 métricas a tu elección</string>
+    <string name="widget_ring_name">Anillo</string>
+    <string name="widget_ring_description">Batería y última sincronización</string>
+    <string name="widget_workout_name">Iniciar entrenamiento</string>
+    <string name="widget_workout_description">Abre la selección de entrenamiento</string>
+    <string name="widget_estimate">estimación</string>
+    <string name="widget_metric_readiness">Preparación</string>
+    <string name="widget_metric_sleep">Sueño</string>
+    <string name="widget_metric_steps">Pasos</string>
+    <string name="widget_metric_heart_rate">Frecuencia cardíaca</string>
+    <string name="widget_metric_spo2">SpO2</string>
+    <string name="widget_metric_stress">Estrés</string>
+    <string name="widget_metric_battery">Batería</string>
+    <string name="widget_sub_sleep_score">puntuación %1$s</string>
+    <string name="widget_sub_steps_goal">de %1$s</string>
+    <string name="widget_sub_bpm_average">lpm de media</string>
+    <string name="widget_sub_average">de media</string>
+    <string name="widget_sub_battery">anillo</string>
+    <string name="widget_synced">sinc. %1$s</string>
+    <string name="widget_stale">Sin sincronizar desde %1$s</string>
+    <string name="widget_never_synced">Aún sin sincronizar</string>
+    <string name="widget_unpaired">Vincula un anillo para llenar este widget.</string>
+    <string name="widget_no_data">Aún no hay datos. Lleva el anillo puesto y sincroniza.</string>
+    <string name="widget_no_value" formatted="false">--</string>
+    <string name="widget_resting_hr">FC reposo</string>
+    <string name="widget_hrv">VFC</string>
+    <string name="widget_readiness_pending">Aún sin puntuación</string>
+    <string name="widget_no_snapshot">Abre OpenRing para cargar tus datos.</string>
+    <string name="widget_today_no_metrics">Ninguna métrica elegida. Elige alguna en OpenRing.</string>
+    <string name="widget_workout_subtitle">Elige un entrenamiento y empieza</string>
+    <string name="widget_duration_hm">%1$d h %2$d min</string>
+    <string name="widget_duration_m">%1$d min</string>
+    <string name="widget_percent">%1$s %%</string>
+    <string name="widget_workout_last_today">Último: %1$s hoy, %2$s</string>
+    <string name="widget_workout_last_yesterday">Último: %1$s ayer, %2$s</string>
+    <string name="widget_workout_last_date">Último: %1$s el %2$s, %3$s</string>
+    <string name="widget_distance_km">%1$s km</string>
+    <string name="widget_distance_mi">%1$s mi</string>
+    <string name="widget_workout_type_running">carrera</string>
+    <string name="widget_workout_type_walking">caminata</string>
+    <string name="widget_workout_type_cycling">ciclismo</string>
+    <string name="widget_workout_type_hiking">senderismo</string>
+    <string name="widget_workout_type_strength">fuerza</string>
+    <string name="widget_workout_type_treadmill">cinta de correr</string>
+    <string name="widget_workout_type_stationary_bike">bicicleta estática</string>
+    <string name="widget_workout_type_elliptical">elíptica</string>
+    <string name="widget_workout_type_yoga">yoga</string>
+    <string name="widget_workout_type_other">entrenamiento</string>
+</resources>

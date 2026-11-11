@@ -1,6 +1,8 @@
 import 'package:ring_protocol/ring_protocol.dart';
 import 'package:test/test.dart';
 
+import '../helpers.dart' as helpers;
+
 V1Frame decoded(List<int> head) {
   final body = [...head, ...List.filled(15 - head.length, 0)];
   final checksum = const MaskedSumChecksum().compute(body);
@@ -36,5 +38,9 @@ void main() {
         UnexpectedCommand(expected: 0x03, actual: 0x48),
       ),
     );
+  });
+
+  group('shared failures', () {
+    helpers.sharedFailures(0x03, parseBattery);
   });
 }

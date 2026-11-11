@@ -38,7 +38,7 @@ flowchart TD
     end
 
     subgraph Storage ["Infrastructure: Persistence"]
-        LocalDb["Local Database (Isar / SQLite)"]
+        LocalDb["Local Database (SQLite via drift)"]
         SecureStore["FlutterSecureStorage (Bonding keys)"]
     end
 
@@ -113,7 +113,7 @@ stateDiagram-v2
 * **BLE Engine**: `flutter_blue_plus` (cross-platform, reliable MTU negotiation, stable GATT subscription).
 * **State Management**: Riverpod 3 (`flutter_riverpod`).
 * **Routing**: `go_router`.
-* **Local Persistence**: `isar` or `sqlite3` via `drift` for fast time-series queries.
+* **Local Persistence**: SQLite via `drift` and `drift_flutter` for fast time-series queries (see `plan.md`, Storage).
 * **Health Platforms**:
   * Android: Custom native Kotlin MethodChannel implementing AndroidX Health Connect Client `1.2.0-alpha`.
   * iOS: Custom native Swift MethodChannel or `health` plugin for HealthKit.

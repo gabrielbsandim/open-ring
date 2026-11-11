@@ -68,7 +68,7 @@ import 'rgb_png.dart';
 final String? outputDir = Platform.environment['OPEN_RING_STORE_DIR'];
 
 final now = DateTime(2026, 11, 11, 18, 20);
-const phone = Size(1080, 2340);
+const phone = Size(1080, 2160);
 const phoneRatio = 2.625;
 const featureGraphic = Size(1024, 500);
 const tagline = 'Seu anel inteligente, seus dados,\nsem nuvem';

@@ -950,7 +950,7 @@
   "privacyStoresProfileWhy": "Zona detak jantung dan estimasi kalori",
   "privacyStoresOtherApps": "Sesi tidur dan latihan yang ditulis aplikasi lain, beserta nama aplikasi penulisnya (opsional, masing-masing nonaktif secara default)",
   "privacyStoresOtherAppsWhy": "Untuk menampilkan tidur dan latihan dari perangkat lain saat Anda mengaktifkan jenis itu",
-  "privacyStoresSettings": "Pengaturan: tema, bahasa, satuan, interval sinkronisasi, pilihan widget",
+  "privacyStoresSettings": "Pengaturan: tema, satuan, interval sinkronisasi, pilihan widget, peringatan cincin, jenis yang dikirim ke Health Connect, mode demo",
   "privacyStoresSettingsWhy": "Untuk mengingat pilihan Anda",
   "privacyStoresSummary": "Ringkasan kecil angka hari ini",
   "privacyStoresSummaryWhy": "Untuk mengisi widget layar utama",

@@ -950,7 +950,7 @@
   "privacyStoresProfileWhy": "心拍ゾーンとカロリーの推定",
   "privacyStoresOtherApps": "他のアプリが書き込んだ睡眠セッションとワークアウト、および書き込んだアプリの名前（任意、いずれも既定でオフ）",
   "privacyStoresOtherAppsWhy": "その種類をオンにしたときに、別のデバイスの睡眠とワークアウトを表示するため",
-  "privacyStoresSettings": "設定: テーマ、言語、単位、同期間隔、ウィジェットの選択",
+  "privacyStoresSettings": "設定: テーマ、単位、同期間隔、ウィジェットの選択、リングの通知、Health Connect に送る種類、デモモード",
   "privacyStoresSettingsWhy": "選択内容を記憶するため",
   "privacyStoresSummary": "今日の数値の小さなまとめ",
   "privacyStoresSummaryWhy": "ホーム画面のウィジェットに表示するため",

@@ -2698,7 +2698,7 @@
   "privacyStoresProfileWhy": "Heart rate zones and the calorie estimate",
   "privacyStoresOtherApps": "Sleep sessions and workouts written by other apps, with the name of the app that wrote them (optional, each off by default)",
   "privacyStoresOtherAppsWhy": "To show sleep and workouts from another device when you turn that type on",
-  "privacyStoresSettings": "Settings: theme, language, units, sync interval, widget choices",
+  "privacyStoresSettings": "Settings: theme, units, sync interval, widget choices, ring alerts, which types go to Health Connect, demo mode",
   "privacyStoresSettingsWhy": "To remember your choices",
   "privacyStoresSummary": "A small summary of today's numbers",
   "privacyStoresSummaryWhy": "To fill the home screen widgets",

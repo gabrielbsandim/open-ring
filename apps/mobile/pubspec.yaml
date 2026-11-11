@@ -1,7 +1,7 @@
 name: open_ring
 description: OpenRing, a local-first companion app for Colmi smart rings.
 publish_to: none
-version: 0.2.0+2
+version: 0.3.0+3
 
 environment:
   sdk: ^3.13.5

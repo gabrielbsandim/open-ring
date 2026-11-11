@@ -1134,5 +1134,14 @@
   "sourcesRuleExample": "Beispiel: Ring und Uhr zeichnen Schlaf von 23:18 bis 06:42 auf. Steht der Ring an erster Stelle, zählen die 6h52 des Rings, nicht die 13h44 der Summe.",
   "workoutLastBadge": "zuletzt",
   "workoutSummarySentRoute": "{count, plural, =1{Trainingseinheit mit Route und 1 Herzfrequenzwert. Andere Apps können sie jetzt lesen.} other{Trainingseinheit mit Route und {formatted} Herzfrequenzwerten. Andere Apps können sie jetzt lesen.}}",
-  "workoutSummarySentNoRoute": "{count, plural, =1{Trainingseinheit mit 1 Herzfrequenzwert. Andere Apps können sie jetzt lesen.} other{Trainingseinheit mit {formatted} Herzfrequenzwerten. Andere Apps können sie jetzt lesen.}}"
+  "workoutSummarySentNoRoute": "{count, plural, =1{Trainingseinheit mit 1 Herzfrequenzwert. Andere Apps können sie jetzt lesen.} other{Trainingseinheit mit {formatted} Herzfrequenzwerten. Andere Apps können sie jetzt lesen.}}",
+  "welcomeExploreDemo": "Ohne Ring ausprobieren",
+  "welcomeDemoFailed": "Die Beispieldaten konnten nicht geladen werden. Versuch es noch einmal.",
+  "demoBannerTitle": "Demomodus",
+  "demoBannerBody": "Beispieldaten, kein Ring verbunden.",
+  "demoLeave": "Demo beenden",
+  "demoLeaveTitle": "Demomodus beenden?",
+  "demoLeaveBody": "Die Beispieldaten werden gelöscht und du kannst deinen eigenen Ring koppeln.",
+  "demoLeaveCancel": "Abbrechen",
+  "demoLeaveFailed": "Der Demomodus konnte nicht beendet werden. Versuch es noch einmal."
 }

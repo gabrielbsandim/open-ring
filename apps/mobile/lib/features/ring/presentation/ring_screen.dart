@@ -11,6 +11,8 @@ import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
+import 'package:open_ring/features/demo/presentation/demo_banner.dart';
 import 'package:open_ring/features/ring/application/auto_measurements_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_state.dart';
@@ -136,7 +138,14 @@ class _PairedBody extends ConsumerWidget {
         const AutoMeasurementsCard(),
         const HealthLinkCard(),
         const SizedBox(height: cardGap),
-        RingActions(name: ring.name ?? l10n.tabRing, offline: offline),
+        if (ref.watch(demoModeProvider))
+          SecondaryButton(
+            key: DemoKeys.ringLeave,
+            label: l10n.demoLeave,
+            onPressed: () => unawaited(leaveDemo(context, ref)),
+          )
+        else
+          RingActions(name: ring.name ?? l10n.tabRing, offline: offline),
       ],
     );
   }

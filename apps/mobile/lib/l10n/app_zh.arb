@@ -1134,5 +1134,14 @@
   "sourcesRuleExample": "示例：戒指和手表都记录了 23:18 到 06:42 的睡眠。戒指排在第一位时，计入戒指的 6h52，而不是相加得到的 13h44。",
   "workoutLastBadge": "上次",
   "workoutSummarySentRoute": "{count, plural, other{包含路线和 {formatted} 个心率样本的锻炼记录。其他应用现在可以读取了。}}",
-  "workoutSummarySentNoRoute": "{count, plural, other{包含 {formatted} 个心率样本的锻炼记录。其他应用现在可以读取了。}}"
+  "workoutSummarySentNoRoute": "{count, plural, other{包含 {formatted} 个心率样本的锻炼记录。其他应用现在可以读取了。}}",
+  "welcomeExploreDemo": "无需戒指，先体验一下",
+  "welcomeDemoFailed": "无法加载示例数据。请重试。",
+  "demoBannerTitle": "演示模式",
+  "demoBannerBody": "示例数据，未连接戒指。",
+  "demoLeave": "退出演示",
+  "demoLeaveTitle": "退出演示模式？",
+  "demoLeaveBody": "示例数据将被删除，你可以配对自己的戒指。",
+  "demoLeaveCancel": "取消",
+  "demoLeaveFailed": "无法退出演示模式。请重试。"
 }

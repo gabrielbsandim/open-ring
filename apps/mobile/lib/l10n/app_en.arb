@@ -3270,5 +3270,20 @@
         "type": "String"
       }
     }
-  }
+  },
+  "welcomeExploreDemo": "Explore without a ring",
+  "@welcomeExploreDemo": {
+    "description": "Secondary action on the Welcome screen that opens the app with fictitious data and no ring."
+  },
+  "welcomeDemoFailed": "Could not load the sample data. Try again.",
+  "demoBannerTitle": "Demo mode",
+  "@demoBannerTitle": {
+    "description": "Label of the persistent indicator shown while the app runs on fictitious demo data."
+  },
+  "demoBannerBody": "Sample data, no ring connected.",
+  "demoLeave": "Leave demo",
+  "demoLeaveTitle": "Leave demo mode?",
+  "demoLeaveBody": "The sample data is deleted and you can pair your own ring.",
+  "demoLeaveCancel": "Cancel",
+  "demoLeaveFailed": "Could not leave demo mode. Try again."
 }

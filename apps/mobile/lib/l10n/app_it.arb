@@ -1134,5 +1134,14 @@
   "sourcesRuleExample": "Esempio: anello e orologio registrano il sonno dalle 23:18 alle 06:42. Con l'anello al primo posto valgono le 6h52 dell'anello, non le 13h44 della somma.",
   "workoutLastBadge": "ultimo",
   "workoutSummarySentRoute": "{count, plural, =1{Sessione di allenamento con percorso e 1 campione di FC. Le altre app possono già leggerla.} other{Sessione di allenamento con percorso e {formatted} campioni di FC. Le altre app possono già leggerla.}}",
-  "workoutSummarySentNoRoute": "{count, plural, =1{Sessione di allenamento con 1 campione di FC. Le altre app possono già leggerla.} other{Sessione di allenamento con {formatted} campioni di FC. Le altre app possono già leggerla.}}"
+  "workoutSummarySentNoRoute": "{count, plural, =1{Sessione di allenamento con 1 campione di FC. Le altre app possono già leggerla.} other{Sessione di allenamento con {formatted} campioni di FC. Le altre app possono già leggerla.}}",
+  "welcomeExploreDemo": "Esplora senza anello",
+  "welcomeDemoFailed": "Impossibile caricare i dati di esempio. Riprova.",
+  "demoBannerTitle": "Modalità demo",
+  "demoBannerBody": "Dati di esempio, nessun anello collegato.",
+  "demoLeave": "Esci dalla demo",
+  "demoLeaveTitle": "Uscire dalla modalità demo?",
+  "demoLeaveBody": "I dati di esempio vengono eliminati e potrai associare il tuo anello.",
+  "demoLeaveCancel": "Annulla",
+  "demoLeaveFailed": "Impossibile uscire dalla modalità demo. Riprova."
 }

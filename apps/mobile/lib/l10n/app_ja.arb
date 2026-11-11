@@ -1134,5 +1134,14 @@
   "sourcesRuleExample": "例: リングと時計がどちらも 23:18 から 06:42 の睡眠を記録した場合、リングが先頭なら 6h52 が採用され、合計の 13h44 にはなりません。",
   "workoutLastBadge": "前回",
   "workoutSummarySentRoute": "{count, plural, other{ルートと {formatted} 件の心拍数サンプルを含むワークアウトです。他のアプリで読み取れるようになりました。}}",
-  "workoutSummarySentNoRoute": "{count, plural, other{{formatted} 件の心拍数サンプルを含むワークアウトです。他のアプリで読み取れるようになりました。}}"
+  "workoutSummarySentNoRoute": "{count, plural, other{{formatted} 件の心拍数サンプルを含むワークアウトです。他のアプリで読み取れるようになりました。}}",
+  "welcomeExploreDemo": "リングなしで試す",
+  "welcomeDemoFailed": "サンプルデータを読み込めませんでした。もう一度お試しください。",
+  "demoBannerTitle": "デモモード",
+  "demoBannerBody": "サンプルデータです。リングは接続されていません。",
+  "demoLeave": "デモを終了",
+  "demoLeaveTitle": "デモモードを終了しますか？",
+  "demoLeaveBody": "サンプルデータは削除され、ご自身のリングをペアリングできるようになります。",
+  "demoLeaveCancel": "キャンセル",
+  "demoLeaveFailed": "デモモードを終了できませんでした。もう一度お試しください。"
 }

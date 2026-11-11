@@ -1134,5 +1134,14 @@
   "sourcesRuleExample": "Contoh: cincin dan jam tangan mencatat tidur dari 23:18 sampai 06:42. Dengan cincin di urutan pertama, yang dihitung 6h52 dari cincin, bukan 13h44 dari penjumlahan keduanya.",
   "workoutLastBadge": "terakhir",
   "workoutSummarySentRoute": "{count, plural, other{Sesi latihan dengan rute dan {formatted} sampel detak jantung. Aplikasi lain sudah bisa membacanya.}}",
-  "workoutSummarySentNoRoute": "{count, plural, other{Sesi latihan dengan {formatted} sampel detak jantung. Aplikasi lain sudah bisa membacanya.}}"
+  "workoutSummarySentNoRoute": "{count, plural, other{Sesi latihan dengan {formatted} sampel detak jantung. Aplikasi lain sudah bisa membacanya.}}",
+  "welcomeExploreDemo": "Jelajahi tanpa cincin",
+  "welcomeDemoFailed": "Data contoh tidak dapat dimuat. Coba lagi.",
+  "demoBannerTitle": "Mode demo",
+  "demoBannerBody": "Data contoh, tidak ada cincin yang terhubung.",
+  "demoLeave": "Keluar dari demo",
+  "demoLeaveTitle": "Keluar dari mode demo?",
+  "demoLeaveBody": "Data contoh akan dihapus dan Anda dapat memasangkan cincin Anda sendiri.",
+  "demoLeaveCancel": "Batal",
+  "demoLeaveFailed": "Tidak dapat keluar dari mode demo. Coba lagi."
 }

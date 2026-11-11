@@ -1126,5 +1126,14 @@
   "sourcesRuleExample": "Exemplo: anel e relógio registam sono das 23:18 às 06:42. Com o anel em primeiro, contam as 6h52 do anel, e não as 13h44 da soma.",
   "workoutLastBadge": "último",
   "workoutSummarySentRoute": "{count, plural, =1{Sessão de exercício com percurso e 1 amostra de FC. Outras aplicações já a podem ler.} other{Sessão de exercício com percurso e {formatted} amostras de FC. Outras aplicações já a podem ler.}}",
-  "workoutSummarySentNoRoute": "{count, plural, =1{Sessão de exercício com 1 amostra de FC. Outras aplicações já a podem ler.} other{Sessão de exercício com {formatted} amostras de FC. Outras aplicações já a podem ler.}}"
+  "workoutSummarySentNoRoute": "{count, plural, =1{Sessão de exercício com 1 amostra de FC. Outras aplicações já a podem ler.} other{Sessão de exercício com {formatted} amostras de FC. Outras aplicações já a podem ler.}}",
+  "welcomeExploreDemo": "Explorar sem anel",
+  "welcomeDemoFailed": "Não foi possível carregar os dados de exemplo. Tente novamente.",
+  "demoBannerTitle": "Modo de demonstração",
+  "demoBannerBody": "Dados de exemplo, nenhum anel ligado.",
+  "demoLeave": "Sair da demonstração",
+  "demoLeaveTitle": "Sair do modo de demonstração?",
+  "demoLeaveBody": "Os dados de exemplo são apagados e pode emparelhar o seu próprio anel.",
+  "demoLeaveCancel": "Cancelar",
+  "demoLeaveFailed": "Não foi possível sair do modo de demonstração. Tente novamente."
 }

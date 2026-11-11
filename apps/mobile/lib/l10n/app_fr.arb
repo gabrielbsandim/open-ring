@@ -1134,5 +1134,14 @@
   "sourcesRuleExample": "Exemple : la bague et la montre enregistrent le sommeil de 23:18 à 06:42. Avec la bague en premier, ce sont les 6h52 de la bague qui comptent, pas les 13h44 de la somme.",
   "workoutLastBadge": "dernier",
   "workoutSummarySentRoute": "{count, plural, =1{Séance d'exercice avec parcours et 1 mesure de FC. D'autres apps peuvent déjà la lire.} other{Séance d'exercice avec parcours et {formatted} mesures de FC. D'autres apps peuvent déjà la lire.}}",
-  "workoutSummarySentNoRoute": "{count, plural, =1{Séance d'exercice avec 1 mesure de FC. D'autres apps peuvent déjà la lire.} other{Séance d'exercice avec {formatted} mesures de FC. D'autres apps peuvent déjà la lire.}}"
+  "workoutSummarySentNoRoute": "{count, plural, =1{Séance d'exercice avec 1 mesure de FC. D'autres apps peuvent déjà la lire.} other{Séance d'exercice avec {formatted} mesures de FC. D'autres apps peuvent déjà la lire.}}",
+  "welcomeExploreDemo": "Découvrir sans bague",
+  "welcomeDemoFailed": "Impossible de charger les données d'exemple. Réessayez.",
+  "demoBannerTitle": "Mode démo",
+  "demoBannerBody": "Données d'exemple, aucune bague connectée.",
+  "demoLeave": "Quitter la démo",
+  "demoLeaveTitle": "Quitter le mode démo ?",
+  "demoLeaveBody": "Les données d'exemple sont supprimées et vous pourrez associer votre propre bague.",
+  "demoLeaveCancel": "Annuler",
+  "demoLeaveFailed": "Impossible de quitter le mode démo. Réessayez."
 }

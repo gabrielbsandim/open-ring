@@ -218,6 +218,42 @@ void main() {
       expect(order, ['keepAlive', 'sync', 'stop']);
     });
 
+    test('a demo skips the sync and still tears down', () async {
+      final order = <String>[];
+
+      final reported = await superviseBackgroundSync(
+        demoMode: () async => true,
+        keepAlive: () async => order.add('keepAlive'),
+        sync: () async => order.add('sync'),
+        sendAlerts: () async => order.add('alerts'),
+        publishWidgets: () async => order.add('widgets'),
+        announceFinished: () => order.add('announced'),
+        teardown: [() async => order.add('stop')],
+        stepTimeout: short,
+        alertTimeout: short,
+      );
+
+      expect(reported, isTrue);
+      expect(order, ['stop']);
+    });
+
+    test('an unreadable demo flag still syncs', () async {
+      final order = <String>[];
+
+      await superviseBackgroundSync(
+        demoMode: () async => throw StateError('no preferences'),
+        sync: () async => order.add('sync'),
+        sendAlerts: () async {},
+        publishWidgets: () async {},
+        announceFinished: () {},
+        teardown: const [],
+        stepTimeout: short,
+        alertTimeout: short,
+      );
+
+      expect(order, ['sync']);
+    });
+
     test('answers even when every step hangs or throws', () async {
       final finished = <String>[];
 

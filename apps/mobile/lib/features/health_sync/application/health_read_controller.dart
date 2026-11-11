@@ -5,6 +5,7 @@ import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/core/records/source_priority.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/health_sync/application/import_external_sleep.dart';
 import 'package:open_ring/features/health_sync/application/import_external_workouts.dart';
 import 'package:open_ring/features/health_sync/domain/health_read_store.dart';
@@ -131,6 +132,7 @@ class HealthReadController extends AsyncNotifier<HealthReadView> {
   }
 
   Future<void> setEnabled({required bool enabled}) async {
+    if (ref.read(demoModeProvider)) return;
     final granted = !enabled || await _grant();
     if (granted) await _store.setEnabled(_kind, enabled: enabled);
     await _reload(changed: granted, declined: !granted);
@@ -153,8 +155,10 @@ class HealthReadController extends AsyncNotifier<HealthReadView> {
     ref.read(dataRevisionProvider.notifier).bump();
   }
 
-  Future<void> importNow() =>
-      _importing ??= _import().whenComplete(() => _importing = null);
+  Future<void> importNow() {
+    if (ref.read(demoModeProvider)) return Future.value();
+    return _importing ??= _import().whenComplete(() => _importing = null);
+  }
 
   // A failed import never surfaces past the screen: the next sync retries.
   Future<void> _import() async {

@@ -149,18 +149,41 @@ Future<bool> superviseBackgroundSync({
   required void Function() announceFinished,
   required List<Future<void> Function()> teardown,
   Future<void> Function()? keepAlive,
+  Future<bool> Function()? demoMode,
   Duration stepTimeout = defaultBackgroundStepTimeout,
   Duration alertTimeout = defaultBackgroundAlertTimeout,
 }) async {
+  if (await _isDemo(demoMode)) {
+    await _tearDown(teardown, stepTimeout);
+    return true;
+  }
   if (keepAlive != null) await _attempt(keepAlive, limit: alertTimeout);
   await _attempt(sync);
   announceFinished();
   await _attempt(sendAlerts, limit: alertTimeout);
   await _attempt(publishWidgets, limit: stepTimeout);
-  for (final step in teardown) {
-    await _attempt(step, limit: stepTimeout);
-  }
+  await _tearDown(teardown, stepTimeout);
   return true;
+}
+
+// The demo ring has nothing to sync, and the service notice would only show
+// a sync that never happens.
+Future<bool> _isDemo(Future<bool> Function()? demoMode) async {
+  if (demoMode == null) return false;
+  try {
+    return await demoMode();
+  } on Object {
+    return false;
+  }
+}
+
+Future<void> _tearDown(
+  List<Future<void> Function()> teardown,
+  Duration limit,
+) async {
+  for (final step in teardown) {
+    await _attempt(step, limit: limit);
+  }
 }
 
 Future<void> _attempt(Future<void> Function() step, {Duration? limit}) async {

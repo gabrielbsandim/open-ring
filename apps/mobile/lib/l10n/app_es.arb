@@ -1134,5 +1134,14 @@
   "sourcesRuleExample": "Ejemplo: el anillo y el reloj registran sueño de 23:18 a 06:42. Con el anillo primero, cuentan las 6h52 del anillo, no las 13h44 de sumar ambos.",
   "workoutLastBadge": "último",
   "workoutSummarySentRoute": "{count, plural, =1{Sesión de ejercicio con ruta y 1 muestra de FC. Otras apps ya pueden leerla.} other{Sesión de ejercicio con ruta y {formatted} muestras de FC. Otras apps ya pueden leerla.}}",
-  "workoutSummarySentNoRoute": "{count, plural, =1{Sesión de ejercicio con 1 muestra de FC. Otras apps ya pueden leerla.} other{Sesión de ejercicio con {formatted} muestras de FC. Otras apps ya pueden leerla.}}"
+  "workoutSummarySentNoRoute": "{count, plural, =1{Sesión de ejercicio con 1 muestra de FC. Otras apps ya pueden leerla.} other{Sesión de ejercicio con {formatted} muestras de FC. Otras apps ya pueden leerla.}}",
+  "welcomeExploreDemo": "Explorar sin anillo",
+  "welcomeDemoFailed": "No se pudieron cargar los datos de ejemplo. Inténtalo de nuevo.",
+  "demoBannerTitle": "Modo demo",
+  "demoBannerBody": "Datos de ejemplo, ningún anillo conectado.",
+  "demoLeave": "Salir de la demo",
+  "demoLeaveTitle": "¿Salir del modo demo?",
+  "demoLeaveBody": "Los datos de ejemplo se borran y podrás vincular tu propio anillo.",
+  "demoLeaveCancel": "Cancelar",
+  "demoLeaveFailed": "No se pudo salir del modo demo. Inténtalo de nuevo."
 }

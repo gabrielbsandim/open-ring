@@ -23,3 +23,18 @@ abstract interface class HealthWriter {
   // OpenRing records of that kind starting in [from, to), so a re-send updates.
   Future<void> replace(HealthWriteBatch batch);
 }
+
+final class UnavailableHealthWriter implements HealthWriter {
+  const new();
+
+  @override
+  Future<HealthAccess> access(HealthRecordKind kind) async =>
+      HealthAccess.unavailable;
+
+  @override
+  Future<bool> requestAccess(Set<HealthRecordKind> kinds) async => false;
+
+  @override
+  Future<void> replace(HealthWriteBatch batch) async =>
+      throw const HealthWriteException('No health platform in this mode.');
+}

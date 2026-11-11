@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/health_sync/application/health_sync_controller.dart';
 import 'package:open_ring/features/ring/application/protocol_lab_controller.dart';
@@ -75,9 +76,14 @@ class RingSyncController extends Notifier<RingSyncState> {
 
   Future<void> refresh() => sync();
 
-  Future<void> _join({required bool automatic}) =>
-      _running ??= _sync(automatic: automatic)
-          .whenComplete(() => _running = null);
+  // The demo ring is not a device: a sync there only renews the sample data.
+  Future<void> _join({required bool automatic}) {
+    if (ref.read(demoModeProvider)) {
+      return ref.read(demoModeProvider.notifier).refresh();
+    }
+    return _running ??= _sync(automatic: automatic)
+        .whenComplete(() => _running = null);
+  }
 
   Future<void> _sync({required bool automatic}) async {
     state = state.at(const SyncProgress(SyncStep.connecting));

@@ -4,6 +4,7 @@ import 'package:open_ring/app/background/background_sync_alerts.dart';
 import 'package:open_ring/app/background/background_sync_runner.dart';
 import 'package:open_ring/app/background/background_widget_publish.dart';
 import 'package:open_ring/core/database/open_app_database.dart';
+import 'package:open_ring/features/demo/infrastructure/shared_preferences_demo_mode_store.dart';
 import 'package:open_ring/features/health_sync/infrastructure/health_plugin_gateway.dart';
 import 'package:open_ring/features/health_sync/infrastructure/shared_preferences_health_write_preferences.dart';
 import 'package:open_ring/features/ring/application/sync_alerts.dart';
@@ -34,6 +35,7 @@ Future<bool> runBackgroundSync() {
   const service = MethodChannelSyncService();
   SyncOutcome? outcome;
   return superviseBackgroundSync(
+    demoMode: readStoredDemoMode,
     keepAlive: () async {
       final chosen = await readStoredAppLanguage();
       final strings = ringAlertStrings(chosen?.locale);

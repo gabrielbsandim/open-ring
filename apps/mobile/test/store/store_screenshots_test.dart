@@ -64,8 +64,14 @@ import '../helpers/workout_fakes.dart';
 import 'rgb_png.dart';
 
 // Renders the Play listing graphics only when asked, e.g.
-// OPEN_RING_STORE_DIR=/tmp/store flutter test test/store
+// OPEN_RING_STORE_DIR=/tmp/store OPEN_RING_STORE_LOCALE=en flutter test test/store
 final String? outputDir = Platform.environment['OPEN_RING_STORE_DIR'];
+final List<String> localeParts =
+    (Platform.environment['OPEN_RING_STORE_LOCALE'] ?? 'pt_BR').split('_');
+final Locale storeLocale = Locale(
+  localeParts.first,
+  localeParts.elementAtOrNull(1),
+);
 
 final now = DateTime(2026, 11, 11, 18, 20);
 const phone = Size(1080, 2160);
@@ -192,7 +198,7 @@ void main() {
       ..devicePixelRatio = phoneRatio
       ..physicalSize = phone;
     addTearDown(tester.view.reset);
-    tester.platformDispatcher.localesTestValue = [const Locale('pt', 'BR')];
+    tester.platformDispatcher.localesTestValue = [storeLocale];
     addTearDown(tester.platformDispatcher.clearLocalesTestValue);
 
     await tester.pumpWidget(

@@ -1,0 +1,23 @@
+name: ring_notifications
+description: Posts OpenRing's ring alerts, attached to every Flutter engine, the WorkManager one included.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.13.5
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  very_good_analysis: ^11.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: gbs.openring.notifications
+        pluginClass: RingNotificationsPlugin

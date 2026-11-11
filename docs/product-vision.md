@@ -25,7 +25,7 @@ Despite solid hardware, the software delivered by manufacturers (predominantly *
 
 - **Driver Abstraction (Multi-Brand Support)**: The core app must not know about specific hardware details. Each ring model or chipset family is implemented as a modular `SmartRingDriver`.
 - **First-Class Health Connect and HealthKit Sync**: Every piece of data collected by the ring (sleep hypnogram, heart rate samples, HRV, active energy, and manual/ring workouts) must be cleanly published to the operating system's health platform.
-- **Privacy First and Local Storage**: Telemetry belongs to the user. All storage is local-first (SQLite or Isar). No external cloud servers or accounts required to operate the ring.
+- **Privacy First and Local Storage**: Telemetry belongs to the user. All storage is local-first (SQLite through drift). No external cloud servers or accounts required to operate the ring.
 - **Modern Clean Design**: Dark-mode first, minimal typography, fluid charts, and zero ads or bloatware.
 
 ## 4. Supported Hardware Families (Phased)

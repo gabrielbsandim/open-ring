@@ -35,7 +35,6 @@ import 'package:open_ring/features/ring/application/ring_sync_state.dart';
 import 'package:open_ring/features/ring/domain/discovered_device.dart';
 import 'package:open_ring/features/ring/presentation/pair_error_screen.dart';
 import 'package:open_ring/features/ring/presentation/pair_screen.dart';
-import 'package:open_ring/features/ring/presentation/protocol_lab_screen.dart';
 import 'package:open_ring/features/ring/presentation/ring_screen.dart';
 import 'package:open_ring/features/settings/domain/notification_access.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
@@ -60,6 +59,7 @@ import 'package:open_ring/features/widgets/presentation/today_widget_config_scre
 import 'package:open_ring/features/widgets/presentation/widgets_screen.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
+import '../helpers/ble_fakes.dart';
 import '../helpers/fake_health_reader.dart';
 import '../helpers/fake_health_writer.dart';
 import '../helpers/layout_harness.dart';
@@ -67,7 +67,6 @@ import '../helpers/metrics_fakes.dart';
 import '../helpers/metrics_pump.dart';
 import '../helpers/onboarding_app.dart';
 import '../helpers/onboarding_fakes.dart';
-import '../helpers/protocol_lab_fakes.dart';
 import '../helpers/ring_fakes.dart';
 import '../helpers/settings_fakes.dart';
 import '../helpers/widget_fakes.dart';
@@ -140,7 +139,7 @@ final class _Case {
 List<Override> _metrics(MetricsScenario scenario) => metricsOverrides(scenario);
 
 List<Override> _readFailed() => [
-  ...protocolLabOverrides(),
+  ...bleOverrides(),
   ...ringOverrides(
     paired: fullDataScenario.pairedRing,
     clock: () => metricsNow,
@@ -174,7 +173,7 @@ List<Override> _onboarding({
   Map<AppPermission, PermissionStatus>? permissions,
   UserProfileStore? profiles,
 }) => [
-  ...protocolLabOverrides(),
+  ...bleOverrides(),
   ...ringOverrides(),
   ...onboardingOverrides(
     permissions: FakeAppPermissions(statuses: permissions),
@@ -190,7 +189,7 @@ List<Override> _settings({
   FakeOutboxSummaryReader? outbox,
   ExportState? export,
 }) => [
-  ...protocolLabOverrides(),
+  ...bleOverrides(),
   ...ringOverrides(),
   ...settingsOverrides(
     profiles: profiles,
@@ -474,7 +473,7 @@ final _cases = <String, _Case>{
     const DataSourcesScreen(),
     () => _sources(noDataScenario),
     check: (tester, l) async =>
-        expect(find.text(l.sourcesRingUnpaired), findsOneWidget),
+        expect(find.text(l.sourcesReadSleep), findsOneWidget),
   ),
   'Widgets': const _Case(WidgetsScreen(), _widgets),
   'Today widget': const _Case(TodayWidgetConfigScreen(), _widgets),
@@ -492,10 +491,6 @@ final _cases = <String, _Case>{
       expect(find.byKey(TodayWidgetConfigScreen.requestedKey), findsNothing);
       expect(find.byKey(TodayWidgetConfigScreen.addKey), findsOneWidget);
     },
-  ),
-  'Protocol lab': _Case(
-    const ProtocolLabScreen(),
-    () => [...protocolLabOverrides(), ...ringOverrides()],
   ),
 };
 

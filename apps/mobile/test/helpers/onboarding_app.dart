@@ -7,9 +7,9 @@ import 'package:open_ring/app/router/app_router.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
 
+import 'ble_fakes.dart';
 import 'in_memory_theme_mode_store.dart';
 import 'onboarding_fakes.dart';
-import 'protocol_lab_fakes.dart';
 import 'ring_fakes.dart';
 
 // Tall enough that a whole onboarding page is built without scrolling.
@@ -35,11 +35,7 @@ Future<ProviderContainer> pumpOnboardingApp(
           store ?? InMemoryOnboardingStore(),
         ),
         ...overrides ??
-            [
-              ...protocolLabOverrides(),
-              ...ringOverrides(),
-              ...onboardingOverrides(),
-            ],
+            [...bleOverrides(), ...ringOverrides(), ...onboardingOverrides()],
       ],
       child: const OpenRingApp(),
     ),

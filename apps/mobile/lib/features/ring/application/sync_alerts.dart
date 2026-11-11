@@ -15,15 +15,15 @@ const syncFailureAlertAttempts = 3;
 const _lowBatteryNotificationId = 1001;
 const _syncFailedNotificationId = 1002;
 
-// The worker has no widget tree, so the language comes from settings or the
-// platform locales here.
-AppLocalizations ringAlertStrings(Locale? chosen) => lookupAppLocalizations(
-  chosen ??
+// The worker has no widget tree, so the language comes from the platform
+// locales here.
+AppLocalizations ringAlertStrings([List<Locale>? locales]) =>
+    lookupAppLocalizations(
       AppLocales.resolve(
-        PlatformDispatcher.instance.locales,
+        locales ?? PlatformDispatcher.instance.locales,
         AppLocales.supported,
       ),
-);
+    );
 
 final class SyncAlerts {
   const new({

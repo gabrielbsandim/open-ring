@@ -4,12 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/app_navigation_bar.dart';
-import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/core/records/record_kind.dart';
 import 'package:open_ring/features/health_sync/application/health_status_providers.dart';
 import 'package:open_ring/features/health_sync/application/health_sync_controller.dart';
-import 'package:open_ring/features/health_sync/domain/health_status.dart';
-import 'package:open_ring/features/health_sync/presentation/health_status_screen.dart';
 import 'package:open_ring/features/ring/domain/auto_measurements.dart';
 import 'package:open_ring/features/ring/domain/sync_run.dart';
 import 'package:open_ring/features/ring/domain/sync_store.dart';
@@ -32,7 +29,6 @@ final class _Rig {
     List<SyncRun> runs = const [],
     AutoMeasurements measurements = AutoMeasurements.allOn,
     Set<RingCapability>? capabilities,
-    this.outbox,
   }) : scenario = scenario ?? fullDataScenario,
        driver = FakeRingDriver(capabilities: capabilities),
        store = FakeSyncStore(
@@ -47,7 +43,6 @@ final class _Rig {
   final MetricsScenario scenario;
   final FakeRingDriver driver;
   final FakeSyncStore store;
-  final OutboxSummary? outbox;
   final scheduler = FakeSyncScheduler();
   final battery = FakeBatterySettings();
   final lock = InMemorySyncLock();
@@ -65,9 +60,7 @@ final class _Rig {
       ),
     ),
     healthWriterProvider.overrideWithValue(FakeHealthWriter()),
-    outboxSummaryReaderProvider.overrideWithValue(
-      FakeOutboxSummaryReader(outbox),
-    ),
+    outboxSummaryReaderProvider.overrideWithValue(FakeOutboxSummaryReader()),
     healthSyncProvider.overrideWith(RecordingHealthSyncController.new),
   ];
 
@@ -97,64 +90,41 @@ Finder _within(Key key, Finder matching) =>
     find.descendant(of: find.byKey(key), matching: matching);
 
 void main() {
-  group('sync log', () {
-    testWidgets('lists each run with its outcome, time and detail', (
-      tester,
-    ) async {
-      final rig = _Rig(
+  group('sync history', () {
+    testWidgets('logged runs stay off the screen', (tester) async {
+      await _Rig(
         runs: [
           SyncRun(
             at: metricsNow.subtract(const Duration(minutes: 20)),
             outcome: SyncRunOutcome.completed,
-            kinds: const {RecordKind.heartRate, RecordKind.stress},
+            kinds: const {RecordKind.heartRate},
             recordCount: 46,
           ),
           SyncRun(
             at: metricsNow.subtract(const Duration(hours: 2)),
             outcome: SyncRunOutcome.unreachable,
           ),
-          SyncRun(
-            at: metricsNow.subtract(const Duration(hours: 3)),
-            outcome: SyncRunOutcome.partial,
-          ),
         ],
+      ).pump(tester);
+      await tester.scrollUntilVisible(
+        find.byKey(RingKeys.unpair),
+        200,
+        scrollable: find.byType(Scrollable).first,
       );
-      await rig.pump(tester);
 
-      expect(_within(RingKeys.log, find.text('Recent syncs')), findsOneWidget);
-      expect(_within(RingKeys.log, find.text('Synced')), findsOneWidget);
-      expect(
-        _within(RingKeys.log, find.text('46 records · heart rate, stress')),
-        findsOneWidget,
-      );
-      expect(_within(RingKeys.log, find.text('Failed')), findsOneWidget);
-      expect(
-        _within(RingKeys.log, find.text('Ring out of range or out of battery')),
-        findsOneWidget,
-      );
-      expect(_within(RingKeys.log, find.text('Partly synced')), findsOneWidget);
-      expect(_within(RingKeys.log, find.text('No new data')), findsOneWidget);
-      expect(find.byKey(RingKeys.logEmpty), findsNothing);
+      expect(find.text('Recent syncs'), findsNothing);
+      expect(find.text('Ring out of range or out of battery'), findsNothing);
+      expect(find.textContaining('46 records'), findsNothing);
     });
 
-    testWidgets('says so when nothing was logged yet', (tester) async {
-      await _Rig().pump(tester);
-
-      expect(find.byKey(RingKeys.logEmpty), findsOneWidget);
-      expect(find.text('No syncs logged yet'), findsOneWidget);
-    });
-
-    testWidgets('a sync from the screen adds its run to the log', (
-      tester,
-    ) async {
+    testWidgets('a sync from the screen is still logged', (tester) async {
       final rig = _Rig();
       await rig.pump(tester);
 
       await _tap(tester, find.byKey(RingKeys.syncNow));
 
       expect(rig.store.runs, hasLength(1));
-      expect(find.byKey(RingKeys.logEmpty), findsNothing);
-      expect(_within(RingKeys.log, find.text('Synced')), findsOneWidget);
+      expect(rig.store.runs.single.outcome, SyncRunOutcome.completed);
     });
   });
 
@@ -226,33 +196,6 @@ void main() {
       expect(find.byKey(RingKeys.measurements), findsNothing);
       expect(find.byKey(RingKeys.find), findsNothing);
       expect(find.byKey(RingKeys.unpair), findsOneWidget);
-    });
-  });
-
-  group('health row', () {
-    testWidgets('shows the connection and the send queue', (tester) async {
-      await _Rig(
-        outbox: OutboxSummary(
-          pendingRecords: const {HealthRecordKind.heartRate: 12},
-          pendingRows: 1,
-        ),
-      ).pump(tester);
-
-      await tester.ensureVisible(find.byKey(RingKeys.health));
-      expect(
-        _within(RingKeys.health, find.text('Connected · 12 records waiting')),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('opens the health status screen', (tester) async {
-      final rig = _Rig();
-      await rig.pump(tester, app: true);
-      await _openRingTab(tester);
-
-      await _tap(tester, find.byKey(RingKeys.health));
-
-      expect(find.byType(HealthStatusScreen), findsOneWidget);
     });
   });
 

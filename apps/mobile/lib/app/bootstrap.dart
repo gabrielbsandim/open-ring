@@ -32,9 +32,9 @@ import 'package:open_ring/features/onboarding/infrastructure/method_channel_app_
 import 'package:open_ring/features/onboarding/infrastructure/shared_preferences_onboarding_store.dart';
 import 'package:open_ring/features/ring/application/auto_measurements_controller.dart';
 import 'package:open_ring/features/ring/application/pair_controller.dart';
-import 'package:open_ring/features/ring/application/protocol_lab_controller.dart';
 import 'package:open_ring/features/ring/application/resume_sync_trigger.dart';
 import 'package:open_ring/features/ring/application/ring_alert_providers.dart';
+import 'package:open_ring/features/ring/application/ring_link_providers.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
 import 'package:open_ring/features/ring/infrastructure/background_sync_signal.dart';
@@ -44,20 +44,18 @@ import 'package:open_ring/features/ring/infrastructure/flutter_blue_plus_radio.d
 import 'package:open_ring/features/ring/infrastructure/flutter_blue_plus_scanner.dart';
 import 'package:open_ring/features/ring/infrastructure/flutter_blue_plus_transport.dart';
 import 'package:open_ring/features/ring/infrastructure/method_channel_ring_notifier.dart';
-import 'package:open_ring/features/ring/infrastructure/share_plus_session_log_exporter.dart';
 import 'package:open_ring/features/ring/infrastructure/shared_preferences_ring_alert_preferences.dart';
 import 'package:open_ring/features/ring/infrastructure/shared_preferences_sync_interval_store.dart';
 import 'package:open_ring/features/ring/infrastructure/sync_locks_dao.dart';
 import 'package:open_ring/features/ring/infrastructure/workmanager_sync_scheduler.dart';
-import 'package:open_ring/features/settings/application/app_language_controller.dart';
 import 'package:open_ring/features/settings/application/delete_all_data_controller.dart';
 import 'package:open_ring/features/settings/application/notification_providers.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/infrastructure/device_local_data_eraser.dart';
 import 'package:open_ring/features/settings/infrastructure/drift_user_profile_store.dart';
+import 'package:open_ring/features/settings/infrastructure/legacy_preferences.dart';
 import 'package:open_ring/features/settings/infrastructure/platform_notification_access.dart';
-import 'package:open_ring/features/settings/infrastructure/shared_preferences_app_language_store.dart';
 import 'package:open_ring/features/settings/infrastructure/shared_preferences_unit_system_store.dart';
 import 'package:open_ring/features/sleep/application/sleep_providers.dart';
 import 'package:open_ring/features/sleep/infrastructure/drift_imported_sleep_reader.dart';
@@ -80,11 +78,11 @@ import 'package:open_ring/features/workout/infrastructure/ring_live_heart_rate_s
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterBluePlusTransport.enableStateRestoration();
+  await clearLegacyPreferences();
   final themeModeStore = await SharedPreferencesThemeModeStore.open();
   final syncIntervalStore = await SharedPreferencesSyncIntervalStore.open();
   final onboardingStore = await SharedPreferencesOnboardingStore.open();
   final demoModeStore = await SharedPreferencesDemoModeStore.open();
-  final appLanguageStore = await SharedPreferencesAppLanguageStore.open();
   final widgetConfigStore =
       await SharedPreferencesTodayWidgetConfigStore.open();
   final database = openAppDatabase();
@@ -119,7 +117,6 @@ Future<void> bootstrap() async {
       unitSystemStoreProvider.overrideWithValue(
         SharedPreferencesUnitSystemStore(),
       ),
-      appLanguageStoreProvider.overrideWithValue(appLanguageStore),
       ringAlertPreferencesProvider.overrideWithValue(
         SharedPreferencesRingAlertPreferences(),
       ),
@@ -162,9 +159,6 @@ Future<void> bootstrap() async {
       ),
       importedSleepReaderProvider.overrideWith(
         (ref) => DriftImportedSleepReader(ref.watch(appDatabaseProvider)),
-      ),
-      sessionLogExporterProvider.overrideWithValue(
-        const SharePlusSessionLogExporter(),
       ),
       sleepHistoryReaderProvider.overrideWith(
         (ref) => DriftSleepHistoryReader(ref.watch(appDatabaseProvider)),

@@ -6,9 +6,9 @@ import 'package:open_ring/features/onboarding/presentation/health_permission_scr
 import 'package:open_ring/features/onboarding/presentation/profile_screen.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 
+import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/onboarding_app.dart';
 import '../../../helpers/onboarding_fakes.dart';
-import '../../../helpers/protocol_lab_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
 
 Future<InMemoryUserProfileStore> _pump(
@@ -20,7 +20,7 @@ Future<InMemoryUserProfileStore> _pump(
     tester,
     at: AppPaths.onboardingProfile,
     overrides: [
-      ...protocolLabOverrides(),
+      ...bleOverrides(),
       ...ringOverrides(),
       ...onboardingOverrides(profileStore: store),
       clockProvider.overrideWithValue(() => DateTime(2026, 11, 10)),

@@ -5,7 +5,7 @@ import 'package:open_ring/features/health_sync/infrastructure/shared_preferences
 import 'package:open_ring/features/ring/infrastructure/shared_preferences_ring_alert_preferences.dart';
 import 'package:open_ring/features/ring/infrastructure/shared_preferences_sync_interval_store.dart';
 import 'package:open_ring/features/settings/application/delete_all_data_controller.dart';
-import 'package:open_ring/features/settings/infrastructure/shared_preferences_app_language_store.dart';
+import 'package:open_ring/features/settings/infrastructure/legacy_preferences.dart';
 import 'package:open_ring/features/settings/infrastructure/shared_preferences_unit_system_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,13 +15,13 @@ final class DeviceLocalDataEraser implements LocalDataEraser {
 
   static const Set<String> preferenceKeys = {
     SharedPreferencesUnitSystemStore.key,
-    SharedPreferencesAppLanguageStore.key,
     SharedPreferencesThemeModeStore.key,
     SharedPreferencesSyncIntervalStore.key,
     SharedPreferencesRingAlertPreferences.offKey,
     SharedPreferencesRingAlertPreferences.warnedKey,
     SharedPreferencesHealthWritePreferences.key,
     SharedPreferencesDemoModeStore.key,
+    ...legacyPreferenceKeys,
   };
 
   final AppDatabase _db;

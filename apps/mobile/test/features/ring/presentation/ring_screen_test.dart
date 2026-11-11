@@ -64,7 +64,7 @@ void main() {
     expect(find.byKey(PairKeys.search), findsOneWidget);
   });
 
-  testWidgets('a fresh ring shows device, battery and sync times', (
+  testWidgets('a fresh ring shows its name, battery and last sync', (
     tester,
   ) async {
     final semantics = tester.ensureSemantics();
@@ -72,25 +72,27 @@ void main() {
 
     expect(find.byKey(RingKeys.device), findsOneWidget);
     expect(find.text('R09_C0FE'), findsOneWidget);
-    expect(find.text('Model R09 · Firmware 3.00.03'), findsOneWidget);
     expect(find.bySemanticsLabel('Battery 68%, charging'), findsOneWidget);
     expect(find.text('Connects only while it syncs'), findsOneWidget);
     expect(find.byKey(RingKeys.offline), findsNothing);
     expect(
-      find.descendant(
-        of: find.byKey(RingKeys.lastSync),
-        matching: find.text('08:40'),
-      ),
-      findsOneWidget,
-    );
-    expect(
-      find.descendant(
-        of: find.byKey(RingKeys.nextSync),
-        matching: find.text('09:40'),
-      ),
-      findsOneWidget,
+      tester.widget<Text>(find.byKey(RingKeys.lastSync)).data,
+      'Synced 08:40',
     );
     semantics.dispose();
+  });
+
+  testWidgets('the screen keeps to the essentials', (tester) async {
+    await _pumpRing(tester, fullDataScenario);
+    await reveal(tester, find.byKey(RingKeys.unpair));
+
+    expect(find.byKey(RingKeys.syncNow), findsOneWidget);
+    expect(find.byKey(RingKeys.find), findsOneWidget);
+    expect(find.byKey(RingKeys.unpair), findsOneWidget);
+    expect(find.text('Recent syncs'), findsNothing);
+    expect(find.textContaining('Firmware'), findsNothing);
+    expect(find.byKey(RingScreen.settingsKey), findsOneWidget);
+    expect(find.byIcon(Icons.science_rounded), findsNothing);
   });
 
   testWidgets('picking an interval saves it', (tester) async {
@@ -106,7 +108,8 @@ void main() {
       tester.element(find.byType(RingScreen)),
     );
     expect(container.read(syncIntervalProvider), SyncInterval.minutes30);
-    expect(find.text('Automatic every 30 min'), findsOneWidget);
+    final chip = tester.widget<ChoiceChip>(option);
+    expect(chip.selected, isTrue);
   });
 
   testWidgets('sync now connects to the ring', (tester) async {

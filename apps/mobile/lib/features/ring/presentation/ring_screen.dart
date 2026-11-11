@@ -28,7 +28,6 @@ class RingScreen extends ConsumerWidget {
   const new({super.key});
 
   static const settingsKey = Key('ring_settings');
-  static const protocolLabKey = Key('ring_protocol_lab');
   static const pairKey = Key('ring_pair');
 
   @override
@@ -40,13 +39,6 @@ class RingScreen extends ConsumerWidget {
       title: l10n.tabRing,
       onRefresh: paired ? () => refreshRing(ref) : null,
       actions: [
-        if (kDebugMode)
-          IconButton(
-            key: protocolLabKey,
-            tooltip: l10n.labOpen,
-            icon: const Icon(Icons.science_rounded),
-            onPressed: () => context.go(AppPaths.protocolLab),
-          ),
         IconButton(
           key: settingsKey,
           tooltip: l10n.settingsTitle,
@@ -133,11 +125,7 @@ class _PairedBody extends ConsumerWidget {
           onSync: () => unawaited(refreshRing(ref)),
         ),
         const SizedBox(height: cardGap),
-        const SyncIntervalCard(),
-        const SizedBox(height: cardGap),
         const AutoMeasurementsCard(),
-        const HealthLinkCard(),
-        const SizedBox(height: cardGap),
         if (ref.watch(demoModeProvider))
           SecondaryButton(
             key: DemoKeys.ringLeave,

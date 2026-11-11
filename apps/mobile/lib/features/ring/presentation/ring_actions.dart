@@ -8,8 +8,6 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
-import 'package:open_ring/features/health_sync/application/health_status_providers.dart';
-import 'package:open_ring/features/health_sync/presentation/health_status_screen.dart';
 import 'package:open_ring/features/onboarding/presentation/onboarding_page.dart';
 import 'package:open_ring/features/ring/application/find_ring.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
@@ -17,42 +15,6 @@ import 'package:open_ring/features/ring/application/unpair_ring.dart';
 import 'package:open_ring/features/ring/presentation/ring_cards.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 import 'package:ring_driver/ring_driver.dart';
-
-class HealthLinkCard extends ConsumerWidget {
-  const new({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colors = AppColors.of(context);
-    final format = MetricFormat.of(context);
-    final status = ref.watch(healthStatusProvider).value;
-    return Semantics(
-      button: true,
-      child: MetricCard(
-        key: RingKeys.health,
-        onTap: () => context.go(AppPaths.settingsHealth),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    format.l10n.ringHealthLinkTitle(healthPlatformName()),
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  CaptionText(healthLinkDetail(format, status)),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Icon(Icons.chevron_right_rounded, color: colors.textLabel),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class RingActions extends ConsumerWidget {
   const new({required this.name, this.offline = false, super.key});

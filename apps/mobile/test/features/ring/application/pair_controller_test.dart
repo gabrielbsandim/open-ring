@@ -11,10 +11,10 @@ import 'package:open_ring/features/ring/domain/sync_scheduler.dart';
 import 'package:ring_driver/ring_driver.dart';
 import 'package:ring_driver/testing.dart';
 
+import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/fake_sync_scheduler.dart';
 import '../../../helpers/in_memory_sync_interval_store.dart';
 import '../../../helpers/onboarding_fakes.dart';
-import '../../../helpers/protocol_lab_fakes.dart';
 
 class _Rig {
   new({
@@ -39,7 +39,7 @@ class _Rig {
       syncIntervalStoreProvider.overrideWithValue(
         InMemorySyncIntervalStore(SyncInterval.minutes30),
       ),
-      ...protocolLabOverrides(scanner: scanner, transport: transport),
+      ...bleOverrides(scanner: scanner, transport: transport),
       ...onboardingOverrides(
         permissions: permissions,
         radio: radio,

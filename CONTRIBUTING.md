@@ -37,7 +37,7 @@ Useful subsets:
   under `apps/mobile/fastlane/metadata/android`: one folder per app locale, the
   Play Console length limits, no em or en dash.
 - `dart run tools/trace_replay/bin/trace_replay.dart decode session.jsonl`
-  replays a protocol lab session through the parsers without a ring (see
+  replays a recorded frame session through the parsers without a ring (see
   `tools/trace_replay/README.md`).
 
 A change to the drift schema needs a new schema dump and a migration test under

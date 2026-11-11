@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/ring/application/auto_measurements_controller.dart';
 import 'package:open_ring/features/ring/domain/auto_measurements.dart';
-import 'package:open_ring/features/ring/domain/sync_run.dart';
 import 'package:open_ring/features/ring/domain/sync_store.dart';
 
 import '../../../helpers/ring_fakes.dart';
@@ -32,23 +31,6 @@ void main() {
     final container = ProviderContainer.test(overrides: ringOverrides());
 
     expect(await container.read(autoMeasurementsProvider.future), isNull);
-  });
-
-  test('the sync log lists the runs of the paired ring', () async {
-    final run = SyncRun(
-      at: DateTime(2026, 11, 10, 8),
-      outcome: SyncRunOutcome.unreachable,
-    );
-    final container = ProviderContainer.test(
-      overrides: ringOverrides(
-        store: FakeSyncStore(
-          ring: const PairedRing(deviceId: fakeRingId),
-          runs: [run],
-        ),
-      ),
-    );
-
-    expect(await container.read(syncLogProvider.future), [run]);
   });
 
   test('turning one back on keeps the others off', () {

@@ -13,11 +13,11 @@ import 'package:open_ring/features/today/domain/ring_status_reader.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
 import 'package:ring_driver/ring_driver.dart';
 
+import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/fake_ring_driver.dart';
 import '../../../helpers/metrics_fakes.dart';
 import '../../../helpers/onboarding_app.dart';
 import '../../../helpers/onboarding_fakes.dart';
-import '../../../helpers/protocol_lab_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
 
 Future<void> _pump(WidgetTester tester, {FakeRingDriver? driver}) =>
@@ -26,7 +26,7 @@ Future<void> _pump(WidgetTester tester, {FakeRingDriver? driver}) =>
       at: PairFlow.onboarding.syncPath,
       store: InMemoryOnboardingStore(completed: true),
       overrides: [
-        ...protocolLabOverrides(),
+        ...bleOverrides(),
         ...ringOverrides(
           paired: const PairedRing(deviceId: fakeRingId),
           driver: driver,
@@ -45,7 +45,7 @@ Future<void> _pumpRunning(
   at: PairFlow.onboarding.syncPath,
   store: InMemoryOnboardingStore(completed: true),
   overrides: <Override>[
-    ...protocolLabOverrides(),
+    ...bleOverrides(),
     ...ringOverrides(),
     ...onboardingOverrides(),
     ringStatusReaderProvider.overrideWithValue(FakeRingStatusReader(ring)),
@@ -79,7 +79,7 @@ void main() {
       at: PairFlow.onboarding.syncPath,
       store: InMemoryOnboardingStore(completed: true),
       overrides: [
-        ...protocolLabOverrides(),
+        ...bleOverrides(),
         ...ringOverrides(),
         ...onboardingOverrides(),
         ringSyncProvider.overrideWith(
@@ -160,7 +160,7 @@ void main() {
       at: PairFlow.onboarding.syncPath,
       store: InMemoryOnboardingStore(completed: true),
       overrides: [
-        ...protocolLabOverrides(),
+        ...bleOverrides(),
         ...ringOverrides(
           paired: const PairedRing(deviceId: fakeRingId),
           driver: driver,

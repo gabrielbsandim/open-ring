@@ -17,9 +17,9 @@ import 'package:open_ring/features/workout/presentation/workout_pick_screen.dart
 import 'package:open_ring/features/workout/presentation/workout_summary_screen.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
+import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/layout_harness.dart';
 import '../../../helpers/metrics_fakes.dart';
-import '../../../helpers/protocol_lab_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
 import '../../../helpers/workout_fakes.dart';
 import 'workout_scenarios.dart';
@@ -176,7 +176,7 @@ void main() {
       locale: const Locale('de'),
       size: tallPhone,
       overrides: [
-        ...protocolLabOverrides(),
+        ...bleOverrides(),
         ...ringOverrides(),
         ...rig.overrides(),
         ringStatusReaderProvider.overrideWithValue(

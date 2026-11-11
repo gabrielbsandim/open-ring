@@ -26,9 +26,9 @@ import 'package:open_ring/features/workout/presentation/workout_summary_screen.d
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 import '../features/workout/presentation/workout_scenarios.dart';
+import '../helpers/ble_fakes.dart';
 import '../helpers/layout_harness.dart';
 import '../helpers/metrics_fakes.dart';
-import '../helpers/protocol_lab_fakes.dart';
 import '../helpers/ring_fakes.dart';
 import '../helpers/settings_fakes.dart';
 import '../helpers/workout_fakes.dart';
@@ -515,7 +515,7 @@ Future<void> _pumpIn(
   brightness: Brightness.dark,
   locale: locale,
   overrides: <Override>[
-    ...protocolLabOverrides(),
+    ...bleOverrides(),
     ...ringOverrides(),
     ...rig.overrides(),
     ringStatusReaderProvider.overrideWithValue(

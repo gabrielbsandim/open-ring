@@ -10,9 +10,9 @@ import 'package:open_ring/features/onboarding/application/onboarding_controller.
 import 'package:open_ring/features/onboarding/domain/onboarding_store.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
+import 'ble_fakes.dart';
 import 'in_memory_theme_mode_store.dart';
 import 'onboarding_fakes.dart';
-import 'protocol_lab_fakes.dart';
 import 'ring_fakes.dart';
 
 const phoneSize = Size(360, 640);
@@ -86,7 +86,7 @@ Future<void> pumpScaled(
           onboardingStoreProvider.overrideWithValue(
             onboardingStore ?? InMemoryOnboardingStore(completed: true),
           ),
-          ...overrides ?? [...protocolLabOverrides(), ...ringOverrides()],
+          ...overrides ?? [...bleOverrides(), ...ringOverrides()],
         ],
         child: MediaQuery(data: data, child: widget),
       ),

@@ -10,21 +10,20 @@ import 'package:open_ring/features/onboarding/presentation/welcome_screen.dart';
 import 'package:open_ring/features/ring/application/ring_alert_providers.dart';
 import 'package:open_ring/features/ring/domain/ring_alerts.dart';
 import 'package:open_ring/features/ring/presentation/ring_screen.dart';
-import 'package:open_ring/features/settings/domain/app_language.dart';
 import 'package:open_ring/features/settings/domain/notification_access.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/settings/presentation/about_section.dart';
 import 'package:open_ring/features/settings/presentation/data_sources_screen.dart';
 import 'package:open_ring/features/settings/presentation/delete_data_tile.dart';
-import 'package:open_ring/features/settings/presentation/language_section.dart';
 import 'package:open_ring/features/settings/presentation/notifications_section.dart';
+import 'package:open_ring/features/settings/presentation/privacy_policy_screen.dart';
 import 'package:open_ring/features/settings/presentation/profile_editor.dart';
 import 'package:open_ring/features/settings/presentation/profile_section.dart';
 import 'package:open_ring/features/settings/presentation/settings_screen.dart';
 
+import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/layout_harness.dart';
-import '../../../helpers/protocol_lab_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
 import '../../../helpers/settings_fakes.dart';
 
@@ -34,9 +33,8 @@ final _scenarios = <String, List<Override> Function()>{
     profiles: InMemoryUserProfileStore(fullProfile),
     units: InMemoryUnitSystemStore(UnitSystem.imperial),
   ),
-  'with notifications off and a chosen language': () => settingsOverrides(
+  'with notifications off': () => settingsOverrides(
     notifications: InMemoryNotificationAccess(allowed: false),
-    languages: InMemoryAppLanguageStore(AppLanguage.japanese),
   ),
 };
 
@@ -44,7 +42,6 @@ Future<void> _pump(
   WidgetTester tester, {
   UserProfileStore? profiles,
   UnitSystemStore? units,
-  AppLanguageStore? languages,
   NotificationAccess? notifications,
   FakeLocalDataEraser? eraser,
   RecordingExternalLinkOpener? links,
@@ -56,12 +53,11 @@ Future<void> _pump(
   brightness: Brightness.dark,
   locale: const Locale('en'),
   overrides: [
-    ...protocolLabOverrides(),
+    ...bleOverrides(),
     ...ringOverrides(),
     ...settingsOverrides(
       profiles: profiles,
       units: units,
-      languages: languages,
       notifications: notifications,
       eraser: eraser,
       links: links,
@@ -137,7 +133,7 @@ void main() {
       brightness: Brightness.dark,
       locale: const Locale('en'),
       overrides: [
-        ...protocolLabOverrides(),
+        ...bleOverrides(),
         ...ringOverrides(),
         ...settingsOverrides(notifications: notifications),
         ringAlertPreferencesProvider.overrideWithValue(preferences),
@@ -244,48 +240,51 @@ void main() {
     );
   });
 
-  testWidgets('following the system names the language in use', (tester) async {
+  testWidgets('keeps to the user settings, without language or text size', (
+    tester,
+  ) async {
+    await _pump(tester);
+    final texts = await shownTexts(tester);
+
+    expect(
+      texts,
+      containsAll(['Profile', 'General', 'Notifications', 'Data', 'About']),
+    );
+    expect(texts, containsAll(['Units', 'Appearance', 'Data sources']));
+    expect(texts, contains('OpenRing Privacy Policy'));
+    for (final gone in [
+      'Language',
+      'Follow system language',
+      'Text size',
+      'Follows the system',
+      'Now: dark',
+      'Now: light',
+    ]) {
+      expect(texts, isNot(contains(gone)), reason: gone);
+    }
+  });
+
+  testWidgets('the privacy policy opens from About', (tester) async {
+    await _pump(tester, screen: const OpenRingApp());
+    await _openSettingsInApp(tester);
+
+    await reveal(tester, find.byKey(AboutSection.privacyKey));
+    await tester.tap(find.byKey(AboutSection.privacyKey));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(PrivacyPolicyScreen), findsOneWidget);
+  });
+
+  testWidgets('allowed notifications show no permission row or button', (
+    tester,
+  ) async {
     await _pump(tester);
 
     await reveal(
       tester,
-      find.byKey(LanguageSection.optionKey(AppLanguage.system)),
+      find.byKey(NotificationsSection.alertKey(RingAlert.syncFailed)),
     );
-    expect(find.text('Follow system language'), findsOneWidget);
-    expect(find.text('Now: English'), findsOneWidget);
-    expect(find.text('Deutsch'), findsOneWidget);
-    expect(find.text('日本語'), findsOneWidget);
-  });
-
-  testWidgets('choosing a language switches the app and saves it', (
-    tester,
-  ) async {
-    final languages = InMemoryAppLanguageStore();
-    await _pump(tester, languages: languages, screen: const OpenRingApp());
-    await _openSettingsInApp(tester);
-
-    final german = find.byKey(LanguageSection.optionKey(AppLanguage.german));
-    await reveal(tester, german);
-    await tester.tap(german);
-    await tester.pumpAndSettle();
-
-    expect(languages.language, AppLanguage.german);
-    expect(find.text('Sprache'), findsOneWidget);
-
-    final system = find.byKey(LanguageSection.optionKey(AppLanguage.system));
-    await reveal(tester, system);
-    await tester.tap(system);
-    await tester.pumpAndSettle();
-
-    expect(languages.language, AppLanguage.system);
-    expect(find.text('Language'), findsOneWidget);
-  });
-
-  testWidgets('allowed notifications show no settings button', (tester) async {
-    await _pump(tester);
-
-    await reveal(tester, find.byKey(NotificationsSection.statusKey));
-    expect(find.text('Allowed'), findsOneWidget);
+    expect(find.byKey(NotificationsSection.statusKey), findsNothing);
     expect(find.byKey(NotificationsSection.openSettingsKey), findsNothing);
   });
 
@@ -305,7 +304,8 @@ void main() {
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
-    expect(find.text('Allowed'), findsOneWidget);
+    expect(find.byKey(NotificationsSection.statusKey), findsNothing);
+    expect(find.byKey(NotificationsSection.openSettingsKey), findsNothing);
   });
 
   testWidgets('cancelling the confirmation deletes nothing', (tester) async {

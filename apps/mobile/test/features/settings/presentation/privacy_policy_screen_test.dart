@@ -13,10 +13,10 @@ import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
+import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/layout_harness.dart';
 import '../../../helpers/metrics_fakes.dart';
 import '../../../helpers/onboarding_fakes.dart';
-import '../../../helpers/protocol_lab_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
 import '../../../helpers/settings_fakes.dart';
 import '../../../helpers/workout_fakes.dart';
@@ -27,7 +27,7 @@ const _manifest = 'android/app/src/main/AndroidManifest.xml';
 final Uri _privacyLink = Uri.parse('openring://app/privacy');
 
 List<Override> _appOverrides() => [
-  ...protocolLabOverrides(),
+  ...bleOverrides(),
   ...ringOverrides(),
   ...WorkoutRig().overrides(),
   ringStatusReaderProvider.overrideWithValue(FakeRingStatusReader(freshRing)),

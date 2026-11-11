@@ -8,11 +8,9 @@ import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
 import 'package:open_ring/features/ring/domain/sync_interval.dart';
-import 'package:open_ring/features/settings/application/app_language_controller.dart';
 import 'package:open_ring/features/settings/application/delete_all_data_controller.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
-import 'package:open_ring/features/settings/domain/app_language.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
@@ -45,9 +43,6 @@ void main() {
         themeModeStoreProvider.overrideWithValue(
           InMemoryThemeModeStore(ThemeMode.dark),
         ),
-        appLanguageStoreProvider.overrideWithValue(
-          InMemoryAppLanguageStore(AppLanguage.german),
-        ),
         syncIntervalStoreProvider.overrideWithValue(
           InMemorySyncIntervalStore(SyncInterval.minutes15),
         ),
@@ -76,7 +71,6 @@ void main() {
     expect(eraser.erased, 1);
     expect(c.read(deleteAllDataProvider), DeletionStatus.idle);
     expect(c.read(themeModeProvider), ThemeMode.system);
-    expect(c.read(appLanguageProvider), AppLanguage.system);
     expect(c.read(syncIntervalProvider), SyncInterval.fallback);
     expect(await c.read(unitSystemProvider.future), UnitSystem.metric);
     expect(await c.read(userProfileProvider.future), isNull);
@@ -94,7 +88,6 @@ void main() {
 
     expect(c.read(deleteAllDataProvider), DeletionStatus.failed);
     expect(c.read(themeModeProvider), ThemeMode.dark);
-    expect(c.read(appLanguageProvider), AppLanguage.german);
     expect(c.read(onboardingProvider), isTrue);
     expect(c.read(todayWidgetConfigProvider).theme, WidgetTheme.light);
   });

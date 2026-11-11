@@ -5,10 +5,10 @@ import 'package:open_ring/features/onboarding/domain/app_permissions.dart';
 import 'package:open_ring/features/onboarding/presentation/permissions_screen.dart';
 import 'package:open_ring/features/onboarding/presentation/profile_screen.dart';
 
+import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/layout_harness.dart';
 import '../../../helpers/onboarding_app.dart';
 import '../../../helpers/onboarding_fakes.dart';
-import '../../../helpers/protocol_lab_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
 import '../../../helpers/settings_fakes.dart';
 
@@ -21,7 +21,7 @@ Future<FakeAppPermissions> _pump(
     tester,
     at: AppPaths.onboardingPermissions,
     overrides: [
-      ...protocolLabOverrides(),
+      ...bleOverrides(),
       ...ringOverrides(),
       ...onboardingOverrides(permissions: permissions),
     ],
@@ -54,7 +54,7 @@ void main() {
           brightness: c.brightness,
           locale: c.locale,
           overrides: [
-            ...protocolLabOverrides(),
+            ...bleOverrides(),
             ...ringOverrides(),
             ...onboardingOverrides(
               permissions: FakeAppPermissions(statuses: {..._everyState}),

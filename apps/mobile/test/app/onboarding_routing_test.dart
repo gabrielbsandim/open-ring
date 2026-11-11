@@ -12,10 +12,10 @@ import 'package:open_ring/features/ring/domain/sync_store.dart';
 import 'package:open_ring/features/ring/presentation/pair_screen.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
 
+import '../helpers/ble_fakes.dart';
 import '../helpers/fake_health_writer.dart';
 import '../helpers/onboarding_app.dart';
 import '../helpers/onboarding_fakes.dart';
-import '../helpers/protocol_lab_fakes.dart';
 import '../helpers/ring_fakes.dart';
 
 void main() {
@@ -56,9 +56,7 @@ void main() {
       tester,
       store: store,
       overrides: [
-        ...protocolLabOverrides(
-          scanner: FakeRingScanner(found: const [colmiRing]),
-        ),
+        ...bleOverrides(scanner: FakeRingScanner(found: const [colmiRing])),
         ...ringOverrides(paired: PairedRing(deviceId: colmiRing.id)),
         ...onboardingOverrides(
           pairedStore: pairedStore,

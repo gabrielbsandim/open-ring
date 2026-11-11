@@ -8,16 +8,16 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/widgets/open_ring_logo.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
-import 'package:open_ring/features/ring/presentation/protocol_lab_screen.dart';
 import 'package:open_ring/features/ring/presentation/ring_screen.dart';
 import 'package:open_ring/features/settings/presentation/settings_screen.dart';
 import 'package:open_ring/features/sleep/presentation/sleep_screen.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
 
+import '../helpers/ble_fakes.dart';
 import '../helpers/in_memory_theme_mode_store.dart';
 import '../helpers/onboarding_fakes.dart';
-import '../helpers/protocol_lab_fakes.dart';
 import '../helpers/ring_fakes.dart';
+import '../helpers/settings_fakes.dart';
 
 Future<void> pumpApp(
   WidgetTester tester, {
@@ -37,7 +37,7 @@ Future<void> pumpApp(
         onboardingStoreProvider.overrideWithValue(
           InMemoryOnboardingStore(completed: true),
         ),
-        ...protocolLabOverrides(),
+        ...bleOverrides(),
         ...ringOverrides(),
       ],
       child: const OpenRingApp(),
@@ -119,21 +119,6 @@ void main() {
     expect(mark().color, colors.textPrimary);
   });
 
-  testWidgets('a debug build opens the protocol lab from the Ring tab', (
-    tester,
-  ) async {
-    await pumpApp(tester, locale: const Locale('en'));
-    await tester.tap(find.byKey(AppNavigationBar.destinationKey(AppTab.ring)));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(RingScreen.protocolLabKey));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(ProtocolLabScreen), findsOneWidget);
-    expect(find.text('Protocol lab'), findsOneWidget);
-    expect(find.byType(AppNavigationBar), findsOneWidget);
-  });
-
   testWidgets('follows the system brightness by default', (tester) async {
     tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
@@ -160,6 +145,10 @@ void main() {
     final store = InMemoryThemeModeStore();
     await pumpApp(tester, locale: const Locale('en'), store: store);
     await openSettings(tester);
+    await reveal(
+      tester,
+      find.byKey(SettingsScreen.themeModeKey(ThemeMode.dark)),
+    );
 
     expect(find.text('Follow system'), findsOneWidget);
     await tester.tap(find.byKey(SettingsScreen.themeModeKey(ThemeMode.dark)));
@@ -178,6 +167,10 @@ void main() {
   testWidgets('Settings reads the theme options in German', (tester) async {
     await pumpApp(tester, locale: const Locale('de', 'DE'));
     await openSettings(tester);
+    await reveal(
+      tester,
+      find.byKey(SettingsScreen.themeModeKey(ThemeMode.dark)),
+    );
 
     expect(find.text('Erscheinungsbild'), findsOneWidget);
     expect(find.text('Systemeinstellung verwenden'), findsOneWidget);
@@ -206,5 +199,37 @@ void main() {
 
     expect(find.textContaining('Pair your ring'), findsOneWidget);
     expect(find.text('Ring'), findsOneWidget);
+  });
+
+  testWidgets('the app locale resolves an unsupported system language to '
+      'English', (tester) async {
+    await pumpApp(tester, locale: const Locale('ko', 'KR'));
+
+    final context = tester.element(find.byType(TodayScreen));
+    expect(Localizations.localeOf(context), const Locale('en'));
+  });
+
+  testWidgets('a supported second system language wins over English', (
+    tester,
+  ) async {
+    tester.platformDispatcher.localesTestValue = const [
+      Locale('ko', 'KR'),
+      Locale('fr', 'FR'),
+    ];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+    await pumpApp(tester);
+
+    final context = tester.element(find.byType(TodayScreen));
+    expect(Localizations.localeOf(context), const Locale('fr'));
+  });
+
+  testWidgets('Settings offers no language choice', (tester) async {
+    await pumpApp(tester, locale: const Locale('en'));
+    await openSettings(tester);
+    final texts = await shownTexts(tester);
+
+    expect(texts, contains('About'));
+    expect(texts, isNot(contains('Language')));
+    expect(texts, isNot(contains('Follow system language')));
   });
 }

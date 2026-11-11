@@ -11,9 +11,9 @@ import 'package:open_ring/features/heart/presentation/measure_screen.dart';
 import 'package:open_ring/features/ring/domain/sync_store.dart';
 import 'package:ring_driver/ring_driver.dart';
 
+import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/fake_ring_driver.dart';
 import '../../../helpers/layout_harness.dart';
-import '../../../helpers/protocol_lab_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
 
 const _timing = MeasureTiming(
@@ -36,7 +36,7 @@ class _Rig {
         brightness: Brightness.dark,
         locale: const Locale('en'),
         overrides: [
-          ...protocolLabOverrides(),
+          ...bleOverrides(),
           ...ringOverrides(
             paired: paired ? const PairedRing(deviceId: fakeRingId) : null,
             driver: driver,
@@ -231,7 +231,7 @@ void main() {
       brightness: Brightness.dark,
       locale: const Locale('en'),
       overrides: [
-        ...protocolLabOverrides(),
+        ...bleOverrides(),
         ...ringOverrides(
           paired: const PairedRing(deviceId: fakeRingId),
           driver: rig.driver,

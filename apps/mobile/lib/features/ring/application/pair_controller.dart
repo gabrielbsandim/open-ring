@@ -6,7 +6,7 @@ import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
 import 'package:open_ring/features/onboarding/domain/app_permissions.dart';
 import 'package:open_ring/features/ring/application/pair_state.dart';
-import 'package:open_ring/features/ring/application/protocol_lab_controller.dart';
+import 'package:open_ring/features/ring/application/ring_link_providers.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
 import 'package:open_ring/features/ring/domain/discovered_device.dart';
 import 'package:open_ring/features/ring/domain/ring_pairing.dart';

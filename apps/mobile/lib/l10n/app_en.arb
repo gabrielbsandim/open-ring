@@ -17,340 +17,6 @@
   "themeModeSystem": "Follow system",
   "themeModeLight": "Light",
   "themeModeDark": "Dark",
-  "labTitle": "Protocol lab",
-  "labOpen": "Open protocol lab",
-  "labDeviceSection": "Device",
-  "labScan": "Scan",
-  "labStopScan": "Stop scan",
-  "labScanning": "Scanning for nearby devices",
-  "labNoDevices": "No devices found yet. Charge the ring, keep it close to this phone and tap Scan.",
-  "labUnnamedDevice": "Unnamed device",
-  "labSignal": "Signal {rssi} dBm",
-  "@labSignal": {
-    "placeholders": {
-      "rssi": {
-        "type": "int"
-      }
-    }
-  },
-  "labColmiBadge": "Looks like a Colmi ring",
-  "labConnect": "Connect",
-  "labDisconnect": "Disconnect",
-  "labLinkDisconnected": "Not connected",
-  "labLinkConnecting": "Connecting to {device}",
-  "@labLinkConnecting": {
-    "placeholders": {
-      "device": {
-        "type": "String"
-      }
-    }
-  },
-  "labLinkConnected": "Connected to {device}",
-  "@labLinkConnected": {
-    "placeholders": {
-      "device": {
-        "type": "String"
-      }
-    }
-  },
-  "labCommandsSection": "Commands",
-  "labChecksumTitle": "Checksum for frames the lab builds",
-  "labChecksumMasked": "Sum of bytes & 0xFF",
-  "labChecksumModulo": "Sum of bytes % 255",
-  "labReadBattery": "Read battery",
-  "labFindDevice": "Find device",
-  "labRawLabel": "Raw frame, 16 bytes in hex",
-  "labRawHelper": "Sent as typed, checksum included. Power off and factory reset are blocked.",
-  "labSendRaw": "Send raw frame",
-  "labRawEmpty": "Type a frame first.",
-  "labRawNotHex": "Use hex digits only, two per byte.",
-  "labRawWrongLength": "A frame has 16 bytes, this one has {count}.",
-  "@labRawWrongLength": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "labRawBlocked": "Power off and factory reset are blocked in the lab.",
-  "labLogSection": "Frame log",
-  "labLogCount": "{count, plural, =1{1 frame} other{{count} frames}}",
-  "@labLogCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "labLogEmpty": "Frames sent and received show up here, newest first.",
-  "labExport": "Export JSON lines",
-  "labClear": "Clear log",
-  "labDirectionTx": "TX",
-  "labDirectionRx": "RX",
-  "labBatteryCharging": "Battery {percent}%, charging",
-  "@labBatteryCharging": {
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
-  "labBatteryNotCharging": "Battery {percent}%, not charging",
-  "@labBatteryNotCharging": {
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
-  "labChecksumMatches": "Checksum matches: {rules}",
-  "@labChecksumMatches": {
-    "placeholders": {
-      "rules": {
-        "type": "String"
-      }
-    }
-  },
-  "labChecksumNoMatch": "Checksum matches neither rule",
-  "labErrorTransport": "Bluetooth error: {message}",
-  "@labErrorTransport": {
-    "placeholders": {
-      "message": {
-        "type": "String"
-      }
-    }
-  },
-  "labErrorExport": "Export failed: {message}",
-  "@labErrorExport": {
-    "placeholders": {
-      "message": {
-        "type": "String"
-      }
-    }
-  },
-  "labSetTime": "Set time",
-  "labReadSetting": "Read {setting}",
-  "@labReadSetting": {
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
-  },
-  "labTodayTotals": "Read today's totals",
-  "labStopProbe": "Heart rate, then stop",
-  "labStopProbeWaiting": "Waiting for a heart rate above zero before sending stop 0x6A. Readings so far: {count}.",
-  "@labStopProbeWaiting": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "labStopProbeCounts": "Stop 0x6A sent. Heart rate readings before it: {before}, after it: {after}.",
-  "@labStopProbeCounts": {
-    "placeholders": {
-      "before": {
-        "type": "int"
-      },
-      "after": {
-        "type": "int"
-      }
-    }
-  },
-  "labNotifyHint": "Device notify frames (0x73) are decoded as they arrive.",
-  "labCapabilitiesOn": "Supports: {features}",
-  "@labCapabilitiesOn": {
-    "placeholders": {
-      "features": {
-        "type": "String"
-      }
-    }
-  },
-  "labCapabilitiesOff": "Does not support: {features}",
-  "@labCapabilitiesOff": {
-    "placeholders": {
-      "features": {
-        "type": "String"
-      }
-    }
-  },
-  "labNone": "none",
-  "labCapTemperature": "temperature",
-  "labCapBloodOxygen": "blood oxygen",
-  "labCapBloodPressure": "blood pressure",
-  "labCapNewSleep": "new sleep protocol",
-  "labCapManualHeartRate": "manual heart rate",
-  "labCapBloodSugar": "blood sugar",
-  "labCapStress": "stress",
-  "labCapHrv": "HRV",
-  "labAutoSpo2": "auto SpO2",
-  "labAutoStress": "auto stress",
-  "labAutoHrv": "auto HRV",
-  "labAutoMonitorOn": "Reply: {setting} on (byte 2 = {value})",
-  "@labAutoMonitorOn": {
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      },
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "labAutoMonitorOff": "Reply: {setting} off (byte 2 = {value})",
-  "@labAutoMonitorOff": {
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      },
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "labTotalsBigEndian": "Big endian: {steps} steps, {running} running, {calories} cal, {distance} m, {minutes} min active",
-  "@labTotalsBigEndian": {
-    "placeholders": {
-      "steps": {
-        "type": "int"
-      },
-      "running": {
-        "type": "int"
-      },
-      "calories": {
-        "type": "int"
-      },
-      "distance": {
-        "type": "int"
-      },
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
-  "labTotalsLittleEndian": "Little endian: {steps} steps, {running} running, {calories} cal, {distance} m, {minutes} min active",
-  "@labTotalsLittleEndian": {
-    "placeholders": {
-      "steps": {
-        "type": "int"
-      },
-      "running": {
-        "type": "int"
-      },
-      "calories": {
-        "type": "int"
-      },
-      "distance": {
-        "type": "int"
-      },
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
-  "labRealTimeHeartRate": "Real-time heart rate {value} bpm",
-  "@labRealTimeHeartRate": {
-    "placeholders": {
-      "value": {
-        "type": "int"
-      }
-    }
-  },
-  "labRealTimeValue": "Real-time type {type}, value {value}",
-  "@labRealTimeValue": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      },
-      "value": {
-        "type": "int"
-      }
-    }
-  },
-  "labRealTimeError": "Real-time type {type} failed, error code {code}",
-  "@labRealTimeError": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      },
-      "code": {
-        "type": "int"
-      }
-    }
-  },
-  "labStopAck": "Ring acknowledged stop 0x6A",
-  "labNotify": "Device notify {type}: {kind}",
-  "@labNotify": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      },
-      "kind": {
-        "type": "String"
-      }
-    }
-  },
-  "labNotifyHeartRate": "heart rate",
-  "labNotifySpo2": "SpO2",
-  "labNotifySteps": "steps",
-  "labNotifyTemperature": "temperature",
-  "labNotifyBattery": "battery",
-  "labNotifyLiveActivity": "live activity",
-  "labNotifyUnknown": "unknown type",
-  "labNotifyNewData": "New data is waiting on the ring",
-  "labLiveActivity": "{steps} steps, {calories} cal, {distance} m",
-  "@labLiveActivity": {
-    "placeholders": {
-      "steps": {
-        "type": "int"
-      },
-      "calories": {
-        "type": "int"
-      },
-      "distance": {
-        "type": "int"
-      }
-    }
-  },
-  "labNotifyTemperatureValue": "Provisional {celsius} °C (byte / 10 + 20)",
-  "@labNotifyTemperatureValue": {
-    "placeholders": {
-      "celsius": {
-        "type": "String"
-      }
-    }
-  },
-  "labPayload": "Payload {bytes}",
-  "@labPayload": {
-    "placeholders": {
-      "bytes": {
-        "type": "String"
-      }
-    }
-  },
-  "labReplyFlagged": "Ring answered {command} with the error bit set",
-  "@labReplyFlagged": {
-    "placeholders": {
-      "command": {
-        "type": "String"
-      }
-    }
-  },
-  "labUnexpectedByte": "{command} reply: byte {index} is {value}, not a known value",
-  "@labUnexpectedByte": {
-    "placeholders": {
-      "command": {
-        "type": "String"
-      },
-      "index": {
-        "type": "int"
-      },
-      "value": {
-        "type": "String"
-      }
-    }
-  },
   "metricEstimateNote": "Estimate, not a medical diagnosis.",
   "metricLoadError": "Could not read your stored data. Close the app and open it again.",
   "metricDurationHoursMinutes": "{hours} h {minutes} min",
@@ -1003,22 +669,6 @@
   "capabilityFindDevice": "find ring",
   "ringUnpairedTitle": "No ring paired",
   "ringSupportNote": "Version 1 supports the COLMI R09. The R02, R03, R06 and R10 speak the same protocol and may work, untested.",
-  "ringModel": "Model {model}",
-  "@ringModel": {
-    "placeholders": {
-      "model": {
-        "type": "String"
-      }
-    }
-  },
-  "ringFirmware": "Firmware {version}",
-  "@ringFirmware": {
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "ringConnecting": "Connecting",
   "ringConnected": "Connected, syncing",
   "ringIdle": "Connects only while it syncs",
@@ -1078,41 +728,10 @@
   "ringTryOtherApp": "Make sure QRing is not connected",
   "ringTryOtherAppDetail": "The ring accepts one connection at a time. Close QRing or force stop it.",
   "ringSyncTitle": "Sync",
-  "ringSyncEvery": "Automatic every {interval}",
-  "@ringSyncEvery": {
-    "placeholders": {
-      "interval": {
-        "type": "String"
-      }
-    }
-  },
-  "ringLastSync": "Last",
-  "ringNextSync": "Next",
-  "ringNotYet": "Not yet",
-  "ringDueNow": "Due now",
-  "ringNextNote": "The phone picks the exact time. iOS treats it as the earliest start.",
   "ringSyncNow": "Sync now",
   "ringSyncing": "Syncing…",
   "ringIntervalTitle": "Sync every",
   "ringIntervalNote": "Shorter intervals use more ring battery.",
-  "ringLogTitle": "Recent syncs",
-  "ringLogEmpty": "No syncs logged yet",
-  "ringLogCompleted": "Synced",
-  "ringLogPartial": "Partly synced",
-  "ringLogFailed": "Failed",
-  "ringLogUnreachable": "Ring out of range or out of battery",
-  "ringLogStopped": "Stopped before it finished",
-  "ringLogRecords": "{count, plural, =0{No new data} =1{1 record} other{{formatted} records}}",
-  "@ringLogRecords": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "formatted": {
-        "type": "String"
-      }
-    }
-  },
   "ringAutoTitle": "Automatic measurements on the ring",
   "ringAutoHeartRate": "Heart rate",
   "ringAutoSpo2": "Blood oxygen",
@@ -1897,11 +1516,7 @@
       }
     }
   },
-  "settingsTextSize": "Text size",
-  "settingsTextSizeValue": "Follows the system",
-  "settingsTextSizeNote": "Change it in your phone's display settings. OpenRing follows it up to 200%.",
   "settingsProfile": "Profile",
-  "settingsProfileNote": "Used for calories, heart rate zones and distance. It stays on this phone.",
   "settingsAgeDetail": "Basis for the estimated maximum heart rate",
   "settingsHeightDetail": "Used for stride length",
   "settingsWeightDetail": "Used for calories",
@@ -1932,13 +1547,13 @@
   "settingsPoundsUnit": "lb",
   "settingsClear": "Clear",
   "settingsUnits": "Units",
-  "settingsMeasurements": "Distance, height and weight",
+  "settingsGeneral": "General",
   "settingsMetric": "Metric",
   "settingsImperial": "Imperial",
   "settingsData": "Data",
   "settingsHealthDetail": "Status, send queue and permissions",
   "settingsExportDetail": "Save your data as CSV or JSON",
-  "settingsSourcesDetail": "What comes from the ring and what from the phone",
+  "settingsSourcesDetail": "Sleep and workouts from other apps",
   "settingsAbout": "About",
   "settingsVersion": "Version",
   "settingsGitHub": "Open source on GitHub",
@@ -1954,33 +1569,9 @@
       }
     }
   },
-  "sourcesRingTitle": "Ring",
-  "sourcesRingMain": "Main",
-  "sourcesRingDetail": "Read directly over Bluetooth: heart rate, sleep, steps, SpO2, HRV and stress.",
-  "sourcesRingUnpaired": "No ring paired yet. Pair one on the Ring tab.",
-  "sourcesPerMetric": "Where each metric comes from",
   "sourcesFromRing": "Ring",
-  "sourcesFromPhone": "Phone",
-  "sourcesComputed": "Computed here",
-  "sourcesSteps": "Steps",
-  "sourcesStepsDetail": "Counted by the ring every 15 minutes",
-  "sourcesEnergy": "Distance and active energy",
-  "sourcesEnergyDetail": "Estimated from steps",
-  "sourcesHeartRate": "Heart rate",
-  "sourcesHrv": "HRV",
-  "sourcesSpo2": "SpO2",
   "sourcesStress": "Stress",
-  "sourcesLoggedDetail": "Logged by the ring through the day",
-  "sourcesSleep": "Sleep with stages",
-  "sourcesSleepDetail": "Light, deep, REM and awake, as the ring scores them",
-  "sourcesBattery": "Ring battery",
-  "sourcesBatteryDetail": "Read at every sync",
   "sourcesWorkouts": "Workouts",
-  "sourcesWorkoutsDetail": "The phone keeps the clock, heart rate streams live from the ring",
-  "sourcesRoute": "Workout route",
-  "sourcesRouteDetail": "Phone GPS, only while an outdoor workout runs",
-  "sourcesScores": "Readiness and scores",
-  "sourcesScoresDetail": "Computed on this phone from the ring data",
   "sourcesOtherTitle": "Other devices in {platform}",
   "@sourcesOtherTitle": {
     "placeholders": {
@@ -1991,16 +1582,6 @@
   },
   "sourcesOtherBody": "Reading what other devices wrote to {platform} is not available yet. When it arrives it is off by default, and you choose which source counts first.",
   "@sourcesOtherBody": {
-    "placeholders": {
-      "platform": {
-        "type": "String"
-      }
-    }
-  },
-  "sourcesRulesTitle": "Two fixed rules",
-  "sourcesRulePriority": "When two sources measure the same period, the one with the higher priority counts. Values are never added together.",
-  "sourcesLocalNote": "Ring data stays on this phone. It only leaves through {platform} or an export you start.",
-  "@sourcesLocalNote": {
     "placeholders": {
       "platform": {
         "type": "String"
@@ -2611,23 +2192,10 @@
       }
     }
   },
-  "settingsLanguage": "Language",
-  "settingsLanguageSystem": "Follow system language",
-  "settingsLanguageSystemNow": "Now: {language}",
-  "@settingsLanguageSystemNow": {
-    "placeholders": {
-      "language": {
-        "type": "String"
-      }
-    }
-  },
-  "settingsLanguageFallbackNote": "If the system language is not on this list, OpenRing uses English.",
   "settingsNotifications": "Notifications",
   "settingsNotificationsPermission": "Permission",
-  "settingsNotificationsAllowed": "Allowed",
   "settingsNotificationsOff": "Off",
   "settingsNotificationsOpenSettings": "Open notification settings",
-  "settingsNotificationsWorkoutNote": "While a workout records your route, a notification stays up. The system requires it, so it has no switch here.",
   "settingsDeleteAll": "Delete all data",
   "settingsDeleteTitle": "Delete everything on this phone?",
   "settingsDeleteBody": "Sleep, heart rate, workouts, your profile and the send queue are removed from OpenRing, and the ring is unpaired. Anything already sent to {platform} stays there and can be removed in {platform}. Export first if you want to keep a copy.",
@@ -2803,14 +2371,6 @@
     }
   },
   "sourcesReadUnavailable": "Not available on this phone yet.",
-  "sourcesSeenEmpty": "No other app has written sleep to {platform} yet.",
-  "@sourcesSeenEmpty": {
-    "placeholders": {
-      "platform": {
-        "type": "String"
-      }
-    }
-  },
   "sourcesSeenNote": "Only apps that already wrote sleep to {platform} appear here. Turning it off stops reading from now on.",
   "@sourcesSeenNote": {
     "placeholders": {
@@ -2819,34 +2379,9 @@
       }
     }
   },
-  "sourcesSourceNights": "{count, plural, =1{1 night} other{{count} nights}}",
-  "@sourcesSourceNights": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "sourcesSourceLast": "last data {date}",
-  "@sourcesSourceLast": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
   "sourcesPriorityTitle": "Priority",
   "sourcesPriorityBody": "The first in the list counts when two sources measure the same night.",
   "sourcesPrioritySleep": "Sleep",
-  "sourcesPriorityRingDetail": "Read directly from the ring",
-  "sourcesPriorityAppDetail": "Through {platform}",
-  "@sourcesPriorityAppDetail": {
-    "placeholders": {
-      "platform": {
-        "type": "String"
-      }
-    }
-  },
   "sourcesMoveUp": "Move {name} up",
   "@sourcesMoveUp": {
     "placeholders": {
@@ -2863,7 +2398,6 @@
       }
     }
   },
-  "sourcesPrioritySingle": "Only one source measures this now. Turn on another app above to choose the order.",
   "sourcesReadNote": "Reading uses a {platform} permission you allow once. What is read stays on this phone and is never sent back.",
   "@sourcesReadNote": {
     "placeholders": {
@@ -2880,32 +2414,7 @@
       }
     }
   },
-  "sourcesSeenWorkoutsEmpty": "No other app has written workouts to {platform} yet.",
-  "@sourcesSeenWorkoutsEmpty": {
-    "placeholders": {
-      "platform": {
-        "type": "String"
-      }
-    }
-  },
-  "sourcesSeenNoteAll": "Only apps that already wrote sleep or workouts to {platform} appear here. Turning a type off stops reading it from now on.",
-  "@sourcesSeenNoteAll": {
-    "placeholders": {
-      "platform": {
-        "type": "String"
-      }
-    }
-  },
-  "sourcesSourceWorkouts": "{count, plural, =1{1 workout} other{{count} workouts}}",
-  "@sourcesSourceWorkouts": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "sourcesPriorityWorkoutsNote": "When two workouts overlap, only the one from the source higher in the list shows.",
-  "sourcesPriorityOwnWorkoutDetail": "Recorded in this app with the ring",
   "workoutImportedFrom": "From {app}",
   "@workoutImportedFrom": {
     "placeholders": {
@@ -3220,14 +2729,6 @@
     }
   },
   "sleepSeeFormula": "See formula",
-  "ringHealthLinkTitle": "{platform} and export",
-  "@ringHealthLinkTitle": {
-    "placeholders": {
-      "platform": {
-        "type": "String"
-      }
-    }
-  },
   "healthStatusQueueEmpty": "queue empty",
   "ringOfflineHistory": "Nothing is lost: the ring keeps measuring and stores the history. When it is back, OpenRing fetches everything since {time}.",
   "@ringOfflineHistory": {
@@ -3243,11 +2744,7 @@
   "healthKindDetailHeartRate": "Every sample, not just the average",
   "healthKindDetailSleep": "Light, deep, REM and awake",
   "healthKindDetailWorkout": "Exercise session with heart rate series",
-  "settingsHomeScreen": "Home screen",
   "settingsStepGoal": "Step goal",
-  "themeModeNowDark": "Now: dark",
-  "themeModeNowLight": "Now: light",
-  "sourcesRuleExample": "Example: ring and watch both record sleep from 23:18 to 06:42. With the ring first, the ring's 6h52 counts, not 13h44 from adding both.",
   "workoutLastBadge": "last",
   "workoutSummarySentRoute": "{count, plural, =1{Exercise session with a route and 1 heart rate sample. Other apps can read it now.} other{Exercise session with a route and {formatted} heart rate samples. Other apps can read it now.}}",
   "@workoutSummarySentRoute": {

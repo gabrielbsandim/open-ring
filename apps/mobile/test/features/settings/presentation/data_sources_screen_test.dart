@@ -141,30 +141,22 @@ void main() {
     }
   }
 
-  testWidgets('names the ring and the origin of every metric', (tester) async {
+  testWidgets('shows only the choices, no metric list or diagnostics', (
+    tester,
+  ) async {
     await _pump(tester, await _reads());
 
-    expect(find.text('R09_C0FE'), findsOneWidget);
-    expect(find.text('Main'), findsOneWidget);
-    final origins = {
-      SourcedMetric.steps: 'Ring',
-      SourcedMetric.sleep: 'Ring',
-      SourcedMetric.workouts: 'Phone',
-      SourcedMetric.route: 'Phone',
-      SourcedMetric.scores: 'Computed here',
-    };
-    for (final MapEntry(key: metric, value: origin) in origins.entries) {
-      final row = find.byKey(DataSourcesKeys.metric(metric));
-      await reveal(tester, row);
-      expect(
-        find.descendant(of: row, matching: find.text(origin)),
-        findsOneWidget,
-        reason: metric.name,
-      );
-    }
+    expect(find.byKey(DataSourcesKeys.readSleep), findsOneWidget);
+    expect(find.byKey(DataSourcesKeys.readWorkouts), findsOneWidget);
+    await scrollThrough(tester);
+    expect(find.text('Main'), findsNothing);
+    expect(find.text('Computed here'), findsNothing);
+    expect(find.text('Where each metric comes from'), findsNothing);
+    expect(find.text('Two fixed rules'), findsNothing);
+    expect(find.text('Priority'), findsNothing);
   });
 
-  testWidgets('workout reading starts off with OpenRing alone in line', (
+  testWidgets('workout reading starts off with no order to choose', (
     tester,
   ) async {
     await _pump(tester, await _reads());
@@ -173,10 +165,7 @@ void main() {
     await reveal(tester, toggle);
     expect(tester.widget<Switch>(toggle).value, isFalse);
     expect(find.textContaining('read access to workouts only'), findsOneWidget);
-    expect(find.text('Coming soon'), findsNothing);
-    await reveal(tester, find.byKey(DataSourcesKeys.workoutPriority));
-    expect(_shownOrder(tester, kind: HealthRecordKind.workout), [ringSource]);
-    expect(find.text('OpenRing'), findsOneWidget);
+    expect(find.byKey(DataSourcesKeys.workoutPriority), findsNothing);
   });
 
   testWidgets('turning workouts on asks for workout access only', (
@@ -198,33 +187,23 @@ void main() {
       (await reads.store.settings(HealthRecordKind.sleep)).enabled,
       isFalse,
     );
-    final app = find.byKey(DataSourcesKeys.app(_watch));
-    await reveal(tester, app);
-    expect(
-      find.descendant(of: app, matching: find.textContaining('1 workout')),
-      findsOneWidget,
-    );
     await reveal(tester, find.byKey(DataSourcesKeys.workoutPriority));
     expect(_shownOrder(tester, kind: HealthRecordKind.workout), [
       ringSource,
       _watch,
     ]);
+    expect(find.text('OpenRing'), findsOneWidget);
   });
 
-  testWidgets('one app with sleep and workouts shows both counts', (
+  testWidgets('apps are named in the order, without record counts', (
     tester,
   ) async {
     await _pump(tester, await _states['workouts from two apps']!());
+    await scrollThrough(tester);
 
-    final app = find.byKey(DataSourcesKeys.app(_watch));
-    await reveal(tester, app);
-    expect(
-      find.descendant(
-        of: app,
-        matching: find.textContaining('1 night · 1 workout · last data'),
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('Garmin Connect'), findsWidgets);
+    expect(find.textContaining('1 night'), findsNothing);
+    expect(find.textContaining('last data'), findsNothing);
   });
 
   testWidgets('workout move buttons reorder only the workout order', (
@@ -247,7 +226,7 @@ void main() {
     ]);
   });
 
-  testWidgets('sleep reading starts off with the ring alone in line', (
+  testWidgets('sleep reading starts off with no order to choose', (
     tester,
   ) async {
     await _pump(tester, await _reads());
@@ -258,15 +237,7 @@ void main() {
       isFalse,
     );
     expect(find.textContaining('read access to sleep only'), findsOneWidget);
-    await reveal(tester, find.byKey(DataSourcesKeys.priority));
-    expect(_shownOrder(tester), [ringSource]);
-    expect(
-      find.descendant(
-        of: find.byKey(DataSourcesKeys.priority),
-        matching: find.textContaining('Only one source measures this'),
-      ),
-      findsOneWidget,
-    );
+    expect(find.byKey(DataSourcesKeys.priority), findsNothing);
   });
 
   testWidgets('turning sleep on asks for sleep read access and lists the app', (
@@ -284,10 +255,9 @@ void main() {
       (await reads.store.settings(HealthRecordKind.sleep)).enabled,
       isTrue,
     );
-    await reveal(tester, find.byKey(DataSourcesKeys.app(_watch)));
-    expect(find.text('Garmin Connect'), findsWidgets);
     await reveal(tester, find.byKey(DataSourcesKeys.priority));
     expect(_shownOrder(tester), [ringSource, _watch]);
+    expect(find.text('Garmin Connect'), findsOneWidget);
   });
 
   testWidgets('a declined request offers to open Health Connect', (
@@ -373,7 +343,7 @@ void main() {
     );
   });
 
-  testWidgets('without a ring points to pairing', (tester) async {
+  testWidgets('without a ring the switches are still there', (tester) async {
     await _pump(
       tester,
       await _reads(),
@@ -382,9 +352,7 @@ void main() {
       brightness: Brightness.light,
     );
 
-    expect(
-      find.text('Noch kein Ring gekoppelt. Kopple einen im Tab Ring.'),
-      findsOneWidget,
-    );
+    expect(find.text('Schlaf aus anderen Apps'), findsOneWidget);
+    expect(find.byKey(DataSourcesKeys.readWorkouts), findsOneWidget);
   });
 }

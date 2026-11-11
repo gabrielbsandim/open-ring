@@ -11,7 +11,6 @@ import 'package:open_ring/features/ring/application/ring_sync_state.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
 import 'package:open_ring/features/ring/domain/auto_measurements.dart';
 import 'package:open_ring/features/ring/domain/sync_interval.dart';
-import 'package:open_ring/features/ring/presentation/sync_log_list.dart';
 import 'package:open_ring/features/ring/presentation/sync_status_banner.dart';
 import 'package:open_ring/features/today/domain/ring_status_reader.dart';
 
@@ -26,14 +25,10 @@ abstract final class RingKeys {
   static const sync = Key('ring_sync');
   static const syncNow = Key('ring_sync_now');
   static const lastSync = Key('ring_last_sync');
-  static const nextSync = Key('ring_next_sync');
   static const interval = Key('ring_interval');
   static const searchAgain = Key('ring_search_again');
   static const batterySettings = Key('ring_battery_settings');
-  static const log = Key('ring_log');
-  static const logEmpty = Key('ring_log_empty');
   static const measurements = Key('ring_measurements');
-  static const health = Key('ring_health');
   static const find = Key('ring_find');
   static const findStatus = Key('ring_find_status');
   static const unpair = Key('ring_unpair');
@@ -65,10 +60,6 @@ class RingDeviceCard extends StatelessWidget {
     final colors = AppColors.of(context);
     final format = MetricFormat.of(context);
     final l10n = format.l10n;
-    final details = [
-      if (ring.model case final model?) l10n.ringModel(model),
-      if (ring.firmware case final firmware?) l10n.ringFirmware(firmware),
-    ];
     final (dot, state) = switch (connection) {
       RingConnection.connecting => (colors.oxygen, l10n.ringConnecting),
       RingConnection.connected => (colors.activity, l10n.ringConnected),
@@ -100,7 +91,6 @@ class RingDeviceCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (details.isNotEmpty) CaptionText(details.join(' · ')),
                 const SizedBox(height: 8),
                 MergeSemantics(
                   key: RingKeys.connection,
@@ -374,7 +364,7 @@ class _TryStep extends StatelessWidget {
   }
 }
 
-class RingSyncCard extends ConsumerWidget {
+class RingSyncCard extends StatelessWidget {
   const new({
     required this.ring,
     required this.now,
@@ -389,52 +379,29 @@ class RingSyncCard extends ConsumerWidget {
   final VoidCallback onSync;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final colors = AppColors.of(context);
     final format = MetricFormat.of(context);
     final l10n = format.l10n;
-    final interval = ref.watch(syncIntervalProvider);
     final last = ring.lastSyncAt;
-    final next = last?.add(interval.duration);
     final status = SyncStatusView(state: sync, onRetry: onSync);
     return MetricCard(
       key: RingKeys.sync,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            spacing: 12,
-            runSpacing: 4,
-            children: [
-              AccentTitle(title: l10n.ringSyncTitle, accent: colors.oxygen),
-              CaptionText(
-                l10n.ringSyncEvery(format.duration(interval.duration)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            spacing: 24,
-            runSpacing: 8,
-            children: [
-              _Moment(
-                key: RingKeys.lastSync,
-                label: l10n.ringLastSync,
-                value: last == null
-                    ? l10n.ringNotYet
-                    : format.clockOrDay(last, now),
-              ),
-              _Moment(
-                key: RingKeys.nextSync,
-                label: l10n.ringNextSync,
-                value: _next(format, next),
-              ),
-            ],
-          ),
+          AccentTitle(title: l10n.ringSyncTitle, accent: colors.oxygen),
           const SizedBox(height: 4),
-          CaptionText(l10n.ringNextNote),
+          Text(
+            last == null
+                ? l10n.ringNeverSynced
+                : l10n.todaySynced(format.clockOrDay(last, now)),
+            key: RingKeys.lastSync,
+            style: numberStyle(
+              Theme.of(context).textTheme.bodyMedium,
+              color: colors.textSecondary,
+            ),
+          ),
           const SizedBox(height: 14),
           ActionButton(
             key: RingKeys.syncNow,
@@ -442,45 +409,18 @@ class RingSyncCard extends ConsumerWidget {
             onPressed: sync.syncing ? null : onSync,
           ),
           if (status.visible) ...[const SizedBox(height: 14), status],
-          const SizedBox(height: 14),
-          const SyncLogList(),
-        ],
-      ),
-    );
-  }
-
-  String _next(MetricFormat format, DateTime? next) {
-    if (next == null) return format.l10n.ringNotYet;
-    if (!next.isAfter(now)) return format.l10n.ringDueNow;
-    return format.clockOrDay(next, now);
-  }
-}
-
-class _Moment extends StatelessWidget {
-  const new({required this.label, required this.value, super.key});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return MergeSemantics(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CaptionText(label),
-          Text(
-            value,
-            style: numberStyle(Theme.of(context).textTheme.titleMedium),
-          ),
+          const SizedBox(height: 16),
+          Divider(height: 1, color: colors.surfaceBorder),
+          const SizedBox(height: 12),
+          const _IntervalPicker(),
         ],
       ),
     );
   }
 }
 
-class SyncIntervalCard extends ConsumerWidget {
-  const new({super.key});
+class _IntervalPicker extends ConsumerWidget {
+  const new();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -488,53 +428,51 @@ class SyncIntervalCard extends ConsumerWidget {
     final format = MetricFormat.of(context);
     final l10n = format.l10n;
     final selected = ref.watch(syncIntervalProvider);
-    return MetricCard(
+    return Column(
       key: RingKeys.interval,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Semantics(
-            header: true,
-            child: Text(
-              l10n.ringIntervalTitle,
-              style: Theme.of(context).textTheme.titleSmall
-                  ?.copyWith(fontWeight: FontWeight.w600),
-            ),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(
+            l10n.ringIntervalTitle,
+            style: Theme.of(context).textTheme.titleSmall
+                ?.copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final interval in SyncInterval.values)
-                ChoiceChip(
-                  key: RingKeys.intervalOption(interval),
-                  label: Text(format.duration(interval.duration)),
-                  selected: interval == selected,
-                  showCheckmark: false,
-                  materialTapTargetSize: MaterialTapTargetSize.padded,
-                  selectedColor: colors.surfaceInner,
-                  backgroundColor: colors.surface,
-                  side: BorderSide(
-                    color: interval == selected
-                        ? colors.oxygen
-                        : colors.surfaceBorder,
-                  ),
-                  labelStyle: TextStyle(
-                    color: interval == selected
-                        ? colors.textPrimary
-                        : colors.textLabel,
-                  ),
-                  onSelected: (_) => unawaited(
-                    ref.read(syncIntervalProvider.notifier).select(interval),
-                  ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final interval in SyncInterval.values)
+              ChoiceChip(
+                key: RingKeys.intervalOption(interval),
+                label: Text(format.duration(interval.duration)),
+                selected: interval == selected,
+                showCheckmark: false,
+                materialTapTargetSize: MaterialTapTargetSize.padded,
+                selectedColor: colors.surfaceInner,
+                backgroundColor: colors.surface,
+                side: BorderSide(
+                  color: interval == selected
+                      ? colors.oxygen
+                      : colors.surfaceBorder,
                 ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          CaptionText(l10n.ringIntervalNote),
-        ],
-      ),
+                labelStyle: TextStyle(
+                  color: interval == selected
+                      ? colors.textPrimary
+                      : colors.textLabel,
+                ),
+                onSelected: (_) => unawaited(
+                  ref.read(syncIntervalProvider.notifier).select(interval),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        CaptionText(l10n.ringIntervalNote),
+      ],
     );
   }
 }

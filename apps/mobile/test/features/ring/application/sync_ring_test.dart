@@ -261,6 +261,20 @@ void main() {
       );
     });
 
+    test('reports the interval the ring had before the sync', () async {
+      final report = await syncWith()(ringId);
+
+      expect(report.heartRateIntervalSeen, const Duration(minutes: 30));
+    });
+
+    test('reports a ring found with heart rate off as zero', () async {
+      driver.heartRateInterval = null;
+
+      final report = await syncWith()(ringId);
+
+      expect(report.heartRateIntervalSeen, Duration.zero);
+    });
+
     test('leaves a ring already at five minutes alone', () async {
       driver.heartRateInterval = const Duration(minutes: 5);
 

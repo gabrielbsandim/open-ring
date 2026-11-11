@@ -124,6 +124,9 @@ final class SyncPairedRing {
         if (value > 0) key,
     },
     recordCount: report.written.values.fold(0, (sum, count) => sum + count),
+    battery: report.battery,
+    failures: report.failures.keys.toSet(),
+    heartRateIntervalSeen: report.heartRateIntervalSeen,
   );
 
   static SyncRun failedRun(

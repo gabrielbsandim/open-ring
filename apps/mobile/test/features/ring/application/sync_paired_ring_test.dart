@@ -78,6 +78,15 @@ void main() {
     final run = (await store.recentRuns(ringId)).single;
     expect(run.outcome, SyncRunOutcome.partial);
     expect(run.kinds, isNot(contains(RecordKind.hrv)));
+    expect(run.failures, {RingCapability.hrv});
+  });
+
+  test('a run logs the battery and the interval the ring had', () async {
+    await syncer()();
+
+    final run = (await store.recentRuns(ringId)).single;
+    expect(run.battery?.percent, driver.battery.percent);
+    expect(run.heartRateIntervalSeen, const Duration(minutes: 30));
   });
 
   test('a ring out of reach is logged as unreachable', () async {

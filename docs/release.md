@@ -45,7 +45,7 @@ Repository secrets:
 | Secret | What |
 | :--- | :--- |
 | `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD` | The upload key, `alias upload`, one password for store and key |
-| `SHOREBIRD_TOKEN` | From `shorebird login:ci`. Without it the release is a plain signed build that cannot take patches |
+| `SHOREBIRD_TOKEN` | API key of the `open-ring-ci` service account (role `developer`), expires 2027-11-11. Issue a new one in the Shorebird console. Without it the release is a plain signed build that cannot take patches |
 | `PLAY_SERVICE_ACCOUNT` | Optional, JSON of a Play service account |
 
 ## Signing

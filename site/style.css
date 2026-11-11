@@ -176,6 +176,7 @@ header.top {
 .phone {
   justify-self: center;
   width: min(100%, 320px);
+  height: auto;
   border-radius: 28px;
   border: 1px solid var(--border);
   box-shadow: 0 24px 60px rgb(0 0 0 / 0.18);

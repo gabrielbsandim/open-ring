@@ -1,0 +1,34 @@
+O OpenRing é um app gratuito e de código aberto para o anel inteligente COLMI R09. Ele mantém o anel sincronizado sozinho, mostra sono, coração e atividade em telas calmas e fáceis de ler, e guarda seus dados no seu celular.
+
+SEM CONTA, SEM NUVEM
+• Sem cadastro, sem login, sem e-mail. Você pareia o anel e já usa.
+• Seus dados ficam num banco local no celular, não num servidor.
+• Sem análise de uso, sem anúncios, sem rastreamento. O app só usa a internet para baixar atualizações do próprio app.
+• Os dados só saem do celular quando você escolhe: para o Health Connect, ou num arquivo CSV, JSON ou GPX que você exporta.
+
+O QUE VOCÊ VÊ
+• Sono numa linha do tempo com leve, profundo, REM e acordado.
+• Frequência cardíaca ao longo do dia, FC de repouso, VFC, oxigênio no sangue (SpO2) e estresse.
+• Passos, distância e energia ativa.
+• Uma nota de prontidão que mostra as entradas: quanto cada uma somou ou tirou, comparada à sua própria base.
+• Widgets na tela inicial para prontidão, o dia, a bateria do anel e iniciar um treino.
+
+TREINOS COM GPS
+O celular marca o tempo, o anel manda a FC ao vivo e, ao ar livre, o GPS do celular grava rota, distância, ritmo e parciais. A localização só é usada enquanto o treino está rodando. Exporte qualquer rota em GPX.
+
+HEALTH CONNECT
+Passos, energia ativa, FC, SpO2, VFC, fases do sono e treinos com a rota podem ser gravados no Health Connect, para que outros apps que você escolher possam usar. Ler o sono gravado por outros apps é opcional e vem desligado.
+
+SINCRONIZA, NÃO TRANSMITE
+O anel guarda o próprio histórico. O celular conecta de tempos em tempos (a cada 60 minutos por padrão), puxa o que é novo e desconecta, o que poupa as duas baterias.
+
+ANÉIS SUPORTADOS
+• COLMI R09: testado. Toda verificação do protocolo é feita nele.
+• COLMI R02, R03, R06 e R10: podem funcionar, ainda não testados.
+O anel conversa com um app por vez, então desconecte-o do app original antes de parear no OpenRing.
+
+ESTIMATIVA, NÃO DIAGNÓSTICO
+O OpenRing não é um dispositivo médico. Cada número é uma estimativa feita por um anel de consumo e serve para acompanhar tendências. Ele não diagnostica, não trata e não previne nenhuma condição. Se algo parecer errado com sua saúde, procure um profissional.
+
+CÓDIGO ABERTO
+Licença MIT, sem assinatura. Tema claro e escuro, texto até 200% e 11 idiomas. O código e a fórmula de cada nota são públicos no GitHub.

@@ -4,6 +4,7 @@ import 'package:open_ring/app/l10n/app_locales.dart';
 import 'package:open_ring/app/router/app_router.dart';
 import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
+import 'package:open_ring/features/settings/application/app_language_controller.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 class OpenRingApp extends ConsumerWidget {
@@ -16,6 +17,7 @@ class OpenRingApp extends ConsumerWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ref.watch(themeModeProvider),
+      locale: ref.watch(appLanguageProvider).locale,
       localeListResolutionCallback: AppLocales.resolve,
       supportedLocales: AppLocales.supported,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

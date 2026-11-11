@@ -1,0 +1,34 @@
+OpenRing è un'app gratuita e open source per l'anello smart COLMI R09. Tiene l'anello sincronizzato da sola, mostra sonno, cuore e attività su schermate calme e leggibili, e conserva i tuoi dati sul telefono.
+
+NESSUN ACCOUNT, NESSUN CLOUD
+• Nessuna registrazione, nessun accesso, nessuna email. Associa l'anello e inizia.
+• I tuoi dati restano in un database locale sul telefono, non su un server.
+• Nessuna analisi d'uso, nessuna pubblicità, nessun tracciamento. L'app usa internet solo per scaricare i propri aggiornamenti.
+• I dati escono dal telefono solo quando lo decidi tu: verso Health Connect, oppure in un file CSV, JSON o GPX che esporti.
+
+COSA VEDI
+• Il sonno su una linea del tempo con leggero, profondo, REM e sveglio.
+• Frequenza cardiaca durante il giorno, frequenza a riposo, HRV, ossigeno nel sangue (SpO2) e stress.
+• Passi, distanza ed energia attiva.
+• Un punteggio di prontezza che mostra i suoi dati di partenza: quanto ognuno ha aggiunto o tolto, rispetto alla tua base personale.
+• Widget nella schermata Home per prontezza, la giornata, la batteria dell'anello e l'avvio di un allenamento.
+
+ALLENAMENTI CON GPS
+Il telefono tiene il tempo, l'anello invia la frequenza cardiaca dal vivo e, all'aperto, il GPS del telefono registra percorso, distanza, passo e parziali. La posizione viene usata solo durante un allenamento. Esporta qualsiasi percorso in GPX.
+
+HEALTH CONNECT
+Passi, energia attiva, frequenza cardiaca, SpO2, HRV, fasi del sonno e allenamenti con il percorso possono essere scritti in Health Connect, così le altre app che scegli possono usarli. Leggere il sonno scritto da altre app è facoltativo e disattivato di default.
+
+SINCRONIZZA, NON TRASMETTE
+L'anello conserva la propria cronologia. Il telefono si collega a intervalli (ogni 60 minuti di default), scarica le novità e si scollega, risparmiando entrambe le batterie.
+
+ANELLI SUPPORTATI
+• COLMI R09: testato. Ogni verifica del protocollo è fatta su questo anello.
+• COLMI R02, R03, R06 e R10: potrebbero funzionare, non ancora testati.
+L'anello parla con una sola app alla volta, quindi scollegalo dalla sua app originale prima di associarlo a OpenRing.
+
+STIME, NON DIAGNOSI
+OpenRing non è un dispositivo medico. Ogni numero è una stima di un anello di consumo e serve a seguire le tendenze. Non diagnostica, non cura e non previene alcuna condizione. Se qualcosa nella tua salute ti sembra strano, rivolgiti a un professionista.
+
+OPEN SOURCE
+Licenza MIT, nessun abbonamento. Tema chiaro e scuro, testo fino al 200% e 11 lingue. Il codice e la formula di ogni punteggio sono pubblici su GitHub.

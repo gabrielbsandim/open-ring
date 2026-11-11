@@ -1,0 +1,34 @@
+OpenRing est une application gratuite et open source pour la bague connectée COLMI R09. Elle synchronise la bague toute seule, affiche le sommeil, le cœur et l'activité sur des écrans calmes et lisibles, et garde vos données sur votre téléphone.
+
+SANS COMPTE, SANS CLOUD
+• Pas d'inscription, pas de connexion, pas d'e-mail. Associez la bague et c'est parti.
+• Vos données sont dans une base locale sur votre téléphone, pas sur un serveur.
+• Pas de statistiques d'usage, pas de publicité, pas de pistage. L'application n'utilise internet que pour télécharger ses propres mises à jour.
+• Les données ne quittent le téléphone que si vous le décidez : vers Health Connect, ou dans un fichier CSV, JSON ou GPX que vous exportez.
+
+CE QUE VOUS VOYEZ
+• Le sommeil sur une frise : léger, profond, paradoxal (REM) et éveil.
+• La fréquence cardiaque sur la journée, la fréquence au repos, la VFC, l'oxygène sanguin (SpO2) et le stress.
+• Les pas, la distance et l'énergie active.
+• Un score de forme qui montre ses données d'entrée : ce que chacune a ajouté ou retiré, par rapport à votre propre référence.
+• Des widgets d'écran d'accueil pour la forme, la journée, la batterie de la bague et le lancement d'une séance.
+
+SÉANCES AVEC GPS
+Le téléphone tient le chrono, la bague envoie la fréquence cardiaque en direct et, en extérieur, le GPS du téléphone enregistre le parcours, la distance, l'allure et les temps intermédiaires. La position n'est utilisée que pendant une séance. Exportez n'importe quel parcours en GPX.
+
+HEALTH CONNECT
+Les pas, l'énergie active, la fréquence cardiaque, la SpO2, la VFC, les phases de sommeil et les séances avec leur parcours peuvent être écrits dans Health Connect, pour que les autres applications de votre choix puissent les utiliser. La lecture du sommeil écrit par d'autres applications est facultative et désactivée par défaut.
+
+SYNCHRONISER, PAS DIFFUSER
+La bague garde son propre historique. Le téléphone se connecte à intervalles réguliers (toutes les 60 minutes par défaut), récupère les nouveautés et se déconnecte, ce qui ménage les deux batteries.
+
+BAGUES PRISES EN CHARGE
+• COLMI R09 : testée. Chaque vérification du protocole est faite sur cette bague.
+• COLMI R02, R03, R06 et R10 : peuvent fonctionner, pas encore testées.
+La bague ne parle qu'à une application à la fois : déconnectez-la de son application d'origine avant de l'associer à OpenRing.
+
+DES ESTIMATIONS, PAS UN DIAGNOSTIC
+OpenRing n'est pas un dispositif médical. Chaque chiffre est une estimation issue d'une bague grand public, utile pour suivre des tendances. L'application ne diagnostique, ne traite et ne prévient aucune maladie. Si quelque chose vous semble anormal, consultez un professionnel de santé.
+
+OPEN SOURCE
+Licence MIT, sans abonnement. Thèmes clair et sombre, texte jusqu'à 200 % et 11 langues. Le code et la formule de chaque score sont publics sur GitHub.

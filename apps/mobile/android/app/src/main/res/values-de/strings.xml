@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_readiness_name">Bereitschaft</string>
+    <string name="widget_readiness_description">Wert mit Ruhepuls, HFV und Schlaf</string>
+    <string name="widget_today_name">Heute</string>
+    <string name="widget_today_description">Bis zu 3 Werte deiner Wahl</string>
+    <string name="widget_ring_name">Ring</string>
+    <string name="widget_ring_description">Akku und letzte Synchronisierung</string>
+    <string name="widget_workout_name">Training starten</string>
+    <string name="widget_workout_description">Öffnet die Trainingsauswahl</string>
+    <string name="widget_estimate">Schätzung</string>
+    <string name="widget_metric_readiness">Bereitschaft</string>
+    <string name="widget_metric_sleep">Schlaf</string>
+    <string name="widget_metric_steps">Schritte</string>
+    <string name="widget_metric_heart_rate">Herzfrequenz</string>
+    <string name="widget_metric_spo2">SpO2</string>
+    <string name="widget_metric_stress">Stress</string>
+    <string name="widget_metric_battery">Akku</string>
+    <string name="widget_sub_sleep_score">Wert %1$s</string>
+    <string name="widget_sub_steps_goal">von %1$s</string>
+    <string name="widget_sub_bpm_average">bpm im Mittel</string>
+    <string name="widget_sub_average">im Mittel</string>
+    <string name="widget_sub_battery">Ring</string>
+    <string name="widget_synced">synchr. %1$s</string>
+    <string name="widget_stale">Nicht synchronisiert seit %1$s</string>
+    <string name="widget_never_synced">Noch nicht synchronisiert</string>
+    <string name="widget_unpaired">Kopple einen Ring, um dieses Widget zu füllen.</string>
+    <string name="widget_no_data">Noch keine Daten. Trage den Ring und synchronisiere.</string>
+    <string name="widget_no_value" formatted="false">--</string>
+    <string name="widget_resting_hr">Ruhepuls</string>
+    <string name="widget_hrv">HFV</string>
+    <string name="widget_readiness_pending">Noch kein Wert</string>
+    <string name="widget_no_snapshot">Öffne OpenRing, um deine Daten zu laden.</string>
+    <string name="widget_today_no_metrics">Kein Wert gewählt. Wähle welche in OpenRing.</string>
+    <string name="widget_workout_subtitle">Training wählen und los</string>
+    <string name="widget_duration_hm">%1$d Std. %2$d Min.</string>
+    <string name="widget_duration_m">%1$d Min.</string>
+    <string name="widget_percent">%1$s %%</string>
+    <string name="widget_workout_last_today">Zuletzt: %1$s heute, %2$s</string>
+    <string name="widget_workout_last_yesterday">Zuletzt: %1$s gestern, %2$s</string>
+    <string name="widget_workout_last_date">Zuletzt: %1$s am %2$s, %3$s</string>
+    <string name="widget_distance_km">%1$s km</string>
+    <string name="widget_distance_mi">%1$s mi</string>
+    <string name="widget_workout_type_running">Laufen</string>
+    <string name="widget_workout_type_walking">Gehen</string>
+    <string name="widget_workout_type_cycling">Radfahren</string>
+    <string name="widget_workout_type_hiking">Wandern</string>
+    <string name="widget_workout_type_strength">Krafttraining</string>
+    <string name="widget_workout_type_treadmill">Laufband</string>
+    <string name="widget_workout_type_stationary_bike">Heimtrainer</string>
+    <string name="widget_workout_type_elliptical">Crosstrainer</string>
+    <string name="widget_workout_type_yoga">Yoga</string>
+    <string name="widget_workout_type_other">Training</string>
+</resources>

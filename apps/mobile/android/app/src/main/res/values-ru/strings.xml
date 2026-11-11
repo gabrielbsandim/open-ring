@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_readiness_name">Готовность</string>
+    <string name="widget_readiness_description">Оценка, пульс в покое, ВСР и сон</string>
+    <string name="widget_today_name">Сегодня</string>
+    <string name="widget_today_description">До 3 показателей на ваш выбор</string>
+    <string name="widget_ring_name">Кольцо</string>
+    <string name="widget_ring_description">Заряд и последняя синхронизация</string>
+    <string name="widget_workout_name">Начать тренировку</string>
+    <string name="widget_workout_description">Открывает выбор тренировки</string>
+    <string name="widget_estimate">оценка</string>
+    <string name="widget_metric_readiness">Готовность</string>
+    <string name="widget_metric_sleep">Сон</string>
+    <string name="widget_metric_steps">Шаги</string>
+    <string name="widget_metric_heart_rate">Пульс</string>
+    <string name="widget_metric_spo2">SpO2</string>
+    <string name="widget_metric_stress">Стресс</string>
+    <string name="widget_metric_battery">Заряд</string>
+    <string name="widget_sub_sleep_score">оценка %1$s</string>
+    <string name="widget_sub_steps_goal">из %1$s</string>
+    <string name="widget_sub_bpm_average">уд/мин в среднем</string>
+    <string name="widget_sub_average">в среднем</string>
+    <string name="widget_sub_battery">кольца</string>
+    <string name="widget_synced">синхр. %1$s</string>
+    <string name="widget_stale">Нет синхронизации с %1$s</string>
+    <string name="widget_never_synced">Ещё не синхронизировано</string>
+    <string name="widget_unpaired">Подключите кольцо, чтобы заполнить виджет.</string>
+    <string name="widget_no_data">Данных пока нет. Носите кольцо и синхронизируйте.</string>
+    <string name="widget_no_value" formatted="false">--</string>
+    <string name="widget_resting_hr">Пульс покоя</string>
+    <string name="widget_hrv">ВСР</string>
+    <string name="widget_readiness_pending">Оценки пока нет</string>
+    <string name="widget_no_snapshot">Откройте OpenRing, чтобы загрузить данные.</string>
+    <string name="widget_today_no_metrics">Показатели не выбраны. Выберите их в OpenRing.</string>
+    <string name="widget_workout_subtitle">Выберите тренировку и начните</string>
+    <string name="widget_duration_hm">%1$d ч %2$d мин</string>
+    <string name="widget_duration_m">%1$d мин</string>
+    <string name="widget_percent">%1$s%%</string>
+    <string name="widget_workout_last_today">Последняя тренировка: %1$s сегодня, %2$s</string>
+    <string name="widget_workout_last_yesterday">Последняя тренировка: %1$s вчера, %2$s</string>
+    <string name="widget_workout_last_date">Последняя тренировка: %1$s %2$s, %3$s</string>
+    <string name="widget_distance_km">%1$s км</string>
+    <string name="widget_distance_mi">%1$s ми</string>
+    <string name="widget_workout_type_running">бег</string>
+    <string name="widget_workout_type_walking">ходьба</string>
+    <string name="widget_workout_type_cycling">велосипед</string>
+    <string name="widget_workout_type_hiking">поход</string>
+    <string name="widget_workout_type_strength">силовая</string>
+    <string name="widget_workout_type_treadmill">беговая дорожка</string>
+    <string name="widget_workout_type_stationary_bike">велотренажёр</string>
+    <string name="widget_workout_type_elliptical">эллипсоид</string>
+    <string name="widget_workout_type_yoga">йога</string>
+    <string name="widget_workout_type_other">другое</string>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_background">@color/widget_dark_background</color>
+    <color name="widget_surface">@color/widget_dark_surface</color>
+    <color name="widget_surface_border">@color/widget_dark_surface_border</color>
+    <color name="widget_surface_inner">@color/widget_dark_surface_inner</color>
+    <color name="widget_strong_border">@color/widget_dark_strong_border</color>
+    <color name="widget_track">@color/widget_dark_track</color>
+    <color name="widget_nav_bar">@color/widget_dark_nav_bar</color>
+    <color name="widget_text_primary">@color/widget_dark_text_primary</color>
+    <color name="widget_text_secondary">@color/widget_dark_text_secondary</color>
+    <color name="widget_text_label">@color/widget_dark_text_label</color>
+    <color name="widget_sleep">@color/widget_dark_sleep</color>
+    <color name="widget_heart">@color/widget_dark_heart</color>
+    <color name="widget_activity">@color/widget_dark_activity</color>
+    <color name="widget_oxygen">@color/widget_dark_oxygen</color>
+    <color name="widget_stress">@color/widget_dark_stress</color>
+    <color name="widget_on_accent">@color/widget_dark_on_accent</color>
+</resources>

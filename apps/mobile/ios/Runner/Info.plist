@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>gbs.openring.app.sync</string>
+	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -42,9 +46,18 @@
 	<true/>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>OpenRing uses Bluetooth to connect to your ring and sync its health data.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>OpenRing reads health data only if you turn on reading other sources in Settings.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>OpenRing saves the steps, heart rate, SpO2, HRV, sleep and workouts from your ring to Apple Health.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>OpenRing records the route, distance and pace of the outdoor workouts you start.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>
+		<string>fetch</string>
+		<string>location</string>
+		<string>processing</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

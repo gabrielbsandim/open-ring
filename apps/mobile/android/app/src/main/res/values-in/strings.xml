@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_readiness_name">Kesiapan</string>
+    <string name="widget_readiness_description">Skor dengan detak jantung istirahat, HRV, dan tidur</string>
+    <string name="widget_today_name">Hari ini</string>
+    <string name="widget_today_description">Hingga 3 metrik pilihan Anda</string>
+    <string name="widget_ring_name">Cincin</string>
+    <string name="widget_ring_description">Baterai dan sinkronisasi terakhir</string>
+    <string name="widget_workout_name">Mulai latihan</string>
+    <string name="widget_workout_description">Membuka pilihan latihan</string>
+    <string name="widget_estimate">perkiraan</string>
+    <string name="widget_metric_readiness">Kesiapan</string>
+    <string name="widget_metric_sleep">Tidur</string>
+    <string name="widget_metric_steps">Langkah</string>
+    <string name="widget_metric_heart_rate">Detak jantung</string>
+    <string name="widget_metric_spo2">SpO2</string>
+    <string name="widget_metric_stress">Stres</string>
+    <string name="widget_metric_battery">Baterai</string>
+    <string name="widget_sub_sleep_score">skor %1$s</string>
+    <string name="widget_sub_steps_goal">dari %1$s</string>
+    <string name="widget_sub_bpm_average">bpm rata-rata</string>
+    <string name="widget_sub_average">rata-rata</string>
+    <string name="widget_sub_battery">cincin</string>
+    <string name="widget_synced">sinkron %1$s</string>
+    <string name="widget_stale">Belum sinkron sejak %1$s</string>
+    <string name="widget_never_synced">Belum disinkronkan</string>
+    <string name="widget_unpaired">Pasangkan cincin untuk mengisi widget ini.</string>
+    <string name="widget_no_data">Belum ada data. Tetap pakai cincin lalu sinkronkan.</string>
+    <string name="widget_no_value" formatted="false">--</string>
+    <string name="widget_resting_hr">DJ istirahat</string>
+    <string name="widget_hrv">HRV</string>
+    <string name="widget_readiness_pending">Belum ada skor</string>
+    <string name="widget_no_snapshot">Buka OpenRing untuk memuat data Anda.</string>
+    <string name="widget_today_no_metrics">Belum ada metrik dipilih. Pilih di OpenRing.</string>
+    <string name="widget_workout_subtitle">Pilih latihan lalu mulai</string>
+    <string name="widget_duration_hm">%1$d j %2$d mnt</string>
+    <string name="widget_duration_m">%1$d mnt</string>
+    <string name="widget_percent">%1$s%%</string>
+    <string name="widget_workout_last_today">Terakhir: %1$s hari ini, %2$s</string>
+    <string name="widget_workout_last_yesterday">Terakhir: %1$s kemarin, %2$s</string>
+    <string name="widget_workout_last_date">Terakhir: %1$s pada %2$s, %3$s</string>
+    <string name="widget_distance_km">%1$s km</string>
+    <string name="widget_distance_mi">%1$s mi</string>
+    <string name="widget_workout_type_running">lari</string>
+    <string name="widget_workout_type_walking">jalan kaki</string>
+    <string name="widget_workout_type_cycling">bersepeda</string>
+    <string name="widget_workout_type_hiking">mendaki</string>
+    <string name="widget_workout_type_strength">latihan kekuatan</string>
+    <string name="widget_workout_type_treadmill">treadmill</string>
+    <string name="widget_workout_type_stationary_bike">sepeda statis</string>
+    <string name="widget_workout_type_elliptical">elliptical</string>
+    <string name="widget_workout_type_yoga">yoga</string>
+    <string name="widget_workout_type_other">latihan</string>
+</resources>

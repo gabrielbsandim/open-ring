@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:open_ring/app/router/app_routes.dart';
+import 'package:open_ring/core/widgets/open_ring_logo.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 extension AppTabLabels on AppTab {
@@ -11,11 +12,15 @@ extension AppTabLabels on AppTab {
     AppTab.ring => l10n.tabRing,
   };
 
-  IconData get icon => switch (this) {
-    AppTab.today => Icons.today_rounded,
-    AppTab.sleep => Icons.bedtime_rounded,
-    AppTab.heart => Icons.favorite_rounded,
-    AppTab.activity => Icons.directions_walk_rounded,
-    AppTab.ring => Icons.radio_button_unchecked_rounded,
+  Widget icon({required double size, required Color color}) => switch (this) {
+    AppTab.today => Icon(Icons.today_rounded, size: size, color: color),
+    AppTab.sleep => Icon(Icons.bedtime_rounded, size: size, color: color),
+    AppTab.heart => Icon(Icons.favorite_rounded, size: size, color: color),
+    AppTab.activity => Icon(
+      Icons.directions_walk_rounded,
+      size: size,
+      color: color,
+    ),
+    AppTab.ring => OpenRingMark(size: size, color: color),
   };
 }

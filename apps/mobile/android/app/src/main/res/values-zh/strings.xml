@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_readiness_name">准备度</string>
+    <string name="widget_readiness_description">评分、静息心率、心率变异性和睡眠</string>
+    <string name="widget_today_name">今天</string>
+    <string name="widget_today_description">最多 3 项自选指标</string>
+    <string name="widget_ring_name">戒指</string>
+    <string name="widget_ring_description">电量和上次同步</string>
+    <string name="widget_workout_name">开始运动</string>
+    <string name="widget_workout_description">打开运动选择</string>
+    <string name="widget_estimate">估算</string>
+    <string name="widget_metric_readiness">准备度</string>
+    <string name="widget_metric_sleep">睡眠</string>
+    <string name="widget_metric_steps">步数</string>
+    <string name="widget_metric_heart_rate">心率</string>
+    <string name="widget_metric_spo2">血氧</string>
+    <string name="widget_metric_stress">压力</string>
+    <string name="widget_metric_battery">电量</string>
+    <string name="widget_sub_sleep_score">评分 %1$s</string>
+    <string name="widget_sub_steps_goal">目标 %1$s</string>
+    <string name="widget_sub_bpm_average">平均 bpm</string>
+    <string name="widget_sub_average">平均</string>
+    <string name="widget_sub_battery">戒指</string>
+    <string name="widget_synced">已同步 %1$s</string>
+    <string name="widget_stale">自 %1$s 起未同步</string>
+    <string name="widget_never_synced">尚未同步</string>
+    <string name="widget_unpaired">配对戒指后，此小组件才会显示数据。</string>
+    <string name="widget_no_data">还没有数据。请佩戴戒指并同步。</string>
+    <string name="widget_no_value" formatted="false">--</string>
+    <string name="widget_resting_hr">静息心率</string>
+    <string name="widget_hrv">心率变异性</string>
+    <string name="widget_readiness_pending">尚未评分</string>
+    <string name="widget_no_snapshot">打开 OpenRing 以加载数据。</string>
+    <string name="widget_today_no_metrics">未选择指标。请在 OpenRing 中选择。</string>
+    <string name="widget_workout_subtitle">选择运动并开始</string>
+    <string name="widget_duration_hm">%1$d 小时 %2$d 分钟</string>
+    <string name="widget_duration_m">%1$d 分钟</string>
+    <string name="widget_percent">%1$s%%</string>
+    <string name="widget_workout_last_today">上次：今天%1$s，%2$s</string>
+    <string name="widget_workout_last_yesterday">上次：昨天%1$s，%2$s</string>
+    <string name="widget_workout_last_date">上次：%2$s %1$s，%3$s</string>
+    <string name="widget_distance_km">%1$s 公里</string>
+    <string name="widget_distance_mi">%1$s 英里</string>
+    <string name="widget_workout_type_running">跑步</string>
+    <string name="widget_workout_type_walking">步行</string>
+    <string name="widget_workout_type_cycling">骑行</string>
+    <string name="widget_workout_type_hiking">徒步</string>
+    <string name="widget_workout_type_strength">力量训练</string>
+    <string name="widget_workout_type_treadmill">跑步机</string>
+    <string name="widget_workout_type_stationary_bike">动感单车</string>
+    <string name="widget_workout_type_elliptical">椭圆机</string>
+    <string name="widget_workout_type_yoga">瑜伽</string>
+    <string name="widget_workout_type_other">运动</string>
+</resources>

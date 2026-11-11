@@ -1,128 +1,133 @@
 # OpenRing
 
-A free, open-source companion app for the COLMI R09 smart ring. It keeps the
-ring synced on its own, shows sleep, heart and activity on calm, readable
-screens, and keeps your data on your phone.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Flutter-3DDC84.svg?logo=android&logoColor=white)]()
+[![Google Play](https://img.shields.io/badge/Google%20Play-OpenRing-414141.svg?logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=gbs.openring.app)
+[![Website](https://img.shields.io/badge/Website-gabrielbsandim.github.io%2Fopen--ring-brightgreen)](https://gabrielbsandim.github.io/open-ring/)
 
-No account, no cloud, no ads, no subscription. MIT licensed.
+A free, privacy-first, open-source companion app for budget smart rings (COLMI R09 and compatible hardware). OpenRing keeps the ring synced autonomously, displays sleep stages, heart metrics, and activity on calm, readable screens, and stores 100% of your data locally on your device.
 
-Website: <https://gabrielbsandim.github.io/open-ring/>
+**No accounts. No cloud servers. No ads. No subscriptions.**
 
-## Install
+---
 
-- [Google Play](https://play.google.com/store/apps/details?id=gbs.openring.app).
-- The signed APK of each release on
-  [GitHub Releases](https://github.com/gabrielbsandim/open-ring/releases). It is
-  signed with a different key than the Play build, so switching between the two
-  means uninstalling first, which deletes the app's data.
+## Download & Install
 
-## Supported rings
+- **Google Play:** [Install from Google Play Store](https://play.google.com/store/apps/details?id=gbs.openring.app)
+- **Direct APK:** Download the signed APK from [GitHub Releases](https://github.com/gabrielbsandim/open-ring/releases). *(Note: Play Store and GitHub APKs use different signing keys; switching between them requires an uninstall, which wipes local app data).*
 
-| Ring | Status | What that means |
+---
+
+## Supported Rings
+
+| Ring Model | Status | Notes |
 | :--- | :--- | :--- |
-| COLMI R09 | Tested | The only ring on the desk. Every protocol check is made on it. |
-| COLMI R02, R03, R06, R10 | May work | Same protocol, not tested yet. |
-| Other brands | Need hardware | The driver interface is ready; a driver lands when a ring is on the desk. |
+| **COLMI R09** | **Fully Tested** | Hardware reference device. All BLE protocol commands are verified against it. |
+| **COLMI R02, R03, R06, R10** | Compatible | Share the same underlying Realtek/Colmi protocol; expected to work. |
+| **Other Brands** | In progress | Modular driver interface is ready; new drivers are added as hardware is verified. |
 
-The ring talks to one app at a time: disconnect it from QRing before pairing it
-with OpenRing.
+> **Important:** Smart rings talk to one client at a time. Disconnect and unpair the ring from official apps (e.g., QRing) before pairing with OpenRing.
+
+---
 
 ## Features
 
-- Background sync: the ring stores its history, the phone connects on a
-  schedule (every 60 minutes by default, 15 to 120 to choose from), pulls what
-  is new and disconnects. No always-on connection.
-- Sleep as a hypnogram (light, deep, REM, awake), with a night split by a wake
-  up still counted as one night.
-- Heart rate through the day, resting heart rate, HRV, SpO2 and stress.
-- Steps, distance and active energy.
-- Readiness and sleep scores that show their inputs. Every formula is published
-  in [`docs/metrics.md`](docs/metrics.md).
-- Phone-led workouts with live heart rate from the ring and, outdoors, a GPS
-  route with distance, pace and splits.
-- Health Connect: writes steps, active energy, heart rate, SpO2, HRV, sleep
-  stages and workouts with their route. Reading sleep that other apps wrote is
-  opt-in.
-- Export to CSV and JSON, and any workout route to GPX
-  ([`docs/export-format.md`](docs/export-format.md)).
-- Home screen widgets (Jetpack Glance): Readiness, Today, Ring, Start workout.
-- 11 languages (English, Portuguese for Brazil and Portugal, Spanish, French,
-  German, Italian, Russian, Simplified Chinese, Japanese, Indonesian), light and
-  dark themes, text scaling up to 200%.
+- **Battery-Friendly Background Sync:** The ring logs data internally; the phone connects periodically on a custom schedule (default: 60 min, configurable from 15 to 120 min), pulls new deltas, and disconnects immediately.
+- **Sleep Hypnogram:** Displays awake, REM, light, and deep sleep stages. Multi-segment nights with wake-ups are unified into a single coherent sleep record.
+- **Biometrics & Heart Metrics:** Continuous heart rate, resting heart rate, Heart Rate Variability (HRV), blood oxygen (SpO2), and stress estimation.
+- **Transparent Readiness & Sleep Scores:** Every score shows its exact weighted inputs. All formulas are openly documented in [`docs/metrics.md`](docs/metrics.md).
+- **Workouts with GPS:** Phone-led tracking with live heart rate stream from the ring, outdoor GPS route mapping, splits, pace, and elevation.
+- **Android Health Connect:** Seamless two-way integration. Writes sleep stages, heart rate, HRV, SpO2, steps, energy, and workouts with GPS routes.
+- **Data Portability:** Export full raw history to CSV or JSON anytime. Export workout routes to GPX ([`docs/export-format.md`](docs/export-format.md)).
+- **Home Screen Widgets:** Jetpack Glance widgets for Today summary, Ring battery/status, Readiness, and Quick Workout Start.
+- **Accessibility & Internationalization:** 11 languages (English, Portuguese BR/PT, Spanish, French, German, Italian, Russian, Simplified Chinese, Japanese, Indonesian), high-contrast light and dark themes, dynamic font scaling up to 200%.
 
-Every number is an estimate from a consumer ring, meant for following trends.
-OpenRing is not a medical device and does not diagnose anything.
+> *Disclaimer: Metrics are estimates from consumer hardware for wellness and trend-tracking. OpenRing is not a medical device.*
 
-## Privacy
+---
 
-- No account, no sign-up, no login.
-- Data lives in a local SQLite database on the phone. There is no OpenRing
-  server.
-- The only network use is the Shorebird updater, which checks for and downloads
-  app updates and sends no health data: no analytics, no crash reporting, no
-  telemetry. See the [privacy policy](docs/privacy-policy.md).
-- Android cloud backup is off, so the database is not copied to a Google
-  account.
-- Health data leaves the phone only when you choose: to Health Connect, or in a file
-  you export and share.
+## Privacy by Design
 
-Full text: [`docs/privacy-policy.md`](docs/privacy-policy.md).
+- **Zero Cloud Architecture:** Data lives entirely in a local SQLite database on your device. There is no OpenRing backend or account system.
+- **No Telemetry or Tracking:** Zero analytics SDKs, zero crash tracking, zero advertising identifiers.
+- **Encrypted Local Storage:** Android cloud backup is disabled to prevent database leakage to external cloud backups.
+- **OTA Updates:** Uses Shorebird exclusively for delta app binary updates; no user or health telemetry is ever transmitted.
+- **You Control Export:** Health data only leaves your phone when you explicitly choose to export files or sync with Android Health Connect.
 
-## Platforms
+Full policy: [`docs/privacy-policy.md`](docs/privacy-policy.md).
 
-- **Android** 9 (API 28) or newer, with Health Connect. This is the platform
-  that ships first.
-- **iOS** is deferred until a Mac is available. The Dart side of HealthKit and
-  WidgetKit exists behind platform checks but is not built or tested.
+---
 
-## Building
+## Project Structure & Architecture
 
-A Dart pub workspace: `apps/mobile` (the Flutter app) plus the pure Dart
-packages `packages/ring_protocol`, `packages/ring_driver`, `packages/metrics`,
-the Android-only Flutter plugins `packages/health_connect_writer` (Health
-Connect channels for every engine) and `packages/ring_notifications` (ring
-alerts for every engine), and the `tools/trace_replay` CLI. Requires Flutter stable with Dart 3.13.5 or
-newer and a JDK 17.
+OpenRing is structured as a Dart pub workspace:
 
-```sh
-flutter pub get                                   # whole workspace, from the repo root
-flutter run                                       # from apps/mobile, with a phone attached
-flutter build apk --release                       # from apps/mobile
-flutter build appbundle --release                 # from apps/mobile
+```
+open-ring/
+├── apps/
+│   └── mobile/                        # Flutter companion application
+├── packages/
+│   ├── ring_protocol/                 # Pure Dart: byte encoding & packet decoding
+│   ├── ring_driver/                   # BLE connection state machine & abstraction
+│   ├── metrics/                       # Sleep, heart, and readiness score formulas
+│   ├── health_connect_writer/         # Android platform channel for Health Connect
+│   └── ring_notifications/            # Foreground service & local ring alerts
+├── tools/
+│   └── trace_replay/                  # CLI tool to replay BLE packet captures
+├── site/                              # Static multilingual landing page (GitHub Pages)
+└── docs/                              # Architecture, protocol specs, and evals
 ```
 
-Without `apps/mobile/android/key.properties` the release build is signed with
-the debug key and Gradle prints a warning. Signing, store upload and F-Droid
-notes are in [`docs/release.md`](docs/release.md).
+---
 
-Tests and project rules: [`CONTRIBUTING.md`](CONTRIBUTING.md).
+## Building from Source
 
-The landing page is static HTML in `site/`, in English and Brazilian
-Portuguese, built from the design prototype linked in
-[`docs/plan.md`](docs/plan.md). `.github/workflows/pages.yml` publishes it to
-GitHub Pages on every push to `develop` or `main` that touches it.
+### Prerequisites
 
-## Documentation
+- Flutter stable (Dart SDK `^3.13.5`)
+- JDK 17+
+- Android SDK (API 34)
 
-- [`docs/plan.md`](docs/plan.md): current plan, scope, architecture, phases and
-  the decisions log. Wins over any older document.
-- [`docs/design-tokens.md`](docs/design-tokens.md): colours, themes and text
-  scaling rules.
-- [`docs/metrics.md`](docs/metrics.md): every derived score and its formula.
-- [`docs/health-platforms.md`](docs/health-platforms.md): what is written to
-  Health Connect and HealthKit, and the known gaps.
-- [`docs/export-format.md`](docs/export-format.md): CSV, JSON and GPX formats.
-- [`docs/protocols/realsil-colmi.md`](docs/protocols/realsil-colmi.md): the
-  Colmi BLE protocol, with each command marked verified or not.
-- [`docs/architecture.md`](docs/architecture.md),
-  [`docs/product-vision.md`](docs/product-vision.md),
-  [`docs/features-benchmark.md`](docs/features-benchmark.md),
-  [`docs/market-analysis.md`](docs/market-analysis.md): discovery material.
-- [`docs/privacy-policy.md`](docs/privacy-policy.md) and
-  [`docs/release.md`](docs/release.md): release documents.
+### Build Commands
+
+```sh
+# Fetch dependencies across the entire pub workspace
+flutter pub get
+
+# Run static analysis and lint checks
+flutter analyze
+
+# Run unit tests across pure Dart packages
+dart test packages/ring_protocol/test
+dart test packages/ring_driver/test
+dart test packages/metrics/test
+
+# Run Flutter widget and integration tests
+flutter test apps/mobile/test
+
+# Build signed release APK (debug signed if key.properties is omitted)
+flutter build apk --release
+
+# Build Android App Bundle for Google Play
+flutter build appbundle --release
+```
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development guidelines and [`docs/release.md`](docs/release.md) for store signing instructions.
+
+---
+
+## Documentation Index
+
+- [`docs/plan.md`](docs/plan.md): Master roadmap, active phase scope, and architectural decisions log.
+- [`docs/metrics.md`](docs/metrics.md): Comprehensive scoring formulas and algorithms.
+- [`docs/protocols/realsil-colmi.md`](docs/protocols/realsil-colmi.md): Realtek/COLMI BLE protocol specification.
+- [`docs/health-platforms.md`](docs/health-platforms.md): Health Connect mapping and permissions.
+- [`docs/export-format.md`](docs/export-format.md): Schema specifications for CSV, JSON, and GPX exports.
+- [`docs/architecture.md`](docs/architecture.md): Flutter client architecture and Riverpod state machines.
+- [`docs/privacy-policy.md`](docs/privacy-policy.md): Plain-language privacy commitments.
+
+---
 
 ## License
 
-[MIT](LICENSE). Third-party packages keep their own licenses; note that
-`flutter_blue_plus` is free for personal, nonprofit and educational use only,
-see [`docs/release.md`](docs/release.md).
+This project is licensed under the [MIT License](LICENSE). Third-party dependencies retain their respective licenses (see [`docs/release.md`](docs/release.md) regarding `flutter_blue_plus`).

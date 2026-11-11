@@ -6,6 +6,16 @@ screens, and keeps your data on your phone.
 
 No account, no cloud, no ads, no subscription. MIT licensed.
 
+Website: <https://gabrielbsandim.github.io/open-ring/>
+
+## Install
+
+- [Google Play](https://play.google.com/store/apps/details?id=gbs.openring.app).
+- The signed APK of each release on
+  [GitHub Releases](https://github.com/gabrielbsandim/open-ring/releases). It is
+  signed with a different key than the Play build, so switching between the two
+  means uninstalling first, which deletes the app's data.
+
 ## Supported rings
 
 | Ring | Status | What that means |
@@ -86,6 +96,11 @@ the debug key and Gradle prints a warning. Signing, store upload and F-Droid
 notes are in [`docs/release.md`](docs/release.md).
 
 Tests and project rules: [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+The landing page is static HTML in `site/`, in English and Brazilian
+Portuguese, built from the design prototype linked in
+[`docs/plan.md`](docs/plan.md). `.github/workflows/pages.yml` publishes it to
+GitHub Pages on every push to `develop` or `main` that touches it.
 
 ## Documentation
 

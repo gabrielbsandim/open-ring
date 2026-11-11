@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenRing: your smart ring, your data, no cloud</title>
+  <meta name="description" content="Free, open-source Android app for the COLMI R09 smart ring. No account, no cloud: sleep, heart and activity stay on your phone.">
+  <link rel="icon" href="img/icon.png">
+  <link rel="alternate" hreflang="en" href="https://gabrielbsandim.github.io/open-ring/">
+  <link rel="alternate" hreflang="pt-BR" href="https://gabrielbsandim.github.io/open-ring/pt/">
+  <meta property="og:title" content="OpenRing">
+  <meta property="og:description" content="Open-source app for the COLMI R09 smart ring. No account, no cloud.">
+  <meta property="og:image" content="https://gabrielbsandim.github.io/open-ring/img/icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="./"><img src="img/icon.png" alt="">OpenRing</a>
+      <nav>
+        <a class="hide-small" href="#features">Features</a>
+        <a class="hide-small" href="#privacy">Privacy</a>
+        <a href="pt/" hreflang="pt-BR" lang="pt-BR">Português</a>
+      </nav>
+    </header>
+
+    <main>
+      <div class="hero">
+        <div>
+          <h1>Your smart ring, your data, no cloud</h1>
+          <p class="lead">OpenRing is a free, open-source companion app for the COLMI R09 smart ring. It keeps the ring synced on its own, shows sleep, heart and activity on calm, readable screens, and keeps your data on your phone.</p>
+          <ul class="dots">
+            <li class="sleep">Sleep</li>
+            <li class="heart">Heart</li>
+            <li class="activity">Activity</li>
+            <li class="oxygen">Oxygen</li>
+          </ul>
+          <div class="actions">
+            <a class="button primary" href="https://play.google.com/store/apps/details?id=gbs.openring.app">Get it on Google Play</a>
+            <a class="button" href="https://github.com/gabrielbsandim/open-ring">Source on GitHub</a>
+          </div>
+          <p class="note">Android 9 or later. iOS is not available yet.</p>
+        </div>
+        <img class="phone" src="img/en/today.webp" width="540" height="1080" alt="The Today screen: readiness 98 out of 100, 8 h 20 min of sleep, steps and heart rate, from demo data.">
+      </div>
+
+      <section id="privacy">
+        <h2>No account, no cloud</h2>
+        <div class="grid">
+          <div class="card"><h3>No sign-up</h3><p>No login, no email. Pair the ring and start.</p></div>
+          <div class="card"><h3>On your phone</h3><p>Your data lives in a local database on your phone, not on a server.</p></div>
+          <div class="card"><h3>No tracking</h3><p>No analytics, no ads. The internet is used only to download the app's own updates.</p></div>
+          <div class="card"><h3>You choose what leaves</h3><p>Send data to Health Connect, or export a CSV, JSON or GPX file. Nothing else goes out.</p></div>
+        </div>
+      </section>
+
+      <section id="features">
+        <h2>What you see</h2>
+        <div class="grid three">
+          <div class="card"><h3>Sleep</h3><p>A timeline of light, deep, REM and awake, with a score that shows how it was computed.</p></div>
+          <div class="card"><h3>Heart</h3><p>Heart rate through the day, resting heart rate, HRV, blood oxygen (SpO2) and stress.</p></div>
+          <div class="card"><h3>Readiness</h3><p>A score that shows its inputs: what each one added or took away, against your own baseline.</p></div>
+          <div class="card"><h3>Workouts with GPS</h3><p>Live heart rate from the ring, route, distance, pace and splits from the phone. Export any route as GPX.</p></div>
+          <div class="card"><h3>Health Connect</h3><p>Steps, energy, heart rate, SpO2, HRV, sleep and workouts can go to Health Connect for the apps you choose.</p></div>
+          <div class="card"><h3>Sync, not stream</h3><p>The ring keeps its own history. The phone connects every 60 minutes by default, pulls what is new and disconnects.</p></div>
+        </div>
+        <div class="shots" aria-label="Screenshots from demo data">
+          <img src="img/en/sleep.webp" width="540" height="1080" loading="lazy" alt="Sleep screen with the stage timeline and score breakdown.">
+          <img src="img/en/heart.webp" width="540" height="1080" loading="lazy" alt="Heart screen with heart rate through the day.">
+          <img src="img/en/readiness.webp" width="540" height="1080" loading="lazy" alt="Readiness screen showing what each input added or took away.">
+          <img src="img/en/workout.webp" width="540" height="1080" loading="lazy" alt="Treadmill workout summary with average and max heart rate and a heart rate chart.">
+        </div>
+      </section>
+
+      <section id="rings">
+        <h2>Supported rings</h2>
+        <ul class="plain">
+          <li><strong>COLMI R09:</strong> tested. Every protocol check is made on this ring.</li>
+          <li><strong>COLMI R02, R03, R06 and R10:</strong> may work, not tested yet.</li>
+        </ul>
+        <p>The ring talks to one app at a time, so disconnect it from its original app before pairing it with OpenRing.</p>
+      </section>
+
+      <section id="medical">
+        <h2>Estimates, not diagnosis</h2>
+        <p>OpenRing is not a medical device. Every number is an estimate from a consumer ring and is meant for following trends. It does not diagnose, treat or prevent any condition. If something seems wrong with your health, talk to a professional.</p>
+      </section>
+    </main>
+
+    <footer>
+      <div class="links">
+        <a href="https://github.com/gabrielbsandim/open-ring/blob/main/docs/privacy-policy.md">Privacy policy</a>
+        <a href="https://github.com/gabrielbsandim/open-ring">GitHub</a>
+        <a href="https://github.com/gabrielbsandim/open-ring/issues">Report an issue</a>
+        <a href="https://github.com/gabrielbsandim/open-ring/blob/main/LICENSE">MIT license</a>
+      </div>
+      <p>Screenshots use the app's demo data. COLMI is a trademark of its owner; OpenRing is not affiliated with it.</p>
+    </footer>
+  </div>
+</body>
+</html>

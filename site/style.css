@@ -1,0 +1,256 @@
+:root {
+  --background: #f6f7f9;
+  --surface: #ffffff;
+  --border: #e3e6ec;
+  --text: #14161c;
+  --body: #3d4350;
+  --label: #5a6170;
+  --sleep: #6d4fd8;
+  --heart: #c8372b;
+  --activity: #15803d;
+  --oxygen: #0e7490;
+  --on-accent: #ffffff;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0e0f13;
+    --surface: #171920;
+    --border: #242833;
+    --text: #eceef2;
+    --body: #c9ced8;
+    --label: #9aa1ae;
+    --sleep: #a78bfa;
+    --heart: #ff7a6b;
+    --activity: #4ade80;
+    --oxygen: #22d3ee;
+    --on-accent: #0e0f13;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--body);
+  font: 1.0625rem/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+a {
+  color: var(--sleep);
+}
+
+h1,
+h2,
+h3 {
+  color: var(--text);
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+}
+
+h1 {
+  font-size: clamp(2.4rem, 7vw, 3.6rem);
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+h3 {
+  font-size: 1.125rem;
+}
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+header.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brand img {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+}
+
+.top nav {
+  display: flex;
+  gap: 18px;
+  font-size: 0.95rem;
+}
+
+.top nav a {
+  color: var(--label);
+  text-decoration: none;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 48px;
+  align-items: center;
+  padding: 48px 0 72px;
+}
+
+.lead {
+  font-size: 1.25rem;
+  color: var(--body);
+  max-width: 34em;
+}
+
+.dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 20px 0 28px;
+  padding: 0;
+  list-style: none;
+  color: var(--label);
+  font-weight: 600;
+}
+
+.dots li::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.dots .sleep::before { background: var(--sleep); }
+.dots .heart::before { background: var(--heart); }
+.dots .activity::before { background: var(--activity); }
+.dots .oxygen::before { background: var(--oxygen); }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.button {
+  display: inline-block;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: var(--surface);
+}
+
+.button.primary {
+  background: var(--sleep);
+  border-color: var(--sleep);
+  color: var(--on-accent);
+}
+
+.note {
+  margin-top: 14px;
+  font-size: 0.9rem;
+  color: var(--label);
+}
+
+.phone {
+  justify-self: center;
+  width: min(100%, 320px);
+  border-radius: 28px;
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.18);
+}
+
+section {
+  padding: 56px 0;
+  border-top: 1px solid var(--border);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px;
+}
+
+.card p {
+  margin: 0;
+}
+
+.shots {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 8px 0 16px;
+  margin-top: 24px;
+  scroll-snap-type: x mandatory;
+}
+
+.shots img {
+  flex: 0 0 220px;
+  width: 220px;
+  height: auto;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  scroll-snap-align: start;
+}
+
+ul.plain {
+  padding-left: 1.2em;
+}
+
+footer {
+  padding: 32px 0 48px;
+  border-top: 1px solid var(--border);
+  color: var(--label);
+  font-size: 0.95rem;
+}
+
+footer .links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 24px 0 48px;
+  }
+
+  .top nav .hide-small {
+    display: none;
+  }
+}
+
+.grid.three {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+}

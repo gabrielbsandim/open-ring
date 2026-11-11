@@ -1,23 +1,79 @@
 name: CI
 
+# Work lands on develop with no workflow. The gates run once, on the
+# develop -> main release pull request; a push to main tags and publishes.
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
-  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: read
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name != 'push' }}
 
 jobs:
-  check:
+  reuse:
+    name: Reuse the release pull request gates
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
+    outputs:
+      verified: ${{ steps.verified.outputs.verified }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # Reused only when the merge left the tree the gates passed on untouched.
+      # A failed lookup means running the gates, never skipping them.
+      - id: verified
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          head=$(git rev-parse -q --verify "$GITHUB_SHA^2") || {
+            echo "$GITHUB_SHA is not a merge, so there is no run to reuse."
+            exit 0
+          }
+          if ! git diff --quiet "$head" "$GITHUB_SHA"; then
+            echo "The merge produced a different tree than $head, running the gates."
+            exit 0
+          fi
+          passed=$(gh api "repos/$GITHUB_REPOSITORY/commits/$head/check-runs?per_page=100" \
+            --jq '.check_runs
+                  | group_by(.name)
+                  | map(sort_by(.started_at) | last)
+                  | map(select(.conclusion == "success"))
+                  | .[].name') || {
+            echo "Could not read the check runs for $head, running the gates."
+            exit 0
+          }
+          for gate in Gates 'Release build'; do
+            if ! printf '%s\n' "$passed" | grep -Fxq "$gate"; then
+              echo "$gate has no successful run on $head, running the gates."
+              exit 0
+            fi
+          done
+          echo "verified=true" >> "$GITHUB_OUTPUT"
+
+  gates:
+    name: Gates
+    needs: reuse
+    if: "!cancelled() && needs.reuse.outputs.verified != 'true'"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: 3.47.7
           channel: stable
           cache: true
 
@@ -46,6 +102,105 @@ jobs:
         run: dart test
         working-directory: packages/metrics
 
+      - name: Test trace_replay
+        run: dart test
+        working-directory: tools/trace_replay
+
       - name: Test mobile app
         run: flutter test
         working-directory: apps/mobile
+
+  release-build:
+    name: Release build
+    needs: reuse
+    if: "!cancelled() && needs.reuse.outputs.verified != 'true'"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.7
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release
+        working-directory: apps/mobile
+
+  release:
+    name: Tag the release
+    needs: [reuse, gates, release-build]
+    if: |
+      !cancelled() && github.event_name == 'push' &&
+      ((needs.gates.result == 'success' && needs.release-build.result == 'success') ||
+        needs.reuse.outputs.verified == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.decide.outputs.tag }}
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether this push is a release
+        id: decide
+        run: |
+          version=$(sed -nE 's/^version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+)\+[0-9]+[[:space:]]*$/\1/p' pubspec.yaml)
+          if [ -z "$version" ]; then
+            echo "pubspec.yaml has no version: X.Y.Z+N line."
+            exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/v$version" >/dev/null; then
+            echo "v$version is already tagged, not a release."
+            exit 0
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+
+      - if: steps.decide.outputs.tag != ''
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.13.5
+
+      # Pushed with GITHUB_TOKEN, which starts no workflow, so android.yml runs
+      # once, through the job below.
+      - name: Tag and publish
+        if: steps.decide.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.decide.outputs.version }}
+        run: |
+          dart tool/release_version.dart \
+            --version "$VERSION" --notes-file "$RUNNER_TEMP/notes.md"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin "v$VERSION"
+          gh release create "v$VERSION" --title "v$VERSION" --notes-file "$RUNNER_TEMP/notes.md"
+
+  android:
+    name: Android
+    needs: release
+    if: "!cancelled() && needs.release.result == 'success' && needs.release.outputs.tag != ''"
+    permissions:
+      contents: write
+    uses: ./.github/workflows/android.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+    secrets: inherit

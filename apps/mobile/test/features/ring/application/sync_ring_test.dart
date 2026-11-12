@@ -250,10 +250,10 @@ void main() {
   });
 
   group('heart rate interval', () {
-    test('sets the ring to five minutes after the time', () async {
+    test('sets the ring to ten minutes after the time', () async {
       await syncWith()(ringId);
 
-      expect(driver.heartRateInterval, const Duration(minutes: 5));
+      expect(driver.heartRateInterval, const Duration(minutes: 10));
       final calls = driver.calls;
       expect(
         calls.indexOf('setHeartRateInterval'),
@@ -275,12 +275,29 @@ void main() {
       expect(report.heartRateIntervalSeen, Duration.zero);
     });
 
-    test('leaves a ring already at five minutes alone', () async {
+    test('rewrites a ring reporting five minutes to ten, once', () async {
       driver.heartRateInterval = const Duration(minutes: 5);
 
       await syncWith()(ringId);
 
+      expect(
+        driver.calls.where((c) => c == 'setHeartRateInterval'),
+        hasLength(1),
+      );
+      expect(driver.heartRateInterval, const Duration(minutes: 10));
+    });
+
+    test('leaves a ring already at ten minutes alone', () async {
+      driver.heartRateInterval = const Duration(minutes: 10);
+
+      await syncWith()(ringId);
+
       expect(driver.calls, isNot(contains('setHeartRateInterval')));
+      expect(driver.heartRateInterval, const Duration(minutes: 10));
+    });
+
+    test('the default interval constant is ten minutes', () {
+      expect(SyncRing.defaultHeartRateInterval, const Duration(minutes: 10));
     });
 
     test('a failed read is reported and the sync goes on', () async {

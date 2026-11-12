@@ -40,6 +40,8 @@ final class RingLiveHeartRateSource implements LiveHeartRateSource {
         link = _Link(this, controller, newOwner());
         unawaited(link.open());
       },
+      onPause: () => link.pause(),
+      onResume: () => link.resume(),
       onCancel: () => link.close(),
     );
     return controller.stream;
@@ -59,6 +61,9 @@ final class _Link {
   bool _connected = false;
   bool _streaming = false;
   bool _closed = false;
+  bool _ready = false;
+  bool _paused = false;
+  Future<void>? _stopping;
 
   Future<void> open() async {
     final problem = await _connect();
@@ -67,12 +72,44 @@ final class _Link {
       return;
     }
     if (problem != null) return _fail(problem);
+    _ready = true;
+    if (!_paused) _stream();
+    _renewals = source.renewals().listen((_) => unawaited(_renew()));
+  }
+
+  void _stream() {
     _streaming = true;
     _live = source.driver.startHeartRateStream().listen(
       (reading) => controller.add(reading.value),
       onError: (Object _) => _fail(HeartRateProblem.unreachable),
     );
-    _renewals = source.renewals().listen((_) => unawaited(_renew()));
+  }
+
+  // A paused workout keeps the link and the lock, but the ring's sensor is
+  // the battery cost, so the stream itself stops until resume.
+  void pause() {
+    _paused = true;
+    final live = _live;
+    if (_closed || live == null) return;
+    _live = null;
+    _streaming = false;
+    _stopping = _stopStream(live);
+  }
+
+  Future<void> _stopStream(StreamSubscription<LiveReading> live) async {
+    await live.cancel();
+    await _quietly(source.driver.stopHeartRateStream);
+  }
+
+  void resume() {
+    _paused = false;
+    unawaited(_restart());
+  }
+
+  Future<void> _restart() async {
+    await _stopping;
+    if (_closed || _paused || !_ready || _live != null) return;
+    _stream();
   }
 
   Future<HeartRateProblem?> _connect() async {
@@ -123,6 +160,7 @@ final class _Link {
 
   Future<void> _teardown() async {
     await _renewals?.cancel();
+    await _stopping;
     await _live?.cancel();
     if (_streaming) await _quietly(source.driver.stopHeartRateStream);
     if (_connected) await _quietly(source.driver.disconnect);

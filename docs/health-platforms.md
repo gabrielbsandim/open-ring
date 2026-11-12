@@ -100,7 +100,7 @@ sample:
   sample. The bucket is a property of the samples, not of the outbox row, so
   the same samples always form the same records and keep the same client ids.
   An hour is also split at a workout window that owns HR, and the cap below
-  splits it in theory (the ring logs 12 samples an hour at its 5 minute
+  splits it in theory (the ring logs 6 samples an hour at its 10 minute
   interval). Why an hour: Google suggests small series records (a minute in
   its guide) so reads stay cheap, but at the R09's interval a minute or 15
   minutes holds one to three samples, which is the problem being fixed; a day

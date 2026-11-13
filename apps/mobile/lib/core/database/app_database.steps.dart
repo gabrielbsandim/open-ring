@@ -3607,6 +3607,378 @@ i1.GeneratedColumn<int> _column_78(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NULL',
     );
+
+final class Schema10 extends i0.VersionedSchema {
+  Schema10({required super.database}) : super(version: 10);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    ringDevices,
+    syncCursors,
+    syncLocks,
+    syncRuns,
+    activityBuckets,
+    hrSamples,
+    spo2Samples,
+    stressSamples,
+    hrvSamples,
+    sleepSessions,
+    sleepSegments,
+    workouts,
+    workoutHrSamples,
+    workoutRoutePoints,
+    workoutPauses,
+    healthOutbox,
+    sourcePriorities,
+    userProfile,
+    importedSleepSessions,
+    importedSleepStages,
+    healthReads,
+    importedWorkouts,
+  ];
+  late final Shape24 ringDevices = Shape24(
+    source: i0.VersionedTable(
+      entityName: 'ring_devices',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(device_id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_8,
+        _column_69,
+        _column_70,
+        _column_71,
+        _column_72,
+        _column_73,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape1 syncCursors = Shape1(
+    source: i0.VersionedTable(
+      entityName: 'sync_cursors',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(device_id, kind)'],
+      columns: [_column_9, _column_10, _column_11, _column_12],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 syncLocks = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'sync_locks',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(name)'],
+      columns: [_column_1, _column_13, _column_14, _column_15],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape26 syncRuns = Shape26(
+    source: i0.VersionedTable(
+      entityName: 'sync_runs',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_30,
+        _column_9,
+        _column_22,
+        _column_74,
+        _column_75,
+        _column_76,
+        _column_6,
+        _column_7,
+        _column_77,
+        _column_78,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape3 activityBuckets = Shape3(
+    source: i0.VersionedTable(
+      entityName: 'activity_buckets',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(device_id, start_utc_ms)'],
+      columns: [
+        _column_9,
+        _column_16,
+        _column_17,
+        _column_18,
+        _column_19,
+        _column_20,
+        _column_21,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape4 hrSamples = Shape4(
+    source: i0.VersionedTable(
+      entityName: 'hr_samples',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(device_id, at_utc_ms)'],
+      columns: [_column_9, _column_22, _column_17, _column_23],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape5 spo2Samples = Shape5(
+    source: i0.VersionedTable(
+      entityName: 'spo2_samples',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(device_id, at_utc_ms)'],
+      columns: [_column_9, _column_22, _column_17, _column_24],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape6 stressSamples = Shape6(
+    source: i0.VersionedTable(
+      entityName: 'stress_samples',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(device_id, at_utc_ms)'],
+      columns: [_column_9, _column_22, _column_17, _column_25],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape7 hrvSamples = Shape7(
+    source: i0.VersionedTable(
+      entityName: 'hrv_samples',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(device_id, at_utc_ms)'],
+      columns: [_column_9, _column_22, _column_17, _column_26],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape8 sleepSessions = Shape8(
+    source: i0.VersionedTable(
+      entityName: 'sleep_sessions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(device_id, start_utc_ms)'],
+      columns: [_column_9, _column_16, _column_27, _column_17],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape9 sleepSegments = Shape9(
+    source: i0.VersionedTable(
+      entityName: 'sleep_segments',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(device_id, start_utc_ms)'],
+      columns: [
+        _column_9,
+        _column_16,
+        _column_27,
+        _column_17,
+        _column_28,
+        _column_29,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape18 workouts = Shape18(
+    source: i0.VersionedTable(
+      entityName: 'workouts',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_30,
+        _column_31,
+        _column_32,
+        _column_33,
+        _column_16,
+        _column_34,
+        _column_17,
+        _column_35,
+        _column_36,
+        _column_62,
+        _column_63,
+        _column_60,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape11 workoutHrSamples = Shape11(
+    source: i0.VersionedTable(
+      entityName: 'workout_hr_samples',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(workout_id, at_utc_ms)'],
+      columns: [_column_37, _column_22, _column_17, _column_23],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape12 workoutRoutePoints = Shape12(
+    source: i0.VersionedTable(
+      entityName: 'workout_route_points',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(workout_id, at_utc_ms)'],
+      columns: [
+        _column_37,
+        _column_22,
+        _column_17,
+        _column_38,
+        _column_39,
+        _column_40,
+        _column_41,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape19 workoutPauses = Shape19(
+    source: i0.VersionedTable(
+      entityName: 'workout_pauses',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(workout_id, start_utc_ms)'],
+      columns: [_column_37, _column_16, _column_27],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape16 healthOutbox = Shape16(
+    source: i0.VersionedTable(
+      entityName: 'health_outbox',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_30,
+        _column_10,
+        _column_33,
+        _column_42,
+        _column_43,
+        _column_44,
+        _column_45,
+        _column_46,
+        _column_47,
+        _column_48,
+        _column_57,
+        _column_58,
+        _column_59,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape14 sourcePriorities = Shape14(
+    source: i0.VersionedTable(
+      entityName: 'source_priorities',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(metric, source)'],
+      columns: [_column_49, _column_50, _column_51],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape17 userProfile = Shape17(
+    source: i0.VersionedTable(
+      entityName: 'user_profile',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_52,
+        _column_53,
+        _column_54,
+        _column_55,
+        _column_56,
+        _column_60,
+        _column_61,
+        _column_12,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape20 importedSleepSessions = Shape20(
+    source: i0.VersionedTable(
+      entityName: 'imported_sleep_sessions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(record_id)'],
+      columns: [
+        _column_64,
+        _column_50,
+        _column_16,
+        _column_27,
+        _column_17,
+        _column_65,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape21 importedSleepStages = Shape21(
+    source: i0.VersionedTable(
+      entityName: 'imported_sleep_stages',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(record_id, start_utc_ms)'],
+      columns: [_column_66, _column_16, _column_27, _column_28],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape22 healthReads = Shape22(
+    source: i0.VersionedTable(
+      entityName: 'health_reads',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(kind)'],
+      columns: [_column_10, _column_67, _column_68],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape23 importedWorkouts = Shape23(
+    source: i0.VersionedTable(
+      entityName: 'imported_workouts',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(record_id)'],
+      columns: [
+        _column_64,
+        _column_50,
+        _column_32,
+        _column_16,
+        _column_27,
+        _column_17,
+        _column_65,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
@@ -3616,6 +3988,7 @@ i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema7 schema) from6To7,
   required Future<void> Function(i1.Migrator m, Schema8 schema) from7To8,
   required Future<void> Function(i1.Migrator m, Schema9 schema) from8To9,
+  required Future<void> Function(i1.Migrator m, Schema10 schema) from9To10,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -3659,6 +4032,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from8To9(migrator, schema);
         return 9;
+      case 9:
+        final schema = Schema10(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from9To10(migrator, schema);
+        return 10;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -3674,6 +4052,7 @@ i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema7 schema) from6To7,
   required Future<void> Function(i1.Migrator m, Schema8 schema) from7To8,
   required Future<void> Function(i1.Migrator m, Schema9 schema) from8To9,
+  required Future<void> Function(i1.Migrator m, Schema10 schema) from9To10,
 }) => i0.VersionedSchema.stepByStepHelper(
   step: migrationSteps(
     from1To2: from1To2,
@@ -3684,5 +4063,6 @@ i1.OnUpgrade stepByStep({
     from6To7: from6To7,
     from7To8: from7To8,
     from8To9: from8To9,
+    from9To10: from9To10,
   ),
 );

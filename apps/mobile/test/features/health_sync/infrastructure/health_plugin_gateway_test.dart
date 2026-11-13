@@ -32,9 +32,9 @@ class _FakeHealth extends Fake implements Health {
   @override
   Future<bool> writeHealthData({
     required double value,
-    HealthDataUnit? unit,
     required HealthDataType type,
     required DateTime startTime,
+    HealthDataUnit? unit,
     String? clientRecordId,
     double? clientRecordVersion,
     DateTime? endTime,
@@ -87,19 +87,22 @@ void main() {
     expect(health.workoutMethods, [RecordingMethod.automatic]);
   });
 
-  test('criterion 3: write keeps the plugin default recording method', () async {
-    final health = _FakeHealth();
-    final gateway = HealthPluginGateway(health, HealthPlatform.healthConnect);
+  test(
+    'criterion 3: write keeps the plugin default recording method',
+    () async {
+      final health = _FakeHealth();
+      final gateway = HealthPluginGateway(health, HealthPlatform.healthConnect);
 
-    await gateway.write(
-      HealthDataType.STEPS,
-      10,
-      start: DateTime.utc(2026, 11, 10, 8),
-      end: DateTime.utc(2026, 11, 10, 9),
-      clientRecordId: 'c-1',
-      version: 1,
-    );
+      await gateway.write(
+        HealthDataType.STEPS,
+        10,
+        start: DateTime.utc(2026, 11, 10, 8),
+        end: DateTime.utc(2026, 11, 10, 9),
+        clientRecordId: 'c-1',
+        version: 1,
+      );
 
-    expect(health.dataMethods, [RecordingMethod.automatic]);
-  });
+      expect(health.dataMethods, [RecordingMethod.automatic]);
+    },
+  );
 }

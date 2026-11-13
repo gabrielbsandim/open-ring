@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/core/database/app_database.dart';
 
-const _day = 24 * 60 * 60 * 1000;
-const _hour = 60 * 60 * 1000;
+const int _day = 24 * 60 * 60 * 1000;
+const int _hour = 60 * 60 * 1000;
 
 const _createOutboxV9 = '''
 CREATE TABLE health_outbox (
@@ -26,7 +26,7 @@ CREATE TABLE health_outbox (
 ''';
 
 class _Row {
-  const _Row(this.id, this.kind, this.status, this.fromUtcMs);
+  const new(this.id, this.kind, this.status, this.fromUtcMs);
 
   final int id;
   final String kind;
@@ -57,10 +57,10 @@ AppDatabase _v9Database(List<_Row> rows) {
               row.fromUtcMs + _hour,
               row.fromUtcMs,
               'boom',
-              row.status == 'done' ? row.fromUtcMs + _hour : null,
+              if (row.status == 'done') row.fromUtcMs + _hour else null,
               row.status,
               row.fromUtcMs + _hour,
-              row.status == 'pending' ? row.fromUtcMs + 2 * _hour : null,
+              if (row.status == 'pending') row.fromUtcMs + 2 * _hour else null,
             ],
           );
         }
@@ -106,15 +106,18 @@ void main() {
     _Row(8, 'workout', 'notApplicable', now - _day),
   ];
 
-  test('criterion 4: Android re-queues done workouts of the last 7 days', () async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.android;
-    final db = _v9Database(rows);
+  test(
+    'criterion 4: Android re-queues done workouts of the last 7 days',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final db = _v9Database(rows);
 
-    final outbox = await _outbox(db);
+      final outbox = await _outbox(db);
 
-    _expectPending(outbox[1]!);
-    _expectPending(outbox[2]!);
-  });
+      _expectPending(outbox[1]!);
+      _expectPending(outbox[2]!);
+    },
+  );
 
   test('criterion 4: the upgrade lands on schema version 10', () async {
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
@@ -157,18 +160,21 @@ void main() {
     expect(outbox.keys.toSet(), {1, 2, 3, 4, 5, 6, 7, 8});
   });
 
-  test('criterion 5: iOS changes no row but still reaches version 10', () async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-    final db = _v9Database(rows);
+  test(
+    'criterion 5: iOS changes no row but still reaches version 10',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      final db = _v9Database(rows);
 
-    final outbox = await _outbox(db);
-    final version = await db.customSelect('PRAGMA user_version').getSingle();
+      final outbox = await _outbox(db);
+      final version = await db.customSelect('PRAGMA user_version').getSingle();
 
-    expect(version.read<int>('user_version'), 10);
-    _expectUntouched(outbox[1]!, 'done');
-    _expectUntouched(outbox[2]!, 'done');
-    _expectUntouched(outbox[3]!, 'done');
-  });
+      expect(version.read<int>('user_version'), 10);
+      _expectUntouched(outbox[1]!, 'done');
+      _expectUntouched(outbox[2]!, 'done');
+      _expectUntouched(outbox[3]!, 'done');
+    },
+  );
 
   test('criterion 5: a non-mobile host changes no row', () async {
     debugDefaultTargetPlatformOverride = TargetPlatform.linux;

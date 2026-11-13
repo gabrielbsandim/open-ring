@@ -49,6 +49,21 @@ void main() {
       );
     });
 
+    test(
+      'parses on every 10 min from the R09 capture after a 10 min write',
+      () {
+        expect(
+          codec.parse(
+            hex('16 01 01 0a 05 00 00 00 00 00 00 00 00 00 00 27'),
+            parseAutoHeartRateSetting,
+          ),
+          const Parsed(
+            AutoHeartRateSetting(enabled: true, intervalMinutes: 10),
+          ),
+        );
+      },
+    );
+
     test('parses disabled from tahnok test_hr_settings.py', () {
       expect(
         codec.parse(

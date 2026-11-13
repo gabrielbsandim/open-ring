@@ -133,7 +133,8 @@ sample:
   Health Connect needs no background permission to write;
   `READ_HEALTH_DATA_IN_BACKGROUND` only gates reads.
 - **Older builds**: their per-sample records are cleared only when a row that
-  covers them is sent again; rows already done are not re-sent.
+  covers them is sent again; rows already done are not re-sent, except the
+  Android workouts of the last 7 days that the upgrade to schema 10 re-queues.
 
 ### A sleep session whose start moved
 

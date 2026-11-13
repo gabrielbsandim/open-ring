@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:open_ring/core/database/app_database.steps.dart';
 import 'package:open_ring/core/database/tables/health_tables.dart';
 import 'package:open_ring/core/database/tables/import_tables.dart';
@@ -42,7 +43,7 @@ class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -94,7 +95,22 @@ class AppDatabase extends _$AppDatabase {
         await migrator.addColumn(runs, runs.failures);
         await migrator.addColumn(runs, runs.heartRateIntervalSeenMinutes);
       },
+      from9To10: (migrator, schema) => _requeueRecentWorkouts(),
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );
+
+  // Workouts went to Health Connect as automatically recorded, which readers
+  // drop; writing the recent ones again stamps them as actively recorded.
+  Future<void> _requeueRecentWorkouts() async {
+    if (defaultTargetPlatform != TargetPlatform.android) return;
+    final since = DateTime.now().subtract(const Duration(days: 7));
+    await customStatement(
+      "UPDATE health_outbox SET status = 'pending', attempts = 0, "
+      'last_error = NULL, completed_at_utc_ms = NULL, '
+      'next_attempt_at_utc_ms = NULL '
+      "WHERE kind = ? AND status = 'done' AND from_utc_ms >= ?",
+      [HealthRecordKind.workout.name, since.millisecondsSinceEpoch],
+    );
+  }
 }

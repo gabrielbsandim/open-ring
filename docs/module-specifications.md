@@ -167,7 +167,7 @@ QRing partitions stress levels into 4 bands:
 
 ### Critical Flaw in QRing
 * **No OS Export**: When a workout ends, QRing stores it in its internal SQLite table and **does not emit an `ExerciseSessionRecord` or `HKWorkout`**. Third-party aggregators (Google Fit, Apple Health, Kapi) have no visibility into the workout.
-* **OpenRing Solution**: Full Health Connect and HealthKit workout writer with active recording method (`RECORDING_METHOD_ACTIVELY_RECORDED`), allowing Kapi to immediately award verified wearable XP.
+* **OpenRing Solution**: Full Health Connect and HealthKit workout writer, actively recorded on Health Connect (`RECORDING_METHOD_ACTIVELY_RECORDED`; HealthKit has no such flag), allowing Kapi to immediately award verified wearable XP.
 
 ---
 

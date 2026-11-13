@@ -1,1 +1,1 @@
-First release: pair a COLMI R09, background sync, sleep, heart and activity screens, readiness with its inputs, GPS workouts, Health Connect, CSV, JSON and GPX export, and home screen widgets. Explore the app without a ring in demo mode, and simpler Ring, Settings and Data sources screens.
+Workouts recorded with the ring now reach Health Connect as actively recorded, so apps that skip automatic sessions, like Kapi, count them. Workouts from the last 7 days are sent again. The ring now measures heart rate every 10 minutes, and live heart rate stops while a workout is paused.

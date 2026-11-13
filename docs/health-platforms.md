@@ -33,7 +33,7 @@ channels that need an Activity (permissions, Health Connect settings) stay in
 | Sleep with stages | `SLEEP_LIGHT`, `SLEEP_DEEP`, `SLEEP_REM`, `SLEEP_AWAKE` each write a separate `SleepSessionRecord` holding one stage; `SLEEP_SESSION` writes a session with no stages. Cannot write one session with a stage list. | `SLEEP_IN_BED` plus `asleepCore`, `asleepDeep`, `asleepREM`, `awake` category samples (iOS 16+). This is HealthKit's own model. Not idempotent. | Android: **cannot write the record type correctly**; a night shows as one session per stage. Closed by the app's own channel. iOS sync identifier. | Android: the plugin channel `gbs.openring.app/health_connect_sleep` (`HealthConnectSleepChannel.kt` in `health_connect_writer`, connect-client 1.2.0-alpha02, the `health` plugin's version) deletes OpenRing's own `SleepSessionRecord`s in the batch range, which also clears the per-stage sessions older builds wrote, then inserts one session per night with its stage list, client id `sleepSession` and the row version, recorded as `TYPE_RING`. iOS: in-bed span plus stage samples, after delete in range. REM is written on both. |
 | SpO2 | `OxygenSaturationRecord` via `writeHealthData`, client id and version. Idempotent. `writeBloodOxygen` drops the client id, so it is not used. | Oxygen saturation sample; `HKUnit.percent()` takes a fraction, so 97 % is sent as 0.97. Not idempotent. | iOS sync identifier. | Android upsert. iOS delete in range, then write. |
 | HRV | `HeartRateVariabilityRmssdRecord`, client id and version, value range 1 to 200 ms. Idempotent. | Only `HEART_RATE_VARIABILITY_SDNN` exists. Not idempotent. | Semantics: the R09's HRV definition is unpublished (`metrics.md` section 4), and each platform has one HRV type, rMSSD on Android and SDNN on iOS. The value goes to the closest type on each. iOS sync identifier. | Values outside 1 to 200 ms are not sent (Health Connect rejects the whole insert). |
-| Workout session | `writeWorkoutDataUUID` writes an `ExerciseSessionRecord`, plus `DistanceRecord` and `TotalCaloriesBurnedRecord` when given. No client id or version on any of them. Not idempotent. | `HKWorkout` with `metadata: nil`. Not idempotent. `writeWorkoutDataUUID` calls `result` twice on success (uuid, then `""`). | Both: no sync id for workouts. Android: energy can only go in as total calories, not active. iOS: the double reply must be checked on a phone. | Delete OpenRing's own workouts (and, on Android, distance) in the session window, then write. Energy is left off on Android (active energy already arrives from the activity buckets) and sent as workout energy on iOS. |
+| Workout session | `writeWorkoutDataUUID` writes an `ExerciseSessionRecord`, plus `DistanceRecord` and `TotalCaloriesBurnedRecord` when given, actively recorded: the app passes `RecordingMethod.manual`, which health 13.3.2 maps to `ACTIVELY_RECORDED` (its constant table is inverted, so the version is pinned). No client id or version on any of them. Not idempotent. | `HKWorkout` with `metadata: nil`. Not idempotent. `writeWorkoutDataUUID` calls `result` twice on success (uuid, then `""`). | Both: no sync id for workouts. Android: energy can only go in as total calories, not active. iOS: the double reply must be checked on a phone. | Delete OpenRing's own workouts (and, on Android, distance) in the session window, then write. Energy is left off on Android (active energy already arrives from the activity buckets) and sent as workout energy on iOS. |
 | Workout HR series | Through the heart rate channel: one `HeartRateRecord` spanning the session with every sample, client id `workoutHeartRateSeries`, actively recorded. Health Connect links by time, there is no association. Idempotent. | Heart rate samples saved on their own: the plugin has no `HKWorkoutBuilder` or `add(_:to:)`, so they are not associated with the `HKWorkout`. | iOS: **cannot associate HR with the workout.** Apple Health may not show HR on the workout. Second candidate for a native channel. | Android: a workout carrying HR deletes OpenRing's heart rate records in its window, then writes its series; a workout without HR leaves the ring's records there alone. iOS: samples in the window. Inside a finished workout that has its own HR series, ring-log HR is not written, so the two sources never fight over the same window. |
 | Workout GPS route | `ExerciseRoute` set through `finishWorkoutRoute` (`updateRecords` on the session). Needs `WRITE_EXERCISE_ROUTE`. | `HKWorkoutRouteBuilder` finished against the saved workout. | None found in source; idempotent through the workout replace. | Points outside the session are dropped (Health Connect rejects them). |
 | Stress | No type. | No type. | Not applicable. | The outbox row is marked `notApplicable` and dequeued. |
@@ -46,6 +46,9 @@ Cross-cutting findings:
   as transient.
 - The plugin sends `RecordingMethod.automatic` with `Device.TYPE_UNKNOWN`; the
   Dart side never passes a device type, so Health Connect cannot show "ring".
+  Workouts are the exception to the recording method: they go in as actively
+  recorded on Health Connect, since readers drop automatic sessions, and the
+  upgrade to schema 10 writes the last 7 days of them again on Android.
 - Health Connect `deleteRecords` by time range for interval records is not
   documented as overlap or containment. The batch planner never cuts a session
   at a range edge, so either reading is safe; confirm on a phone.
@@ -100,12 +103,12 @@ sample:
   sample. The bucket is a property of the samples, not of the outbox row, so
   the same samples always form the same records and keep the same client ids.
   An hour is also split at a workout window that owns HR, and the cap below
-  splits it in theory (the ring logs 12 samples an hour at its 5 minute
+  splits it in theory (the ring logs 6 samples an hour at its 10 minute
   interval). Why an hour: Google suggests small series records (a minute in
   its guide) so reads stay cheap, but at the R09's interval a minute or 15
-  minutes holds one to three samples, which is the problem being fixed; a day
+  minutes holds one or two samples, which is the problem being fixed; a day
   would be rewritten in full on every sync; an hour matches the hourly
-  background sync and keeps a re-send to 12 samples.
+  background sync and keeps a re-send to 6 samples.
 - **Whole hours**: the record source widens a heart rate row to whole hours
   before loading, so a row that covers 15:20 to 16:40 rebuilds the 15:00 and
   16:00 records from all their samples instead of overwriting the 15:00 record
@@ -130,7 +133,8 @@ sample:
   Health Connect needs no background permission to write;
   `READ_HEALTH_DATA_IN_BACKGROUND` only gates reads.
 - **Older builds**: their per-sample records are cleared only when a row that
-  covers them is sent again; rows already done are not re-sent.
+  covers them is sent again; rows already done are not re-sent, except the
+  Android workouts of the last 7 days that the upgrade to schema 10 re-queues.
 
 ### A sleep session whose start moved
 

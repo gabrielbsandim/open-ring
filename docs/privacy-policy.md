@@ -32,7 +32,7 @@ on your phone.
 | Workout routes: location points during an outdoor workout | The phone's GPS | To draw the route and compute distance, pace and splits |
 | Age, height, weight, sex, maximum heart rate, step goal (all optional) | You, on the "About you" screen | Heart rate zones and the calorie estimate |
 | Sleep sessions and workouts written by other apps, with the name of the app that wrote them (optional, each off by default) | Health Connect | To show sleep and workouts from another device when you turn that type on |
-| Settings: theme, language, units, sync interval, widget choices | You | To remember your choices |
+| Settings: theme, units, sync interval, widget choices, ring alerts, which types go to Health Connect, demo mode | You | To remember your choices |
 | A small summary of today's numbers | The app itself | To fill the home screen widgets |
 
 Scores such as readiness and sleep are computed on the phone from this data.

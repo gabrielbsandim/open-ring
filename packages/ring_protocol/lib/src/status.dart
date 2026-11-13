@@ -45,7 +45,9 @@ const Map<int, ProtocolEntry> v1CommandStatus = {
     name: 'autoHeartRateSetting',
     verified: true,
     sources: _all,
-    note: 'enabled byte 1 on, 2 off; 5 min write gave 5 min slots on an R09',
+    note:
+        'enabled byte 1 on, 2 off; on an R09 a 5 min write gave 5 min slots, '
+        'a 10 min write filled every second 5 min slot',
   ),
   0x1E: ProtocolEntry(
     name: 'continuousHeartRate',

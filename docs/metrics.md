@@ -185,7 +185,7 @@ fewer than `minSamples` valid samples is skipped.
 | Constant | Value | Basis |
 | :--- | :--- | :--- |
 | `window` (parameter default) | 30 min | **our choice**. The lowest sustained heart rate of the night; a mean over half an hour rejects a single low artefact. |
-| `minSamples` (parameter default) | 3 | **our choice**. The heart rate log reports its slot length. The app sets the ring to 5 min on every sync (`plan.md` decisions), so a 30 min window holds 6 samples and 3 tolerates missed slots. At a 30 min slot no window can reach 3 samples and there is no value. |
+| `minSamples` (parameter default) | 3 | **our choice**. The heart rate log reports its slot length. The app sets the ring to 10 min on every sync (`plan.md` decisions); measured on an R09 one hour after a 10 min write, the log kept 5 min slots with every second one filled, and empty slots are dropped, so a 30 min window holds 3 samples and a missed slot loses that window. At a 30 min slot no window can reach 3 samples and there is no value. |
 
 Minimum data: one window with 3 valid samples, else null (no value that night).
 

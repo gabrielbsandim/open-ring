@@ -950,7 +950,7 @@
   "privacyStoresProfileWhy": "心率区间和卡路里估算",
   "privacyStoresOtherApps": "其他应用写入的睡眠记录和训练，以及写入它们的应用名称（可选，默认均关闭）",
   "privacyStoresOtherAppsWhy": "在您开启该类型时显示来自其他设备的睡眠和训练",
-  "privacyStoresSettings": "设置：主题、语言、单位、同步间隔、小组件选项",
+  "privacyStoresSettings": "设置：主题、单位、同步间隔、小组件选项、戒指提醒、发送到 Health Connect 的类型、演示模式",
   "privacyStoresSettingsWhy": "用于记住您的选择",
   "privacyStoresSummary": "今日数据的简短摘要",
   "privacyStoresSummaryWhy": "用于填充主屏幕小组件",

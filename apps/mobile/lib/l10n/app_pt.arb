@@ -950,7 +950,7 @@
   "privacyStoresProfileWhy": "Zonas de frequência cardíaca e estimativa de calorias",
   "privacyStoresOtherApps": "Sessões de sono e treinos gravados por outros apps, com o nome do app que os gravou (opcional, cada um desligado por padrão)",
   "privacyStoresOtherAppsWhy": "Para mostrar sono e treinos de outro dispositivo quando você liga esse tipo",
-  "privacyStoresSettings": "Configurações: tema, idioma, unidades, intervalo de sincronização, escolhas de widgets",
+  "privacyStoresSettings": "Configurações: tema, unidades, intervalo de sincronização, escolhas de widgets, alertas do anel, quais tipos vão para o Health Connect, modo demonstração",
   "privacyStoresSettingsWhy": "Para lembrar suas escolhas",
   "privacyStoresSummary": "Um pequeno resumo dos números de hoje",
   "privacyStoresSummaryWhy": "Para preencher os widgets da tela inicial",

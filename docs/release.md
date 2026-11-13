@@ -144,9 +144,13 @@ one folder per locale with `title.txt`, `short_description.txt`,
 `flutter test test/release/store_listing_test.dart` checks the limits (title 30,
 short description 80, full description 4000 characters) and the dash rule.
 
-Still to add by hand: a 1024 x 500 feature graphic and phone screenshots from a
-real device. Upload with `fastlane supply --aab ... --track internal` or paste
-the text into Play Console.
+The 1024 x 500 feature graphic and the phone screenshots are rendered from the
+app's demo data, never from a real device, by
+`OPEN_RING_STORE_DIR=<dir> flutter test test/store`. `OPEN_RING_STORE_LOCALE`
+(default `pt_BR`) and `OPEN_RING_STORE_THEME` (`light` or `dark`, default
+`light`) pick the language and theme. The landing page in `site/` uses the same
+renders. Upload with `fastlane supply --aab ... --track internal` or paste the
+text into Play Console.
 
 The copy promises nothing medical. Keep it that way: Play treats claims of
 diagnosis or treatment as a medical device app, which needs regulatory proof.

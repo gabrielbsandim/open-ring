@@ -20,6 +20,21 @@ final List<V1Frame> tahnokHeartRate = [
   '15 17 00 00 00 00 00 00 00 00 00 00 00 00 00 2c',
 ].map((line) => frame(hex(line))).toList();
 
+// COLMI R09 capture for 2026-11-13, taken after the app wrote a 10 minute
+// automatic heart rate interval. Captured verbatim: header 0, frames 8 and 9,
+// frames 10..23. Synthesized for privacy (sleep readings): frames 1..7 carry
+// zero values with valid checksums, frame 1 keeps its captured day start.
+final List<V1Frame> r09TenMinuteHeartRate = [
+  '15 00 18 05 00 00 00 00 00 00 00 00 00 00 00 32',
+  '15 01 00 53 f6 6a 00 00 00 00 00 00 00 00 00 c9',
+  for (var i = 2; i <= 7; i++)
+    '15 ${byteHex(i)} 00 00 00 00 00 00 00 00 00 00 00 00 00 ${byteHex(0x15 + i)}',
+  '15 08 51 56 54 5f 55 62 59 62 67 4d 00 5a 00 f7',
+  '15 09 4e 00 49 00 5c 00 52 00 00 00 00 00 00 63',
+  for (var i = 0x0a; i <= 0x17; i++)
+    '15 ${byteHex(i)} 00 00 00 00 00 00 00 00 00 00 00 00 00 ${byteHex(0x15 + i)}',
+].map((line) => frame(hex(line))).toList();
+
 String byteHex(int value) => value.toRadixString(16).padLeft(2, '0');
 
 ParseResult<SlotLog>? feed(SlotLogAssembler assembler, List<V1Frame> frames) {
@@ -83,6 +98,35 @@ void main() {
         252: 70,
       });
       expect(assembler.inProgress, isFalse);
+    });
+
+    test('R09 log after a 10 minute write keeps the 5 minute grid', () {
+      final result =
+          feed(SlotLogAssembler.heartRate(), r09TenMinuteHeartRate)!
+              as Parsed<SlotLog>;
+      final log = result.value;
+      expect(log.intervalMinutes, 5);
+      expect(log.reportedSeconds, 0x6af65300);
+      expect(log.values.length, 295);
+      expect(log.values.sublist(96, 112), [
+        77,
+        0,
+        90,
+        0,
+        78,
+        0,
+        73,
+        0,
+        92,
+        0,
+        82,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ]);
+      expect(log.values.sublist(87, 96).every((v) => v != 0), isTrue);
     });
 
     test('a stream that stops early stays in progress (truncated)', () {

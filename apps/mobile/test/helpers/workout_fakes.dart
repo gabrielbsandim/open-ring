@@ -61,21 +61,30 @@ class FakeHeartRateSource implements LiveHeartRateSource {
   StreamController<int>? _controller;
   int listens = 0;
   int cancels = 0;
+  int pauses = 0;
+  int resumes = 0;
 
   bool get listening => _controller?.hasListener ?? false;
+
+  bool get paused => _controller?.isPaused ?? false;
 
   @override
   Stream<int> bpm() {
     final controller = StreamController<int>(
       sync: true,
       onListen: () => listens++,
+      onPause: () => pauses++,
+      onResume: () => resumes++,
       onCancel: () => cancels++,
     );
     _controller = controller;
     return controller.stream;
   }
 
-  void emit(int bpm) => _controller?.add(bpm);
+  void emit(int bpm) {
+    if (paused) return;
+    _controller?.add(bpm);
+  }
 
   void fail(Object error) => _controller?.addError(error);
 

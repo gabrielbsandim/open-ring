@@ -1,7 +1,7 @@
 name: open_ring
 description: OpenRing, a local-first companion app for Colmi smart rings.
 publish_to: none
-version: 0.3.0+3
+version: 0.4.0+4
 
 environment:
   sdk: ^3.13.5
@@ -20,7 +20,7 @@ dependencies:
   flutter_riverpod: ^3.4.3
   geolocator: ^14.1.2
   go_router: ^18.0.2
-  health: ^13.3.2
+  health: 13.3.2
   health_connect_writer:
     path: ../../packages/health_connect_writer
   home_widget: ^0.10.0

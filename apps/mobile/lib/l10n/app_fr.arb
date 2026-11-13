@@ -950,7 +950,7 @@
   "privacyStoresProfileWhy": "Zones de fréquence cardiaque et estimation des calories",
   "privacyStoresOtherApps": "Sessions de sommeil et séances écrites par d'autres applications, avec le nom de l'application qui les a écrites (facultatif, chacun désactivé par défaut)",
   "privacyStoresOtherAppsWhy": "Pour afficher le sommeil et les séances d'un autre appareil quand vous activez ce type",
-  "privacyStoresSettings": "Réglages : thème, langue, unités, intervalle de synchronisation, choix des widgets",
+  "privacyStoresSettings": "Réglages : thème, unités, intervalle de synchronisation, choix des widgets, alertes de la bague, types envoyés à Health Connect, mode démo",
   "privacyStoresSettingsWhy": "Pour mémoriser vos choix",
   "privacyStoresSummary": "Un petit résumé des chiffres du jour",
   "privacyStoresSummaryWhy": "Pour remplir les widgets de l'écran d'accueil",

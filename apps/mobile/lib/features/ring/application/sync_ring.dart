@@ -47,7 +47,7 @@ final class SyncRing {
     this.measurements = AutoMeasurements.allOn,
   });
 
-  static const defaultHeartRateInterval = Duration(minutes: 5);
+  static const defaultHeartRateInterval = Duration(minutes: 10);
 
   final SmartRingDriver driver;
   final SyncStore store;

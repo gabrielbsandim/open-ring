@@ -73,17 +73,14 @@ stateDiagram-v2
     Connected --> Streaming: Active workout or live telemetry requested
     Streaming --> Connected: Session ends
     
-    Connected --> Reconnecting: Connection dropped / Out of range
-    Reconnecting --> Connecting: Ring back in range
-    Reconnecting --> Idle: Timeout / Bluetooth disabled
-    
-    Connected --> Disconnecting: User unbinds device
+    Connected --> Disconnecting: Sync or workout done
+    Connected --> Idle: Connection dropped, retried at the next sync
     Disconnecting --> Idle: Clean disconnect
 ```
 
 ### Key Strategies:
-1. **Exponential Backoff Reconnection**: When the ring goes out of range (e.g. user leaves phone in another room), the app uses an exponential backoff schedule to preserve phone battery.
-2. **Android Foreground Service**: A lightweight foreground service with a persistent low-priority notification ("OpenRing: Connected to COLMI Ring 2") ensures Android's LMK (Low Memory Killer) does not kill the BLE process.
+1. **Connect, sync, disconnect**: The app holds no permanent link and runs no reconnect loop. Each sync (app foreground, pull to refresh, the WorkManager job) connects, pulls, and disconnects; a dropped link waits for the next sync. Only a workout keeps the link open, and a paused workout stops the live heart rate stream.
+2. **Android Foreground Service**: `RingSyncForegroundService` (type `connectedDevice`, minimum-importance notification) runs only while a background sync holds the ring, so Android does not kill the worker's process mid sync.
 3. **iOS Background Modes**: Leverages `bluetooth-central` background execution and `BGAppRefreshTask` to process morning sleep syncs automatically.
 
 ---

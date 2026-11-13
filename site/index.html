@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenRing: your smart ring, no cloud account</title>
+  <meta name="description" content="Free, open-source Android app for the COLMI R09 smart ring. Sleep, heart, activity and GPS workouts, kept on your phone.">
+  <meta name="theme-color" content="#0e0f13">
+  <link rel="icon" href="img/icon.png">
+  <link rel="alternate" hreflang="en" href="https://gabrielbsandim.github.io/open-ring/">
+  <link rel="alternate" hreflang="pt-BR" href="https://gabrielbsandim.github.io/open-ring/pt/">
+  <meta property="og:title" content="OpenRing">
+  <meta property="og:description" content="Your smart ring, no cloud account. Open source, for the COLMI R09.">
+  <meta property="og:image" content="https://gabrielbsandim.github.io/open-ring/img/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="#home" aria-label="OpenRing, home"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#ECEEF2" stroke-width="4"/><circle cx="16" cy="5" r="3" fill="#A78BFA"/></svg>OpenRing</a>
+      <nav aria-label="Sections"><a class="nav" href="#features">Features</a><a class="nav" href="#privacy">Privacy</a><a class="nav" href="#rings">Rings</a><a class="nav" href="#faq">FAQ</a></nav>
+      <div class="top-actions">
+        <a class="nav" href="pt/" hreflang="pt-BR" lang="pt-BR">Português</a>
+        <a class="btn2 small" href="https://github.com/gabrielbsandim/open-ring"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>View on GitHub</a>
+      </div>
+    </header>
+  </div>
+
+  <main>
+    <section id="home" class="wrap hero">
+      <div class="hero-copy">
+        <div class="eyebrow">Open source · Android</div>
+        <h1>Your smart ring, no cloud account.</h1>
+        <p class="lead">Sleep, heart, activity and GPS workouts from the COLMI R09, kept on your phone. They go to Health Connect only if you want them to.</p>
+        <div class="cta">
+          <span class="pill">Free · Android 9 or later</span>
+          <div class="buttons">
+            <a class="btn1" href="https://play.google.com/store/apps/details?id=gbs.openring.app"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Get it on Google Play</a>
+            <a class="btn2" href="https://github.com/gabrielbsandim/open-ring"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>View the code</a>
+          </div>
+          <p class="lbl">There is no iPhone version yet.</p>
+        </div>
+      </div>
+      <div class="phones">
+        <div class="phone back"><img src="img/en/today-light.webp" width="600" height="1200" alt="The same Today screen in light mode."></div>
+        <div class="phone front"><img src="img/en/today-dark.webp" width="600" height="1200" alt="OpenRing's Today screen in dark mode, with demo data: readiness 98 out of 100, 8 h 20 min of sleep with a score of 100, 7,631 steps and an average heart rate of 71 bpm."></div>
+      </div>
+    </section>
+
+    <section class="wrap" aria-label="At a glance">
+      <ul class="strip">
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg><span><strong>Open source</strong><span class="lbl">MIT license</span></span></li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="4"/><path d="M3 20c0-3.6 3.1-6 7-6 1.4 0 2.6.3 3.7.8M16 15l5 5M21 15l-5 5"/></svg><span><strong>No account</strong><span class="lbl">no sign-up</span></span></li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8.5a15 15 0 0 1 4.6-2.8M10.5 5.1A15 15 0 0 1 22 8.5M5 12a10 10 0 0 1 4-2.2M15.5 10.2A10 10 0 0 1 19 12M8.5 15.5a5 5 0 0 1 7 0M12 19h.01M3 3l18 18"/></svg><span><strong>Works offline</strong><span class="lbl">no server</span></span></li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span><strong>11 languages</strong><span class="lbl">follows the system</span></span></li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor"/></svg><span><strong>Light and dark</strong><span class="lbl">or the system's</span></span></li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19l5-14 5 14M5.8 14h6.4M15 19l3-8 3 8M15.9 16.6h4.2"/></svg><span><strong>Text up to 200%</strong><span class="lbl">numbers never cut</span></span></li>
+      </ul>
+    </section>
+
+    <section id="features" class="wrap block">
+      <div class="head">
+        <div class="kicker">Features</div>
+        <h2>What the ring measures, shown calmly.</h2>
+        <p>One colour per metric family, the same on every screen: violet is sleep, coral is heart, green is activity, cyan is oxygen, amber is stress.</p>
+      </div>
+      <div class="grid3">
+        <article class="card feature">
+          <div class="title"><span class="dot" style="background: var(--sleep)"></span><h3>Sleep as a hypnogram</h3></div>
+          <p>Light, deep, REM and awake on a timeline, and a night with a wake-up is still one night.</p>
+          <div class="visual">
+            <div class="hypno" role="img" aria-label="Example hypnogram: awake, REM, light and deep stages through the night, from 22:36 to 06:56">
+              <span class="li" style="left: 0; width: calc(5.9% - 1px)"></span><span class="de" style="left: 5.9%; width: calc(10.1% - 1px)"></span><span class="li" style="left: 16%; width: calc(5.6% - 1px)"></span><span class="rem" style="left: 21.6%; width: calc(4.5% - 1px)"></span><span class="li" style="left: 26.1%; width: calc(9% - 1px)"></span><span class="de" style="left: 35.1%; width: calc(7.4% - 1px)"></span><span class="li" style="left: 42.5%; width: calc(8.3% - 1px)"></span><span class="rem" style="left: 50.8%; width: calc(6.8% - 1px)"></span><span class="li" style="left: 57.6%; width: calc(7.6% - 1px)"></span><span class="rem" style="left: 65.2%; width: calc(6.8% - 1px)"></span><span class="li" style="left: 72%; width: calc(9.5% - 1px)"></span><span class="rem" style="left: 81.5%; width: calc(6.8% - 1px)"></span><span class="li" style="left: 88.3%; width: calc(5.4% - 1px)"></span><span class="rem" style="left: 93.7%; width: 6.3%"></span>
+            </div>
+            <div class="lbl num row"><span>22:36</span><span>8 h 20 min asleep</span><span>06:56</span></div>
+          </div>
+        </article>
+        <article class="card feature">
+          <div class="title"><span class="dot" style="background: var(--heart)"></span><h3>Heart</h3></div>
+          <p>Heart rate through the day, HRV, SpO2 and stress, read from the ring and kept on your phone.</p>
+          <div class="visual pair">
+            <div class="inner"><div class="lbl">Average HR</div><span class="num" style="color: var(--heart)">71</span> <span class="lbl">bpm</span></div>
+            <div class="inner"><div class="lbl">HRV</div><span class="num" style="color: var(--heart)">58</span> <span class="lbl">ms</span></div>
+            <div class="inner"><div class="lbl">SpO2</div><span class="num" style="color: var(--oxygen)">95</span> <span class="lbl">%</span></div>
+            <div class="inner"><div class="lbl">Stress</div><span class="num" style="color: var(--stress)">34</span> <span class="lbl">of 100</span></div>
+          </div>
+        </article>
+        <article class="card feature">
+          <div class="title"><span class="dot" style="background: var(--text)"></span><h3>Readiness that shows the formula</h3></div>
+          <p>A score from 0 to 100 that says how much each input added, against your own baseline.</p>
+          <div class="visual">
+            <div class="inner equation"><span class="num" style="font-size: 18px; color: var(--body)">35 + 30 + 17.8 + 15</span><span class="num" style="font-size: 28px; font-weight: 600">= 98</span></div>
+            <div class="lbl" style="margin-top: 8px">Sleep, HRV, resting heart rate and activity load</div>
+          </div>
+        </article>
+        <article class="card feature">
+          <div class="title"><span class="dot" style="background: var(--activity)"></span><h3>Workouts with a GPS route</h3></div>
+          <p>The phone keeps the clock, the ring sends live heart rate and, outdoors, the GPS records route, pace and splits, which you export as GPX.</p>
+          <div class="visual">
+            <svg class="route" viewBox="40 36 270 120" role="img" aria-label="Example route of a run around a park">
+              <rect x="168" y="40" width="138" height="86" rx="24" fill="#15241B"/>
+              <path d="M40 92H168M60 36V156M150 36V156M40 140H310" fill="none" stroke="#1F232D" stroke-width="6" stroke-linecap="round"/>
+              <polyline points="60,140 60,92 150,92 176,84 188,60 232,52 282,60 292,86 280,110 232,116 205,118 200,140 120,140" fill="none" stroke="#4ADE80" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="60" cy="140" r="4.5" fill="#0E0F13" stroke="#4ADE80" stroke-width="2"/>
+              <circle cx="120" cy="140" r="5" fill="#4ADE80" stroke="#0E0F13" stroke-width="2"/>
+            </svg>
+            <div class="lbl num row"><span>Example run</span><span>route, pace and splits</span><span>.gpx</span></div>
+          </div>
+        </article>
+        <article class="card feature">
+          <div class="title"><span class="dot" style="background: var(--body)"></span><h3>Home screen widgets</h3></div>
+          <p>Readiness, a summary of the day, the ring battery and a shortcut to start a workout, refreshed on every sync.</p>
+          <div class="visual widgets">
+            <div class="widget square"><span class="lbl">Readiness</span><span class="num" style="font-size: 30px; font-weight: 600">98</span></div>
+            <div class="widget wide"><span class="lbl">Today · 18:20</span><div class="line"><span style="color: var(--body)">Sleep</span><span class="num" style="color: var(--sleep)">8h20</span></div><div class="line"><span style="color: var(--body)">Steps</span><span class="num" style="color: var(--activity)">7,631</span></div><div class="line"><span style="color: var(--body)">HR</span><span class="num" style="color: var(--heart)">71 bpm</span></div></div>
+          </div>
+        </article>
+        <article class="card feature">
+          <div class="title"><span class="dot" style="background: var(--body)"></span><h3>Health Connect</h3></div>
+          <p>Every sample can go to Health Connect, workouts with their route included, for the apps you choose.</p>
+          <div class="visual chips"><span>Steps</span><span>Active energy</span><span>Heart rate series</span><span>Sleep with REM</span><span>SpO2</span><span>HRV</span><span>Workouts with route</span></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="how-we-score" class="wrap block">
+      <div class="split">
+        <div class="text">
+          <div class="kicker">How we score</div>
+          <h2>Every score shows where it comes from.</h2>
+          <p>Readiness adds four inputs with fixed weights: sleep is worth up to 35 points, HRV up to 30, resting heart rate up to 20 and activity load up to 15. HRV and resting heart rate are compared with your own baseline, not other people's averages.</p>
+          <p>The formula behind every score, with its weights and ranges, is published with the code. Tap any score in the app to see that day's inputs.</p>
+          <div class="inner notice">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+            <div><strong>An estimate, not a medical diagnosis.</strong><span>The numbers are for following trends. If something seems wrong with your health, talk to a professional.</span></div>
+          </div>
+        </div>
+        <section class="card formula" aria-label="Example readiness with its inputs, demo data">
+          <div class="score">
+            <svg width="96" height="96" viewBox="0 0 112 112" role="img" aria-label="Readiness 98 out of 100">
+              <circle cx="56" cy="56" r="48" fill="none" stroke="#262A34" stroke-width="10"/>
+              <circle cx="56" cy="56" r="48" fill="none" stroke="#ECEEF2" stroke-width="10" stroke-linecap="round" stroke-dasharray="296 302" transform="rotate(-90 56 56)"/>
+              <text x="56" y="60" text-anchor="middle" fill="#ECEEF2" font-size="32" font-family="Space Grotesk, Inter, sans-serif" font-weight="600">98</text>
+              <text x="56" y="80" text-anchor="middle" fill="#9AA1AE" font-size="11" font-family="Inter, sans-serif">of 100</text>
+            </svg>
+            <div><strong>Optimal readiness</strong><span class="lbl">What went into it, against your baseline of 28 nights</span></div>
+          </div>
+          <div class="factor">
+            <div class="name"><span><i class="dot" style="background: var(--sleep)"></i>Sleep score</span><span class="num pts">35 of 35</span></div>
+            <div class="value"><span class="num">100</span><span class="lbl">8 h 20 min, goal 8 h</span></div>
+            <div class="bar"><span style="width: 100%; background: var(--sleep)"></span></div>
+          </div>
+          <div class="factor">
+            <div class="name"><span><i class="dot" style="background: var(--heart)"></i>Overnight HRV</span><span class="num pts">30 of 30</span></div>
+            <div class="value"><span class="num">58 ms</span><span class="lbl">baseline 49 ms</span></div>
+            <div class="bar"><span style="width: 100%; background: var(--heart)"></span></div>
+          </div>
+          <div class="factor">
+            <div class="name"><span><i class="dot" style="background: var(--heart)"></i>Resting heart rate</span><span class="num pts">17.8 of 20</span></div>
+            <div class="value"><span class="num">49 bpm</span><span class="lbl">baseline 50 bpm</span></div>
+            <div class="bar"><span style="width: 89%; background: var(--heart)"></span></div>
+          </div>
+          <div class="factor">
+            <div class="name"><span><i class="dot" style="background: var(--activity)"></i>Activity load</span><span class="num pts">15 of 15</span></div>
+            <div class="value"><span class="num">1.08</span><span class="lbl">full score up to 1.3</span></div>
+            <div class="bar"><span style="width: 100%; background: var(--activity)"></span></div>
+          </div>
+          <div class="total"><span class="num" style="font-size: 14px; color: var(--body)">35 + 30 + 17.8 + 15</span><span class="num" style="font-size: 22px; font-weight: 600">98</span></div>
+          <div class="lbl" style="padding: 4px 0 12px">The app's demo data. An estimate, not a medical diagnosis.</div>
+        </section>
+      </div>
+    </section>
+
+    <section id="privacy" class="wrap block">
+      <div class="head">
+        <div class="kicker">Privacy</div>
+        <h2>Your data stays with you.</h2>
+        <p>OpenRing needs no cloud to work. Data leaves the phone only when you send it.</p>
+      </div>
+      <div class="grid4">
+        <div class="card privacy"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M11 18.5h2"/></svg><h3>Stays on the device</h3><p>Everything is kept in a local database on your phone, not on a server of ours.</p></div>
+        <div class="card privacy"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="4"/><path d="M3 20c0-3.6 3.1-6 7-6 1.4 0 2.6.3 3.7.8M16 15l5 5M21 15l-5 5"/></svg><h3>No account</h3><p>No sign-up, no login, no email. Pair the ring and start.</p></div>
+        <div class="card privacy"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c5 0 8.5 4.2 9.5 6-.5.9-1.5 2.3-2.9 3.6M6.6 7.6C4.6 8.9 3.2 10.8 2.5 12c1 1.8 4.5 6 9.5 6 1.6 0 3-.4 4.2-1.1"/></svg><h3>No telemetry</h3><p>The app sends no usage, taps or metrics. The internet is used only to fetch the app's own updates.</p></div>
+        <div class="card privacy"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><h3>Export any time</h3><p>CSV and JSON of everything, GPX of workouts, and Health Connect only with your permission.</p></div>
+      </div>
+      <div class="card sync">
+        <div class="copy">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"/></svg>
+          <div>
+            <h3>Sync, not stream</h3>
+            <p>The ring keeps its own history; the phone connects now and then, pulls what is new and disconnects, which saves both batteries.</p>
+            <p class="lbl">The connection stays open only during a live workout. Every 60 minutes by default.</p>
+          </div>
+        </div>
+        <div class="timeline" role="img" aria-label="Example of hourly syncs, the last at 18:20">
+          <div><i></i><span class="num lbl">15:20</span></div><div><i></i><span class="num lbl">16:20</span></div><div><i></i><span class="num lbl">17:20</span></div><div><i></i><span class="num lbl">18:20</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="rings" class="wrap block">
+      <div class="head">
+        <div class="kicker">Rings</div>
+        <h2>We only promise what we tested.</h2>
+        <p>The first release was built and checked with a COLMI R09. The other models are listed by what is known about them today.</p>
+      </div>
+      <div class="card table">
+        <table>
+          <thead><tr><th scope="col" style="width: 32%">Model</th><th scope="col" style="width: 22%">Status</th><th scope="col">What it means</th></tr></thead>
+          <tbody>
+            <tr><th scope="row" class="num">COLMI R09</th><td><span class="status" style="color: var(--activity)">Tested</span></td><td>The only ring on the bench. Every protocol check is made on it.</td></tr>
+            <tr><th scope="row" class="num">COLMI R02, R03, R06, R10</th><td><span class="status" style="color: var(--stress)">May work</span></td><td>They use the same protocol but have not been tested yet.</td></tr>
+            <tr><th scope="row" class="num">Other brands</th><td><span class="status" style="color: var(--label)">Need hardware</span></td><td>The driver interface is ready. Support lands when one of those rings is on the bench.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="faq" class="wrap block">
+      <div class="faq">
+        <div class="head"><div class="kicker">FAQ</div><h2>Frequently asked questions</h2></div>
+        <div>
+          <details class="q"><summary>Do I need an account?<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p class="ans">No. There is no sign-up, login or email. Open the app, pair the ring and start.</p></details>
+          <details class="q"><summary>Does it work with an iPhone?<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p class="ans">Not yet. For now OpenRing is for Android 9 or later.</p></details>
+          <details class="q"><summary>Does my data go to a server?<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p class="ans">No. It stays in a local database on your phone. It leaves only when you allow it: to Health Connect, or in a CSV, JSON or GPX file you export. The details are in the <a href="https://github.com/gabrielbsandim/open-ring/blob/main/docs/privacy-policy.md">privacy policy</a>.</p></details>
+          <details class="q"><summary>Can I use it with the ring's original app?<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p class="ans">Not at the same time. The ring talks to one app at a time, so disconnect it from the original app before pairing it with OpenRing.</p></details>
+          <details class="q"><summary>Is it free?<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p class="ans">Yes. The code is open under the MIT license, with no subscription and no ads.</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="about">
+        <span class="brand" style="font-size: 20px"><svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#ECEEF2" stroke-width="4"/><circle cx="16" cy="5" r="3" fill="#A78BFA"/></svg>OpenRing</span>
+        <p>Made by someone who wears a ring and wanted an app that lives up to it.</p>
+        <p class="lbl">Open source, MIT license. Estimates, not a medical diagnosis. Screens use the app's demo data. COLMI is a trademark of its owner; OpenRing is not affiliated with it.</p>
+      </div>
+      <nav aria-label="Project links"><ul><li><a class="flink" href="https://github.com/gabrielbsandim/open-ring">Code on GitHub</a></li><li><a class="flink" href="https://github.com/gabrielbsandim/open-ring/blob/main/docs/privacy-policy.md">Privacy policy</a></li><li><a class="flink" href="https://github.com/gabrielbsandim/open-ring/blob/main/docs/plan.md">Project plan</a></li><li><a class="flink" href="https://github.com/gabrielbsandim/open-ring/blob/main/docs/protocols/realsil-colmi.md">Colmi protocol</a></li></ul></nav>
+    </div>
+  </footer>
+</body>
+</html>

@@ -8,9 +8,12 @@ import 'package:open_ring/features/health_sync/infrastructure/plugin_health_read
 import 'package:open_ring/features/health_sync/infrastructure/plugin_health_writer.dart';
 
 final class HealthPluginGateway implements HealthGateway, HealthReadGateway {
-  new([Health? health]) : _health = health ?? Health();
+  new([Health? health, HealthPlatform? platform])
+    : _health = health ?? Health(),
+      _platformOverride = platform;
 
   final Health _health;
+  final HealthPlatform? _platformOverride;
   Future<void>? _configured;
 
   static HealthPlatform get _platform =>
@@ -134,10 +137,19 @@ final class HealthPluginGateway implements HealthGateway, HealthReadGateway {
       end: end,
       totalEnergyBurned: kilocalories,
       totalDistance: meters,
+      recordingMethod: _workoutRecordingMethod(_platformOverride ?? _platform),
     );
     if (id == null || id.isEmpty || id == 'null') return null;
     return id;
   }
+
+  // health 13.3.2 sends manual as Health Connect's ACTIVELY_RECORDED (its
+  // constant table is inverted), and HealthKit only takes manual or automatic.
+  static RecordingMethod _workoutRecordingMethod(HealthPlatform platform) =>
+      switch (platform) {
+        HealthPlatform.healthConnect => RecordingMethod.manual,
+        HealthPlatform.healthKit => RecordingMethod.automatic,
+      };
 
   @override
   Future<bool> writeRoute(

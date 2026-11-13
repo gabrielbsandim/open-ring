@@ -114,7 +114,7 @@ source documents. Spike item.
 | `0x03` | Battery | response: percent, charging flag | verified on an R09 |
 | `0x08` | Power off | Puxtril calls id 8 "reboot"; test with care | dropped: v1 never powers the ring off |
 | `0x15` | Heart rate log | request carries a uint32 LE time: local midnight as if UTC (Gadgetbridge, Puxtril) or real UTC (tahnok); multi-packet response, see below | verified on an R09: local wall clock encoded as UTC; the day range matched QRing |
-| `0x16` | Auto heart rate setting | `{action, enabled, minutes}`; enabled 1 on, 2 off (tahnok `hr_settings.py`) | verified on an R09: writing 5 minutes gave 5 minute heart rate slots |
+| `0x16` | Auto heart rate setting | `{action, enabled, minutes}`; enabled 1 on, 2 off (tahnok `hr_settings.py`) | verified on an R09: writing 5 minutes gave 5 minute heart rate slots; the app now writes 10 minutes, not yet verified on hardware |
 | `0x1E` | Continuous heart rate | Gadgetbridge `CMD_REALTIME_HEART_RATE` (`onEnableRealtimeHeartRateMeasurement`): enable `{0x01}`, disable `{0x02}`. Reply `{bpm, ...}` about once a second; the ring stops after 60 s unless a continue `{0x03}` arrives, and Gadgetbridge sends one every 30 replies and drops a reply in the same second as the previous one (`YawellRingPacketHandler.realtimeHeartRate`). Used for live workouts | verified on an R09: a continue every 20 s kept 121 readings in 120 s, largest gap 1.2 s |
 | `0x2C` | Auto SpO2 setting | `{action, enabled}`; Gadgetbridge writes 1 on, 0 off | verified on an R09: a read (action 1) returned enabled 1 |
 | `0x36` | Auto stress setting | as `0x2C` | verified on an R09: a read returned enabled 1 |

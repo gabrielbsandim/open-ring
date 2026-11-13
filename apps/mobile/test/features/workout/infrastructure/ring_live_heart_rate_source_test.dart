@@ -135,4 +135,75 @@ void main() {
     expect(driver.calls, isEmpty);
     expect(lock.holder, isNull);
   });
+
+  group('pause and resume', () {
+    test('pausing stops the stream and keeps link and lock', () async {
+      final subscription = source().bpm().listen((_) {});
+      await pumpEventQueue();
+
+      subscription.pause();
+      await pumpEventQueue();
+
+      expect(driver.calls, [
+        'connect',
+        'startHeartRateStream',
+        'stopHeartRateStream',
+      ]);
+      expect(driver.disconnects, 0);
+      expect(lock.holder, 'workout');
+      expect(lock.releases, 0);
+      await subscription.cancel();
+    });
+
+    test('resuming starts the stream again and readings arrive', () async {
+      final values = <int>[];
+      final subscription = source().bpm().listen(values.add);
+      await pumpEventQueue();
+      driver.emitLive(reading(120));
+      await pumpEventQueue();
+
+      subscription.pause();
+      await pumpEventQueue();
+      subscription.resume();
+      await pumpEventQueue();
+
+      expect(
+        driver.calls.where((c) => c == 'startHeartRateStream'),
+        hasLength(2),
+      );
+      expect(driver.disconnects, 0);
+      driver.emitLive(reading(131));
+      await pumpEventQueue();
+      expect(values, [120, 131]);
+      await subscription.cancel();
+    });
+
+    test('lock renewals keep working while paused', () async {
+      final subscription = source().bpm().listen((_) {});
+      await pumpEventQueue();
+      subscription.pause();
+      await pumpEventQueue();
+
+      renewals.add(null);
+      await pumpEventQueue();
+
+      expect(lock.releases, 1);
+      expect(lock.holder, 'workout');
+      await subscription.cancel();
+    });
+
+    test('cancelling while paused disconnects and releases the lock', () async {
+      final subscription = source().bpm().listen((_) {});
+      await pumpEventQueue();
+      subscription.pause();
+      await pumpEventQueue();
+
+      await subscription.cancel();
+
+      expect(driver.disconnects, 1);
+      expect(lock.holder, isNull);
+      expect(lock.releases, 1);
+      expect(renewals.hasListener, isFalse);
+    });
+  });
 }

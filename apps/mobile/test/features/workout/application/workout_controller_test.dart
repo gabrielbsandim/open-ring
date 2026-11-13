@@ -475,4 +475,83 @@ void main() {
       isNull,
     );
   });
+
+  group('heart rate while paused', () {
+    test('pause pauses the heart rate and resume resumes it', () async {
+      final c = container();
+      final controller = c.read(workoutProvider.notifier);
+      await controller.start(WorkoutType.running, notice: testNotice);
+      second(bpm: 140);
+
+      controller.pause();
+      expect(heartRate.paused, isTrue);
+      expect(heartRate.pauses, 1);
+      expect(heartRate.cancels, 0);
+
+      controller.resume();
+      expect(heartRate.paused, isFalse);
+      expect(heartRate.resumes, 1);
+      expect(heartRate.listens, 1);
+    });
+
+    test('a long pause never flags the heart rate as stalled', () async {
+      final c = container();
+      final controller = c.read(workoutProvider.notifier);
+      await controller.start(WorkoutType.running, notice: testNotice);
+      second(bpm: 140);
+
+      controller.pause();
+      for (var i = 0; i < heartRateLostAfter.inSeconds * 2; i++) {
+        second();
+      }
+
+      expect(c.read(workoutProvider).heartRateStalled, isFalse);
+    });
+
+    test('after resume the stall timer starts at the resume instant', () async {
+      final c = container();
+      final controller = c.read(workoutProvider.notifier);
+      await controller.start(WorkoutType.running, notice: testNotice);
+      second(bpm: 140);
+      controller.pause();
+      for (var i = 0; i < heartRateLostAfter.inSeconds * 2; i++) {
+        second();
+      }
+
+      controller.resume();
+      for (var i = 0; i < heartRateLostAfter.inSeconds - 1; i++) {
+        second();
+      }
+      expect(c.read(workoutProvider).heartRateStalled, isFalse);
+
+      second();
+      expect(c.read(workoutProvider).heartRateStalled, isTrue);
+    });
+
+    test('reconnect while paused leaves the new subscription paused', () async {
+      final c = container();
+      final controller = c.read(workoutProvider.notifier);
+      await controller.start(WorkoutType.running, notice: testNotice);
+      second(bpm: 140);
+      controller.pause();
+
+      await controller.reconnectHeartRate();
+
+      expect(heartRate.listens, 2);
+      expect(heartRate.paused, isTrue);
+    });
+
+    test('finish while paused still cancels the heart rate', () async {
+      final c = container();
+      final controller = c.read(workoutProvider.notifier);
+      await controller.start(WorkoutType.running, notice: testNotice);
+      second(bpm: 140);
+      controller.pause();
+
+      await controller.finish();
+
+      expect(heartRate.cancels, 1);
+      expect(heartRate.listening, isFalse);
+    });
+  });
 }

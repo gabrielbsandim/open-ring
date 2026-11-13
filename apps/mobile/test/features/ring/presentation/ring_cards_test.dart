@@ -147,7 +147,7 @@ void main() {
       expect(
         _within(
           RingKeys.measurement(AutoMeasurement.heartRate),
-          find.text('Every 5 min'),
+          find.text('Every 10 min'),
         ),
         findsOneWidget,
       );

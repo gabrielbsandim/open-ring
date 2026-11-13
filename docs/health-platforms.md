@@ -100,12 +100,12 @@ sample:
   sample. The bucket is a property of the samples, not of the outbox row, so
   the same samples always form the same records and keep the same client ids.
   An hour is also split at a workout window that owns HR, and the cap below
-  splits it in theory (the ring logs 12 samples an hour at its 5 minute
+  splits it in theory (the ring logs 6 samples an hour at its 10 minute
   interval). Why an hour: Google suggests small series records (a minute in
   its guide) so reads stay cheap, but at the R09's interval a minute or 15
-  minutes holds one to three samples, which is the problem being fixed; a day
+  minutes holds one or two samples, which is the problem being fixed; a day
   would be rewritten in full on every sync; an hour matches the hourly
-  background sync and keeps a re-send to 12 samples.
+  background sync and keeps a re-send to 6 samples.
 - **Whole hours**: the record source widens a heart rate row to whole hours
   before loading, so a row that covers 15:20 to 16:40 rebuilds the 15:00 and
   16:00 records from all their samples instead of overwriting the 15:00 record

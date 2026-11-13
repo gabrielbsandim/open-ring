@@ -145,6 +145,7 @@ class WorkoutController extends Notifier<WorkoutState> {
     final session = _session;
     if (session == null || session.status != WorkoutStatus.running) return;
     session.pause(_now());
+    _heartRate?.pause();
     _publish(session);
   }
 
@@ -152,6 +153,8 @@ class WorkoutController extends Notifier<WorkoutState> {
     final session = _session;
     if (session == null || session.status != WorkoutStatus.paused) return;
     session.resume(_now());
+    _lastBeat = _now();
+    _heartRate?.resume();
     _publish(session);
   }
 
@@ -211,6 +214,7 @@ class WorkoutController extends Notifier<WorkoutState> {
             const HeartRateUnavailable(HeartRateProblem.unreachable),
           ),
         );
+    if (session.status == WorkoutStatus.paused) _heartRate?.pause();
   }
 
   void _listenLocation(WorkoutSession session, LocationNotice notice) {
@@ -244,6 +248,7 @@ class WorkoutController extends Notifier<WorkoutState> {
   void _checkHeartRate(WorkoutSession session) {
     final lastBeat = _lastBeat;
     if (!_current(session) || _heartRate == null || lastBeat == null) return;
+    if (session.status != WorkoutStatus.running) return;
     if (state.heartRateStalled) return;
     if (_now().difference(lastBeat) < heartRateLostAfter) return;
     state = state.next(heartRateStalled: true);

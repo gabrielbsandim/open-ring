@@ -218,6 +218,42 @@ void main() {
       expect(order, ['keepAlive', 'sync', 'stop']);
     });
 
+    test('without a paired ring the sync runs with no service', () async {
+      final order = <String>[];
+
+      await superviseBackgroundSync(
+        ringPaired: () async => false,
+        keepAlive: () async => order.add('keepAlive'),
+        sync: () async => order.add('sync'),
+        sendAlerts: () async {},
+        publishWidgets: () async {},
+        announceFinished: () {},
+        teardown: [() async => order.add('stop')],
+        stepTimeout: short,
+        alertTimeout: short,
+      );
+
+      expect(order, ['sync', 'stop']);
+    });
+
+    test('a ring check that fails still keeps the process alive', () async {
+      final order = <String>[];
+
+      await superviseBackgroundSync(
+        ringPaired: () => Future<bool>.error(StateError('database closed')),
+        keepAlive: () async => order.add('keepAlive'),
+        sync: () async => order.add('sync'),
+        sendAlerts: () async {},
+        publishWidgets: () async {},
+        announceFinished: () {},
+        teardown: [() async => order.add('stop')],
+        stepTimeout: short,
+        alertTimeout: short,
+      );
+
+      expect(order, ['keepAlive', 'sync', 'stop']);
+    });
+
     test('a demo skips the sync and still tears down', () async {
       final order = <String>[];
 

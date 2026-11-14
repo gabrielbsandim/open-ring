@@ -151,8 +151,7 @@ void main() {
 
       await container.read(unpairControllerProvider.notifier).unpair();
 
-      expect(scheduler.cancels, 1);
-      expect(scheduler.calls, hasLength(1));
+      expect(scheduler.order, ['cancel', 'schedule']);
     });
 
     testWidgets('a Health Connect check that hangs holds unpair 5 seconds', (

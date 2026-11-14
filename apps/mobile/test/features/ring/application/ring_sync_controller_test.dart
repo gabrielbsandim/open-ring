@@ -1,10 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/core/records/record_kind.dart';
+import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
+import 'package:open_ring/features/health_sync/domain/health_read_store.dart';
+import 'package:open_ring/features/health_sync/domain/health_writer.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_state.dart';
 import 'package:open_ring/features/ring/infrastructure/drift_sync_store.dart';
@@ -13,13 +19,20 @@ import 'package:open_ring/features/ring/infrastructure/sync_locks_dao.dart';
 import 'package:ring_driver/ring_driver.dart';
 
 import '../../../helpers/database.dart';
+import '../../../helpers/fake_health_reader.dart';
 import '../../../helpers/fake_ring_driver.dart';
 import '../../../helpers/sync_fixtures.dart';
 
 class Harness {
-  new(this.db, this.driver, {Stream<void>? finished}) {
+  new(
+    this.db,
+    this.driver, {
+    Stream<void>? finished,
+    List<Override> overrides = const [],
+  }) {
     container = ProviderContainer(
       overrides: [
+        ...overrides,
         syncStoreProvider.overrideWithValue(DriftSyncStore(db)),
         syncLockProvider.overrideWithValue(SyncLocksDao(db)),
         smartRingDriverProvider.overrideWithValue(driver),
@@ -117,6 +130,109 @@ void main() {
 
   test('without a paired ring it fails without touching the ring', () async {
     final h = Harness(memoryDatabase(), loadedDriver());
+
+    await h.sync();
+
+    expect(h.state.lastError, isA<NoPairedRing>());
+    expect(h.state.syncing, isFalse);
+    expect(h.driver.calls, isEmpty);
+  });
+
+  group('without a ring and with a read on', () {
+    const watch = 'com.garmin.android.apps.connectmobile';
+    late FakeHealthReader reader;
+    late InMemoryHealthReadStore readStore;
+
+    Future<Harness> ringless({bool sleep = true, bool workout = true}) async {
+      reader = FakeHealthReader(
+        access: HealthAccess.granted,
+        nights: [externalNight(watch, DateTime.utc(2026, 11, 9, 23))],
+        sessions: [externalWorkout(watch, DateTime.utc(2026, 11, 9, 18))],
+      );
+      readStore = InMemoryHealthReadStore();
+      if (sleep) {
+        await readStore.setEnabled(HealthRecordKind.sleep, enabled: true);
+      }
+      if (workout) {
+        await readStore.setEnabled(HealthRecordKind.workout, enabled: true);
+      }
+      return Harness(
+        memoryDatabase(),
+        loadedDriver(),
+        overrides: [
+          healthReaderProvider.overrideWithValue(reader),
+          healthReadStoreProvider.overrideWithValue(readStore),
+          clockProvider.overrideWithValue(() => syncNow.toUtc()),
+        ],
+      );
+    }
+
+    test('a sync never reports connecting and ends without error', () async {
+      final h = await ringless();
+
+      await h.sync();
+
+      expect(
+        h.states.map((s) => s.progress?.step),
+        isNot(contains(SyncStep.connecting)),
+      );
+      expect(h.state.lastError, isNull);
+      expect(h.state.syncing, isFalse);
+      expect(h.state.lastSuccessAt, isNull);
+      expect(h.driver.calls, isEmpty);
+    });
+
+    test('a sync has imported sleep and workouts when it returns', () async {
+      final h = await ringless();
+
+      await h.sync();
+
+      expect(readStore.nights, hasLength(1));
+      expect(readStore.workouts, hasLength(1));
+    });
+
+    test('pull to refresh does the same', () async {
+      final h = await ringless();
+
+      await h.refresh();
+
+      expect(h.state.lastError, isNull);
+      expect(h.state.syncing, isFalse);
+      expect(readStore.nights, hasLength(1));
+    });
+
+    test('only the workout read on still imports and never errors', () async {
+      final h = await ringless(sleep: false);
+
+      await h.sync();
+
+      expect(h.state.lastError, isNull);
+      expect(readStore.workouts, hasLength(1));
+      expect(readStore.nights, isEmpty);
+      expect(h.driver.calls, isEmpty);
+    });
+
+    test('access revoked since turning it on ends idle with no error', () async {
+      final h = await ringless();
+      reader.access = HealthAccess.denied;
+
+      await h.sync();
+
+      expect(h.state.syncing, isFalse);
+      expect(h.state.lastError, isNull);
+      expect(h.driver.calls, isEmpty);
+    });
+  });
+
+  test('without a ring and with every read off it says no ring', () async {
+    final h = Harness(
+      memoryDatabase(),
+      loadedDriver(),
+      overrides: [
+        healthReadStoreProvider.overrideWithValue(InMemoryHealthReadStore()),
+        healthReaderProvider.overrideWithValue(FakeHealthReader()),
+      ],
+    );
 
     await h.sync();
 

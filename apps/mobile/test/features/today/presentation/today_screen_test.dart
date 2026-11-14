@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/app.dart';
+import 'package:open_ring/core/records/health_record_kind.dart';
+import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
+import 'package:open_ring/features/health_sync/domain/health_read_store.dart';
+import 'package:open_ring/features/health_sync/domain/health_writer.dart';
 import 'package:open_ring/features/ring/presentation/ring_screen.dart';
 import 'package:open_ring/features/ring/presentation/sync_status_banner.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
@@ -15,6 +19,7 @@ import 'package:open_ring/features/today/presentation/today_screen.dart';
 import 'package:open_ring/features/workout/presentation/workout_entry_button.dart';
 import 'package:open_ring/features/workout/presentation/workout_pick_screen.dart';
 
+import '../../../helpers/fake_health_reader.dart';
 import '../../../helpers/fake_ring_driver.dart';
 import '../../../helpers/layout_harness.dart';
 import '../../../helpers/metrics_fakes.dart';
@@ -51,6 +56,76 @@ void main() {
     expect(find.textContaining('Pair your ring to see'), findsOneWidget);
     expect(find.byKey(TodayKeys.pairAction), findsOneWidget);
     expect(find.byKey(TodayKeys.readiness), findsNothing);
+  });
+
+  group('without a ring and with a read on', () {
+    Future<void> pumpUnpaired(
+      WidgetTester tester, {
+      required int nights,
+      bool sleepRead = true,
+    }) async {
+      final store = InMemoryHealthReadStore();
+      if (sleepRead) {
+        await store.setEnabled(HealthRecordKind.sleep, enabled: true);
+      }
+      await pumpScaled(
+        tester,
+        screenHost(const TodayScreen()),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.dark,
+        locale: const Locale('en'),
+        overrides: [
+          ...metricsOverrides(
+            MetricsScenario(
+              nights: nights,
+              activityDays: 0,
+              ring: RingStatus.unpaired,
+            ),
+          ),
+          healthReadStoreProvider.overrideWithValue(store),
+          healthReaderProvider.overrideWithValue(
+            FakeHealthReader(access: HealthAccess.granted),
+          ),
+        ],
+      );
+    }
+
+    testWidgets('an imported night shows the sleep card and the pair entry', (
+      tester,
+    ) async {
+      await pumpUnpaired(tester, nights: 1);
+
+      expect(find.byKey(TodayKeys.sleep), findsOneWidget);
+      expect(find.byKey(TodayKeys.pairAction), findsOneWidget);
+      expect(
+        find.text('Pair a ring to add steps, heart rate and readiness.'),
+        findsOneWidget,
+      );
+      expect(find.byKey(TodayKeys.readiness), findsNothing);
+      expect(find.textContaining('Pair your ring to see'), findsNothing);
+    });
+
+    testWidgets('with no night yet the sleep card says so', (tester) async {
+      await pumpUnpaired(tester, nights: 0);
+
+      expect(find.byKey(TodayKeys.sleep), findsOneWidget);
+      expect(find.text('No night from Health Connect yet.'), findsOneWidget);
+      expect(find.byKey(TodayKeys.pairAction), findsOneWidget);
+      expect(find.byKey(TodayKeys.readiness), findsNothing);
+    });
+
+    testWidgets('with the reads off Today stays the empty pair card', (
+      tester,
+    ) async {
+      await pumpUnpaired(tester, nights: 1, sleepRead: false);
+
+      expect(
+        find.text("Pair your ring to see today's steps, heart rate and sleep."),
+        findsOneWidget,
+      );
+      expect(find.byKey(TodayKeys.sleep), findsNothing);
+      expect(find.byKey(TodayKeys.pairAction), findsOneWidget);
+    });
   });
 
   testWidgets('with full data shows every summary card', (tester) async {

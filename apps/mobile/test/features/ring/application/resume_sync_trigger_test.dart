@@ -27,15 +27,18 @@ void main() {
   late FakeClock clock;
   late int syncs;
   late PairedRing? ring;
+  late bool reads;
 
   setUp(() {
     clock = FakeClock(syncNow);
     syncs = 0;
     ring = const PairedRing(deviceId: ringId);
+    reads = false;
   });
 
   ResumeSyncTrigger trigger() => ResumeSyncTrigger(
     pairedRing: () async => ring,
+    readsEnabled: () async => reads,
     sync: () async => syncs++,
     clock: clock.call,
   );
@@ -103,6 +106,47 @@ void main() {
     await trigger().onForeground();
 
     expect(syncs, 0);
+  });
+
+  test('without a ring and with a read on, resume syncs once', () async {
+    ring = null;
+    reads = true;
+    final resume = trigger();
+
+    await resume.onForeground();
+    clock.advance(interval - const Duration(seconds: 1));
+    await resume.onForeground();
+
+    expect(syncs, 1);
+  });
+
+  test('without a ring and with a read on, it syncs after 15 minutes', () async {
+    ring = null;
+    reads = true;
+    final resume = trigger();
+    await resume.onForeground();
+
+    clock.advance(interval);
+    await resume.onForeground();
+
+    expect(syncs, 2);
+  });
+
+  test('without a ring and with every read off, resume does not sync', () async {
+    ring = null;
+    reads = false;
+
+    await trigger().onForeground();
+
+    expect(syncs, 0);
+  });
+
+  test('a paired ring syncs whatever the reads say', () async {
+    reads = false;
+
+    await trigger().onForeground();
+
+    expect(syncs, 1);
   });
 
   test('an app resume runs a ring sync through the controller', () async {

@@ -67,8 +67,6 @@ void main() {
 
     await tapAndSettle(tester, find.byKey(WelcomeScreen.startKey));
     expect(find.byType(PermissionsScreen), findsOneWidget);
-    await tapAndSettle(tester, find.byKey(PermissionsKeys.continueAction));
-    expect(find.byType(PermissionsScreen), findsOneWidget);
     await tapAndSettle(
       tester,
       find.byKey(PermissionsKeys.allow(AppPermission.bluetooth)),

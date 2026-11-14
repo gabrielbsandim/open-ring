@@ -75,10 +75,10 @@ void main() {
     expect(find.text('Notifications'), findsOneWidget);
     expect(permissions.requests, isEmpty);
     expect(find.byKey(PermissionsKeys.bluetoothHint), findsOneWidget);
-    expect(_continue(tester).onPressed, isNull);
+    expect(_continue(tester).onPressed, isNotNull);
   });
 
-  testWidgets('Bluetooth is required, notifications are optional', (
+  testWidgets('Bluetooth is for the ring, notifications are optional', (
     tester,
   ) async {
     final permissions = await _pump(tester);

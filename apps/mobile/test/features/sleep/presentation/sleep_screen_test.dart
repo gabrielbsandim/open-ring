@@ -4,6 +4,7 @@ import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/app_navigation_bar.dart';
+import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/sleep/presentation/hypnogram.dart';
 import 'package:open_ring/features/sleep/presentation/sleep_score_breakdown.dart';
 import 'package:open_ring/features/sleep/presentation/sleep_screen.dart';
@@ -36,6 +37,25 @@ void main() {
 
     expect(find.textContaining('Wear your ring to bed'), findsOneWidget);
     expect(find.byKey(Hypnogram.chartKey), findsNothing);
+  });
+
+  testWidgets('without a ring and with a read on it points at Health Connect', (
+    tester,
+  ) async {
+    await pumpScaled(
+      tester,
+      screenHost(const SleepScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: [
+        ...metricsOverrides(noDataScenario),
+        readsWithoutRingProvider.overrideWith((ref) async => true),
+      ],
+    );
+
+    expect(find.text('No night from Health Connect yet.'), findsOneWidget);
+    expect(find.textContaining('Wear your ring to bed'), findsNothing);
   });
 
   testWidgets('shows last night with its hypnogram and score inputs', (

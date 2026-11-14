@@ -11,6 +11,10 @@ String healthPlatformName() => switch (defaultTargetPlatform) {
   _ => 'Health Connect',
 };
 
+// Health Connect is the only platform read today, so only Android can
+// finish onboarding without a ring.
+bool offersWithoutRing() => defaultTargetPlatform == TargetPlatform.android;
+
 class OnboardingPage extends StatelessWidget {
   const new({
     required this.title,

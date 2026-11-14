@@ -29,7 +29,8 @@ Work lands on `develop`. `main` only changes through the release pull request.
 The merge reuses the gates when the tree is unchanged, tags `vX.Y.Z`, publishes
 the GitHub release with notes from the commits, runs a Shorebird release, attaches
 the APK to the GitHub release and, once `PLAY_SERVICE_ACCOUNT` is set, sends the
-bundle to the Play internal track. The first upload to Play has to be by hand.
+bundle to the Play production track, which goes live once Play's review passes.
+The first upload to Play has to be by hand.
 
 A Dart-only fix for a released version goes over the air, from a ref whose
 `pubspec.yaml` still names that version:
@@ -46,7 +47,7 @@ Repository secrets:
 | :--- | :--- |
 | `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD` | The upload key, `alias upload`, one password for store and key |
 | `SHOREBIRD_TOKEN` | API key of the `open-ring-ci` service account (role `developer`), expires 2027-11-11. Issue a new one in the Shorebird console. Without it the release is a plain signed build that cannot take patches |
-| `PLAY_SERVICE_ACCOUNT` | Optional, JSON of a Play service account |
+| `PLAY_SERVICE_ACCOUNT` | Optional: the JSON key of a service account invited in Play Console, Users and permissions, with release to production for the app. Without it the bundle stays a run artifact and goes to Play by hand |
 
 ## Signing
 
@@ -247,7 +248,7 @@ without it, with syncs that may run late or stop midway.
 3. Install a release APK from the same commit on the R09 test phone and go
    through [Device checks](#device-checks). This is the only place a missing
    keep rule shows up.
-4. Run the [release flow](#release-flow). Play takes the internal track first.
+4. Run the [release flow](#release-flow). Play takes it on the production track.
 
 ## Device checks
 

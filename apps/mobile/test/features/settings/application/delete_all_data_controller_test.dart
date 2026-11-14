@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
+import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
 import 'package:open_ring/features/ring/domain/sync_interval.dart';
 import 'package:open_ring/features/settings/application/delete_all_data_controller.dart';
@@ -20,10 +21,12 @@ import '../../../helpers/fake_sync_scheduler.dart';
 import '../../../helpers/in_memory_sync_interval_store.dart';
 import '../../../helpers/in_memory_theme_mode_store.dart';
 import '../../../helpers/onboarding_fakes.dart';
+import '../../../helpers/ring_fakes.dart' show FakeSyncStore;
 import '../../../helpers/settings_fakes.dart';
 
 void main() {
   late FakeLocalDataEraser eraser;
+  late FakeSyncScheduler scheduler;
   late InMemoryUnitSystemStore units;
   late InMemoryUserProfileStore profiles;
   late InMemoryOnboardingStore onboarding;
@@ -31,6 +34,7 @@ void main() {
 
   ProviderContainer container([FakeLocalDataEraser? override]) {
     eraser = override ?? FakeLocalDataEraser();
+    scheduler = FakeSyncScheduler();
     units = InMemoryUnitSystemStore(UnitSystem.imperial);
     profiles = InMemoryUserProfileStore(fullProfile);
     onboarding = InMemoryOnboardingStore(completed: true);
@@ -46,7 +50,8 @@ void main() {
         syncIntervalStoreProvider.overrideWithValue(
           InMemorySyncIntervalStore(SyncInterval.minutes15),
         ),
-        syncSchedulerProvider.overrideWithValue(FakeSyncScheduler()),
+        syncSchedulerProvider.overrideWithValue(scheduler),
+        syncStoreProvider.overrideWithValue(FakeSyncStore()),
         unitSystemStoreProvider.overrideWithValue(units),
         userProfileStoreProvider.overrideWithValue(profiles),
         onboardingStoreProvider.overrideWithValue(onboarding),
@@ -72,6 +77,8 @@ void main() {
     expect(c.read(deleteAllDataProvider), DeletionStatus.idle);
     expect(c.read(themeModeProvider), ThemeMode.system);
     expect(c.read(syncIntervalProvider), SyncInterval.fallback);
+    expect(scheduler.calls, isEmpty);
+    expect(scheduler.cancels, 1);
     expect(await c.read(unitSystemProvider.future), UnitSystem.metric);
     expect(await c.read(userProfileProvider.future), isNull);
     expect(c.read(dataRevisionProvider), revision + 1);

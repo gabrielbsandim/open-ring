@@ -4,6 +4,8 @@ import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/core/records/source_priority.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
+import 'package:open_ring/features/demo/domain/demo_mode_store.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/health_sync/domain/health_read_store.dart';
 import 'package:open_ring/features/health_sync/domain/health_writer.dart';
@@ -98,6 +100,46 @@ void main() {
     expect(view.enabled, isFalse);
     expect(view.priority, [ringSource]);
     expect(store.nights, hasLength(1));
+  });
+
+  group('any read enabled', () {
+    Future<bool> anyEnabled({
+      bool sleep = false,
+      bool workout = false,
+      bool demo = false,
+    }) async {
+      if (sleep) await store.setEnabled(HealthRecordKind.sleep, enabled: true);
+      if (workout) {
+        await store.setEnabled(HealthRecordKind.workout, enabled: true);
+      }
+      final c = ProviderContainer.test(
+        overrides: [
+          clockProvider.overrideWithValue(() => now),
+          healthReaderProvider.overrideWithValue(reader),
+          healthReadStoreProvider.overrideWithValue(store),
+          demoModeStoreProvider.overrideWithValue(
+            InMemoryDemoModeStore(enabled: demo),
+          ),
+        ],
+      );
+      return await c.read(anyHealthReadEnabledProvider.future);
+    }
+
+    test('is true when only sleep is on', () async {
+      expect(await anyEnabled(sleep: true), isTrue);
+    });
+
+    test('is true when only workouts are on', () async {
+      expect(await anyEnabled(workout: true), isTrue);
+    });
+
+    test('is false when neither is on', () async {
+      expect(await anyEnabled(), isFalse);
+    });
+
+    test('is false in demo mode even with a read on', () async {
+      expect(await anyEnabled(sleep: true, workout: true, demo: true), isFalse);
+    });
   });
 
   test('workouts have their own switch, order and import', () async {

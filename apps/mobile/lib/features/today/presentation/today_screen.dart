@@ -10,6 +10,7 @@ import 'package:open_ring/core/widgets/charts.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/core/widgets/text_scale.dart';
+import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/presentation/sync_status_banner.dart';
 import 'package:open_ring/features/today/application/readiness_view.dart';
@@ -34,7 +35,10 @@ class TodayScreen extends ConsumerWidget {
         const _TodaySyncBanner(),
         AsyncBody(
           value: ref.watch(todayViewProvider),
-          builder: (view) => _TodayBody(view: view),
+          builder: (view) => _TodayBody(
+            view: view,
+            readsOn: ref.watch(anyHealthReadEnabledProvider).value ?? false,
+          ),
         ),
       ],
     );
@@ -67,9 +71,10 @@ class _TodaySyncBanner extends ConsumerWidget {
 }
 
 class _TodayBody extends StatelessWidget {
-  const new({required this.view});
+  const new({required this.view, required this.readsOn});
 
   final TodayView view;
+  final bool readsOn;
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +85,18 @@ class _TodayBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ...switch (freshness) {
+          SyncFreshness.unpaired when readsOn => [
+            SleepSummaryCard(view: view, emptyMessage: l10n.sleepEmptyImported),
+            const SizedBox(height: cardGap),
+            EmptyStateCard(
+              icon: Icons.radio_button_unchecked_rounded,
+              accent: colors.oxygen,
+              message: l10n.todayPairForMore,
+              actionLabel: l10n.todayPairAction,
+              actionKey: TodayKeys.pairAction,
+              onAction: () => context.go(AppTab.ring.path),
+            ),
+          ],
           SyncFreshness.unpaired => [
             EmptyStateCard(
               icon: Icons.radio_button_unchecked_rounded,

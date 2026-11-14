@@ -104,7 +104,7 @@ jobs:
           cp build/app/outputs/flutter-apk/app-release.apk "$RUNNER_TEMP/OpenRing-$TAG.apk"
           gh release upload "$TAG" "$RUNNER_TEMP/OpenRing-$TAG.apk" --clobber
 
-      - name: Send the bundle to the Play internal track
+      - name: Send the bundle to the Play production track
         if: steps.kind.outputs.shorebird == 'true' && env.PLAY_SERVICE_ACCOUNT != ''
         uses: r0adkll/upload-google-play@v1
         with:
@@ -113,5 +113,5 @@ jobs:
           releaseFiles: apps/mobile/build/app/outputs/bundle/release/app-release.aab
           mappingFile: apps/mobile/build/app/outputs/mapping/release/mapping.txt
           whatsNewDirectory: apps/mobile/distribution/whatsnew
-          track: internal
+          track: production
           status: completed

@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
+import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
 import 'package:open_ring/features/onboarding/presentation/onboarding_page.dart';
 import 'package:open_ring/features/ring/application/pair_controller.dart';
@@ -22,6 +25,7 @@ abstract final class PairKeys {
   static const saveFailed = Key('pair_save_failed');
   static const paired = Key('pair_paired');
   static const continueAction = Key('pair_continue');
+  static const withoutRing = Key('pair_without_ring');
 
   static Key device(String id) => Key('pair_device_$id');
 }
@@ -77,6 +81,10 @@ class PairScreen extends ConsumerWidget {
       PairPhase.paired => (l10n.pairDoneTitle, l10n.pairDoneBody),
     };
     final done = state.phase == PairPhase.paired;
+    final offerWithoutRing =
+        flow == PairFlow.onboarding &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        (state.phase == PairPhase.idle || state.phase == PairPhase.scanning);
     return OnboardingPage(
       step: flow.step,
       label: l10n.pairHeader,
@@ -86,28 +94,31 @@ class PairScreen extends ConsumerWidget {
       ),
       title: title,
       intro: intro,
-      children: switch (state.phase) {
-        PairPhase.idle => _idle(l10n, () => unawaited(controller.scan())),
-        PairPhase.scanning || PairPhase.connecting => [
-          _DeviceList(
-            state: state,
-            onPair: (device) => unawaited(controller.pair(device)),
-            onSearchAgain: () => unawaited(controller.scan()),
-            onNotFound: () => unawaited(
-              context.push(flow.errorPath(PairFailure.notFound.name)),
+      children: [
+        ...switch (state.phase) {
+          PairPhase.idle => _idle(l10n, () => unawaited(controller.scan())),
+          PairPhase.scanning || PairPhase.connecting => [
+            _DeviceList(
+              state: state,
+              onPair: (device) => unawaited(controller.pair(device)),
+              onSearchAgain: () => unawaited(controller.scan()),
+              onNotFound: () => unawaited(
+                context.push(flow.errorPath(PairFailure.notFound.name)),
+              ),
             ),
-          ),
-        ],
-        PairPhase.paired => [
-          _PairedCard(state: state),
-          const SizedBox(height: 20),
-          PrimaryAction(
-            key: PairKeys.continueAction,
-            label: l10n.onboardingContinue,
-            onPressed: () => context.go(flow.syncPath),
-          ),
-        ],
-      },
+          ],
+          PairPhase.paired => [
+            _PairedCard(state: state),
+            const SizedBox(height: 20),
+            PrimaryAction(
+              key: PairKeys.continueAction,
+              label: l10n.onboardingContinue,
+              onPressed: () => context.go(flow.syncPath),
+            ),
+          ],
+        },
+        if (offerWithoutRing) const _WithoutRingAction(),
+      ],
     );
   }
 
@@ -302,6 +313,64 @@ class _PairedCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// Only Health Connect is read today, so the offer is Android only.
+class _WithoutRingAction extends ConsumerStatefulWidget {
+  const new();
+
+  @override
+  ConsumerState<_WithoutRingAction> createState() => _WithoutRingActionState();
+}
+
+class _WithoutRingActionState extends ConsumerState<_WithoutRingAction> {
+  static const List<HealthRecordKind> _kinds = [
+    HealthRecordKind.sleep,
+    HealthRecordKind.workout,
+  ];
+
+  bool _busy = false;
+
+  Future<void> _continue() async {
+    setState(() => _busy = true);
+    final router = GoRouter.of(context);
+    for (final kind in _kinds) {
+      await _enable(kind);
+      if (!mounted) return;
+    }
+    await ref.read(onboardingProvider.notifier).complete();
+    router.go(AppTab.today.path);
+  }
+
+  // A refused or failed read still finishes onboarding: reads can be turned
+  // on later from the data sources settings.
+  Future<void> _enable(HealthRecordKind kind) async {
+    try {
+      await ref
+          .read(healthReadsProvider(kind).notifier)
+          .setEnabled(enabled: true);
+    } on Object catch (error) {
+      debugPrint('Reading ${kind.name} was not turned on: $error');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 20),
+        SecondaryButton(
+          key: PairKeys.withoutRing,
+          label: l10n.pairWithoutRing,
+          onPressed: _busy ? null : () => unawaited(_continue()),
+        ),
+        const SizedBox(height: 4),
+        CaptionText(l10n.pairWithoutRingNote, textAlign: TextAlign.center),
+      ],
     );
   }
 }

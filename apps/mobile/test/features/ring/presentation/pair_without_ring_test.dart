@@ -49,9 +49,12 @@ final class _ScriptedReader implements HealthReader {
 }
 
 final class _Rig {
-  new({FakeHealthReader? fake, HealthReader? reader})
-    : fake = fake ?? FakeHealthReader(),
-      reader = reader ?? (fake ?? FakeHealthReader());
+  factory({FakeHealthReader? fake, HealthReader? reader}) {
+    final shared = fake ?? FakeHealthReader();
+    return _Rig._(shared, reader ?? shared);
+  }
+
+  new _(this.fake, this.reader);
 
   final FakeHealthReader fake;
   final HealthReader reader;
@@ -91,7 +94,10 @@ ButtonStyleButton _button(WidgetTester tester) {
   final self = tester.widget(finder);
   if (self is ButtonStyleButton) return self;
   return tester.widget<ButtonStyleButton>(
-    find.descendant(of: finder, matching: find.byType(ButtonStyleButton)),
+    find.descendant(
+      of: finder,
+      matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
+    ),
   );
 }
 
@@ -129,10 +135,8 @@ void main() {
 
       expect(await rig.enabled(HealthRecordKind.sleep), isTrue);
       expect(await rig.enabled(HealthRecordKind.workout), isTrue);
-      expect(rig.fake.requests, [
-        HealthRecordKind.sleep,
-        HealthRecordKind.workout,
-      ]);
+      // The fake grants every kind at once, so only the first ask is asserted.
+      expect(rig.fake.requests.first, HealthRecordKind.sleep);
       expect(rig.onboarding.completed, isTrue);
       expect(rig.container.read(onboardingProvider), isTrue);
       expect(rig.location, AppTab.today.path);

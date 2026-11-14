@@ -87,9 +87,7 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
         PrimaryAction(
           key: PermissionsKeys.continueAction,
           label: l10n.onboardingContinue,
-          onPressed: bluetooth
-              ? () => context.push(AppPaths.onboardingProfile)
-              : null,
+          onPressed: () => context.push(AppPaths.onboardingProfile),
         ),
       ],
     );
@@ -118,7 +116,7 @@ class _PermissionCard extends StatelessWidget {
       AppPermission.bluetooth => (
         Icons.bluetooth_rounded,
         l10n.permissionsBluetoothName,
-        l10n.permissionsRequired,
+        l10n.permissionsForRing,
         colors.textPrimary,
         l10n.permissionsBluetoothWhy,
       ),

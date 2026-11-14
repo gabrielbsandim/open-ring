@@ -49,8 +49,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return router;
 });
 
-// Until a ring is paired every location leads to onboarding; afterwards the
-// onboarding routes stay reachable so the first sync can finish there.
+// Until onboarding ends, with or without a ring, every location leads to it;
+// afterwards its routes stay reachable so the first sync can finish there.
 String? onboardingRedirect({
   required bool completed,
   required String location,

@@ -2,6 +2,8 @@
   "@@locale": "pt_PT",
   "settingsTitle": "Definições",
   "todayEmpty": "Emparelhe o seu anel para ver os passos, a frequência cardíaca e o sono de hoje.",
+  "todayPairForMore": "Emparelhe um anel para ver também passos, frequência cardíaca e prontidão.",
+  "sleepEmptyImported": "Ainda não há noite no Health Connect.",
   "heartEmpty": "Frequência cardíaca, VFC, SpO2 e stress aparecem aqui depois da primeira sincronização.",
   "ringEmpty": "Ainda não há nenhum anel emparelhado. Carregue o anel e mantenha-o perto deste telemóvel para o emparelhar.",
   "settingsEmpty": "Unidades, intervalo de sincronização e exportação para aplicações de saúde ficam aqui.",

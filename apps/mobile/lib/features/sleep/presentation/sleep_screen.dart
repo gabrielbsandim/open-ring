@@ -10,6 +10,7 @@ import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/core/widgets/text_scale.dart';
+import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/presentation/sync_status_banner.dart';
 import 'package:open_ring/features/sleep/application/sleep_providers.dart';
 import 'package:open_ring/features/sleep/application/sleep_view.dart';
@@ -52,6 +53,7 @@ class _SleepScreenState extends ConsumerState<SleepScreen> {
           value: week,
           builder: (w) => _SleepBody(
             week: w,
+            withoutRing: ref.watch(readsWithoutRingProvider).value ?? false,
             selected: _indexIn(w),
             onSelect: (index) => setState(() => _selected = index),
           ),
@@ -67,11 +69,13 @@ class _SleepScreenState extends ConsumerState<SleepScreen> {
 class _SleepBody extends StatelessWidget {
   const new({
     required this.week,
+    required this.withoutRing,
     required this.selected,
     required this.onSelect,
   });
 
   final SleepWeekView week;
+  final bool withoutRing;
   final int selected;
   final ValueChanged<int> onSelect;
 
@@ -91,7 +95,9 @@ class _SleepBody extends StatelessWidget {
             icon: Icons.bedtime_rounded,
             accent: colors.sleep,
             title: format.l10n.sleepNoNight(format.date(day.date)),
-            message: format.l10n.sleepEmpty,
+            message: withoutRing
+                ? format.l10n.sleepEmptyImported
+                : format.l10n.sleepEmpty,
             actionLabel: format.l10n.metricOpenRing,
             actionKey: SleepScreen.emptyActionKey,
             onAction: () => context.go(AppTab.ring.path),

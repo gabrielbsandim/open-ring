@@ -86,6 +86,12 @@ final class HealthPluginGateway implements HealthGateway, HealthReadGateway {
   }
 
   @override
+  Future<bool> requestBackgroundRead() async {
+    if (!await _health.isHealthDataInBackgroundAvailable()) return false;
+    return await _health.requestHealthDataInBackgroundAuthorization();
+  }
+
+  @override
   Future<List<HealthDataPoint>> read(
     List<HealthDataType> types, {
     required DateTime from,

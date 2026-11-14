@@ -491,6 +491,13 @@ final class _GatedReader implements HealthReader {
       inner.requestReadAccess(kind);
 
   @override
+  Future<bool> backgroundReadAllowed() => inner.backgroundReadAllowed();
+
+  @override
+  Future<bool> requestBackgroundReadAccess() =>
+      inner.requestBackgroundReadAccess();
+
+  @override
   Future<ExternalRead<ExternalSleepNight>> sleepNights({
     required DateTime from,
     required DateTime to,

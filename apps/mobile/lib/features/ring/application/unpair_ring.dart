@@ -10,24 +10,39 @@ final class UnpairRing {
     required this.store,
     required this.scheduler,
     required this.clock,
+    this.restore,
+    this.restoreWait = defaultRestoreWait,
   });
+
+  static const defaultRestoreWait = Duration(seconds: 5);
 
   final SyncStore store;
   final SyncScheduler scheduler;
   final DateTime Function() clock;
+  final Future<void> Function()? restore;
+  final Duration restoreWait;
 
   Future<bool> call() async {
     final ring = await store.pairedRing();
     if (ring == null) return false;
     await store.forget(ring.deviceId, at: clock());
-    await _cancelSchedule();
+    await _quietly(scheduler.cancel);
+    await _restore();
     return true;
   }
 
-  // A worker left scheduled finds no paired ring and ends without a sync.
-  Future<void> _cancelSchedule() async {
+  // Cancelling first stops a worker still syncing the forgotten ring. The
+  // job comes back for Health Connect reads; a slow check finishes later
+  // instead of holding the screen.
+  Future<void> _restore() async {
+    final restore = this.restore;
+    if (restore == null) return;
+    await _quietly(() => restore().timeout(restoreWait));
+  }
+
+  static Future<void> _quietly(Future<void> Function() step) async {
     try {
-      await scheduler.cancel();
+      await step();
     } on Object {
       return;
     }
@@ -39,6 +54,7 @@ final unpairRingProvider = Provider<UnpairRing>(
     store: ref.watch(syncStoreProvider),
     scheduler: ref.watch(syncSchedulerProvider),
     clock: ref.watch(syncClockProvider),
+    restore: () => ref.read(syncIntervalProvider.notifier).restoreIfWanted(),
   ),
 );
 

@@ -63,6 +63,10 @@ abstract interface class HealthReader {
 
   Future<bool> requestReadAccess(HealthRecordKind kind);
 
+  Future<bool> backgroundReadAllowed();
+
+  Future<bool> requestBackgroundReadAccess();
+
   Future<ExternalRead<ExternalSleepNight>> sleepNights({
     required DateTime from,
     required DateTime to,
@@ -83,6 +87,12 @@ final class UnavailableHealthReader implements HealthReader {
 
   @override
   Future<bool> requestReadAccess(HealthRecordKind kind) async => false;
+
+  @override
+  Future<bool> backgroundReadAllowed() async => false;
+
+  @override
+  Future<bool> requestBackgroundReadAccess() async => false;
 
   @override
   Future<ExternalRead<ExternalSleepNight>> sleepNights({

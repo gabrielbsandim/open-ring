@@ -965,7 +965,7 @@
   "privacyHealthWrites": "写入 Health Connect：步数、活动卡路里、心率、血氧饱和度、心率变异性、睡眠、锻炼、锻炼路线、距离",
   "privacyHealthWritesWhy": "将戒指数据和训练发送到 Health Connect（需您允许各类型）。",
   "privacyHealthReads": "读取 Health Connect：睡眠、锻炼",
-  "privacyHealthReadsWhy": "仅在您开启来自其他应用的该类型时读取。OpenRing 自身写入的记录会被跳过。",
+  "privacyHealthReadsWhy": "仅在您开启来自其他应用的该类型时读取。OpenRing 自身写入的记录会被跳过。未配对戒指时，还会请求在后台读取，以便定期同步在应用关闭时导入。",
   "privacyHealthShare": "如果您授予写入权限，OpenRing 会将上述类型写入手机上的 Health Connect。您在 Health Connect 中允许的其他应用随后可以读取这些数据。Health Connect 是 Android 的一部分，适用其自身的隐私条款，您可以在 Health Connect 设置中管理或删除这些数据。",
   "privacyDeleteHeading": "数据保留多久以及如何删除",
   "privacyDeleteKept": "数据会一直保留在手机上，直到您将其删除。您可以：",

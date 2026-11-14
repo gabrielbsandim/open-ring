@@ -200,8 +200,9 @@ rule to order it by.
 
 - **Opt-in per type.** `health_reads` (schema v6) holds one row per kind with
   `enabled` (default off) and `last_read_at_utc_ms`. Turning sleep on in Data
-  sources asks for `READ_SLEEP` only (`HealthReader.requestReadAccess`, through
-  `requestAuthorization([SLEEP_SESSION], [READ])`); a declined request keeps it
+  sources asks for `READ_SLEEP` (`HealthReader.requestReadAccess`, through
+  `requestAuthorization([SLEEP_SESSION], [READ])`), and with no ring paired
+  then for `READ_HEALTH_DATA_IN_BACKGROUND`; a declined read request keeps it
   off and offers to open Health Connect. Turning it off stops reading and drops
   imported nights from every screen; the rows stay until "Delete all data".
 - **Reading.** `PluginHealthReader` reads `SLEEP_SESSION` and then the stage
@@ -239,8 +240,11 @@ rule to order it by.
   worker `BackgroundSyncRunner` runs the same `ImportExternalSleep` with the
   plugin, which the WorkManager engine registers (it is a pub plugin). Health
   Connect only lets an app read in the background with
-  `READ_HEALTH_DATA_IN_BACKGROUND`, which OpenRing does not ask for yet, so there
-  the reader reports `deferred` and the next foreground sync imports.
+  `READ_HEALTH_DATA_IN_BACKGROUND`. OpenRing asks for it with no ring paired
+  and a read on (onboarding without a ring, or a read switch turned on); the
+  job is then registered with no ring. Without the grant the reader reports
+  `deferred` and the next foreground sync imports. Each background import is
+  bounded at 2 minutes.
 - **HealthKit.** Not built: the reader reports `unavailable` on iOS and the
   switch is disabled. HealthKit sleep has no session grouping, so it needs its
   own night builder.
@@ -248,8 +252,8 @@ rule to order it by.
 ### Workouts
 
 - **Opt-in.** Off by default, its own `health_reads` row (`kind = 'workout'`).
-  Turning it on asks for `READ_EXERCISE` only (`requestAuthorization([WORKOUT],
-  [READ])`).
+  Turning it on asks for `READ_EXERCISE` (`requestAuthorization([WORKOUT],
+  [READ])`), and with no ring paired then for `READ_HEALTH_DATA_IN_BACKGROUND`.
 - **Why not the plugin's read.** The plugin's `WORKOUT` read also reads every
   app's `DistanceRecord`, `TotalCaloriesBurnedRecord` and `StepsRecord` in the
   session window and sums them. Without `READ_DISTANCE`,
@@ -279,7 +283,8 @@ rule to order it by.
 - **Window and when.** Same as sleep: 30 days first, then 2 days before the last
   read; after every foreground sync attempt and when the switch is turned on.
   In the background worker the reader reports `deferred` without
-  `READ_HEALTH_DATA_IN_BACKGROUND`, so the exercise channel is not called there.
+  `READ_HEALTH_DATA_IN_BACKGROUND`, so the exercise channel is not called there;
+  with it, the job imports workouts with no ring paired.
 - **Shown.** In Activity's recent workouts, mixed with OpenRing's own and
   labelled "From <app>". Tapping one opens a read-only summary (type, time,
   duration, the app that recorded it): no delete, no GPX, no Health status.

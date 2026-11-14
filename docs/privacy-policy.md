@@ -50,7 +50,8 @@ They are estimates for following trends, not a medical diagnosis.
 | `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Lets the app show Android's dialog asking to exempt it from battery optimization, so the periodic sync can run with the app closed. You can refuse it, or undo it in system settings. |
 | Notifications (`POST_NOTIFICATIONS`) | The workout notification, the silent notification during a background sync, a low ring battery and a failed sync. Denying it hides those notifications; sync still runs. |
 | Health Connect write: steps, active calories, heart rate, oxygen saturation, heart rate variability, sleep, exercise, exercise route, distance | Sending your ring data and workouts to Health Connect, if you allow each type. |
-| Health Connect read: sleep, exercise | Each only if you turn on that type from other apps. Records that OpenRing wrote itself are skipped. |
+| Health Connect read: sleep, exercise | Each only if you turn on that type from other apps. Records that OpenRing wrote itself are skipped. With no ring paired, it also asks to read them in the background, so the periodic sync can import them with the app closed. |
+| Health Connect read in the background (`READ_HEALTH_DATA_IN_BACKGROUND`) | Asked only with no ring paired and a read on. Lets the periodic sync import those types with the app closed. Refusing it keeps the imports for when the app is open. |
 | `INTERNET` | Checking for and downloading app updates, as described under App updates. |
 | `WAKE_LOCK`, `RECEIVE_BOOT_COMPLETED`, `ACCESS_NETWORK_STATE` | Added by Android's WorkManager library, which runs the periodic background sync and keeps it scheduled after a restart. The sync job has no network condition; it talks to the ring over Bluetooth only. |
 

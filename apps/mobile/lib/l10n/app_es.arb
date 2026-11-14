@@ -965,7 +965,7 @@
   "privacyHealthWrites": "Escritura en Health Connect: pasos, calorías activas, frecuencia cardiaca, saturación de oxígeno, variabilidad de la frecuencia cardiaca, sueño, ejercicio, ruta del ejercicio, distancia",
   "privacyHealthWritesWhy": "Enviar los datos del anillo y los entrenamientos a Health Connect, si permites cada tipo.",
   "privacyHealthReads": "Lectura de Health Connect: sueño, ejercicio",
-  "privacyHealthReadsWhy": "Cada uno solo si activas ese tipo desde otras apps. Se omiten los registros que escribió el propio OpenRing.",
+  "privacyHealthReadsWhy": "Cada uno solo si activas ese tipo desde otras apps. Se omiten los registros que escribió el propio OpenRing. Sin un anillo vinculado, también pide leerlos en segundo plano, para que la sincronización periódica los importe con la app cerrada.",
   "privacyHealthShare": "Si concedes acceso de escritura, OpenRing escribe los tipos anteriores en Health Connect en el teléfono. Otras apps que permitas en Health Connect podrán leerlos. Health Connect forma parte de Android; se aplican sus propios términos de privacidad, y tú gestionas o eliminas esos datos en los ajustes de Health Connect.",
   "privacyDeleteHeading": "Cuánto tiempo se conservan los datos y cómo eliminarlos",
   "privacyDeleteKept": "Los datos permanecen en tu teléfono hasta que los elimines. Puedes:",

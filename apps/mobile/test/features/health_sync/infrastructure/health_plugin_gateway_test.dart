@@ -7,6 +7,18 @@ class _FakeHealth extends Fake implements Health {
   final workoutMethods = <RecordingMethod>[];
   final workoutArgs = <Map<String, Object?>>[];
   final dataMethods = <RecordingMethod>[];
+  bool backgroundAvailable = true;
+  bool backgroundGrant = true;
+  int backgroundRequests = 0;
+
+  @override
+  Future<bool> isHealthDataInBackgroundAvailable() async => backgroundAvailable;
+
+  @override
+  Future<bool> requestHealthDataInBackgroundAuthorization() async {
+    backgroundRequests++;
+    return backgroundGrant;
+  }
 
   @override
   Future<String?> writeWorkoutDataUUID({
@@ -103,6 +115,33 @@ void main() {
       );
 
       expect(health.dataMethods, [RecordingMethod.automatic]);
+    },
+  );
+
+  test('criterion 3: the background request maps to the plugin call', () async {
+    final health = _FakeHealth();
+    final gateway = HealthPluginGateway(health, HealthPlatform.healthConnect);
+
+    expect(await gateway.requestBackgroundRead(), isTrue);
+    expect(health.backgroundRequests, 1);
+  });
+
+  test('criterion 3: a refused background request returns false', () async {
+    final health = _FakeHealth()..backgroundGrant = false;
+    final gateway = HealthPluginGateway(health, HealthPlatform.healthConnect);
+
+    expect(await gateway.requestBackgroundRead(), isFalse);
+    expect(health.backgroundRequests, 1);
+  });
+
+  test(
+    'criterion 3: without the background feature nothing launches',
+    () async {
+      final health = _FakeHealth()..backgroundAvailable = false;
+      final gateway = HealthPluginGateway(health, HealthPlatform.healthConnect);
+
+      expect(await gateway.requestBackgroundRead(), isFalse);
+      expect(health.backgroundRequests, 0);
     },
   );
 }

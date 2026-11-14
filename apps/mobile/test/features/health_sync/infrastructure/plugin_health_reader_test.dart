@@ -11,6 +11,8 @@ final class _FakeReadGateway implements HealthReadGateway {
   bool installed = true;
   bool granted = false;
   bool background = false;
+  bool backgroundGrant = true;
+  int backgroundRequests = 0;
   final List<List<HealthDataType>> requested = [];
   final Map<HealthDataType, List<HealthDataPoint>> points = {};
   final List<List<HealthDataType>> reads = [];
@@ -29,6 +31,12 @@ final class _FakeReadGateway implements HealthReadGateway {
 
   @override
   Future<bool> backgroundReadAllowed() async => background;
+
+  @override
+  Future<bool> requestBackgroundRead() async {
+    backgroundRequests++;
+    return backgroundGrant;
+  }
 
   @override
   Future<List<HealthDataPoint>> read(
@@ -119,6 +127,40 @@ void main() {
       HealthAccess.unavailable,
     );
   });
+
+  test('criterion 3: background access follows the gateway grant', () async {
+    expect(await reader().backgroundReadAllowed(), isFalse);
+    gateway.background = true;
+    expect(await reader().backgroundReadAllowed(), isTrue);
+  });
+
+  test('criterion 3: the request maps to the gateway request', () async {
+    expect(await reader().requestBackgroundReadAccess(), isTrue);
+    expect(gateway.backgroundRequests, 1);
+
+    gateway.backgroundGrant = false;
+    expect(await reader().requestBackgroundReadAccess(), isFalse);
+    expect(gateway.backgroundRequests, 2);
+  });
+
+  test('criterion 3: HealthKit never reads or requests background', () async {
+    gateway.background = true;
+    final ios = PluginHealthReader(gateway, HealthPlatform.healthKit);
+
+    expect(await ios.backgroundReadAllowed(), isFalse);
+    expect(await ios.requestBackgroundReadAccess(), isFalse);
+    expect(gateway.backgroundRequests, 0);
+  });
+
+  test(
+    'criterion 3: the unavailable reader allows and requests nothing',
+    () async {
+      const reader = UnavailableHealthReader();
+
+      expect(await reader.backgroundReadAllowed(), isFalse);
+      expect(await reader.requestBackgroundReadAccess(), isFalse);
+    },
+  );
 
   test('the background engine waits without background read access', () async {
     gateway.granted = true;

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/features/health_sync/application/health_sync_controller.dart';
 import 'package:open_ring/features/health_sync/application/import_external_sleep.dart';
@@ -100,20 +102,28 @@ final class BackgroundSyncRunner {
     final reader = healthReader;
     if (reader == null) return;
     final store = DriftHealthReadStore(database);
-    final imports = <ExternalImport>[
-      ImportExternalSleep(reader: reader, store: store, clock: clock),
-      ImportExternalWorkouts(reader: reader, store: store, clock: clock),
+    final imports = <(String, ExternalImport)>[
+      (
+        'sleep',
+        ImportExternalSleep(reader: reader, store: store, clock: clock),
+      ),
+      (
+        'workout',
+        ImportExternalWorkouts(reader: reader, store: store, clock: clock),
+      ),
     ];
-    for (final task in imports) {
-      await _quietly(task);
+    for (final (kind, task) in imports) {
+      await _bounded(kind, task);
     }
   }
 
-  static Future<void> _quietly(ExternalImport task) async {
+  // One hung read must not use up the run the other import needs; what it
+  // missed is read again by the next run.
+  static Future<void> _bounded(String kind, ExternalImport task) async {
     try {
-      await task();
-    } on Object {
-      return;
+      await task().timeout(healthImportTimeout);
+    } on Object catch (error) {
+      debugPrint('Background Health Connect $kind import dropped: $error');
     }
   }
 
@@ -134,6 +144,8 @@ final class BackgroundSyncRunner {
     }
   }
 }
+
+const healthImportTimeout = Duration(minutes: 2);
 
 const defaultBackgroundStepTimeout = Duration(seconds: 30);
 

@@ -14,6 +14,8 @@ abstract interface class HealthReadGateway {
 
   Future<bool> backgroundReadAllowed();
 
+  Future<bool> requestBackgroundRead();
+
   Future<List<HealthDataPoint>> read(
     List<HealthDataType> types, {
     required DateTime from,
@@ -109,6 +111,18 @@ final class PluginHealthReader implements HealthReader {
     if (!_builtHere || types.isEmpty) return false;
     if (!await _gateway.available()) return false;
     return await _gateway.requestReadAccess(types);
+  }
+
+  @override
+  Future<bool> backgroundReadAllowed() async {
+    if (!_builtHere) return false;
+    return await _gateway.backgroundReadAllowed();
+  }
+
+  @override
+  Future<bool> requestBackgroundReadAccess() async {
+    if (!_builtHere) return false;
+    return await _gateway.requestBackgroundRead();
   }
 
   @override

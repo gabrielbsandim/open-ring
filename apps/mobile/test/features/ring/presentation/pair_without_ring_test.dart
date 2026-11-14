@@ -17,6 +17,7 @@ import 'package:ring_driver/ring_driver.dart';
 
 import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/fake_health_reader.dart';
+import '../../../helpers/fake_sync_scheduler.dart';
 import '../../../helpers/onboarding_app.dart';
 import '../../../helpers/onboarding_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
@@ -36,6 +37,13 @@ final class _ScriptedReader implements HealthReader {
     inner.requests.add(kind);
     return onRequest(kind);
   }
+
+  @override
+  Future<bool> backgroundReadAllowed() => inner.backgroundReadAllowed();
+
+  @override
+  Future<bool> requestBackgroundReadAccess() =>
+      inner.requestBackgroundReadAccess();
 
   @override
   Future<ExternalRead<ExternalSleepNight>> sleepNights({
@@ -86,6 +94,7 @@ final class _Rig {
   final HealthReader reader;
   final store = InMemoryHealthReadStore();
   final onboarding = InMemoryOnboardingStore();
+  final scheduler = FakeSyncScheduler();
   late final ProviderContainer container;
 
   Future<void> pump(
@@ -99,7 +108,7 @@ final class _Rig {
       store: onboarding..completed = flow == PairFlow.ring,
       overrides: [
         ...ble ?? bleOverrides(),
-        ...ringOverrides(),
+        ...ringOverrides(scheduler: scheduler),
         ...onboardingOverrides(),
         healthReaderProvider.overrideWithValue(reader),
         healthReadStoreProvider.overrideWithValue(store),
@@ -167,6 +176,32 @@ void main() {
       expect(rig.onboarding.completed, isTrue);
       expect(rig.container.read(onboardingProvider), isTrue);
       expect(rig.location, AppTab.today.path);
+    }, variant: _android);
+
+    testWidgets(
+      'criterion 6: continuing asks for background read access once',
+      (tester) async {
+        final rig = _Rig();
+        await rig.pump(tester);
+
+        await tapAndSettle(tester, find.byKey(PairKeys.withoutRing));
+
+        expect(rig.fake.backgroundRequests, 1);
+        expect(rig.location, AppTab.today.path);
+      },
+      variant: _android,
+    );
+
+    testWidgets('criterion 6: a granted background read registers the job', (
+      tester,
+    ) async {
+      final rig = _Rig();
+      await rig.pump(tester);
+
+      await tapAndSettle(tester, find.byKey(PairKeys.withoutRing));
+
+      expect(rig.scheduler.calls, hasLength(1));
+      expect(rig.scheduler.cancels, 0);
     }, variant: _android);
 
     testWidgets('read access declined still completes onboarding', (

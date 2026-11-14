@@ -10,6 +10,7 @@ import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/core/records/record_kind.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/health_sync/domain/health_read_store.dart';
+import 'package:open_ring/features/health_sync/domain/health_reader.dart';
 import 'package:open_ring/features/health_sync/domain/health_writer.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_state.dart';
@@ -212,6 +213,41 @@ void main() {
       expect(h.driver.calls, isEmpty);
     });
 
+    test('reads without a ring is true only while no ring is paired', () async {
+      final h = await ringless();
+
+      expect(await h.container.read(readsWithoutRingProvider.future), isTrue);
+
+      await RingDevicesDao(h.db).pair(ringIdentity, at: DateTime(2026, 11));
+      h.container.read(dataRevisionProvider.notifier).bump();
+
+      expect(await h.container.read(readsWithoutRingProvider.future), isFalse);
+    });
+
+    test('a ring paired while the import runs gets its sync', () async {
+      await ringless();
+      final gate = Completer<void>();
+      final gated = _GatedReader(reader, gate.future);
+      final h = Harness(
+        memoryDatabase(),
+        loadedDriver(),
+        overrides: [
+          healthReaderProvider.overrideWithValue(gated),
+          healthReadStoreProvider.overrideWithValue(readStore),
+          clockProvider.overrideWithValue(syncNow.toUtc),
+        ],
+      );
+
+      final running = h.sync();
+      await gated.reading.future;
+      await RingDevicesDao(h.db).pair(ringIdentity, at: DateTime(2026, 11));
+      gate.complete();
+      await running;
+
+      expect(h.driver.calls, isNotEmpty);
+      expect(h.state.lastSuccessAt, isNotNull);
+    });
+
     test(
       'access revoked since turning it on ends idle with no error',
       () async {
@@ -406,4 +442,36 @@ void main() {
 
     expect(h.state.lastSuccessAt, syncNow);
   });
+}
+
+final class _GatedReader implements HealthReader {
+  new(this.inner, this.gate);
+
+  final HealthReader inner;
+  final Future<void> gate;
+  final reading = Completer<void>();
+
+  @override
+  Future<HealthAccess> readAccess(HealthRecordKind kind) =>
+      inner.readAccess(kind);
+
+  @override
+  Future<bool> requestReadAccess(HealthRecordKind kind) =>
+      inner.requestReadAccess(kind);
+
+  @override
+  Future<ExternalRead<ExternalSleepNight>> sleepNights({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    if (!reading.isCompleted) reading.complete();
+    await gate;
+    return await inner.sleepNights(from: from, to: to);
+  }
+
+  @override
+  Future<ExternalRead<ExternalWorkout>> workouts({
+    required DateTime from,
+    required DateTime to,
+  }) => inner.workouts(from: from, to: to);
 }

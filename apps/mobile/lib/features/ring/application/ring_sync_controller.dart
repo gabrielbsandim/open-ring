@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
@@ -51,6 +52,16 @@ final syncAlertsProvider = Provider<SyncAlerts>(
 final backgroundSyncFinishedProvider = Provider<Stream<void>>(
   (ref) => const Stream.empty(),
 );
+
+final readsWithoutRingProvider = FutureProvider<bool>((ref) async {
+  ref.watch(dataRevisionProvider);
+  if (await ref.watch(syncStoreProvider).pairedRing() != null) return false;
+  return await ref.watch(anyHealthReadEnabledProvider.future);
+});
+
+// Health Connect calls have no bound of their own, and a ringless import holds
+// the one sync slot the first ring sync after pairing will need.
+const ringlessImportLimit = Duration(minutes: 2);
 
 final ringSyncProvider = NotifierProvider<RingSyncController, RingSyncState>(
   RingSyncController.new,
@@ -122,14 +133,14 @@ class RingSyncController extends Notifier<RingSyncState> {
   // Without a ring the reads are the only source, so a sync is just the import
   // and the last ring sync time stays as it was.
   Future<bool> _importWithoutRing() async {
-    final ring = await ref.read(syncStoreProvider).pairedRing();
-    if (ring != null || !ref.mounted) return false;
-    if (!await ref.read(anyHealthReadEnabledProvider.future)) return false;
+    final store = ref.read(syncStoreProvider);
+    if (await store.pairedRing() != null || !ref.mounted) return false;
+    if (!await _readsEnabled()) return false;
     if (!ref.mounted) return true;
-    await (
-      ref.read(healthReadProvider.notifier).importNow(),
-      ref.read(workoutReadProvider.notifier).importNow(),
-    ).wait;
+    await _importReads();
+    if (!ref.mounted) return true;
+    // A ring paired while the import ran gets its first sync from this call.
+    if (await store.pairedRing() != null) return false;
     if (!ref.mounted) return true;
     state = RingSyncState(
       lastSuccessAt: state.lastSuccessAt,
@@ -137,6 +148,30 @@ class RingSyncController extends Notifier<RingSyncState> {
       batteryPercent: state.batteryPercent,
     );
     return true;
+  }
+
+  Future<bool> _readsEnabled() async {
+    try {
+      return await ref
+          .read(anyHealthReadEnabledProvider.future)
+          .timeout(ringlessImportLimit);
+    } on TimeoutException {
+      debugPrint(
+        'Health Connect read state timed out after $ringlessImportLimit',
+      );
+      return false;
+    }
+  }
+
+  Future<void> _importReads() async {
+    try {
+      await (
+        ref.read(healthReadProvider.notifier).importNow(),
+        ref.read(workoutReadProvider.notifier).importNow(),
+      ).wait.timeout(ringlessImportLimit);
+    } on Object catch (error) {
+      debugPrint('Health Connect import without a ring dropped: $error');
+    }
   }
 
   // An alert is best effort: it must never change how a sync is reported.

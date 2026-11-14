@@ -4,10 +4,12 @@ import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/onboarding/domain/app_permissions.dart';
 import 'package:open_ring/features/ring/application/pair_controller.dart';
 import 'package:open_ring/features/ring/application/pair_state.dart';
+import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
 import 'package:open_ring/features/ring/domain/discovered_device.dart';
 import 'package:open_ring/features/ring/domain/sync_interval.dart';
 import 'package:open_ring/features/ring/domain/sync_scheduler.dart';
+import 'package:open_ring/features/ring/domain/sync_store.dart';
 import 'package:ring_driver/ring_driver.dart';
 import 'package:ring_driver/testing.dart';
 
@@ -15,6 +17,7 @@ import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/fake_sync_scheduler.dart';
 import '../../../helpers/in_memory_sync_interval_store.dart';
 import '../../../helpers/onboarding_fakes.dart';
+import '../../../helpers/ring_fakes.dart' show FakeSyncStore;
 
 class _Rig {
   new({
@@ -36,6 +39,9 @@ class _Rig {
   late final ProviderContainer container = ProviderContainer(
     overrides: [
       syncSchedulerProvider.overrideWithValue(scheduler),
+      syncStoreProvider.overrideWithValue(
+        FakeSyncStore(ring: PairedRing(deviceId: colmiRing.id)),
+      ),
       syncIntervalStoreProvider.overrideWithValue(
         InMemorySyncIntervalStore(SyncInterval.minutes30),
       ),

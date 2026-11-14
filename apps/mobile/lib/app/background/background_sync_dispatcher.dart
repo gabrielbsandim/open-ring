@@ -10,6 +10,7 @@ import 'package:open_ring/features/health_sync/infrastructure/shared_preferences
 import 'package:open_ring/features/ring/application/sync_alerts.dart';
 import 'package:open_ring/features/ring/application/sync_paired_ring.dart';
 import 'package:open_ring/features/ring/infrastructure/background_sync_signal.dart';
+import 'package:open_ring/features/ring/infrastructure/drift_sync_store.dart';
 import 'package:open_ring/features/ring/infrastructure/flutter_blue_plus_transport.dart';
 import 'package:open_ring/features/ring/infrastructure/method_channel_ring_notifier.dart';
 import 'package:open_ring/features/ring/infrastructure/method_channel_sync_service.dart';
@@ -35,6 +36,7 @@ Future<bool> runBackgroundSync() {
   SyncOutcome? outcome;
   return superviseBackgroundSync(
     demoMode: readStoredDemoMode,
+    ringPaired: () async => await DriftSyncStore(database).pairedRing() != null,
     keepAlive: () async {
       final strings = ringAlertStrings();
       await service.start(

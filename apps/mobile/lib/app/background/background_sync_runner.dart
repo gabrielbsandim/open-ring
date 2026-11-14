@@ -150,6 +150,7 @@ Future<bool> superviseBackgroundSync({
   required List<Future<void> Function()> teardown,
   Future<void> Function()? keepAlive,
   Future<bool> Function()? demoMode,
+  Future<bool> Function()? ringPaired,
   Duration stepTimeout = defaultBackgroundStepTimeout,
   Duration alertTimeout = defaultBackgroundAlertTimeout,
 }) async {
@@ -157,13 +158,37 @@ Future<bool> superviseBackgroundSync({
     await _tearDown(teardown, stepTimeout);
     return true;
   }
-  if (keepAlive != null) await _attempt(keepAlive, limit: alertTimeout);
+  if (keepAlive != null) {
+    await _attempt(
+      () => _keepAliveForRing(keepAlive, ringPaired),
+      limit: alertTimeout,
+    );
+  }
   await _attempt(sync);
   announceFinished();
   await _attempt(sendAlerts, limit: alertTimeout);
   await _attempt(publishWidgets, limit: stepTimeout);
   await _tearDown(teardown, stepTimeout);
   return true;
+}
+
+// Without a ring the service notice would show a ring sync that never runs;
+// a store that cannot answer keeps the service a ring sync needs.
+Future<void> _keepAliveForRing(
+  Future<void> Function() keepAlive,
+  Future<bool> Function()? ringPaired,
+) async {
+  if (!await _ringPaired(ringPaired)) return;
+  await keepAlive();
+}
+
+Future<bool> _ringPaired(Future<bool> Function()? ringPaired) async {
+  if (ringPaired == null) return true;
+  try {
+    return await ringPaired();
+  } on Object {
+    return true;
+  }
 }
 
 // The demo ring has nothing to sync, and the service notice would only show

@@ -249,6 +249,37 @@ void main() {
     });
 
     test(
+      'an automatic run that meets a ring and a held lock reports it',
+      () async {
+        await ringless();
+        final gate = Completer<void>();
+        final gated = _GatedReader(reader, gate.future);
+        final h = Harness(
+          memoryDatabase(),
+          loadedDriver(),
+          overrides: [
+            healthReaderProvider.overrideWithValue(gated),
+            healthReadStoreProvider.overrideWithValue(readStore),
+            clockProvider.overrideWithValue(syncNow.toUtc),
+          ],
+        );
+
+        final running = h.autoSync();
+        await gated.reading.future;
+        await RingDevicesDao(h.db).pair(ringIdentity, at: DateTime(2026, 11));
+        await SyncLocksDao(h.db).acquire(
+          'background',
+          at: syncNow,
+          timeout: const Duration(minutes: 10),
+        );
+        gate.complete();
+        await running;
+
+        expect(h.state.lastError, isA<AnotherSyncRunning>());
+      },
+    );
+
+    test(
       'access revoked since turning it on ends idle with no error',
       () async {
         final h = await ringless();

@@ -232,7 +232,10 @@ rule to order it by.
   ring being on the charger is the night another source fills), from
   `RingSyncController`, and when sleep reading is turned on. With no ring paired
   and a read on, a sync attempt (pull to refresh, or app resume at most every
-  15 minutes) skips the ring and only imports, ending without an error. In the background
+  15 minutes) skips the ring and only imports, ending without an error. Each
+  wait on Health Connect there is bounded at 2 minutes; a read state that times
+  out counts as reads off, so that sync ends with the no ring error. In the
+  background
   worker `BackgroundSyncRunner` runs the same `ImportExternalSleep` with the
   plugin, which the WorkManager engine registers (it is a pub plugin). Health
   Connect only lets an app read in the background with

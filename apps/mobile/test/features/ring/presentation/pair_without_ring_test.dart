@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/router/app_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
@@ -12,6 +13,7 @@ import 'package:open_ring/features/health_sync/domain/health_reader.dart';
 import 'package:open_ring/features/health_sync/domain/health_writer.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
 import 'package:open_ring/features/ring/presentation/pair_screen.dart';
+import 'package:ring_driver/ring_driver.dart';
 
 import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/fake_health_reader.dart';
@@ -48,6 +50,30 @@ final class _ScriptedReader implements HealthReader {
   }) => inner.workouts(from: from, to: to);
 }
 
+// Holds connect open so the connecting phase renders before it fails.
+final class _SlowFailingTransport implements BleTransport {
+  final release = Completer<void>();
+
+  @override
+  Stream<TransportState> get state => const Stream.empty();
+
+  @override
+  Future<void> connect(String deviceId) async {
+    await release.future;
+    throw const BleTransportException('unreachable');
+  }
+
+  @override
+  Future<void> disconnect() async {}
+
+  @override
+  Future<void> write(GattCharacteristic target, List<int> bytes) async {}
+
+  @override
+  Stream<List<int>> notifications(GattCharacteristic source) =>
+      const Stream.empty();
+}
+
 final class _Rig {
   factory({FakeHealthReader? fake, HealthReader? reader}) {
     final shared = fake ?? FakeHealthReader();
@@ -65,13 +91,14 @@ final class _Rig {
   Future<void> pump(
     WidgetTester tester, {
     PairFlow flow = PairFlow.onboarding,
+    List<Override>? ble,
   }) async {
     container = await pumpOnboardingApp(
       tester,
       at: flow.path,
       store: onboarding..completed = flow == PairFlow.ring,
       overrides: [
-        ...bleOverrides(),
+        ...ble ?? bleOverrides(),
         ...ringOverrides(),
         ...onboardingOverrides(),
         healthReaderProvider.overrideWithValue(reader),
@@ -254,6 +281,46 @@ void main() {
     await tester.tap(search);
     await tester.pump();
     expect(find.byKey(PairKeys.search), findsNothing);
+
+    gate.complete(true);
+    await tester.pumpAndSettle();
+
+    expect(rig.onboarding.writes, 1);
+    expect(rig.location, AppTab.today.path);
+  }, variant: _android);
+  testWidgets('a ring tapped mid-run that fails to connect still completes', (
+    tester,
+  ) async {
+    final gate = Completer<bool>();
+    final fake = FakeHealthReader();
+    final transport = _SlowFailingTransport();
+    final rig = _Rig(
+      fake: fake,
+      reader: _ScriptedReader(fake, (_) => gate.future),
+    );
+    await rig.pump(
+      tester,
+      ble: bleOverrides(
+        scanner: FakeRingScanner(found: const [colmiRing]),
+        transport: transport,
+      ),
+    );
+    final scrollable = find.byType(Scrollable).first;
+    final action = find.byKey(PairKeys.withoutRing);
+    await tester.scrollUntilVisible(action, 120, scrollable: scrollable);
+    await tester.tap(action);
+    await tester.pump();
+
+    final search = find.byKey(PairKeys.search);
+    await tester.scrollUntilVisible(search, -120, scrollable: scrollable);
+    await tester.tap(search);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(PairKeys.device(colmiRing.id)));
+    await tester.pump();
+    transport.release.complete();
+    await tester.pumpAndSettle();
+    expect(find.byKey(PairKeys.connectFailed), findsOneWidget);
+    expect(rig.onboarding.writes, 0);
 
     gate.complete(true);
     await tester.pumpAndSettle();

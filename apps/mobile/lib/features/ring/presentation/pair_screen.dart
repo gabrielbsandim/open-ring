@@ -84,7 +84,7 @@ class PairScreen extends ConsumerWidget {
     final offerWithoutRing =
         flow == PairFlow.onboarding &&
         offersWithoutRing() &&
-        (state.phase == PairPhase.idle || state.phase == PairPhase.scanning);
+        state.phase != PairPhase.paired;
     return OnboardingPage(
       step: flow.step,
       label: l10n.pairHeader,
@@ -117,10 +117,13 @@ class PairScreen extends ConsumerWidget {
             ),
           ],
         },
-        // Keyed so a phase change mid-run moves the action instead of
-        // replacing it, which would drop the run before onboarding completes.
+        // Keyed and kept through connecting, so a phase change mid-run moves
+        // the action instead of replacing it and dropping the run.
         if (offerWithoutRing)
-          const _WithoutRingAction(key: PairKeys.withoutRingRow),
+          _WithoutRingAction(
+            key: PairKeys.withoutRingRow,
+            connecting: state.phase == PairPhase.connecting,
+          ),
       ],
     );
   }
@@ -321,7 +324,9 @@ class _PairedCard extends StatelessWidget {
 }
 
 class _WithoutRingAction extends ConsumerStatefulWidget {
-  const new({super.key});
+  const new({required this.connecting, super.key});
+
+  final bool connecting;
 
   @override
   ConsumerState<_WithoutRingAction> createState() => _WithoutRingActionState();
@@ -368,7 +373,9 @@ class _WithoutRingActionState extends ConsumerState<_WithoutRingAction> {
         SecondaryButton(
           key: PairKeys.withoutRing,
           label: l10n.pairWithoutRing,
-          onPressed: _busy ? null : () => unawaited(_continue()),
+          onPressed: _busy || widget.connecting
+              ? null
+              : () => unawaited(_continue()),
         ),
         const SizedBox(height: 4),
         CaptionText(l10n.pairWithoutRingNote, textAlign: TextAlign.center),

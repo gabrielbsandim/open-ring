@@ -122,7 +122,7 @@ void main() {
           ),
         ],
       );
-      return c.read(anyHealthReadEnabledProvider.future);
+      return await c.read(anyHealthReadEnabledProvider.future);
     }
 
     test('is true when only sleep is on', () async {

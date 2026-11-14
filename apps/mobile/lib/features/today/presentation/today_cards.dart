@@ -230,9 +230,10 @@ class StaleMarker extends StatelessWidget {
 }
 
 class SleepSummaryCard extends StatelessWidget {
-  const new({required this.view, super.key});
+  const new({required this.view, this.emptyMessage, super.key});
 
   final TodayView view;
+  final String? emptyMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -259,7 +260,7 @@ class SleepSummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          if (night == null) BodyText(l10n.sleepEmpty),
+          if (night == null) BodyText(emptyMessage ?? l10n.sleepEmpty),
           if (night != null) ...[
             Wrap(
               crossAxisAlignment: WrapCrossAlignment.end,

@@ -162,7 +162,7 @@ void main() {
         overrides: [
           healthReaderProvider.overrideWithValue(reader),
           healthReadStoreProvider.overrideWithValue(readStore),
-          clockProvider.overrideWithValue(() => syncNow.toUtc()),
+          clockProvider.overrideWithValue(syncNow.toUtc),
         ],
       );
     }
@@ -212,16 +212,19 @@ void main() {
       expect(h.driver.calls, isEmpty);
     });
 
-    test('access revoked since turning it on ends idle with no error', () async {
-      final h = await ringless();
-      reader.access = HealthAccess.denied;
+    test(
+      'access revoked since turning it on ends idle with no error',
+      () async {
+        final h = await ringless();
+        reader.access = HealthAccess.denied;
 
-      await h.sync();
+        await h.sync();
 
-      expect(h.state.syncing, isFalse);
-      expect(h.state.lastError, isNull);
-      expect(h.driver.calls, isEmpty);
-    });
+        expect(h.state.syncing, isFalse);
+        expect(h.state.lastError, isNull);
+        expect(h.driver.calls, isEmpty);
+      },
+    );
   });
 
   test('without a ring and with every read off it says no ring', () async {

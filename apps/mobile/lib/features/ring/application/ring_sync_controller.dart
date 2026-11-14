@@ -85,6 +85,8 @@ class RingSyncController extends Notifier<RingSyncState> {
   }
 
   Future<void> _sync({required bool automatic}) async {
+    if (await _importWithoutRing()) return;
+    if (!ref.mounted) return;
     state = state.at(const SyncProgress(SyncStep.connecting));
     final syncPairedRing = ref.read(syncPairedRingProvider);
     final outcome = await syncPairedRing(
@@ -115,6 +117,26 @@ class RingSyncController extends Notifier<RingSyncState> {
     unawaited(ref.read(workoutReadProvider.notifier).importNow());
     if (outcome is! SyncCompleted) return;
     unawaited(ref.read(healthSyncProvider.notifier).process());
+  }
+
+  // Without a ring the reads are the only source, so a sync is just the import
+  // and the last ring sync time stays as it was.
+  Future<bool> _importWithoutRing() async {
+    final ring = await ref.read(syncStoreProvider).pairedRing();
+    if (ring != null || !ref.mounted) return false;
+    if (!await ref.read(anyHealthReadEnabledProvider.future)) return false;
+    if (!ref.mounted) return true;
+    await (
+      ref.read(healthReadProvider.notifier).importNow(),
+      ref.read(workoutReadProvider.notifier).importNow(),
+    ).wait;
+    if (!ref.mounted) return true;
+    state = RingSyncState(
+      lastSuccessAt: state.lastSuccessAt,
+      lastWritten: state.lastWritten,
+      batteryPercent: state.batteryPercent,
+    );
+    return true;
   }
 
   // An alert is best effort: it must never change how a sync is reported.

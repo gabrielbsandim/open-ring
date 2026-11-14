@@ -1,6 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
-import 'package:meta/meta.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
@@ -92,6 +92,22 @@ healthReadProvider = healthReadsProvider(HealthRecordKind.sleep);
 final AsyncNotifierProvider<HealthReadController, HealthReadView>
 workoutReadProvider = healthReadsProvider(HealthRecordKind.workout);
 
+// A failed read counts as off, so a sync without a ring falls back to the
+// no ring error instead of hiding it.
+final anyHealthReadEnabledProvider = FutureProvider<bool>((ref) async {
+  if (ref.watch(demoModeProvider)) return false;
+  try {
+    final (sleep, workout) = await (
+      ref.watch(healthReadProvider.future),
+      ref.watch(workoutReadProvider.future),
+    ).wait;
+    return sleep.enabled || workout.enabled;
+  } on Object catch (error) {
+    debugPrint('Health read state unavailable: $error');
+    return false;
+  }
+});
+
 class HealthReadController extends AsyncNotifier<HealthReadView> {
   new(this._kind);
 
@@ -165,8 +181,8 @@ class HealthReadController extends AsyncNotifier<HealthReadView> {
     try {
       final report = await _importer();
       await _reload(changed: report.outcome == ImportOutcome.imported);
-    } on Object {
-      return;
+    } on Object catch (error) {
+      debugPrint('Health Connect ${_kind.name} import dropped: $error');
     }
   }
 

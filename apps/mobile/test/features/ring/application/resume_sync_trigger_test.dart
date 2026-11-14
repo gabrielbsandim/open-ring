@@ -120,26 +120,32 @@ void main() {
     expect(syncs, 1);
   });
 
-  test('without a ring and with a read on, it syncs after 15 minutes', () async {
-    ring = null;
-    reads = true;
-    final resume = trigger();
-    await resume.onForeground();
+  test(
+    'without a ring and with a read on, it syncs after 15 minutes',
+    () async {
+      ring = null;
+      reads = true;
+      final resume = trigger();
+      await resume.onForeground();
 
-    clock.advance(interval);
-    await resume.onForeground();
+      clock.advance(interval);
+      await resume.onForeground();
 
-    expect(syncs, 2);
-  });
+      expect(syncs, 2);
+    },
+  );
 
-  test('without a ring and with every read off, resume does not sync', () async {
-    ring = null;
-    reads = false;
+  test(
+    'without a ring and with every read off, resume does not sync',
+    () async {
+      ring = null;
+      reads = false;
 
-    await trigger().onForeground();
+      await trigger().onForeground();
 
-    expect(syncs, 0);
-  });
+      expect(syncs, 0);
+    },
+  );
 
   test('a paired ring syncs whatever the reads say', () async {
     reads = false;

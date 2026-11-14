@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,6 +25,7 @@ abstract final class PairKeys {
   static const paired = Key('pair_paired');
   static const continueAction = Key('pair_continue');
   static const withoutRing = Key('pair_without_ring');
+  static const withoutRingRow = Key('pair_without_ring_row');
 
   static Key device(String id) => Key('pair_device_$id');
 }
@@ -83,7 +83,7 @@ class PairScreen extends ConsumerWidget {
     final done = state.phase == PairPhase.paired;
     final offerWithoutRing =
         flow == PairFlow.onboarding &&
-        defaultTargetPlatform == TargetPlatform.android &&
+        offersWithoutRing() &&
         (state.phase == PairPhase.idle || state.phase == PairPhase.scanning);
     return OnboardingPage(
       step: flow.step,
@@ -117,7 +117,10 @@ class PairScreen extends ConsumerWidget {
             ),
           ],
         },
-        if (offerWithoutRing) const _WithoutRingAction(),
+        // Keyed so a phase change mid-run moves the action instead of
+        // replacing it, which would drop the run before onboarding completes.
+        if (offerWithoutRing)
+          const _WithoutRingAction(key: PairKeys.withoutRingRow),
       ],
     );
   }
@@ -317,9 +320,8 @@ class _PairedCard extends StatelessWidget {
   }
 }
 
-// Only Health Connect is read today, so the offer is Android only.
 class _WithoutRingAction extends ConsumerStatefulWidget {
-  const new();
+  const new({super.key});
 
   @override
   ConsumerState<_WithoutRingAction> createState() => _WithoutRingActionState();

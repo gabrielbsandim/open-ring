@@ -226,4 +226,39 @@ void main() {
       expect(rig.location, AppTab.today.path);
     }, variant: _android);
   });
+  testWidgets('a search started mid-run still completes onboarding', (
+    tester,
+  ) async {
+    final gate = Completer<bool>();
+    final fake = FakeHealthReader();
+    final rig = _Rig(
+      fake: fake,
+      reader: _ScriptedReader(fake, (_) => gate.future),
+    );
+    await rig.pump(tester);
+    final action = find.byKey(PairKeys.withoutRing);
+    await tester.scrollUntilVisible(
+      action,
+      120,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(action);
+    await tester.pump();
+
+    final search = find.byKey(PairKeys.search);
+    await tester.scrollUntilVisible(
+      search,
+      -120,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(search);
+    await tester.pump();
+    expect(find.byKey(PairKeys.search), findsNothing);
+
+    gate.complete(true);
+    await tester.pumpAndSettle();
+
+    expect(rig.onboarding.writes, 1);
+    expect(rig.location, AppTab.today.path);
+  }, variant: _android);
 }

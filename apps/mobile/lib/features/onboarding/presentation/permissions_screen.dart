@@ -58,10 +58,13 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
     final statuses = ref.watch(permissionsProvider).value ?? const {};
     final controller = ref.read(permissionsProvider.notifier);
     final bluetooth = statuses[AppPermission.bluetooth]?.isGranted ?? false;
+    final withoutRing = offersWithoutRing();
     return OnboardingPage(
       step: 1,
       title: l10n.permissionsTitle,
-      intro: l10n.permissionsIntro,
+      intro: withoutRing
+          ? l10n.permissionsIntroWithoutRing
+          : l10n.permissionsIntro,
       children: [
         for (final permission in AppPermission.values) ...[
           _PermissionCard(
@@ -79,7 +82,9 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
             key: PermissionsKeys.bluetoothHint,
             icon: Icons.info_outline_rounded,
             accent: colors.stress,
-            text: l10n.permissionsBluetoothNeeded,
+            text: withoutRing
+                ? l10n.permissionsBluetoothLater
+                : l10n.permissionsBluetoothNeeded,
             live: true,
           ),
           const SizedBox(height: cardGap),
@@ -87,7 +92,9 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
         PrimaryAction(
           key: PermissionsKeys.continueAction,
           label: l10n.onboardingContinue,
-          onPressed: () => context.push(AppPaths.onboardingProfile),
+          onPressed: bluetooth || withoutRing
+              ? () => context.push(AppPaths.onboardingProfile)
+              : null,
         ),
       ],
     );
@@ -116,7 +123,9 @@ class _PermissionCard extends StatelessWidget {
       AppPermission.bluetooth => (
         Icons.bluetooth_rounded,
         l10n.permissionsBluetoothName,
-        l10n.permissionsForRing,
+        offersWithoutRing()
+            ? l10n.permissionsForRing
+            : l10n.permissionsRequired,
         colors.textPrimary,
         l10n.permissionsBluetoothWhy,
       ),

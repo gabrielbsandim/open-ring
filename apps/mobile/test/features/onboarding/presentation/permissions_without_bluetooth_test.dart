@@ -57,4 +57,29 @@ void main() {
     expect(find.byType(ProfileScreen), findsOneWidget);
     expect(permissions.requests, isEmpty);
   });
+  testWidgets('on iOS continue still waits for Bluetooth', (tester) async {
+    await pumpOnboardingApp(
+      tester,
+      at: AppPaths.onboardingPermissions,
+      overrides: [
+        ...bleOverrides(),
+        ...ringOverrides(),
+        ...onboardingOverrides(
+          permissions: FakeAppPermissions(
+            statuses: {AppPermission.bluetooth: PermissionStatus.denied},
+          ),
+        ),
+      ],
+    );
+
+    final button = tester.widget<FilledButton>(
+      find.descendant(
+        of: find.byKey(PermissionsKeys.continueAction),
+        matching: find.byType(FilledButton),
+      ),
+    );
+
+    expect(button.onPressed, isNull);
+    expect(find.text('Required'), findsOneWidget);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
 }

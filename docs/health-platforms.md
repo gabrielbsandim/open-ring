@@ -200,8 +200,9 @@ rule to order it by.
 
 - **Opt-in per type.** `health_reads` (schema v6) holds one row per kind with
   `enabled` (default off) and `last_read_at_utc_ms`. Turning sleep on in Data
-  sources asks for `READ_SLEEP` only (`HealthReader.requestReadAccess`, through
-  `requestAuthorization([SLEEP_SESSION], [READ])`); a declined request keeps it
+  sources asks for `READ_SLEEP` (`HealthReader.requestReadAccess`, through
+  `requestAuthorization([SLEEP_SESSION], [READ])`), and with no ring paired
+  then for `READ_HEALTH_DATA_IN_BACKGROUND`; a declined read request keeps it
   off and offers to open Health Connect. Turning it off stops reading and drops
   imported nights from every screen; the rows stay until "Delete all data".
 - **Reading.** `PluginHealthReader` reads `SLEEP_SESSION` and then the stage
@@ -251,8 +252,8 @@ rule to order it by.
 ### Workouts
 
 - **Opt-in.** Off by default, its own `health_reads` row (`kind = 'workout'`).
-  Turning it on asks for `READ_EXERCISE` only (`requestAuthorization([WORKOUT],
-  [READ])`).
+  Turning it on asks for `READ_EXERCISE` (`requestAuthorization([WORKOUT],
+  [READ])`), and with no ring paired then for `READ_HEALTH_DATA_IN_BACKGROUND`.
 - **Why not the plugin's read.** The plugin's `WORKOUT` read also reads every
   app's `DistanceRecord`, `TotalCaloriesBurnedRecord` and `StepsRecord` in the
   session window and sums them. Without `READ_DISTANCE`,

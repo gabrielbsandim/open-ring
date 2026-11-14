@@ -235,4 +235,42 @@ void main() {
       expect(scheduler.cancels, 0);
     },
   );
+
+  test('a ring paired during a slow check keeps its job', () async {
+    await reads.setEnabled(HealthRecordKind.sleep, enabled: true);
+    final check = Completer<bool>();
+    reader.backgroundCheck = () => check.future;
+    final rings = FakeSyncStore();
+    final container = ProviderContainer.test(
+      overrides: [
+        syncIntervalStoreProvider.overrideWithValue(
+          InMemorySyncIntervalStore(),
+        ),
+        syncSchedulerProvider.overrideWithValue(scheduler),
+        syncStoreProvider.overrideWithValue(rings),
+        healthReaderProvider.overrideWithValue(reader),
+        healthReadStoreProvider.overrideWithValue(reads),
+      ],
+    );
+    final controller = container.read(syncIntervalProvider.notifier);
+
+    final slow = controller.ensureScheduled();
+    await pumpEventQueue();
+    rings.ring = const PairedRing(deviceId: fakeRingId);
+    await controller.ensureScheduled();
+    check.complete(false);
+    await slow;
+
+    expect(scheduler.calls, hasLength(2));
+    expect(scheduler.cancels, 0);
+  });
+
+  test('restoring after an unpair never cancels', () async {
+    final container = containerWith(InMemorySyncIntervalStore(), ring: null);
+
+    await container.read(syncIntervalProvider.notifier).restoreIfWanted();
+
+    expect(scheduler.calls, isEmpty);
+    expect(scheduler.cancels, 0);
+  });
 }

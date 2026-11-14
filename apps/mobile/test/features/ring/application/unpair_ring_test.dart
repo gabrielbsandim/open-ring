@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/health_sync/domain/health_read_store.dart';
+import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/unpair_ring.dart';
 import 'package:open_ring/features/ring/domain/sync_interval.dart';
 import 'package:open_ring/features/ring/domain/sync_scheduler.dart';
@@ -138,6 +141,39 @@ void main() {
 
       expect(unpaired, isTrue);
       expect(scheduler.calls, hasLength(1));
+    });
+
+    test('cancels first, so a running worker stops', () async {
+      await reads.setEnabled(HealthRecordKind.sleep, enabled: true);
+      reader.backgroundAllowed = true;
+      final scheduler = FakeSyncScheduler();
+      final container = unpairing(scheduler);
+
+      await container.read(unpairControllerProvider.notifier).unpair();
+
+      expect(scheduler.cancels, 1);
+      expect(scheduler.calls, hasLength(1));
+    });
+
+    testWidgets('a Health Connect check that hangs holds unpair 5 seconds', (
+      tester,
+    ) async {
+      await reads.setEnabled(HealthRecordKind.sleep, enabled: true);
+      reader.backgroundCheck = () => Completer<bool>().future;
+      final container = unpairing(FakeSyncScheduler());
+      bool? unpaired;
+
+      unawaited(
+        container
+            .read(unpairControllerProvider.notifier)
+            .unpair()
+            .then((value) => unpaired = value),
+      );
+      await tester.pump(UnpairRing.defaultRestoreWait);
+      await tester.pump(const Duration(milliseconds: 1));
+
+      expect(unpaired, isTrue);
+      await tester.pump(ringlessImportLimit);
     });
 
     test('criterion 4: a read on without the grant only cancels', () async {

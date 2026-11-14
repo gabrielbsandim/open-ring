@@ -37,15 +37,29 @@ class SyncIntervalController extends Notifier<SyncInterval> {
   // ring, and no Health Connect read it may run in the background.
   Future<void> _apply(ExistingSchedule existing) async {
     final scheduler = ref.read(syncSchedulerProvider);
-    final wanted = await wantsBackgroundSync(
-      rings: ref.read(syncStoreProvider),
-      reads: ref.read(healthReadStoreProvider),
-      reader: ref.read(healthReaderProvider),
-    );
-    if (!wanted) {
+    if (!await _wanted()) {
       await scheduler.cancel();
       return;
     }
     await scheduler.schedule(state, existing: existing);
+  }
+
+  // Registers the job when it has work, and never cancels: unpair has already
+  // cancelled, and a pairing during a slow check must keep its job.
+  Future<void> restoreIfWanted() async {
+    if (!await _wanted()) return;
+    await ref.read(syncSchedulerProvider).schedule(state);
+  }
+
+  // The Health Connect check can take minutes, so a ring paired meanwhile is
+  // read again before the answer cancels its job.
+  Future<bool> _wanted() async {
+    final rings = ref.read(syncStoreProvider);
+    final wanted = await wantsBackgroundSync(
+      rings: rings,
+      reads: ref.read(healthReadStoreProvider),
+      reader: ref.read(healthReaderProvider),
+    );
+    return wanted || await rings.pairedRing() != null;
   }
 }

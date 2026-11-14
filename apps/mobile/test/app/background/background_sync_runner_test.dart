@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health/health.dart';
@@ -7,6 +8,7 @@ import 'package:open_ring/app/background/background_sync_runner.dart';
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/features/health_sync/domain/health_entries.dart';
+import 'package:open_ring/features/health_sync/domain/health_reader.dart';
 import 'package:open_ring/features/health_sync/domain/health_writer.dart';
 import 'package:open_ring/features/health_sync/infrastructure/drift_health_read_store.dart';
 import 'package:open_ring/features/health_sync/infrastructure/health_outbox_dao.dart';
@@ -126,7 +128,93 @@ final class HungHealthWriter implements HealthWriter {
   Future<void> replace(HealthWriteBatch batch) async {}
 }
 
+final class _HungReads implements HealthReader {
+  @override
+  Future<HealthAccess> readAccess(HealthRecordKind kind) async =>
+      HealthAccess.granted;
+
+  @override
+  Future<bool> requestReadAccess(HealthRecordKind kind) async => true;
+
+  @override
+  Future<bool> backgroundReadAllowed() async => true;
+
+  @override
+  Future<bool> requestBackgroundReadAccess() async => true;
+
+  @override
+  Future<ExternalRead<ExternalSleepNight>> sleepNights({
+    required DateTime from,
+    required DateTime to,
+  }) => Completer<ExternalRead<ExternalSleepNight>>().future;
+
+  @override
+  Future<ExternalRead<ExternalWorkout>> workouts({
+    required DateTime from,
+    required DateTime to,
+  }) => Completer<ExternalRead<ExternalWorkout>>().future;
+}
+
+List<String> captureLogs() {
+  final logs = <String>[];
+  final original = debugPrint;
+  debugPrint = (message, {wrapWidth}) => logs.add(message ?? '');
+  addTearDown(() => debugPrint = original);
+  return logs;
+}
+
 void main() {
+  group('reads without a ring', () {
+    test(
+      'criterion 5: a failing import is logged by kind, the next runs',
+      () async {
+        final logs = captureLogs();
+        final db = memoryDatabase();
+        final store = DriftHealthReadStore(db);
+        await store.setEnabled(HealthRecordKind.sleep, enabled: true);
+        await store.setEnabled(HealthRecordKind.workout, enabled: true);
+        final reader = FakeHealthReader(access: HealthAccess.granted)
+          ..sleepError = StateError('Health Connect crashed');
+
+        final outcome = await BackgroundSyncRunner(
+          database: db,
+          driver: loadedDriver(),
+          healthReader: reader,
+          clock: () => syncNow,
+        ).run();
+
+        expect(outcome, isA<NothingPaired>());
+        expect(reader.reads, hasLength(2));
+        expect(logs.where((line) => line.contains('sleep')), isNotEmpty);
+      },
+    );
+
+    testWidgets('criterion 5: a hung import ends at its bound and is logged', (
+      tester,
+    ) async {
+      final logs = captureLogs();
+      final db = memoryDatabase();
+      final store = DriftHealthReadStore(db);
+      await store.setEnabled(HealthRecordKind.sleep, enabled: true);
+      await store.setEnabled(HealthRecordKind.workout, enabled: true);
+      SyncOutcome? outcome;
+
+      unawaited(
+        BackgroundSyncRunner(
+          database: db,
+          driver: loadedDriver(),
+          healthReader: _HungReads(),
+          clock: () => syncNow,
+        ).run().then((value) => outcome = value),
+      );
+      await tester.pump(const Duration(minutes: 4, seconds: 1));
+
+      expect(outcome, isA<NothingPaired>());
+      expect(logs.where((line) => line.contains('sleep')), isNotEmpty);
+      expect(logs.where((line) => line.contains('workout')), isNotEmpty);
+    });
+  });
+
   group('timeout', () {
     const short = Duration(milliseconds: 20);
 

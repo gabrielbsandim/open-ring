@@ -25,6 +25,26 @@ final class FakeHealthReader implements HealthReader {
   bool complete;
   final List<HealthRecordKind> requests = [];
   final List<ReadWindow> reads = [];
+  Object? sleepError;
+
+  bool backgroundAllowed = false;
+  bool grantBackgroundOnRequest = true;
+  Future<bool> Function()? backgroundCheck;
+  int backgroundChecks = 0;
+  int backgroundRequests = 0;
+
+  @override
+  Future<bool> backgroundReadAllowed() {
+    backgroundChecks++;
+    return backgroundCheck?.call() ?? Future.value(backgroundAllowed);
+  }
+
+  @override
+  Future<bool> requestBackgroundReadAccess() async {
+    backgroundRequests++;
+    if (grantBackgroundOnRequest) backgroundAllowed = true;
+    return grantBackgroundOnRequest;
+  }
 
   @override
   Future<HealthAccess> readAccess(HealthRecordKind kind) async => access;
@@ -42,6 +62,7 @@ final class FakeHealthReader implements HealthReader {
     required DateTime to,
   }) async {
     reads.add((from: from, to: to));
+    if (sleepError case final error?) throw error;
     return _read(nights, [for (final night in nights) night.recordId]);
   }
 

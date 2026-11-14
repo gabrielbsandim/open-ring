@@ -10,8 +10,10 @@ import 'package:open_ring/features/health_sync/domain/health_writer.dart';
 import 'package:open_ring/features/settings/presentation/data_sources_screen.dart';
 
 import '../../../helpers/fake_health_reader.dart';
+import '../../../helpers/fake_sync_scheduler.dart';
 import '../../../helpers/layout_harness.dart';
 import '../../../helpers/metrics_fakes.dart';
+import '../../../helpers/ring_fakes.dart' show ringOverrides;
 import '../../../helpers/settings_fakes.dart';
 
 const _watch = 'com.garmin.android.apps.connectmobile';
@@ -55,8 +57,12 @@ Future<_Reads> _reads({
   );
 }
 
-List<Override> _overrides(MetricsScenario scenario, _Reads reads) => [
-  ...metricsOverrides(scenario),
+List<Override> _overrides(
+  MetricsScenario scenario,
+  _Reads reads, {
+  List<Override> ring = const [],
+}) => [
+  ...metricsOverrides(scenario, ring: ring),
   healthReaderProvider.overrideWithValue(reads.reader),
   healthReadStoreProvider.overrideWithValue(reads.store),
   healthSettingsOpenerProvider.overrideWithValue(reads.opener),
@@ -91,13 +97,24 @@ Future<void> _pump(
   MetricsScenario? scenario,
   Locale locale = const Locale('en'),
   Brightness brightness = Brightness.dark,
+  FakeSyncScheduler? scheduler,
 }) => pumpScaled(
   tester,
   screenHost(const DataSourcesScreen()),
   textScaler: TextScaler.noScaling,
   brightness: brightness,
   locale: locale,
-  overrides: _overrides(scenario ?? fullDataScenario, reads),
+  overrides: _overrides(
+    scenario ?? fullDataScenario,
+    reads,
+    ring: scheduler == null
+        ? const []
+        : ringOverrides(
+            paired: (scenario ?? fullDataScenario).pairedRing,
+            scheduler: scheduler,
+            clock: () => metricsNow,
+          ),
+  ),
 );
 
 List<String> _shownOrder(
@@ -354,5 +371,41 @@ void main() {
 
     expect(find.text('Schlaf aus anderen Apps'), findsOneWidget);
     expect(find.byKey(DataSourcesKeys.readWorkouts), findsOneWidget);
+  });
+
+  testWidgets('criterion 6: turning a read on asks for background access', (
+    tester,
+  ) async {
+    final reads = await _reads();
+    final scheduler = FakeSyncScheduler();
+    await _pump(tester, reads, scenario: noDataScenario, scheduler: scheduler);
+
+    await reveal(tester, find.byKey(DataSourcesKeys.readSleep));
+    await tester.tap(find.byKey(DataSourcesKeys.readSleep));
+    await tester.pumpAndSettle();
+
+    expect(reads.reader.backgroundRequests, 1);
+    expect(scheduler.calls, hasLength(1));
+  });
+
+  testWidgets('criterion 6: turning the last read off re-evaluates the job', (
+    tester,
+  ) async {
+    final reads = await _reads(
+      enabled: true,
+      access: HealthAccess.granted,
+      sources: const [_watch],
+    );
+    reads.reader.backgroundAllowed = true;
+    final scheduler = FakeSyncScheduler();
+    await _pump(tester, reads, scenario: noDataScenario, scheduler: scheduler);
+
+    await reveal(tester, find.byKey(DataSourcesKeys.readSleep));
+    await tester.tap(find.byKey(DataSourcesKeys.readSleep));
+    await tester.pumpAndSettle();
+
+    expect(reads.reader.backgroundRequests, 0);
+    expect(scheduler.cancels, 1);
+    expect(scheduler.calls, isEmpty);
   });
 }

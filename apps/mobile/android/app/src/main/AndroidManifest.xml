@@ -21,7 +21,7 @@
     <!-- Asked during onboarding for low battery and failed sync alerts. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-    <!-- Health Connect writes; the one read permission below is opt-in. -->
+    <!-- Health Connect writes; the read permissions below are opt-in. -->
     <uses-permission android:name="android.permission.health.WRITE_STEPS" />
     <uses-permission android:name="android.permission.health.WRITE_ACTIVE_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.WRITE_HEART_RATE" />
@@ -34,6 +34,8 @@
     <!-- Opt-in: each is asked only when the user turns on that type from other apps. -->
     <uses-permission android:name="android.permission.health.READ_SLEEP" />
     <uses-permission android:name="android.permission.health.READ_EXERCISE" />
+    <!-- Asked only with no ring paired and a read on, so the periodic job can import. -->
+    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" />
 
     <!-- No Google cloud backup, so health data never leaves the phone that way.
          Android 12 and later still allow a direct device to device transfer. -->

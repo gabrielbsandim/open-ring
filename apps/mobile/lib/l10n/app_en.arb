@@ -2713,7 +2713,7 @@
   "privacyHealthWrites": "Health Connect write: steps, active calories, heart rate, oxygen saturation, heart rate variability, sleep, exercise, exercise route, distance",
   "privacyHealthWritesWhy": "Sending your ring data and workouts to Health Connect, if you allow each type.",
   "privacyHealthReads": "Health Connect read: sleep, exercise",
-  "privacyHealthReadsWhy": "Each only if you turn on that type from other apps. Records that OpenRing wrote itself are skipped.",
+  "privacyHealthReadsWhy": "Each only if you turn on that type from other apps. Records that OpenRing wrote itself are skipped. With no ring paired, it also asks to read them in the background, so the periodic sync can import them with the app closed.",
   "privacyHealthShare": "If you grant write access, OpenRing writes the types above to Health Connect on the phone. Other apps you allow in Health Connect can then read them. Health Connect is part of Android; its own privacy terms apply, and you manage or delete that data in the Health Connect settings.",
   "privacyDeleteHeading": "How long data is kept, and how to delete it",
   "privacyDeleteKept": "Data stays on your phone until you remove it. You can:",

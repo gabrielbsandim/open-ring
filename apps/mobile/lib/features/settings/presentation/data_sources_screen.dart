@@ -9,10 +9,12 @@ import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/core/widgets/text_scale.dart';
+import 'package:open_ring/features/health_sync/application/enable_background_reads.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/health_sync/application/health_status_providers.dart';
 import 'package:open_ring/features/health_sync/domain/health_writer.dart';
 import 'package:open_ring/features/onboarding/presentation/onboarding_page.dart';
+import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/features/settings/presentation/source_labels.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -188,7 +190,7 @@ class _ReadTile extends ConsumerWidget {
                 key: DataSourcesKeys.read(kind),
                 value: view.enabled,
                 onChanged: available
-                    ? (on) => unawaited(notifier.setEnabled(enabled: on))
+                    ? (on) => unawaited(_setRead(ref, notifier, on: on))
                     : null,
               ),
             ],
@@ -211,6 +213,23 @@ class _ReadTile extends ConsumerWidget {
     HealthRecordKind.workout => l10n.sourcesReadAskWorkouts(platform),
     _ => l10n.sourcesReadAsk(platform),
   };
+}
+
+// Turning a read on may let the job run without a ring; turning the last one
+// off leaves it nothing to do.
+Future<void> _setRead(
+  WidgetRef ref,
+  HealthReadController notifier, {
+  required bool on,
+}) async {
+  final enable = ref.read(enableBackgroundReadsProvider);
+  final interval = ref.read(syncIntervalProvider.notifier);
+  await notifier.setEnabled(enabled: on);
+  try {
+    await (on ? enable() : interval.ensureScheduled());
+  } on Object catch (error) {
+    debugPrint('Background sync was not updated: $error');
+  }
 }
 
 class _PriorityCard extends ConsumerWidget {

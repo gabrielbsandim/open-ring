@@ -957,7 +957,7 @@
   "privacyHealthWrites": "Gravação no Health Connect: passos, calorias ativas, frequência cardíaca, saturação de oxigénio, variabilidade da frequência cardíaca, sono, exercício, percurso do exercício, distância",
   "privacyHealthWritesWhy": "Enviar os dados do anel e os treinos para o Health Connect, se permitir cada tipo.",
   "privacyHealthReads": "Leitura do Health Connect: sono, exercício",
-  "privacyHealthReadsWhy": "Cada um só se ligar esse tipo vindo de outras apps. Os registos que o próprio OpenRing gravou são ignorados.",
+  "privacyHealthReadsWhy": "Cada um só se ligar esse tipo vindo de outras apps. Os registos que o próprio OpenRing gravou são ignorados. Sem anel emparelhado, também pede para os ler em segundo plano, para que a sincronização periódica os importe com a app fechada.",
   "privacyHealthShare": "Se conceder acesso de gravação, o OpenRing grava os tipos acima no Health Connect no telemóvel. Outras apps que permitir no Health Connect podem então lê-los. O Health Connect faz parte do Android; aplicam-se os termos de privacidade dele, e gere ou apaga esses dados nas definições do Health Connect.",
   "privacyDeleteHeading": "Durante quanto tempo os dados são guardados, e como os apagar",
   "privacyDeleteKept": "Os dados ficam no telemóvel até os remover. Pode:",

@@ -10,24 +10,27 @@ final class UnpairRing {
     required this.store,
     required this.scheduler,
     required this.clock,
+    this.reschedule,
   });
 
   final SyncStore store;
   final SyncScheduler scheduler;
   final DateTime Function() clock;
+  final Future<void> Function()? reschedule;
 
   Future<bool> call() async {
     final ring = await store.pairedRing();
     if (ring == null) return false;
     await store.forget(ring.deviceId, at: clock());
-    await _cancelSchedule();
+    await _updateSchedule();
     return true;
   }
 
-  // A worker left scheduled finds no paired ring and ends without a sync.
-  Future<void> _cancelSchedule() async {
+  // A worker left scheduled finds no paired ring and ends without a sync;
+  // a Health Connect read allowed in the background keeps it registered.
+  Future<void> _updateSchedule() async {
     try {
-      await scheduler.cancel();
+      await (reschedule ?? scheduler.cancel)();
     } on Object {
       return;
     }
@@ -39,6 +42,7 @@ final unpairRingProvider = Provider<UnpairRing>(
     store: ref.watch(syncStoreProvider),
     scheduler: ref.watch(syncSchedulerProvider),
     clock: ref.watch(syncClockProvider),
+    reschedule: () => ref.read(syncIntervalProvider.notifier).ensureScheduled(),
   ),
 );
 

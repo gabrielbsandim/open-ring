@@ -8,6 +8,7 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/health_sync/application/enable_background_reads.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
 import 'package:open_ring/features/onboarding/presentation/onboarding_page.dart';
@@ -347,6 +348,8 @@ class _WithoutRingActionState extends ConsumerState<_WithoutRingAction> {
       await _enable(kind);
       if (!mounted) return;
     }
+    await _allowBackgroundReads();
+    if (!mounted) return;
     await ref.read(onboardingProvider.notifier).complete();
     router.go(AppTab.today.path);
   }
@@ -360,6 +363,14 @@ class _WithoutRingActionState extends ConsumerState<_WithoutRingAction> {
           .setEnabled(enabled: true);
     } on Object catch (error) {
       debugPrint('Reading ${kind.name} was not turned on: $error');
+    }
+  }
+
+  Future<void> _allowBackgroundReads() async {
+    try {
+      await ref.read(enableBackgroundReadsProvider)();
+    } on Object catch (error) {
+      debugPrint('Background reads were not turned on: $error');
     }
   }
 

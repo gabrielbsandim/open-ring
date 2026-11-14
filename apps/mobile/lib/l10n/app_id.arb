@@ -965,7 +965,7 @@
   "privacyHealthWrites": "Penulisan Health Connect: langkah, kalori aktif, detak jantung, saturasi oksigen, variabilitas detak jantung, tidur, olahraga, rute olahraga, jarak",
   "privacyHealthWritesWhy": "Mengirim data cincin dan latihan ke Health Connect, jika Anda mengizinkan tiap jenis.",
   "privacyHealthReads": "Pembacaan Health Connect: tidur, olahraga",
-  "privacyHealthReadsWhy": "Masing-masing hanya jika Anda mengaktifkan jenis itu dari aplikasi lain. Catatan yang ditulis OpenRing sendiri dilewati.",
+  "privacyHealthReadsWhy": "Masing-masing hanya jika Anda mengaktifkan jenis itu dari aplikasi lain. Catatan yang ditulis OpenRing sendiri dilewati. Tanpa cincin yang dipasangkan, aplikasi juga meminta izin membacanya di latar belakang, agar sinkronisasi berkala mengimpornya saat aplikasi ditutup.",
   "privacyHealthShare": "Jika Anda memberikan akses tulis, OpenRing menulis jenis di atas ke Health Connect di ponsel. Aplikasi lain yang Anda izinkan di Health Connect kemudian dapat membacanya. Health Connect adalah bagian dari Android; ketentuan privasinya sendiri berlaku, dan Anda mengelola atau menghapus data itu di pengaturan Health Connect.",
   "privacyDeleteHeading": "Berapa lama data disimpan, dan cara menghapusnya",
   "privacyDeleteKept": "Data tetap ada di ponsel sampai Anda menghapusnya. Anda dapat:",

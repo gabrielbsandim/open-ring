@@ -965,7 +965,7 @@
   "privacyHealthWrites": "Health Connect への書き込み: 歩数、アクティブカロリー、心拍数、酸素飽和度、心拍変動、睡眠、エクササイズ、エクササイズのルート、距離",
   "privacyHealthWritesWhy": "各種類を許可した場合に、リングのデータとワークアウトを Health Connect に送信します。",
   "privacyHealthReads": "Health Connect からの読み取り: 睡眠、エクササイズ",
-  "privacyHealthReadsWhy": "他のアプリからのその種類をオンにした場合にのみ読み取ります。OpenRing 自身が書き込んだ記録はスキップされます。",
+  "privacyHealthReadsWhy": "他のアプリからのその種類をオンにした場合にのみ読み取ります。OpenRing 自身が書き込んだ記録はスキップされます。リングがペアリングされていない場合は、アプリを閉じていても定期同期で取り込めるよう、バックグラウンドでの読み取りも求めます。",
   "privacyHealthShare": "書き込みを許可すると、OpenRing は上記の種類をスマートフォンの Health Connect に書き込みます。Health Connect で許可した他のアプリは、それらを読み取れるようになります。Health Connect は Android の一部であり、独自のプライバシー条件が適用されます。そのデータの管理や削除は Health Connect の設定で行います。",
   "privacyDeleteHeading": "データの保存期間と削除方法",
   "privacyDeleteKept": "データは削除するまでスマートフォンに残ります。次の操作ができます:",

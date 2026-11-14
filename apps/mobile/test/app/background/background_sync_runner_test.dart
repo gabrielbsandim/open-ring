@@ -192,6 +192,7 @@ void main() {
     testWidgets('criterion 5: a hung import ends at its bound and is logged', (
       tester,
     ) async {
+      final restore = debugPrint;
       final logs = captureLogs();
       final db = memoryDatabase();
       final store = DriftHealthReadStore(db);
@@ -212,6 +213,7 @@ void main() {
       expect(outcome, isA<NothingPaired>());
       expect(logs.where((line) => line.contains('sleep')), isNotEmpty);
       expect(logs.where((line) => line.contains('workout')), isNotEmpty);
+      debugPrint = restore;
     });
   });
 

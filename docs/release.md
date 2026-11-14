@@ -203,6 +203,7 @@ manifest requests and give a use for each:
 | Write exercise, exercise route | Workouts the user records in the app, with the GPS route of outdoor ones |
 | Read sleep | Opt-in: show nights recorded by another device, off by default |
 | Read exercise | Opt-in: show workouts recorded by another app, off by default |
+| Read health data in the background | Asked only with no ring paired and a read on: the periodic sync imports those nights and workouts with the app closed |
 
 Requirements Google checks during review:
 
@@ -215,8 +216,9 @@ Requirements Google checks during review:
   opened from Health Connect on a real phone; check that before submitting.
 - Request only what is declared. A permission added to the manifest needs a
   new declaration before the build that ships it.
-- No background read (`READ_HEALTH_DATA_IN_BACKGROUND`) is requested, so none
-  is declared.
+- `READ_HEALTH_DATA_IN_BACKGROUND` is requested. Play lists only the
+  permissions of an uploaded bundle, so upload the bundle that adds it as a
+  draft release first, declare it, and only then roll the release out.
 
 ### Foreground service and location
 

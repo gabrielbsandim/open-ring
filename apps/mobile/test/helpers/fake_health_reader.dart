@@ -62,7 +62,9 @@ final class FakeHealthReader implements HealthReader {
     required DateTime to,
   }) async {
     reads.add((from: from, to: to));
-    if (sleepError case final error?) throw error;
+    if (sleepError case final error?) {
+      Error.throwWithStackTrace(error, StackTrace.current);
+    }
     return _read(nights, [for (final night in nights) night.recordId]);
   }
 

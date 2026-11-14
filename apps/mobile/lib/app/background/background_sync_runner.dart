@@ -173,7 +173,7 @@ Future<bool> superviseBackgroundSync({
 }
 
 // Without a ring the service notice would show a ring sync that never runs;
-// a store that cannot answer keeps the service a ring sync needs.
+// a store read that throws keeps the service a ring sync needs.
 Future<void> _keepAliveForRing(
   Future<void> Function() keepAlive,
   Future<bool> Function()? ringPaired,

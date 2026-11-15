@@ -9718,6 +9718,479 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
   }
 }
 
+class $WeighInsTable extends WeighIns
+    with TableInfo<$WeighInsTable, WeighInRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WeighInsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _atUtcMsMeta = const VerificationMeta(
+    'atUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> atUtcMs = GeneratedColumn<int>(
+    'at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _offsetMinutesMeta = const VerificationMeta(
+    'offsetMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> offsetMinutes = GeneratedColumn<int>(
+    'offset_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kilogramsMeta = const VerificationMeta(
+    'kilograms',
+  );
+  @override
+  late final GeneratedColumn<double> kilograms = GeneratedColumn<double>(
+    'kilograms',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bodyFatPercentMeta = const VerificationMeta(
+    'bodyFatPercent',
+  );
+  @override
+  late final GeneratedColumn<double> bodyFatPercent = GeneratedColumn<double>(
+    'body_fat_percent',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _waistCentimetersMeta = const VerificationMeta(
+    'waistCentimeters',
+  );
+  @override
+  late final GeneratedColumn<double> waistCentimeters = GeneratedColumn<double>(
+    'waist_centimeters',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    atUtcMs,
+    offsetMinutes,
+    kilograms,
+    bodyFatPercent,
+    waistCentimeters,
+    source,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'weigh_ins';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WeighInRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('at_utc_ms')) {
+      context.handle(
+        _atUtcMsMeta,
+        atUtcMs.isAcceptableOrUnknown(data['at_utc_ms']!, _atUtcMsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_atUtcMsMeta);
+    }
+    if (data.containsKey('offset_minutes')) {
+      context.handle(
+        _offsetMinutesMeta,
+        offsetMinutes.isAcceptableOrUnknown(
+          data['offset_minutes']!,
+          _offsetMinutesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_offsetMinutesMeta);
+    }
+    if (data.containsKey('kilograms')) {
+      context.handle(
+        _kilogramsMeta,
+        kilograms.isAcceptableOrUnknown(data['kilograms']!, _kilogramsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kilogramsMeta);
+    }
+    if (data.containsKey('body_fat_percent')) {
+      context.handle(
+        _bodyFatPercentMeta,
+        bodyFatPercent.isAcceptableOrUnknown(
+          data['body_fat_percent']!,
+          _bodyFatPercentMeta,
+        ),
+      );
+    }
+    if (data.containsKey('waist_centimeters')) {
+      context.handle(
+        _waistCentimetersMeta,
+        waistCentimeters.isAcceptableOrUnknown(
+          data['waist_centimeters']!,
+          _waistCentimetersMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WeighInRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WeighInRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      atUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}at_utc_ms'],
+      )!,
+      offsetMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}offset_minutes'],
+      )!,
+      kilograms: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}kilograms'],
+      )!,
+      bodyFatPercent: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}body_fat_percent'],
+      ),
+      waistCentimeters: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}waist_centimeters'],
+      ),
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+    );
+  }
+
+  @override
+  $WeighInsTable createAlias(String alias) {
+    return $WeighInsTable(attachedDatabase, alias);
+  }
+}
+
+class WeighInRow extends DataClass implements Insertable<WeighInRow> {
+  final int id;
+  final int atUtcMs;
+  final int offsetMinutes;
+  final double kilograms;
+  final double? bodyFatPercent;
+  final double? waistCentimeters;
+  final String source;
+  const WeighInRow({
+    required this.id,
+    required this.atUtcMs,
+    required this.offsetMinutes,
+    required this.kilograms,
+    this.bodyFatPercent,
+    this.waistCentimeters,
+    required this.source,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['at_utc_ms'] = Variable<int>(atUtcMs);
+    map['offset_minutes'] = Variable<int>(offsetMinutes);
+    map['kilograms'] = Variable<double>(kilograms);
+    if (!nullToAbsent || bodyFatPercent != null) {
+      map['body_fat_percent'] = Variable<double>(bodyFatPercent);
+    }
+    if (!nullToAbsent || waistCentimeters != null) {
+      map['waist_centimeters'] = Variable<double>(waistCentimeters);
+    }
+    map['source'] = Variable<String>(source);
+    return map;
+  }
+
+  WeighInsCompanion toCompanion(bool nullToAbsent) {
+    return WeighInsCompanion(
+      id: Value(id),
+      atUtcMs: Value(atUtcMs),
+      offsetMinutes: Value(offsetMinutes),
+      kilograms: Value(kilograms),
+      bodyFatPercent: bodyFatPercent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bodyFatPercent),
+      waistCentimeters: waistCentimeters == null && nullToAbsent
+          ? const Value.absent()
+          : Value(waistCentimeters),
+      source: Value(source),
+    );
+  }
+
+  factory WeighInRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WeighInRow(
+      id: serializer.fromJson<int>(json['id']),
+      atUtcMs: serializer.fromJson<int>(json['atUtcMs']),
+      offsetMinutes: serializer.fromJson<int>(json['offsetMinutes']),
+      kilograms: serializer.fromJson<double>(json['kilograms']),
+      bodyFatPercent: serializer.fromJson<double?>(json['bodyFatPercent']),
+      waistCentimeters: serializer.fromJson<double?>(json['waistCentimeters']),
+      source: serializer.fromJson<String>(json['source']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'atUtcMs': serializer.toJson<int>(atUtcMs),
+      'offsetMinutes': serializer.toJson<int>(offsetMinutes),
+      'kilograms': serializer.toJson<double>(kilograms),
+      'bodyFatPercent': serializer.toJson<double?>(bodyFatPercent),
+      'waistCentimeters': serializer.toJson<double?>(waistCentimeters),
+      'source': serializer.toJson<String>(source),
+    };
+  }
+
+  WeighInRow copyWith({
+    int? id,
+    int? atUtcMs,
+    int? offsetMinutes,
+    double? kilograms,
+    Value<double?> bodyFatPercent = const Value.absent(),
+    Value<double?> waistCentimeters = const Value.absent(),
+    String? source,
+  }) => WeighInRow(
+    id: id ?? this.id,
+    atUtcMs: atUtcMs ?? this.atUtcMs,
+    offsetMinutes: offsetMinutes ?? this.offsetMinutes,
+    kilograms: kilograms ?? this.kilograms,
+    bodyFatPercent: bodyFatPercent.present
+        ? bodyFatPercent.value
+        : this.bodyFatPercent,
+    waistCentimeters: waistCentimeters.present
+        ? waistCentimeters.value
+        : this.waistCentimeters,
+    source: source ?? this.source,
+  );
+  WeighInRow copyWithCompanion(WeighInsCompanion data) {
+    return WeighInRow(
+      id: data.id.present ? data.id.value : this.id,
+      atUtcMs: data.atUtcMs.present ? data.atUtcMs.value : this.atUtcMs,
+      offsetMinutes: data.offsetMinutes.present
+          ? data.offsetMinutes.value
+          : this.offsetMinutes,
+      kilograms: data.kilograms.present ? data.kilograms.value : this.kilograms,
+      bodyFatPercent: data.bodyFatPercent.present
+          ? data.bodyFatPercent.value
+          : this.bodyFatPercent,
+      waistCentimeters: data.waistCentimeters.present
+          ? data.waistCentimeters.value
+          : this.waistCentimeters,
+      source: data.source.present ? data.source.value : this.source,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WeighInRow(')
+          ..write('id: $id, ')
+          ..write('atUtcMs: $atUtcMs, ')
+          ..write('offsetMinutes: $offsetMinutes, ')
+          ..write('kilograms: $kilograms, ')
+          ..write('bodyFatPercent: $bodyFatPercent, ')
+          ..write('waistCentimeters: $waistCentimeters, ')
+          ..write('source: $source')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    atUtcMs,
+    offsetMinutes,
+    kilograms,
+    bodyFatPercent,
+    waistCentimeters,
+    source,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WeighInRow &&
+          other.id == this.id &&
+          other.atUtcMs == this.atUtcMs &&
+          other.offsetMinutes == this.offsetMinutes &&
+          other.kilograms == this.kilograms &&
+          other.bodyFatPercent == this.bodyFatPercent &&
+          other.waistCentimeters == this.waistCentimeters &&
+          other.source == this.source);
+}
+
+class WeighInsCompanion extends UpdateCompanion<WeighInRow> {
+  final Value<int> id;
+  final Value<int> atUtcMs;
+  final Value<int> offsetMinutes;
+  final Value<double> kilograms;
+  final Value<double?> bodyFatPercent;
+  final Value<double?> waistCentimeters;
+  final Value<String> source;
+  const WeighInsCompanion({
+    this.id = const Value.absent(),
+    this.atUtcMs = const Value.absent(),
+    this.offsetMinutes = const Value.absent(),
+    this.kilograms = const Value.absent(),
+    this.bodyFatPercent = const Value.absent(),
+    this.waistCentimeters = const Value.absent(),
+    this.source = const Value.absent(),
+  });
+  WeighInsCompanion.insert({
+    this.id = const Value.absent(),
+    required int atUtcMs,
+    required int offsetMinutes,
+    required double kilograms,
+    this.bodyFatPercent = const Value.absent(),
+    this.waistCentimeters = const Value.absent(),
+    required String source,
+  }) : atUtcMs = Value(atUtcMs),
+       offsetMinutes = Value(offsetMinutes),
+       kilograms = Value(kilograms),
+       source = Value(source);
+  static Insertable<WeighInRow> custom({
+    Expression<int>? id,
+    Expression<int>? atUtcMs,
+    Expression<int>? offsetMinutes,
+    Expression<double>? kilograms,
+    Expression<double>? bodyFatPercent,
+    Expression<double>? waistCentimeters,
+    Expression<String>? source,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (atUtcMs != null) 'at_utc_ms': atUtcMs,
+      if (offsetMinutes != null) 'offset_minutes': offsetMinutes,
+      if (kilograms != null) 'kilograms': kilograms,
+      if (bodyFatPercent != null) 'body_fat_percent': bodyFatPercent,
+      if (waistCentimeters != null) 'waist_centimeters': waistCentimeters,
+      if (source != null) 'source': source,
+    });
+  }
+
+  WeighInsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? atUtcMs,
+    Value<int>? offsetMinutes,
+    Value<double>? kilograms,
+    Value<double?>? bodyFatPercent,
+    Value<double?>? waistCentimeters,
+    Value<String>? source,
+  }) {
+    return WeighInsCompanion(
+      id: id ?? this.id,
+      atUtcMs: atUtcMs ?? this.atUtcMs,
+      offsetMinutes: offsetMinutes ?? this.offsetMinutes,
+      kilograms: kilograms ?? this.kilograms,
+      bodyFatPercent: bodyFatPercent ?? this.bodyFatPercent,
+      waistCentimeters: waistCentimeters ?? this.waistCentimeters,
+      source: source ?? this.source,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (atUtcMs.present) {
+      map['at_utc_ms'] = Variable<int>(atUtcMs.value);
+    }
+    if (offsetMinutes.present) {
+      map['offset_minutes'] = Variable<int>(offsetMinutes.value);
+    }
+    if (kilograms.present) {
+      map['kilograms'] = Variable<double>(kilograms.value);
+    }
+    if (bodyFatPercent.present) {
+      map['body_fat_percent'] = Variable<double>(bodyFatPercent.value);
+    }
+    if (waistCentimeters.present) {
+      map['waist_centimeters'] = Variable<double>(waistCentimeters.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WeighInsCompanion(')
+          ..write('id: $id, ')
+          ..write('atUtcMs: $atUtcMs, ')
+          ..write('offsetMinutes: $offsetMinutes, ')
+          ..write('kilograms: $kilograms, ')
+          ..write('bodyFatPercent: $bodyFatPercent, ')
+          ..write('waistCentimeters: $waistCentimeters, ')
+          ..write('source: $source')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $RingDevicesTable ringDevices = $RingDevicesTable(this);
@@ -9753,6 +10226,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ImportedWorkoutsTable importedWorkouts = $ImportedWorkoutsTable(
     this,
   );
+  late final $WeighInsTable weighIns = $WeighInsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -9780,6 +10254,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     importedSleepStages,
     healthReads,
     importedWorkouts,
+    weighIns,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

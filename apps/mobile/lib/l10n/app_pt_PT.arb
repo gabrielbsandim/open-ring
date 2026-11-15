@@ -1378,7 +1378,7 @@
   "levelRowSemantics": "{day}, nota {score}, efeito {effect}, peso {weight}",
   "levelShowAll": "Mostrar os {count} dias",
   "levelShowWeek": "Mostrar só {count} dias",
-  "levelWeightNote": "O peso é quanto esse dia ainda vale no Nível de hoje. Os {count} dias que contaram somam {percent}; o resto vem de dias mais antigos, cada vez mais leves. Toque num dia para abrir o recibo.",
+  "levelWeightNote": "O peso é quanto esse dia ainda vale no Nível de hoje. Os {count} dias listados com peso somam {percent}; o resto vem da média inicial e de dias mais antigos, cada vez mais leves. Toque num dia para abrir o recibo.",
   "levelNeverTitle": "O que o Nível nunca faz",
   "levelNever1": "Não desce por doença, viagem, descanso ou dia sem o anel: nesses dias fica parado.",
   "levelNever2": "Não conta dias seguidos. Não há sequência para perder.",

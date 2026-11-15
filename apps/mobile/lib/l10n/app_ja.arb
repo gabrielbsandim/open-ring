@@ -1386,7 +1386,7 @@
   "levelRowSemantics": "{day}、スコア {score}、効果 {effect}、重み {weight}",
   "levelShowAll": "{count} 日すべて表示",
   "levelShowWeek": "{count} 日だけ表示",
-  "levelWeightNote": "重みは、その日が今日のレベルにまだどれだけ効いているかです。集計された {count} 日の合計は {percent} で、残りはさらに古い日々から来ており、古いほど軽くなります。日をタップすると明細が開きます。",
+  "levelWeightNote": "重みは、その日が今日のレベルにまだどれだけ効いているかです。重みが表示されている {count} 日の合計は {percent} で、残りは最初の平均とさらに古い日々から来ており、古いほど軽くなります。日をタップすると明細が開きます。",
   "levelNeverTitle": "レベルが決してしないこと",
   "levelNever1": "体調不良、旅行、休養、リングを着けなかった日では下がりません。そうした日はそのままです。",
   "levelNever2": "連続日数を数えません。失う連続記録はありません。",

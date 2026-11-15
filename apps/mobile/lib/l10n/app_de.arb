@@ -1386,7 +1386,7 @@
   "levelRowSemantics": "{day}, Note {score}, Effekt {effect}, Gewicht {weight}",
   "levelShowAll": "Alle {count} Tage zeigen",
   "levelShowWeek": "Nur {count} Tage zeigen",
-  "levelWeightNote": "Das Gewicht ist, wie viel dieser Tag in der heutigen Stufe noch zählt. Die {count} gezählten Tage ergeben zusammen {percent}; der Rest stammt von älteren Tagen, die immer leichter werden. Tippe auf einen Tag, um seinen Beleg zu öffnen.",
+  "levelWeightNote": "Das Gewicht ist, wie viel dieser Tag in der heutigen Stufe noch zählt. Die {count} Tage mit Gewicht in der Liste ergeben zusammen {percent}; der Rest stammt aus dem Startdurchschnitt und von älteren Tagen, die immer leichter werden. Tippe auf einen Tag, um seinen Beleg zu öffnen.",
   "levelNeverTitle": "Was die Stufe nie tut",
   "levelNever1": "Sie sinkt nicht wegen Krankheit, Reise, Ruhetag oder einem Tag ohne Ring: An diesen Tagen bleibt sie stehen.",
   "levelNever2": "Sie zählt keine Tage in Folge. Es gibt keine Serie zu verlieren.",

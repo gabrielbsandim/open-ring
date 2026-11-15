@@ -1386,7 +1386,7 @@
   "levelRowSemantics": "{day}, skor {score}, efek {effect}, bobot {weight}",
   "levelShowAll": "Tampilkan semua {count} hari",
   "levelShowWeek": "Tampilkan {count} hari saja",
-  "levelWeightNote": "Bobot adalah seberapa besar hari itu masih berarti dalam Level hari ini. {count} hari yang dihitung berjumlah {percent}; sisanya berasal dari hari-hari yang lebih lama, makin lama makin ringan. Ketuk satu hari untuk membuka struknya.",
+  "levelWeightNote": "Bobot adalah seberapa besar hari itu masih berarti dalam Level hari ini. {count} hari yang tercantum dengan bobot berjumlah {percent}; sisanya berasal dari rata-rata awal dan hari-hari yang lebih lama, makin lama makin ringan. Ketuk satu hari untuk membuka struknya.",
   "levelNeverTitle": "Yang tidak pernah dilakukan Level",
   "levelNever1": "Tidak turun karena sakit, perjalanan, istirahat, atau hari tanpa cincin: pada hari-hari itu Level diam.",
   "levelNever2": "Tidak menghitung hari beruntun. Tidak ada rentetan yang bisa hilang.",

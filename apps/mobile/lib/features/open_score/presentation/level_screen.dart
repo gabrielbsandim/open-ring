@@ -375,10 +375,8 @@ class _Account extends StatelessWidget {
       if (tagged > 0) l10n.levelLeftTagged(tagged),
       if (blank > 0) l10n.levelLeftBlank(blank),
     ];
-    final share = counted.fold<double>(
-      0,
-      (sum, step) => sum + (weights[step.date] ?? 0),
-    );
+    final weighted = [for (final step in rows) ?weights[step.date]];
+    final share = weighted.fold<double>(0, (sum, weight) => sum + weight);
     final rate = levelRate(format);
     final label = theme.textTheme.labelMedium?.copyWith(
       color: colors.textLabel,
@@ -466,11 +464,16 @@ class _Account extends StatelessWidget {
                   : l10n.levelShowAll(rows.length),
               onPressed: onToggle,
             ),
-          const SizedBox(height: 10),
-          CaptionText(
-            key: LevelKeys.weights,
-            l10n.levelWeightNote(counted.length, format.percent(share * 100)),
-          ),
+          if (weighted.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            CaptionText(
+              key: LevelKeys.weights,
+              l10n.levelWeightNote(
+                weighted.length,
+                format.percent(share * 100),
+              ),
+            ),
+          ],
         ],
       ),
     );

@@ -3454,7 +3454,7 @@
   "@levelShowAll": {"placeholders": {"count": {"type": "int"}}},
   "levelShowWeek": "Show only {count} days",
   "@levelShowWeek": {"placeholders": {"count": {"type": "int"}}},
-  "levelWeightNote": "Weight is how much that day still counts in today's Level. The {count} days that counted add up to {percent}; the rest comes from older days, lighter and lighter. Tap a day to open its receipt.",
+  "levelWeightNote": "Weight is how much that day still counts in today's Level. The {count} days listed with a weight add up to {percent}; the rest comes from the starting mean and from older days, lighter and lighter. Tap a day to open its receipt.",
   "@levelWeightNote": {"placeholders": {"count": {"type": "int"}, "percent": {"type": "String"}}},
   "levelNeverTitle": "What the Level never does",
   "levelNever1": "It does not drop for sickness, travel, rest or a day without the ring: on those days it stays put.",

@@ -1386,7 +1386,7 @@
   "levelRowSemantics": "{day}，评分 {score}，影响 {effect}，权重 {weight}",
   "levelShowAll": "显示全部 {count} 天",
   "levelShowWeek": "只显示 {count} 天",
-  "levelWeightNote": "权重是那一天在今天的等级中还占多少。计入的 {count} 天合计 {percent}；其余来自更早的日子，越早越轻。点按某一天可打开它的明细。",
+  "levelWeightNote": "权重是那一天在今天的等级中还占多少。列表中带权重的 {count} 天合计 {percent}；其余来自起始平均和更早的日子，越早越轻。点按某一天可打开它的明细。",
   "levelNeverTitle": "等级绝不会做的事",
   "levelNever1": "不会因为生病、出行、休息或没戴戒指的一天而下降：这些日子它保持不动。",
   "levelNever2": "不统计连续天数。没有可以断掉的连续记录。",

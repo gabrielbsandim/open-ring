@@ -1386,7 +1386,7 @@
   "levelRowSemantics": "{day}, voto {score}, effetto {effect}, peso {weight}",
   "levelShowAll": "Mostra tutti i {count} giorni",
   "levelShowWeek": "Mostra solo {count} giorni",
-  "levelWeightNote": "Il peso è quanto quel giorno vale ancora nel Livello di oggi. I {count} giorni che hanno contato sommano {percent}; il resto viene da giorni più vecchi, sempre più leggeri. Tocca un giorno per aprire la sua ricevuta.",
+  "levelWeightNote": "Il peso è quanto quel giorno vale ancora nel Livello di oggi. I {count} giorni elencati con un peso sommano {percent}; il resto viene dalla media iniziale e da giorni più vecchi, sempre più leggeri. Tocca un giorno per aprire la sua ricevuta.",
   "levelNeverTitle": "Cosa il Livello non fa mai",
   "levelNever1": "Non scende per malattia, viaggio, riposo o un giorno senza l'anello: in quei giorni resta fermo.",
   "levelNever2": "Non conta i giorni di fila. Non c'è una serie da perdere.",

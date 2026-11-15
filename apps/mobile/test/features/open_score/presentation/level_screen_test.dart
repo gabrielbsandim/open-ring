@@ -196,6 +196,35 @@ void main() {
       );
     });
 
+    testWidgets('the weight note counts only the days that carry a weight', (
+      tester,
+    ) async {
+      final formed = mixedHistory(days: levelSeedDays + 6);
+      final track = closedLevelTrack(formed, const {});
+      await pumpAt(tester, AppPaths.dayScoreLevel, formed);
+
+      expect(track.level, isNotNull);
+      expect(track.weights.length, 4);
+      expect(text(tester, LevelKeys.weights), contains('The 4 days listed'));
+      expect(find.textContaining(': in the starting mean'), findsWidgets);
+    });
+
+    testWidgets('a Level that has just formed has no weight note', (
+      tester,
+    ) async {
+      final formed = DayScoreHistory(
+        today: metricsToday,
+        days: {
+          for (var age = levelSeedDays; age >= 0; age--)
+            metricsToday.addDays(-age): day(),
+        },
+      );
+      await pumpAt(tester, AppPaths.dayScoreLevel, formed);
+
+      expect(text(tester, LevelKeys.value), '94.0');
+      expect(find.byKey(LevelKeys.weights), findsNothing);
+    });
+
     testWidgets('a row opens the receipt of its day', (tester) async {
       final router = await pumpAt(tester, AppPaths.dayScoreLevel, history);
       final day = metricsToday.addDays(-4);

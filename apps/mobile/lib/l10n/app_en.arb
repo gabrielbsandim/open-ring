@@ -2972,5 +2972,120 @@
   "moduleBodyTurnOn": "Turn Body on",
   "moduleBodyTurnOnNote": "You can turn it off whenever you want.",
   "moduleBodyTurnOff": "Turn Body off",
-  "moduleBodyTurnOffNote": "The data stays stored."
+  "moduleBodyTurnOffNote": "The data stays stored.",
+  "bodyRangeAll": "All",
+  "bodyChartLabel": "Weight trend and daily weigh-ins, in {unit}.",
+  "@bodyChartLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyChartEmpty": "No weigh-ins in this period.",
+  "bodyChartToday": "today",
+  "bodyLegendDay": "daily weigh-in",
+  "bodyRateNotYet": "Not yet",
+  "bodyRateNeeds": "It takes weigh-ins on {count} different days, spread over {days} days or more.",
+  "@bodyRateNeeds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "bodyRateMissingDays": "Days with a weigh-in still missing: {count}.",
+  "@bodyRateMissingDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bodyRateMissingSpan": "Days still missing between the first and the last: {count}.",
+  "@bodyRateMissingSpan": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bodyRateStableTitle": "Stable, within the noise",
+  "bodyRateStableWhy": "The 95% interval goes from {low} to {high} {unit} per week and includes zero.",
+  "@bodyRateStableWhy": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyRateInterval": "95% interval: from {low} to {high} {unit} per week.",
+  "@bodyRateInterval": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyEntriesTitle": "Weigh-ins",
+  "bodyEntryBodyFat": "body fat {value}%",
+  "@bodyEntryBodyFat": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyEntryWaist": "waist {value} {unit}",
+  "@bodyEntryWaist": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyEntryEdit": "Edit",
+  "bodyEntryDeleted": "Weigh-in deleted.",
+  "bodyEntryUndo": "Undo",
+  "bodyEntryDeleteFailed": "The weigh-in could not be deleted. Try again.",
+  "bodyShowMore": "Show {count} more",
+  "@bodyShowMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bodyFootnote": "The trend is an exponential moving average (alpha 0.1 per day). The rate is the slope of the weigh-ins of the last 28 days, with a 95% interval. Weight never enters any score.",
+  "bodyEmptyTitle": "No weigh-ins yet",
+  "bodyEmptyText": "The trend starts with the first one and gets steadier each day. To compare well: same scale, on waking, before eating.",
+  "bodyModuleSettings": "Body module settings",
+  "bodySheetEditTitle": "Edit weigh-in",
+  "bodySheetUpdated": "Weigh-in updated: {weight}.",
+  "@bodySheetUpdated": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "moduleBodyAddsScreen": "The Body screen: chart, 28 day rate and history."
 }

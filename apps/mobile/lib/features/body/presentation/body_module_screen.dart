@@ -64,7 +64,11 @@ class BodyModuleScreen extends ConsumerWidget {
         ModuleFactsCard(
           title: l10n.moduleBodyAddsTitle,
           icon: Icons.check_rounded,
-          facts: [l10n.moduleBodyAddsCard, l10n.moduleBodyAddsLog],
+          facts: [
+            l10n.moduleBodyAddsCard,
+            l10n.moduleBodyAddsLog,
+            l10n.moduleBodyAddsScreen,
+          ],
         ),
         const SizedBox(height: cardGap),
         ModuleFactsCard(

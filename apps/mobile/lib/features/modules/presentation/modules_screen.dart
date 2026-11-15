@@ -59,18 +59,30 @@ class ModulesScreen extends ConsumerWidget {
       children: [
         TileGroup(
           children: [
-            SettingsTile(
-              key: ModulesKeys.bodyRow,
-              title: l10n.moduleBodyName,
-              detail: l10n.moduleBodyDetail,
-              value: bodyOn ? l10n.modulesOn : l10n.modulesOff,
-              trailing: Switch(
-                key: ModulesKeys.bodySwitch,
-                value: bodyOn,
-                onChanged: (on) =>
-                    unawaited(setBodyModule(context, ref, on: on)),
-              ),
-              onTap: () => context.go(AppPaths.settingsModuleBody),
+            Row(
+              children: [
+                Expanded(
+                  child: SettingsTile(
+                    key: ModulesKeys.bodyRow,
+                    title: l10n.moduleBodyName,
+                    detail: l10n.moduleBodyDetail,
+                    value: bodyOn ? l10n.modulesOn : l10n.modulesOff,
+                    onTap: () => context.go(AppPaths.settingsModuleBody),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Outside the tile so a screen reader gets the toggle and the
+                // row as two separate actions.
+                Semantics(
+                  label: l10n.moduleBodyName,
+                  child: Switch(
+                    key: ModulesKeys.bodySwitch,
+                    value: bodyOn,
+                    onChanged: (on) =>
+                        unawaited(setBodyModule(context, ref, on: on)),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_routes.dart';
@@ -124,6 +125,23 @@ void main() {
 
     expect(await modules.read(), isEmpty);
     expect(find.byType(SnackBar), findsNothing);
+  });
+
+  testWidgets('a screen reader gets the switch and the row separately', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openModules(tester);
+
+    final toggle = tester.getSemantics(find.byKey(ModulesKeys.bodySwitch));
+    final row = tester.getSemantics(find.byKey(ModulesKeys.bodyRow));
+
+    expect(toggle.id, isNot(row.id));
+    expect(toggle.label, 'Body');
+    expect(toggle.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+    expect(row.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+    handle.dispose();
   });
 
   testWidgets('the Body row opens its detail with nothing stored', (

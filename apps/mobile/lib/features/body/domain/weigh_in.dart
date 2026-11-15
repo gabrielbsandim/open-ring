@@ -12,7 +12,7 @@ const _Range _waistRange = (min: 40, max: 200);
 const _clockTolerance = Duration(minutes: 1);
 
 bool _outside(double? value, _Range range) =>
-    value != null && (value < range.min || value > range.max);
+    value != null && !(value >= range.min && value <= range.max);
 
 // Hundredths of a kilogram keep a value typed in pounds intact at one decimal.
 double roundKilograms(double kilograms) => (kilograms * 100).round() / 100;

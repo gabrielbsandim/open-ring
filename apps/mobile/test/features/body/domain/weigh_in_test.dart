@@ -104,4 +104,21 @@ void main() {
     expect(make(), make());
     expect(make().hashCode, make().hashCode);
   });
+
+  test('a value that is not a number is rejected, never stored', () {
+    final now = DateTime.utc(2026, 11, 14, 12);
+    final draft = WeighInDraft(
+      at: now,
+      offsetMinutes: 0,
+      kilograms: double.nan,
+      bodyFatPercent: double.nan,
+      waistCentimeters: double.infinity,
+    );
+
+    expect(draft.validate(now: now), {
+      WeighInIssue.kilograms,
+      WeighInIssue.bodyFat,
+      WeighInIssue.waist,
+    });
+  });
 }

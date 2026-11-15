@@ -142,7 +142,7 @@ void main() {
     ]);
   });
 
-  test('rows written through the log have source manual', () async {
+  test('a draft with no source is stored as manual', () async {
     await log().add(draft());
 
     expect((await store.all()).single.source, WeighInSource.manual);

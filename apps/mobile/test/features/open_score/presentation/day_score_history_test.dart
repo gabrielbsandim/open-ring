@@ -250,6 +250,24 @@ void main() {
     );
   });
 
+  testWidgets('the bars name the Level line once the Level exists', (
+    tester,
+  ) async {
+    await pumpHistory(tester, mixedHistory());
+    await show(tester, '30 days');
+
+    expect(find.byKey(DayScoreHistoryKeys.levelLegend), findsOneWidget);
+  });
+
+  testWidgets('the bars leave the Level out while it is forming', (
+    tester,
+  ) async {
+    await pumpHistory(tester, mixedHistory(days: 10));
+    await show(tester, '30 days');
+
+    expect(find.byKey(DayScoreHistoryKeys.levelLegend), findsNothing);
+  });
+
   testWidgets('with Open Score off the screen shows nothing', (tester) async {
     await pumpHistory(tester, mixedHistory(), modules: const {});
 

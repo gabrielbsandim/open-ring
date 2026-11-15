@@ -12,8 +12,10 @@ import 'package:open_ring/features/modules/application/enabled_modules_controlle
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/day_score_providers.dart';
 import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
+import 'package:open_ring/features/open_score/application/level_providers.dart';
 import 'package:open_ring/features/open_score/domain/day_score_history.dart';
 import 'package:open_ring/features/open_score/domain/day_tag.dart';
+import 'package:open_ring/features/open_score/domain/level_view.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_card.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_formula_screen.dart';
 import 'package:open_ring/features/open_score/presentation/day_tag_sheet.dart';
@@ -28,6 +30,7 @@ abstract final class DayScoreHistoryKeys {
   static const nextMonth = Key('day_score_history_next_month');
   static const average = Key('day_score_history_average');
   static const chart = Key('day_score_history_chart');
+  static const levelLegend = Key('day_score_history_level_legend');
   static const readout = Key('day_score_history_readout');
   static const open = Key('day_score_history_open');
 
@@ -142,6 +145,7 @@ class _HistoryState extends ConsumerState<DayScoreHistoryScreen> {
         _Bars(
           history: history,
           tags: tags,
+          track: ref.watch(levelTrackProvider).value,
           days: view.days,
           selected: _selected,
           onSelect: (date) => setState(() => _selected = date),
@@ -428,9 +432,10 @@ class _Cell extends StatelessWidget {
 }
 
 class _Legend extends StatelessWidget {
-  const new({required this.dashedTag});
+  const new({required this.dashedTag, this.level = false});
 
   final bool dashedTag;
+  final bool level;
 
   @override
   Widget build(BuildContext context) {
@@ -487,6 +492,22 @@ class _Legend extends StatelessWidget {
               Flexible(child: CaptionText(mark.label)),
             ],
           ),
+        if (level)
+          Row(
+            key: DayScoreHistoryKeys.levelLegend,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ExcludeSemantics(
+                child: SizedBox(
+                  width: 14,
+                  height: 2,
+                  child: ColoredBox(color: colors.textLabel),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Flexible(child: CaptionText(l10n.levelTitle)),
+            ],
+          ),
       ],
     );
   }
@@ -516,6 +537,7 @@ class _Bars extends StatelessWidget {
   const new({
     required this.history,
     required this.tags,
+    required this.track,
     required this.days,
     required this.selected,
     required this.onSelect,
@@ -524,6 +546,7 @@ class _Bars extends StatelessWidget {
 
   final DayScoreHistory history;
   final Map<LocalDate, DayTag> tags;
+  final LevelTrack? track;
   final int days;
   final LocalDate? selected;
   final ValueChanged<LocalDate> onSelect;
@@ -537,6 +560,10 @@ class _Bars extends StatelessWidget {
     final l10n = format.l10n;
     final average = history.fullAverage(days, excluded: tags.keys.toSet());
     final first = history.today.addDays(1 - days);
+    final steps = track;
+    final lines = steps == null
+        ? const <double?>[]
+        : levelLines(steps, today: history.today, days: days);
     final picked = selected;
     final shown = picked != null && picked.compareTo(first) >= 0
         ? picked
@@ -586,8 +613,11 @@ class _Bars extends StatelessWidget {
                       for (var i = 0; i < days; i++)
                         _bar(history, first.addDays(i)),
                     ],
+                    lines: lines,
                     selected: shown?.daysSince(first),
                     bar: colors.textPrimary,
+                    level: colors.textLabel,
+                    surface: colors.surface,
                     grid: colors.surfaceBorder,
                     none: colors.strongBorder,
                     tagged: _taggedBar(colors),
@@ -604,7 +634,7 @@ class _Bars extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          const _Legend(dashedTag: false),
+          _Legend(dashedTag: false, level: lines.any((line) => line != null)),
           const SizedBox(height: 12),
           if (shown == null) CaptionText(l10n.dayScoreHistoryPick),
           if (shown != null)
@@ -635,8 +665,11 @@ typedef _Bar = ({int? value, bool full, bool tagged});
 class _BarsPainter extends CustomPainter {
   const new({
     required this.scores,
+    required this.lines,
     required this.selected,
     required this.bar,
+    required this.level,
+    required this.surface,
     required this.grid,
     required this.none,
     required this.tagged,
@@ -646,8 +679,11 @@ class _BarsPainter extends CustomPainter {
   });
 
   final List<_Bar?> scores;
+  final List<double?> lines;
   final int? selected;
   final Color bar;
+  final Color level;
+  final Color surface;
   final Color grid;
   final Color none;
   final Color tagged;
@@ -732,6 +768,37 @@ class _BarsPainter extends CustomPainter {
         _paint(score, fill: fill, stroke: stroke, muted: muted),
       );
     }
+    _line(canvas, slot, y);
+  }
+
+  // A gap in the surface colour under the line keeps it readable where it
+  // crosses a bar.
+  void _line(Canvas canvas, double slot, double Function(num) y) {
+    final path = Path();
+    var started = false;
+    for (final (i, line) in lines.indexed) {
+      if (line == null) continue;
+      final at = Offset(_left + (i + 0.5) * slot, y(line));
+      started ? path.lineTo(at.dx, at.dy) : path.moveTo(at.dx, at.dy);
+      started = true;
+    }
+    final stroke = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = StrokeCap.round;
+    canvas
+      ..drawPath(
+        path,
+        stroke
+          ..color = surface
+          ..strokeWidth = 4.5,
+      )
+      ..drawPath(
+        path,
+        stroke
+          ..color = level
+          ..strokeWidth = 1.5,
+      );
   }
 
   Paint _paint(
@@ -747,6 +814,7 @@ class _BarsPainter extends CustomPainter {
   @override
   bool shouldRepaint(_BarsPainter old) =>
       old.scores != scores ||
+      old.lines != lines ||
       old.selected != selected ||
       old.bar != bar ||
       old.label != label;

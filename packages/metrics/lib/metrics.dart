@@ -3,6 +3,7 @@ export 'src/baseline.dart';
 export 'src/day_score.dart';
 export 'src/heart_rate_zones.dart';
 export 'src/intensity_minutes.dart';
+export 'src/level.dart';
 export 'src/local_date.dart';
 export 'src/readiness.dart';
 export 'src/rem_reporting.dart';

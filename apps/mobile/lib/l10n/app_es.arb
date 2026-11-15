@@ -1132,7 +1132,7 @@
   "dayScoreBandGreat": "Día excelente",
   "dayScoreBandGood": "Día bueno",
   "dayScoreBandMixed": "Día mixto",
-  "dayScoreBandLow": "Día de recarga",
+  "dayScoreBandLow": "Día de pausa",
   "dayScoreCoverageFull": "Cobertura completa",
   "dayScoreCoveragePartial": "{points} de 100 puntos",
   "dayScoreNothingOpen": "Nada pendiente: la nota se cierra a medianoche.",

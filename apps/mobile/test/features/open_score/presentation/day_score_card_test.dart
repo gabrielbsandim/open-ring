@@ -159,7 +159,7 @@ void main() {
         historyOf(day(sleepScore: 30, steps: 1000, intensityMinutes: 0)),
       );
 
-      expect(textOf(tester, DayScoreCardKeys.band), 'Recharge day');
+      expect(textOf(tester, DayScoreCardKeys.band), 'Pause day');
     });
 
     testWidgets('without the night there is no score and no blame', (

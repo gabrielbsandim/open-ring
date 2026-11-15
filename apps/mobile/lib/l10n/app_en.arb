@@ -3130,7 +3130,7 @@
   "dayScoreBandGreat": "Great day",
   "dayScoreBandGood": "Good day",
   "dayScoreBandMixed": "Mixed day",
-  "dayScoreBandLow": "Recharge day",
+  "dayScoreBandLow": "Pause day",
   "dayScoreCoverageFull": "Full coverage",
   "dayScoreCoveragePartial": "{points} of 100 points",
   "@dayScoreCoveragePartial": {"placeholders": {"points": {"type": "int"}}},

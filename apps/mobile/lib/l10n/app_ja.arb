@@ -1132,7 +1132,7 @@
   "dayScoreBandGreat": "とても良い日",
   "dayScoreBandGood": "良い日",
   "dayScoreBandMixed": "まずまずの日",
-  "dayScoreBandLow": "充電の日",
+  "dayScoreBandLow": "ひと休みの日",
   "dayScoreCoverageFull": "すべての項目あり",
   "dayScoreCoveragePartial": "100点中{points}点分",
   "dayScoreNothingOpen": "未確定の項目なし：スコアは午前0時に確定します。",

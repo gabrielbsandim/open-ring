@@ -1132,7 +1132,7 @@
   "dayScoreBandGreat": "很棒的一天",
   "dayScoreBandGood": "不错的一天",
   "dayScoreBandMixed": "一般的一天",
-  "dayScoreBandLow": "充电的一天",
+  "dayScoreBandLow": "休整的一天",
   "dayScoreCoverageFull": "完整覆盖",
   "dayScoreCoveragePartial": "100 分中的 {points} 分",
   "dayScoreNothingOpen": "没有待定项：评分在午夜结算。",

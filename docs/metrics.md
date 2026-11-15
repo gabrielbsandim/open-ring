@@ -771,6 +771,35 @@ coverage. Zero steps reads as the ring off the finger. Otherwise the result is
 `InsufficientData` with every missing factor. The Day Score describes the day,
 not the person's health.
 
+## 16. Level
+
+The Level is the user's own recent average of Day Scores, shown with one decimal. It is the line a day is
+compared with. Code: `packages/metrics/lib/src/level.dart`.
+
+**Inputs.** Closed days, oldest first, each with its Day Score or none, and whether the user set the day aside
+(sick, travel or rest). Today is not an input until it closes.
+
+**Rule.**
+
+```
+alpha = 1 - exp(-1 / 28)            about 0.0351
+level = level + alpha * (score - level)
+```
+
+- A day counts when it has a score and was not set aside. A day that does not count leaves the Level exactly
+  where it was: no data, sickness, travel and rest never lower it.
+- There is no Level before 14 counted days. The first Level is the simple mean of those 14 scores.
+- A day 10 points above the line raises the Level by about 0.35; a day 10 points below lowers it by the same.
+- There is no window: a counted day keeps a weight of `alpha * (1 - alpha)^k`, where `k` is the number of counted
+  days after it. Once 28 days have counted after the first Level, those 28 carry about 63 percent of it.
+
+**The line and the side.** The line of a day is the Level as it stood before that day. A Day Score is a whole
+number and the Level has one decimal, so the score is compared with the Level rounded to a whole number: 71
+against 71.4 is on the line, 72 is above, 70 is below.
+
+**What it is not.** Not a streak, not a rank against other people, not a health forecast. It is an average chosen
+by the product, not a published clinical formula, and it is stated as such on the screen that shows it.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

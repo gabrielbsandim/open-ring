@@ -30,6 +30,13 @@ enum ExportKind {
     'duration_s',
     'distance_m',
     'active_kcal',
+  ]),
+  weighIns('weigh_ins', [
+    'time',
+    'weight_kg',
+    'body_fat_percent',
+    'waist_cm',
+    'source',
   ]);
 
   new(this.key, this.columns);

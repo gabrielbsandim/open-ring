@@ -679,6 +679,7 @@
   "exportKindStress": "压力",
   "exportKindActivity": "步数和活动",
   "exportKindWorkouts": "锻炼",
+  "exportKindWeighIns": "称重",
   "exportPickKind": "请至少选择一种数据类型。",
   "exportFormat": "格式",
   "exportCsvNote": "每种数据类型一个文件，每个样本都带有时间。多种类型会打包成一个 zip 压缩包。",

@@ -7,6 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/export/application/export_controller.dart';
 import 'package:open_ring/features/export/domain/export_kind.dart';
 import 'package:open_ring/features/export/presentation/export_screen.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
 
 import '../../../helpers/layout_harness.dart';
 import '../../../helpers/settings_fakes.dart';
@@ -78,7 +81,8 @@ void main() {
     final request = exporter.requests.single;
     expect(request.format, ExportFormat.json);
     expect(request.kinds, isNot(contains(ExportKind.stress)));
-    expect(request.kinds, hasLength(ExportKind.values.length - 1));
+    expect(request.kinds, isNot(contains(ExportKind.weighIns)));
+    expect(request.kinds, hasLength(ExportKind.values.length - 2));
     expect(request.from, settingsNow.subtract(const Duration(days: 7)));
     expect(request.to.isAfter(settingsNow), isTrue);
 
@@ -159,11 +163,30 @@ void main() {
     expect(find.byKey(ExportKeys.shareFailed), findsOneWidget);
   });
 
+  testWidgets('with Body on weigh-ins are listed and exported', (tester) async {
+    final exporter = FakeDataExporter();
+    await _pump(tester, [
+      ...settingsOverrides(exporter: exporter),
+      moduleStoreProvider.overrideWithValue(
+        InMemoryModuleStore({ModuleId.body}),
+      ),
+    ]);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Weigh-ins'), findsOneWidget);
+    await _tap(tester, ExportKeys.run);
+    await tester.pumpAndSettle();
+
+    expect(exporter.requests.single.kinds, ExportKind.values.toSet());
+  });
+
   testWidgets('without a data type the export cannot start', (tester) async {
     final exporter = FakeDataExporter();
     await _pump(tester, settingsOverrides(exporter: exporter));
 
+    expect(find.byKey(ExportKeys.kind(ExportKind.weighIns)), findsNothing);
     for (final kind in ExportKind.values) {
+      if (kind == ExportKind.weighIns) continue;
       await _tap(tester, ExportKeys.kind(kind));
     }
 

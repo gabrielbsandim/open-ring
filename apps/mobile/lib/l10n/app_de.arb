@@ -679,6 +679,7 @@
   "exportKindStress": "Stress",
   "exportKindActivity": "Schritte und Aktivität",
   "exportKindWorkouts": "Trainings",
+  "exportKindWeighIns": "Wägungen",
   "exportPickKind": "Wähle mindestens einen Datentyp.",
   "exportFormat": "Format",
   "exportCsvNote": "Eine Datei pro Datentyp, jeder Messwert mit seiner Uhrzeit. Mehrere Typen kommen in einem ZIP-Archiv.",

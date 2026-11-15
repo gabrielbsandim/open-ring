@@ -3,6 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/export/application/export_controller.dart';
 import 'package:open_ring/features/export/domain/data_exporter.dart';
 import 'package:open_ring/features/export/domain/export_kind.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
 
 import '../../../helpers/settings_fakes.dart';
 
@@ -21,6 +24,44 @@ void main() {
     expect(month.kinds, ExportKind.values.toSet());
     expect(month.format, ExportFormat.csv);
   });
+
+  test('a request keeps only the kinds that are offered', () {
+    final request = exportRequestFor(
+      ExportState(),
+      now,
+      offered: {ExportKind.sleep, ExportKind.hrv},
+    );
+
+    expect(request.kinds, {ExportKind.sleep, ExportKind.hrv});
+    expect(
+      ExportState(kinds: const {ExportKind.weighIns})
+          .canRunWith({ExportKind.sleep}),
+      isFalse,
+    );
+  });
+
+  for (final (modules, offered) in [
+    (<ModuleId>{}, false),
+    ({ModuleId.body}, true),
+  ]) {
+    test('with modules $modules weigh-ins are exported: $offered', () async {
+      final exporter = FakeDataExporter();
+      final container = ProviderContainer(
+        overrides: [
+          ...settingsOverrides(exporter: exporter),
+          moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(enabledModulesProvider.future);
+
+      await container.read(exportProvider.notifier).run();
+
+      final kinds = exporter.requests.single.kinds;
+      expect(kinds.contains(ExportKind.weighIns), offered);
+      expect(kinds, hasLength(ExportKind.values.length - (offered ? 0 : 1)));
+    });
+  }
 
   test('the file name drops the folder', () {
     expect(
@@ -45,7 +86,7 @@ void main() {
     final running = ExportState().started();
 
     expect(running.withOptions(range: ExportRange.all), same(running));
-    expect(running.canRun, isFalse);
+    expect(running.canRunWith(ExportKind.values.toSet()), isFalse);
   });
 
   test('run then share hands the written files to the sharer', () async {

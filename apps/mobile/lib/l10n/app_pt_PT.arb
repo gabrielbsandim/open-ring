@@ -671,6 +671,7 @@
   "exportKindStress": "Stress",
   "exportKindActivity": "Passos e atividade",
   "exportKindWorkouts": "Treinos",
+  "exportKindWeighIns": "Pesagens",
   "exportPickKind": "Escolha pelo menos um tipo de dados.",
   "exportFormat": "Formato",
   "exportCsvNote": "Um ficheiro por tipo de dados, com cada amostra e a sua hora. Vários tipos vêm num arquivo zip.",

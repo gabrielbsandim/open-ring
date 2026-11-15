@@ -29,6 +29,7 @@ abstract final class AppPaths {
   static const settingsWidgetToday = '/ring/settings/widgets/today';
   static const settingsModules = '/ring/settings/modules';
   static const settingsModuleBody = '/ring/settings/modules/body';
+  static const settingsModuleOpenScore = '/ring/settings/modules/open-score';
   static const measure = '/heart/measure';
   static const trends = '/heart/trends';
   static const pair = '/ring/pair';

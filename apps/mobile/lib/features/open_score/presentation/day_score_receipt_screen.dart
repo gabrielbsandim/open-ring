@@ -112,14 +112,14 @@ class _ReceiptState extends ConsumerState<DayScoreReceiptScreen> {
       const SizedBox(height: cardGap),
       const _Never(),
       const SizedBox(height: cardGap),
-      _Link(
+      DayScoreLink(
         key: DayScoreReceiptKeys.formula,
         title: format.l10n.formulaLink,
         caption: format.l10n.dayScoreFormulaLinkCaption,
         path: AppPaths.dayScoreFormula,
       ),
       const SizedBox(height: cardGap),
-      _Link(
+      DayScoreLink(
         key: DayScoreReceiptKeys.history,
         title: format.l10n.dayScoreHistoryTitle,
         caption: format.l10n.dayScoreHistoryLinkCaption,
@@ -618,7 +618,7 @@ class _Never extends StatelessWidget {
   }
 }
 
-class _Link extends StatelessWidget {
+class DayScoreLink extends StatelessWidget {
   const new({
     required this.title,
     required this.caption,

@@ -15,6 +15,7 @@ import 'package:open_ring/features/modules/application/enabled_modules_controlle
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/presentation/module_widgets.dart';
 import 'package:open_ring/features/modules/presentation/modules_screen.dart';
+import 'package:open_ring/features/modules/presentation/offered_module.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -45,7 +46,8 @@ class BodyModuleScreen extends ConsumerWidget {
         false;
     final entries = ref.watch(weighInsProvider).value ?? const <WeighIn>[];
     final hidden = ref.watch(hideNumbersProvider).value ?? false;
-    void toggle() => unawaited(setBodyModule(context, ref, on: !on));
+    void toggle() =>
+        unawaited(setModule(context, ref, OfferedModule.body, on: !on));
     return AppPage(
       title: l10n.moduleBodyName,
       subtitle: l10n.moduleBodyDetail,

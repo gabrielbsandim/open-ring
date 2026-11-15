@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/theme/shared_preferences_theme_mode_store.dart';
+import 'package:open_ring/features/modules/infrastructure/shared_preferences_module_store.dart';
 import 'package:open_ring/features/onboarding/infrastructure/shared_preferences_onboarding_store.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/settings/infrastructure/device_local_data_eraser.dart';
@@ -20,6 +21,7 @@ void main() {
           legacyPreferenceKeys.first: 'german',
           SharedPreferencesThemeModeStore.key: 'dark',
           SharedPreferencesOnboardingStore.key: true,
+          SharedPreferencesModuleStore.key: ['body', 'trajectory'],
           'some_plugin_key': 'kept',
         });
   });

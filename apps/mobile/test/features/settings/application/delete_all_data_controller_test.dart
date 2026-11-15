@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
@@ -31,6 +34,7 @@ void main() {
   late InMemoryUserProfileStore profiles;
   late InMemoryOnboardingStore onboarding;
   late InMemoryTodayWidgetConfigStore widgetConfig;
+  late InMemoryModuleStore modules;
 
   ProviderContainer container([FakeLocalDataEraser? override]) {
     eraser = override ?? FakeLocalDataEraser();
@@ -38,6 +42,7 @@ void main() {
     units = InMemoryUnitSystemStore(UnitSystem.imperial);
     profiles = InMemoryUserProfileStore(fullProfile);
     onboarding = InMemoryOnboardingStore(completed: true);
+    modules = InMemoryModuleStore({ModuleId.body, ModuleId.trajectory});
     widgetConfig = InMemoryTodayWidgetConfigStore(
       TodayWidgetConfig().withTheme(WidgetTheme.light),
     );
@@ -56,6 +61,7 @@ void main() {
         userProfileStoreProvider.overrideWithValue(profiles),
         onboardingStoreProvider.overrideWithValue(onboarding),
         todayWidgetConfigStoreProvider.overrideWithValue(widgetConfig),
+        moduleStoreProvider.overrideWithValue(modules),
       ],
     );
     addTearDown(container.dispose);
@@ -68,8 +74,10 @@ void main() {
     expect(await c.read(unitSystemProvider.future), UnitSystem.imperial);
     expect(await c.read(userProfileProvider.future), isNotNull);
     final revision = c.read(dataRevisionProvider);
+    expect(await c.read(enabledModulesProvider.future), isNotEmpty);
     units.units = null;
     profiles.profile = null;
+    await modules.write({});
 
     expect(await c.read(deleteAllDataProvider.notifier).delete(), isTrue);
 
@@ -86,6 +94,7 @@ void main() {
     expect(onboarding.completed, isFalse);
     expect(c.read(todayWidgetConfigProvider), TodayWidgetConfig());
     expect(widgetConfig.saved, isNull);
+    expect(await c.read(enabledModulesProvider.future), isEmpty);
   });
 
   test('a failed erase reports failure and keeps the settings', () async {
@@ -97,6 +106,10 @@ void main() {
     expect(c.read(themeModeProvider), ThemeMode.dark);
     expect(c.read(onboardingProvider), isTrue);
     expect(c.read(todayWidgetConfigProvider).theme, WidgetTheme.light);
+    expect(await c.read(enabledModulesProvider.future), {
+      ModuleId.body,
+      ModuleId.trajectory,
+    });
   });
 
   test('a second tap while deleting does nothing', () async {

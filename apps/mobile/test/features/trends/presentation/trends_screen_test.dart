@@ -8,6 +8,9 @@ import 'package:open_ring/features/heart/presentation/heart_screen.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
+import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
+import 'package:open_ring/features/open_score/domain/day_tag.dart';
+import 'package:open_ring/features/open_score/domain/day_tag_store.dart';
 import 'package:open_ring/features/trends/domain/trend_metric.dart';
 import 'package:open_ring/features/trends/presentation/trends_screen.dart';
 
@@ -87,6 +90,33 @@ void main() {
         findsOneWidget,
       );
     });
+  });
+
+  testWidgets('tagged days stay out of the Day Score series', (tester) async {
+    await pumpScaled(
+      tester,
+      screenHost(const TrendsScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: <Override>[
+        ...metricsOverrides(fullDataScenario),
+        moduleStoreProvider.overrideWithValue(
+          InMemoryModuleStore(const {ModuleId.openScore}),
+        ),
+        dayTagStoreProvider.overrideWithValue(
+          InMemoryDayTagStore({
+            for (var age = 0; age < 120; age++)
+              metricsToday.addDays(-age): DayTag.sick,
+          }),
+        ),
+      ],
+    );
+
+    await _pick(tester, metric: TrendMetric.dayScore);
+
+    expect(find.text('Day Score · 30 days'), findsOneWidget);
+    expect(find.byKey(TrendsKeys.metricEmpty), findsOneWidget);
   });
 
   testWidgets('without data it says what to do', (tester) async {

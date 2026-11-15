@@ -13,6 +13,7 @@ import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/day_score_providers.dart';
+import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
 import 'package:open_ring/features/ring/presentation/sync_status_banner.dart';
 import 'package:open_ring/features/trends/application/trends_providers.dart';
 import 'package:open_ring/features/trends/domain/trend_history.dart';
@@ -51,7 +52,10 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         (modules) => modules.value?.contains(ModuleId.openScore) ?? false,
       ),
     );
-    final scores = on ? ref.watch(dayScoreHistoryProvider).value?.scores : null;
+    final tagged = ref.watch(dayTagsProvider).value?.keys.toSet() ?? const {};
+    final scores = on
+        ? ref.watch(dayScoreHistoryProvider).value?.scoresExcept(tagged)
+        : null;
     return AppPage(
       title: l10n.trendsTitle,
       onRefresh: () => refreshRing(ref),

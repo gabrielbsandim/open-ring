@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,8 +14,11 @@ import 'package:open_ring/features/modules/application/enabled_modules_controlle
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/day_score_providers.dart';
 import 'package:open_ring/features/open_score/application/day_score_view.dart';
+import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
 import 'package:open_ring/features/open_score/domain/day_score_history.dart';
+import 'package:open_ring/features/open_score/domain/day_tag.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_card.dart';
+import 'package:open_ring/features/open_score/presentation/day_tag_sheet.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class DayScoreReceiptKeys {
@@ -30,6 +35,8 @@ abstract final class DayScoreReceiptKeys {
   static const open = Key('day_score_receipt_open');
   static const formula = Key('day_score_receipt_formula');
   static const history = Key('day_score_receipt_history');
+  static const tag = Key('day_score_receipt_tag');
+  static const tagLocked = Key('day_score_receipt_tag_locked');
 
   static Key factor(DayScoreFactor factor) =>
       Key('day_score_receipt_${factor.name}');
@@ -88,6 +95,7 @@ class _ReceiptState extends ConsumerState<DayScoreReceiptScreen> {
     final receipt = DayScoreReceipt(inputs);
     final today = date == history.today;
     final format = MetricFormat.of(context);
+    final tag = ref.watch(dayTagsProvider).value?[date];
     return [
       _DayNav(
         date: date,
@@ -102,6 +110,7 @@ class _ReceiptState extends ConsumerState<DayScoreReceiptScreen> {
         receipt: receipt,
         today: today,
         first: history.firstScored == null,
+        tag: tag,
       ),
       const SizedBox(height: cardGap),
       _Math(receipt: receipt, today: today),
@@ -109,6 +118,21 @@ class _ReceiptState extends ConsumerState<DayScoreReceiptScreen> {
         const SizedBox(height: cardGap),
         _Open(receipt: receipt),
       ],
+      const SizedBox(height: cardGap),
+      _TagRow(
+        tag: tag,
+        onTap: canEditDayTag(date, today: history.today)
+            ? () => unawaited(
+                showDayTagSheet(
+                  context,
+                  ref,
+                  date: date,
+                  today: history.today,
+                  current: tag,
+                ),
+              )
+            : null,
+      ),
       const SizedBox(height: cardGap),
       const _Never(),
       const SizedBox(height: cardGap),
@@ -201,11 +225,17 @@ class _DayNav extends ConsumerWidget {
 }
 
 class _Summary extends StatelessWidget {
-  const new({required this.receipt, required this.today, required this.first});
+  const new({
+    required this.receipt,
+    required this.today,
+    required this.first,
+    required this.tag,
+  });
 
   final DayScoreReceipt receipt;
   final bool today;
   final bool first;
+  final DayTag? tag;
 
   @override
   Widget build(BuildContext context) {
@@ -214,7 +244,7 @@ class _Summary extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (scored != null) DayScoreHeadline(scored: scored),
+          if (scored != null) DayScoreHeadline(scored: scored, tag: tag),
           if (scored == null) _None(receipt: receipt, yet: today && first),
           const SizedBox(height: 14),
           ExcludeSemantics(
@@ -586,6 +616,76 @@ class _Open extends StatelessWidget {
               key: DayScoreReceiptKeys.open,
               l10n.dayScoreReceiptOpen(format.points(receipt.open), names),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TagRow extends StatelessWidget {
+  const new({required this.tag, required this.onTap});
+
+  final DayTag? tag;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
+    final tag = this.tag;
+    final name = tag == null ? null : dayTagLabel(l10n, tag);
+    if (onTap == null) {
+      return MetricCard(
+        key: DayScoreReceiptKeys.tagLocked,
+        child: Row(
+          children: [
+            ExcludeSemantics(
+              child: Icon(Icons.sell_outlined, color: colors.textLabel),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: BodyText(
+                name == null ? l10n.dayTagLocked : l10n.dayTagLockedSet(name),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    return MetricCard(
+      key: DayScoreReceiptKeys.tag,
+      onTap: onTap,
+      child: Row(
+        children: [
+          ExcludeSemantics(
+            child: Icon(
+              tag == null ? Icons.sell_outlined : dayTagIcon(tag),
+              color: colors.textLabel,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.dayTagTitle,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                CaptionText(
+                  name == null ? l10n.dayTagRowNone : l10n.dayTagRowSet(name),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          ExcludeSemantics(
+            child: Icon(Icons.chevron_right_rounded, color: colors.textLabel),
           ),
         ],
       ),

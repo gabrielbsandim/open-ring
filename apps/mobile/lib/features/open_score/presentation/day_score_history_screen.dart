@@ -11,9 +11,12 @@ import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/day_score_providers.dart';
+import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
 import 'package:open_ring/features/open_score/domain/day_score_history.dart';
+import 'package:open_ring/features/open_score/domain/day_tag.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_card.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_formula_screen.dart';
+import 'package:open_ring/features/open_score/presentation/day_tag_sheet.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class DayScoreHistoryKeys {
@@ -103,6 +106,8 @@ class _HistoryState extends ConsumerState<DayScoreHistoryScreen> {
       ];
     }
     final view = _view;
+    final tags =
+        ref.watch(dayTagsProvider).value ?? const <LocalDate, DayTag>{};
     return [
       SegmentedButton<DayScoreHistoryView>(
         key: DayScoreHistoryKeys.view,
@@ -128,6 +133,7 @@ class _HistoryState extends ConsumerState<DayScoreHistoryScreen> {
       if (view == DayScoreHistoryView.calendar)
         _Calendar(
           history: history,
+          tags: tags,
           month: _month ?? _firstOf(history.today),
           onMonth: (month) => setState(() => _month = month),
           onDay: _open,
@@ -135,6 +141,7 @@ class _HistoryState extends ConsumerState<DayScoreHistoryScreen> {
       if (view != DayScoreHistoryView.calendar)
         _Bars(
           history: history,
+          tags: tags,
           days: view.days,
           selected: _selected,
           onSelect: (date) => setState(() => _selected = date),
@@ -147,6 +154,7 @@ class _HistoryState extends ConsumerState<DayScoreHistoryScreen> {
           l10n.dayScoreHistoryHow1,
           l10n.dayScoreHistoryHow2,
           l10n.dayScoreHistoryHow3,
+          l10n.dayScoreHistoryHow4,
         ],
       ),
     ];
@@ -178,12 +186,14 @@ String _coverage(AppLocalizations l10n, Scored<DayScoreFactor> scored) =>
 class _Calendar extends StatelessWidget {
   const new({
     required this.history,
+    required this.tags,
     required this.month,
     required this.onMonth,
     required this.onDay,
   });
 
   final DayScoreHistory history;
+  final Map<LocalDate, DayTag> tags;
   final LocalDate month;
   final ValueChanged<LocalDate> onMonth;
   final ValueChanged<LocalDate> onDay;
@@ -203,7 +213,12 @@ class _Calendar extends StatelessWidget {
     final cells = <Widget>[
       for (var i = 0; i < lead; i++) const SizedBox.shrink(),
       for (var day = 0; day < length; day++)
-        _Cell(history: history, date: month.addDays(day), onDay: onDay),
+        _Cell(
+          history: history,
+          date: month.addDays(day),
+          tag: tags[month.addDays(day)],
+          onDay: onDay,
+        ),
     ];
     final rows = (cells.length / _daysInWeek).ceil();
     return MetricCard(
@@ -269,7 +284,7 @@ class _Calendar extends StatelessWidget {
               ],
             ),
           const SizedBox(height: 10),
-          const _Legend(),
+          const _Legend(dashedTag: true),
           const SizedBox(height: 8),
           CaptionText(l10n.dayScoreHistoryCalendarHint),
         ],
@@ -279,10 +294,16 @@ class _Calendar extends StatelessWidget {
 }
 
 class _Cell extends StatelessWidget {
-  const new({required this.history, required this.date, required this.onDay});
+  const new({
+    required this.history,
+    required this.date,
+    required this.tag,
+    required this.onDay,
+  });
 
   final DayScoreHistory history;
   final LocalDate date;
+  final DayTag? tag;
   final ValueChanged<LocalDate> onDay;
 
   static const Map<DayScoreBand, double> _fill = {
@@ -302,6 +323,8 @@ class _Cell extends StatelessWidget {
     final scored = history.scoredOn(date);
     final today = date == history.today;
     final name = _dayLabel(format, history, date);
+    final tag = this.tag;
+    final counted = scored != null && tag == null;
     final number = Text(
       format.integer(date.day),
       style: theme.textTheme.bodySmall?.copyWith(
@@ -313,31 +336,52 @@ class _Cell extends StatelessWidget {
     final value = Text(
       scored == null ? '·' : format.integer(scored.value),
       style: theme.textTheme.bodyMedium?.copyWith(
-        fontWeight: FontWeight.w600,
-        color: known ? null : Colors.transparent,
+        fontWeight: tag == null ? FontWeight.w600 : FontWeight.w400,
+        color: _valueColor(colors, known: known),
       ),
     );
     final box = Padding(
       padding: const EdgeInsets.all(2),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: scored != null && scored.isFull
-              ? colors.textPrimary.withValues(
-                  alpha: _fill[dayScoreBand(scored.value)],
-                )
-              : null,
-          border: scored != null && !scored.isFull
-              ? Border.all(color: colors.textLabel, width: 1.5)
-              : null,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 2),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [number, value],
+      child: CustomPaint(
+        foregroundPainter: tag == null
+            ? null
+            : DashedBorderPainter(color: colors.textLabel, radius: 8),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: counted && scored.isFull
+                ? colors.textPrimary.withValues(
+                    alpha: _fill[dayScoreBand(scored.value)],
+                  )
+                : null,
+            border: counted && !scored.isFull
+                ? Border.all(color: colors.textLabel, width: 1.5)
+                : null,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 2),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (tag == null) number,
+                  if (tag != null)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          dayTagIcon(tag),
+                          size: 11,
+                          color: colors.textLabel,
+                        ),
+                        const SizedBox(width: 2),
+                        number,
+                      ],
+                    ),
+                  value,
+                ],
+              ),
             ),
           ),
         ),
@@ -347,7 +391,7 @@ class _Cell extends StatelessWidget {
     return Semantics(
       key: DayScoreHistoryKeys.day(date),
       button: true,
-      label: _semantics(l10n, name, scored),
+      label: _semantics(l10n, name, scored, tag),
       excludeSemantics: true,
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
@@ -357,11 +401,18 @@ class _Cell extends StatelessWidget {
     );
   }
 
+  Color? _valueColor(AppColors colors, {required bool known}) {
+    if (!known) return Colors.transparent;
+    return tag == null ? null : colors.textLabel;
+  }
+
   String _semantics(
     AppLocalizations l10n,
     String name,
     Scored<DayScoreFactor>? scored,
+    DayTag? tag,
   ) {
+    if (tag != null) return _tagged(l10n, name, scored, tag);
     if (scored == null) return l10n.dayScoreHistoryCellNone(name);
     final band = dayScoreBandLabel(l10n, dayScoreBand(scored.value));
     if (scored.isFull) {
@@ -377,7 +428,9 @@ class _Cell extends StatelessWidget {
 }
 
 class _Legend extends StatelessWidget {
-  const new();
+  const new({required this.dashedTag});
+
+  final bool dashedTag;
 
   @override
   Widget build(BuildContext context) {
@@ -405,6 +458,15 @@ class _Legend extends StatelessWidget {
           shape: BoxShape.circle,
         ),
       ),
+      (
+        label: l10n.dayScoreHistoryLegendTagged,
+        decoration: dashedTag
+            ? null
+            : BoxDecoration(
+                color: _taggedBar(colors),
+                borderRadius: BorderRadius.circular(2),
+              ),
+      ),
     ];
     return Wrap(
       spacing: 14,
@@ -418,7 +480,7 @@ class _Legend extends StatelessWidget {
                 child: SizedBox(
                   width: 10,
                   height: 10,
-                  child: DecoratedBox(decoration: mark.decoration),
+                  child: _mark(colors, mark.decoration),
                 ),
               ),
               const SizedBox(width: 6),
@@ -430,9 +492,30 @@ class _Legend extends StatelessWidget {
   }
 }
 
+String _tagged(
+  AppLocalizations l10n,
+  String name,
+  Scored<DayScoreFactor>? scored,
+  DayTag tag,
+) {
+  final label = dayTagLabel(l10n, tag);
+  if (scored == null) return l10n.dayScoreHistoryCellTaggedNone(name, label);
+  return l10n.dayScoreHistoryCellTagged(name, label, scored.value);
+}
+
+Color _taggedBar(AppColors colors) => colors.textLabel.withValues(alpha: 0.45);
+
+Widget _mark(AppColors colors, BoxDecoration? decoration) {
+  if (decoration != null) return DecoratedBox(decoration: decoration);
+  return CustomPaint(
+    painter: DashedBorderPainter(color: colors.textLabel, radius: 2),
+  );
+}
+
 class _Bars extends StatelessWidget {
   const new({
     required this.history,
+    required this.tags,
     required this.days,
     required this.selected,
     required this.onSelect,
@@ -440,6 +523,7 @@ class _Bars extends StatelessWidget {
   });
 
   final DayScoreHistory history;
+  final Map<LocalDate, DayTag> tags;
   final int days;
   final LocalDate? selected;
   final ValueChanged<LocalDate> onSelect;
@@ -451,7 +535,7 @@ class _Bars extends StatelessWidget {
     final colors = AppColors.of(context);
     final format = MetricFormat.of(context);
     final l10n = format.l10n;
-    final average = history.fullAverage(days);
+    final average = history.fullAverage(days, excluded: tags.keys.toSet());
     final first = history.today.addDays(1 - days);
     final picked = selected;
     final shown = picked != null && picked.compareTo(first) >= 0
@@ -506,6 +590,7 @@ class _Bars extends StatelessWidget {
                     bar: colors.textPrimary,
                     grid: colors.surfaceBorder,
                     none: colors.strongBorder,
+                    tagged: _taggedBar(colors),
                     highlight: colors.surfaceInner,
                     label:
                         theme.textTheme.labelSmall?.copyWith(
@@ -519,11 +604,16 @@ class _Bars extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          const _Legend(),
+          const _Legend(dashedTag: false),
           const SizedBox(height: 12),
           if (shown == null) CaptionText(l10n.dayScoreHistoryPick),
           if (shown != null)
-            _Readout(history: history, date: shown, onOpen: onOpen),
+            _Readout(
+              history: history,
+              date: shown,
+              tag: tags[shown],
+              onOpen: onOpen,
+            ),
         ],
       ),
     );
@@ -532,11 +622,15 @@ class _Bars extends StatelessWidget {
   _Bar? _bar(DayScoreHistory history, LocalDate date) {
     if (history.on(date) == null) return null;
     final scored = history.scoredOn(date);
-    return (value: scored?.value, full: scored?.isFull ?? false);
+    return (
+      value: scored?.value,
+      full: scored?.isFull ?? false,
+      tagged: tags.containsKey(date),
+    );
   }
 }
 
-typedef _Bar = ({int? value, bool full});
+typedef _Bar = ({int? value, bool full, bool tagged});
 
 class _BarsPainter extends CustomPainter {
   const new({
@@ -545,6 +639,7 @@ class _BarsPainter extends CustomPainter {
     required this.bar,
     required this.grid,
     required this.none,
+    required this.tagged,
     required this.highlight,
     required this.label,
     required this.direction,
@@ -555,6 +650,7 @@ class _BarsPainter extends CustomPainter {
   final Color bar;
   final Color grid;
   final Color none;
+  final Color tagged;
   final Color highlight;
   final TextStyle label;
   final TextDirection direction;
@@ -612,6 +708,7 @@ class _BarsPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
     final dot = Paint()..color = none;
+    final muted = Paint()..color = tagged;
     for (var i = 0; i < scores.length; i++) {
       final score = scores[i];
       if (score == null) continue;
@@ -629,11 +726,22 @@ class _BarsPainter extends CustomPainter {
         Rect.fromLTRB(x, y(value), x + width, y(0)),
         Radius.circular((width / 3).clamp(0, 2)),
       );
+      final solid = score.full || score.tagged;
       canvas.drawRRect(
-        score.full ? rect : rect.deflate(0.5),
-        score.full ? fill : stroke,
+        solid ? rect : rect.deflate(0.5),
+        _paint(score, fill: fill, stroke: stroke, muted: muted),
       );
     }
+  }
+
+  Paint _paint(
+    _Bar score, {
+    required Paint fill,
+    required Paint stroke,
+    required Paint muted,
+  }) {
+    if (score.tagged) return muted;
+    return score.full ? fill : stroke;
   }
 
   @override
@@ -645,10 +753,16 @@ class _BarsPainter extends CustomPainter {
 }
 
 class _Readout extends StatelessWidget {
-  const new({required this.history, required this.date, required this.onOpen});
+  const new({
+    required this.history,
+    required this.date,
+    required this.tag,
+    required this.onOpen,
+  });
 
   final DayScoreHistory history;
   final LocalDate date;
+  final DayTag? tag;
   final ValueChanged<LocalDate> onOpen;
 
   @override
@@ -657,6 +771,7 @@ class _Readout extends StatelessWidget {
     final format = MetricFormat.of(context);
     final l10n = format.l10n;
     final scored = history.scoredOn(date);
+    final tag = this.tag;
     final main = scored == null
         ? l10n.dayScoreReceiptNoneTitle
         : '${format.integer(scored.value)} · '
@@ -680,7 +795,10 @@ class _Readout extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              if (scored != null) CaptionText(_coverage(l10n, scored)),
+              if (scored != null && tag == null)
+                CaptionText(_coverage(l10n, scored)),
+              if (tag != null)
+                CaptionText(l10n.dayTagTagged(dayTagLabel(l10n, tag))),
             ],
           ),
         ),

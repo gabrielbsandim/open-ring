@@ -63,7 +63,7 @@ class OpenScoreModuleScreen extends ConsumerWidget {
           facts: [
             l10n.moduleOpenScoreUsesData,
             l10n.moduleOpenScoreUsesNoPermission,
-            l10n.moduleOpenScoreUsesNoStore,
+            l10n.moduleOpenScoreUsesStore,
           ],
         ),
         const SizedBox(height: cardGap),

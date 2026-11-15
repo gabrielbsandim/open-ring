@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,7 +13,10 @@ import 'package:open_ring/features/modules/application/enabled_modules_controlle
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/day_score_providers.dart';
 import 'package:open_ring/features/open_score/application/day_score_view.dart';
+import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
 import 'package:open_ring/features/open_score/domain/day_score_history.dart';
+import 'package:open_ring/features/open_score/domain/day_tag.dart';
+import 'package:open_ring/features/open_score/presentation/day_tag_sheet.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class DayScoreCardKeys {
@@ -23,6 +28,8 @@ abstract final class DayScoreCardKeys {
   static const line = Key('today_day_score_line');
   static const none = Key('today_day_score_none');
   static const first = Key('today_day_score_first');
+  static const tag = Key('today_day_score_tag');
+  static const tagged = Key('today_day_score_tagged');
 }
 
 String dayScoreBandLabel(AppLocalizations l10n, DayScoreBand band) =>
@@ -123,42 +130,67 @@ class DayScoreCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 10),
-          _content(ref.watch(dayScoreHistoryProvider), format),
+          _content(context, ref, format),
         ],
       ),
     );
   }
 
-  Widget _content(AsyncValue<DayScoreHistory> history, MetricFormat format) {
-    if (history.hasValue) return _body(history.requireValue);
+  Widget _content(BuildContext context, WidgetRef ref, MetricFormat format) {
+    final history = ref.watch(dayScoreHistoryProvider);
     if (history.hasError) return BodyText(format.l10n.metricLoadError);
-    return const SizedBox(height: 96);
+    final loaded = history.value;
+    if (loaded == null) return const SizedBox(height: 96);
+    final tag = ref.watch(dayTagsProvider).value?[loaded.today];
+    return _body(
+      loaded,
+      tag,
+      () => unawaited(
+        showDayTagSheet(
+          context,
+          ref,
+          date: loaded.today,
+          today: loaded.today,
+          current: tag,
+        ),
+      ),
+    );
   }
 
-  Widget _body(DayScoreHistory history) => switch (history.on(history.today)) {
-    final Scored<DayScoreFactor> scored => _Scored(scored: scored),
-    final InsufficientData<DayScoreFactor> lacking
-        when history.firstScored == null =>
-      _FirstDays(lacking: lacking),
-    final InsufficientData<DayScoreFactor> lacking => _NoScore(
-      lacking: lacking,
-    ),
-    null => const SizedBox.shrink(),
-  };
+  Widget _body(DayScoreHistory history, DayTag? tag, VoidCallback onTag) =>
+      switch (history.on(history.today)) {
+        final Scored<DayScoreFactor> scored => _Scored(
+          scored: scored,
+          tag: tag,
+          onTag: onTag,
+        ),
+        final InsufficientData<DayScoreFactor> lacking
+            when history.firstScored == null =>
+          _FirstDays(lacking: lacking),
+        final InsufficientData<DayScoreFactor> lacking => _NoScore(
+          lacking: lacking,
+        ),
+        null => const SizedBox.shrink(),
+      };
 }
 
 class _Scored extends StatelessWidget {
-  const new({required this.scored});
+  const new({required this.scored, required this.tag, required this.onTag});
 
   final Scored<DayScoreFactor> scored;
+  final DayTag? tag;
+  final VoidCallback onTag;
 
   @override
   Widget build(BuildContext context) {
     final format = MetricFormat.of(context);
+    final l10n = format.l10n;
+    final colors = AppColors.of(context);
+    final tag = this.tag;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        DayScoreHeadline(scored: scored),
+        DayScoreHeadline(scored: scored, tag: tag),
         const SizedBox(height: 14),
         ExcludeSemantics(
           child: DayScoreBar(
@@ -170,6 +202,28 @@ class _Scored extends StatelessWidget {
         _Legend(scored: scored),
         const SizedBox(height: 10),
         BodyText(key: DayScoreCardKeys.line, _line(format)),
+        if (tag != null) ...[
+          const SizedBox(height: 4),
+          CaptionText(
+            key: DayScoreCardKeys.tagged,
+            l10n.dayTagTagged(dayTagLabel(l10n, tag)),
+          ),
+        ],
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton(
+            key: DayScoreCardKeys.tag,
+            onPressed: onTag,
+            style: TextButton.styleFrom(
+              foregroundColor: colors.textLabel,
+              padding: EdgeInsets.zero,
+              textStyle: Theme.of(context).textTheme.bodySmall,
+            ),
+            child: Text(
+              tag == null ? l10n.dayTagCardLink : l10n.dayTagCardChange,
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -190,9 +244,10 @@ class _Scored extends StatelessWidget {
 }
 
 class DayScoreHeadline extends StatelessWidget {
-  const new({required this.scored, super.key});
+  const new({required this.scored, this.tag, super.key});
 
   final Scored<DayScoreFactor> scored;
+  final DayTag? tag;
 
   @override
   Widget build(BuildContext context) {
@@ -200,13 +255,17 @@ class DayScoreHeadline extends StatelessWidget {
     final colors = AppColors.of(context);
     final format = MetricFormat.of(context);
     final l10n = format.l10n;
+    final tag = this.tag;
     final band = dayScoreBandLabel(l10n, dayScoreBand(scored.value));
     final coverage = scored.isFull
         ? l10n.dayScoreCoverageFull
         : l10n.dayScoreCoveragePartial(scored.coverage.round());
     return Semantics(
       container: true,
-      label: l10n.dayScoreSemantics(scored.value, band, coverage),
+      label: [
+        l10n.dayScoreSemantics(scored.value, band, coverage),
+        if (tag != null) l10n.dayTagTagged(dayTagLabel(l10n, tag)),
+      ].join('. '),
       excludeSemantics: true,
       child: Wrap(
         crossAxisAlignment: WrapCrossAlignment.center,
@@ -223,6 +282,7 @@ class DayScoreHeadline extends StatelessWidget {
                 style: theme.textTheme.displayMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                   height: 1,
+                  color: tag == null ? null : colors.textLabel,
                 ),
               ),
               CaptionText(l10n.readinessOf100),
@@ -259,6 +319,7 @@ class DayScoreHeadline extends StatelessWidget {
               ),
             ],
           ),
+          if (tag != null) DayTagChip(tag: tag),
         ],
       ),
     );

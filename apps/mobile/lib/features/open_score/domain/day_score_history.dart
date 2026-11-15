@@ -143,9 +143,13 @@ final class DayScoreHistory {
     return scored.value;
   }
 
-  List<DailyValue> get scores => [
+  List<DailyValue> get scores => scoresExcept(const {});
+
+  // The scored days without the ones the user set aside.
+  List<DailyValue> scoresExcept(Set<LocalDate> excluded) => [
     for (final entry in _days.entries)
-      if (entry.value case Scored(:final value))
+      if (entry.value case Scored(:final value)
+          when !excluded.contains(entry.key))
         (date: entry.key, value: value.toDouble()),
   ];
 

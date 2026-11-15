@@ -595,6 +595,7 @@
   "settingsAgeDetail": "Base da frequência cardíaca máxima estimada",
   "settingsHeightDetail": "Usada no comprimento do passo",
   "settingsWeightDetail": "Usado nas calorias",
+  "settingsWeightLoggedDetail": "Os treinos usam a sua última pesagem",
   "settingsMaxHrEstimated": "Estimada: 220 menos a idade",
   "settingsMaxHrCustom": "O seu próprio valor",
   "settingsStepGoalDetail": "Por dia",

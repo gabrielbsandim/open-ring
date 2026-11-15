@@ -603,6 +603,7 @@
   "settingsAgeDetail": "Основа для оценки максимального пульса",
   "settingsHeightDetail": "Нужен для длины шага",
   "settingsWeightDetail": "Нужен для калорий",
+  "settingsWeightLoggedDetail": "Тренировки берут последнее взвешивание",
   "settingsMaxHrEstimated": "Оценка: 220 минус возраст",
   "settingsMaxHrCustom": "Ваше значение",
   "settingsStepGoalDetail": "В день",

@@ -492,6 +492,10 @@ a population average for the activity scaled by body weight and time.
 active kcal = (MET - 1) * weight kg * elapsed hours
 ```
 
+The weight is read when the workout starts: the latest weigh-in when the Body
+module is on and has one, otherwise the profile weight. With neither there is
+no energy number.
+
 | Type | MET | GPS | Basis |
 | :--- | :--- | :--- | :--- |
 | running | 9.8 | on | **sourced**: Compendium code 12050, running 6 mph (Ainsworth 2011) |

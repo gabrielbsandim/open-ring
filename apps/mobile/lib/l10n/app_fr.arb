@@ -603,6 +603,7 @@
   "settingsAgeDetail": "Base de la fréquence cardiaque maximale estimée",
   "settingsHeightDetail": "Sert à la longueur du pas",
   "settingsWeightDetail": "Sert aux calories",
+  "settingsWeightLoggedDetail": "Les séances utilisent votre dernière pesée",
   "settingsMaxHrEstimated": "Estimée : 220 moins l'âge",
   "settingsMaxHrCustom": "Votre propre valeur",
   "settingsStepGoalDetail": "Par jour",

@@ -603,6 +603,7 @@
   "settingsAgeDetail": "推定最大心拍数の基準",
   "settingsHeightDetail": "歩幅の計算に使用",
   "settingsWeightDetail": "カロリーの計算に使用",
+  "settingsWeightLoggedDetail": "ワークアウトは最新の体重記録を使用",
   "settingsMaxHrEstimated": "推定: 220 から年齢を引いた値",
   "settingsMaxHrCustom": "自分で入力した値",
   "settingsStepGoalDetail": "1 日あたり",

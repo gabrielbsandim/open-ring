@@ -1115,5 +1115,15 @@
   "bodySheetHiddenEdit": "Números ocultos. Deja un campo en blanco para mantener su valor.",
   "bodySheetSavedHidden": "Pesaje registrado.",
   "bodySheetUpdatedHidden": "Pesaje actualizado.",
-  "profileWeightHidden": "oculto"
+  "profileWeightHidden": "oculto",
+  "onboardingModulesTitle": "Déjalo a tu manera",
+  "onboardingModulesIntro": "OpenRing ya está listo: anillo, sueño, corazón y actividad. Los módulos añaden el resto, uno a uno, y empiezan apagados.",
+  "onboardingModulesFoot": "Un módulo apagado no muestra tarjeta, no abre pantalla y no pide permiso. Esta pregunta aparece una sola vez.",
+  "onboardingModulesWithBody": "Continuar con Cuerpo",
+  "onboardingModulesSkip": "Omitir por ahora",
+  "onboardingModulesLater": "Puedes cambiarlo después en Configuración, Módulos.",
+  "onboardingModulesNone": "Todo listo. Ningún módulo activo.",
+  "todayModulesShortcut": "Conoce los módulos",
+  "todayModulesDismiss": "Descartar el acceso a módulos",
+  "todayModulesDismissed": "Los módulos siguen en Anillo, Configuración."
 }

@@ -3112,5 +3112,15 @@
   "bodySheetHiddenEdit": "Numbers hidden. Leave a field blank to keep its value.",
   "bodySheetSavedHidden": "Weigh-in logged.",
   "bodySheetUpdatedHidden": "Weigh-in updated.",
-  "profileWeightHidden": "hidden"
+  "profileWeightHidden": "hidden",
+  "onboardingModulesTitle": "Make it yours",
+  "onboardingModulesIntro": "OpenRing is ready: ring, sleep, heart and activity. Modules add the rest, one at a time, and start off.",
+  "onboardingModulesFoot": "A module that is off shows no card, opens no screen and asks for no permission. This question shows only once.",
+  "onboardingModulesWithBody": "Continue with Body",
+  "onboardingModulesSkip": "Skip for now",
+  "onboardingModulesLater": "You can change this later in Settings, Modules.",
+  "onboardingModulesNone": "All set. No module is on.",
+  "todayModulesShortcut": "Meet the modules",
+  "todayModulesDismiss": "Dismiss the modules shortcut",
+  "todayModulesDismissed": "Modules stay in Ring, Settings."
 }

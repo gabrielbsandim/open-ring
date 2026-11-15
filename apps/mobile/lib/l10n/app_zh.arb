@@ -1115,5 +1115,15 @@
   "bodySheetHiddenEdit": "数字已隐藏。留空即可保留原值。",
   "bodySheetSavedHidden": "称重已记录。",
   "bodySheetUpdatedHidden": "称重已更新。",
-  "profileWeightHidden": "已隐藏"
+  "profileWeightHidden": "已隐藏",
+  "onboardingModulesTitle": "按你的方式设置",
+  "onboardingModulesIntro": "OpenRing 已准备好：戒指、睡眠、心脏和活动。模块逐个添加其余功能，默认关闭。",
+  "onboardingModulesFoot": "关闭的模块不显示卡片，不打开界面，也不请求权限。这个问题只出现一次。",
+  "onboardingModulesWithBody": "启用身体并继续",
+  "onboardingModulesSkip": "暂时跳过",
+  "onboardingModulesLater": "之后可以在设置的模块中更改。",
+  "onboardingModulesNone": "一切就绪。没有启用任何模块。",
+  "todayModulesShortcut": "了解模块",
+  "todayModulesDismiss": "关闭模块快捷入口",
+  "todayModulesDismissed": "模块仍在戒指的设置中。"
 }

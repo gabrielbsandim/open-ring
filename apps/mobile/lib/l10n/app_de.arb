@@ -1115,5 +1115,15 @@
   "bodySheetHiddenEdit": "Zahlen ausgeblendet. Lass ein Feld leer, um den Wert zu behalten.",
   "bodySheetSavedHidden": "Messung erfasst.",
   "bodySheetUpdatedHidden": "Messung aktualisiert.",
-  "profileWeightHidden": "ausgeblendet"
+  "profileWeightHidden": "ausgeblendet",
+  "onboardingModulesTitle": "Mach es zu deinem",
+  "onboardingModulesIntro": "OpenRing ist bereit: Ring, Schlaf, Herz und Aktivität. Module ergänzen den Rest, eines nach dem anderen, und sind anfangs aus.",
+  "onboardingModulesFoot": "Ein ausgeschaltetes Modul zeigt keine Karte, öffnet keinen Bildschirm und fragt nach keiner Berechtigung. Diese Frage erscheint nur einmal.",
+  "onboardingModulesWithBody": "Mit Körper fortfahren",
+  "onboardingModulesSkip": "Vorerst überspringen",
+  "onboardingModulesLater": "Du kannst das später in Einstellungen, Module ändern.",
+  "onboardingModulesNone": "Alles bereit. Kein Modul aktiv.",
+  "todayModulesShortcut": "Module kennenlernen",
+  "todayModulesDismiss": "Modul-Verknüpfung ausblenden",
+  "todayModulesDismissed": "Module bleiben unter Ring, Einstellungen."
 }

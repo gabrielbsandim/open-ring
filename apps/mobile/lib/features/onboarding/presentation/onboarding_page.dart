@@ -4,7 +4,7 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
-const onboardingSteps = 4;
+const onboardingSteps = 5;
 
 String healthPlatformName() => switch (defaultTargetPlatform) {
   TargetPlatform.iOS || TargetPlatform.macOS => 'Apple Health',

@@ -24,6 +24,7 @@ final class DeviceLocalDataEraser implements LocalDataEraser {
     SharedPreferencesHealthWritePreferences.key,
     SharedPreferencesDemoModeStore.key,
     SharedPreferencesModuleStore.key,
+    SharedPreferencesModuleStore.shortcutKey,
     SharedPreferencesHideNumbersStore.key,
     ...legacyPreferenceKeys,
   };

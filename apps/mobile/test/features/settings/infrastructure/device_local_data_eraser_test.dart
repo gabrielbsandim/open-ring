@@ -23,6 +23,7 @@ void main() {
           SharedPreferencesThemeModeStore.key: 'dark',
           SharedPreferencesOnboardingStore.key: true,
           SharedPreferencesModuleStore.key: ['body', 'trajectory'],
+          SharedPreferencesModuleStore.shortcutKey: true,
           SharedPreferencesHideNumbersStore.key: true,
           'some_plugin_key': 'kept',
         });

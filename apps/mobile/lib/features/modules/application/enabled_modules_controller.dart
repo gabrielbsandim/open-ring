@@ -50,3 +50,18 @@ class EnabledModulesController extends AsyncNotifier<Set<ModuleId>> {
     return const {};
   }
 }
+
+final modulesShortcutProvider =
+    AsyncNotifierProvider<ModulesShortcutController, bool>(
+      ModulesShortcutController.new,
+    );
+
+class ModulesShortcutController extends AsyncNotifier<bool> {
+  @override
+  Future<bool> build() => ref.watch(moduleStoreProvider).shortcutDismissed();
+
+  Future<void> set({required bool dismissed}) async {
+    state = AsyncData(dismissed);
+    await ref.read(moduleStoreProvider).dismissShortcut(dismissed: dismissed);
+  }
+}

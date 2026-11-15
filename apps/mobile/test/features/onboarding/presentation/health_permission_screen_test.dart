@@ -36,7 +36,7 @@ void main() {
 
     expect(find.text('Connect to Health Connect'), findsOneWidget);
     expect(find.text('Sleep with stages'), findsOneWidget);
-    expect(find.text('Step 3 of 4'), findsOneWidget);
+    expect(find.text('Step 3 of 5'), findsOneWidget);
     expect(writer.requests, isEmpty);
   });
 
@@ -93,6 +93,6 @@ void main() {
 
     expect(writer.requests, isEmpty);
     expect(find.byType(PairScreen), findsOneWidget);
-    expect(find.text('Step 4 of 4'), findsOneWidget);
+    expect(find.text('Step 4 of 5'), findsOneWidget);
   });
 }

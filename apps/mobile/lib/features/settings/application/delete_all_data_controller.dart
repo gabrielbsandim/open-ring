@@ -60,6 +60,7 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
     ref
       ..invalidate(unitSystemProvider)
       ..invalidate(enabledModulesProvider)
+      ..invalidate(modulesShortcutProvider)
       ..invalidate(hideNumbersProvider)
       ..invalidate(userProfileProvider)
       ..invalidate(ringSyncProvider);

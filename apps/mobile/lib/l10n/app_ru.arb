@@ -1115,5 +1115,15 @@
   "bodySheetHiddenEdit": "Числа скрыты. Оставьте поле пустым, чтобы сохранить значение.",
   "bodySheetSavedHidden": "Взвешивание записано.",
   "bodySheetUpdatedHidden": "Взвешивание обновлено.",
-  "profileWeightHidden": "скрыто"
+  "profileWeightHidden": "скрыто",
+  "onboardingModulesTitle": "Настройте под себя",
+  "onboardingModulesIntro": "OpenRing готов: кольцо, сон, сердце и активность. Модули добавляют остальное, по одному, и сначала выключены.",
+  "onboardingModulesFoot": "Выключенный модуль не показывает карточку, не открывает экран и не запрашивает разрешений. Этот вопрос появляется только один раз.",
+  "onboardingModulesWithBody": "Продолжить с модулем «Тело»",
+  "onboardingModulesSkip": "Пока пропустить",
+  "onboardingModulesLater": "Это можно изменить позже в разделе «Настройки», «Модули».",
+  "onboardingModulesNone": "Всё готово. Ни один модуль не включён.",
+  "todayModulesShortcut": "Познакомьтесь с модулями",
+  "todayModulesDismiss": "Скрыть ярлык модулей",
+  "todayModulesDismissed": "Модули остаются в разделе «Кольцо», «Настройки»."
 }

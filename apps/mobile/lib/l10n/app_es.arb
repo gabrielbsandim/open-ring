@@ -1275,5 +1275,7 @@
   "dayScoreHistoryHow1": "Un marcador hueco es un día con menos de 100 puntos de cobertura: la nota existe, pero se reescaló.",
   "dayScoreHistoryHow2": "Un día en blanco es un día sin nota. No vale cero y no baja nada.",
   "dayScoreHistoryHow3": "No hay recuento de días seguidos. Cada día vale por sí mismo.",
-  "dayScoreHistoryLinkCaption": "Calendario y barras de 30 y 90 días"
+  "dayScoreHistoryLinkCaption": "Calendario y barras de 30 y 90 días",
+  "trendsSourceDayScore": "La Nota del día de cada día que tiene nota, incluidos los días con cobertura parcial. Hoy sigue en curso y queda fuera de la media.",
+  "trendsEmptyDayScore": "Ninguna Nota del día en este periodo. Un día necesita su noche y sus pasos para tener nota."
 }

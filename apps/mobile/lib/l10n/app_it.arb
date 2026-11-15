@@ -1275,5 +1275,7 @@
   "dayScoreHistoryHow1": "Un indicatore vuoto è un giorno con meno di 100 punti di copertura: il voto esiste, ma è stato riscalato.",
   "dayScoreHistoryHow2": "Un giorno vuoto è un giorno senza voto. Non vale zero e non abbassa nulla.",
   "dayScoreHistoryHow3": "Non c'è un conteggio dei giorni consecutivi. Ogni giorno vale per sé.",
-  "dayScoreHistoryLinkCaption": "Calendario e barre di 30 e 90 giorni"
+  "dayScoreHistoryLinkCaption": "Calendario e barre di 30 e 90 giorni",
+  "trendsSourceDayScore": "Il Voto del giorno di ogni giorno che ne ha uno, compresi i giorni con copertura parziale. Oggi è ancora in corso e resta fuori dalla media.",
+  "trendsEmptyDayScore": "Nessun Voto del giorno in questo periodo. Un giorno ha bisogno della sua notte e dei suoi passi per avere un voto."
 }

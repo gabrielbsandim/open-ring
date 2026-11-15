@@ -3303,5 +3303,7 @@
   "dayScoreHistoryHow1": "A hollow marker is a day with fewer than 100 points of coverage: the score exists, but it was rescaled.",
   "dayScoreHistoryHow2": "A blank day is a day without a score. It is not a zero and pulls nothing down.",
   "dayScoreHistoryHow3": "There is no streak count. Each day stands on its own.",
-  "dayScoreHistoryLinkCaption": "Calendar and bars of 30 and 90 days"
+  "dayScoreHistoryLinkCaption": "Calendar and bars of 30 and 90 days",
+  "trendsSourceDayScore": "The Day Score of each day that has one, including days with partial coverage. Today is still in progress and stays out of the average.",
+  "trendsEmptyDayScore": "No Day Score in this range. A day needs its night and its steps to be scored."
 }

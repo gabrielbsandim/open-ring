@@ -70,6 +70,13 @@ final class TrendHistory {
     return TrendHistory(today: today, values: values, bands: bands);
   }
 
+  TrendHistory withValues(TrendMetric metric, List<DailyValue> values) =>
+      TrendHistory(
+        today: today,
+        values: {..._values, metric: values},
+        bands: bands,
+      );
+
   final LocalDate today;
   final Map<TrendMetric, List<DailyValue>> _values;
   final Map<TrendMetric, TrendBand> bands;

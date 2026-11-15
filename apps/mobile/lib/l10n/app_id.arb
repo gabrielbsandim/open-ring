@@ -1275,5 +1275,7 @@
   "dayScoreHistoryHow1": "Penanda berongga adalah hari dengan cakupan kurang dari 100 poin: skornya ada, tetapi diskalakan ulang.",
   "dayScoreHistoryHow2": "Hari kosong adalah hari tanpa skor. Bukan nol dan tidak menurunkan apa pun.",
   "dayScoreHistoryHow3": "Tidak ada hitungan hari berturut-turut. Setiap hari berdiri sendiri.",
-  "dayScoreHistoryLinkCaption": "Kalender dan batang 30 dan 90 hari"
+  "dayScoreHistoryLinkCaption": "Kalender dan batang 30 dan 90 hari",
+  "trendsSourceDayScore": "Skor Hari untuk setiap hari yang memilikinya, termasuk hari dengan cakupan sebagian. Hari ini masih berjalan dan tidak masuk rata-rata.",
+  "trendsEmptyDayScore": "Tidak ada Skor Hari pada rentang ini. Sebuah hari butuh malam dan langkahnya untuk mendapat skor."
 }

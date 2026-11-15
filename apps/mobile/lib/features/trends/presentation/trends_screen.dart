@@ -10,6 +10,9 @@ import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/charts.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/open_score/application/day_score_providers.dart';
 import 'package:open_ring/features/ring/presentation/sync_status_banner.dart';
 import 'package:open_ring/features/trends/application/trends_providers.dart';
 import 'package:open_ring/features/trends/domain/trend_history.dart';
@@ -43,6 +46,12 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = MetricFormat.of(context).l10n;
+    final on = ref.watch(
+      enabledModulesProvider.select(
+        (modules) => modules.value?.contains(ModuleId.openScore) ?? false,
+      ),
+    );
+    final scores = on ? ref.watch(dayScoreHistoryProvider).value?.scores : null;
     return AppPage(
       title: l10n.trendsTitle,
       onRefresh: () => refreshRing(ref),
@@ -51,8 +60,16 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         AsyncBody(
           value: ref.watch(trendHistoryProvider),
           builder: (history) => _TrendsBody(
-            history: history,
-            metric: _metric,
+            history: scores == null
+                ? history
+                : history.withValues(TrendMetric.dayScore, scores),
+            metrics: [
+              for (final metric in TrendMetric.values)
+                if (scores != null || metric != TrendMetric.dayScore) metric,
+            ],
+            metric: scores == null && _metric == TrendMetric.dayScore
+                ? TrendMetric.restingHeartRate
+                : _metric,
             range: _range,
             onMetric: (metric) => setState(() => _metric = metric),
             onRange: (range) => setState(() => _range = range),
@@ -66,6 +83,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
 class _TrendsBody extends StatelessWidget {
   const new({
     required this.history,
+    required this.metrics,
     required this.metric,
     required this.range,
     required this.onMetric,
@@ -73,6 +91,7 @@ class _TrendsBody extends StatelessWidget {
   });
 
   final TrendHistory history;
+  final List<TrendMetric> metrics;
   final TrendMetric metric;
   final TrendRange range;
   final ValueChanged<TrendMetric> onMetric;
@@ -97,7 +116,7 @@ class _TrendsBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _MetricPicker(selected: metric, onSelected: onMetric),
+        _MetricPicker(metrics: metrics, selected: metric, onSelected: onMetric),
         const SizedBox(height: cardGap),
         _RangePicker(selected: range, onSelected: onRange),
         const SizedBox(height: cardGap),
@@ -114,8 +133,13 @@ class _TrendsBody extends StatelessWidget {
 }
 
 class _MetricPicker extends StatelessWidget {
-  const new({required this.selected, required this.onSelected});
+  const new({
+    required this.metrics,
+    required this.selected,
+    required this.onSelected,
+  });
 
+  final List<TrendMetric> metrics;
   final TrendMetric selected;
   final ValueChanged<TrendMetric> onSelected;
 
@@ -130,7 +154,7 @@ class _MetricPicker extends StatelessWidget {
         spacing: 8,
         runSpacing: 8,
         children: [
-          for (final metric in TrendMetric.values)
+          for (final metric in metrics)
             _MetricChip(
               key: TrendsKeys.metric(metric),
               label: metric.label(l10n),

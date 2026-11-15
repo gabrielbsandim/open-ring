@@ -1275,5 +1275,7 @@
   "dayScoreHistoryHow1": "白抜きのマークは対象が100点分に満たない日です。スコアはありますが、換算されています。",
   "dayScoreHistoryHow2": "空欄の日はスコアのない日です。0点にはならず、何も下げません。",
   "dayScoreHistoryHow3": "連続日数のカウントはありません。1日ごとに評価します。",
-  "dayScoreHistoryLinkCaption": "カレンダーと30日・90日の棒グラフ"
+  "dayScoreHistoryLinkCaption": "カレンダーと30日・90日の棒グラフ",
+  "trendsSourceDayScore": "スコアのある各日の今日のスコアです。一部の項目のみの日も含みます。今日はまだ途中のため、平均には含まれません。",
+  "trendsEmptyDayScore": "この期間に今日のスコアはありません。スコアにはその日の夜と歩数が必要です。"
 }

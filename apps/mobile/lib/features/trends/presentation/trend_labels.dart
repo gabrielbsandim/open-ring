@@ -6,6 +6,7 @@ import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 extension TrendMetricLabels on TrendMetric {
   String label(AppLocalizations l10n) => switch (this) {
+    TrendMetric.dayScore => l10n.dayScoreTitle,
     TrendMetric.restingHeartRate => l10n.trendsMetricRestingHeartRate,
     TrendMetric.hrv => l10n.trendsMetricHrv,
     TrendMetric.sleepDuration => l10n.trendsMetricSleep,
@@ -15,6 +16,7 @@ extension TrendMetricLabels on TrendMetric {
   };
 
   Color accent(AppColors colors) => switch (this) {
+    TrendMetric.dayScore => colors.textPrimary,
     TrendMetric.restingHeartRate || TrendMetric.hrv => colors.heart,
     TrendMetric.sleepDuration || TrendMetric.sleepScore => colors.sleep,
     TrendMetric.steps => colors.activity,
@@ -25,12 +27,13 @@ extension TrendMetricLabels on TrendMetric {
     TrendMetric.restingHeartRate => l10n.heartAverageBpm,
     TrendMetric.hrv => l10n.heartAverageMs,
     TrendMetric.sleepDuration => l10n.trendsAverageAsleep,
-    TrendMetric.sleepScore => l10n.trendsAverageScore,
+    TrendMetric.dayScore || TrendMetric.sleepScore => l10n.trendsAverageScore,
     TrendMetric.steps => l10n.trendsAverageSteps,
     TrendMetric.spo2 => l10n.heartAveragePercent,
   };
 
   String source(AppLocalizations l10n) => switch (this) {
+    TrendMetric.dayScore => l10n.trendsSourceDayScore,
     TrendMetric.restingHeartRate => l10n.heartRestingSource,
     TrendMetric.hrv => l10n.trendsSourceHrv,
     TrendMetric.sleepDuration => l10n.trendsSourceSleep,
@@ -39,8 +42,11 @@ extension TrendMetricLabels on TrendMetric {
     TrendMetric.spo2 => l10n.trendsSourceSpo2,
   };
 
-  String emptyMessage(AppLocalizations l10n) =>
-      isNightly ? l10n.trendsEmptyNights : l10n.trendsEmptySteps;
+  String emptyMessage(AppLocalizations l10n) => switch (this) {
+    TrendMetric.dayScore => l10n.trendsEmptyDayScore,
+    TrendMetric.steps => l10n.trendsEmptySteps,
+    _ => l10n.trendsEmptyNights,
+  };
 
   String number(MetricFormat format, double value) => switch (this) {
     TrendMetric.sleepDuration => format.duration(
@@ -71,7 +77,9 @@ extension TrendMetricLabels on TrendMetric {
         format.duration(Duration(minutes: amount)),
       ),
       TrendMetric.steps => l10n.trendsStepsPerDay(format.integer(amount)),
-      TrendMetric.sleepScore || TrendMetric.spo2 => l10n.trendsPoints(amount),
+      TrendMetric.dayScore ||
+      TrendMetric.sleepScore ||
+      TrendMetric.spo2 => l10n.trendsPoints(amount),
     };
   }
 }

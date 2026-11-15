@@ -4,14 +4,14 @@ enum WeighInSource { manual, demo }
 
 enum WeighInIssue { kilograms, bodyFat, waist, future }
 
-typedef _Range = ({double min, double max});
+typedef WeighInRange = ({double min, double max});
 
-const _Range _kilogramsRange = (min: 20, max: 300);
-const _Range _bodyFatRange = (min: 3, max: 70);
-const _Range _waistRange = (min: 40, max: 200);
+const WeighInRange weighInKilogramsRange = (min: 20, max: 300);
+const WeighInRange weighInBodyFatRange = (min: 3, max: 70);
+const WeighInRange weighInWaistRange = (min: 40, max: 200);
 const _clockTolerance = Duration(minutes: 1);
 
-bool _outside(double? value, _Range range) =>
+bool _outside(double? value, WeighInRange range) =>
     value != null && !(value >= range.min && value <= range.max);
 
 // Hundredths of a kilogram keep a value typed in pounds intact at one decimal.
@@ -78,9 +78,9 @@ final class WeighInDraft {
   final WeighInSource source;
 
   Set<WeighInIssue> validate({required DateTime now}) => {
-    if (_outside(kilograms, _kilogramsRange)) WeighInIssue.kilograms,
-    if (_outside(bodyFatPercent, _bodyFatRange)) WeighInIssue.bodyFat,
-    if (_outside(waistCentimeters, _waistRange)) WeighInIssue.waist,
+    if (_outside(kilograms, weighInKilogramsRange)) WeighInIssue.kilograms,
+    if (_outside(bodyFatPercent, weighInBodyFatRange)) WeighInIssue.bodyFat,
+    if (_outside(waistCentimeters, weighInWaistRange)) WeighInIssue.waist,
     if (at.isAfter(now.add(_clockTolerance))) WeighInIssue.future,
   };
 }

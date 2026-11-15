@@ -10,6 +10,7 @@ import 'package:open_ring/core/widgets/charts.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/core/widgets/text_scale.dart';
+import 'package:open_ring/features/body/presentation/weight_card.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/presentation/sync_status_banner.dart';
@@ -96,6 +97,7 @@ class _TodayBody extends StatelessWidget {
               actionKey: TodayKeys.pairAction,
               onAction: () => context.go(AppTab.ring.path),
             ),
+            const WeightCardSlot(),
           ],
           SyncFreshness.unpaired => [
             EmptyStateCard(
@@ -106,6 +108,7 @@ class _TodayBody extends StatelessWidget {
               actionKey: TodayKeys.pairAction,
               onAction: () => context.go(AppTab.ring.path),
             ),
+            const WeightCardSlot(),
           ],
           SyncFreshness.neverSynced => [
             EmptyStateCard(
@@ -116,6 +119,7 @@ class _TodayBody extends StatelessWidget {
               actionKey: TodayKeys.pairAction,
               onAction: () => context.go(AppTab.ring.path),
             ),
+            const WeightCardSlot(),
           ],
           SyncFreshness.fresh || SyncFreshness.stale => [
             if (freshness == SyncFreshness.stale) ...[
@@ -132,6 +136,7 @@ class _TodayBody extends StatelessWidget {
             SleepSummaryCard(view: view),
             const SizedBox(height: cardGap),
             SummaryColumns(view: view),
+            const WeightCardSlot(),
             const SizedBox(height: cardGap),
             const WorkoutEntryButton(),
             if (freshness == SyncFreshness.stale) ...[

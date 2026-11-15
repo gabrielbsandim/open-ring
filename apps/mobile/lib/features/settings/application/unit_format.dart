@@ -88,6 +88,28 @@ final class UnitFormat {
     return '${format.decimal(kilograms, digits: digits)} ${l10n.profileUnitKg}';
   }
 
+  double bodyWeightIn(double kilograms) =>
+      select(kilograms, ImperialUnits.pounds(kilograms));
+
+  double kilogramsFrom(double bodyWeight) =>
+      select(bodyWeight, ImperialUnits.kilograms(bodyWeight));
+
+  String get weightUnit => select(l10n.profileUnitKg, l10n.settingsPoundsUnit);
+
+  String bodyWeightNumber(double kilograms) =>
+      format.decimal(bodyWeightIn(kilograms), digits: 1);
+
+  String bodyWeight(double kilograms) =>
+      '${bodyWeightNumber(kilograms)} $weightUnit';
+
+  double waistIn(double centimeters) =>
+      select(centimeters, ImperialUnits.inches(centimeters));
+
+  double centimetersFrom(double waist) =>
+      select(waist, ImperialUnits.centimeters(waist));
+
+  String get waistUnit => select(l10n.profileUnitCm, l10n.settingsInchesUnit);
+
   Duration _perUnit(Duration perKilometre) =>
       perKilometre * (distanceUnitMeters / metersPerKilometre);
 }

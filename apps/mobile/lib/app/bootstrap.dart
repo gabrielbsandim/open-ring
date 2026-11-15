@@ -10,6 +10,8 @@ import 'package:open_ring/core/database/app_database_provider.dart';
 import 'package:open_ring/core/database/open_app_database.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
 import 'package:open_ring/features/activity/infrastructure/drift_activity_history_reader.dart';
+import 'package:open_ring/features/body/application/weigh_in_providers.dart';
+import 'package:open_ring/features/body/infrastructure/drift_weigh_in_store.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/demo/infrastructure/demo_workout_store.dart';
 import 'package:open_ring/features/demo/infrastructure/drift_demo_data_store.dart';
@@ -120,6 +122,9 @@ Future<void> bootstrap() async {
         SharedPreferencesUnitSystemStore(),
       ),
       moduleStoreProvider.overrideWithValue(SharedPreferencesModuleStore()),
+      weighInStoreProvider.overrideWith(
+        (ref) => DriftWeighInStore(ref.watch(appDatabaseProvider)),
+      ),
       ringAlertPreferencesProvider.overrideWithValue(
         SharedPreferencesRingAlertPreferences(),
       ),

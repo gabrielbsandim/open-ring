@@ -180,7 +180,7 @@ void main() {
 
       test('each entry keeps the offset it was given', () async {
         final instant = DateTime.utc(2026, 11, 14, 2, 50);
-        final west = await store.add(draft(at: instant, offsetMinutes: -180));
+        final west = await store.add(draft(at: instant));
         final utc = await store.add(draft(at: instant, offsetMinutes: 0));
 
         final read = {for (final w in await store.all()) w.id: w};

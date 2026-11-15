@@ -119,14 +119,17 @@ void main() {
     },
   );
 
-  test('criterion 4: the upgrade lands on schema version 10', () async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.android;
-    final db = _v9Database(rows);
+  test(
+    'criterion 4: the upgrade lands on the current schema version',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final db = _v9Database(rows);
 
-    final version = await db.customSelect('PRAGMA user_version').getSingle();
+      final version = await db.customSelect('PRAGMA user_version').getSingle();
 
-    expect(version.read<int>('user_version'), 10);
-  });
+      expect(version.read<int>('user_version'), 11);
+    },
+  );
 
   test('criterion 4: older done workouts stay done', () async {
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
@@ -161,7 +164,7 @@ void main() {
   });
 
   test(
-    'criterion 5: iOS changes no row but still reaches version 10',
+    'criterion 5: iOS changes no row but still reaches the current version',
     () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
       final db = _v9Database(rows);
@@ -169,7 +172,7 @@ void main() {
       final outbox = await _outbox(db);
       final version = await db.customSelect('PRAGMA user_version').getSingle();
 
-      expect(version.read<int>('user_version'), 10);
+      expect(version.read<int>('user_version'), 11);
       _expectUntouched(outbox[1]!, 'done');
       _expectUntouched(outbox[2]!, 'done');
       _expectUntouched(outbox[3]!, 'done');
@@ -183,7 +186,7 @@ void main() {
     final outbox = await _outbox(db);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
 
-    expect(version.read<int>('user_version'), 10);
+    expect(version.read<int>('user_version'), 11);
     _expectUntouched(outbox[1]!, 'done');
     _expectUntouched(outbox[2]!, 'done');
   });

@@ -3,6 +3,15 @@ import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/body/domain/weigh_in_store.dart';
 
+WeighInsCompanion weighInColumns(WeighInDraft draft) => WeighInsCompanion(
+  atUtcMs: Value(draft.at.millisecondsSinceEpoch),
+  offsetMinutes: Value(draft.offsetMinutes),
+  kilograms: Value(roundKilograms(draft.kilograms)),
+  bodyFatPercent: Value(draft.bodyFatPercent),
+  waistCentimeters: Value(draft.waistCentimeters),
+  source: Value(draft.source.name),
+);
+
 final class DriftWeighInStore implements WeighInStore {
   new(this._db);
 
@@ -19,14 +28,15 @@ final class DriftWeighInStore implements WeighInStore {
   }
 
   @override
-  Future<WeighIn> add(WeighInDraft draft) async =>
-      _weighIn(await _db.into(_db.weighIns).insertReturning(_columns(draft)));
+  Future<WeighIn> add(WeighInDraft draft) async => _weighIn(
+    await _db.into(_db.weighIns).insertReturning(weighInColumns(draft)),
+  );
 
   @override
   Future<bool> update(int id, WeighInDraft draft) async {
     final changed = await (_db.update(
       _db.weighIns,
-    )..where((row) => row.id.equals(id))).write(_columns(draft));
+    )..where((row) => row.id.equals(id))).write(weighInColumns(draft));
     return changed > 0;
   }
 
@@ -43,15 +53,6 @@ final class DriftWeighInStore implements WeighInStore {
 
   @override
   Future<int> count() async => await _db.weighIns.count().getSingle();
-
-  static WeighInsCompanion _columns(WeighInDraft draft) => WeighInsCompanion(
-    atUtcMs: Value(draft.at.millisecondsSinceEpoch),
-    offsetMinutes: Value(draft.offsetMinutes),
-    kilograms: Value(roundKilograms(draft.kilograms)),
-    bodyFatPercent: Value(draft.bodyFatPercent),
-    waistCentimeters: Value(draft.waistCentimeters),
-    source: Value(draft.source.name),
-  );
 
   static WeighIn _weighIn(WeighInRow row) => WeighIn(
     id: row.id,

@@ -5,6 +5,10 @@ import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
 import 'package:open_ring/features/activity/infrastructure/drift_activity_history_reader.dart';
+import 'package:open_ring/features/body/application/weigh_in_providers.dart';
+import 'package:open_ring/features/body/application/weight_summary.dart';
+import 'package:open_ring/features/body/domain/weigh_in.dart';
+import 'package:open_ring/features/body/infrastructure/drift_weigh_in_store.dart';
 import 'package:open_ring/features/demo/domain/demo_data.dart';
 import 'package:open_ring/features/demo/domain/demo_data_generator.dart';
 import 'package:open_ring/features/demo/infrastructure/demo_workout_store.dart';
@@ -69,6 +73,7 @@ ProviderContainer screensOver(AppDatabase db) {
         DriftImportedWorkoutReader(db),
       ),
       userProfileStoreProvider.overrideWithValue(InMemoryUserProfileStore()),
+      weighInStoreProvider.overrideWithValue(DriftWeighInStore(db)),
     ],
   );
   return container;
@@ -97,6 +102,7 @@ void main() {
     expect(await rowCount(db, 'workouts'), 2);
     expect(await rowCount(db, 'workout_hr_samples'), greaterThan(0));
     expect(await rowCount(db, 'sync_runs'), 3);
+    expect(await rowCount(db, 'weigh_ins'), data.weighIns.length);
     expect(await rowCount(db, 'health_outbox'), 0);
   });
 
@@ -110,6 +116,7 @@ void main() {
     expect(await rowCount(db, 'ring_devices'), 1);
     expect(await rowCount(db, 'workouts'), 2);
     expect(await rowCount(db, 'sync_runs'), 3);
+    expect(await rowCount(db, 'weigh_ins'), data.weighIns.length);
   });
 
   test('every main screen reads realistic numbers', () async {
@@ -155,6 +162,45 @@ void main() {
     for (final table in deviceTables.skip(2)) {
       expect(await rowCount(db, table), 0, reason: table);
     }
+  });
+
+  group('weigh-ins', () {
+    final typed = WeighInDraft(
+      at: DateTime(2026, 11, 10, 8),
+      offsetMinutes: 0,
+      kilograms: 81.4,
+    );
+
+    test('the Body screen reads a trend and a rate from the demo', () async {
+      await DriftDemoDataStore(db).replace(data);
+      final container = screensOver(db);
+
+      final summary = await container.read(weightSummaryProvider.future);
+
+      expect(summary!.last.source, WeighInSource.demo);
+      expect(summary.rate, isA<WeightRateReady>());
+      expect((summary.rate as WeightRateReady).perWeek, lessThan(0));
+    });
+
+    test('a refresh keeps a weigh-in the user typed', () async {
+      final store = DriftDemoDataStore(db);
+      await store.replace(data);
+      await DriftWeighInStore(db).add(typed);
+      await store.replace(data);
+
+      expect(await rowCount(db, 'weigh_ins'), data.weighIns.length + 1);
+    });
+
+    test('wiping removes the demo ones and keeps the typed one', () async {
+      await DriftDemoDataStore(db).replace(data);
+      await DriftWeighInStore(db).add(typed);
+
+      await DriftDemoDataStore(db).wipe();
+
+      final left = await DriftWeighInStore(db).all();
+      expect(left.single.kilograms, 81.4);
+      expect(left.single.source, WeighInSource.manual);
+    });
   });
 
   test('a demo workout is never queued for Health', () async {

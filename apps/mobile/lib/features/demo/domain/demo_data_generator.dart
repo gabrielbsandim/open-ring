@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/records/record_kind.dart';
+import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/demo/domain/demo_data.dart';
 import 'package:open_ring/features/ring/domain/sync_run.dart';
 import 'package:open_ring/features/workout/domain/workout_route.dart';
@@ -23,6 +24,8 @@ final class DemoDataGenerator {
   static const bucketDuration = Duration(minutes: 15);
   static const workoutSampleInterval = Duration(seconds: 5);
   static const weightKilograms = 70.0;
+  static const weighInDays = 35;
+  static const _kilogramsPerDay = 0.045;
 
   final DateTime now;
   final int days;
@@ -82,8 +85,37 @@ final class DemoDataGenerator {
       ],
       workouts: workouts,
       syncRuns: _syncRuns(),
+      weighIns: _weighIns(),
     );
   }
+
+  List<WeighInDraft> _weighIns() => [
+    for (var ago = weighInDays; ago >= 0; ago--) ?_weighIn(ago),
+  ];
+
+  // About one morning in six is skipped, as a real log would be.
+  WeighInDraft? _weighIn(int ago) {
+    final day = _dayAgo(ago);
+    final random = _random(day, 31);
+    if (random.nextInt(6) == 0) return null;
+    final at = day.add(Duration(hours: 6, minutes: 40 + random.nextInt(50)));
+    if (at.isAfter(now)) return null;
+    final extras = day.weekday == DateTime.monday;
+    return WeighInDraft(
+      at: at,
+      offsetMinutes: at.timeZoneOffset.inMinutes,
+      kilograms: _tenth(
+        weightKilograms +
+            ago * _kilogramsPerDay +
+            (random.nextInt(81) - 40) / 100,
+      ),
+      bodyFatPercent: extras ? _tenth(21.4 + ago * 0.02) : null,
+      waistCentimeters: extras ? _tenth(85.5 + ago * 0.03) : null,
+      source: WeighInSource.demo,
+    );
+  }
+
+  static double _tenth(double value) => (value * 10).round() / 10;
 
   DateTime _dayAgo(int ago) =>
       DateTime(_today.year, _today.month, _today.day - ago);

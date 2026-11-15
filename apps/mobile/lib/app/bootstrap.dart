@@ -77,6 +77,7 @@ import 'package:open_ring/features/workout/infrastructure/drift_imported_workout
 import 'package:open_ring/features/workout/infrastructure/drift_workout_history_reader.dart';
 import 'package:open_ring/features/workout/infrastructure/drift_workout_store.dart';
 import 'package:open_ring/features/workout/infrastructure/geolocator_location_source.dart';
+import 'package:open_ring/features/workout/infrastructure/method_channel_workout_notifier.dart';
 import 'package:open_ring/features/workout/infrastructure/ring_live_heart_rate_source.dart';
 
 Future<void> bootstrap() async {
@@ -129,6 +130,7 @@ Future<void> bootstrap() async {
         SharedPreferencesRingAlertPreferences(),
       ),
       ringNotifierProvider.overrideWithValue(const MethodChannelRingNotifier()),
+      workoutNotifierProvider.overrideWithValue(MethodChannelWorkoutNotifier()),
       healthWritePreferencesProvider.overrideWithValue(
         SharedPreferencesHealthWritePreferences(),
       ),

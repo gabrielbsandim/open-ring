@@ -4,4 +4,7 @@ abstract final class RingNotificationsChannel {
   static const showMethod = 'show';
   static const startSyncServiceMethod = 'startSyncService';
   static const stopSyncServiceMethod = 'stopSyncService';
+  static const showWorkoutMethod = 'showWorkout';
+  static const hideWorkoutMethod = 'hideWorkout';
+  static const workoutActionMethod = 'workoutAction';
 }

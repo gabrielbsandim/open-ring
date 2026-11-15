@@ -4,12 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
+import 'package:open_ring/features/workout/application/workout_notice.dart';
 import 'package:open_ring/features/workout/application/workout_state.dart';
 import 'package:open_ring/features/workout/domain/live_heart_rate_source.dart';
 import 'package:open_ring/features/workout/domain/location_fix.dart';
 import 'package:open_ring/features/workout/domain/location_source.dart';
+import 'package:open_ring/features/workout/domain/workout_notifier.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_store.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
@@ -30,6 +33,10 @@ final liveHeartRateSourceProvider = Provider<LiveHeartRateSource>(
 
 final workoutStoreProvider = Provider<WorkoutStore>(
   (ref) => throw UnimplementedError('Override workoutStoreProvider.'),
+);
+
+final workoutNotifierProvider = Provider<WorkoutNotifier>(
+  (ref) => InMemoryWorkoutNotifier(),
 );
 
 final workoutTicksProvider = Provider<Stream<void> Function()>(
@@ -68,6 +75,9 @@ class WorkoutController extends Notifier<WorkoutState> {
   StreamSubscription<void>? _ticks;
   StreamSubscription<int>? _heartRate;
   StreamSubscription<LocationFix>? _location;
+  StreamSubscription<WorkoutNoticeAction>? _actions;
+  WorkoutNotice? _shown;
+  WorkoutNotifier? _showing;
   Future<void>? _heartRateStopping;
   Future<void>? _locationStopping;
   LocationNotice? _notice;
@@ -80,7 +90,11 @@ class WorkoutController extends Notifier<WorkoutState> {
 
   @override
   WorkoutState build() {
-    ref.onDispose(() => unawaited(_stopStreams()));
+    ref.onDispose(() {
+      unawaited(_stopStreams());
+      final showing = _showing;
+      if (showing != null) unawaited(_quietly(_guarded(showing.hide)));
+    });
     return const WorkoutState();
   }
 
@@ -102,7 +116,10 @@ class WorkoutController extends Notifier<WorkoutState> {
     )..start(_now());
     _session = session;
     _notice = notice;
+    _shown = null;
     state = WorkoutState(snapshot: session.snapshotAt(_now()));
+    _actions = ref.read(workoutNotifierProvider).actions.listen(_onAction);
+    _showNotice(session);
     _listenHeartRate(session);
     if (session.gps) _listenLocation(session, notice);
     _ticks = ref.read(workoutTicksProvider)().listen((_) => _tick(session));
@@ -164,6 +181,7 @@ class WorkoutController extends Notifier<WorkoutState> {
     session.finish(_now());
     _publish(session);
     await _stopStreams();
+    await _hideNotice();
     await _save(session);
   }
 
@@ -185,6 +203,7 @@ class WorkoutController extends Notifier<WorkoutState> {
     session.discard(_now());
     _publish(session);
     await _stopStreams();
+    await _hideNotice();
   }
 
   Future<void> _save(WorkoutSession session) async {
@@ -282,19 +301,56 @@ class WorkoutController extends Notifier<WorkoutState> {
   void _publish(WorkoutSession session) {
     if (!_current(session)) return;
     state = state.next(snapshot: session.snapshotAt(_now()));
+    _showNotice(session);
   }
+
+  void _onAction(WorkoutNoticeAction action) => switch (action) {
+    WorkoutNoticeAction.pause => pause(),
+    WorkoutNoticeAction.resume => resume(),
+    WorkoutNoticeAction.stop => unawaited(finish()),
+  };
+
+  void _showNotice(WorkoutSession session) {
+    final labels = _notice;
+    final snapshot = state.snapshot;
+    if (labels == null || snapshot == null || !state.live) return;
+    final notice = workoutNoticeOf(
+      snapshot,
+      labels,
+      ref.read(currentUnitSystemProvider),
+    );
+    if (notice == _shown) return;
+    _shown = notice;
+    final notifier = _notifier;
+    _showing = notifier;
+    unawaited(_quietly(_guarded(() => notifier.show(notice))));
+  }
+
+  Future<void> _hideNotice() {
+    _shown = null;
+    _showing = null;
+    return _quietly(_guarded(_notifier.hide));
+  }
+
+  WorkoutNotifier get _notifier => ref.read(workoutNotifierProvider);
+
+  // A notifier that throws before returning its future must not stop a workout.
+  static Future<void> _guarded(Future<void> Function() call) async =>
+      await call();
 
   bool _current(WorkoutSession session) =>
       ref.mounted && identical(_session, session);
 
   Future<void> _stopStreams() async {
     final cancels = [
+      _quietly(_actions?.cancel()),
       _quietly(_ticks?.cancel()),
       _quietly(_heartRate?.cancel()),
       _quietly(_location?.cancel()),
       _quietly(_heartRateStopping),
       _quietly(_locationStopping),
     ];
+    _actions = null;
     _ticks = null;
     _heartRate = null;
     _location = null;

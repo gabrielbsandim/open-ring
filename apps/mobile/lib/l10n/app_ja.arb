@@ -1221,7 +1221,7 @@
   "dayScoreReceiptMinimum": "対象は{points}点分です。スコアには最低60点分が必要です。",
   "dayScoreReceiptOpen": "午前0時まで未確定：{names}であと最大{points}点。睡眠と回復は確定済みです。",
   "dayScoreReceiptNeverTitle": "どの計算にも含まれないもの",
-  "dayScoreReceiptNever1": "体重、カロリー、年齢を読む項目はありません。アクティブエネルギーはコンディションを通じてのみ入り、その日の歩数目標を下げることがあります。",
+  "dayScoreReceiptNever1": "体重やカロリーを読む項目はありません。アクティブエネルギーはコンディションを通じてのみ入り、その日の歩数目標を下げることがあります。年齢は、最大心拍数を入力していない場合にワークアウトの心拍ゾーンを決めるためだけに使われます。",
   "dayScoreReceiptNever2": "目標を超えても加点はありません。",
   "dayScoreFormulaIntro": "今日のスコアは「1日全体がどうだったか」という1つの問いに答えます。計算式は全員共通で、コードと同じものが docs/metrics.md に公開されています。",
   "dayScoreFormulaLineTitle": "計算を1行で",

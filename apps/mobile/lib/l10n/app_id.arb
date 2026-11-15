@@ -1221,7 +1221,7 @@
   "dayScoreReceiptMinimum": "Cakupan {points} poin. Minimum untuk skor adalah 60.",
   "dayScoreReceiptOpen": "Terbuka sampai tengah malam: hingga {points} poin dari {names}. Tidur dan pemulihan sudah ditutup.",
   "dayScoreReceiptNeverTitle": "Di luar hitungan apa pun",
-  "dayScoreReceiptNever1": "Tidak ada faktor yang membaca berat badan, kalori, atau usia. Energi aktif hanya masuk melalui kesiapan, yang dapat menurunkan target langkah suatu hari.",
+  "dayScoreReceiptNever1": "Tidak ada faktor yang membaca berat badan atau kalori. Energi aktif hanya masuk melalui kesiapan, yang dapat menurunkan target langkah suatu hari. Usia hanya menentukan zona detak jantung latihan jika Anda tidak mengisi detak jantung maksimum.",
   "dayScoreReceiptNever2": "Melewati target tidak memberi poin tambahan.",
   "dayScoreFormulaIntro": "Skor Hari menjawab satu pertanyaan: bagaimana hari Anda secara keseluruhan. Rumusnya sama untuk semua orang dan sama dengan kodenya, diterbitkan di docs/metrics.md.",
   "dayScoreFormulaLineTitle": "Hitungannya dalam satu baris",

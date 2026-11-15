@@ -300,8 +300,10 @@ void main() {
     expect(
       texts,
       contains(
-        'No factor reads body weight, calories or age. Active energy only '
-        'enters through readiness, which can lower the step goal of a day.',
+        'No factor reads body weight or calories. Active energy only enters '
+        'through readiness, which can lower the step goal of a day. Age only '
+        'sets the heart rate zones of a workout when you gave no maximum '
+        'heart rate.',
       ),
     );
     expect(texts, contains('Turn Open Score on'));

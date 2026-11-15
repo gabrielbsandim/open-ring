@@ -3243,7 +3243,7 @@
   "dayScoreReceiptOpen": "Open until midnight: up to {points} points from {names}. Sleep and recovery are already closed.",
   "@dayScoreReceiptOpen": {"placeholders": {"points": {"type": "String"}, "names": {"type": "String"}}},
   "dayScoreReceiptNeverTitle": "Outside any math",
-  "dayScoreReceiptNever1": "No factor reads body weight, calories or age. Active energy only enters through readiness, which can lower the step goal of a day.",
+  "dayScoreReceiptNever1": "No factor reads body weight or calories. Active energy only enters through readiness, which can lower the step goal of a day. Age only sets the heart rate zones of a workout when you gave no maximum heart rate.",
   "dayScoreReceiptNever2": "Going past the goal earns no extra point.",
   "dayScoreFormulaIntro": "The Day Score answers one question: how was your whole day. The formula is the same for everyone and the same as the code, published in docs/metrics.md.",
   "dayScoreFormulaLineTitle": "The math in one line",

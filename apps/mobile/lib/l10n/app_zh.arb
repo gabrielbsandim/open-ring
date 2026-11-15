@@ -1221,7 +1221,7 @@
   "dayScoreReceiptMinimum": "覆盖 {points} 分。评分最少需要 60 分。",
   "dayScoreReceiptOpen": "午夜前待定：{names}最多还可得 {points} 分。睡眠和恢复已结算。",
   "dayScoreReceiptNeverTitle": "不参与任何计算",
-  "dayScoreReceiptNever1": "没有任何因素读取体重、卡路里或年龄。活动能量只通过准备度计入，它可能降低某一天的步数目标。",
+  "dayScoreReceiptNever1": "没有任何因素读取体重或卡路里。活动能量只通过准备度计入，它可能降低某一天的步数目标。年龄只在你没有填写最大心率时，用来确定锻炼的心率区间。",
   "dayScoreReceiptNever2": "超过目标不会额外加分。",
   "dayScoreFormulaIntro": "今日评分回答一个问题：你这一整天过得怎么样。公式对所有人相同，与代码一致，公布在 docs/metrics.md。",
   "dayScoreFormulaLineTitle": "一行看懂计算",

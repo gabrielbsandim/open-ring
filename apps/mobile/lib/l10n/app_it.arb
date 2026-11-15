@@ -1221,7 +1221,7 @@
   "dayScoreReceiptMinimum": "Copertura di {points} punti. Il minimo per un voto è 60.",
   "dayScoreReceiptOpen": "In sospeso fino a mezzanotte: fino a {points} punti da {names}. Sonno e recupero sono già chiusi.",
   "dayScoreReceiptNeverTitle": "Fuori da ogni calcolo",
-  "dayScoreReceiptNever1": "Nessun fattore legge peso corporeo, calorie o età. L'energia attiva entra solo attraverso la prontezza, che può abbassare l'obiettivo di passi di un giorno.",
+  "dayScoreReceiptNever1": "Nessun fattore legge peso corporeo o calorie. L'energia attiva entra solo attraverso la prontezza, che può abbassare l'obiettivo di passi di un giorno. L'età definisce solo le zone di frequenza cardiaca di un allenamento quando non hai indicato la FC massima.",
   "dayScoreReceiptNever2": "Superare l'obiettivo non dà punti extra.",
   "dayScoreFormulaIntro": "Il Voto del giorno risponde a una domanda: com'è andata la tua giornata intera. La formula è la stessa per tutti ed è la stessa del codice, pubblicata in docs/metrics.md.",
   "dayScoreFormulaLineTitle": "Il calcolo, in una riga",

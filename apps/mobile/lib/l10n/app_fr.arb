@@ -1221,7 +1221,7 @@
   "dayScoreReceiptMinimum": "Couverture de {points} points. Le minimum pour une note est 60.",
   "dayScoreReceiptOpen": "En attente jusqu'à minuit : jusqu'à {points} points pour {names}. Sommeil et récupération sont déjà clos.",
   "dayScoreReceiptNeverTitle": "Hors de tout calcul",
-  "dayScoreReceiptNever1": "Aucun facteur ne lit le poids, les calories ni l'âge. L'énergie active n'entre que par la forme, qui peut abaisser l'objectif de pas d'un jour.",
+  "dayScoreReceiptNever1": "Aucun facteur ne lit le poids ni les calories. L'énergie active n'entre que par la forme, qui peut abaisser l'objectif de pas d'un jour. L'âge ne sert qu'à définir les zones de fréquence cardiaque d'un entraînement quand vous n'avez pas indiqué de FC maximale.",
   "dayScoreReceiptNever2": "Dépasser l'objectif ne rapporte aucun point en plus.",
   "dayScoreFormulaIntro": "La Note du jour répond à une question : comment s'est passée votre journée entière. La formule est la même pour tout le monde et la même que le code, publiée dans docs/metrics.md.",
   "dayScoreFormulaLineTitle": "Le calcul, en une ligne",

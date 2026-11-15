@@ -1221,7 +1221,7 @@
   "dayScoreReceiptMinimum": "Abdeckung von {points} Punkten. Das Minimum für eine Note ist 60.",
   "dayScoreReceiptOpen": "Offen bis Mitternacht: bis zu {points} Punkte aus {names}. Schlaf und Erholung sind schon abgeschlossen.",
   "dayScoreReceiptNeverTitle": "Außerhalb jeder Rechnung",
-  "dayScoreReceiptNever1": "Kein Faktor liest Körpergewicht, Kalorien oder Alter. Die aktive Energie geht nur über die Bereitschaft ein, die das Schrittziel eines Tages senken kann.",
+  "dayScoreReceiptNever1": "Kein Faktor liest Körpergewicht oder Kalorien. Die aktive Energie geht nur über die Bereitschaft ein, die das Schrittziel eines Tages senken kann. Das Alter bestimmt nur die Herzfrequenzzonen eines Trainings, wenn du keine maximale Herzfrequenz angegeben hast.",
   "dayScoreReceiptNever2": "Über das Ziel hinaus gibt es keinen Extrapunkt.",
   "dayScoreFormulaIntro": "Die Tagesnote beantwortet eine Frage: Wie war Ihr ganzer Tag. Die Formel ist für alle gleich und dieselbe wie im Code, veröffentlicht in docs/metrics.md.",
   "dayScoreFormulaLineTitle": "Die Rechnung in einer Zeile",

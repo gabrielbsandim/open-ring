@@ -1213,7 +1213,7 @@
   "dayScoreReceiptMinimum": "Cobertura de {points} pontos. O mínimo para dar nota é 60.",
   "dayScoreReceiptOpen": "Em aberto até à meia-noite: até {points} pontos de {names}. Sono e recuperação já estão fechados.",
   "dayScoreReceiptNeverTitle": "Fora de qualquer conta",
-  "dayScoreReceiptNever1": "Nenhum fator lê o peso corporal, as calorias ou a idade. A energia ativa só entra pela prontidão, que pode baixar a meta de passos de um dia.",
+  "dayScoreReceiptNever1": "Nenhum fator lê o peso corporal ou as calorias. A energia ativa só entra pela prontidão, que pode baixar a meta de passos de um dia. A idade só define as zonas de frequência cardíaca de um treino quando não indicou a FC máxima.",
   "dayScoreReceiptNever2": "Passar o objetivo não dá ponto extra.",
   "dayScoreFormulaIntro": "A Nota do Dia responde a uma pergunta: como foi o seu dia inteiro. A fórmula é a mesma para toda a gente e é a mesma do código, publicada em docs/metrics.md.",
   "dayScoreFormulaLineTitle": "A conta, numa linha",

@@ -77,6 +77,7 @@ class WeightChart extends StatelessWidget {
     required this.today,
     required this.range,
     required this.units,
+    this.band,
     super.key,
   });
 
@@ -88,10 +89,16 @@ class WeightChart extends StatelessWidget {
   final WeightRange range;
   final UnitFormat units;
 
+  /// Day to day variation in kilograms. When set the chart hides every value:
+  /// no axis numbers and no daily dots, only the trend inside this band.
+  final double? band;
+
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
     final l10n = units.l10n;
+    final band = this.band;
+    final margin = band == null ? null : units.bodyWeightIn(band);
     final start = weightRangeStart(
       range,
       today: today,
@@ -106,28 +113,36 @@ class WeightChart extends StatelessWidget {
       );
     }
     final axis = weightAxis([
-      for (final point in dots) point.value,
-      for (final point in trend) point.value,
+      if (margin == null)
+        for (final point in dots) point.value,
+      for (final point in trend) ...[
+        point.value - (margin ?? 0),
+        point.value + (margin ?? 0),
+      ],
     ]);
     final digits = axis.step < 1 ? 1 : 0;
     final middle = start.addDays(today.daysSince(start) ~/ 2);
     return Semantics(
       container: true,
       image: true,
-      label: l10n.bodyChartLabel(units.weightUnit),
+      label: margin == null
+          ? l10n.bodyChartLabel(units.weightUnit)
+          : l10n.bodyChartHiddenLabel,
       child: SizedBox(
         height: _height,
         width: double.infinity,
         child: CustomPaint(
           painter: _WeightPainter(
-            dots: dots,
+            dots: margin == null ? dots : const [],
             trend: trend,
             axis: axis,
+            margin: margin,
             ticks: [
-              for (var v = axis.low; v <= axis.high + 1e-9; v += axis.step)
-                units.format.decimal(v, digits: digits),
+              if (margin == null)
+                for (var v = axis.low; v <= axis.high + 1e-9; v += axis.step)
+                  units.format.decimal(v, digits: digits),
             ],
-            unit: units.weightUnit,
+            unit: margin == null ? units.weightUnit : '',
             days: [
               units.format.monthDay(start),
               units.format.monthDay(middle),
@@ -141,6 +156,7 @@ class WeightChart extends StatelessWidget {
             lineColor: colors.textPrimary,
             dotColor: colors.textLabel,
             grid: colors.track,
+            bandColor: _bandColor(colors),
           ),
         ),
       ),
@@ -153,6 +169,7 @@ class _WeightPainter extends CustomPainter {
     required this.dots,
     required this.trend,
     required this.axis,
+    required this.margin,
     required this.ticks,
     required this.unit,
     required this.days,
@@ -161,6 +178,7 @@ class _WeightPainter extends CustomPainter {
     required this.lineColor,
     required this.dotColor,
     required this.grid,
+    required this.bandColor,
   });
 
   static const _gutterGap = 6.0;
@@ -171,6 +189,7 @@ class _WeightPainter extends CustomPainter {
   final List<_Point> dots;
   final List<_Point> trend;
   final WeightAxis axis;
+  final double? margin;
   final List<String> ticks;
   final String unit;
   final List<String> days;
@@ -179,6 +198,7 @@ class _WeightPainter extends CustomPainter {
   final Color lineColor;
   final Color dotColor;
   final Color grid;
+  final Color bandColor;
 
   TextPainter _text(String text) => TextPainter(
     text: TextSpan(text: text, style: style),
@@ -215,9 +235,24 @@ class _WeightPainter extends CustomPainter {
         Offset(left - _gutterGap - labels[i].width, at - labels[i].height / 2),
       );
     }
+    if (labels.isEmpty) {
+      canvas.drawLine(
+        Offset(left, bottom),
+        Offset(left + width, bottom),
+        gridPaint,
+      );
+    }
     final dotPaint = Paint()..color = dotColor;
     for (final dot in dots) {
       canvas.drawCircle(Offset(x(dot.x), y(dot.value)), _dotRadius, dotPaint);
+    }
+    final margin = this.margin;
+    if (margin != null) {
+      _paintBand(canvas, bandColor, [
+        for (final point in trend) Offset(x(point.x), y(point.value + margin)),
+        for (final point in trend.reversed)
+          Offset(x(point.x), y(point.value - margin)),
+      ]);
     }
     _paintTrend(canvas, [
       for (final point in trend) Offset(x(point.x), y(point.value)),
@@ -239,6 +274,8 @@ class _WeightPainter extends CustomPainter {
       !listEquals(old.dots, dots) ||
       !listEquals(old.trend, trend) ||
       old.axis != axis ||
+      old.margin != margin ||
+      old.bandColor != bandColor ||
       !listEquals(old.days, days) ||
       old.unit != unit ||
       old.style != style ||
@@ -246,6 +283,14 @@ class _WeightPainter extends CustomPainter {
       old.lineColor != lineColor ||
       old.dotColor != dotColor ||
       old.grid != grid;
+}
+
+Color _bandColor(AppColors colors) =>
+    colors.textPrimary.withValues(alpha: 0.14);
+
+void _paintBand(Canvas canvas, Color color, List<Offset> outline) {
+  if (outline.length < 4) return;
+  canvas.drawPath(Path()..addPolygon(outline, true), Paint()..color = color);
 }
 
 void _paintTrend(
@@ -274,12 +319,13 @@ void _paintTrend(
 }
 
 class WeightSparkline extends StatelessWidget {
-  const new({required this.line, required this.today, super.key});
+  const new({required this.line, required this.today, this.band, super.key});
 
   static const _minSpread = 0.2;
 
   final List<DailyValue> line;
   final LocalDate today;
+  final double? band;
 
   @override
   Widget build(BuildContext context) {
@@ -290,10 +336,12 @@ class WeightSparkline extends StatelessWidget {
     ];
     if (recent.length < 2) return const SizedBox.shrink();
     final values = [for (final day in recent) day.value];
-    final low = values.reduce(math.min);
-    final spread = math.max(_minSpread, values.reduce(math.max) - low);
+    final margin = band ?? 0;
+    final low = values.reduce(math.min) - margin;
+    final spread = math.max(_minSpread, values.reduce(math.max) + margin - low);
     final first = recent.first.date;
     final span = math.max(1, recent.last.date.daysSince(first));
+    final colors = AppColors.of(context);
     return ExcludeSemantics(
       child: SizedBox(
         width: 104,
@@ -307,7 +355,9 @@ class WeightSparkline extends StatelessWidget {
                   value: (day.value - low) / spread,
                 ),
             ],
-            color: AppColors.of(context).textPrimary,
+            margin: band == null ? null : margin / spread,
+            color: colors.textPrimary,
+            bandColor: _bandColor(colors),
           ),
         ),
       ),
@@ -316,23 +366,38 @@ class WeightSparkline extends StatelessWidget {
 }
 
 class _SparkPainter extends CustomPainter {
-  const new({required this.points, required this.color});
+  const new({
+    required this.points,
+    required this.margin,
+    required this.color,
+    required this.bandColor,
+  });
 
   static const _inset = 5.0;
 
   final List<_Point> points;
+  final double? margin;
   final Color color;
+  final Color bandColor;
 
   @override
   void paint(Canvas canvas, Size size) {
     final width = size.width - 2 * _inset;
     final height = size.height - 2 * _inset;
+    Offset at(_Point point, double shift) => Offset(
+      _inset + point.x * width,
+      _inset + (1 - point.value - shift) * height,
+    );
+    final margin = this.margin;
+    if (margin != null) {
+      _paintBand(canvas, bandColor, [
+        for (final point in points) at(point, margin),
+        for (final point in points.reversed) at(point, -margin),
+      ]);
+    }
     _paintTrend(
       canvas,
-      [
-        for (final point in points)
-          Offset(_inset + point.x * width, _inset + (1 - point.value) * height),
-      ],
+      [for (final point in points) at(point, 0)],
       color,
       stroke: 2,
       endRadius: 3.5,
@@ -341,18 +406,24 @@ class _SparkPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_SparkPainter old) =>
-      !listEquals(old.points, points) || old.color != color;
+      !listEquals(old.points, points) ||
+      old.margin != margin ||
+      old.color != color ||
+      old.bandColor != bandColor;
 }
 
 class WeightLegend extends StatelessWidget {
-  const new({required this.trend, required this.day, super.key});
+  const new({required this.trend, this.day, this.band, super.key});
 
   final String trend;
-  final String day;
+  final String? day;
+  final String? band;
 
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
+    final day = this.day;
+    final band = this.band;
     return Wrap(
       spacing: 16,
       runSpacing: 4,
@@ -361,17 +432,23 @@ class WeightLegend extends StatelessWidget {
           label: trend,
           mark: Container(width: 14, height: 3, color: colors.textPrimary),
         ),
-        _LegendItem(
-          label: day,
-          mark: Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: colors.textLabel,
-              shape: BoxShape.circle,
+        if (day != null)
+          _LegendItem(
+            label: day,
+            mark: Container(
+              width: 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: colors.textLabel,
+                shape: BoxShape.circle,
+              ),
             ),
           ),
-        ),
+        if (band != null)
+          _LegendItem(
+            label: band,
+            mark: Container(width: 14, height: 8, color: _bandColor(colors)),
+          ),
       ],
     );
   }

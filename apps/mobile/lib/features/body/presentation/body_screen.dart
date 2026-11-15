@@ -11,12 +11,15 @@ import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/application/weight_summary.dart';
 import 'package:open_ring/features/body/domain/weigh_in.dart';
+import 'package:open_ring/features/body/presentation/hidden_numbers.dart';
 import 'package:open_ring/features/body/presentation/weigh_in_sheet.dart';
 import 'package:open_ring/features/body/presentation/weight_chart.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
+import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class BodyKeys {
   static const settings = Key('body_settings');
@@ -28,6 +31,7 @@ abstract final class BodyKeys {
   static const edit = Key('body_entry_edit');
   static const delete = Key('body_entry_delete');
   static const showMore = Key('body_show_more');
+  static const hidden = Key('body_hidden');
 
   static Key entry(int id) => Key('body_entry_$id');
 }
@@ -135,10 +139,16 @@ class _BodyScreenState extends ConsumerState<BodyScreen> {
       ];
     }
     final entries = ref.watch(weighInsProvider).value ?? const <WeighIn>[];
-    final hidden = entries.length - _shown;
+    final more = entries.length - _shown;
+    final hidden = ref.watch(numbersHiddenProvider);
     return [
+      if (hidden) ...[
+        HiddenNumbersLabel(key: BodyKeys.hidden, l10n.bodyHiddenNote),
+        const SizedBox(height: 12),
+      ],
       _TrendCard(
         summary: value,
+        hidden: hidden,
         range: _range,
         onRange: (range) => setState(() => _range = range),
       ),
@@ -159,6 +169,7 @@ class _BodyScreenState extends ConsumerState<BodyScreen> {
               _EntryRow(
                 key: BodyKeys.entry(entry.id),
                 entry: entry,
+                hidden: hidden,
                 open: _open == entry.id,
                 onToggle: () => _toggle(entry.id),
                 onEdit: () =>
@@ -168,11 +179,11 @@ class _BodyScreenState extends ConsumerState<BodyScreen> {
           ],
         ),
       ),
-      if (hidden > 0) ...[
+      if (more > 0) ...[
         const SizedBox(height: cardGap),
         SecondaryButton(
           key: BodyKeys.showMore,
-          label: l10n.bodyShowMore(math.min(_nextPage, hidden)),
+          label: l10n.bodyShowMore(math.min(_nextPage, more)),
           onPressed: () => setState(() => _shown += _nextPage),
         ),
       ],
@@ -185,11 +196,13 @@ class _BodyScreenState extends ConsumerState<BodyScreen> {
 class _TrendCard extends ConsumerWidget {
   const new({
     required this.summary,
+    required this.hidden,
     required this.range,
     required this.onRange,
   });
 
   final WeightSummary summary;
+  final bool hidden;
   final WeightRange range;
   final ValueChanged<WeightRange> onRange;
 
@@ -199,57 +212,17 @@ class _TrendCard extends ConsumerWidget {
     final colors = AppColors.of(context);
     final units = UnitFormat.of(context, ref);
     final l10n = units.l10n;
-    final rate = _rate(units, summary.rate);
+    final rate = hidden
+        ? _direction(l10n, summary.rate)
+        : _rate(units, summary.rate);
     return MetricCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.end,
-            spacing: 16,
-            runSpacing: 8,
-            children: [
-              MergeSemantics(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.end,
-                      spacing: 4,
-                      children: [
-                        Text(
-                          units.bodyWeightNumber(summary.trend),
-                          style: numberStyle(theme.textTheme.headlineLarge),
-                        ),
-                        Text(
-                          units.weightUnit,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colors.textLabel,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    CaptionText(l10n.bodyWeightTrend),
-                  ],
-                ),
-              ),
-              MergeSemantics(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CaptionText(l10n.bodyWeightLast),
-                    Text(
-                      units.bodyWeight(summary.last.kilograms),
-                      style: numberStyle(theme.textTheme.titleSmall),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
+          if (!hidden) ...[
+            _numbers(theme, colors, units),
+            const SizedBox(height: 14),
+          ],
           SegmentedButton<WeightRange>(
             key: BodyKeys.range,
             showSelectedIcon: false,
@@ -271,9 +244,14 @@ class _TrendCard extends ConsumerWidget {
             today: ref.watch(currentDateProvider),
             range: range,
             units: units,
+            band: hidden ? summary.noise : null,
           ),
           const SizedBox(height: 8),
-          WeightLegend(trend: l10n.bodyWeightTrend, day: l10n.bodyLegendDay),
+          WeightLegend(
+            trend: l10n.bodyWeightTrend,
+            day: hidden ? null : l10n.bodyLegendDay,
+            band: hidden ? l10n.bodyLegendBand : null,
+          ),
           const SizedBox(height: 14),
           Divider(height: 1, color: colors.surfaceBorder),
           const SizedBox(height: 14),
@@ -281,7 +259,9 @@ class _TrendCard extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CaptionText(l10n.bodyWeightRate),
+                CaptionText(
+                  hidden ? l10n.bodyDirectionTitle : l10n.bodyWeightRate,
+                ),
                 const SizedBox(height: 2),
                 Text(
                   rate.value,
@@ -298,6 +278,52 @@ class _TrendCard extends ConsumerWidget {
     );
   }
 
+  Widget _numbers(ThemeData theme, AppColors colors, UnitFormat units) => Wrap(
+    alignment: WrapAlignment.spaceBetween,
+    crossAxisAlignment: WrapCrossAlignment.end,
+    spacing: 16,
+    runSpacing: 8,
+    children: [
+      MergeSemantics(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.end,
+              spacing: 4,
+              children: [
+                Text(
+                  units.bodyWeightNumber(summary.trend),
+                  style: numberStyle(theme.textTheme.headlineLarge),
+                ),
+                Text(
+                  units.weightUnit,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colors.textLabel,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            CaptionText(units.l10n.bodyWeightTrend),
+          ],
+        ),
+      ),
+      MergeSemantics(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CaptionText(units.l10n.bodyWeightLast),
+            Text(
+              units.bodyWeight(summary.last.kilograms),
+              style: numberStyle(theme.textTheme.titleSmall),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+
   String _label(UnitFormat units, WeightRange option) {
     final days = option.days;
     if (days == null) return units.l10n.bodyRangeAll;
@@ -310,14 +336,7 @@ class _TrendCard extends ConsumerWidget {
     String perWeek(double kilograms) =>
         units.format.signed(units.bodyWeightIn(kilograms), digits: 2);
     return switch (rate) {
-      WeightRateBuilding(:final daysMissing, :final spanMissing) => (
-        value: l10n.bodyRateNotYet,
-        why: [
-          l10n.bodyRateNeeds(weightRateMinDays, weightRateMinSpanDays),
-          if (daysMissing > 0) l10n.bodyRateMissingDays(daysMissing),
-          if (spanMissing > 0) l10n.bodyRateMissingSpan(spanMissing),
-        ].join(' '),
-      ),
+      WeightRateBuilding() => _building(l10n, rate),
       WeightRateReady(stable: true, :final low, :final high) => (
         value: l10n.bodyRateStableTitle,
         why: l10n.bodyRateStableWhy(perWeek(low), perWeek(high), unit),
@@ -329,6 +348,33 @@ class _TrendCard extends ConsumerWidget {
     };
   }
 }
+
+({String value, String why}) _building(
+  AppLocalizations l10n,
+  WeightRateBuilding rate,
+) => (
+  value: l10n.bodyRateNotYet,
+  why: [
+    l10n.bodyRateNeeds(weightRateMinDays, weightRateMinSpanDays),
+    if (rate.daysMissing > 0) l10n.bodyRateMissingDays(rate.daysMissing),
+    if (rate.spanMissing > 0) l10n.bodyRateMissingSpan(rate.spanMissing),
+  ].join(' '),
+);
+
+({String value, String why}) _direction(
+  AppLocalizations l10n,
+  WeightRate rate,
+) => switch (rate) {
+  WeightRateBuilding() => _building(l10n, rate),
+  WeightRateReady(stable: true) => (
+    value: l10n.bodyRateStableTitle,
+    why: l10n.bodyDirectionStableWhy,
+  ),
+  WeightRateReady() => (
+    value: weightDirection(l10n, rate),
+    why: l10n.bodyDirectionMovingWhy,
+  ),
+};
 
 class _EntriesTitle extends StatelessWidget {
   const new({required this.title, required this.count});
@@ -358,6 +404,7 @@ class _EntriesTitle extends StatelessWidget {
 class _EntryRow extends ConsumerWidget {
   const new({
     required this.entry,
+    required this.hidden,
     required this.open,
     required this.onToggle,
     required this.onEdit,
@@ -366,6 +413,7 @@ class _EntryRow extends ConsumerWidget {
   });
 
   final WeighIn entry;
+  final bool hidden;
   final bool open;
   final VoidCallback onToggle;
   final VoidCallback onEdit;
@@ -377,7 +425,7 @@ class _EntryRow extends ConsumerWidget {
     final colors = AppColors.of(context);
     final units = UnitFormat.of(context, ref);
     final l10n = units.l10n;
-    final extras = _extras(units);
+    final extras = hidden ? _kinds(l10n) : _extras(units);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -412,10 +460,20 @@ class _EntryRow extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Text(
-                        units.bodyWeight(entry.kilograms),
-                        style: numberStyle(theme.textTheme.titleSmall),
-                      ),
+                      if (hidden) ...[
+                        Icon(
+                          Icons.check_rounded,
+                          size: 18,
+                          color: colors.textLabel,
+                        ),
+                        const SizedBox(width: 4),
+                        CaptionText(l10n.bodyEntryLogged),
+                      ],
+                      if (!hidden)
+                        Text(
+                          units.bodyWeight(entry.kilograms),
+                          style: numberStyle(theme.textTheme.titleSmall),
+                        ),
                       const SizedBox(width: 4),
                       Icon(
                         open
@@ -457,6 +515,14 @@ class _EntryRow extends ConsumerWidget {
       ],
     );
   }
+
+  String _kinds(AppLocalizations l10n) =>
+      switch ((entry.bodyFatPercent, entry.waistCentimeters)) {
+        (null, null) => '',
+        (_, null) => l10n.bodyEntryWithBodyFat,
+        (null, _) => l10n.bodyEntryWithWaist,
+        _ => l10n.bodyEntryWithBoth,
+      };
 
   String _extras(UnitFormat units) {
     final l10n = units.l10n;

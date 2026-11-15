@@ -12,12 +12,14 @@ final class WeightSummary {
     required this.daily,
     required this.line,
     required this.rate,
+    required this.noise,
   });
 
   final WeighIn last;
   final List<DailyValue> daily;
   final List<DailyValue> line;
   final WeightRate rate;
+  final double noise;
 
   double get trend => line.last.value;
 }
@@ -36,5 +38,6 @@ final weightSummaryProvider = FutureProvider<WeightSummary?>((ref) async {
     daily: dailyWeights(days),
     line: weightTrend(days),
     rate: weightRate(days, today: ref.watch(currentDateProvider)),
+    noise: weightNoise(days),
   );
 });

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
@@ -59,6 +60,7 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
     ref
       ..invalidate(unitSystemProvider)
       ..invalidate(enabledModulesProvider)
+      ..invalidate(hideNumbersProvider)
       ..invalidate(userProfileProvider)
       ..invalidate(ringSyncProvider);
     ref.read(dataRevisionProvider.notifier).bump();

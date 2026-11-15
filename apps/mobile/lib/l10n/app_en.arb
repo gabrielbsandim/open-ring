@@ -3087,5 +3087,30 @@
       }
     }
   },
-  "moduleBodyAddsScreen": "The Body screen: chart, 28 day rate and history."
+  "moduleBodyAddsScreen": "The Body screen: chart, 28 day rate and history.",
+  "bodyHideTitle": "Hide numbers",
+  "bodyHideDetail": "You keep logging. The trend shows direction and a band, with no weight value on any screen.",
+  "bodyHideOn": "Numbers hidden on every screen.",
+  "bodyHideOff": "Numbers visible again.",
+  "bodyHiddenBadge": "numbers hidden",
+  "bodyHiddenNote": "Numbers hidden. You keep logging.",
+  "bodyDirectionNone": "No direction yet",
+  "bodyDirectionStable": "Stable",
+  "bodyDirectionDown": "Going down",
+  "bodyDirectionUp": "Going up",
+  "bodyDirectionCaption": "28 day trend",
+  "bodyDirectionTitle": "28 day direction",
+  "bodyDirectionStableWhy": "Day to day variation is still larger than any change.",
+  "bodyDirectionMovingWhy": "The change is larger than the day to day variation.",
+  "bodyChartHiddenLabel": "Weight trend with a band, no values.",
+  "bodyLegendBand": "day to day variation",
+  "bodyEntryLogged": "logged",
+  "bodyEntryWithBodyFat": "with body fat",
+  "bodyEntryWithWaist": "with waist",
+  "bodyEntryWithBoth": "with body fat and waist",
+  "bodySheetHiddenNew": "Numbers hidden. The value leaves the screen after saving.",
+  "bodySheetHiddenEdit": "Numbers hidden. Leave a field blank to keep its value.",
+  "bodySheetSavedHidden": "Weigh-in logged.",
+  "bodySheetUpdatedHidden": "Weigh-in updated.",
+  "profileWeightHidden": "hidden"
 }

@@ -8,6 +8,7 @@ import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
@@ -25,6 +26,7 @@ abstract final class BodyModuleKeys {
   static const deleteConfirm = Key('body_module_delete_confirm');
   static const deleteCancel = Key('body_module_delete_cancel');
   static const toggle = Key('body_module_toggle');
+  static const hide = Key('body_module_hide');
 }
 
 LocalDate _day(WeighIn entry) =>
@@ -42,6 +44,7 @@ class BodyModuleScreen extends ConsumerWidget {
         ref.watch(enabledModulesProvider).value?.contains(ModuleId.body) ??
         false;
     final entries = ref.watch(weighInsProvider).value ?? const <WeighIn>[];
+    final hidden = ref.watch(hideNumbersProvider).value ?? false;
     void toggle() => unawaited(setBodyModule(context, ref, on: !on));
     return AppPage(
       title: l10n.moduleBodyName,
@@ -90,6 +93,26 @@ class BodyModuleScreen extends ConsumerWidget {
             l10n.moduleBodyNeverScore,
           ],
         ),
+        const SizedBox(height: cardGap),
+        MetricCard(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: SwitchListTile(
+            key: BodyModuleKeys.hide,
+            value: hidden,
+            onChanged: (value) => unawaited(_hide(context, ref, hidden: value)),
+            contentPadding: EdgeInsets.zero,
+            secondary: Icon(
+              Icons.visibility_off_outlined,
+              color: colors.textPrimary,
+            ),
+            title: Text(l10n.bodyHideTitle),
+            subtitle: CaptionText(l10n.bodyHideDetail),
+            activeThumbColor: colors.background,
+            activeTrackColor: colors.activity,
+            inactiveThumbColor: colors.textSecondary,
+            inactiveTrackColor: colors.surfaceInner,
+          ),
+        ),
         SectionHeader(l10n.moduleBodyDataTitle),
         BodyText(key: BodyModuleKeys.stored, _stored(format, entries)),
         if (entries.isNotEmpty) ...[
@@ -135,6 +158,21 @@ class BodyModuleScreen extends ConsumerWidget {
       format.date(_day(entries.last)),
       format.date(_day(entries.first)),
     );
+  }
+
+  Future<void> _hide(
+    BuildContext context,
+    WidgetRef ref, {
+    required bool hidden,
+  }) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    await ref.read(hideNumbersProvider.notifier).set(hidden: hidden);
+    messenger
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(content: Text(hidden ? l10n.bodyHideOn : l10n.bodyHideOff)),
+      );
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref, int count) async {

@@ -9,7 +9,9 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/body/application/weight_summary.dart';
+import 'package:open_ring/features/body/presentation/hidden_numbers.dart';
 import 'package:open_ring/features/body/presentation/weigh_in_sheet.dart';
 import 'package:open_ring/features/body/presentation/weight_chart.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
@@ -19,6 +21,8 @@ import 'package:open_ring/features/settings/application/unit_format.dart';
 abstract final class WeightCardKeys {
   static const card = Key('today_weight');
   static const log = Key('today_weight_log');
+  static const hidden = Key('today_weight_hidden');
+  static const direction = Key('today_weight_direction');
 }
 
 class WeightCardSlot extends ConsumerWidget {
@@ -45,15 +49,29 @@ class WeightCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final units = UnitFormat.of(context, ref);
+    final hidden = ref.watch(numbersHiddenProvider);
     return MetricCard(
       key: WeightCardKeys.card,
       onTap: () => context.go(AppPaths.body),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AccentTitle(
-            title: units.l10n.profileWeight,
-            accent: AppColors.of(context).textLabel,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 4,
+            children: [
+              AccentTitle(
+                title: units.l10n.profileWeight,
+                accent: AppColors.of(context).textLabel,
+              ),
+              if (hidden)
+                HiddenNumbersLabel(
+                  key: WeightCardKeys.hidden,
+                  units.l10n.bodyHiddenBadge,
+                ),
+            ],
           ),
           const SizedBox(height: 8),
           _content(ref.watch(weightSummaryProvider), units),
@@ -81,6 +99,7 @@ class _WeightBody extends ConsumerWidget {
     final units = UnitFormat.of(context, ref);
     final l10n = units.l10n;
     final summary = this.summary;
+    final hidden = ref.watch(numbersHiddenProvider);
     void log() => unawaited(showWeighInSheet(context));
     if (summary == null) {
       return Column(
@@ -97,32 +116,39 @@ class _WeightBody extends ConsumerWidget {
       );
     }
     final last = summary.last;
+    final when = units.format.clockOrDay(last.at, ref.watch(clockProvider)());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Expanded(child: _trend(theme, colors, units, summary)),
+            Expanded(
+              child: hidden
+                  ? _direction(theme, units, summary)
+                  : _trend(theme, colors, units, summary),
+            ),
             WeightSparkline(
               line: summary.line,
               today: ref.watch(currentDateProvider),
+              band: hidden ? summary.noise : null,
             ),
           ],
         ),
         const SizedBox(height: 10),
         MetricRow(
           label: l10n.bodyWeightLast,
-          value: l10n.bodyWeightLastOn(
-            units.bodyWeight(last.kilograms),
-            units.format.clockOrDay(last.at, ref.watch(clockProvider)()),
+          value: hidden
+              ? when
+              : l10n.bodyWeightLastOn(units.bodyWeight(last.kilograms), when),
+        ),
+        if (!hidden) ...[
+          const SizedBox(height: 6),
+          MetricRow(
+            label: l10n.bodyWeightRate,
+            value: _rate(units, summary.rate),
           ),
-        ),
-        const SizedBox(height: 6),
-        MetricRow(
-          label: l10n.bodyWeightRate,
-          value: _rate(units, summary.rate),
-        ),
+        ],
         const SizedBox(height: 14),
         SecondaryButton(
           key: WeightCardKeys.log,
@@ -163,6 +189,21 @@ class _WeightBody extends ConsumerWidget {
       ],
     ),
   );
+
+  Widget _direction(ThemeData theme, UnitFormat units, WeightSummary summary) =>
+      MergeSemantics(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              weightDirection(units.l10n, summary.rate),
+              key: WeightCardKeys.direction,
+              style: theme.textTheme.titleLarge,
+            ),
+            CaptionText(units.l10n.bodyDirectionCaption),
+          ],
+        ),
+      );
 
   String _rate(UnitFormat units, WeightRate rate) => switch (rate) {
     WeightRateBuilding() => units.l10n.bodyWeightRateBuilding,

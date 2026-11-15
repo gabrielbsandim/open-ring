@@ -6,6 +6,7 @@ import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
@@ -20,6 +21,7 @@ abstract final class WeighInSheetKeys {
   static const bodyFat = Key('weigh_in_body_fat');
   static const waist = Key('weigh_in_waist');
   static const error = Key('weigh_in_error');
+  static const hidden = Key('weigh_in_hidden');
   static const save = Key('weigh_in_save');
 }
 
@@ -64,6 +66,7 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
     super.didChangeDependencies();
     if (_seeded) return;
     _seeded = true;
+    if (ref.read(numbersHiddenProvider)) return;
     final units = UnitFormat(
       MetricFormat.of(context),
       ref.read(currentUnitSystemProvider),
@@ -125,15 +128,21 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
     _saving = false;
   });
 
-  Future<void> _save(UnitFormat units) async {
+  Future<void> _save(UnitFormat units, {required bool hidden}) async {
     if (_saving) return;
     final l10n = units.l10n;
+    final editing = widget.editing;
+    // With numbers hidden the fields open blank, so a blank field keeps the
+    // value the weigh-in already has.
+    final kept = hidden ? editing : null;
     final weight = _parsed(_weight.text);
-    if (weight == null) {
+    final kilograms = weight == null
+        ? kept?.kilograms
+        : units.kilogramsFrom(weight);
+    if (kilograms == null) {
       _fail(l10n.bodySheetErrorWeightEmpty);
       return;
     }
-    final editing = widget.editing;
     final picked = _at;
     final at = picked ?? editing?.at ?? ref.read(clockProvider)();
     final waist = _parsed(_waist.text);
@@ -146,9 +155,11 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
           ? editing.offsetMinutes
           : at.timeZoneOffset.inMinutes,
       source: editing?.source ?? WeighInSource.manual,
-      kilograms: units.kilogramsFrom(weight),
-      bodyFatPercent: _parsed(_bodyFat.text),
-      waistCentimeters: waist == null ? null : units.centimetersFrom(waist),
+      kilograms: kilograms,
+      bodyFatPercent: _parsed(_bodyFat.text) ?? kept?.bodyFatPercent,
+      waistCentimeters: waist == null
+          ? kept?.waistCentimeters
+          : units.centimetersFrom(waist),
     );
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
@@ -167,11 +178,12 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
     final saved = units.bodyWeight(roundKilograms(draft.kilograms));
     messenger.showSnackBar(
       SnackBar(
-        content: Text(
-          editing == null
-              ? l10n.bodySheetSaved(saved)
-              : l10n.bodySheetUpdated(saved),
-        ),
+        content: Text(switch ((hidden, editing == null)) {
+          (true, true) => l10n.bodySheetSavedHidden,
+          (true, false) => l10n.bodySheetUpdatedHidden,
+          (false, true) => l10n.bodySheetSaved(saved),
+          (false, false) => l10n.bodySheetUpdated(saved),
+        }),
       ),
     );
   }
@@ -227,6 +239,7 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
     final units = UnitFormat.of(context, ref);
     final l10n = units.l10n;
     final editing = widget.editing;
+    final hidden = ref.watch(numbersHiddenProvider);
     final at = _at;
     final error = _error;
     final step = '${units.format.decimal(0.1, digits: 1)} ${units.weightUnit}';
@@ -276,6 +289,15 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
               ),
             ],
           ),
+          if (error == null && hidden) ...[
+            const SizedBox(height: 8),
+            CaptionText(
+              key: WeighInSheetKeys.hidden,
+              editing == null
+                  ? l10n.bodySheetHiddenNew
+                  : l10n.bodySheetHiddenEdit,
+            ),
+          ],
           if (error != null) ...[
             const SizedBox(height: 8),
             Semantics(
@@ -299,8 +321,9 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
           ExpansionTile(
             key: WeighInSheetKeys.more,
             initiallyExpanded:
-                editing?.bodyFatPercent != null ||
-                editing?.waistCentimeters != null,
+                !hidden &&
+                (editing?.bodyFatPercent != null ||
+                    editing?.waistCentimeters != null),
             tilePadding: EdgeInsets.zero,
             shape: const Border(),
             collapsedShape: const Border(),
@@ -327,7 +350,7 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
           ActionButton(
             key: WeighInSheetKeys.save,
             label: l10n.workoutSave,
-            onPressed: _saving ? null : () => _save(units),
+            onPressed: _saving ? null : () => _save(units, hidden: hidden),
           ),
           const SizedBox(height: 10),
           CaptionText(

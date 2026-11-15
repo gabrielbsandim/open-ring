@@ -2899,5 +2899,78 @@
         "type": "String"
       }
     }
-  }
+  },
+  "modulesTitle": "Modules",
+  "modulesIntro": "The base app stays as it is: ring, sleep, heart and activity. A module adds one more thing, only if you turn it on.",
+  "modulesNoneOn": "None on. The base app stays as it is.",
+  "modulesOnCount": "On: {count}",
+  "@modulesOnCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modulesOn": "On",
+  "modulesOff": "Off",
+  "modulesView": "View",
+  "modulesHowTitle": "How it works",
+  "modulesHowOff": "A module that is off shows no card, opens no screen and asks for no permission.",
+  "modulesHowKeeps": "Turning a module off keeps its data on this phone. Turn it on again and everything is back.",
+  "modulesHowDelete": "Deleting the data is a separate action, inside each module.",
+  "moduleBodyName": "Body",
+  "moduleBodyDetail": "Weigh-ins and a weight trend that ignores day to day noise.",
+  "moduleBodyTurnedOn": "Body is on. The Weight card is on Today.",
+  "moduleBodyKept": "Body is off. Weigh-ins kept on this phone: {count}. They come back when you turn it on.",
+  "@moduleBodyKept": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moduleBodyAddsTitle": "What it adds",
+  "moduleBodyAddsCard": "A Weight card on Today, with the trend and the last weigh-in.",
+  "moduleBodyAddsLog": "Logging a weight in one tap, from the card.",
+  "moduleBodyStoresTitle": "What it stores",
+  "moduleBodyStoresWeight": "The weight, date and time of each weigh-in.",
+  "moduleBodyStoresExtras": "Body fat and waist, only if you enter them.",
+  "moduleBodyStoresLocal": "Everything stays on this phone. Nothing is sent and no permission is asked.",
+  "moduleBodyNeverTitle": "What it never does",
+  "moduleBodyNeverColour": "No colour for up or down. Both directions look the same.",
+  "moduleBodyNeverStreak": "No streaks and no reminders to weigh in.",
+  "moduleBodyNeverScore": "Weight never enters readiness, sleep or any score.",
+  "moduleBodyDataTitle": "Body data",
+  "moduleBodyDataEmpty": "No weigh-ins stored on this phone.",
+  "moduleBodyDataCount": "Weigh-ins on this phone: {count}, from {first} to {last}.",
+  "@moduleBodyDataCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "first": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "moduleBodyDelete": "Delete Body data",
+  "moduleBodyDeleteTitle": "Delete the Body data?",
+  "moduleBodyDeleteBody": "Weigh-ins to delete: {count}. They are removed from this phone and this cannot be undone. The module stays as it is, only empty.",
+  "@moduleBodyDeleteBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moduleBodyDeleted": "Body data deleted.",
+  "moduleBodyDeleteFailed": "The Body data could not be deleted. Try again.",
+  "moduleBodyFoot": "Turning off deletes nothing. Deleting does not turn it off.",
+  "moduleBodyTurnOn": "Turn Body on",
+  "moduleBodyTurnOnNote": "You can turn it off whenever you want.",
+  "moduleBodyTurnOff": "Turn Body off",
+  "moduleBodyTurnOffNote": "The data stays stored."
 }

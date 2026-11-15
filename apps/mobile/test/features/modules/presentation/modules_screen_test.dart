@@ -297,7 +297,13 @@ void main() {
       texts,
       contains('It does not estimate biological age or life expectancy.'),
     );
-    expect(texts, contains('Body weight, calories and age never enter.'));
+    expect(
+      texts,
+      contains(
+        'No factor reads body weight, calories or age. Active energy only '
+        'enters through readiness, which can lower the step goal of a day.',
+      ),
+    );
     expect(texts, contains('Turn Open Score on'));
     expect(texts, contains('You can turn it off whenever you want.'));
   });

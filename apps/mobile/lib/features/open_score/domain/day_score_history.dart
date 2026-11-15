@@ -75,8 +75,8 @@ final class DayScoreHistory {
   }) {
     final sleep = history.values(TrendMetric.sleepScore);
     final steps = history.values(TrendMetric.steps);
-    final hrv = history.values(TrendMetric.hrv);
-    final resting = history.values(TrendMetric.restingHeartRate);
+    final hrv = history.withLead(TrendMetric.hrv);
+    final resting = history.withLead(TrendMetric.restingHeartRate);
     final spo2 = history.values(TrendMetric.spo2);
     DayScoreInputs inputsOn(LocalDate date) {
       final sleepScore = _valueOn(sleep, date)?.round();

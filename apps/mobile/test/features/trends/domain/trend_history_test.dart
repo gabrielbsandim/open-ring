@@ -152,6 +152,27 @@ void main() {
     expect(history.isEmpty, isTrue);
   });
 
+  test('keeps the 28 nights before the history only for the baselines', () {
+    final ages = [89, 90, 117, 118];
+    final nights = [for (final age in ages) _night(_today.addDays(-age))];
+    final history = _collect(
+      nights: nights,
+      heartRate: [for (final night in nights) ..._heartRate(night, 55)],
+    );
+
+    expect(
+      [for (final v in history.values(TrendMetric.restingHeartRate)) v.date],
+      [_today.addDays(-89)],
+    );
+    expect(
+      {for (final v in history.withLead(TrendMetric.restingHeartRate)) v.date},
+      {
+        for (final age in [89, 90, 117]) _today.addDays(-age),
+      },
+    );
+    expect(history.withLead(TrendMetric.steps), isEmpty);
+  });
+
   test('SpO2 is the mean of the plausible readings of the night', () {
     final night = _night(_today);
     final history = _collect(

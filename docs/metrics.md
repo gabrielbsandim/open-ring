@@ -762,7 +762,11 @@ is never hidden.
 
 The app computes the readiness of each of the 90 days of the history with the
 function and inputs of the Readiness card, so a past day reads the same as
-today. Nothing is stored. A day at 54 and a day at 55 are scored against
+today. For that the history also reads the 28 nights before its first day,
+used only for the HRV and resting heart rate baselines, so the oldest day has
+the same 28 day baseline as today. Nothing is stored. Readiness reads active
+energy through the activity load, so on a low day active energy reaches the
+Day Score through the step goal and in no other way. A day at 54 and a day at 55 are scored against
 different goals: the step is one rule a person can check, and a ramp would be
 a second number to explain.
 

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
@@ -9,6 +10,7 @@ import 'package:open_ring/features/workout/domain/live_heart_rate_source.dart';
 import 'package:open_ring/features/workout/domain/location_source.dart';
 import 'package:open_ring/features/workout/domain/workout_analysis.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
+import 'package:open_ring/features/workout/domain/workout_notifier.dart';
 import 'package:open_ring/features/workout/domain/workout_route.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
@@ -199,6 +201,16 @@ LocationNotice workoutLocationNotice(AppLocalizations l10n) => LocationNotice(
   title: l10n.workoutNotificationTitle,
   text: l10n.workoutNotificationText,
   channel: l10n.workoutNotificationChannel,
+  live: WorkoutNoticeLabels(
+    channel: l10n.workoutNotificationChannel,
+    pause: l10n.workoutPause,
+    resume: l10n.workoutResume,
+    stop: l10n.workoutEnd,
+    paused: l10n.workoutPhasePaused,
+    decimalSeparator: NumberFormat.decimalPattern(l10n.localeName)
+        .symbols
+        .DECIMAL_SEP,
+  ),
 );
 
 enum GpsQuality {

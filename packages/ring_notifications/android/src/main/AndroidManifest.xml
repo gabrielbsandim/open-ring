@@ -8,5 +8,9 @@
             android:name="gbs.openring.notifications.RingSyncForegroundService"
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
+        <service
+            android:name="gbs.openring.notifications.WorkoutForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
     </application>
 </manifest>

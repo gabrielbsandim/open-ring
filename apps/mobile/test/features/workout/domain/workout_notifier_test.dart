@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/workout/domain/workout_notifier.dart';
 
@@ -73,11 +72,14 @@ void main() {
     expect(received, [WorkoutNoticeAction.pause, WorkoutNoticeAction.stop]);
   });
 
-  test('a failing in-memory notifier throws a PlatformException', () async {
+  test('a failing in-memory notifier throws', () async {
     final notifier = InMemoryWorkoutNotifier()..failing = true;
 
-    await expectLater(notifier.show(notice), throwsA(isA<PlatformException>()));
-    await expectLater(notifier.hide(), throwsA(isA<PlatformException>()));
+    await expectLater(
+      notifier.show(notice),
+      throwsA(isA<WorkoutNotifierFailure>()),
+    );
+    await expectLater(notifier.hide(), throwsA(isA<WorkoutNotifierFailure>()));
     expect(notifier.shown, isEmpty);
     expect(notifier.hides, 0);
   });

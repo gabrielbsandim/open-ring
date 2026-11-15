@@ -13,8 +13,8 @@
     <!-- Every SDK: the GPS route of a workout. Android 11 and lower also scan with it. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- Only geolocator's location service runs in the foreground, during a workout.
-         Sync stays a plain periodic WorkManager job. -->
+    <!-- During a workout geolocator's location service records the route, and
+         ring_notifications runs its own services for the live workout and a sync. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SHORT_SERVICE" tools:node="remove" />

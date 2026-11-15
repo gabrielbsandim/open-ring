@@ -362,8 +362,9 @@ void main() {
 
       notifier.failing = true;
       second(bpm: 141);
-      controller.pause();
-      controller.resume();
+      controller
+        ..pause()
+        ..resume();
       await controller.discard();
       await pumpEventQueue();
 
@@ -386,9 +387,9 @@ void main() {
       notifier.failing = true;
       final c = container();
       await started(c, WorkoutType.other);
-      notifier.failing = false;
-
-      notifier.tap(WorkoutNoticeAction.pause);
+      notifier
+        ..failing = false
+        ..tap(WorkoutNoticeAction.pause);
       await pumpEventQueue();
 
       expect(c.read(workoutProvider).status, WorkoutStatus.paused);
@@ -509,8 +510,7 @@ void main() {
     });
 
     test('before any workout started', () async {
-      final c = container();
-      c.read(workoutProvider);
+      final c = container()..read(workoutProvider);
 
       notifier.tap(WorkoutNoticeAction.stop);
       await pumpEventQueue();

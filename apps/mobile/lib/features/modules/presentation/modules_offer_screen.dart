@@ -34,8 +34,16 @@ class _ModulesOfferScreenState extends ConsumerState<ModulesOfferScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
     final modules = ref.read(enabledModulesProvider.notifier);
-    if (body) await modules.enable(ModuleId.body);
-    if (!body) await modules.disable(ModuleId.body);
+    try {
+      if (body) await modules.enable(ModuleId.body);
+      if (!body) await modules.disable(ModuleId.body);
+    } on Object {
+      if (mounted) setState(() => _busy = false);
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(content: Text(l10n.syncErrorSaving)));
+      return;
+    }
     router.go(AppTab.today.path);
     messenger
       ..clearSnackBars()

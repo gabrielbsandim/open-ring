@@ -35,6 +35,27 @@ Future<InMemoryModuleStore> _pump(
   return store;
 }
 
+final class _FailingOnceStore implements ModuleStore {
+  final _inner = InMemoryModuleStore();
+  bool failing = true;
+
+  @override
+  Future<Set<ModuleId>> read() => _inner.read();
+
+  @override
+  Future<void> write(Set<ModuleId> enabled) async {
+    if (failing) throw StateError('disk');
+    await _inner.write(enabled);
+  }
+
+  @override
+  Future<bool> shortcutDismissed() => _inner.shortcutDismissed();
+
+  @override
+  Future<void> dismissShortcut({required bool dismissed}) =>
+      _inner.dismissShortcut(dismissed: dismissed);
+}
+
 bool _switchOn(WidgetTester tester) =>
     tester.widget<SwitchListTile>(find.byKey(ModulesOfferKeys.body)).value;
 
@@ -54,6 +75,38 @@ void main() {
       expect(find.text('All set. No module is on.'), findsOneWidget);
       expect(await store.read(), isEmpty);
       expect(find.byKey(WeightCardKeys.card), findsNothing);
+    });
+
+    testWidgets('a failed save keeps the step and can be retried', (
+      tester,
+    ) async {
+      final store = _FailingOnceStore();
+      await pumpOnboardingApp(
+        tester,
+        at: AppPaths.onboardingModules,
+        store: InMemoryOnboardingStore(completed: true),
+        overrides: [
+          ...bleOverrides(),
+          ...ringOverrides(),
+          ...onboardingOverrides(),
+          moduleStoreProvider.overrideWithValue(store),
+        ],
+      );
+
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.body));
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.done));
+
+      expect(find.byType(ModulesOfferScreen), findsOneWidget);
+      expect(
+        find.text('The data could not be saved on this phone. Try again.'),
+        findsOneWidget,
+      );
+
+      store.failing = false;
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.done));
+
+      expect(find.byType(TodayScreen), findsOneWidget);
+      expect(await store.read(), {ModuleId.body});
     });
 
     testWidgets('with Body picked it turns Body on and opens Today', (

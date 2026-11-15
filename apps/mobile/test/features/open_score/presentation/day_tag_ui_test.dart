@@ -115,7 +115,8 @@ void main() {
       expect(find.text('Tagged as Sick.'), findsOneWidget);
       expect(
         caption(tester, DayScoreCardKeys.tagged),
-        'Tagged as Sick. This day stays out of the average.',
+        'Tagged as Sick. This day stays out of the Level and the '
+        'averages.',
       );
       expect(linkText(tester), 'Change tag');
       expect(find.byType(DayTagChip), findsOneWidget);
@@ -137,7 +138,8 @@ void main() {
       expect(await store.all(), {metricsToday: DayTag.travel});
       expect(
         caption(tester, DayScoreCardKeys.tagged),
-        'Tagged as Travel. This day stays out of the average.',
+        'Tagged as Travel. This day stays out of the Level and the '
+        'averages.',
       );
     });
 

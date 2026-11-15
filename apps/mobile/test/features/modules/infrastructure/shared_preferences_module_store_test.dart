@@ -38,15 +38,18 @@ void main() {
     expect(await store.read(), isEmpty);
   });
 
-  test('an unknown name or a duplicate in the stored list is dropped', () async {
-    SharedPreferencesAsyncPlatform.instance =
-        InMemorySharedPreferencesAsync.withData({
-          SharedPreferencesModuleStore.key: ['body', 'nope', 'body', 'food'],
-        });
+  test(
+    'an unknown name or a duplicate in the stored list is dropped',
+    () async {
+      SharedPreferencesAsyncPlatform.instance =
+          InMemorySharedPreferencesAsync.withData({
+            SharedPreferencesModuleStore.key: ['body', 'nope', 'body', 'food'],
+          });
 
-    expect(await SharedPreferencesModuleStore().read(), {
-      ModuleId.body,
-      ModuleId.food,
-    });
-  });
+      expect(await SharedPreferencesModuleStore().read(), {
+        ModuleId.body,
+        ModuleId.food,
+      });
+    },
+  );
 }

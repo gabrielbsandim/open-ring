@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
@@ -57,6 +58,7 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
     await ref.read(todayWidgetConfigProvider.notifier).reset();
     ref
       ..invalidate(unitSystemProvider)
+      ..invalidate(enabledModulesProvider)
       ..invalidate(userProfileProvider)
       ..invalidate(ringSyncProvider);
     ref.read(dataRevisionProvider.notifier).bump();

@@ -42,10 +42,7 @@ void main() {
 
   test('missingRequirements names the absent requirements', () {
     expect(missingRequirements(ModuleId.trajectory, {}), {ModuleId.body});
-    expect(
-      missingRequirements(ModuleId.trajectory, {ModuleId.body}),
-      isEmpty,
-    );
+    expect(missingRequirements(ModuleId.trajectory, {ModuleId.body}), isEmpty);
     expect(missingRequirements(ModuleId.body, {}), isEmpty);
   });
 

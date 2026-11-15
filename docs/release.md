@@ -227,11 +227,16 @@ Requirements Google checks during review:
   the ongoing notification and the route.
 - Location is foreground only; no `ACCESS_BACKGROUND_LOCATION`, so no
   background location declaration.
-- Foreground service type `connectedDevice` (`RingSyncForegroundService`,
-  during a background sync with the paired ring only). Use to declare: without
-  it Android kills the idle process while the periodic job is talking to the
-  ring over Bluetooth. Play asks for a video; show the ongoing sync
-  notification in the shade while a sync runs with the app closed.
+- Foreground service type `connectedDevice`, two services.
+  `RingSyncForegroundService` runs during a background sync with the paired
+  ring only. Use to declare: without it Android kills the idle process while
+  the periodic job is talking to the ring over Bluetooth.
+  `WorkoutForegroundService` runs during a workout the user started, with or
+  without a route. Use to declare: it keeps the heart rate stream from the
+  ring recording while the screen is off, and its notification shows the
+  workout with Pause and End. Play asks for a video; show the ongoing sync
+  notification in the shade while a sync runs with the app closed, and the
+  workout notification during a workout.
 
 ### Battery optimization exemption
 

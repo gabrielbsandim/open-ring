@@ -33,6 +33,7 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        context?.let(::hideWorkout)
         channel?.setMethodCallHandler(null)
         channel = null
         context = null
@@ -130,10 +131,10 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         startWorkoutService(app, notice)
     }
 
-    // Android refuses a connectedDevice service without the Bluetooth grant, so
-    // a workout with no ring gets the same notification without the service.
+    // From Android 14 a connectedDevice service needs the Bluetooth grant, so
+    // there a workout with no ring gets the same notification without it.
     private fun startWorkoutService(app: Context, notice: WorkoutNotice) {
-        if (!canConnectToRing(app)) return showWorkoutNotification(app, notice)
+        if (!mayRunWorkoutService(app)) return showWorkoutNotification(app, notice)
         WorkoutForegroundService.cancelStop()
         app.startForegroundService(Intent(app, WorkoutForegroundService::class.java))
         workoutServiceStarted = true
@@ -143,10 +144,14 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         if (!workoutShown) return
         workoutShown = false
         WorkoutForegroundService.listener = null
-        WorkoutForegroundService.pending = null
         if (workoutServiceStarted) WorkoutForegroundService.stop()
         workoutServiceStarted = false
         cancelWorkoutNotification(app)
+    }
+
+    private fun mayRunWorkoutService(app: Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return true
+        return canConnectToRing(app)
     }
 
     private fun canConnectToRing(app: Context): Boolean {

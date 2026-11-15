@@ -49,11 +49,26 @@ class WorkoutForegroundService : Service() {
         return START_NOT_STICKY
     }
 
-    // A tap on a notification left behind by a dead process finds no workout.
+    // A tap on a notification left behind by a dead process or a closed
+    // screen finds no workout, so the tap clears it.
     private fun onAction(action: String): Int {
+        val heard = listener
+        if (heard == null) clearStale()
         if (active == null) stopSelf()
-        listener?.invoke(action)
+        heard?.invoke(action)
         return START_NOT_STICKY
+    }
+
+    private fun clearStale() {
+        cancelWorkoutNotification(this)
+        active?.stopNow()
+    }
+
+    // The workout ends with the task, so its notification goes with it.
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        listener = null
+        cancelWorkoutNotification(this)
+        stop()
     }
 
     private fun promote() {
@@ -71,6 +86,7 @@ class WorkoutForegroundService : Service() {
 
     private fun stopNow() {
         active = null
+        pending = null
         stopPending = false
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
@@ -84,7 +100,7 @@ class WorkoutForegroundService : Service() {
         private var stopPending = false
 
         // Stopping before startForeground runs makes Android crash the app, so
-        // an early stop waits for onStartCommand.
+        // an early stop waits for onStartCommand and the notice stays until then.
         fun stop() {
             val service = active
             if (service == null) {

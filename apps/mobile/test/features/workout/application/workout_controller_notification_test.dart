@@ -168,6 +168,31 @@ void main() {
       expect(notifier.shown.last.text, isNot(contains('120')));
     });
 
+    test('a new heart rate inside the same second shows again', () async {
+      await started(container(), WorkoutType.other);
+      second(bpm: 120);
+      final before = notifier.shown.length;
+      final elapsed = notifier.shown.last.elapsed;
+
+      heartRate.emit(150);
+      ticks.add(null);
+
+      expect(notifier.shown.length, before + 1);
+      expect(notifier.shown.last.elapsed, elapsed);
+      expect(notifier.shown.last.text, contains('150'));
+    });
+
+    test('disposing a live workout hides', () async {
+      final c = container();
+      await started(c, WorkoutType.other);
+      second(bpm: 120);
+
+      c.dispose();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(notifier.hides, 1);
+    });
+
     test('ticks with an identical notice do not show twice', () async {
       await started(container(), WorkoutType.other);
       second(bpm: 120);
@@ -426,7 +451,7 @@ void main() {
       second();
 
       for (final notice in notifier.shown) {
-        expect(notice.text, isNot(contains(RegExp(r'\d'))));
+        expect(notice.text, isEmpty);
       }
     });
 

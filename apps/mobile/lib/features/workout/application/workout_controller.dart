@@ -77,6 +77,7 @@ class WorkoutController extends Notifier<WorkoutState> {
   StreamSubscription<LocationFix>? _location;
   StreamSubscription<WorkoutNoticeAction>? _actions;
   WorkoutNotice? _shown;
+  WorkoutNotifier? _showing;
   Future<void>? _heartRateStopping;
   Future<void>? _locationStopping;
   LocationNotice? _notice;
@@ -89,7 +90,11 @@ class WorkoutController extends Notifier<WorkoutState> {
 
   @override
   WorkoutState build() {
-    ref.onDispose(() => unawaited(_stopStreams()));
+    ref.onDispose(() {
+      unawaited(_stopStreams());
+      final showing = _showing;
+      if (showing != null) unawaited(_quietly(_guarded(showing.hide)));
+    });
     return const WorkoutState();
   }
 
@@ -316,11 +321,14 @@ class WorkoutController extends Notifier<WorkoutState> {
     );
     if (notice == _shown) return;
     _shown = notice;
-    unawaited(_quietly(_guarded(() => _notifier.show(notice))));
+    final notifier = _notifier;
+    _showing = notifier;
+    unawaited(_quietly(_guarded(() => notifier.show(notice))));
   }
 
   Future<void> _hideNotice() {
     _shown = null;
+    _showing = null;
     return _quietly(_guarded(_notifier.hide));
   }
 

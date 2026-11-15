@@ -149,9 +149,9 @@ assumptions; ring-side workouts are gone; `BleTransport` is a port with a
 `workouts`, `workout_hr_samples`, `workout_route_points`, `workout_pauses`, `health_outbox`,
 `source_priorities`, `user_profile`, `imported_sleep_sessions`, `imported_sleep_stages`, `health_reads`,
 `imported_workouts`, `weigh_ins`, `day_tags`.
-All timestamps in UTC epoch milliseconds plus the device offset at capture. The exception is `day_tags`: its key is
-a local calendar date as text, because a tag belongs to a day and not to an instant, and its `updated_at_utc_ms`
-carries no offset.
+All timestamps are UTC epoch milliseconds. Samples, sessions, workouts and weigh-ins also store the device offset at
+capture; pauses, imported sleep stages and bookkeeping columns such as `updated_at_utc_ms` store none. `day_tags` is
+keyed by a local calendar date as text, because a tag belongs to a day and not to an instant.
 
 ### Stack
 

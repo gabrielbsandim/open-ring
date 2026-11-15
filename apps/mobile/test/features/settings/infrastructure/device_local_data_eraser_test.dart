@@ -3,6 +3,7 @@ import 'package:open_ring/app/theme/shared_preferences_theme_mode_store.dart';
 import 'package:open_ring/features/body/infrastructure/shared_preferences_hide_numbers_store.dart';
 import 'package:open_ring/features/modules/infrastructure/shared_preferences_module_store.dart';
 import 'package:open_ring/features/onboarding/infrastructure/shared_preferences_onboarding_store.dart';
+import 'package:open_ring/features/open_score/infrastructure/shared_preferences_week_goal_store.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/settings/infrastructure/device_local_data_eraser.dart';
 import 'package:open_ring/features/settings/infrastructure/drift_user_profile_store.dart';
@@ -25,6 +26,7 @@ void main() {
           SharedPreferencesModuleStore.key: ['body', 'trajectory'],
           SharedPreferencesModuleStore.shortcutKey: true,
           SharedPreferencesHideNumbersStore.key: true,
+          SharedPreferencesWeekGoalStore.key: 5,
           'some_plugin_key': 'kept',
         });
   });

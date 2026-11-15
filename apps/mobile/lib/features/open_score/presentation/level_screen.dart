@@ -13,6 +13,7 @@ import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/day_score_providers.dart';
 import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
 import 'package:open_ring/features/open_score/application/level_providers.dart';
+import 'package:open_ring/features/open_score/application/week_goal_providers.dart';
 import 'package:open_ring/features/open_score/domain/day_score_history.dart';
 import 'package:open_ring/features/open_score/domain/day_tag.dart';
 import 'package:open_ring/features/open_score/domain/level_view.dart';
@@ -20,6 +21,7 @@ import 'package:open_ring/features/open_score/presentation/day_score_formula_scr
 import 'package:open_ring/features/open_score/presentation/day_tag_sheet.dart';
 import 'package:open_ring/features/open_score/presentation/level_block.dart';
 import 'package:open_ring/features/open_score/presentation/level_chart.dart';
+import 'package:open_ring/features/open_score/presentation/level_goal_cards.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class LevelKeys {
@@ -102,6 +104,8 @@ class _LevelState extends ConsumerState<LevelScreen> {
       ),
     ),
     const SizedBox(height: cardGap),
+    const WeekGoalFormingCard(),
+    const SizedBox(height: cardGap),
     DayScoreListCard(
       title: l10n.levelHowTitle,
       lines: [l10n.levelHow1, l10n.levelHow2, l10n.levelHow3],
@@ -119,6 +123,8 @@ class _LevelState extends ConsumerState<LevelScreen> {
         ref.watch(dayTagsProvider).value ?? const <LocalDate, DayTag>{};
     final tag = tags[history.today];
     final score = history.scoredOn(history.today)?.value;
+    final week = ref.watch(levelWeekProvider).value;
+    final bests = ref.watch(levelBestsProvider).value;
     return [
       _Hero(
         track: track,
@@ -136,6 +142,14 @@ class _LevelState extends ConsumerState<LevelScreen> {
       if (tag == null && score != null) ...[
         const SizedBox(height: cardGap),
         _Today(score: score, level: level),
+      ],
+      if (week != null) ...[
+        const SizedBox(height: cardGap),
+        WeekGoalCard(week: week, history: history),
+      ],
+      if (bests != null) ...[
+        const SizedBox(height: cardGap),
+        BestsCard(bests: bests),
       ],
       const SizedBox(height: cardGap),
       _Account(

@@ -17,6 +17,7 @@ import 'package:open_ring/features/onboarding/presentation/welcome_screen.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_formula_screen.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_history_screen.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_receipt_screen.dart';
+import 'package:open_ring/features/open_score/presentation/level_screen.dart';
 import 'package:open_ring/features/ring/presentation/pair_error_screen.dart';
 import 'package:open_ring/features/ring/presentation/pair_screen.dart';
 import 'package:open_ring/features/ring/presentation/ring_screen.dart';
@@ -126,6 +127,7 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
             path: 'history',
             builder: (_, _) => const DayScoreHistoryScreen(),
           ),
+          GoRoute(path: 'level', builder: (_, _) => const LevelScreen()),
         ],
       ),
     ],

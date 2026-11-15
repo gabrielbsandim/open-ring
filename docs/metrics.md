@@ -797,6 +797,11 @@ level = level + alpha * (score - level)
 number and the Level has one decimal, so the score is compared with the Level rounded to a whole number: 71
 against 71.4 is on the line, 72 is above, 70 is below.
 
+**In the app.** Nothing is stored: the Level is walked again from the Day Score history the app keeps, with the
+tagged days set aside. The first 14 counted days of that history are the seed, so the seed moves forward as old
+days leave the history; by then it carries a few percent of the Level. Days inside the seed have no line of
+their own.
+
 **What it is not.** Not a streak, not a rank against other people, not a health forecast. It is an average chosen
 by the product, not a published clinical formula, and it is stated as such on the screen that shows it.
 

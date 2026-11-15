@@ -14,9 +14,11 @@ import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/day_score_providers.dart';
 import 'package:open_ring/features/open_score/application/day_score_view.dart';
 import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
+import 'package:open_ring/features/open_score/application/level_providers.dart';
 import 'package:open_ring/features/open_score/domain/day_score_history.dart';
 import 'package:open_ring/features/open_score/domain/day_tag.dart';
 import 'package:open_ring/features/open_score/presentation/day_tag_sheet.dart';
+import 'package:open_ring/features/open_score/presentation/level_block.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class DayScoreCardKeys {
@@ -142,9 +144,19 @@ class DayScoreCard extends ConsumerWidget {
     final loaded = history.value;
     if (loaded == null) return const SizedBox(height: 96);
     final tag = ref.watch(dayTagsProvider).value?[loaded.today];
+    final track = ref.watch(levelTrackProvider).value;
+    final level = track == null
+        ? null
+        : LevelBlock(
+            track: track,
+            score: loaded.scoredOn(loaded.today)?.value,
+            tagged: tag != null,
+            onOpen: () => context.go(AppPaths.dayScoreLevel),
+          );
     return _body(
       loaded,
       tag,
+      level,
       () => unawaited(
         showDayTagSheet(
           context,
@@ -157,28 +169,40 @@ class DayScoreCard extends ConsumerWidget {
     );
   }
 
-  Widget _body(DayScoreHistory history, DayTag? tag, VoidCallback onTag) =>
-      switch (history.on(history.today)) {
-        final Scored<DayScoreFactor> scored => _Scored(
-          scored: scored,
-          tag: tag,
-          onTag: onTag,
-        ),
-        final InsufficientData<DayScoreFactor> lacking
-            when history.firstScored == null =>
-          _FirstDays(lacking: lacking),
-        final InsufficientData<DayScoreFactor> lacking => _NoScore(
-          lacking: lacking,
-        ),
-        null => const SizedBox.shrink(),
-      };
+  Widget _body(
+    DayScoreHistory history,
+    DayTag? tag,
+    Widget? level,
+    VoidCallback onTag,
+  ) => switch (history.on(history.today)) {
+    final Scored<DayScoreFactor> scored => _Scored(
+      scored: scored,
+      tag: tag,
+      level: level,
+      onTag: onTag,
+    ),
+    final InsufficientData<DayScoreFactor> lacking
+        when history.firstScored == null =>
+      _FirstDays(lacking: lacking),
+    final InsufficientData<DayScoreFactor> lacking => _NoScore(
+      lacking: lacking,
+      level: level,
+    ),
+    null => const SizedBox.shrink(),
+  };
 }
 
 class _Scored extends StatelessWidget {
-  const new({required this.scored, required this.tag, required this.onTag});
+  const new({
+    required this.scored,
+    required this.tag,
+    required this.level,
+    required this.onTag,
+  });
 
   final Scored<DayScoreFactor> scored;
   final DayTag? tag;
+  final Widget? level;
   final VoidCallback onTag;
 
   @override
@@ -209,6 +233,7 @@ class _Scored extends StatelessWidget {
             l10n.dayTagTagged(dayTagLabel(l10n, tag)),
           ),
         ],
+        if (level != null) ...[const SizedBox(height: 12), ?level],
         Align(
           alignment: AlignmentDirectional.centerStart,
           child: TextButton(
@@ -437,9 +462,10 @@ class _Legend extends StatelessWidget {
 }
 
 class _NoScore extends StatelessWidget {
-  const new({required this.lacking});
+  const new({required this.lacking, required this.level});
 
   final InsufficientData<DayScoreFactor> lacking;
+  final Widget? level;
 
   @override
   Widget build(BuildContext context) {
@@ -465,6 +491,7 @@ class _NoScore extends StatelessWidget {
         }),
         const SizedBox(height: 10),
         CaptionText(l10n.dayScoreNoneNote),
+        if (level != null) ...[const SizedBox(height: 12), ?level],
       ],
     );
   }

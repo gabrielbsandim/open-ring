@@ -56,8 +56,8 @@ final class _FailingOnceStore implements ModuleStore {
       _inner.dismissShortcut(dismissed: dismissed);
 }
 
-bool _switchOn(WidgetTester tester) =>
-    tester.widget<SwitchListTile>(find.byKey(ModulesOfferKeys.body)).value;
+bool _switchOn(WidgetTester tester, [Key key = ModulesOfferKeys.body]) =>
+    tester.widget<SwitchListTile>(find.byKey(key)).value;
 
 void main() {
   group('the modules step of onboarding', () {
@@ -117,7 +117,7 @@ void main() {
       await tapAndSettle(tester, find.byKey(ModulesOfferKeys.body));
 
       expect(_switchOn(tester), isTrue);
-      expect(find.text('Continue with Body'), findsOneWidget);
+      expect(find.text('Continue with 1 module'), findsOneWidget);
       expect(await store.read(), isEmpty);
 
       await tapAndSettle(tester, find.byKey(ModulesOfferKeys.done));
@@ -131,6 +131,61 @@ void main() {
       expect(find.byKey(WeightCardKeys.card), findsOneWidget);
     });
 
+    testWidgets('with Open Score picked it turns Open Score on', (
+      tester,
+    ) async {
+      final store = await _pump(tester, at: AppPaths.onboardingModules);
+
+      expect(_switchOn(tester, ModulesOfferKeys.openScore), isFalse);
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.openScore));
+
+      expect(find.text('Continue with 1 module'), findsOneWidget);
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.done));
+
+      expect(await store.read(), {ModuleId.openScore});
+      expect(
+        find.text(
+          'Open Score is on. The Day Score shows on Today once your ring has synced.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(TodayScreen), findsOneWidget);
+      expect(find.byKey(WeightCardKeys.card), findsNothing);
+    });
+
+    testWidgets('with both picked it turns both on', (tester) async {
+      final store = await _pump(tester, at: AppPaths.onboardingModules);
+
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.body));
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.openScore));
+
+      expect(find.text('Continue with 2 modules'), findsOneWidget);
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.done));
+
+      expect(await store.read(), {ModuleId.body, ModuleId.openScore});
+      expect(
+        find.text(
+          'Your modules are on. The Day Score shows on Today once your ring has synced.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(WeightCardKeys.card), findsOneWidget);
+    });
+
+    testWidgets('unpicking a module that was on turns it off', (tester) async {
+      final store = await _pump(
+        tester,
+        at: AppPaths.onboardingModules,
+        modules: InMemoryModuleStore({ModuleId.body, ModuleId.openScore}),
+      );
+
+      expect(find.text('Continue with 2 modules'), findsOneWidget);
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.openScore));
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.done));
+
+      expect(await store.read(), {ModuleId.body});
+    });
+
     testWidgets('with Body already on the switch starts on', (tester) async {
       await _pump(
         tester,
@@ -139,7 +194,7 @@ void main() {
       );
 
       expect(_switchOn(tester), isTrue);
-      expect(find.text('Continue with Body'), findsOneWidget);
+      expect(find.text('Continue with 1 module'), findsOneWidget);
     });
   });
 

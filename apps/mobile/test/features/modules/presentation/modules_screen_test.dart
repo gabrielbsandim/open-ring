@@ -12,6 +12,8 @@ import 'package:open_ring/features/modules/application/enabled_modules_controlle
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/modules/presentation/modules_screen.dart';
+import 'package:open_ring/features/open_score/presentation/day_score_formula_screen.dart';
+import 'package:open_ring/features/open_score/presentation/open_score_module_screen.dart';
 import 'package:open_ring/features/ring/presentation/ring_screen.dart';
 import 'package:open_ring/features/settings/presentation/settings_screen.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
@@ -67,9 +69,17 @@ Future<void> _tap(WidgetTester tester, Key key) async {
   await tester.pumpAndSettle();
 }
 
+bool _on(WidgetTester tester, Key key) =>
+    tester.widget<Switch>(find.byKey(key)).value;
+
 Future<void> _openModules(WidgetTester tester) async {
   await _openSettings(tester);
   await _tap(tester, SettingsScreen.modulesKey);
+}
+
+Future<void> _openOpenScore(WidgetTester tester) async {
+  await _openModules(tester);
+  await _tap(tester, ModulesKeys.openScoreRow);
 }
 
 Future<void> _openBody(WidgetTester tester) async {
@@ -102,11 +112,12 @@ void main() {
     await _openModules(tester);
 
     expect(find.byType(ModulesScreen), findsOneWidget);
-    expect(find.text('Off'), findsOneWidget);
+    expect(_on(tester, ModulesKeys.bodySwitch), isFalse);
     await _tap(tester, ModulesKeys.bodySwitch);
 
     expect(await modules.read(), {ModuleId.body});
-    expect(find.text('On'), findsOneWidget);
+    expect(_on(tester, ModulesKeys.bodySwitch), isTrue);
+    expect(_on(tester, ModulesKeys.openScoreSwitch), isFalse);
     expect(
       find.text('Body is on. The Weight card is on Today.'),
       findsOneWidget,
@@ -235,5 +246,90 @@ void main() {
     expect(await weighIns.count(), 2);
     await reveal(tester, find.byKey(BodyModuleKeys.toggle));
     expect(find.text('Turn Body on'), findsOneWidget);
+  });
+
+  testWidgets('the switch turns Open Score on and offers the way to Today', (
+    tester,
+  ) async {
+    final modules = InMemoryModuleStore();
+    await _pump(tester, modules: modules);
+    await _openModules(tester);
+    await _tap(tester, ModulesKeys.openScoreSwitch);
+
+    expect(await modules.read(), {ModuleId.openScore});
+    expect(_on(tester, ModulesKeys.openScoreSwitch), isTrue);
+    expect(_on(tester, ModulesKeys.bodySwitch), isFalse);
+    expect(
+      find.text(
+        'Open Score is on. The Day Score shows on Today once your ring has synced.',
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('View'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TodayScreen), findsOneWidget);
+  });
+
+  testWidgets('the Open Score switch is announced by its name', (tester) async {
+    final handle = tester.ensureSemantics();
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openModules(tester);
+
+    final toggle = tester.getSemantics(find.byKey(ModulesKeys.openScoreSwitch));
+    final row = tester.getSemantics(find.byKey(ModulesKeys.openScoreRow));
+
+    expect(toggle.id, isNot(row.id));
+    expect(toggle.label, 'Open Score');
+    handle.dispose();
+  });
+
+  testWidgets('the Open Score row opens its detail, off', (tester) async {
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openOpenScore(tester);
+
+    expect(find.byType(OpenScoreModuleScreen), findsOneWidget);
+    final texts = await shownTexts(tester);
+    expect(texts, contains('Off'));
+    expect(texts, contains('The Day Score as a metric in History.'));
+    expect(texts, contains('It asks for no new permission and sends nothing.'));
+    expect(
+      texts,
+      contains('It does not estimate biological age or life expectancy.'),
+    );
+    expect(texts, contains('Body weight, calories and age never enter.'));
+    expect(texts, contains('Turn Open Score on'));
+    expect(texts, contains('You can turn it off whenever you want.'));
+  });
+
+  testWidgets('the detail button turns Open Score on and off', (tester) async {
+    final modules = InMemoryModuleStore();
+    await _pump(tester, modules: modules);
+    await _openOpenScore(tester);
+    await _tap(tester, OpenScoreModuleKeys.toggle);
+
+    expect(await modules.read(), {ModuleId.openScore});
+    expect(find.text('Turn Open Score off'), findsOneWidget);
+    expect(find.text('Nothing is deleted.'), findsOneWidget);
+    tester
+        .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger).first)
+        .clearSnackBars();
+    await tester.pumpAndSettle();
+    await _tap(tester, OpenScoreModuleKeys.toggle);
+
+    expect(await modules.read(), isEmpty);
+    expect(find.byType(SnackBar), findsNothing);
+    await reveal(tester, find.byKey(OpenScoreModuleKeys.toggle));
+    expect(find.text('Turn Open Score on'), findsOneWidget);
+  });
+
+  testWidgets('the detail links to the formula while the module is off', (
+    tester,
+  ) async {
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openOpenScore(tester);
+    await _tap(tester, OpenScoreModuleKeys.formula);
+
+    expect(find.byType(DayScoreFormulaScreen), findsOneWidget);
   });
 }

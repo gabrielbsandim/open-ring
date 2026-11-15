@@ -37,7 +37,9 @@ import 'package:open_ring/features/onboarding/infrastructure/device_app_permissi
 import 'package:open_ring/features/onboarding/infrastructure/method_channel_app_permissions.dart';
 import 'package:open_ring/features/onboarding/infrastructure/shared_preferences_onboarding_store.dart';
 import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
+import 'package:open_ring/features/open_score/application/week_goal_providers.dart';
 import 'package:open_ring/features/open_score/infrastructure/drift_day_tag_store.dart';
+import 'package:open_ring/features/open_score/infrastructure/shared_preferences_week_goal_store.dart';
 import 'package:open_ring/features/ring/application/auto_measurements_controller.dart';
 import 'package:open_ring/features/ring/application/pair_controller.dart';
 import 'package:open_ring/features/ring/application/resume_sync_trigger.dart';
@@ -130,6 +132,7 @@ Future<void> bootstrap() async {
       hideNumbersStoreProvider.overrideWithValue(
         SharedPreferencesHideNumbersStore(),
       ),
+      weekGoalStoreProvider.overrideWithValue(SharedPreferencesWeekGoalStore()),
       weighInStoreProvider.overrideWith(
         (ref) => DriftWeighInStore(ref.watch(appDatabaseProvider)),
       ),

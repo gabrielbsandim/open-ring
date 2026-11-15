@@ -3,12 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
+import 'package:open_ring/features/open_score/application/week_goal_providers.dart';
+import 'package:open_ring/features/open_score/domain/week_goal_store.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
 import 'package:open_ring/features/ring/domain/sync_interval.dart';
@@ -35,6 +38,7 @@ void main() {
   late InMemoryOnboardingStore onboarding;
   late InMemoryTodayWidgetConfigStore widgetConfig;
   late InMemoryModuleStore modules;
+  late InMemoryWeekGoalStore weekGoal;
 
   ProviderContainer container([FakeLocalDataEraser? override]) {
     eraser = override ?? FakeLocalDataEraser();
@@ -43,6 +47,7 @@ void main() {
     profiles = InMemoryUserProfileStore(fullProfile);
     onboarding = InMemoryOnboardingStore(completed: true);
     modules = InMemoryModuleStore({ModuleId.body, ModuleId.trajectory});
+    weekGoal = InMemoryWeekGoalStore(6);
     widgetConfig = InMemoryTodayWidgetConfigStore(
       TodayWidgetConfig().withTheme(WidgetTheme.light),
     );
@@ -62,6 +67,7 @@ void main() {
         onboardingStoreProvider.overrideWithValue(onboarding),
         todayWidgetConfigStoreProvider.overrideWithValue(widgetConfig),
         moduleStoreProvider.overrideWithValue(modules),
+        weekGoalStoreProvider.overrideWithValue(weekGoal),
       ],
     );
     addTearDown(container.dispose);
@@ -75,6 +81,8 @@ void main() {
     expect(await c.read(userProfileProvider.future), isNotNull);
     final revision = c.read(dataRevisionProvider);
     expect(await c.read(enabledModulesProvider.future), isNotEmpty);
+    expect(await c.read(weekGoalProvider.future), 6);
+    weekGoal.goal = null;
     units.units = null;
     profiles.profile = null;
     await modules.write({});
@@ -95,6 +103,7 @@ void main() {
     expect(c.read(todayWidgetConfigProvider), TodayWidgetConfig());
     expect(widgetConfig.saved, isNull);
     expect(await c.read(enabledModulesProvider.future), isEmpty);
+    expect(await c.read(weekGoalProvider.future), weekGoalDefault);
   });
 
   test('a failed erase reports failure and keeps the settings', () async {

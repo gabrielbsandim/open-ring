@@ -802,6 +802,16 @@ tagged days set aside. The first 14 counted days of that history are the seed, s
 days leave the history; by then it carries a few percent of the Level. Days inside the seed have no line of
 their own.
 
+**Weekly goal.** A week runs from Monday to Sunday. A closed day counts when its score is on its line or above,
+by the comparison above. The goal is a number of such days, from 3 to 7, 4 unless the user changes it. Today counts
+only once it has closed. A tagged day, a day without a score and a day inside the seed count neither for nor
+against. Nothing carries from one week to the next: there is no streak.
+
+**Personal bests.** Over the closed, counted days of the history the app keeps: the highest Day Score, the highest
+Level at one decimal, and the best week, which is the rounded mean of the counted scores of a whole week already
+over with at least 4 counted days. A tie keeps the earlier holder. Because they are read from the kept history, a
+best leaves when its day does.
+
 **What it is not.** Not a streak, not a rank against other people, not a health forecast. It is an average chosen
 by the product, not a published clinical formula, and it is stated as such on the screen that shows it.
 

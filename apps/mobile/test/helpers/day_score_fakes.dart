@@ -13,6 +13,7 @@ DayScoreInputs day({
   bool baselines = true,
   double? stressZ = -1,
   double? spo2Mean = 96,
+  int? readiness,
 }) => DayScoreInputs(
   sleepScore: sleepScore,
   steps: steps,
@@ -22,6 +23,7 @@ DayScoreInputs day({
   restingHeartRate: baselines ? z(-1) : null,
   stress: stressZ == null ? null : z(stressZ),
   spo2Mean: spo2Mean,
+  readiness: readiness,
 );
 
 DayScoreHistory historyOf(DayScoreInputs today, {bool scoredBefore = true}) =>

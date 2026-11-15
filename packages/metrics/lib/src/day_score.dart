@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:metrics/src/baseline.dart';
 import 'package:metrics/src/local_date.dart';
 import 'package:metrics/src/readiness.dart';
@@ -27,6 +29,10 @@ const dayScoreGreatFrom = 85;
 const dayScoreGoodFrom = 70;
 const dayScoreMixedFrom = 55;
 const intensityWeeklyTarget = 150.0;
+
+// On a day whose readiness is below fair, steps are scored against this
+// share of the goal.
+const lowReadinessStepGoalFactor = 0.6;
 const stressZeroZ = 3.0;
 const stressFullZ = -1.0;
 const stressMinSpread = 3.0;
@@ -81,6 +87,7 @@ final class DayScoreInputs {
     this.restingHeartRate,
     this.stress,
     this.spo2Mean,
+    this.readiness,
   });
 
   final int? sleepScore;
@@ -91,6 +98,29 @@ final class DayScoreInputs {
   final BaselineDeviation? restingHeartRate;
   final BaselineDeviation? stress;
   final double? spo2Mean;
+
+  /// The day's readiness score, when it had one.
+  final int? readiness;
+
+  bool get lowReadiness {
+    final readiness = this.readiness;
+    return readiness != null && readiness < readinessFairFrom;
+  }
+
+  /// The step goal the score uses: a low readiness day asks for less.
+  int get dayStepGoal {
+    if (!lowReadiness) return stepGoal;
+    return math.max(1, (stepGoal * lowReadinessStepGoalFactor).round());
+  }
+
+  /// The points the steps would have earned against the full goal, before
+  /// any rescale. Null on a day that is not low or has no steps.
+  double? get fullGoalStepPoints {
+    final walked = this.walked;
+    if (!lowReadiness || walked == null) return null;
+    return DayScoreFactor.steps.weight *
+        ramp(walked, zeroAt: 0, fullAt: stepGoal.toDouble());
+  }
 
   // Zero steps means the ring was off the finger, so it counts as missing.
   double? get walked {
@@ -121,7 +151,7 @@ final class DayScoreInputs {
         _part(
           DayScoreFactor.steps,
           walked,
-          ramp(walked, zeroAt: 0, fullAt: stepGoal.toDouble()),
+          ramp(walked, zeroAt: 0, fullAt: dayStepGoal.toDouble()),
         ),
       if (intensityMinutes != null)
         _part(
@@ -196,6 +226,7 @@ ScoreResult<DayScoreFactor> dayScore({
   BaselineDeviation? restingHeartRate,
   BaselineDeviation? stress,
   double? spo2Mean,
+  int? readiness,
 }) => DayScoreInputs(
   sleepScore: sleepScore,
   steps: steps,
@@ -205,4 +236,5 @@ ScoreResult<DayScoreFactor> dayScore({
   restingHeartRate: restingHeartRate,
   stress: stress,
   spo2Mean: spo2Mean,
+  readiness: readiness,
 ).score;

@@ -31,7 +31,9 @@ final trendHistoryProvider = FutureProvider<TrendHistory>((ref) async {
     readSleepNights(
       ring: sleepReader,
       imported: importedReader,
-      from: now.subtract(Duration(days: trendHistoryDays + 2)),
+      from: now.subtract(
+        Duration(days: trendHistoryDays + baselineWindowDays + 2),
+      ),
       to: now,
     ),
     activityReader.dailyActivity(

@@ -39,7 +39,8 @@ class DayScoreFormulaScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final format = MetricFormat.of(context);
+    final l10n = format.l10n;
     return AppPage(
       title: l10n.formulaLink,
       children: [
@@ -77,6 +78,27 @@ class DayScoreFormulaScreen extends StatelessWidget {
             l10n.dayScoreFormulaMinutes1,
             l10n.dayScoreFormulaMinutes2,
             l10n.dayScoreFormulaMinutes3,
+          ],
+        ),
+        const SizedBox(height: cardGap),
+        DayScoreListCard(
+          title: l10n.dayScoreFormulaLowTitle,
+          lines: [
+            l10n.dayScoreFormulaLow1(
+              format.integer(readinessFairFrom),
+              format.integer(lowReadinessStepGoalFactor * 100),
+            ),
+            l10n.dayScoreFormulaLow2,
+          ],
+        ),
+        const SizedBox(height: cardGap),
+        DayScoreListCard(
+          title: l10n.dayScoreFormulaLevelTitle,
+          lines: [
+            l10n.dayScoreFormulaLevel1(
+              l10n.metricPercent(format.decimal(levelAlpha * 100, digits: 1)),
+            ),
+            l10n.dayScoreFormulaLevel2,
           ],
         ),
         const SizedBox(height: cardGap),

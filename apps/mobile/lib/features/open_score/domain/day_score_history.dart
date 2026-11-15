@@ -71,31 +71,48 @@ final class DayScoreHistory {
     required List<DailyValue> stress,
     required List<DailyValue> intensity,
     required int stepGoal,
+    required List<DailyValue> activeLoad,
   }) {
     final sleep = history.values(TrendMetric.sleepScore);
     final steps = history.values(TrendMetric.steps);
-    final hrv = history.values(TrendMetric.hrv);
-    final resting = history.values(TrendMetric.restingHeartRate);
+    final hrv = history.withLead(TrendMetric.hrv);
+    final resting = history.withLead(TrendMetric.restingHeartRate);
     final spo2 = history.values(TrendMetric.spo2);
-    DayScoreInputs inputsOn(LocalDate date) => DayScoreInputs(
-      sleepScore: _valueOn(sleep, date)?.round(),
-      steps: _valueOn(steps, date)?.round(),
-      stepGoal: stepGoal,
-      intensityMinutes: weeklyIntensityMinutes(intensity, today: date),
-      hrv: BaselineInput(
+    DayScoreInputs inputsOn(LocalDate date) {
+      final sleepScore = _valueOn(sleep, date)?.round();
+      final hrvDeviation = BaselineInput(
         today: _valueOn(hrv, date),
         baseline: hrvBaseline(hrv, today: date),
-      ).deviation,
-      restingHeartRate: BaselineInput(
+      ).deviation;
+      final restingDeviation = BaselineInput(
         today: _valueOn(resting, date),
         baseline: restingHeartRateBaseline(resting, today: date),
-      ).deviation,
-      stress: BaselineInput(
-        today: _valueOn(stress, date),
-        baseline: stressBaseline(stress, today: date),
-      ).deviation,
-      spo2Mean: _valueOn(spo2, date),
-    );
+      ).deviation;
+      final ready = readiness(
+        sleepScore: sleepScore,
+        hrv: hrvDeviation,
+        restingHeartRate: restingDeviation,
+        activityLoad: activityLoad(activeLoad, today: date),
+      );
+      return DayScoreInputs(
+        sleepScore: sleepScore,
+        steps: _valueOn(steps, date)?.round(),
+        stepGoal: stepGoal,
+        intensityMinutes: weeklyIntensityMinutes(intensity, today: date),
+        hrv: hrvDeviation,
+        restingHeartRate: restingDeviation,
+        stress: BaselineInput(
+          today: _valueOn(stress, date),
+          baseline: stressBaseline(stress, today: date),
+        ).deviation,
+        spo2Mean: _valueOn(spo2, date),
+        readiness: switch (ready) {
+          Scored(:final value) => value,
+          InsufficientData() => null,
+        },
+      );
+    }
+
     return DayScoreHistory(
       today: today,
       days: {

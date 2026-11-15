@@ -131,6 +131,7 @@ void main() {
       stress: stress ?? flat(40, 40),
       intensity: intensity ?? flat(40, 30),
       stepGoal: 8000,
+      activeLoad: const [],
     );
 
     test('covers ninety days ending today', () {

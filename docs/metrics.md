@@ -717,19 +717,20 @@ credit needs two valid samples.
 ## 15. Day Score
 
 Function: `dayScore(sleepScore, steps, stepGoal, intensityMinutes, hrv,
-restingHeartRate, stress, spo2Mean)`, for one local date D. Also
+restingHeartRate, stress, spo2Mean, readiness)`, for one local date D. Also
 `dayScoreBand(score)` and `stressBaseline(dailyStressMean, today)`.
 
 Inputs: the sleep score (section 2) of the night that ended on D, the steps of
 D, the weekly intensity minutes ending on D (section 14), the z of last
 night's HRV and resting heart rate against their baselines (section 5), the z
 of the day's stress mean (section 8) against the stress baseline, and the mean
-SpO2 of the night (section 9).
+SpO2 of the night (section 9). The readiness of D (section 7) is an optional
+input that only sets the step goal of the day, below.
 
 | Pillar | Factor | Subscore | Points |
 | :--- | :--- | :--- | :--- |
 | Sleep | sleep | `ramp(score, 0, 100)` | 30 |
-| Movement | steps | `ramp(steps, 0, stepGoal)` | 15 |
+| Movement | steps | `ramp(steps, 0, dayStepGoal)` | 15 |
 | Movement | intensity | `ramp(minutes, 0, 150)` | 20 |
 | Recovery | HRV | `ramp(z, -3, +1)` | 10 |
 | Recovery | resting heart rate | `ramp(z, +3, -1)` | 10 |
@@ -745,6 +746,37 @@ A missing factor is left out and the rest is rescaled, so it never costs
 points. Each contribution carries its rescaled weight; `coverage`, `isFull`
 and `missing` read the result. Steps above the goal earn nothing extra.
 
+### Low readiness day
+
+`dayStepGoal` is the step goal, except on a day whose readiness is below
+`readinessFairFrom` (55, the low band of section 7), where it is
+`round(stepGoal * lowReadinessStepGoalFactor)`, never below 1. Readiness 55
+and a day without a readiness value keep the full goal. Only the steps factor
+moves: the weekly intensity minutes and every other factor are scored the
+same, and the weights do not change.
+
+`fullGoalStepPoints` is what the steps would have earned against the full
+goal, `15 * ramp(steps, 0, stepGoal)`, and exists only on a low day with
+steps. The receipt prints it next to the goal of the day, so the easier goal
+is never hidden.
+
+The app computes the readiness of each of the 90 days of the history with the
+function and inputs of the Readiness card, so a past day reads the same as
+today. For that the history also reads the 28 nights before its first day,
+used only for the HRV and resting heart rate baselines, so the oldest day has
+the same 28 day baseline as today. The HRV and resting heart rate factors of
+the Day Score read the same baselines, so with those nights any day older
+than about 62 days, low or not, is scored against a full baseline where it
+used to have a short one or none, and its score can move up or down. Nothing
+is stored. Readiness reads active energy through the activity load, so on a
+low day active energy reaches the Day Score through the step goal and in no
+other way. Age reaches it only through the heart rate zones of a workout,
+when the profile has no maximum heart rate (section 14).
+
+A day at 54 and a day at 55 are scored against
+different goals: the step is one rule a person can check, and a ramp would be
+a second number to explain.
+
 The stress baseline is the personal baseline of section 5 on a linear scale,
 28 days, at least 7, with a minimum spread of `stressMinSpread`.
 
@@ -757,13 +789,14 @@ The stress baseline is the personal baseline of section 5 on a linear scale,
 
 | Constant | Value | Basis |
 | :--- | :--- | :--- |
-| weights | 30, 15, 20, 10, 10, 10, 5 | **our choice**: sleep and movement are measured best; recovery is capped at 20 so readiness is not counted again at full strength; stress is an unpublished vendor number and hourly finger SpO2 is noisy |
+| weights | 30, 15, 20, 10, 10, 10, 5 | **our choice**: sleep and movement are measured best; recovery is capped at 20 so HRV and resting heart rate, which readiness already reads, do not dominate here too; stress is an unpublished vendor number and hourly finger SpO2 is noisy |
 | `intensityWeeklyTarget` | 150 min | **sourced**, the lower end of the WHO 2020 weekly range. Checked against the source on 2026-11-15. |
 | HRV and resting heart rate ramps | as readiness | the constants of section 7 |
 | `stressZeroZ`, `stressFullZ` | +3, -1 | **our choice**, the resting heart rate ramp, since higher is worse for both |
 | `stressMinSpread` | 3 points | **our choice**, so a flat history does not turn one point into a large z |
 | `spo2ZeroAt`, `spo2FullAt` | 90, 95 percent | **our choice**: 90 is the low threshold of section 9 and 95 is a usual sleeping value |
 | `dayScoreMinCoverage` | 60 points | **our choice** |
+| `lowReadinessStepGoalFactor` | 0.6 | **our choice**: on a day the body asks for less, a lighter walk still earns the steps in full. Not from a study. |
 | band cut points | 85, 70, 55 | **our choice**, the readiness cut points, so there is one scale to learn |
 
 Minimum data: the sleep score and at least one step, and 60 points of

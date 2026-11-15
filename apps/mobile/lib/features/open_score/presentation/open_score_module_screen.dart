@@ -54,6 +54,7 @@ class OpenScoreModuleScreen extends ConsumerWidget {
             l10n.moduleOpenScoreAddsReceipt,
             l10n.moduleOpenScoreAddsHistory,
             l10n.moduleOpenScoreAddsTrends,
+            l10n.moduleOpenScoreAddsLevel,
           ],
         ),
         const SizedBox(height: cardGap),

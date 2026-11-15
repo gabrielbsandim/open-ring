@@ -6,7 +6,13 @@ import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/core/records/epoch.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
+import 'package:open_ring/features/body/application/weigh_in_providers.dart';
+import 'package:open_ring/features/body/domain/weigh_in.dart';
+import 'package:open_ring/features/body/domain/weigh_in_store.dart';
 import 'package:open_ring/features/health_sync/infrastructure/health_outbox_dao.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/workout/application/workout_controller.dart';
@@ -36,9 +42,18 @@ void main() {
     location = FakeLocationSource();
   });
 
-  ProviderContainer container({WorkoutStore? store, UserProfile? profile}) {
+  ProviderContainer container({
+    WorkoutStore? store,
+    UserProfile? profile,
+    Set<ModuleId> modules = const {},
+    WeighInStore? weighIns,
+  }) {
     final container = ProviderContainer(
       overrides: [
+        moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
+        weighInStoreProvider.overrideWithValue(
+          weighIns ?? InMemoryWeighInStore(),
+        ),
         clockProvider.overrideWithValue(clock.call),
         workoutTicksProvider.overrideWithValue(() => ticks.stream),
         liveHeartRateSourceProvider.overrideWithValue(heartRate),
@@ -458,6 +473,65 @@ void main() {
 
     expect(c.read(workoutProvider).snapshot!.type, WorkoutType.running);
     expect(heartRate.listens, 1);
+  });
+
+  group('the weight behind the energy', () {
+    Future<InMemoryWeighInStore> weighed(List<(int, double)> entries) async {
+      final store = InMemoryWeighInStore();
+      for (final (daysAgo, kilograms) in entries) {
+        await store.add(
+          WeighInDraft(
+            at: workoutStart.subtract(Duration(days: daysAgo)),
+            offsetMinutes: 0,
+            kilograms: kilograms,
+          ),
+        );
+      }
+      return store;
+    }
+
+    Future<double?> tenSeconds(ProviderContainer c) async {
+      await c
+          .read(workoutProvider.notifier)
+          .start(WorkoutType.running, notice: testNotice);
+      for (var i = 0; i < 10; i++) {
+        second(bpm: 150);
+      }
+      return c.read(workoutProvider).snapshot!.activeKilocalories;
+    }
+
+    double energy(double kilograms) => 8.8 * kilograms * 10 / 3600;
+
+    test('with Body on it is the latest weigh-in', () async {
+      final c = container(
+        modules: {ModuleId.body},
+        weighIns: await weighed([(1, 82), (9, 90)]),
+      );
+
+      expect(await tenSeconds(c), closeTo(energy(82), 1e-9));
+    });
+
+    test('with Body off it stays the profile weight', () async {
+      final c = container(weighIns: await weighed([(1, 82)]));
+
+      expect(await tenSeconds(c), closeTo(energy(70), 1e-9));
+    });
+
+    test('with Body on and no weigh-in it is the profile weight', () async {
+      final c = container(modules: {ModuleId.body});
+
+      expect(await tenSeconds(c), closeTo(energy(70), 1e-9));
+    });
+
+    test('a weigh-in is enough without a profile weight', () async {
+      final c = container(
+        profile: const UserProfile(birthYear: 1996),
+        modules: {ModuleId.body},
+        weighIns: await weighed([(2, 64.5)]),
+      );
+
+      expect(await tenSeconds(c), closeTo(energy(64.5), 1e-9));
+    });
   });
 
   test('profile zones need an age or a max HR in range', () {

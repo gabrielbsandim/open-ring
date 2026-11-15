@@ -1527,6 +1527,7 @@
   "settingsAgeDetail": "Basis for the estimated maximum heart rate",
   "settingsHeightDetail": "Used for stride length",
   "settingsWeightDetail": "Used for calories",
+  "settingsWeightLoggedDetail": "Workouts use your latest weigh-in",
   "settingsMaxHrEstimated": "Estimated: 220 minus age",
   "settingsMaxHrCustom": "Your own value",
   "settingsStepGoalDetail": "Per day",

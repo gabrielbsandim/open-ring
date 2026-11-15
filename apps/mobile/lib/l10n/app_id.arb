@@ -603,6 +603,7 @@
   "settingsAgeDetail": "Dasar perkiraan detak jantung maksimum",
   "settingsHeightDetail": "Dipakai untuk panjang langkah",
   "settingsWeightDetail": "Dipakai untuk kalori",
+  "settingsWeightLoggedDetail": "Latihan memakai penimbangan terakhirmu",
   "settingsMaxHrEstimated": "Perkiraan: 220 dikurangi usia",
   "settingsMaxHrCustom": "Nilai milikmu sendiri",
   "settingsStepGoalDetail": "Per hari",

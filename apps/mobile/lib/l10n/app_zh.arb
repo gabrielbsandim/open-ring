@@ -603,6 +603,7 @@
   "settingsAgeDetail": "用于估算最大心率",
   "settingsHeightDetail": "用于计算步幅",
   "settingsWeightDetail": "用于计算卡路里",
+  "settingsWeightLoggedDetail": "锻炼使用最近一次称重",
   "settingsMaxHrEstimated": "估算值：220 减去年龄",
   "settingsMaxHrCustom": "你自己的数值",
   "settingsStepGoalDetail": "每天",

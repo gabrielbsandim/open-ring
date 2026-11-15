@@ -603,6 +603,7 @@
   "settingsAgeDetail": "Base da FC máxima estimada",
   "settingsHeightDetail": "Usada no tamanho do passo",
   "settingsWeightDetail": "Usado nas calorias",
+  "settingsWeightLoggedDetail": "Os treinos usam sua última pesagem",
   "settingsMaxHrEstimated": "Estimada: 220 menos a idade",
   "settingsMaxHrCustom": "Seu próprio valor",
   "settingsStepGoalDetail": "Por dia",

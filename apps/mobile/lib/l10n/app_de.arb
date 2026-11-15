@@ -603,6 +603,7 @@
   "settingsAgeDetail": "Grundlage der geschätzten maximalen Herzfrequenz",
   "settingsHeightDetail": "Für die Schrittlänge",
   "settingsWeightDetail": "Für die Kalorien",
+  "settingsWeightLoggedDetail": "Trainings nutzen deine letzte Wägung",
   "settingsMaxHrEstimated": "Geschätzt: 220 minus Alter",
   "settingsMaxHrCustom": "Dein eigener Wert",
   "settingsStepGoalDetail": "Pro Tag",

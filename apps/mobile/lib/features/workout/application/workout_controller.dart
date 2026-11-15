@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/body/application/logged_weight.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
@@ -51,13 +52,14 @@ final workoutProvider = NotifierProvider<WorkoutController, WorkoutState>(
 const _minZoneMax = 100;
 const _maxZoneMax = 250;
 
-WorkoutProfile workoutProfileOf(UserProfile? profile, {required int year}) {
-  if (profile == null) return const WorkoutProfile();
-  return WorkoutProfile(
-    zones: _zonesOf(profile, year),
-    weightKilograms: profile.weightKilograms,
-  );
-}
+WorkoutProfile workoutProfileOf(
+  UserProfile? profile, {
+  required int year,
+  double? loggedKilograms,
+}) => WorkoutProfile(
+  zones: profile == null ? null : _zonesOf(profile, year),
+  weightKilograms: loggedKilograms ?? profile?.weightKilograms,
+);
 
 HeartRateZones? _zonesOf(UserProfile profile, int year) {
   final max = profile.maxHeartRate ?? _ageMax(profile.ageIn(year));
@@ -360,11 +362,22 @@ class WorkoutController extends Notifier<WorkoutState> {
   }
 
   Future<WorkoutProfile> _profile() async {
+    final profile = await _orNull(
+      () => ref.read(userProfileStoreProvider).read(),
+    );
+    final logged = await _orNull(() => ref.read(loggedWeightProvider.future));
+    return workoutProfileOf(
+      profile,
+      year: _now().year,
+      loggedKilograms: logged,
+    );
+  }
+
+  Future<T?> _orNull<T>(Future<T?> Function() read) async {
     try {
-      final profile = await ref.read(userProfileStoreProvider).read();
-      return workoutProfileOf(profile, year: _now().year);
+      return await read();
     } on Object {
-      return const WorkoutProfile();
+      return null;
     }
   }
 

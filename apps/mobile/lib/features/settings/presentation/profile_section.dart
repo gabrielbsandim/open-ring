@@ -9,6 +9,7 @@ import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/activity/domain/activity_history_reader.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/body/application/logged_weight.dart';
 import 'package:open_ring/features/onboarding/presentation/onboarding_page.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
@@ -86,7 +87,9 @@ class ProfileSection extends ConsumerWidget {
           ProfileField.weight,
           locked: locked,
           title: l10n.profileWeight,
-          detail: l10n.settingsWeightDetail,
+          detail: ref.watch(loggedWeightProvider).value == null
+              ? l10n.settingsWeightDetail
+              : l10n.settingsWeightLoggedDetail,
           value: weightHidden
               ? l10n.profileWeightHidden
               : text.weight(profile?.weightKilograms),

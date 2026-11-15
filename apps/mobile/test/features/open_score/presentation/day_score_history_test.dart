@@ -159,6 +159,21 @@ void main() {
     expect(textOf(tester, DayScoreReceiptKeys.status), 'final score');
   });
 
+  testWidgets('a day picked in the history wins over the arrows', (
+    tester,
+  ) async {
+    await pumpHistory(tester, mixedHistory(), at: AppPaths.dayScore);
+
+    await tester.tap(find.byKey(DayScoreReceiptKeys.previous));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(DayScoreReceiptKeys.history));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(DayScoreHistoryKeys.day(metricsToday)));
+    await tester.pumpAndSettle();
+
+    expect(textOf(tester, DayScoreReceiptKeys.day), startsWith('Today, '));
+  });
+
   testWidgets('a day outside the history falls back to today', (tester) async {
     await pumpHistory(
       tester,

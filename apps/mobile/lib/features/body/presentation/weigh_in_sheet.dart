@@ -26,13 +26,13 @@ abstract final class WeighInSheetKeys {
 const _stepsPerUnit = 10;
 const _earliestYearsBack = 10;
 
-Future<void> showWeighInSheet(BuildContext context) =>
+Future<void> showWeighInSheet(BuildContext context, {WeighIn? editing}) =>
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: AppColors.of(context).surface,
-      builder: (context) => const SafeArea(child: WeighInSheet()),
+      builder: (context) => SafeArea(child: WeighInSheet(editing: editing)),
     );
 
 double? _parsed(String text) {
@@ -42,7 +42,9 @@ double? _parsed(String text) {
 }
 
 class WeighInSheet extends ConsumerStatefulWidget {
-  const new({super.key});
+  const new({this.editing, super.key});
+
+  final WeighIn? editing;
 
   @override
   ConsumerState<WeighInSheet> createState() => _WeighInSheetState();
@@ -62,13 +64,22 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
     super.didChangeDependencies();
     if (_seeded) return;
     _seeded = true;
-    final last = ref.read(weighInsProvider).value?.firstOrNull;
-    if (last == null) return;
-    _weight.text = UnitFormat(
+    final units = UnitFormat(
       MetricFormat.of(context),
       ref.read(currentUnitSystemProvider),
-    ).bodyWeightNumber(last.kilograms);
+    );
+    final seed =
+        widget.editing ?? ref.read(weighInsProvider).value?.firstOrNull;
+    if (seed == null) return;
+    _weight.text = units.bodyWeightNumber(seed.kilograms);
+    final bodyFat = widget.editing?.bodyFatPercent;
+    final waist = widget.editing?.waistCentimeters;
+    if (bodyFat != null) _bodyFat.text = _oneDecimal(units, bodyFat);
+    if (waist != null) _waist.text = _oneDecimal(units, units.waistIn(waist));
   }
+
+  String _oneDecimal(UnitFormat units, double value) =>
+      units.format.decimal(value, digits: 1);
 
   @override
   void dispose() {
@@ -90,7 +101,7 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
 
   Future<void> _pickWhen() async {
     final now = ref.read(clockProvider)();
-    final current = _at ?? now;
+    final current = _at ?? widget.editing?.at.toLocal() ?? now;
     final day = await showDatePicker(
       context: context,
       initialDate: current,
@@ -122,11 +133,19 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
       _fail(l10n.bodySheetErrorWeightEmpty);
       return;
     }
-    final at = _at ?? ref.read(clockProvider)();
+    final editing = widget.editing;
+    final picked = _at;
+    final at = picked ?? editing?.at ?? ref.read(clockProvider)();
     final waist = _parsed(_waist.text);
+    // An edit that leaves the time alone keeps the offset it was logged with,
+    // so the weigh-in stays on the same local day.
+    final keepsOffset = picked == null && editing != null;
     final draft = WeighInDraft(
       at: at,
-      offsetMinutes: at.timeZoneOffset.inMinutes,
+      offsetMinutes: keepsOffset
+          ? editing.offsetMinutes
+          : at.timeZoneOffset.inMinutes,
+      source: editing?.source ?? WeighInSource.manual,
       kilograms: units.kilogramsFrom(weight),
       bodyFatPercent: _parsed(_bodyFat.text),
       waistCentimeters: waist == null ? null : units.centimetersFrom(waist),
@@ -134,7 +153,7 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     setState(() => _saving = true);
-    final issues = await _add(draft);
+    final issues = await _store(draft);
     if (!mounted) return;
     if (issues == null) {
       _fail(l10n.bodySheetSaveFailed);
@@ -145,20 +164,24 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
       return;
     }
     navigator.pop();
+    final saved = units.bodyWeight(roundKilograms(draft.kilograms));
     messenger.showSnackBar(
       SnackBar(
         content: Text(
-          l10n.bodySheetSaved(
-            units.bodyWeight(roundKilograms(draft.kilograms)),
-          ),
+          editing == null
+              ? l10n.bodySheetSaved(saved)
+              : l10n.bodySheetUpdated(saved),
         ),
       ),
     );
   }
 
-  Future<Set<WeighInIssue>?> _add(WeighInDraft draft) async {
+  Future<Set<WeighInIssue>?> _store(WeighInDraft draft) async {
+    final log = ref.read(weighInLogProvider.notifier);
+    final editing = widget.editing;
     try {
-      return await ref.read(weighInLogProvider.notifier).add(draft);
+      if (editing == null) return await log.add(draft);
+      return await log.update(editing.id, draft);
     } on Exception {
       return null;
     }
@@ -186,12 +209,24 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
     };
   }
 
+  String _whenText(UnitFormat units, DateTime? picked, WeighIn? editing) {
+    if (picked != null) {
+      return units.format.dayAndClock(picked, picked.timeZoneOffset);
+    }
+    if (editing == null) return units.l10n.bodySheetNow;
+    return units.format.dayAndClock(
+      editing.at,
+      Duration(minutes: editing.offsetMinutes),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = AppColors.of(context);
     final units = UnitFormat.of(context, ref);
     final l10n = units.l10n;
+    final editing = widget.editing;
     final at = _at;
     final error = _error;
     final step = '${units.format.decimal(0.1, digits: 1)} ${units.weightUnit}';
@@ -207,7 +242,10 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
         children: [
           Semantics(
             header: true,
-            child: Text(l10n.bodyWeightLog, style: theme.textTheme.titleLarge),
+            child: Text(
+              editing == null ? l10n.bodyWeightLog : l10n.bodySheetEditTitle,
+              style: theme.textTheme.titleLarge,
+            ),
           ),
           const SizedBox(height: 16),
           Row(
@@ -254,16 +292,15 @@ class _WeighInSheetState extends ConsumerState<WeighInSheet> {
             key: WeighInSheetKeys.when,
             contentPadding: EdgeInsets.zero,
             title: Text(l10n.bodySheetWhen),
-            subtitle: Text(
-              at == null
-                  ? l10n.bodySheetNow
-                  : units.format.dayAndClock(at, at.timeZoneOffset),
-            ),
+            subtitle: Text(_whenText(units, at, editing)),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: _pickWhen,
           ),
           ExpansionTile(
             key: WeighInSheetKeys.more,
+            initiallyExpanded:
+                editing?.bodyFatPercent != null ||
+                editing?.waistCentimeters != null,
             tilePadding: EdgeInsets.zero,
             shape: const Border(),
             collapsedShape: const Border(),

@@ -7,11 +7,19 @@ import 'package:open_ring/features/body/domain/weigh_in.dart';
 
 @immutable
 final class WeightSummary {
-  const new({required this.last, required this.trend, required this.rate});
+  const new({
+    required this.last,
+    required this.daily,
+    required this.line,
+    required this.rate,
+  });
 
   final WeighIn last;
-  final double trend;
+  final List<DailyValue> daily;
+  final List<DailyValue> line;
   final WeightRate rate;
+
+  double get trend => line.last.value;
 }
 
 DailyValue _onItsDay(WeighIn entry) => (
@@ -25,7 +33,8 @@ final weightSummaryProvider = FutureProvider<WeightSummary?>((ref) async {
   final days = entries.map(_onItsDay).toList();
   return WeightSummary(
     last: entries.first,
-    trend: weightTrend(days).last.value,
+    daily: dailyWeights(days),
+    line: weightTrend(days),
     rate: weightRate(days, today: ref.watch(currentDateProvider)),
   );
 });

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/tabs_shell.dart';
 import 'package:open_ring/features/activity/presentation/activity_screen.dart';
+import 'package:open_ring/features/body/presentation/body_screen.dart';
 import 'package:open_ring/features/heart/presentation/heart_screen.dart';
 import 'package:open_ring/features/heart/presentation/measure_screen.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
@@ -101,6 +102,7 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
         builder: (_, _) => const ReadinessScreen(),
         routes: [_formulaRoute()],
       ),
+      GoRoute(path: 'body', builder: (_, _) => const BodyScreen()),
     ],
   ),
   AppTab.sleep => GoRoute(

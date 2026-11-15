@@ -2,13 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/body/application/weight_summary.dart';
 import 'package:open_ring/features/body/presentation/weigh_in_sheet.dart';
+import 'package:open_ring/features/body/presentation/weight_chart.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
@@ -44,6 +47,7 @@ class WeightCard extends ConsumerWidget {
     final units = UnitFormat.of(context, ref);
     return MetricCard(
       key: WeightCardKeys.card,
+      onTap: () => context.go(AppPaths.body),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -96,30 +100,15 @@ class _WeightBody extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        MergeSemantics(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.end,
-                spacing: 4,
-                children: [
-                  Text(
-                    units.bodyWeightNumber(summary.trend),
-                    style: numberStyle(theme.textTheme.headlineMedium),
-                  ),
-                  Text(
-                    units.weightUnit,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colors.textLabel,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              CaptionText(l10n.bodyWeightTrend),
-            ],
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(child: _trend(theme, colors, units, summary)),
+            WeightSparkline(
+              line: summary.line,
+              today: ref.watch(currentDateProvider),
+            ),
+          ],
         ),
         const SizedBox(height: 10),
         MetricRow(
@@ -143,6 +132,37 @@ class _WeightBody extends ConsumerWidget {
       ],
     );
   }
+
+  Widget _trend(
+    ThemeData theme,
+    AppColors colors,
+    UnitFormat units,
+    WeightSummary summary,
+  ) => MergeSemantics(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.end,
+          spacing: 4,
+          children: [
+            Text(
+              units.bodyWeightNumber(summary.trend),
+              style: numberStyle(theme.textTheme.headlineMedium),
+            ),
+            Text(
+              units.weightUnit,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colors.textLabel,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        CaptionText(units.l10n.bodyWeightTrend),
+      ],
+    ),
+  );
 
   String _rate(UnitFormat units, WeightRate rate) => switch (rate) {
     WeightRateBuilding() => units.l10n.bodyWeightRateBuilding,

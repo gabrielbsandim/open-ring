@@ -1275,5 +1275,7 @@
   "dayScoreHistoryHow1": "Marcador vazado é dia com menos de 100 pontos de cobertura: a nota existe, mas foi reescalada.",
   "dayScoreHistoryHow2": "Dia em branco é dia sem nota. Não vale zero e não puxa nada para baixo.",
   "dayScoreHistoryHow3": "Não existe contagem de dias seguidos. Cada dia vale por ele mesmo.",
-  "dayScoreHistoryLinkCaption": "Calendário e barras de 30 e 90 dias"
+  "dayScoreHistoryLinkCaption": "Calendário e barras de 30 e 90 dias",
+  "trendsSourceDayScore": "A Nota do Dia de cada dia que tem nota, incluindo dias com cobertura parcial. Hoje ainda está em andamento e fica fora da média.",
+  "trendsEmptyDayScore": "Nenhuma Nota do Dia neste período. Um dia precisa da noite e dos passos para ter nota."
 }

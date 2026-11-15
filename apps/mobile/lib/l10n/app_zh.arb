@@ -1275,5 +1275,7 @@
   "dayScoreHistoryHow1": "空心标记表示覆盖不足 100 分的日子：评分存在，但经过换算。",
   "dayScoreHistoryHow2": "空白的日子是没有评分的日子。不算 0 分，也不会拉低任何数值。",
   "dayScoreHistoryHow3": "没有连续天数统计。每一天独立计算。",
-  "dayScoreHistoryLinkCaption": "日历以及 30 天和 90 天的柱状图"
+  "dayScoreHistoryLinkCaption": "日历以及 30 天和 90 天的柱状图",
+  "trendsSourceDayScore": "每个有评分的日子的今日评分，包括部分覆盖的日子。今天仍在进行中，不计入平均值。",
+  "trendsEmptyDayScore": "这段时间没有今日评分。一天需要有夜晚和步数才能评分。"
 }

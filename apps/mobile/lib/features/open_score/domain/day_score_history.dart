@@ -133,6 +133,12 @@ final class DayScoreHistory {
     return (value: (sum / values.length).round(), count: values.length);
   }
 
+  List<DailyValue> get scores => [
+    for (final entry in _days.entries)
+      if (entry.value case Scored(:final value))
+        (date: entry.key, value: value.toDouble()),
+  ];
+
   LocalDate? get firstScored {
     for (final entry in _days.entries) {
       if (entry.value is Scored<DayScoreFactor>) return entry.key;

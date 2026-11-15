@@ -91,6 +91,14 @@ void main() {
     expect(historyOf(day(), scoredBefore: false).fullAverage(30), isNull);
   });
 
+  test('scores lists the scored days in order, partial ones included', () {
+    final scores = mixedHistory(days: 5).scores;
+
+    expect([for (final s in scores) s.value], [94, 88, 84, 94]);
+    expect(scores.first.date, metricsToday.addDays(-4));
+    expect(scores.last.date, metricsToday);
+  });
+
   testWidgets('before the first score it offers today', (tester) async {
     final router = await pumpHistory(
       tester,

@@ -1275,5 +1275,7 @@
   "dayScoreHistoryHow1": "Ein hohler Marker ist ein Tag mit weniger als 100 Punkten Abdeckung: Die Note existiert, wurde aber umgerechnet.",
   "dayScoreHistoryHow2": "Ein leerer Tag ist ein Tag ohne Note. Er zählt nicht als Null und zieht nichts nach unten.",
   "dayScoreHistoryHow3": "Es gibt keine Zählung aufeinanderfolgender Tage. Jeder Tag steht für sich.",
-  "dayScoreHistoryLinkCaption": "Kalender und Balken für 30 und 90 Tage"
+  "dayScoreHistoryLinkCaption": "Kalender und Balken für 30 und 90 Tage",
+  "trendsSourceDayScore": "Die Tagesnote jedes Tages, der eine hat, einschließlich Tagen mit teilweiser Abdeckung. Heute läuft noch und bleibt außerhalb des Durchschnitts.",
+  "trendsEmptyDayScore": "Keine Tagesnote in diesem Zeitraum. Ein Tag braucht seine Nacht und seine Schritte, um eine Note zu bekommen."
 }

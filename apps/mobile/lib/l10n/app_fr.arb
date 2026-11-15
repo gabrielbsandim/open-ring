@@ -1275,5 +1275,7 @@
   "dayScoreHistoryHow1": "Un marqueur vide est un jour avec moins de 100 points de couverture : la note existe, mais elle a été remise à l'échelle.",
   "dayScoreHistoryHow2": "Un jour vide est un jour sans note. Il ne vaut pas zéro et ne tire rien vers le bas.",
   "dayScoreHistoryHow3": "Il n'y a pas de compteur de jours consécutifs. Chaque jour compte pour lui-même.",
-  "dayScoreHistoryLinkCaption": "Calendrier et barres de 30 et 90 jours"
+  "dayScoreHistoryLinkCaption": "Calendrier et barres de 30 et 90 jours",
+  "trendsSourceDayScore": "La Note du jour de chaque jour qui en a une, y compris les jours à couverture partielle. Aujourd'hui est encore en cours et reste hors de la moyenne.",
+  "trendsEmptyDayScore": "Aucune Note du jour sur cette période. Un jour a besoin de sa nuit et de ses pas pour être noté."
 }

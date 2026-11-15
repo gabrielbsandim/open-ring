@@ -634,7 +634,7 @@ class _Bars extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          _Legend(dashedTag: false, level: lines.any((line) => line != null)),
+          _Legend(dashedTag: false, level: lines.nonNulls.length > 1),
           const SizedBox(height: 12),
           if (shown == null) CaptionText(l10n.dayScoreHistoryPick),
           if (shown != null)

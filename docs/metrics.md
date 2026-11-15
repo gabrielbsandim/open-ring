@@ -702,11 +702,11 @@ twice counts once.
 
 | Constant | Value | Basis |
 | :--- | :--- | :--- |
-| `vigorousMinuteWeight` | 2 | **sourced**, WHO 2020 treats one vigorous minute as two moderate ones. Not yet checked against the source. |
-| `moderateFraction`, `vigorousFraction` | 0.64, 0.77 of max heart rate | **sourced**, Garber 2011 (ACSM). Not yet checked against the source. Stricter than the 50 and 70 percent some apps use. |
-| `moderateMet`, `vigorousMet` | 3, 6 | **sourced**, the WHO 2020 definitions of moderate and vigorous. Not yet checked against the source. |
+| `vigorousMinuteWeight` | 2 | **sourced**, WHO 2020 treats one vigorous minute as two moderate ones. Checked against the source on 2026-11-15. |
+| `moderateFraction`, `vigorousFraction` | 0.64, 0.77 of max heart rate | **sourced**, Garber 2011 (ACSM). Checked on 2026-11-15 through a secondary table of the position stand, not the paper itself. Stricter than the 50 and 70 percent some apps use. |
+| `moderateMet`, `vigorousMet` | 3, 6 | **sourced**, the WHO 2020 definitions of moderate and vigorous. Checked against the source on 2026-11-15. |
 | larger of the two credits | | **our choice**: heart rate understates the load of resistance work |
-| `briskStepsPerMinute` | 100 | **sourced**, Tudor-Locke 2018, cadence of moderate walking. Not yet checked against the source. |
+| `briskStepsPerMinute` | 100 | **sourced**, Tudor-Locke 2018, cadence of moderate walking. Checked against the source on 2026-11-15. |
 | heart rate outside workouts | not used | **our choice**: a raised heart rate without movement is stress or caffeine, not exercise |
 | `intensityWindowDays` | 7 | **our choice**: the target is weekly, so a rest day after training days costs nothing |
 | `intensityMinDays` | 4 | **our choice**, the same minimum as the acute load window |
@@ -758,7 +758,7 @@ The stress baseline is the personal baseline of section 5 on a linear scale,
 | Constant | Value | Basis |
 | :--- | :--- | :--- |
 | weights | 30, 15, 20, 10, 10, 10, 5 | **our choice**: sleep and movement are measured best; recovery is capped at 20 so readiness is not counted again at full strength; stress is an unpublished vendor number and hourly finger SpO2 is noisy |
-| `intensityWeeklyTarget` | 150 min | **sourced**, the lower end of the WHO 2020 weekly range. Not yet checked against the source. |
+| `intensityWeeklyTarget` | 150 min | **sourced**, the lower end of the WHO 2020 weekly range. Checked against the source on 2026-11-15. |
 | HRV and resting heart rate ramps | as readiness | the constants of section 7 |
 | `stressZeroZ`, `stressFullZ` | +3, -1 | **our choice**, the resting heart rate ramp, since higher is worse for both |
 | `stressMinSpread` | 3 points | **our choice**, so a flat history does not turn one point into a large z |

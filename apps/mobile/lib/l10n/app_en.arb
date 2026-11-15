@@ -3461,5 +3461,20 @@
   "levelNever2": "It does not count days in a row. There is no streak to lose.",
   "levelNever3": "It does not compare you with anyone: the line is your own mean.",
   "levelNever4": "It does not turn into a biological age or a health forecast.",
-  "levelFoot": "The Level is recalculated from the Day Scores, which are recalculated from the ring's data. An estimate, not a medical assessment."
+  "levelFoot": "The Level is recalculated from the Day Scores, which are recalculated from the ring's data. An estimate, not a medical assessment.",
+  "levelLegendScore": "day's score",
+  "levelChartSemantics": "Level and Day Scores over the last {days} days. The line is the Level, the dots are the scores.",
+  "@levelChartSemantics": {"placeholders": {"days": {"type": "int"}}},
+  "levelReceiptForming": "The Level is still forming: {count} of {total} days with a score.",
+  "@levelReceiptForming": {"placeholders": {"count": {"type": "int"}, "total": {"type": "int"}}},
+  "levelReceiptNoLine": "This day has no line: it is one of the days the Level started from.",
+  "levelReceiptLine": "Line of the day",
+  "levelReceiptScore": "Day's score",
+  "levelReceiptEffect": "Effect on the Level",
+  "levelReceiptNone": "none",
+  "levelReceiptTagged": "Day tagged as {tag}. The score stays here, but it does not enter the Level.",
+  "@levelReceiptTagged": {"placeholders": {"tag": {"type": "String"}}},
+  "levelReceiptBlank": "A day without a score does not move the Level.",
+  "levelReceiptIfCloses": "{math}, if the day closes like this.",
+  "@levelReceiptIfCloses": {"placeholders": {"math": {"type": "String"}}}
 }

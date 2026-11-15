@@ -1392,5 +1392,16 @@
   "levelNever2": "Non conta i giorni di fila. Non c'è una serie da perdere.",
   "levelNever3": "Non ti confronta con nessuno: la linea è la tua media.",
   "levelNever4": "Non diventa un'età biologica né una previsione di salute.",
-  "levelFoot": "Il Livello viene ricalcolato dai Voti del giorno, che vengono ricalcolati dai dati dell'anello. Una stima, non una valutazione medica."
+  "levelFoot": "Il Livello viene ricalcolato dai Voti del giorno, che vengono ricalcolati dai dati dell'anello. Una stima, non una valutazione medica.",
+  "levelLegendScore": "voto del giorno",
+  "levelChartSemantics": "Livello e Voti del giorno negli ultimi {days} giorni. La linea è il Livello, i punti sono i voti.",
+  "levelReceiptForming": "Il Livello è ancora in formazione: {count} giorni con un voto su {total}.",
+  "levelReceiptNoLine": "Questo giorno non ha una linea: è uno dei giorni da cui il Livello è partito.",
+  "levelReceiptLine": "Linea del giorno",
+  "levelReceiptScore": "Voto del giorno",
+  "levelReceiptEffect": "Effetto sul Livello",
+  "levelReceiptNone": "nessuno",
+  "levelReceiptTagged": "Giorno segnato come {tag}. Il voto resta qui, ma non entra nel Livello.",
+  "levelReceiptBlank": "Un giorno senza voto non muove il Livello.",
+  "levelReceiptIfCloses": "{math}, se il giorno chiude così."
 }

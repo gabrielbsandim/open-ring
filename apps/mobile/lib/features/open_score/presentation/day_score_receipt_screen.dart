@@ -15,10 +15,12 @@ import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/day_score_providers.dart';
 import 'package:open_ring/features/open_score/application/day_score_view.dart';
 import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
+import 'package:open_ring/features/open_score/application/level_providers.dart';
 import 'package:open_ring/features/open_score/domain/day_score_history.dart';
 import 'package:open_ring/features/open_score/domain/day_tag.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_card.dart';
 import 'package:open_ring/features/open_score/presentation/day_tag_sheet.dart';
+import 'package:open_ring/features/open_score/presentation/level_receipt_card.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class DayScoreReceiptKeys {
@@ -96,6 +98,7 @@ class _ReceiptState extends ConsumerState<DayScoreReceiptScreen> {
     final today = date == history.today;
     final format = MetricFormat.of(context);
     final tag = ref.watch(dayTagsProvider).value?[date];
+    final track = ref.watch(levelTrackProvider).value;
     return [
       _DayNav(
         date: date,
@@ -117,6 +120,16 @@ class _ReceiptState extends ConsumerState<DayScoreReceiptScreen> {
       if (today && receipt.open >= _openThreshold) ...[
         const SizedBox(height: cardGap),
         _Open(receipt: receipt),
+      ],
+      if (track != null) ...[
+        const SizedBox(height: cardGap),
+        LevelReceiptCard(
+          track: track,
+          date: date,
+          today: history.today,
+          score: receipt.scored?.value,
+          tag: tag,
+        ),
       ],
       const SizedBox(height: cardGap),
       _TagRow(

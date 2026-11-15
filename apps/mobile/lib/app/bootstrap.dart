@@ -26,6 +26,8 @@ import 'package:open_ring/features/heart/application/heart_providers.dart';
 import 'package:open_ring/features/heart/application/measure_controller.dart';
 import 'package:open_ring/features/heart/infrastructure/drift_heart_history_reader.dart';
 import 'package:open_ring/features/heart/infrastructure/drift_spot_reading_store.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/infrastructure/shared_preferences_module_store.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
 import 'package:open_ring/features/onboarding/infrastructure/device_app_permissions.dart';
 import 'package:open_ring/features/onboarding/infrastructure/method_channel_app_permissions.dart';
@@ -117,6 +119,7 @@ Future<void> bootstrap() async {
       unitSystemStoreProvider.overrideWithValue(
         SharedPreferencesUnitSystemStore(),
       ),
+      moduleStoreProvider.overrideWithValue(SharedPreferencesModuleStore()),
       ringAlertPreferencesProvider.overrideWithValue(
         SharedPreferencesRingAlertPreferences(),
       ),

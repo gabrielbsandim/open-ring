@@ -1132,7 +1132,7 @@
   "dayScoreBandGreat": "Отличный день",
   "dayScoreBandGood": "Хороший день",
   "dayScoreBandMixed": "Смешанный день",
-  "dayScoreBandLow": "День перезарядки",
+  "dayScoreBandLow": "День паузы",
   "dayScoreCoverageFull": "Полное покрытие",
   "dayScoreCoveragePartial": "{points} из 100 баллов",
   "dayScoreNothingOpen": "Ничего не открыто: оценка закрывается в полночь.",

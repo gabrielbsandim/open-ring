@@ -84,7 +84,7 @@ void main() {
       DayScoreBand.great: ('Great day', '85 to 100'),
       DayScoreBand.good: ('Good day', '70 to 84'),
       DayScoreBand.mixed: ('Mixed day', '55 to 69'),
-      DayScoreBand.low: ('Recharge day', '0 to 54'),
+      DayScoreBand.low: ('Pause day', '0 to 54'),
     };
     for (final MapEntry(key: band, value: (name, range)) in ranges.entries) {
       expect(within(DayScoreFormulaKeys.band(band), name), findsOneWidget);

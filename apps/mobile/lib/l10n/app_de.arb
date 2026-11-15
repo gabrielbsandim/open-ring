@@ -1392,5 +1392,16 @@
   "levelNever2": "Sie zählt keine Tage in Folge. Es gibt keine Serie zu verlieren.",
   "levelNever3": "Sie vergleicht dich mit niemandem: Die Linie ist dein eigener Durchschnitt.",
   "levelNever4": "Sie wird weder zu einem biologischen Alter noch zu einer Gesundheitsprognose.",
-  "levelFoot": "Die Stufe wird aus den Tagesnoten neu berechnet, die aus den Daten des Rings neu berechnet werden. Eine Schätzung, keine medizinische Beurteilung."
+  "levelFoot": "Die Stufe wird aus den Tagesnoten neu berechnet, die aus den Daten des Rings neu berechnet werden. Eine Schätzung, keine medizinische Beurteilung.",
+  "levelLegendScore": "Note des Tages",
+  "levelChartSemantics": "Stufe und Tagesnoten der letzten {days} Tage. Die Linie ist die Stufe, die Punkte sind die Noten.",
+  "levelReceiptForming": "Die Stufe ist noch im Aufbau: {count} von {total} Tagen mit Note.",
+  "levelReceiptNoLine": "Dieser Tag hat keine Linie: Er gehört zu den Tagen, mit denen die Stufe begann.",
+  "levelReceiptLine": "Linie des Tages",
+  "levelReceiptScore": "Note des Tages",
+  "levelReceiptEffect": "Effekt auf die Stufe",
+  "levelReceiptNone": "keiner",
+  "levelReceiptTagged": "Tag markiert als {tag}. Die Note bleibt hier, geht aber nicht in die Stufe ein.",
+  "levelReceiptBlank": "Ein Tag ohne Note bewegt die Stufe nicht.",
+  "levelReceiptIfCloses": "{math}, wenn der Tag so schließt."
 }

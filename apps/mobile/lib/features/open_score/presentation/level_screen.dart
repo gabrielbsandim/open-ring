@@ -19,6 +19,7 @@ import 'package:open_ring/features/open_score/domain/level_view.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_formula_screen.dart';
 import 'package:open_ring/features/open_score/presentation/day_tag_sheet.dart';
 import 'package:open_ring/features/open_score/presentation/level_block.dart';
+import 'package:open_ring/features/open_score/presentation/level_chart.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class LevelKeys {
@@ -114,10 +115,20 @@ class _LevelState extends ConsumerState<LevelScreen> {
     double level,
   ) {
     final format = MetricFormat.of(context);
-    final tag = ref.watch(dayTagsProvider).value?[history.today];
+    final tags =
+        ref.watch(dayTagsProvider).value ?? const <LocalDate, DayTag>{};
+    final tag = tags[history.today];
     final score = history.scoredOn(history.today)?.value;
     return [
-      _Hero(track: track, level: level, today: history.today),
+      _Hero(
+        track: track,
+        level: level,
+        today: history.today,
+        chart: LevelChart(
+          days: levelChartDays(history, track, tags.keys.toSet()),
+          today: history.today,
+        ),
+      ),
       if (tag != null) ...[
         const SizedBox(height: cardGap),
         _Tagged(tag: tag, level: level),
@@ -169,11 +180,17 @@ class _Head extends StatelessWidget {
 }
 
 class _Hero extends StatelessWidget {
-  const new({required this.track, required this.level, required this.today});
+  const new({
+    required this.track,
+    required this.level,
+    required this.today,
+    required this.chart,
+  });
 
   final LevelTrack track;
   final double level;
   final LocalDate today;
+  final Widget chart;
 
   @override
   Widget build(BuildContext context) {
@@ -239,6 +256,8 @@ class _Hero extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 14),
+          chart,
         ],
       ),
     );

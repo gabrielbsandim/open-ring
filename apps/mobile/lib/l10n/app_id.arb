@@ -1392,5 +1392,16 @@
   "levelNever2": "Tidak menghitung hari beruntun. Tidak ada rentetan yang bisa hilang.",
   "levelNever3": "Tidak membandingkan Anda dengan siapa pun: garisnya adalah rata-rata Anda sendiri.",
   "levelNever4": "Tidak berubah menjadi usia biologis atau prakiraan kesehatan.",
-  "levelFoot": "Level dihitung ulang dari Skor Hari, yang dihitung ulang dari data cincin. Perkiraan, bukan penilaian medis."
+  "levelFoot": "Level dihitung ulang dari Skor Hari, yang dihitung ulang dari data cincin. Perkiraan, bukan penilaian medis.",
+  "levelLegendScore": "skor hari",
+  "levelChartSemantics": "Level dan Skor Hari selama {days} hari terakhir. Garisnya adalah Level, titik-titiknya adalah skor.",
+  "levelReceiptForming": "Level masih dibentuk: {count} dari {total} hari dengan skor.",
+  "levelReceiptNoLine": "Hari ini tidak punya garis: termasuk hari-hari awal pembentuk Level.",
+  "levelReceiptLine": "Garis hari itu",
+  "levelReceiptScore": "Skor hari itu",
+  "levelReceiptEffect": "Efek pada Level",
+  "levelReceiptNone": "tidak ada",
+  "levelReceiptTagged": "Hari ditandai {tag}. Skornya tetap di sini, tetapi tidak masuk Level.",
+  "levelReceiptBlank": "Hari tanpa skor tidak menggeser Level.",
+  "levelReceiptIfCloses": "{math}, jika hari ditutup seperti ini."
 }

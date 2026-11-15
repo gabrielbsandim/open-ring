@@ -1392,5 +1392,16 @@
   "levelNever2": "Il ne compte pas les jours consécutifs. Il n'y a pas de série à perdre.",
   "levelNever3": "Il ne vous compare à personne : la ligne est votre propre moyenne.",
   "levelNever4": "Il ne devient ni un âge biologique ni une prévision de santé.",
-  "levelFoot": "Le Niveau est recalculé à partir des Notes du jour, elles-mêmes recalculées à partir des données de la bague. Une estimation, pas un avis médical."
+  "levelFoot": "Le Niveau est recalculé à partir des Notes du jour, elles-mêmes recalculées à partir des données de la bague. Une estimation, pas un avis médical.",
+  "levelLegendScore": "note du jour",
+  "levelChartSemantics": "Niveau et Notes du jour sur les {days} derniers jours. La ligne est le Niveau, les points sont les notes.",
+  "levelReceiptForming": "Le Niveau est encore en formation : {count} jours avec une note sur {total}.",
+  "levelReceiptNoLine": "Ce jour n'a pas de ligne : il fait partie des jours d'où le Niveau est parti.",
+  "levelReceiptLine": "Ligne du jour",
+  "levelReceiptScore": "Note du jour",
+  "levelReceiptEffect": "Effet sur le Niveau",
+  "levelReceiptNone": "aucun",
+  "levelReceiptTagged": "Jour marqué {tag}. La note reste ici, mais elle n'entre pas dans le Niveau.",
+  "levelReceiptBlank": "Un jour sans note ne bouge pas le Niveau.",
+  "levelReceiptIfCloses": "{math}, si la journée se clôt ainsi."
 }

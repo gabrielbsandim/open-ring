@@ -1392,5 +1392,16 @@
   "levelNever2": "不统计连续天数。没有可以断掉的连续记录。",
   "levelNever3": "不拿你和任何人比较：基准线就是你自己的平均值。",
   "levelNever4": "不会变成生理年龄或健康预测。",
-  "levelFoot": "等级由“今日评分”重新计算，而“今日评分”由戒指数据重新计算。这是估算，不是医学评估。"
+  "levelFoot": "等级由“今日评分”重新计算，而“今日评分”由戒指数据重新计算。这是估算，不是医学评估。",
+  "levelLegendScore": "当日评分",
+  "levelChartSemantics": "最近 {days} 天的等级和“今日评分”。线是等级，点是评分。",
+  "levelReceiptForming": "等级仍在形成中：{total} 天中有 {count} 天有评分。",
+  "levelReceiptNoLine": "这一天没有基准线：它是等级起始的那些天之一。",
+  "levelReceiptLine": "当日基准线",
+  "levelReceiptScore": "当日评分",
+  "levelReceiptEffect": "对等级的影响",
+  "levelReceiptNone": "无",
+  "levelReceiptTagged": "这一天标记为“{tag}”。评分保留在这里，但不计入等级。",
+  "levelReceiptBlank": "没有评分的一天不会改变等级。",
+  "levelReceiptIfCloses": "{math}（如果今天照这样结算）"
 }

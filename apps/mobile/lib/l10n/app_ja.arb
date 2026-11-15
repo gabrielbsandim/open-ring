@@ -1392,5 +1392,16 @@
   "levelNever2": "連続日数を数えません。失う連続記録はありません。",
   "levelNever3": "誰とも比べません。ラインはあなた自身の平均です。",
   "levelNever4": "生物学的年齢や健康の予測にはなりません。",
-  "levelFoot": "レベルは「今日のスコア」から再計算され、「今日のスコア」はリングのデータから再計算されます。推定であり、医学的な評価ではありません。"
+  "levelFoot": "レベルは「今日のスコア」から再計算され、「今日のスコア」はリングのデータから再計算されます。推定であり、医学的な評価ではありません。",
+  "levelLegendScore": "その日のスコア",
+  "levelChartSemantics": "直近 {days} 日間のレベルと「今日のスコア」。線がレベル、点がスコアです。",
+  "levelReceiptForming": "レベルはまだ作成中です：スコアのある日は {total} 日中 {count} 日。",
+  "levelReceiptNoLine": "この日にはラインがありません。レベルの出発点になった日の一つです。",
+  "levelReceiptLine": "その日のライン",
+  "levelReceiptScore": "その日のスコア",
+  "levelReceiptEffect": "レベルへの効果",
+  "levelReceiptNone": "なし",
+  "levelReceiptTagged": "「{tag}」とマークされた日です。スコアはここに残りますが、レベルには入りません。",
+  "levelReceiptBlank": "スコアのない日はレベルを動かしません。",
+  "levelReceiptIfCloses": "{math}（このまま確定した場合）"
 }

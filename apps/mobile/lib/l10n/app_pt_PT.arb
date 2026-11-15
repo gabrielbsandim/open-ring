@@ -1384,5 +1384,16 @@
   "levelNever2": "Não conta dias seguidos. Não há sequência para perder.",
   "levelNever3": "Não o compara com ninguém: a linha é a sua própria média.",
   "levelNever4": "Não se torna idade biológica nem previsão de saúde.",
-  "levelFoot": "O Nível é recalculado a partir das Notas do Dia, que são recalculadas a partir dos dados do anel. Estimativa, não avaliação médica."
+  "levelFoot": "O Nível é recalculado a partir das Notas do Dia, que são recalculadas a partir dos dados do anel. Estimativa, não avaliação médica.",
+  "levelLegendScore": "nota do dia",
+  "levelChartSemantics": "Nível e Notas do Dia nos últimos {days} dias. A linha é o Nível, os pontos são as notas.",
+  "levelReceiptForming": "O Nível ainda está em formação: {count} de {total} dias com nota.",
+  "levelReceiptNoLine": "Este dia não tem linha: é um dos dias de onde o Nível começou.",
+  "levelReceiptLine": "Linha do dia",
+  "levelReceiptScore": "Nota do dia",
+  "levelReceiptEffect": "Efeito no Nível",
+  "levelReceiptNone": "nenhum",
+  "levelReceiptTagged": "Dia marcado como {tag}. A nota continua aqui, mas não entra no Nível.",
+  "levelReceiptBlank": "Um dia sem nota não mexe no Nível.",
+  "levelReceiptIfCloses": "{math}, se o dia fechar assim."
 }

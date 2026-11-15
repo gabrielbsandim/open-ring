@@ -16,6 +16,9 @@ abstract final class AppPaths {
   static const body = '/today/body';
   static const dayScore = '/today/day-score';
   static const dayScoreFormula = '/today/day-score/formula';
+  static const dayScoreHistory = '/today/day-score/history';
+
+  static String dayScoreOn(String isoDate) => '$dayScore?day=$isoDate';
   static const sleepFormula = '/sleep/formula';
   static const privacy = '/privacy';
   static const settings = '/ring/settings';

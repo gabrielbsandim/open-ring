@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/tabs_shell.dart';
 import 'package:open_ring/features/activity/presentation/activity_screen.dart';
@@ -14,6 +15,7 @@ import 'package:open_ring/features/onboarding/presentation/permissions_screen.da
 import 'package:open_ring/features/onboarding/presentation/profile_screen.dart';
 import 'package:open_ring/features/onboarding/presentation/welcome_screen.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_formula_screen.dart';
+import 'package:open_ring/features/open_score/presentation/day_score_history_screen.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_receipt_screen.dart';
 import 'package:open_ring/features/ring/presentation/pair_error_screen.dart';
 import 'package:open_ring/features/ring/presentation/pair_screen.dart';
@@ -112,11 +114,17 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
       GoRoute(path: 'body', builder: (_, _) => const BodyScreen()),
       GoRoute(
         path: 'day-score',
-        builder: (_, _) => const DayScoreReceiptScreen(),
+        builder: (_, state) => DayScoreReceiptScreen(
+          day: LocalDate.tryParse(state.uri.queryParameters['day']),
+        ),
         routes: [
           GoRoute(
             path: 'formula',
             builder: (_, _) => const DayScoreFormulaScreen(),
+          ),
+          GoRoute(
+            path: 'history',
+            builder: (_, _) => const DayScoreHistoryScreen(),
           ),
         ],
       ),

@@ -1,3 +1,5 @@
+final _isoDate = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$');
+
 extension type const LocalDate._(({int year, int month, int day}) _ymd) {
   const new(int year, int month, int day)
     : this._((year: year, month: month, day: day));
@@ -5,6 +7,18 @@ extension type const LocalDate._(({int year, int month, int day}) _ymd) {
   factory fromInstant(DateTime instant, Duration utcOffset) {
     final wall = instant.toUtc().add(utcOffset);
     return LocalDate(wall.year, wall.month, wall.day);
+  }
+
+  // Null for anything that is not a real calendar date written as YYYY-MM-DD.
+  static LocalDate? tryParse(String? iso) {
+    final match = _isoDate.firstMatch(iso ?? '');
+    if (match == null) return null;
+    final date = LocalDate(
+      int.parse(match.group(1)!),
+      int.parse(match.group(2)!),
+      int.parse(match.group(3)!),
+    );
+    return date.addDays(0).iso == iso ? date : null;
   }
 
   int get year => _ymd.year;

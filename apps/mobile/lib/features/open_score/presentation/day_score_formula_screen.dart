@@ -51,7 +51,7 @@ class DayScoreFormulaScreen extends StatelessWidget {
         const SizedBox(height: cardGap),
         const _Bands(),
         const SizedBox(height: cardGap),
-        _ListCard(
+        DayScoreListCard(
           title: l10n.dayScoreFormulaMissingTitle,
           lines: [
             l10n.dayScoreFormulaMissing1,
@@ -61,7 +61,7 @@ class DayScoreFormulaScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: cardGap),
-        _ListCard(
+        DayScoreListCard(
           title: l10n.dayScoreFormulaRulesTitle,
           lines: [
             l10n.dayScoreFormulaRules1,
@@ -71,7 +71,7 @@ class DayScoreFormulaScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: cardGap),
-        _ListCard(
+        DayScoreListCard(
           title: l10n.dayScoreFormulaMinutesTitle,
           lines: [
             l10n.dayScoreFormulaMinutes1,
@@ -328,8 +328,8 @@ class _Bands extends StatelessWidget {
   }
 }
 
-class _ListCard extends StatelessWidget {
-  const new({required this.title, required this.lines});
+class DayScoreListCard extends StatelessWidget {
+  const new({required this.title, required this.lines, super.key});
 
   final String title;
   final List<String> lines;

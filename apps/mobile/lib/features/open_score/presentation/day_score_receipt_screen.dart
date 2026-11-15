@@ -29,6 +29,7 @@ abstract final class DayScoreReceiptKeys {
   static const minimum = Key('day_score_receipt_minimum');
   static const open = Key('day_score_receipt_open');
   static const formula = Key('day_score_receipt_formula');
+  static const history = Key('day_score_receipt_history');
 
   static Key factor(DayScoreFactor factor) =>
       Key('day_score_receipt_${factor.name}');
@@ -37,14 +38,22 @@ abstract final class DayScoreReceiptKeys {
 const _openThreshold = 0.5;
 
 class DayScoreReceiptScreen extends ConsumerStatefulWidget {
-  const new({super.key});
+  const new({this.day, super.key});
+
+  final LocalDate? day;
 
   @override
   ConsumerState<DayScoreReceiptScreen> createState() => _ReceiptState();
 }
 
 class _ReceiptState extends ConsumerState<DayScoreReceiptScreen> {
-  LocalDate? _picked;
+  late LocalDate? _picked = widget.day;
+
+  @override
+  void didUpdateWidget(DayScoreReceiptScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.day != oldWidget.day) _picked = widget.day;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +112,19 @@ class _ReceiptState extends ConsumerState<DayScoreReceiptScreen> {
       const SizedBox(height: cardGap),
       const _Never(),
       const SizedBox(height: cardGap),
-      const _FormulaLink(),
+      _Link(
+        key: DayScoreReceiptKeys.formula,
+        title: format.l10n.formulaLink,
+        caption: format.l10n.dayScoreFormulaLinkCaption,
+        path: AppPaths.dayScoreFormula,
+      ),
+      const SizedBox(height: cardGap),
+      _Link(
+        key: DayScoreReceiptKeys.history,
+        title: format.l10n.dayScoreHistoryTitle,
+        caption: format.l10n.dayScoreHistoryLinkCaption,
+        path: AppPaths.dayScoreHistory,
+      ),
       const SizedBox(height: cardGap),
       CaptionText(format.l10n.metricEstimateNote),
     ];
@@ -597,17 +618,24 @@ class _Never extends StatelessWidget {
   }
 }
 
-class _FormulaLink extends StatelessWidget {
-  const new();
+class _Link extends StatelessWidget {
+  const new({
+    required this.title,
+    required this.caption,
+    required this.path,
+    super.key,
+  });
+
+  final String title;
+  final String caption;
+  final String path;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = AppColors.of(context);
-    final l10n = AppLocalizations.of(context);
     return MetricCard(
-      key: DayScoreReceiptKeys.formula,
-      onTap: () => context.go(AppPaths.dayScoreFormula),
+      onTap: () => context.go(path),
       child: Row(
         children: [
           Expanded(
@@ -615,13 +643,13 @@ class _FormulaLink extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l10n.formulaLink,
+                  title,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 2),
-                CaptionText(l10n.dayScoreFormulaLinkCaption),
+                CaptionText(caption),
               ],
             ),
           ),

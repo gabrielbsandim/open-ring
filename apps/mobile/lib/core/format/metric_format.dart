@@ -41,6 +41,9 @@ final class MetricFormat {
   String date(LocalDate value) =>
       DateFormat.MMMEd(locale).format(_midnight(value));
 
+  String monthYear(LocalDate value) =>
+      DateFormat.yMMMM(locale).format(_midnight(value));
+
   String monthDay(LocalDate value) =>
       DateFormat.MMMd(locale).format(_midnight(value));
 

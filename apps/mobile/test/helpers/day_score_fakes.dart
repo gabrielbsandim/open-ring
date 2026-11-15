@@ -32,3 +32,18 @@ DayScoreHistory historyOf(DayScoreInputs today, {bool scoredBefore = true}) =>
         metricsToday: today,
       },
     );
+
+// Forty days: today full, yesterday partial, two days ago without a night,
+// three days ago a weaker full day, every older day full.
+DayScoreHistory mixedHistory({int days = 40}) => DayScoreHistory(
+  today: metricsToday,
+  days: {
+    for (var age = days - 1; age >= 0; age--)
+      metricsToday.addDays(-age): switch (age) {
+        1 => day(steps: 4000, stressZ: null, spo2Mean: null),
+        2 => day(sleepScore: null),
+        3 => day(sleepScore: 60),
+        _ => day(),
+      },
+  },
+);

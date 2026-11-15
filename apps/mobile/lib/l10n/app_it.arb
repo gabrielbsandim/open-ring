@@ -1432,5 +1432,13 @@
   "levelBestWeekOf": "Media dei voti, {from} - {to}",
   "levelBestWeekNone": "Serve una settimana con {count} giorni contati",
   "levelBestLevel": "Livello più alto",
-  "levelBestsNote": "I record guardano gli ultimi {days} giorni. I giorni segnati restano fuori."
+  "levelBestsNote": "I record guardano gli ultimi {days} giorni. I giorni segnati restano fuori.",
+  "levelCeleGoal": "Obiettivo della settimana raggiunto",
+  "levelCeleBest": "Nuovo record personale",
+  "levelCeleBoth": "Settimana riuscita e nuovo record",
+  "levelCeleGoalLine": "Obiettivo di {goal} giorni sulla linea o sopra, raggiunto ieri.",
+  "levelCeleDayLine": "Giorno migliore: {score}, ieri. Il precedente era {previous} ({date}).",
+  "levelCeleLevelLine": "Livello più alto: {level}. Il precedente era {previous} ({date}).",
+  "levelCeleOpen": "Vedi in Livello",
+  "levelCeleClose": "Chiudi avviso"
 }

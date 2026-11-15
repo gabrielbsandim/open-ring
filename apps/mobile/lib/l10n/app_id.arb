@@ -1432,5 +1432,13 @@
   "levelBestWeekOf": "Rata-rata skor, {from} sampai {to}",
   "levelBestWeekNone": "Perlu satu minggu dengan {count} hari yang dihitung",
   "levelBestLevel": "Level tertinggi",
-  "levelBestsNote": "Rekor melihat {days} hari terakhir. Hari yang ditandai tidak ikut."
+  "levelBestsNote": "Rekor melihat {days} hari terakhir. Hari yang ditandai tidak ikut.",
+  "levelCeleGoal": "Target mingguan tercapai",
+  "levelCeleBest": "Rekor pribadi baru",
+  "levelCeleBoth": "Minggu tercapai dan rekor baru",
+  "levelCeleGoalLine": "Target {goal} hari di garis atau di atasnya, tercapai kemarin.",
+  "levelCeleDayLine": "Hari terbaik: {score}, kemarin. Sebelumnya {previous} ({date}).",
+  "levelCeleLevelLine": "Level tertinggi: {level}. Sebelumnya {previous} ({date}).",
+  "levelCeleOpen": "Lihat di Level",
+  "levelCeleClose": "Tutup pemberitahuan"
 }

@@ -10,7 +10,9 @@ import 'package:open_ring/features/modules/application/enabled_modules_controlle
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
+import 'package:open_ring/features/open_score/application/celebration_providers.dart';
 import 'package:open_ring/features/open_score/application/week_goal_providers.dart';
+import 'package:open_ring/features/open_score/domain/celebration_store.dart';
 import 'package:open_ring/features/open_score/domain/week_goal_store.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
@@ -39,6 +41,7 @@ void main() {
   late InMemoryTodayWidgetConfigStore widgetConfig;
   late InMemoryModuleStore modules;
   late InMemoryWeekGoalStore weekGoal;
+  late InMemoryCelebrationStore celebration;
 
   ProviderContainer container([FakeLocalDataEraser? override]) {
     eraser = override ?? FakeLocalDataEraser();
@@ -48,6 +51,7 @@ void main() {
     onboarding = InMemoryOnboardingStore(completed: true);
     modules = InMemoryModuleStore({ModuleId.body, ModuleId.trajectory});
     weekGoal = InMemoryWeekGoalStore(6);
+    celebration = InMemoryCelebrationStore('2026-11-15');
     widgetConfig = InMemoryTodayWidgetConfigStore(
       TodayWidgetConfig().withTheme(WidgetTheme.light),
     );
@@ -68,6 +72,7 @@ void main() {
         todayWidgetConfigStoreProvider.overrideWithValue(widgetConfig),
         moduleStoreProvider.overrideWithValue(modules),
         weekGoalStoreProvider.overrideWithValue(weekGoal),
+        celebrationStoreProvider.overrideWithValue(celebration),
       ],
     );
     addTearDown(container.dispose);
@@ -82,6 +87,11 @@ void main() {
     final revision = c.read(dataRevisionProvider);
     expect(await c.read(enabledModulesProvider.future), isNotEmpty);
     expect(await c.read(weekGoalProvider.future), 6);
+    expect(
+      await c.read(celebrationClosedProvider.future),
+      const LocalDate(2026, 11, 15),
+    );
+    celebration.closed = null;
     weekGoal.goal = null;
     units.units = null;
     profiles.profile = null;
@@ -104,6 +114,7 @@ void main() {
     expect(widgetConfig.saved, isNull);
     expect(await c.read(enabledModulesProvider.future), isEmpty);
     expect(await c.read(weekGoalProvider.future), weekGoalDefault);
+    expect(await c.read(celebrationClosedProvider.future), isNull);
   });
 
   test('a failed erase reports failure and keeps the settings', () async {

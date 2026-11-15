@@ -4,8 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/app_navigation_bar.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/body/domain/hide_numbers_store.dart';
 import 'package:open_ring/features/export/presentation/export_screen.dart';
 import 'package:open_ring/features/health_sync/presentation/health_status_screen.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/onboarding/presentation/welcome_screen.dart';
 import 'package:open_ring/features/ring/application/ring_alert_providers.dart';
 import 'package:open_ring/features/ring/domain/ring_alerts.dart';
@@ -46,6 +51,7 @@ Future<void> _pump(
   FakeLocalDataEraser? eraser,
   RecordingExternalLinkOpener? links,
   Widget screen = const SettingsScreen(),
+  List<Override> extra = const [],
 }) => pumpScaled(
   tester,
   screen is OpenRingApp ? screen : screenHost(screen),
@@ -62,6 +68,7 @@ Future<void> _pump(
       eraser: eraser,
       links: links,
     ),
+    ...extra,
   ],
 );
 
@@ -387,6 +394,27 @@ void main() {
     expect(_value(tester, ProfileField.height), '5 ft 10 in');
     expect(_value(tester, ProfileField.weight), '169 lb');
   });
+
+  for (final (modules, expected) in [
+    ({ModuleId.body}, 'hidden'),
+    (<ModuleId>{}, '76.5 kg'),
+  ]) {
+    testWidgets('with numbers hidden and modules $modules the profile weight '
+        'reads $expected', (tester) async {
+      await _pump(
+        tester,
+        profiles: InMemoryUserProfileStore(fullProfile),
+        extra: [
+          moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
+          hideNumbersStoreProvider.overrideWithValue(
+            InMemoryHideNumbersStore(hidden: true),
+          ),
+        ],
+      );
+
+      expect(_value(tester, ProfileField.weight), expected);
+    });
+  }
 
   testWidgets('editing a field saves the profile', (tester) async {
     final profiles = InMemoryUserProfileStore();

@@ -59,10 +59,11 @@ List<DailyValue> dailyStress(
 
 @immutable
 final class DayScoreHistory {
-  new({
-    required this.today,
-    required Map<LocalDate, ScoreResult<DayScoreFactor>> days,
-  }) : _days = Map.unmodifiable(days);
+  new({required this.today, required Map<LocalDate, DayScoreInputs> days})
+    : _inputs = Map.unmodifiable(days),
+      _days = Map.unmodifiable({
+        for (final entry in days.entries) entry.key: entry.value.score,
+      });
 
   factory collect({
     required LocalDate today,
@@ -76,7 +77,7 @@ final class DayScoreHistory {
     final hrv = history.values(TrendMetric.hrv);
     final resting = history.values(TrendMetric.restingHeartRate);
     final spo2 = history.values(TrendMetric.spo2);
-    ScoreResult<DayScoreFactor> scoreOn(LocalDate date) => dayScore(
+    DayScoreInputs inputsOn(LocalDate date) => DayScoreInputs(
       sleepScore: _valueOn(sleep, date)?.round(),
       steps: _valueOn(steps, date)?.round(),
       stepGoal: stepGoal,
@@ -99,17 +100,20 @@ final class DayScoreHistory {
       today: today,
       days: {
         for (var age = dayScoreHistoryDays - 1; age >= 0; age--)
-          today.addDays(-age): scoreOn(today.addDays(-age)),
+          today.addDays(-age): inputsOn(today.addDays(-age)),
       },
     );
   }
 
   final LocalDate today;
+  final Map<LocalDate, DayScoreInputs> _inputs;
   final Map<LocalDate, ScoreResult<DayScoreFactor>> _days;
 
   Iterable<LocalDate> get dates => _days.keys;
 
   ScoreResult<DayScoreFactor>? on(LocalDate date) => _days[date];
+
+  DayScoreInputs? inputsOn(LocalDate date) => _inputs[date];
 
   Scored<DayScoreFactor>? scoredOn(LocalDate date) => switch (_days[date]) {
     final Scored<DayScoreFactor> scored => scored,

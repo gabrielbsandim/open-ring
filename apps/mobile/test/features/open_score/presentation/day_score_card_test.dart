@@ -13,40 +13,9 @@ import 'package:open_ring/features/open_score/presentation/day_score_card.dart';
 import 'package:open_ring/features/today/presentation/today_cards.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
 
+import '../../../helpers/day_score_fakes.dart';
 import '../../../helpers/layout_harness.dart';
 import '../../../helpers/metrics_fakes.dart';
-
-BaselineDeviation z(double zScore) =>
-    BaselineDeviation(today: 1, baseline: 1, zScore: zScore);
-
-ScoreResult<DayScoreFactor> day({
-  int? sleepScore = 80,
-  int? steps = 8000,
-  double? intensityMinutes = 150,
-  bool baselines = true,
-  double? stressZ = -1,
-  double? spo2Mean = 96,
-}) => dayScore(
-  sleepScore: sleepScore,
-  steps: steps,
-  stepGoal: 8000,
-  intensityMinutes: intensityMinutes,
-  hrv: baselines ? z(1) : null,
-  restingHeartRate: baselines ? z(-1) : null,
-  stress: stressZ == null ? null : z(stressZ),
-  spo2Mean: spo2Mean,
-);
-
-DayScoreHistory historyOf(
-  ScoreResult<DayScoreFactor> today, {
-  bool scoredBefore = true,
-}) => DayScoreHistory(
-  today: metricsToday,
-  days: {
-    if (scoredBefore) metricsToday.addDays(-1): day(),
-    metricsToday: today,
-  },
-);
 
 Future<void> pumpCard(
   WidgetTester tester,
@@ -89,11 +58,9 @@ String textOf(WidgetTester tester, Key key) =>
 void main() {
   group('the view', () {
     test('reads points on the published scale', () {
-      final scored = day(
-        steps: 4000,
-        stressZ: null,
-        spo2Mean: null,
-      ) as Scored<DayScoreFactor>;
+      final scored =
+          day(steps: 4000, stressZ: null, spo2Mean: null).score
+              as Scored<DayScoreFactor>;
 
       expect(scored.earned(factorsOf(DayScorePillar.movement)), 27.5);
       expect(scored.available(factorsOf(DayScorePillar.movement)), 35);
@@ -106,11 +73,14 @@ void main() {
         ScoreResult<DayScoreFactor> result,
       ) => result as InsufficientData<DayScoreFactor>;
       final thin = lacking(
-        day(intensityMinutes: null, baselines: false, spo2Mean: null),
+        day(intensityMinutes: null, baselines: false, spo2Mean: null).score,
       );
 
-      expect(lacking(day(sleepScore: null, steps: 0)).gap, DayScoreGap.night);
-      expect(lacking(day(steps: 0)).gap, DayScoreGap.steps);
+      expect(
+        lacking(day(sleepScore: null, steps: 0).score).gap,
+        DayScoreGap.night,
+      );
+      expect(lacking(day(steps: 0).score).gap, DayScoreGap.steps);
       expect(thin.gap, DayScoreGap.coverage);
       expect(thin.coverage, 55);
       expect(thin.has(DayScoreFactor.stress), isTrue);

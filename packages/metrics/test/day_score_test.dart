@@ -164,6 +164,59 @@ void main() {
     );
   });
 
+  group('inputs', () {
+    const inputs = DayScoreInputs(
+      sleepScore: 80,
+      steps: 4000,
+      stepGoal: 8000,
+      intensityMinutes: 75,
+      spo2Mean: 92.5,
+    );
+
+    test('contributions keep the published weights when rescaled', () {
+      final points = {
+        for (final part in inputs.contributions) part.factor: part.points,
+      };
+
+      expect(points, {
+        DayScoreFactor.sleep: 24.0,
+        DayScoreFactor.steps: 7.5,
+        DayScoreFactor.intensity: 10.0,
+        DayScoreFactor.spo2: 2.5,
+      });
+    });
+
+    test('contributions exist for a day that has no score', () {
+      const thin = DayScoreInputs(sleepScore: null, steps: 0, stepGoal: 8000);
+
+      expect(thin.score, isA<InsufficientData<DayScoreFactor>>());
+      expect(thin.contributions, isEmpty);
+      expect(thin.walked, isNull);
+    });
+
+    test('scores the same as the function', () {
+      final scored = inputs.score as Scored<DayScoreFactor>;
+      final direct = dayScore(
+        sleepScore: 80,
+        steps: 4000,
+        stepGoal: 8000,
+        intensityMinutes: 75,
+        spo2Mean: 92.5,
+      ) as Scored<DayScoreFactor>;
+
+      expect(scored.value, direct.value);
+      expect(scored.value, 63);
+    });
+
+    test('the rules the app prints match the ramps', () {
+      expect([hrvZeroZ, hrvFullZ], [-3, 1]);
+      expect([restingHeartRateZeroZ, restingHeartRateFullZ], [3, -1]);
+      expect([stressZeroZ, stressFullZ], [3, -1]);
+      expect([spo2ZeroAt, spo2FullAt], [90, 95]);
+      expect(intensityWeeklyTarget, 150);
+    });
+  });
+
   group('stress baseline', () {
     const today = LocalDate(2026, 11, 15);
     List<DailyValue> days(List<double> values) => [

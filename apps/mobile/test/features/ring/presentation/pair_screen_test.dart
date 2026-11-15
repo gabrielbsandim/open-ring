@@ -121,7 +121,7 @@ void main() {
   ) async {
     final rig = _Rig();
     await rig.pump(tester, flow: PairFlow.onboarding);
-    expect(find.text('Step 4 of 4'), findsOneWidget);
+    expect(find.text('Step 4 of 5'), findsOneWidget);
     await tapAndSettle(tester, find.byKey(PairKeys.search));
 
     await tapAndSettle(tester, find.byKey(PairKeys.device(colmiRing.id)));

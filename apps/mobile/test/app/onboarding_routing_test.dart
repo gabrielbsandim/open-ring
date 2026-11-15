@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/router/app_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/features/health_sync/application/health_sync_controller.dart';
+import 'package:open_ring/features/modules/presentation/modules_offer_screen.dart';
 import 'package:open_ring/features/onboarding/domain/app_permissions.dart';
 import 'package:open_ring/features/onboarding/presentation/first_sync_screen.dart';
 import 'package:open_ring/features/onboarding/presentation/health_permission_screen.dart';
@@ -47,49 +48,54 @@ void main() {
     expect(find.byType(WelcomeScreen), findsOneWidget);
   });
 
-  testWidgets('the whole flow pairs a ring, syncs and lands on Today', (
-    tester,
-  ) async {
-    final store = InMemoryOnboardingStore();
-    final pairedStore = RecordingPairedRingStore();
-    await pumpOnboardingApp(
-      tester,
-      store: store,
-      overrides: [
-        ...bleOverrides(scanner: FakeRingScanner(found: const [colmiRing])),
-        ...ringOverrides(paired: PairedRing(deviceId: colmiRing.id)),
-        ...onboardingOverrides(
-          pairedStore: pairedStore,
-          healthWriter: FakeHealthWriter()..denied.addAll(writableHealthKinds),
-        ),
-      ],
-    );
+  testWidgets(
+    'the whole flow pairs a ring, syncs, offers modules and lands on Today',
+    (tester) async {
+      final store = InMemoryOnboardingStore();
+      final pairedStore = RecordingPairedRingStore();
+      await pumpOnboardingApp(
+        tester,
+        store: store,
+        overrides: [
+          ...bleOverrides(scanner: FakeRingScanner(found: const [colmiRing])),
+          ...ringOverrides(paired: PairedRing(deviceId: colmiRing.id)),
+          ...onboardingOverrides(
+            pairedStore: pairedStore,
+            healthWriter: FakeHealthWriter()
+              ..denied.addAll(writableHealthKinds),
+          ),
+        ],
+      );
 
-    await tapAndSettle(tester, find.byKey(WelcomeScreen.startKey));
-    expect(find.byType(PermissionsScreen), findsOneWidget);
-    await tapAndSettle(
-      tester,
-      find.byKey(PermissionsKeys.allow(AppPermission.bluetooth)),
-    );
-    await tapAndSettle(tester, find.byKey(PermissionsKeys.continueAction));
-    expect(find.byType(ProfileScreen), findsOneWidget);
-    await tapAndSettle(tester, find.byKey(ProfileKeys.skip));
-    expect(find.byType(HealthPermissionScreen), findsOneWidget);
-    await tapAndSettle(tester, find.byKey(HealthPermissionKeys.notNow));
-    expect(find.byType(PairScreen), findsOneWidget);
-    expect(store.completed, isFalse);
+      await tapAndSettle(tester, find.byKey(WelcomeScreen.startKey));
+      expect(find.byType(PermissionsScreen), findsOneWidget);
+      await tapAndSettle(
+        tester,
+        find.byKey(PermissionsKeys.allow(AppPermission.bluetooth)),
+      );
+      await tapAndSettle(tester, find.byKey(PermissionsKeys.continueAction));
+      expect(find.byType(ProfileScreen), findsOneWidget);
+      await tapAndSettle(tester, find.byKey(ProfileKeys.skip));
+      expect(find.byType(HealthPermissionScreen), findsOneWidget);
+      await tapAndSettle(tester, find.byKey(HealthPermissionKeys.notNow));
+      expect(find.byType(PairScreen), findsOneWidget);
+      expect(store.completed, isFalse);
 
-    await tapAndSettle(tester, find.byKey(PairKeys.search));
-    await tapAndSettle(tester, find.byKey(PairKeys.device(colmiRing.id)));
-    expect(find.byKey(PairKeys.paired), findsOneWidget);
-    expect(store.completed, isTrue);
-    expect(pairedStore.saved.single.deviceId, colmiRing.id);
+      await tapAndSettle(tester, find.byKey(PairKeys.search));
+      await tapAndSettle(tester, find.byKey(PairKeys.device(colmiRing.id)));
+      expect(find.byKey(PairKeys.paired), findsOneWidget);
+      expect(store.completed, isTrue);
+      expect(pairedStore.saved.single.deviceId, colmiRing.id);
 
-    await tapAndSettle(tester, find.byKey(PairKeys.continueAction));
-    expect(find.byType(FirstSyncScreen), findsOneWidget);
-    expect(find.byKey(FirstSyncKeys.done), findsOneWidget);
+      await tapAndSettle(tester, find.byKey(PairKeys.continueAction));
+      expect(find.byType(FirstSyncScreen), findsOneWidget);
+      expect(find.byKey(FirstSyncKeys.done), findsOneWidget);
 
-    await tapAndSettle(tester, find.byKey(FirstSyncKeys.viewDay));
-    expect(find.byType(TodayScreen), findsOneWidget);
-  });
+      await tapAndSettle(tester, find.byKey(FirstSyncKeys.viewDay));
+      expect(find.byType(ModulesOfferScreen), findsOneWidget);
+
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.done));
+      expect(find.byType(TodayScreen), findsOneWidget);
+    },
+  );
 }

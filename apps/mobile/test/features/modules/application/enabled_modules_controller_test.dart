@@ -18,6 +18,12 @@ final class _SlowStore implements ModuleStore {
     await Future<void>.delayed(const Duration(milliseconds: 5));
     stored = {...enabled};
   }
+
+  @override
+  Future<bool> shortcutDismissed() async => false;
+
+  @override
+  Future<void> dismissShortcut({required bool dismissed}) async {}
 }
 
 void main() {

@@ -6,6 +6,7 @@ import 'package:open_ring/features/activity/presentation/activity_screen.dart';
 import 'package:open_ring/features/body/presentation/body_screen.dart';
 import 'package:open_ring/features/heart/presentation/heart_screen.dart';
 import 'package:open_ring/features/heart/presentation/measure_screen.dart';
+import 'package:open_ring/features/modules/presentation/modules_offer_screen.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
 import 'package:open_ring/features/onboarding/presentation/first_sync_screen.dart';
 import 'package:open_ring/features/onboarding/presentation/health_permission_screen.dart';
@@ -70,6 +71,7 @@ GoRoute _onboardingRoute() => GoRoute(
     GoRoute(path: 'permissions', builder: (_, _) => const PermissionsScreen()),
     GoRoute(path: 'profile', builder: (_, _) => const ProfileScreen()),
     GoRoute(path: 'health', builder: (_, _) => const HealthPermissionScreen()),
+    GoRoute(path: 'modules', builder: (_, _) => const ModulesOfferScreen()),
     _pairRoute(PairFlow.onboarding),
   ],
 );
@@ -85,7 +87,10 @@ GoRoute _pairRoute(PairFlow flow) => GoRoute(
         failure: PairErrorScreen.parse(state.pathParameters['reason']),
       ),
     ),
-    GoRoute(path: 'sync', builder: (_, _) => const FirstSyncScreen()),
+    GoRoute(
+      path: 'sync',
+      builder: (_, _) => FirstSyncScreen(flow: flow),
+    ),
   ],
 );
 

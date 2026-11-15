@@ -10,6 +10,7 @@ import 'package:open_ring/features/heart/application/measure_state.dart';
 import 'package:open_ring/features/heart/presentation/heart_labels.dart';
 import 'package:open_ring/features/heart/presentation/heart_screen.dart';
 import 'package:open_ring/features/heart/presentation/measure_screen.dart';
+import 'package:open_ring/features/modules/presentation/modules_offer_screen.dart';
 import 'package:open_ring/features/onboarding/domain/app_permissions.dart';
 import 'package:open_ring/features/onboarding/presentation/first_sync_screen.dart';
 import 'package:open_ring/features/onboarding/presentation/health_permission_screen.dart';
@@ -294,7 +295,7 @@ final onboardingScreens = <String, (Widget, List<Override> Function())>{
       _onboarding(),
     ),
   'First sync while running': (
-    const FirstSyncScreen(),
+    const FirstSyncScreen(flow: PairFlow.onboarding),
     _onboarding(
       held: const RingSyncState(
         progress: SyncProgress(SyncStep.pulling, kind: RecordKind.stress),
@@ -302,7 +303,7 @@ final onboardingScreens = <String, (Widget, List<Override> Function())>{
     ),
   ),
   'First sync with the ring pill': (
-    const FirstSyncScreen(),
+    const FirstSyncScreen(flow: PairFlow.onboarding),
     _onboarding(
       held: const RingSyncState(
         progress: SyncProgress(SyncStep.pulling, kind: RecordKind.stress),
@@ -311,8 +312,15 @@ final onboardingScreens = <String, (Widget, List<Override> Function())>{
       ring: const RingStatus(paired: true, name: 'COLMI R10_LONG_NAME_7F3A'),
     ),
   ),
-  'First sync done': (const FirstSyncScreen(), _onboarding(paired: true)),
-  'First sync failed': (const FirstSyncScreen(), _onboarding()),
+  'First sync done': (
+    const FirstSyncScreen(flow: PairFlow.onboarding),
+    _onboarding(paired: true),
+  ),
+  'Modules offer': (const ModulesOfferScreen(), _onboarding()),
+  'First sync failed': (
+    const FirstSyncScreen(flow: PairFlow.onboarding),
+    _onboarding(),
+  ),
 };
 
 Future<void> pumpCase(

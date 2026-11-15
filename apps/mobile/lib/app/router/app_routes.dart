@@ -32,6 +32,7 @@ abstract final class AppPaths {
   static const onboardingProfile = '/onboarding/profile';
   static const onboardingHealth = '/onboarding/health';
   static const onboardingPair = '/onboarding/pair';
+  static const onboardingModules = '/onboarding/modules';
   static const workout = '/activity/workout';
   static const workoutLocation = '/activity/workout/location';
   static const workoutLive = '/activity/live-workout';
@@ -51,4 +52,9 @@ enum PairFlow {
   String errorPath(String reason) => '$path/error/$reason';
 
   String get syncPath => '$path/sync';
+
+  String get donePath => switch (this) {
+    PairFlow.onboarding => AppPaths.onboardingModules,
+    PairFlow.ring => AppTab.today.path,
+  };
 }

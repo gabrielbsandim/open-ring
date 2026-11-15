@@ -1115,5 +1115,15 @@
   "bodySheetHiddenEdit": "Chiffres masqués. Laissez un champ vide pour garder sa valeur.",
   "bodySheetSavedHidden": "Pesée enregistrée.",
   "bodySheetUpdatedHidden": "Pesée mise à jour.",
-  "profileWeightHidden": "masqué"
+  "profileWeightHidden": "masqué",
+  "onboardingModulesTitle": "Faites-le à votre façon",
+  "onboardingModulesIntro": "OpenRing est prêt : bague, sommeil, cœur et activité. Les modules ajoutent le reste, un à la fois, et commencent désactivés.",
+  "onboardingModulesFoot": "Un module désactivé n'affiche aucune carte, n'ouvre aucun écran et ne demande aucune autorisation. Cette question n'apparaît qu'une fois.",
+  "onboardingModulesWithBody": "Continuer avec Corps",
+  "onboardingModulesSkip": "Passer pour l'instant",
+  "onboardingModulesLater": "Vous pourrez changer cela plus tard dans Réglages, Modules.",
+  "onboardingModulesNone": "Tout est prêt. Aucun module actif.",
+  "todayModulesShortcut": "Découvrir les modules",
+  "todayModulesDismiss": "Masquer le raccourci des modules",
+  "todayModulesDismissed": "Les modules restent dans Bague, Réglages."
 }

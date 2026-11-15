@@ -6,6 +6,7 @@ final class SharedPreferencesModuleStore implements ModuleStore {
   new([SharedPreferencesAsync? preferences]) : _preferences = preferences;
 
   static const key = 'modules_enabled';
+  static const shortcutKey = 'modules_shortcut_dismissed';
 
   SharedPreferencesAsync? _preferences;
 
@@ -22,4 +23,12 @@ final class SharedPreferencesModuleStore implements ModuleStore {
   @override
   Future<void> write(Set<ModuleId> enabled) =>
       _store.setStringList(key, [for (final id in enabled) id.name]);
+
+  @override
+  Future<bool> shortcutDismissed() async =>
+      await _store.getBool(shortcutKey) ?? false;
+
+  @override
+  Future<void> dismissShortcut({required bool dismissed}) =>
+      _store.setBool(shortcutKey, dismissed);
 }

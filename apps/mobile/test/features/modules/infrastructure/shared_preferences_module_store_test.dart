@@ -52,4 +52,23 @@ void main() {
       });
     },
   );
+
+  test('the shortcut key is modules_shortcut_dismissed', () {
+    expect(
+      SharedPreferencesModuleStore.shortcutKey,
+      'modules_shortcut_dismissed',
+    );
+  });
+
+  test('the shortcut starts shown and a dismissal survives', () async {
+    expect(await SharedPreferencesModuleStore().shortcutDismissed(), isFalse);
+
+    await SharedPreferencesModuleStore().dismissShortcut(dismissed: true);
+
+    expect(await SharedPreferencesModuleStore().shortcutDismissed(), isTrue);
+
+    await SharedPreferencesModuleStore().dismissShortcut(dismissed: false);
+
+    expect(await SharedPreferencesModuleStore().shortcutDismissed(), isFalse);
+  });
 }

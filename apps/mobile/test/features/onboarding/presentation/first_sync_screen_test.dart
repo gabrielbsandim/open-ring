@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/records/record_kind.dart';
+import 'package:open_ring/features/modules/presentation/modules_offer_screen.dart';
 import 'package:open_ring/features/onboarding/presentation/first_sync_screen.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_state.dart';
@@ -176,18 +177,36 @@ void main() {
     expect(_pillText('R09 · 68%'), findsOneWidget);
   });
 
-  testWidgets('a finished sync counts what was saved and opens Today', (
-    tester,
-  ) async {
-    final driver = FakeRingDriver();
-    await _pump(tester, driver: driver);
+  testWidgets(
+    'a finished sync counts what was saved and opens the modules step',
+    (tester) async {
+      final driver = FakeRingDriver();
+      await _pump(tester, driver: driver);
 
-    expect(driver.connects, 1);
-    expect(find.byKey(FirstSyncKeys.done), findsOneWidget);
-    expect(find.text('100%'), findsOneWidget);
-    expect(_kindText(RecordKind.heartRate, '42 records'), findsOneWidget);
-    expect(_kindText(RecordKind.sleep, '1 record'), findsOneWidget);
-    expect(_kindText(RecordKind.spo2, 'Nothing new'), findsOneWidget);
+      expect(driver.connects, 1);
+      expect(find.byKey(FirstSyncKeys.done), findsOneWidget);
+      expect(find.text('100%'), findsOneWidget);
+      expect(_kindText(RecordKind.heartRate, '42 records'), findsOneWidget);
+      expect(_kindText(RecordKind.sleep, '1 record'), findsOneWidget);
+      expect(_kindText(RecordKind.spo2, 'Nothing new'), findsOneWidget);
+
+      await tapAndSettle(tester, find.byKey(FirstSyncKeys.viewDay));
+
+      expect(find.byType(ModulesOfferScreen), findsOneWidget);
+    },
+  );
+
+  testWidgets('pairing again from the Ring tab ends on Today', (tester) async {
+    await pumpOnboardingApp(
+      tester,
+      at: PairFlow.ring.syncPath,
+      store: InMemoryOnboardingStore(completed: true),
+      overrides: [
+        ...bleOverrides(),
+        ...ringOverrides(paired: const PairedRing(deviceId: fakeRingId)),
+        ...onboardingOverrides(),
+      ],
+    );
 
     await tapAndSettle(tester, find.byKey(FirstSyncKeys.viewDay));
 
@@ -210,13 +229,15 @@ void main() {
     expect(find.byKey(FirstSyncKeys.done), findsOneWidget);
   });
 
-  testWidgets('skipping a failed sync still opens Today', (tester) async {
+  testWidgets('skipping a failed sync still opens the modules step', (
+    tester,
+  ) async {
     final driver = FakeRingDriver()
       ..connectError = const BleTransportException('GATT_ERROR 133');
     await _pump(tester, driver: driver);
 
     await tapAndSettle(tester, find.byKey(FirstSyncKeys.skip));
 
-    expect(find.byType(TodayScreen), findsOneWidget);
+    expect(find.byType(ModulesOfferScreen), findsOneWidget);
   });
 }

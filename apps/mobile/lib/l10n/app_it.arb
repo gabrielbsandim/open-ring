@@ -1115,5 +1115,15 @@
   "bodySheetHiddenEdit": "Numeri nascosti. Lascia un campo vuoto per mantenere il valore.",
   "bodySheetSavedHidden": "Pesata registrata.",
   "bodySheetUpdatedHidden": "Pesata aggiornata.",
-  "profileWeightHidden": "nascosto"
+  "profileWeightHidden": "nascosto",
+  "onboardingModulesTitle": "Rendilo tuo",
+  "onboardingModulesIntro": "OpenRing è pronto: anello, sonno, cuore e attività. I moduli aggiungono il resto, uno alla volta, e partono spenti.",
+  "onboardingModulesFoot": "Un modulo spento non mostra schede, non apre schermate e non chiede permessi. Questa domanda compare una sola volta.",
+  "onboardingModulesWithBody": "Continua con Corpo",
+  "onboardingModulesSkip": "Salta per ora",
+  "onboardingModulesLater": "Puoi cambiarlo più tardi in Impostazioni, Moduli.",
+  "onboardingModulesNone": "Tutto pronto. Nessun modulo attivo.",
+  "todayModulesShortcut": "Scopri i moduli",
+  "todayModulesDismiss": "Nascondi la scorciatoia dei moduli",
+  "todayModulesDismissed": "I moduli restano in Anello, Impostazioni."
 }

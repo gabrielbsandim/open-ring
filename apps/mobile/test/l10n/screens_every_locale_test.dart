@@ -24,6 +24,7 @@ import 'package:open_ring/features/heart/application/measure_state.dart';
 import 'package:open_ring/features/heart/domain/heart_history_reader.dart';
 import 'package:open_ring/features/heart/presentation/heart_screen.dart';
 import 'package:open_ring/features/heart/presentation/measure_screen.dart';
+import 'package:open_ring/features/modules/presentation/modules_offer_screen.dart';
 import 'package:open_ring/features/onboarding/domain/app_permissions.dart';
 import 'package:open_ring/features/onboarding/presentation/first_sync_screen.dart';
 import 'package:open_ring/features/onboarding/presentation/health_permission_screen.dart';
@@ -333,7 +334,11 @@ final _cases = <String, _Case>{
       PairErrorScreen(failure: failure),
       _onboarding,
     ),
-  'First sync that fails': const _Case(FirstSyncScreen(), _onboarding),
+  'Modules offer': const _Case(ModulesOfferScreen(), _onboarding),
+  'First sync that fails': const _Case(
+    FirstSyncScreen(flow: PairFlow.onboarding),
+    _onboarding,
+  ),
   for (final (name, screen) in const [
     ('Today', TodayScreen()),
     ('Readiness', ReadinessScreen()),

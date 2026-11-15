@@ -1115,5 +1115,15 @@
   "bodySheetHiddenEdit": "Angka disembunyikan. Biarkan kolom kosong untuk mempertahankan nilainya.",
   "bodySheetSavedHidden": "Penimbangan dicatat.",
   "bodySheetUpdatedHidden": "Penimbangan diperbarui.",
-  "profileWeightHidden": "disembunyikan"
+  "profileWeightHidden": "disembunyikan",
+  "onboardingModulesTitle": "Atur sesuai keinginan Anda",
+  "onboardingModulesIntro": "OpenRing sudah siap: cincin, tidur, jantung, dan aktivitas. Modul menambahkan sisanya, satu per satu, dan awalnya mati.",
+  "onboardingModulesFoot": "Modul yang mati tidak menampilkan kartu, tidak membuka layar, dan tidak meminta izin. Pertanyaan ini hanya muncul sekali.",
+  "onboardingModulesWithBody": "Lanjutkan dengan Tubuh",
+  "onboardingModulesSkip": "Lewati untuk sekarang",
+  "onboardingModulesLater": "Anda bisa mengubahnya nanti di Pengaturan, Modul.",
+  "onboardingModulesNone": "Semua siap. Tidak ada modul yang aktif.",
+  "todayModulesShortcut": "Kenali modul",
+  "todayModulesDismiss": "Tutup pintasan modul",
+  "todayModulesDismissed": "Modul tetap ada di Cincin, Pengaturan."
 }

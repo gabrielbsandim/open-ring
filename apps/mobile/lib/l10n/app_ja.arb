@@ -1115,5 +1115,15 @@
   "bodySheetHiddenEdit": "数値は非表示です。空欄のままにすると値を保ちます。",
   "bodySheetSavedHidden": "計測を記録しました。",
   "bodySheetUpdatedHidden": "計測を更新しました。",
-  "profileWeightHidden": "非表示"
+  "profileWeightHidden": "非表示",
+  "onboardingModulesTitle": "自分好みにする",
+  "onboardingModulesIntro": "OpenRingの準備ができました：リング、睡眠、心拍、アクティビティ。モジュールは残りを一つずつ追加し、最初はオフです。",
+  "onboardingModulesFoot": "オフのモジュールはカードを表示せず、画面も開かず、権限も求めません。この質問は一度だけ表示されます。",
+  "onboardingModulesWithBody": "ボディを有効にして続ける",
+  "onboardingModulesSkip": "今はスキップ",
+  "onboardingModulesLater": "あとで「設定」の「モジュール」から変更できます。",
+  "onboardingModulesNone": "準備完了。有効なモジュールはありません。",
+  "todayModulesShortcut": "モジュールを見る",
+  "todayModulesDismiss": "モジュールのショートカットを閉じる",
+  "todayModulesDismissed": "モジュールは「リング」の「設定」にあります。"
 }

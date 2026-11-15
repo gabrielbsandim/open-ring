@@ -1107,5 +1107,15 @@
   "bodySheetHiddenEdit": "Números ocultos. Deixe um campo em branco para manter o valor.",
   "bodySheetSavedHidden": "Pesagem registada.",
   "bodySheetUpdatedHidden": "Pesagem atualizada.",
-  "profileWeightHidden": "oculto"
+  "profileWeightHidden": "oculto",
+  "onboardingModulesTitle": "Deixe à sua maneira",
+  "onboardingModulesIntro": "O OpenRing já está pronto: anel, sono, coração e atividade. Os módulos acrescentam o resto, um de cada vez, e começam desligados.",
+  "onboardingModulesFoot": "Um módulo desligado não mostra cartão, não abre ecrã e não pede permissão. Esta pergunta aparece uma só vez.",
+  "onboardingModulesWithBody": "Continuar com Corpo",
+  "onboardingModulesSkip": "Saltar por agora",
+  "onboardingModulesLater": "Pode mudar depois em Definições, Módulos.",
+  "onboardingModulesNone": "Tudo pronto. Nenhum módulo ativo.",
+  "todayModulesShortcut": "Conheça os módulos",
+  "todayModulesDismiss": "Dispensar atalho de módulos",
+  "todayModulesDismissed": "Os módulos continuam em Anel, Definições."
 }

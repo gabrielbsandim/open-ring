@@ -42,7 +42,12 @@ String weekMessage(MetricFormat format, LevelWeek week) {
   final metOn = week.metOn;
   if (metOn != null) return l10n.levelWeekMet(format.date(metOn));
   if (!week.reachable) return l10n.levelWeekOut;
-  return l10n.levelWeekNeed(week.need);
+  final need = l10n.levelWeekNeed(week.need);
+  final todayOpen = week.days.any((day) => day.kind == WeekDayKind.today);
+  if (!todayOpen) return need;
+  // Japanese and Chinese sentences end in a full width stop and take no space.
+  final space = need.endsWith('.') ? ' ' : '';
+  return '$need$space${l10n.levelWeekTodayCounts}';
 }
 
 class WeekGoalCard extends ConsumerWidget {

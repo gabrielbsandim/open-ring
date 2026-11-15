@@ -105,6 +105,13 @@ void main() {
       expect(label(tester, sunday), 'Sun: in progress');
     });
 
+    testWidgets('a tagged today is not promised to count', (tester) async {
+      await pump(tester, mixedHistory(), tags: {metricsToday: DayTag.sick});
+
+      expect(label(tester, metricsToday), 'Tue: tagged, does not count');
+      expect(text(tester, LevelGoalKeys.message), 'Days still needed: 4.');
+    });
+
     testWidgets('says so when the week can no longer reach it', (tester) async {
       await pump(tester, weekHistory(), goal: 6);
 

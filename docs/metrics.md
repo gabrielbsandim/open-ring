@@ -791,7 +791,7 @@ level = level + alpha * (score - level)
 - There is no Level before 14 counted days. The first Level is the simple mean of those 14 scores.
 - A day 10 points above the line raises the Level by about 0.35; a day 10 points below lowers it by the same.
 - There is no window: a counted day keeps a weight of `alpha * (1 - alpha)^k`, where `k` is the number of counted
-  days after it. The last 28 counted days carry about 63 percent of the Level.
+  days after it. Once 28 days have counted after the first Level, those 28 carry about 63 percent of it.
 
 **The line and the side.** The line of a day is the Level as it stood before that day. A Day Score is a whole
 number and the Level has one decimal, so the score is compared with the Level rounded to a whole number: 71

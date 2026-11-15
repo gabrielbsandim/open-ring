@@ -71,7 +71,122 @@ Part<DayScoreFactor> _part(
   subscore: subscore,
 );
 
-// Zero steps means the ring was off the finger, so it counts as missing.
+final class DayScoreInputs {
+  const new({
+    required this.sleepScore,
+    required this.steps,
+    required this.stepGoal,
+    this.intensityMinutes,
+    this.hrv,
+    this.restingHeartRate,
+    this.stress,
+    this.spo2Mean,
+  });
+
+  final int? sleepScore;
+  final int? steps;
+  final int stepGoal;
+  final double? intensityMinutes;
+  final BaselineDeviation? hrv;
+  final BaselineDeviation? restingHeartRate;
+  final BaselineDeviation? stress;
+  final double? spo2Mean;
+
+  // Zero steps means the ring was off the finger, so it counts as missing.
+  double? get walked {
+    final steps = this.steps;
+    if (steps == null || steps <= 0) return null;
+    return steps.toDouble();
+  }
+
+  List<Part<DayScoreFactor>> get _parts {
+    if (stepGoal < 1) {
+      throw ArgumentError.value(stepGoal, 'stepGoal', 'must be at least 1');
+    }
+    final sleepScore = this.sleepScore;
+    final walked = this.walked;
+    final intensityMinutes = this.intensityMinutes;
+    final hrv = this.hrv;
+    final restingHeartRate = this.restingHeartRate;
+    final stress = this.stress;
+    final spo2Mean = this.spo2Mean;
+    return [
+      if (sleepScore != null)
+        _part(
+          DayScoreFactor.sleep,
+          sleepScore.toDouble(),
+          ramp(sleepScore.toDouble(), zeroAt: 0, fullAt: 100),
+        ),
+      if (walked != null)
+        _part(
+          DayScoreFactor.steps,
+          walked,
+          ramp(walked, zeroAt: 0, fullAt: stepGoal.toDouble()),
+        ),
+      if (intensityMinutes != null)
+        _part(
+          DayScoreFactor.intensity,
+          intensityMinutes,
+          ramp(intensityMinutes, zeroAt: 0, fullAt: intensityWeeklyTarget),
+        ),
+      if (hrv != null)
+        _part(
+          DayScoreFactor.hrv,
+          hrv.zScore,
+          ramp(hrv.zScore, zeroAt: hrvZeroZ, fullAt: hrvFullZ),
+        ),
+      if (restingHeartRate != null)
+        _part(
+          DayScoreFactor.restingHeartRate,
+          restingHeartRate.zScore,
+          ramp(
+            restingHeartRate.zScore,
+            zeroAt: restingHeartRateZeroZ,
+            fullAt: restingHeartRateFullZ,
+          ),
+        ),
+      if (stress != null)
+        _part(
+          DayScoreFactor.stress,
+          stress.zScore,
+          ramp(stress.zScore, zeroAt: stressZeroZ, fullAt: stressFullZ),
+        ),
+      if (spo2Mean != null)
+        _part(
+          DayScoreFactor.spo2,
+          spo2Mean,
+          ramp(spo2Mean, zeroAt: spo2ZeroAt, fullAt: spo2FullAt),
+        ),
+    ];
+  }
+
+  // What each present factor earned on the published scale, score or not.
+  List<Contribution<DayScoreFactor>> get contributions => [
+    for (final part in _parts)
+      Contribution(
+        factor: part.factor,
+        value: part.value,
+        subscore: part.subscore,
+        weight: part.baseWeight,
+      ),
+  ];
+
+  ScoreResult<DayScoreFactor> get score {
+    final parts = _parts;
+    final present = {for (final part in parts) part.factor};
+    final coverage = parts.fold<double>(0, (sum, p) => sum + p.baseWeight);
+    final scorable =
+        present.contains(DayScoreFactor.sleep) &&
+        present.contains(DayScoreFactor.steps) &&
+        coverage >= dayScoreMinCoverage;
+    if (scorable) return weigh(parts);
+    return InsufficientData([
+      for (final factor in DayScoreFactor.values)
+        if (!present.contains(factor)) factor,
+    ]);
+  }
+}
+
 ScoreResult<DayScoreFactor> dayScore({
   required int? sleepScore,
   required int? steps,
@@ -81,68 +196,13 @@ ScoreResult<DayScoreFactor> dayScore({
   BaselineDeviation? restingHeartRate,
   BaselineDeviation? stress,
   double? spo2Mean,
-}) {
-  if (stepGoal < 1) {
-    throw ArgumentError.value(stepGoal, 'stepGoal', 'must be at least 1');
-  }
-  final walked = steps != null && steps > 0 ? steps.toDouble() : null;
-  final parts = <Part<DayScoreFactor>>[
-    if (sleepScore != null)
-      _part(
-        DayScoreFactor.sleep,
-        sleepScore.toDouble(),
-        ramp(sleepScore.toDouble(), zeroAt: 0, fullAt: 100),
-      ),
-    if (walked != null)
-      _part(
-        DayScoreFactor.steps,
-        walked,
-        ramp(walked, zeroAt: 0, fullAt: stepGoal.toDouble()),
-      ),
-    if (intensityMinutes != null)
-      _part(
-        DayScoreFactor.intensity,
-        intensityMinutes,
-        ramp(intensityMinutes, zeroAt: 0, fullAt: intensityWeeklyTarget),
-      ),
-    if (hrv != null)
-      _part(
-        DayScoreFactor.hrv,
-        hrv.zScore,
-        ramp(hrv.zScore, zeroAt: hrvZeroZ, fullAt: hrvFullZ),
-      ),
-    if (restingHeartRate != null)
-      _part(
-        DayScoreFactor.restingHeartRate,
-        restingHeartRate.zScore,
-        ramp(
-          restingHeartRate.zScore,
-          zeroAt: restingHeartRateZeroZ,
-          fullAt: restingHeartRateFullZ,
-        ),
-      ),
-    if (stress != null)
-      _part(
-        DayScoreFactor.stress,
-        stress.zScore,
-        ramp(stress.zScore, zeroAt: stressZeroZ, fullAt: stressFullZ),
-      ),
-    if (spo2Mean != null)
-      _part(
-        DayScoreFactor.spo2,
-        spo2Mean,
-        ramp(spo2Mean, zeroAt: spo2ZeroAt, fullAt: spo2FullAt),
-      ),
-  ];
-  final present = {for (final part in parts) part.factor};
-  final coverage = parts.fold<double>(0, (sum, p) => sum + p.baseWeight);
-  final scorable =
-      present.contains(DayScoreFactor.sleep) &&
-      present.contains(DayScoreFactor.steps) &&
-      coverage >= dayScoreMinCoverage;
-  if (scorable) return weigh(parts);
-  return InsufficientData([
-    for (final factor in DayScoreFactor.values)
-      if (!present.contains(factor)) factor,
-  ]);
-}
+}) => DayScoreInputs(
+  sleepScore: sleepScore,
+  steps: steps,
+  stepGoal: stepGoal,
+  intensityMinutes: intensityMinutes,
+  hrv: hrv,
+  restingHeartRate: restingHeartRate,
+  stress: stress,
+  spo2Mean: spo2Mean,
+).score;

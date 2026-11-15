@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
@@ -88,6 +90,7 @@ class DayScoreCard extends ConsumerWidget {
     final now = ref.watch(clockProvider)();
     return MetricCard(
       key: DayScoreCardKeys.card,
+      onTap: () => context.go(AppPaths.dayScore),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -140,78 +143,17 @@ class _Scored extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = AppColors.of(context);
     final format = MetricFormat.of(context);
-    final l10n = format.l10n;
-    final band = dayScoreBandLabel(l10n, dayScoreBand(scored.value));
-    final coverage = scored.isFull
-        ? l10n.dayScoreCoverageFull
-        : l10n.dayScoreCoveragePartial(scored.coverage.round());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Semantics(
-          container: true,
-          label: l10n.dayScoreSemantics(scored.value, band, coverage),
-          excludeSemantics: true,
-          child: Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 16,
-            runSpacing: 6,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    key: DayScoreCardKeys.value,
-                    format.integer(scored.value),
-                    style: theme.textTheme.displayMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      height: 1,
-                    ),
-                  ),
-                  CaptionText(l10n.readinessOf100),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    key: DayScoreCardKeys.band,
-                    band,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        scored.isFull ? Icons.circle : Icons.circle_outlined,
-                        size: 10,
-                        color: colors.textLabel,
-                      ),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: CaptionText(
-                          key: DayScoreCardKeys.coverage,
-                          coverage,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+        DayScoreHeadline(scored: scored),
         const SizedBox(height: 14),
         ExcludeSemantics(
-          child: DayScoreBar(key: DayScoreCardKeys.bar, scored: scored),
+          child: DayScoreBar(
+            key: DayScoreCardKeys.bar,
+            subscore: (f) => scored.of(f)?.subscore,
+          ),
         ),
         const SizedBox(height: 10),
         _Legend(scored: scored),
@@ -236,10 +178,86 @@ class _Scored extends StatelessWidget {
   }
 }
 
-class DayScoreBar extends StatelessWidget {
+class DayScoreHeadline extends StatelessWidget {
   const new({required this.scored, super.key});
 
   final Scored<DayScoreFactor> scored;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = AppColors.of(context);
+    final format = MetricFormat.of(context);
+    final l10n = format.l10n;
+    final band = dayScoreBandLabel(l10n, dayScoreBand(scored.value));
+    final coverage = scored.isFull
+        ? l10n.dayScoreCoverageFull
+        : l10n.dayScoreCoveragePartial(scored.coverage.round());
+    return Semantics(
+      container: true,
+      label: l10n.dayScoreSemantics(scored.value, band, coverage),
+      excludeSemantics: true,
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 16,
+        runSpacing: 6,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                key: DayScoreCardKeys.value,
+                format.integer(scored.value),
+                style: theme.textTheme.displayMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  height: 1,
+                ),
+              ),
+              CaptionText(l10n.readinessOf100),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                key: DayScoreCardKeys.band,
+                band,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    scored.isFull ? Icons.circle : Icons.circle_outlined,
+                    size: 10,
+                    color: colors.textLabel,
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: CaptionText(
+                      key: DayScoreCardKeys.coverage,
+                      coverage,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DayScoreBar extends StatelessWidget {
+  const new({required this.subscore, super.key});
+
+  final double? Function(DayScoreFactor factor) subscore;
 
   @override
   Widget build(BuildContext context) {
@@ -253,8 +271,8 @@ class DayScoreBar extends StatelessWidget {
               flex: factor.weight.round(),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: _Segment(
-                  fill: scored.of(factor)?.subscore,
+                child: DayScoreMeter(
+                  fill: subscore(factor),
                   color: dayScorePillarColor(colors, pillar),
                 ),
               ),
@@ -265,8 +283,8 @@ class DayScoreBar extends StatelessWidget {
   }
 }
 
-class _Segment extends StatelessWidget {
-  const new({required this.fill, required this.color});
+class DayScoreMeter extends StatelessWidget {
+  const new({required this.fill, required this.color, super.key});
 
   final double? fill;
   final Color color;

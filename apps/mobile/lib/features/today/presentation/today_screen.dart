@@ -13,6 +13,7 @@ import 'package:open_ring/core/widgets/text_scale.dart';
 import 'package:open_ring/features/body/presentation/weight_card.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/modules/presentation/modules_shortcut.dart';
+import 'package:open_ring/features/open_score/presentation/day_score_card.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/presentation/sync_status_banner.dart';
 import 'package:open_ring/features/today/application/readiness_view.dart';
@@ -127,6 +128,7 @@ class _TodayBody extends StatelessWidget {
               OfflineCard(key: TodayKeys.offline, view: view),
               const SizedBox(height: cardGap),
             ],
+            const DayScoreCardSlot(),
             _ReadinessCard(
               readiness: view.readiness,
               staleSyncAt: freshness == SyncFreshness.stale

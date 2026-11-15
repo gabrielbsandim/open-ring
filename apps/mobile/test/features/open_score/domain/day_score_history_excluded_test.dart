@@ -34,6 +34,7 @@ void main() {
 
   test('an empty exclusion set changes nothing', () {
     expect(
+      // ignore: avoid_redundant_argument_values, the empty set is the case.
       _history().fullAverage(30, excluded: const {}),
       _history().fullAverage(30),
     );
@@ -55,8 +56,7 @@ void main() {
   });
 
   test('on, scoredOn and scores ignore the exclusion', () {
-    final history = _history();
-    history.fullAverage(30, excluded: {weak});
+    final history = _history()..fullAverage(30, excluded: {weak});
 
     expect(history.on(weak), isNotNull);
     expect(history.scoredOn(weak)?.value, 88);

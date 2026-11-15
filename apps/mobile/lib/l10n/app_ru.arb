@@ -680,6 +680,7 @@
   "exportKindActivity": "Шаги и активность",
   "exportKindWorkouts": "Тренировки",
   "exportKindWeighIns": "Взвешивания",
+  "exportKindDayTags": "Отметки дней",
   "exportPickKind": "Выберите хотя бы один тип данных.",
   "exportFormat": "Формат",
   "exportCsvNote": "Один файл на тип данных, каждое измерение со временем. Несколько типов приходят в одном zip-архиве.",

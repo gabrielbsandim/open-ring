@@ -680,6 +680,7 @@
   "exportKindActivity": "Langkah dan aktivitas",
   "exportKindWorkouts": "Latihan",
   "exportKindWeighIns": "Penimbangan",
+  "exportKindDayTags": "Tanda hari",
   "exportPickKind": "Pilih setidaknya satu jenis data.",
   "exportFormat": "Format",
   "exportCsvNote": "Satu file per jenis data, setiap sampel dengan waktunya. Beberapa jenis dikemas dalam satu arsip zip.",

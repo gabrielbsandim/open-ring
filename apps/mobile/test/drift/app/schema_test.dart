@@ -9,6 +9,7 @@ import 'generated/schema.dart';
 import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v10.dart' as v10;
 import 'generated/schema_v11.dart' as v11;
+import 'generated/schema_v12.dart' as v12;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
@@ -400,6 +401,67 @@ void main() {
             const v11.UserProfileData(id: 1, updatedAtUtcMs: 1762765200000),
           ]);
           expect(await newDb.select(newDb.weighIns).get(), isEmpty);
+        },
+      );
+    },
+  );
+
+  test(
+    'v11 migrates to v12, keeps the data and adds an empty day_tags',
+    () async {
+      const ring = v11.RingDevicesData(
+        deviceId: ringId,
+        name: 'R09_C0FE',
+        pairedAtUtcMs: 1762732800000,
+        autoHeartRate: 1,
+        autoSpo2: 1,
+        autoStress: 1,
+        autoHrv: 1,
+      );
+      const profile = v11.UserProfileData(id: 1, updatedAtUtcMs: 1762765200000);
+      const weighIn = v11.WeighInsData(
+        id: 1,
+        atUtcMs: 1762765200000,
+        offsetMinutes: -180,
+        kilograms: 80.4,
+        source: 'manual',
+      );
+
+      await verifier.testWithDataIntegrity(
+        oldVersion: 11,
+        newVersion: 12,
+        createOld: v11.DatabaseAtV11.new,
+        createNew: v12.DatabaseAtV12.new,
+        openTestedDatabase: AppDatabase.new,
+        createItems: (batch, oldDb) => batch
+          ..insert(oldDb.ringDevices, ring)
+          ..insert(oldDb.userProfile, profile)
+          ..insert(oldDb.weighIns, weighIn),
+        validateItems: (newDb) async {
+          expect(await newDb.select(newDb.ringDevices).get(), [
+            const v12.RingDevicesData(
+              deviceId: ringId,
+              name: 'R09_C0FE',
+              pairedAtUtcMs: 1762732800000,
+              autoHeartRate: 1,
+              autoSpo2: 1,
+              autoStress: 1,
+              autoHrv: 1,
+            ),
+          ]);
+          expect(await newDb.select(newDb.userProfile).get(), [
+            const v12.UserProfileData(id: 1, updatedAtUtcMs: 1762765200000),
+          ]);
+          expect(await newDb.select(newDb.weighIns).get(), [
+            const v12.WeighInsData(
+              id: 1,
+              atUtcMs: 1762765200000,
+              offsetMinutes: -180,
+              kilograms: 80.4,
+              source: 'manual',
+            ),
+          ]);
+          expect(await newDb.select(newDb.dayTags).get(), isEmpty);
         },
       );
     },

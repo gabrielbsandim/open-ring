@@ -230,5 +230,6 @@ extension on ExportKind {
     ExportKind.activity => l10n.exportKindActivity,
     ExportKind.workouts => l10n.exportKindWorkouts,
     ExportKind.weighIns => l10n.exportKindWeighIns,
+    ExportKind.dayTags => l10n.exportKindDayTags,
   };
 }

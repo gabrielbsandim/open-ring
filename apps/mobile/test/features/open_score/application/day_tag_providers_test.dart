@@ -23,8 +23,7 @@ void main() {
         dayTagStoreProvider.overrideWithValue(store),
         clockProvider.overrideWithValue(() => now),
       ],
-    );
-    container.listen(dayTagsProvider, (_, _) {});
+    )..listen(dayTagsProvider, (_, _) {});
   });
 
   Future<bool> set(LocalDate date, DayTag? tag) =>

@@ -59,7 +59,8 @@ void main() {
 
       final kinds = exporter.requests.single.kinds;
       expect(kinds.contains(ExportKind.weighIns), offered);
-      expect(kinds, hasLength(ExportKind.values.length - (offered ? 0 : 1)));
+      expect(kinds.contains(ExportKind.dayTags), isFalse);
+      expect(kinds, hasLength(ExportKind.values.length - (offered ? 1 : 2)));
     });
   }
 

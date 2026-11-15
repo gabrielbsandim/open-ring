@@ -10191,6 +10191,272 @@ class WeighInsCompanion extends UpdateCompanion<WeighInRow> {
   }
 }
 
+class $DayTagsTable extends DayTags with TableInfo<$DayTagsTable, DayTagRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DayTagsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<String> date = GeneratedColumn<String>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tagMeta = const VerificationMeta('tag');
+  @override
+  late final GeneratedColumn<String> tag = GeneratedColumn<String>(
+    'tag',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtUtcMsMeta = const VerificationMeta(
+    'updatedAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAtUtcMs = GeneratedColumn<int>(
+    'updated_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [date, tag, updatedAtUtcMs];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'day_tags';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DayTagRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('tag')) {
+      context.handle(
+        _tagMeta,
+        tag.isAcceptableOrUnknown(data['tag']!, _tagMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tagMeta);
+    }
+    if (data.containsKey('updated_at_utc_ms')) {
+      context.handle(
+        _updatedAtUtcMsMeta,
+        updatedAtUtcMs.isAcceptableOrUnknown(
+          data['updated_at_utc_ms']!,
+          _updatedAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtUtcMsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {date};
+  @override
+  DayTagRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DayTagRow(
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}date'],
+      )!,
+      tag: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tag'],
+      )!,
+      updatedAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at_utc_ms'],
+      )!,
+    );
+  }
+
+  @override
+  $DayTagsTable createAlias(String alias) {
+    return $DayTagsTable(attachedDatabase, alias);
+  }
+}
+
+class DayTagRow extends DataClass implements Insertable<DayTagRow> {
+  final String date;
+  final String tag;
+  final int updatedAtUtcMs;
+  const DayTagRow({
+    required this.date,
+    required this.tag,
+    required this.updatedAtUtcMs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['date'] = Variable<String>(date);
+    map['tag'] = Variable<String>(tag);
+    map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs);
+    return map;
+  }
+
+  DayTagsCompanion toCompanion(bool nullToAbsent) {
+    return DayTagsCompanion(
+      date: Value(date),
+      tag: Value(tag),
+      updatedAtUtcMs: Value(updatedAtUtcMs),
+    );
+  }
+
+  factory DayTagRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DayTagRow(
+      date: serializer.fromJson<String>(json['date']),
+      tag: serializer.fromJson<String>(json['tag']),
+      updatedAtUtcMs: serializer.fromJson<int>(json['updatedAtUtcMs']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'date': serializer.toJson<String>(date),
+      'tag': serializer.toJson<String>(tag),
+      'updatedAtUtcMs': serializer.toJson<int>(updatedAtUtcMs),
+    };
+  }
+
+  DayTagRow copyWith({String? date, String? tag, int? updatedAtUtcMs}) =>
+      DayTagRow(
+        date: date ?? this.date,
+        tag: tag ?? this.tag,
+        updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+      );
+  DayTagRow copyWithCompanion(DayTagsCompanion data) {
+    return DayTagRow(
+      date: data.date.present ? data.date.value : this.date,
+      tag: data.tag.present ? data.tag.value : this.tag,
+      updatedAtUtcMs: data.updatedAtUtcMs.present
+          ? data.updatedAtUtcMs.value
+          : this.updatedAtUtcMs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DayTagRow(')
+          ..write('date: $date, ')
+          ..write('tag: $tag, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(date, tag, updatedAtUtcMs);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DayTagRow &&
+          other.date == this.date &&
+          other.tag == this.tag &&
+          other.updatedAtUtcMs == this.updatedAtUtcMs);
+}
+
+class DayTagsCompanion extends UpdateCompanion<DayTagRow> {
+  final Value<String> date;
+  final Value<String> tag;
+  final Value<int> updatedAtUtcMs;
+  final Value<int> rowid;
+  const DayTagsCompanion({
+    this.date = const Value.absent(),
+    this.tag = const Value.absent(),
+    this.updatedAtUtcMs = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DayTagsCompanion.insert({
+    required String date,
+    required String tag,
+    required int updatedAtUtcMs,
+    this.rowid = const Value.absent(),
+  }) : date = Value(date),
+       tag = Value(tag),
+       updatedAtUtcMs = Value(updatedAtUtcMs);
+  static Insertable<DayTagRow> custom({
+    Expression<String>? date,
+    Expression<String>? tag,
+    Expression<int>? updatedAtUtcMs,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (date != null) 'date': date,
+      if (tag != null) 'tag': tag,
+      if (updatedAtUtcMs != null) 'updated_at_utc_ms': updatedAtUtcMs,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DayTagsCompanion copyWith({
+    Value<String>? date,
+    Value<String>? tag,
+    Value<int>? updatedAtUtcMs,
+    Value<int>? rowid,
+  }) {
+    return DayTagsCompanion(
+      date: date ?? this.date,
+      tag: tag ?? this.tag,
+      updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (date.present) {
+      map['date'] = Variable<String>(date.value);
+    }
+    if (tag.present) {
+      map['tag'] = Variable<String>(tag.value);
+    }
+    if (updatedAtUtcMs.present) {
+      map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DayTagsCompanion(')
+          ..write('date: $date, ')
+          ..write('tag: $tag, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $RingDevicesTable ringDevices = $RingDevicesTable(this);
@@ -10227,6 +10493,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $WeighInsTable weighIns = $WeighInsTable(this);
+  late final $DayTagsTable dayTags = $DayTagsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -10255,6 +10522,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     healthReads,
     importedWorkouts,
     weighIns,
+    dayTags,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

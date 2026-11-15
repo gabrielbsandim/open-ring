@@ -29,6 +29,7 @@ void main() {
     'health_reads',
     'imported_workouts',
     'weigh_ins',
+    'day_tags',
   };
 
   test('creates every table listed in the plan', () async {

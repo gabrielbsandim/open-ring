@@ -37,7 +37,8 @@ enum ExportKind {
     'body_fat_percent',
     'waist_cm',
     'source',
-  ]);
+  ]),
+  dayTags('day_tags', ['date', 'tag']);
 
   new(this.key, this.columns);
 

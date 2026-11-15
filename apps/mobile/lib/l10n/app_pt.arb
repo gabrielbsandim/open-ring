@@ -680,6 +680,7 @@
   "exportKindActivity": "Passos e atividade",
   "exportKindWorkouts": "Treinos",
   "exportKindWeighIns": "Pesagens",
+  "exportKindDayTags": "Marcas de dia",
   "exportPickKind": "Escolha pelo menos um tipo de dado.",
   "exportFormat": "Formato",
   "exportCsvNote": "Um arquivo por tipo de dado, com cada amostra e seu horário. Vários tipos vêm num arquivo zip.",

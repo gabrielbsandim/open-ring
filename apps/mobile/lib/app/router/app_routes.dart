@@ -15,6 +15,7 @@ abstract final class AppPaths {
   static const readinessFormula = '/today/readiness/formula';
   static const body = '/today/body';
   static const dayScore = '/today/day-score';
+  static const dayScoreFormula = '/today/day-score/formula';
   static const sleepFormula = '/sleep/formula';
   static const privacy = '/privacy';
   static const settings = '/ring/settings';

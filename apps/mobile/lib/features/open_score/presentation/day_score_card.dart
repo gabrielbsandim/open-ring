@@ -44,6 +44,17 @@ String dayScoreFactorLabel(AppLocalizations l10n, DayScoreFactor factor) =>
       DayScoreFactor.spo2 => l10n.dayScoreFactorSpo2,
     };
 
+String dayScoreFactorName(AppLocalizations l10n, DayScoreFactor factor) =>
+    switch (factor) {
+      DayScoreFactor.sleep => l10n.dayScoreReceiptNameSleep,
+      DayScoreFactor.steps => l10n.dayScoreReceiptNameSteps,
+      DayScoreFactor.intensity => l10n.dayScoreReceiptNameIntensity,
+      DayScoreFactor.hrv => l10n.dayScoreReceiptNameHrv,
+      DayScoreFactor.restingHeartRate => l10n.dayScoreReceiptNameResting,
+      DayScoreFactor.stress => l10n.dayScoreReceiptNameStress,
+      DayScoreFactor.spo2 => l10n.dayScoreReceiptNameSpo2,
+    };
+
 String dayScorePillarLabel(AppLocalizations l10n, DayScorePillar pillar) =>
     switch (pillar) {
       DayScorePillar.sleep => l10n.dayScorePillarSleep,

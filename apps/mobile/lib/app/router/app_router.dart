@@ -13,6 +13,7 @@ import 'package:open_ring/features/onboarding/presentation/health_permission_scr
 import 'package:open_ring/features/onboarding/presentation/permissions_screen.dart';
 import 'package:open_ring/features/onboarding/presentation/profile_screen.dart';
 import 'package:open_ring/features/onboarding/presentation/welcome_screen.dart';
+import 'package:open_ring/features/open_score/presentation/day_score_formula_screen.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_receipt_screen.dart';
 import 'package:open_ring/features/ring/presentation/pair_error_screen.dart';
 import 'package:open_ring/features/ring/presentation/pair_screen.dart';
@@ -112,6 +113,12 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
       GoRoute(
         path: 'day-score',
         builder: (_, _) => const DayScoreReceiptScreen(),
+        routes: [
+          GoRoute(
+            path: 'formula',
+            builder: (_, _) => const DayScoreFormulaScreen(),
+          ),
+        ],
       ),
     ],
   ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
@@ -26,6 +28,7 @@ abstract final class DayScoreReceiptKeys {
   static const result = Key('day_score_receipt_result');
   static const minimum = Key('day_score_receipt_minimum');
   static const open = Key('day_score_receipt_open');
+  static const formula = Key('day_score_receipt_formula');
 
   static Key factor(DayScoreFactor factor) =>
       Key('day_score_receipt_${factor.name}');
@@ -99,6 +102,8 @@ class _ReceiptState extends ConsumerState<DayScoreReceiptScreen> {
       ],
       const SizedBox(height: cardGap),
       const _Never(),
+      const SizedBox(height: cardGap),
+      const _FormulaLink(),
       const SizedBox(height: cardGap),
       CaptionText(format.l10n.metricEstimateNote),
     ];
@@ -369,17 +374,6 @@ class _PillarHead extends StatelessWidget {
   }
 }
 
-String _factorName(AppLocalizations l10n, DayScoreFactor factor) =>
-    switch (factor) {
-      DayScoreFactor.sleep => l10n.dayScoreReceiptNameSleep,
-      DayScoreFactor.steps => l10n.dayScoreReceiptNameSteps,
-      DayScoreFactor.intensity => l10n.dayScoreReceiptNameIntensity,
-      DayScoreFactor.hrv => l10n.dayScoreReceiptNameHrv,
-      DayScoreFactor.restingHeartRate => l10n.dayScoreReceiptNameResting,
-      DayScoreFactor.stress => l10n.dayScoreReceiptNameStress,
-      DayScoreFactor.spo2 => l10n.dayScoreReceiptNameSpo2,
-    };
-
 String _factorRule(AppLocalizations l10n, DayScoreFactor factor) =>
     switch (factor) {
       DayScoreFactor.sleep => l10n.dayScoreReceiptRuleSleep,
@@ -468,7 +462,7 @@ class _FactorRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _Line(
-              label: _factorName(l10n, factor),
+              label: dayScoreFactorName(l10n, factor),
               value: part == null
                   ? l10n.dayScoreReceiptOut
                   : l10n.dayScoreReceiptOf(
@@ -597,6 +591,44 @@ class _Never extends StatelessWidget {
           BodyText(l10n.dayScoreReceiptNever1),
           const SizedBox(height: 4),
           BodyText(l10n.dayScoreReceiptNever2),
+        ],
+      ),
+    );
+  }
+}
+
+class _FormulaLink extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context);
+    return MetricCard(
+      key: DayScoreReceiptKeys.formula,
+      onTap: () => context.go(AppPaths.dayScoreFormula),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.formulaLink,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                CaptionText(l10n.dayScoreFormulaLinkCaption),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          ExcludeSemantics(
+            child: Icon(Icons.chevron_right_rounded, color: colors.textLabel),
+          ),
         ],
       ),
     );

@@ -1440,5 +1440,14 @@
   "levelCeleDayLine": "Bester Tag: {score}, gestern. Der vorherige war {previous} ({date}).",
   "levelCeleLevelLine": "Höchste Stufe: {level}. Die vorherige war {previous} ({date}).",
   "levelCeleOpen": "In Stufe ansehen",
-  "levelCeleClose": "Hinweis schließen"
+  "levelCeleClose": "Hinweis schließen",
+  "dayScoreLowGoalReceipt": "Tagesziel: {goal} Schritte, {percent} % von {full}, weil die Bereitschaft niedrig war ({readiness}). Mit dem vollen Ziel brächten die Schritte {points} von {weight} Punkten.",
+  "dayScoreLowGoalCard": "Niedrige Bereitschaft ({readiness}). Heute verlangt die Note weniger: Das Schrittziel ist {goal}, {percent} % deiner {full}.",
+  "dayScoreFormulaLowTitle": "Tag mit niedriger Bereitschaft",
+  "dayScoreFormulaLow1": "Liegt die Bereitschaft unter {threshold}, werden die Schritte an {percent} % deines Schrittziels gemessen.",
+  "dayScoreFormulaLow2": "Nur die Schritte ändern sich: Die 7-Tage-Minuten und alles andere bleiben gleich, und die Aktivitätskarte zeigt weiter das volle Ziel.",
+  "dayScoreFormulaLevelTitle": "Stufe",
+  "dayScoreFormulaLevel1": "Die Stufe ist der aktuelle Durchschnitt deiner Tagesnoten. Jeder abgeschlossene Tag mit Note bewegt sie um {rate} des Weges zur Note dieses Tages.",
+  "dayScoreFormulaLevel2": "Das Wochenziel zählt die Tage auf oder über der Linie. Ein markierter Tag oder ein Tag ohne Note zählt für nichts.",
+  "moduleOpenScoreAddsLevel": "Die Stufe, deine Linie, mit dem Wochenziel, den persönlichen Bestwerten und den Markierungen für Krankheit, Reise und Ruhe."
 }

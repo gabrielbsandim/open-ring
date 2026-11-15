@@ -1440,5 +1440,14 @@
   "levelCeleDayLine": "最佳的一天：{score}，昨天。之前是 {previous}（{date}）。",
   "levelCeleLevelLine": "最高等级：{level}。之前是 {previous}（{date}）。",
   "levelCeleOpen": "在等级中查看",
-  "levelCeleClose": "关闭提示"
+  "levelCeleClose": "关闭提示",
+  "dayScoreLowGoalReceipt": "当日目标：{goal} 步，为 {full} 的 {percent}%，因为准备度偏低（{readiness}）。按完整目标，步数可得 {weight} 分中的 {points} 分。",
+  "dayScoreLowGoalCard": "准备度偏低（{readiness}）。今天评分要求更少：步数目标为 {goal}，是你 {full} 的 {percent}%。",
+  "dayScoreFormulaLowTitle": "准备度偏低的一天",
+  "dayScoreFormulaLow1": "当准备度低于 {threshold} 时，步数按你步数目标的 {percent}% 计分。",
+  "dayScoreFormulaLow2": "只有步数变化：7 天分钟数和其他部分保持不变，活动卡片仍显示完整目标。",
+  "dayScoreFormulaLevelTitle": "等级",
+  "dayScoreFormulaLevel1": "等级是你近期“今日评分”的平均值。每个有评分且已结算的日子，会让它向当天评分移动 {rate}。",
+  "dayScoreFormulaLevel2": "每周目标统计在基准线上或以上的天数。被标记或没有评分的一天不计入任何统计。",
+  "moduleOpenScoreAddsLevel": "等级，也就是你的基准线，以及每周目标、个人最佳和生病、出行、休息的标记。"
 }

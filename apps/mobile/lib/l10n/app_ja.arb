@@ -1440,5 +1440,14 @@
   "levelCeleDayLine": "最高の日：{score}（昨日）。これまでは {previous}（{date}）でした。",
   "levelCeleLevelLine": "最高レベル：{level}。これまでは {previous}（{date}）でした。",
   "levelCeleOpen": "レベルで見る",
-  "levelCeleClose": "お知らせを閉じる"
+  "levelCeleClose": "お知らせを閉じる",
+  "dayScoreLowGoalReceipt": "今日の目標：{goal} 歩（{full} の {percent}%）。コンディションが低かったためです（{readiness}）。通常の目標なら歩数は {weight} 点中 {points} 点でした。",
+  "dayScoreLowGoalCard": "コンディション低め（{readiness}）。今日のスコアは控えめに求めます：歩数目標は {goal}、あなたの {full} の {percent}% です。",
+  "dayScoreFormulaLowTitle": "コンディションが低い日",
+  "dayScoreFormulaLow1": "コンディションが {threshold} 未満の日は、歩数を歩数目標の {percent}% に対して採点します。",
+  "dayScoreFormulaLow2": "変わるのは歩数だけです。7日間の分数とほかの項目はそのままで、アクティビティのカードは通常の目標を表示し続けます。",
+  "dayScoreFormulaLevelTitle": "レベル",
+  "dayScoreFormulaLevel1": "レベルは最近の「今日のスコア」の平均です。スコアのある確定した日ごとに、その日のスコアへ向けて {rate} だけ動きます。",
+  "dayScoreFormulaLevel2": "週の目標はライン以上の日を数えます。マークした日やスコアのない日は何にも数えません。",
+  "moduleOpenScoreAddsLevel": "レベル（あなたのライン）と、週の目標、自己ベスト、病気・旅行・休養のマーク。"
 }

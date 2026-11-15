@@ -1440,5 +1440,14 @@
   "levelCeleDayLine": "Лучший день: {score}, вчера. Прежний был {previous} ({date}).",
   "levelCeleLevelLine": "Самый высокий Уровень: {level}. Прежний был {previous} ({date}).",
   "levelCeleOpen": "Открыть Уровень",
-  "levelCeleClose": "Закрыть уведомление"
+  "levelCeleClose": "Закрыть уведомление",
+  "dayScoreLowGoalReceipt": "Цель дня: {goal} шагов, {percent}% от {full}, потому что готовность была низкой ({readiness}). С полной целью шаги дали бы {points} из {weight} баллов.",
+  "dayScoreLowGoalCard": "Низкая готовность ({readiness}). Сегодня оценка требует меньше: цель по шагам {goal}, {percent}% от ваших {full}.",
+  "dayScoreFormulaLowTitle": "День низкой готовности",
+  "dayScoreFormulaLow1": "Когда готовность ниже {threshold}, шаги сравниваются с {percent}% вашей цели по шагам.",
+  "dayScoreFormulaLow2": "Меняются только шаги: минуты за 7 дней и всё остальное остаются прежними, а карточка «Активность» по-прежнему показывает полную цель.",
+  "dayScoreFormulaLevelTitle": "Уровень",
+  "dayScoreFormulaLevel1": "Уровень: недавнее среднее ваших оценок дня. Каждый закрытый день с оценкой сдвигает его на {rate} пути к оценке этого дня.",
+  "dayScoreFormulaLevel2": "Цель недели считает дни на линии или выше. Отмеченный день или день без оценки не считается никак.",
+  "moduleOpenScoreAddsLevel": "Уровень, ваша линия, с целью недели, личными рекордами и метками болезни, поездки и отдыха."
 }

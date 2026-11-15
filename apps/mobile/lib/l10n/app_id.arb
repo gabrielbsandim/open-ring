@@ -1440,5 +1440,14 @@
   "levelCeleDayLine": "Hari terbaik: {score}, kemarin. Sebelumnya {previous} ({date}).",
   "levelCeleLevelLine": "Level tertinggi: {level}. Sebelumnya {previous} ({date}).",
   "levelCeleOpen": "Lihat di Level",
-  "levelCeleClose": "Tutup pemberitahuan"
+  "levelCeleClose": "Tutup pemberitahuan",
+  "dayScoreLowGoalReceipt": "Target hari ini: {goal} langkah, {percent}% dari {full}, karena kesiapan rendah ({readiness}). Dengan target penuh, langkah akan memberi {points} dari {weight} poin.",
+  "dayScoreLowGoalCard": "Kesiapan rendah ({readiness}). Hari ini skor meminta lebih sedikit: target langkah {goal}, {percent}% dari {full} Anda.",
+  "dayScoreFormulaLowTitle": "Hari dengan kesiapan rendah",
+  "dayScoreFormulaLow1": "Saat kesiapan di bawah {threshold}, langkah diukur terhadap {percent}% dari target langkah Anda.",
+  "dayScoreFormulaLow2": "Hanya langkah yang berubah: menit 7 hari dan semua bagian lain tetap sama, dan kartu Aktivitas tetap menampilkan target penuh.",
+  "dayScoreFormulaLevelTitle": "Level",
+  "dayScoreFormulaLevel1": "Level adalah rata-rata terbaru Skor Harian Anda. Setiap hari yang ditutup dengan skor menggesernya {rate} dari jarak ke skor hari itu.",
+  "dayScoreFormulaLevel2": "Target mingguan menghitung hari di garis atau di atasnya. Hari yang ditandai atau tanpa skor tidak dihitung sama sekali.",
+  "moduleOpenScoreAddsLevel": "Level, garis Anda, dengan target mingguan, rekor pribadi, dan tanda sakit, perjalanan, serta istirahat."
 }

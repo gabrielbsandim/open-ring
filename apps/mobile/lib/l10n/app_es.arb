@@ -1440,5 +1440,14 @@
   "levelCeleDayLine": "Mejor día: {score}, ayer. El anterior era {previous} ({date}).",
   "levelCeleLevelLine": "Nivel más alto: {level}. El anterior era {previous} ({date}).",
   "levelCeleOpen": "Ver en Nivel",
-  "levelCeleClose": "Cerrar aviso"
+  "levelCeleClose": "Cerrar aviso",
+  "dayScoreLowGoalReceipt": "Meta del día: {goal} pasos, {percent}% de {full}, porque la preparación estaba baja ({readiness}). Con la meta completa los pasos darían {points} de {weight} puntos.",
+  "dayScoreLowGoalCard": "Preparación baja ({readiness}). Hoy la nota pide menos: la meta de pasos es {goal}, {percent}% de tus {full}.",
+  "dayScoreFormulaLowTitle": "Día de preparación baja",
+  "dayScoreFormulaLow1": "Cuando la preparación está por debajo de {threshold}, los pasos se miden contra el {percent}% de tu meta de pasos.",
+  "dayScoreFormulaLow2": "Solo cambian los pasos: los minutos de 7 días y todo lo demás siguen igual, y la tarjeta Actividad sigue mostrando la meta completa.",
+  "dayScoreFormulaLevelTitle": "Nivel",
+  "dayScoreFormulaLevel1": "El Nivel es la media reciente de tus Notas del día. Cada día cerrado con nota mueve el Nivel un {rate} del camino hacia la nota de ese día.",
+  "dayScoreFormulaLevel2": "La meta semanal cuenta los días en la línea o por encima. Un día marcado o sin nota no cuenta para nada.",
+  "moduleOpenScoreAddsLevel": "El Nivel, tu línea, con la meta semanal, los récords personales y las marcas de enfermedad, viaje y descanso."
 }

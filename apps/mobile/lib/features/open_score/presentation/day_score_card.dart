@@ -33,6 +33,7 @@ abstract final class DayScoreCardKeys {
   static const first = Key('today_day_score_first');
   static const tag = Key('today_day_score_tag');
   static const tagged = Key('today_day_score_tagged');
+  static const lowReadiness = Key('today_day_score_low_readiness');
 }
 
 String dayScoreBandLabel(AppLocalizations l10n, DayScoreBand band) =>
@@ -164,6 +165,7 @@ class DayScoreCard extends ConsumerWidget {
       loaded,
       tag,
       level,
+      _lowNote(format, loaded.inputsOn(loaded.today)),
       () => unawaited(
         showDayTagSheet(
           context,
@@ -176,16 +178,28 @@ class DayScoreCard extends ConsumerWidget {
     );
   }
 
+  String? _lowNote(MetricFormat format, DayScoreInputs? inputs) {
+    if (inputs == null || !inputs.lowReadiness) return null;
+    return format.l10n.dayScoreLowGoalCard(
+      format.integer(inputs.readiness ?? 0),
+      format.integer(inputs.dayStepGoal),
+      format.integer(lowReadinessStepGoalFactor * 100),
+      format.integer(inputs.stepGoal),
+    );
+  }
+
   Widget _body(
     DayScoreHistory history,
     DayTag? tag,
     Widget? level,
+    String? low,
     VoidCallback onTag,
   ) => switch (history.on(history.today)) {
     final Scored<DayScoreFactor> scored => _Scored(
       scored: scored,
       tag: tag,
       level: level,
+      low: low,
       onTag: onTag,
     ),
     final InsufficientData<DayScoreFactor> lacking
@@ -204,12 +218,14 @@ class _Scored extends StatelessWidget {
     required this.scored,
     required this.tag,
     required this.level,
+    required this.low,
     required this.onTag,
   });
 
   final Scored<DayScoreFactor> scored;
   final DayTag? tag;
   final Widget? level;
+  final String? low;
   final VoidCallback onTag;
 
   @override
@@ -218,6 +234,7 @@ class _Scored extends StatelessWidget {
     final l10n = format.l10n;
     final colors = AppColors.of(context);
     final tag = this.tag;
+    final low = this.low;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -233,6 +250,10 @@ class _Scored extends StatelessWidget {
         _Legend(scored: scored),
         const SizedBox(height: 10),
         BodyText(key: DayScoreCardKeys.line, _line(format)),
+        if (low != null) ...[
+          const SizedBox(height: 4),
+          CaptionText(key: DayScoreCardKeys.lowReadiness, low),
+        ],
         if (tag != null) ...[
           const SizedBox(height: 4),
           CaptionText(

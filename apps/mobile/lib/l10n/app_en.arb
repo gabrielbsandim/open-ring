@@ -3531,5 +3531,18 @@
   "levelCeleLevelLine": "Highest Level: {level}. The previous one was {previous} ({date}).",
   "@levelCeleLevelLine": {"placeholders": {"level": {"type": "String"}, "previous": {"type": "String"}, "date": {"type": "String"}}},
   "levelCeleOpen": "See in Level",
-  "levelCeleClose": "Close notice"
+  "levelCeleClose": "Close notice",
+  "dayScoreLowGoalReceipt": "Goal of the day: {goal} steps, {percent}% of {full}, because readiness was low ({readiness}). With the full goal the steps would earn {points} of {weight} points.",
+  "@dayScoreLowGoalReceipt": {"placeholders": {"goal": {"type": "String"}, "percent": {"type": "String"}, "full": {"type": "String"}, "readiness": {"type": "String"}, "points": {"type": "String"}, "weight": {"type": "String"}}},
+  "dayScoreLowGoalCard": "Low readiness ({readiness}). Today the score asks for less: the step goal is {goal}, {percent}% of your {full}.",
+  "@dayScoreLowGoalCard": {"placeholders": {"readiness": {"type": "String"}, "goal": {"type": "String"}, "percent": {"type": "String"}, "full": {"type": "String"}}},
+  "dayScoreFormulaLowTitle": "A low readiness day",
+  "dayScoreFormulaLow1": "When readiness is below {threshold}, the steps are scored against {percent}% of your step goal.",
+  "@dayScoreFormulaLow1": {"placeholders": {"threshold": {"type": "String"}, "percent": {"type": "String"}}},
+  "dayScoreFormulaLow2": "Only the steps change: the 7 day minutes and every other part stay the same, and the Activity card keeps the full goal.",
+  "dayScoreFormulaLevelTitle": "Level",
+  "dayScoreFormulaLevel1": "The Level is the recent mean of your Day Scores. Each closed day with a score moves it {rate} of the way to that day's score.",
+  "@dayScoreFormulaLevel1": {"placeholders": {"rate": {"type": "String"}}},
+  "dayScoreFormulaLevel2": "The weekly goal counts the days on the line or above. A tagged day or a day without a score counts for nothing.",
+  "moduleOpenScoreAddsLevel": "The Level, your line, with the weekly goal, the personal bests and the tags for sick, travel and rest days."
 }

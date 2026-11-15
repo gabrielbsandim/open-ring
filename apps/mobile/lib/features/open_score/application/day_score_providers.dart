@@ -53,12 +53,27 @@ final dailyIntensityProvider = FutureProvider<List<DailyValue>>((ref) async {
   return dailyIntensity(slots: slots, workouts: credits);
 });
 
+// Readiness on the oldest day of the history still needs its own chronic
+// window of active load before it.
+final dailyActiveLoadProvider = FutureProvider<List<DailyValue>>((ref) async {
+  ref.watch(dataRevisionProvider);
+  final today = ref.watch(currentDateProvider);
+  final days = await ref
+      .watch(activityHistoryReaderProvider)
+      .dailyActivity(
+        from: today.addDays(1 - dayScoreHistoryDays - chronicLoadDays),
+        to: today,
+      );
+  return [for (final day in days) day.activeLoad];
+});
+
 final dayScoreHistoryProvider = FutureProvider<DayScoreHistory>((ref) async {
   final stepGoal = ref.watch(stepGoalProvider);
-  final (history, stress, intensity) = await (
+  final (history, stress, intensity, activeLoad) = await (
     ref.watch(trendHistoryProvider.future),
     ref.watch(dailyStressProvider.future),
     ref.watch(dailyIntensityProvider.future),
+    ref.watch(dailyActiveLoadProvider.future),
   ).wait;
   return DayScoreHistory.collect(
     today: history.today,
@@ -66,6 +81,7 @@ final dayScoreHistoryProvider = FutureProvider<DayScoreHistory>((ref) async {
     stress: stress,
     intensity: intensity,
     stepGoal: stepGoal,
+    activeLoad: activeLoad,
   );
 });
 

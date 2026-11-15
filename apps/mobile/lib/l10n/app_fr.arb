@@ -1440,5 +1440,14 @@
   "levelCeleDayLine": "Meilleur jour : {score}, hier. Le précédent était {previous} ({date}).",
   "levelCeleLevelLine": "Niveau le plus haut : {level}. Le précédent était {previous} ({date}).",
   "levelCeleOpen": "Voir dans Niveau",
-  "levelCeleClose": "Fermer l'avis"
+  "levelCeleClose": "Fermer l'avis",
+  "dayScoreLowGoalReceipt": "Objectif du jour : {goal} pas, {percent} % de {full}, car la forme était basse ({readiness}). Avec l'objectif complet, les pas rapporteraient {points} points sur {weight}.",
+  "dayScoreLowGoalCard": "Forme basse ({readiness}). Aujourd'hui la note demande moins : l'objectif de pas est de {goal}, {percent} % de vos {full}.",
+  "dayScoreFormulaLowTitle": "Jour de forme basse",
+  "dayScoreFormulaLow1": "Quand la forme est inférieure à {threshold}, les pas sont mesurés par rapport à {percent} % de votre objectif de pas.",
+  "dayScoreFormulaLow2": "Seuls les pas changent : les minutes sur 7 jours et tout le reste restent identiques, et la carte Activité continue d'afficher l'objectif complet.",
+  "dayScoreFormulaLevelTitle": "Niveau",
+  "dayScoreFormulaLevel1": "Le Niveau est la moyenne récente de vos Notes du jour. Chaque jour clos avec une note le déplace de {rate} du chemin vers la note de ce jour.",
+  "dayScoreFormulaLevel2": "L'objectif de la semaine compte les jours sur la ligne ou au-dessus. Un jour marqué ou sans note ne compte pour rien.",
+  "moduleOpenScoreAddsLevel": "Le Niveau, votre ligne, avec l'objectif de la semaine, les records personnels et les marques maladie, voyage et repos."
 }

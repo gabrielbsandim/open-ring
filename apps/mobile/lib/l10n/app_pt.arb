@@ -1440,5 +1440,14 @@
   "levelCeleDayLine": "Melhor dia: {score}, ontem. O anterior era {previous} ({date}).",
   "levelCeleLevelLine": "Nível mais alto: {level}. O anterior era {previous} ({date}).",
   "levelCeleOpen": "Ver no Nível",
-  "levelCeleClose": "Fechar aviso"
+  "levelCeleClose": "Fechar aviso",
+  "dayScoreLowGoalReceipt": "Meta do dia: {goal} passos, {percent}% de {full}, porque a prontidão estava baixa ({readiness}). Com a meta cheia os passos renderiam {points} de {weight} pontos.",
+  "dayScoreLowGoalCard": "Prontidão baixa ({readiness}). Hoje a nota pede menos: a meta de passos é {goal}, {percent}% dos seus {full}.",
+  "dayScoreFormulaLowTitle": "Dia de prontidão baixa",
+  "dayScoreFormulaLow1": "Quando a prontidão fica abaixo de {threshold}, os passos são medidos contra {percent}% da sua meta de passos.",
+  "dayScoreFormulaLow2": "Só os passos mudam: os minutos de 7 dias e todo o resto ficam iguais, e o cartão Atividade continua mostrando a meta cheia.",
+  "dayScoreFormulaLevelTitle": "Nível",
+  "dayScoreFormulaLevel1": "O Nível é a média recente das suas Notas do Dia. Cada dia fechado com nota puxa o Nível {rate} do caminho até a nota daquele dia.",
+  "dayScoreFormulaLevel2": "A meta da semana conta os dias na linha ou acima. Dia marcado ou sem nota não conta para nada.",
+  "moduleOpenScoreAddsLevel": "O Nível, a sua linha, com a meta da semana, os recordes pessoais e as marcas de doença, viagem e descanso."
 }

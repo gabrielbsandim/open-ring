@@ -1440,5 +1440,14 @@
   "levelCeleDayLine": "Giorno migliore: {score}, ieri. Il precedente era {previous} ({date}).",
   "levelCeleLevelLine": "Livello più alto: {level}. Il precedente era {previous} ({date}).",
   "levelCeleOpen": "Vedi in Livello",
-  "levelCeleClose": "Chiudi avviso"
+  "levelCeleClose": "Chiudi avviso",
+  "dayScoreLowGoalReceipt": "Obiettivo del giorno: {goal} passi, {percent}% di {full}, perché la prontezza era bassa ({readiness}). Con l'obiettivo pieno i passi varrebbero {points} punti su {weight}.",
+  "dayScoreLowGoalCard": "Prontezza bassa ({readiness}). Oggi il voto chiede meno: l'obiettivo di passi è {goal}, {percent}% dei tuoi {full}.",
+  "dayScoreFormulaLowTitle": "Giorno di prontezza bassa",
+  "dayScoreFormulaLow1": "Quando la prontezza è sotto {threshold}, i passi sono misurati rispetto al {percent}% del tuo obiettivo di passi.",
+  "dayScoreFormulaLow2": "Cambiano solo i passi: i minuti dei 7 giorni e tutto il resto restano uguali, e la scheda Attività continua a mostrare l'obiettivo pieno.",
+  "dayScoreFormulaLevelTitle": "Livello",
+  "dayScoreFormulaLevel1": "Il Livello è la media recente dei tuoi Voti del giorno. Ogni giorno chiuso con un voto lo sposta del {rate} verso il voto di quel giorno.",
+  "dayScoreFormulaLevel2": "L'obiettivo della settimana conta i giorni sulla linea o sopra. Un giorno segnato o senza voto non conta per nulla.",
+  "moduleOpenScoreAddsLevel": "Il Livello, la tua linea, con l'obiettivo della settimana, i record personali e i segni di malattia, viaggio e riposo."
 }

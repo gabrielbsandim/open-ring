@@ -38,6 +38,7 @@ abstract final class DayScoreReceiptKeys {
   static const formula = Key('day_score_receipt_formula');
   static const history = Key('day_score_receipt_history');
   static const tag = Key('day_score_receipt_tag');
+  static const lowReadiness = Key('day_score_receipt_low_readiness');
   static const tagLocked = Key('day_score_receipt_tag_locked');
 
   static Key factor(DayScoreFactor factor) =>
@@ -463,6 +464,23 @@ String _factorGone(AppLocalizations l10n, DayScoreFactor factor) =>
 String _z(MetricFormat format, BaselineDeviation? deviation) =>
     format.signed(deviation?.zScore ?? 0, digits: 1);
 
+String? _lowGoalNote(
+  MetricFormat format,
+  DayScoreInputs inputs,
+  DayScoreFactor factor,
+) {
+  final full = inputs.fullGoalStepPoints;
+  if (factor != DayScoreFactor.steps || full == null) return null;
+  return format.l10n.dayScoreLowGoalReceipt(
+    format.integer(inputs.dayStepGoal),
+    format.integer(lowReadinessStepGoalFactor * 100),
+    format.integer(inputs.stepGoal),
+    format.integer(inputs.readiness ?? 0),
+    format.points(full),
+    format.integer(factor.weight),
+  );
+}
+
 String _factorInput(
   MetricFormat format,
   DayScoreInputs inputs,
@@ -475,7 +493,7 @@ String _factorInput(
     ),
     DayScoreFactor.steps => l10n.dayScoreReceiptInputSteps(
       format.integer(inputs.steps ?? 0),
-      format.integer(inputs.stepGoal),
+      format.integer(inputs.dayStepGoal),
     ),
     DayScoreFactor.intensity => l10n.dayScoreReceiptInputIntensity(
       format.integer(inputs.intensityMinutes ?? 0),
@@ -519,6 +537,7 @@ class _FactorRow extends StatelessWidget {
     final part = receipt.of(factor);
     final weight = factor.weight.round();
     final input = _factorInput(format, receipt.inputs, factor);
+    final low = _lowGoalNote(format, receipt.inputs, factor);
     return MergeSemantics(
       child: Padding(
         padding: const EdgeInsets.only(top: 10),
@@ -548,6 +567,8 @@ class _FactorRow extends StatelessWidget {
               CaptionText(
                 l10n.dayScoreReceiptRule(_factorRule(l10n, factor), weight),
               ),
+              if (low != null)
+                CaptionText(key: DayScoreReceiptKeys.lowReadiness, low),
             ],
             const SizedBox(height: 6),
             ExcludeSemantics(

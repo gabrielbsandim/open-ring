@@ -1432,5 +1432,13 @@
   "levelBestWeekOf": "评分平均值，{from} 至 {to}",
   "levelBestWeekNone": "需要一周内有 {count} 天计入",
   "levelBestLevel": "最高等级",
-  "levelBestsNote": "个人最佳只看最近 {days} 天。被标记的日子不计入。"
+  "levelBestsNote": "个人最佳只看最近 {days} 天。被标记的日子不计入。",
+  "levelCeleGoal": "每周目标已达成",
+  "levelCeleBest": "新的个人最佳",
+  "levelCeleBoth": "本周达标并创下新纪录",
+  "levelCeleGoalLine": "在基准线上或以上 {goal} 天的目标已在昨天达成。",
+  "levelCeleDayLine": "最佳的一天：{score}，昨天。之前是 {previous}（{date}）。",
+  "levelCeleLevelLine": "最高等级：{level}。之前是 {previous}（{date}）。",
+  "levelCeleOpen": "在等级中查看",
+  "levelCeleClose": "关闭提示"
 }

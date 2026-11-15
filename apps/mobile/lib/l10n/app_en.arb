@@ -3520,5 +3520,16 @@
   "@levelBestWeekNone": {"placeholders": {"count": {"type": "int"}}},
   "levelBestLevel": "Highest Level",
   "levelBestsNote": "Bests look at the last {days} days. Tagged days stay out.",
-  "@levelBestsNote": {"placeholders": {"days": {"type": "int"}}}
+  "@levelBestsNote": {"placeholders": {"days": {"type": "int"}}},
+  "levelCeleGoal": "Weekly goal met",
+  "levelCeleBest": "New personal best",
+  "levelCeleBoth": "Week met and a new best",
+  "levelCeleGoalLine": "Goal of {goal} days on the line or above, completed yesterday.",
+  "@levelCeleGoalLine": {"placeholders": {"goal": {"type": "int"}}},
+  "levelCeleDayLine": "Best day: {score}, yesterday. The previous best was {previous} ({date}).",
+  "@levelCeleDayLine": {"placeholders": {"score": {"type": "int"}, "previous": {"type": "int"}, "date": {"type": "String"}}},
+  "levelCeleLevelLine": "Highest Level: {level}. The previous one was {previous} ({date}).",
+  "@levelCeleLevelLine": {"placeholders": {"level": {"type": "String"}, "previous": {"type": "String"}, "date": {"type": "String"}}},
+  "levelCeleOpen": "See in Level",
+  "levelCeleClose": "Close notice"
 }

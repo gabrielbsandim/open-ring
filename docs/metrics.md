@@ -812,6 +812,11 @@ Level at one decimal, and the best week, which is the rounded mean of the counte
 over with at least 4 counted days. A tie keeps the earlier holder. Because they are read from the kept history, a
 best leaves when its day does.
 
+**Celebration.** The morning after, Today shows one card when yesterday completed the weekly goal, set a best
+day over an earlier one, or set a highest Level over an earlier one. The highest Level is celebrated once a week:
+only when the best it beat was set before that week's Monday. The app stores only the date of the last card the
+user closed, so a closed card stays closed for that day.
+
 **What it is not.** Not a streak, not a rank against other people, not a health forecast. It is an average chosen
 by the product, not a published clinical formula, and it is stated as such on the screen that shows it.
 

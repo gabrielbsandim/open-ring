@@ -48,15 +48,16 @@ final class LevelWeek {
   bool get reachable => need <= open;
 }
 
-/// Monday to Sunday around [today]. [track] holds closed days only, so
-/// today never counts before it closes.
+/// Monday to Sunday around [containing], or around [today] without it.
+/// [track] holds closed days only, so today never counts before it closes.
 LevelWeek levelWeek(
   LevelTrack track, {
   required LocalDate today,
   required int goal,
   Set<LocalDate> tagged = const {},
+  LocalDate? containing,
 }) {
-  final monday = mondayOf(today);
+  final monday = mondayOf(containing ?? today);
   return LevelWeek(
     goal: clampWeekGoal(goal),
     days: [
@@ -160,4 +161,61 @@ BestWeek? _bestWeek(LevelTrack track, LocalDate today) {
     }
   }
   return best;
+}
+
+final class LevelCelebration {
+  const new({
+    this.goal,
+    this.day,
+    this.previousDay,
+    this.level,
+    this.previousLevel,
+  });
+
+  /// The weekly goal, when yesterday was the day that completed it.
+  final int? goal;
+  final BestDay? day;
+  final BestDay? previousDay;
+  final BestLevel? level;
+  final BestLevel? previousLevel;
+
+  bool get hasBest => day != null || level != null;
+
+  bool get isEmpty => goal == null && !hasBest;
+}
+
+/// What yesterday earned. A best needs an earlier one to beat, and the
+/// highest Level is celebrated once a week, on the first day that sets it.
+LevelCelebration levelCelebration(
+  LevelTrack track, {
+  required LocalDate today,
+  required int goal,
+  Set<LocalDate> tagged = const {},
+}) {
+  final yesterday = today.addDays(-1);
+  final week = levelWeek(
+    track,
+    today: today,
+    goal: goal,
+    tagged: tagged,
+    containing: yesterday,
+  );
+  final bests = levelBests(track, today: today);
+  final day = bests.day;
+  final previousDay = bests.previousDay;
+  final level = bests.level;
+  final previousLevel = bests.previousLevel;
+  final newDay = day != null && previousDay != null && day.date == yesterday;
+  final newLevel =
+      level != null &&
+      previousLevel != null &&
+      level.date == yesterday &&
+      previousLevel.date.compareTo(mondayOf(yesterday)) < 0;
+  return LevelCelebration(
+    goal: week.metOn == yesterday ? week.goal : null,
+    day: newDay ? day : null,
+    previousDay: newDay ? previousDay : null,
+    level: newLevel ? level : null,
+    previousLevel: newLevel ? previousLevel : null,
+  );
 }

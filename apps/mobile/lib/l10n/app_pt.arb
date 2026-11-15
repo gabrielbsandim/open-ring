@@ -1432,5 +1432,13 @@
   "levelBestWeekOf": "Média das notas, {from} a {to}",
   "levelBestWeekNone": "Precisa de uma semana com {count} dias contados",
   "levelBestLevel": "Nível mais alto",
-  "levelBestsNote": "Os recordes olham os últimos {days} dias. Dias marcados ficam de fora."
+  "levelBestsNote": "Os recordes olham os últimos {days} dias. Dias marcados ficam de fora.",
+  "levelCeleGoal": "Meta da semana cumprida",
+  "levelCeleBest": "Novo recorde pessoal",
+  "levelCeleBoth": "Semana cumprida e recorde novo",
+  "levelCeleGoalLine": "Meta de {goal} dias na linha ou acima, fechada ontem.",
+  "levelCeleDayLine": "Melhor dia: {score}, ontem. O anterior era {previous} ({date}).",
+  "levelCeleLevelLine": "Nível mais alto: {level}. O anterior era {previous} ({date}).",
+  "levelCeleOpen": "Ver no Nível",
+  "levelCeleClose": "Fechar aviso"
 }

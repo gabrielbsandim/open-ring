@@ -6,6 +6,7 @@ import 'package:open_ring/features/body/application/hide_numbers_controller.dart
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
+import 'package:open_ring/features/open_score/application/celebration_providers.dart';
 import 'package:open_ring/features/open_score/application/week_goal_providers.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
@@ -64,6 +65,7 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
       ..invalidate(modulesShortcutProvider)
       ..invalidate(hideNumbersProvider)
       ..invalidate(weekGoalProvider)
+      ..invalidate(celebrationClosedProvider)
       ..invalidate(userProfileProvider)
       ..invalidate(ringSyncProvider);
     ref.read(dataRevisionProvider.notifier).bump();

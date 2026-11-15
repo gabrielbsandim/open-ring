@@ -1432,5 +1432,13 @@
   "levelBestWeekOf": "Среднее оценок, с {from} по {to}",
   "levelBestWeekNone": "Нужна неделя, в которой засчитано дней: {count}",
   "levelBestLevel": "Самый высокий Уровень",
-  "levelBestsNote": "Рекорды смотрят на последние {days} дн. Отмеченные дни не учитываются."
+  "levelBestsNote": "Рекорды смотрят на последние {days} дн. Отмеченные дни не учитываются.",
+  "levelCeleGoal": "Цель недели достигнута",
+  "levelCeleBest": "Новый личный рекорд",
+  "levelCeleBoth": "Неделя выполнена и новый рекорд",
+  "levelCeleGoalLine": "Цель: дней на линии или выше: {goal}. Достигнута вчера.",
+  "levelCeleDayLine": "Лучший день: {score}, вчера. Прежний был {previous} ({date}).",
+  "levelCeleLevelLine": "Самый высокий Уровень: {level}. Прежний был {previous} ({date}).",
+  "levelCeleOpen": "Открыть Уровень",
+  "levelCeleClose": "Закрыть уведомление"
 }

@@ -19,6 +19,7 @@ import 'package:open_ring/features/open_score/domain/day_score_history.dart';
 import 'package:open_ring/features/open_score/domain/day_tag.dart';
 import 'package:open_ring/features/open_score/presentation/day_tag_sheet.dart';
 import 'package:open_ring/features/open_score/presentation/level_block.dart';
+import 'package:open_ring/features/open_score/presentation/level_celebration_card.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class DayScoreCardKeys {
@@ -93,9 +94,15 @@ class DayScoreCardSlot extends ConsumerWidget {
       ),
     );
     if (!on) return const SizedBox.shrink();
-    return const Padding(
-      padding: EdgeInsets.only(bottom: cardGap),
-      child: DayScoreCard(),
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        LevelCelebrationCard(),
+        Padding(
+          padding: EdgeInsets.only(bottom: cardGap),
+          child: DayScoreCard(),
+        ),
+      ],
     );
   }
 }

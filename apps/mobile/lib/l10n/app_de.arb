@@ -1432,5 +1432,13 @@
   "levelBestWeekOf": "Durchschnitt der Noten, {from} bis {to}",
   "levelBestWeekNone": "Braucht eine Woche mit {count} gezählten Tagen",
   "levelBestLevel": "Höchste Stufe",
-  "levelBestsNote": "Die Bestwerte betrachten die letzten {days} Tage. Markierte Tage bleiben außen vor."
+  "levelBestsNote": "Die Bestwerte betrachten die letzten {days} Tage. Markierte Tage bleiben außen vor.",
+  "levelCeleGoal": "Wochenziel erreicht",
+  "levelCeleBest": "Neuer persönlicher Bestwert",
+  "levelCeleBoth": "Woche geschafft und neuer Bestwert",
+  "levelCeleGoalLine": "Ziel von {goal} Tagen auf oder über der Linie, gestern erreicht.",
+  "levelCeleDayLine": "Bester Tag: {score}, gestern. Der vorherige war {previous} ({date}).",
+  "levelCeleLevelLine": "Höchste Stufe: {level}. Die vorherige war {previous} ({date}).",
+  "levelCeleOpen": "In Stufe ansehen",
+  "levelCeleClose": "Hinweis schließen"
 }

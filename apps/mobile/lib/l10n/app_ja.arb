@@ -1432,5 +1432,13 @@
   "levelBestWeekOf": "スコアの平均、{from}〜{to}",
   "levelBestWeekNone": "数えられる日が {count} 日ある週が必要です",
   "levelBestLevel": "最高レベル",
-  "levelBestsNote": "自己ベストは直近 {days} 日が対象です。マークした日は含みません。"
+  "levelBestsNote": "自己ベストは直近 {days} 日が対象です。マークした日は含みません。",
+  "levelCeleGoal": "週の目標を達成",
+  "levelCeleBest": "自己ベスト更新",
+  "levelCeleBoth": "週の目標達成と自己ベスト更新",
+  "levelCeleGoalLine": "ライン以上の日 {goal} 日の目標を昨日達成しました。",
+  "levelCeleDayLine": "最高の日：{score}（昨日）。これまでは {previous}（{date}）でした。",
+  "levelCeleLevelLine": "最高レベル：{level}。これまでは {previous}（{date}）でした。",
+  "levelCeleOpen": "レベルで見る",
+  "levelCeleClose": "お知らせを閉じる"
 }

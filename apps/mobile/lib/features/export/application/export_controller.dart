@@ -16,12 +16,22 @@ enum ExportPhase { idle, running, done, failed }
 
 final _allTime = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
+// A kind that belongs to a module is offered only while that module is on.
+const Map<ExportKind, ModuleId> _kindModule = {
+  ExportKind.weighIns: ModuleId.body,
+  ExportKind.dayTags: ModuleId.openScore,
+};
+
+bool _offered(ExportKind kind, Set<ModuleId> enabled) {
+  final module = _kindModule[kind];
+  return module == null || enabled.contains(module);
+}
+
 final exportKindsProvider = Provider<Set<ExportKind>>((ref) {
-  final bodyOn =
-      ref.watch(enabledModulesProvider).value?.contains(ModuleId.body) ?? false;
+  final enabled = ref.watch(enabledModulesProvider).value ?? const {};
   return {
     for (final kind in ExportKind.values)
-      if (kind != ExportKind.weighIns || bodyOn) kind,
+      if (_offered(kind, enabled)) kind,
   };
 });
 

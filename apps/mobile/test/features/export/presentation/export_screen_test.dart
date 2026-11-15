@@ -82,7 +82,8 @@ void main() {
     expect(request.format, ExportFormat.json);
     expect(request.kinds, isNot(contains(ExportKind.stress)));
     expect(request.kinds, isNot(contains(ExportKind.weighIns)));
-    expect(request.kinds, hasLength(ExportKind.values.length - 2));
+    expect(request.kinds, isNot(contains(ExportKind.dayTags)));
+    expect(request.kinds, hasLength(ExportKind.values.length - 3));
     expect(request.from, settingsNow.subtract(const Duration(days: 7)));
     expect(request.to.isAfter(settingsNow), isTrue);
 
@@ -177,16 +178,22 @@ void main() {
     await _tap(tester, ExportKeys.run);
     await tester.pumpAndSettle();
 
-    expect(exporter.requests.single.kinds, ExportKind.values.toSet());
+    expect(
+      exporter.requests.single.kinds,
+      ExportKind.values.toSet()..remove(ExportKind.dayTags),
+    );
   });
 
   testWidgets('without a data type the export cannot start', (tester) async {
     final exporter = FakeDataExporter();
     await _pump(tester, settingsOverrides(exporter: exporter));
 
-    expect(find.byKey(ExportKeys.kind(ExportKind.weighIns)), findsNothing);
+    const gated = {ExportKind.weighIns, ExportKind.dayTags};
+    for (final kind in gated) {
+      expect(find.byKey(ExportKeys.kind(kind)), findsNothing);
+    }
     for (final kind in ExportKind.values) {
-      if (kind == ExportKind.weighIns) continue;
+      if (gated.contains(kind)) continue;
       await _tap(tester, ExportKeys.kind(kind));
     }
 

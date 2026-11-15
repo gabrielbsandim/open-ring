@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/core/records/epoch.dart';
 import 'package:open_ring/features/export/domain/export_kind.dart';
@@ -66,6 +67,7 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
       ExportKind.activity => _activity(range),
       ExportKind.workouts => _workouts(range),
       ExportKind.weighIns => _weighIns(range),
+      ExportKind.dayTags => _dayTags(range),
     };
   }
 
@@ -241,6 +243,33 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
         source: row.source,
       ),
     );
+  }
+
+  // A tag is keyed by a local date, so the range ends are read as the local
+  // dates they fall on, both included.
+  Stream<List<ExportRecord>> _dayTags(({int from, int to}) range) {
+    final table = attachedDatabase.dayTags;
+    final first = _localDate(range.from);
+    final last = _localDate(range.to);
+    return _paged<({String date}), DayTagRow>(
+      (cursor) =>
+          (select(table)
+                ..where(
+                  (t) =>
+                      t.date.isBetweenValues(first, last) &
+                      t.date.isBiggerThanValue(cursor?.date ?? ''),
+                )
+                ..orderBy([(t) => OrderingTerm.asc(t.date)])
+                ..limit(pageSize))
+              .get(),
+      (row) => (date: row.date),
+      (row) => DayTagRecord(date: row.date, tag: row.tag),
+    );
+  }
+
+  static String _localDate(int utcMs) {
+    final at = DateTime.fromMillisecondsSinceEpoch(utcMs);
+    return LocalDate(at.year, at.month, at.day).iso;
   }
 
   Stream<List<ExportRecord>> _paged<C extends Record, R>(

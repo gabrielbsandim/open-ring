@@ -32,6 +32,8 @@ on your phone.
 | Workout routes: location points during an outdoor workout | The phone's GPS | To draw the route and compute distance, pace and splits |
 | Age, height, weight, sex, maximum heart rate, step goal (all optional) | You, on the "About you" screen | Heart rate zones and the calorie estimate |
 | Sleep sessions and workouts written by other apps, with the name of the app that wrote them (optional, each off by default) | Health Connect | To show sleep and workouts from another device when you turn that type on |
+| Weigh-ins: weight and, if you add them, body fat and waist (optional, Body module) | You | To show your weight trend |
+| Day tags: the days you set aside as sick, travel or rest (optional, Open Score module) | You | To leave those days out of your averages |
 | Settings: theme, units, sync interval, widget choices, ring alerts, which types go to Health Connect, demo mode | You | To remember your choices |
 | A small summary of today's numbers | The app itself | To fill the home screen widgets |
 

@@ -167,3 +167,13 @@ final class ExportHeader {
   final OffsetTime to;
   final ExportDevice? device;
 }
+
+final class DayTagRecord extends ExportRecord {
+  const new({required this.date, required this.tag});
+
+  final String date;
+  final String tag;
+
+  @override
+  List<Object?> get values => [date, tag];
+}

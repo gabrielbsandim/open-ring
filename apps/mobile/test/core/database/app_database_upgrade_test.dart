@@ -127,7 +127,7 @@ void main() {
 
       final version = await db.customSelect('PRAGMA user_version').getSingle();
 
-      expect(version.read<int>('user_version'), 11);
+      expect(version.read<int>('user_version'), 12);
     },
   );
 
@@ -172,7 +172,7 @@ void main() {
       final outbox = await _outbox(db);
       final version = await db.customSelect('PRAGMA user_version').getSingle();
 
-      expect(version.read<int>('user_version'), 11);
+      expect(version.read<int>('user_version'), 12);
       _expectUntouched(outbox[1]!, 'done');
       _expectUntouched(outbox[2]!, 'done');
       _expectUntouched(outbox[3]!, 'done');
@@ -186,7 +186,7 @@ void main() {
     final outbox = await _outbox(db);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
 
-    expect(version.read<int>('user_version'), 11);
+    expect(version.read<int>('user_version'), 12);
     _expectUntouched(outbox[1]!, 'done');
     _expectUntouched(outbox[2]!, 'done');
   });

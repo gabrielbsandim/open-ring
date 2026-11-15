@@ -122,15 +122,25 @@ final class DayScoreHistory {
 
   // The mean of the closed days with full coverage: today is still moving and
   // a rescaled score does not compare with a full one.
-  ({int value, int count})? fullAverage(int days) {
+  // [excluded] holds the days the user set aside; they enter no average.
+  ({int value, int count})? fullAverage(
+    int days, {
+    Set<LocalDate> excluded = const {},
+  }) {
     final values = [
       for (var age = 1; age < days; age++)
-        if (scoredOn(today.addDays(-age)) case final scored? when scored.isFull)
-          scored.value,
+        ?_fullOn(today.addDays(-age), excluded),
     ];
     if (values.isEmpty) return null;
     final sum = values.fold(0, (total, value) => total + value);
     return (value: (sum / values.length).round(), count: values.length);
+  }
+
+  int? _fullOn(LocalDate date, Set<LocalDate> excluded) {
+    if (excluded.contains(date)) return null;
+    final scored = scoredOn(date);
+    if (scored == null || !scored.isFull) return null;
+    return scored.value;
   }
 
   List<DailyValue> get scores => [

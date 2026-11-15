@@ -47,10 +47,16 @@ record uses exactly the same keys in the same order.
 | Steps and activity | `activity` | `start`, `end`, `device_id`, `steps`, `distance_m`, `active_kcal` |
 | Workouts | `workouts` | `start`, `end`, `client_id`, `device_id`, `activity_type`, `duration_s`, `distance_m`, `active_kcal` |
 | Weigh-ins | `weigh_ins` | `time`, `weight_kg`, `body_fat_percent`, `waist_cm`, `source` |
+| Day tags | `day_tags` | `date`, `tag` |
 
 Weigh-ins are offered only while the Body module is on. With the module off the
 kind is not listed and is never written, even when weigh-ins are stored. Hide
 numbers changes the screens only: an export always carries the values.
+
+Day tags are offered only while the Open Score module is on. `date` is a local
+calendar date, `YYYY-MM-DD`, with no time and no offset; `tag` is `sick`,
+`travel` or `rest`. A tag is exported when its date lies between the local
+dates the two ends of the range fall on, both included.
 
 ### Units and meaning
 

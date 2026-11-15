@@ -669,6 +669,108 @@ The weigh-ins used for the first trend value are counted again by the
 following steps, and the noise is measured around that same trend, so the band
 of a short series is rough. It is a drawing aid, not an interval.
 
+## 14. Intensity minutes
+
+Functions: `heartRateIntensity(samples, maxHeartRate, maxHold)`,
+`metIntensity(met, elapsed)`, `workoutIntensity(met, elapsed, heartRate,
+maxHeartRate)`, `walkingIntensity(buckets, workouts)`,
+`weeklyIntensityMinutes(dailyEquivalent, today, windowDays, minDays)`.
+
+```
+equivalent = moderate + 2 * vigorous                       minutes
+
+by heart rate: a sample counts for the time to the next one, at most maxHold
+  moderate when 0.64 * max <= bpm < 0.77 * max
+  vigorous when bpm >= 0.77 * max
+
+by type:       met < 3 earns nothing
+               3 <= met < 6 is moderate for the whole elapsed time
+               met >= 6 is vigorous for the whole elapsed time
+
+workout      = the credit with the larger equivalent of the two
+               (by type alone when there is no max heart rate)
+
+walking      = minutes of every activity bucket with steps / minutes >= 100
+               that does not overlap a workout, all moderate
+
+weekly       = sum of the daily equivalents with 0 <= today - date < 7
+```
+
+`weeklyIntensityMinutes` takes one value for each day the ring reported
+activity, zero included, so a rest day counts as a day of data. A date given
+twice counts once.
+
+| Constant | Value | Basis |
+| :--- | :--- | :--- |
+| `vigorousMinuteWeight` | 2 | **sourced**, WHO 2020 treats one vigorous minute as two moderate ones. Not yet checked against the source. |
+| `moderateFraction`, `vigorousFraction` | 0.64, 0.77 of max heart rate | **sourced**, Garber 2011 (ACSM). Not yet checked against the source. Stricter than the 50 and 70 percent some apps use. |
+| `moderateMet`, `vigorousMet` | 3, 6 | **sourced**, the WHO 2020 definitions of moderate and vigorous. Not yet checked against the source. |
+| larger of the two credits | | **our choice**: heart rate understates the load of resistance work |
+| `briskStepsPerMinute` | 100 | **sourced**, Tudor-Locke 2018, cadence of moderate walking. Not yet checked against the source. |
+| heart rate outside workouts | not used | **our choice**: a raised heart rate without movement is stress or caffeine, not exercise |
+| `intensityWindowDays` | 7 | **our choice**: the target is weekly, so a rest day after training days costs nothing |
+| `intensityMinDays` | 4 | **our choice**, the same minimum as the acute load window |
+
+Minimum data: 4 days with activity data in the window, else null. A heart rate
+credit needs two valid samples.
+
+## 15. Day Score
+
+Function: `dayScore(sleepScore, steps, stepGoal, intensityMinutes, hrv,
+restingHeartRate, stress, spo2Mean)`, for one local date D. Also
+`dayScoreBand(score)` and `stressBaseline(dailyStressMean, today)`.
+
+Inputs: the sleep score (section 2) of the night that ended on D, the steps of
+D, the weekly intensity minutes ending on D (section 14), the z of last
+night's HRV and resting heart rate against their baselines (section 5), the z
+of the day's stress mean (section 8) against the stress baseline, and the mean
+SpO2 of the night (section 9).
+
+| Pillar | Factor | Subscore | Points |
+| :--- | :--- | :--- | :--- |
+| Sleep | sleep | `ramp(score, 0, 100)` | 30 |
+| Movement | steps | `ramp(steps, 0, stepGoal)` | 15 |
+| Movement | intensity | `ramp(minutes, 0, 150)` | 20 |
+| Recovery | HRV | `ramp(z, -3, +1)` | 10 |
+| Recovery | resting heart rate | `ramp(z, +3, -1)` | 10 |
+| Stress | stress | `ramp(z, +3, -1)` | 10 |
+| Oxygen | SpO2 | `ramp(mean, 90, 95)` | 5 |
+
+```
+coverage = sum of the points of the factors present
+score    = round(100 * sum(points_i * subscore_i) / coverage)
+```
+
+A missing factor is left out and the rest is rescaled, so it never costs
+points. Each contribution carries its rescaled weight; `coverage`, `isFull`
+and `missing` read the result. Steps above the goal earn nothing extra.
+
+The stress baseline is the personal baseline of section 5 on a linear scale,
+28 days, at least 7, with a minimum spread of `stressMinSpread`.
+
+| Band | Score |
+| :--- | :--- |
+| great | 85 to 100 |
+| good | 70 to 84 |
+| mixed | 55 to 69 |
+| low | 0 to 54 |
+
+| Constant | Value | Basis |
+| :--- | :--- | :--- |
+| weights | 30, 15, 20, 10, 10, 10, 5 | **our choice**: sleep and movement are measured best; recovery is capped at 20 so readiness is not counted again at full strength; stress is an unpublished vendor number and hourly finger SpO2 is noisy |
+| `intensityWeeklyTarget` | 150 min | **sourced**, the lower end of the WHO 2020 weekly range. Not yet checked against the source. |
+| HRV and resting heart rate ramps | as readiness | the constants of section 7 |
+| `stressZeroZ`, `stressFullZ` | +3, -1 | **our choice**, the resting heart rate ramp, since higher is worse for both |
+| `stressMinSpread` | 3 points | **our choice**, so a flat history does not turn one point into a large z |
+| `spo2ZeroAt`, `spo2FullAt` | 90, 95 percent | **our choice**: 90 is the low threshold of section 9 and 95 is a usual sleeping value |
+| `dayScoreMinCoverage` | 60 points | **our choice** |
+| band cut points | 85, 70, 55 | **our choice**, the readiness cut points, so there is one scale to learn |
+
+Minimum data: the sleep score and at least one step, and 60 points of
+coverage. Zero steps reads as the ring off the finger. Otherwise the result is
+`InsufficientData` with every missing factor. The Day Score describes the day,
+not the person's health.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical
@@ -678,12 +780,19 @@ of a short series is rough. It is a drawing aid, not an interval.
   predicts cardiovascular disease-related mortality: the Osteoporotic Fractures
   in Men Study and the Sleep Heart Health Study. Eur Heart J.
   2019;40(14):1149-1157.
+- Bull FC, Al-Ansari SS, Biddle S, et al. World Health Organization 2020
+  guidelines on physical activity and sedentary behaviour. Br J Sports Med.
+  2020;54(24):1451-1462.
 - Buchheit M. Monitoring training status with HR measures: do all roads lead to
   Rome? Front Physiol. 2014;5:73.
 - Fox SM, Naughton JP, Haskell WL. Physical activity and the prevention of
   coronary heart disease. Ann Clin Res. 1971;3(6):404-432.
 - Gabbett TJ. The training-injury prevention paradox: should athletes be
   training smarter and harder? Br J Sports Med. 2016;50(5):273-280.
+- Garber CE, Blissmer B, Deschenes MR, et al. Quantity and quality of exercise
+  for developing and maintaining cardiorespiratory, musculoskeletal, and
+  neuromotor fitness in apparently healthy adults: guidance for prescribing
+  exercise. Med Sci Sports Exerc. 2011;43(7):1334-1359.
 - Herrmann SD, Willis EA, Ainsworth BE, et al. 2024 Adult Compendium of
   Physical Activities: a third update of the energy costs of human activities.
   J Sport Health Sci. 2024;13(1):6-12.
@@ -712,6 +821,9 @@ of a short series is rough. It is a drawing aid, not an interval.
 - Sinnott RW. Virtues of the haversine. Sky Telesc. 1984;68(2):159.
 - Tanaka H, Monahan KD, Seals DR. Age-predicted maximal heart rate revisited.
   J Am Coll Cardiol. 2001;37(1):153-156.
+- Tudor-Locke C, Han H, Aguiar EJ, et al. How fast is fast enough? Walking
+  cadence (steps/min) as a practical estimate of intensity in adults: a
+  narrative review. Br J Sports Med. 2018;52(12):776-788.
 - Walker J. The Hacker's Diet. 1991. Chapter "Signal and noise": the
   exponentially smoothed moving average with 10 percent smoothing.
 - Watson NF, Badr MS, Belenky G, et al. Recommended amount of sleep for a

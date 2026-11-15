@@ -98,4 +98,29 @@ void main() {
     ) as Map<String, Object?>;
     expect(document['day_tags'], isEmpty);
   });
+
+  test(
+    'a tag on the local date of either end of the range is exported',
+    () async {
+      final edges = await pairedDatabase(pairedAt: DateTime.utc(2026, 11));
+      addTearDown(edges.close);
+      await edges.customStatement(
+        'INSERT INTO day_tags (date, tag, updated_at_utc_ms) VALUES '
+        "('2026-11-02', 'rest', 1), ('2026-11-03', 'sick', 1), "
+        "('2026-11-11', 'travel', 1), ('2026-11-12', 'rest', 1)",
+      );
+
+      // Local noons, so the dates they fall on are the same in every zone.
+      final pages = await ExportPagesDao(edges)
+          .pages(
+            ExportKind.dayTags,
+            from: DateTime(2026, 11, 3, 12),
+            to: DateTime(2026, 11, 11, 12),
+          )
+          .toList();
+
+      final records = [for (final page in pages) ...page.cast<DayTagRecord>()];
+      expect([for (final r in records) r.date], ['2026-11-03', '2026-11-11']);
+    },
+  );
 }

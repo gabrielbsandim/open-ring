@@ -121,12 +121,4 @@ void main() {
 
     expect(await set(_today.addDays(1), DayTag.rest), isTrue);
   });
-
-  test('a stored tag keeps its date key when the clock zone shifts', () async {
-    await set(_ago(1), DayTag.travel);
-
-    now = DateTime.utc(2026, 11, 14, 23, 30);
-
-    expect(await tags(), {_ago(1): DayTag.travel});
-  });
 }

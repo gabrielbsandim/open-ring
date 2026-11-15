@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:open_ring/core/database/app_database_provider.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
@@ -34,6 +35,7 @@ void main() {
     await db.customStatement(_insert);
     final container = ProviderContainer(
       overrides: [
+        appDatabaseProvider.overrideWithValue(db),
         moduleStoreProvider.overrideWithValue(
           InMemoryModuleStore({ModuleId.openScore}),
         ),

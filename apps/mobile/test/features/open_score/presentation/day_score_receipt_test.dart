@@ -147,6 +147,27 @@ void main() {
       );
     });
 
+    testWidgets('the rescale line divides to the score shown', (tester) async {
+      await pumpReceipt(
+        tester,
+        historyOf(
+          const DayScoreInputs(
+            sleepScore: 73,
+            steps: 5107,
+            stepGoal: 10000,
+            intensityMinutes: 0,
+          ),
+        ),
+      );
+
+      expect(within(DayScoreReceiptKeys.earned, '29.6 of 65'), findsOneWidget);
+      expect(
+        within(DayScoreReceiptKeys.rescale, '29.56 ÷ 65 × 100'),
+        findsOneWidget,
+      );
+      expect(within(DayScoreReceiptKeys.result, '45'), findsOneWidget);
+    });
+
     testWidgets('a day without its night says why and keeps the math', (
       tester,
     ) async {

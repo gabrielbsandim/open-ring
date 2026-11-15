@@ -291,7 +291,9 @@ class _Math extends StatelessWidget {
             _Line(
               key: DayScoreReceiptKeys.rescale,
               label: l10n.dayScoreReceiptRescale,
-              value: '$earned ÷ $coverage × ${format.integer(100)}',
+              value:
+                  '${format.decimal(receipt.total, digits: receipt.rescaleDigits)}'
+                  ' ÷ $coverage × ${format.integer(100)}',
             ),
           _Line(
             key: DayScoreReceiptKeys.result,

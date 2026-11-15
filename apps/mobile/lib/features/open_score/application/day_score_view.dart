@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:metrics/metrics.dart';
 
 enum DayScoreGap { night, steps, coverage }
@@ -78,4 +80,19 @@ final class DayScoreReceipt {
 
   double get open =>
       available(dayScoreOpenFactors) - earned(dayScoreOpenFactors);
+
+  // The fewest decimals of the earned points that still rescale to the score,
+  // so a reader who redoes the division lands on the number shown.
+  int get rescaleDigits {
+    final value = scored?.value;
+    if (value == null) return 1;
+    for (var digits = 1; digits < _maxRescaleDigits; digits++) {
+      final scale = math.pow(10, digits);
+      final shown = (total * scale).round() / scale;
+      if ((shown / coverage * 100).round() == value) return digits;
+    }
+    return _maxRescaleDigits;
+  }
 }
+
+const _maxRescaleDigits = 6;

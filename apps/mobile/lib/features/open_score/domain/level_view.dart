@@ -34,3 +34,14 @@ List<LevelStep> levelAccount(LevelTrack track, {int days = levelAccountDays}) {
   final from = steps.length > days ? steps.length - days : 0;
   return steps.sublist(from).reversed.toList();
 }
+
+/// The line each of the [days] days ending today had to pass, oldest first.
+/// Today, still open, is compared with the current Level.
+List<double?> levelLines(
+  LevelTrack track, {
+  required LocalDate today,
+  required int days,
+}) => [
+  for (var age = days - 1; age > 0; age--) track.lineOn(today.addDays(-age)),
+  track.level,
+];

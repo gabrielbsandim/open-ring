@@ -54,4 +54,24 @@ void main() {
     expect(rows.last.date, metricsToday.addDays(-levelAccountDays));
     expect(levelAccount(track, days: 500).length, track.steps.length);
   });
+
+  test('each bar gets the line its day had to pass', () {
+    final track = closedLevelTrack(mixedHistory(), const {});
+    final lines = levelLines(track, today: metricsToday, days: 30);
+
+    expect(lines.length, 30);
+    expect(lines.last, track.level);
+    expect(lines[28], track.lineOn(metricsToday.addDays(-1)));
+    expect(lines.first, track.lineOn(metricsToday.addDays(-29)));
+    expect(lines.where((line) => line == null).length, 4);
+  });
+
+  test('before the Level exists no bar has a line', () {
+    final track = closedLevelTrack(mixedHistory(days: 10), const {});
+
+    expect(
+      levelLines(track, today: metricsToday, days: 30),
+      everyElement(isNull),
+    );
+  });
 }

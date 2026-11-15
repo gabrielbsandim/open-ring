@@ -679,6 +679,7 @@
   "exportKindStress": "ストレス",
   "exportKindActivity": "歩数とアクティビティ",
   "exportKindWorkouts": "ワークアウト",
+  "exportKindWeighIns": "体重記録",
   "exportPickKind": "データの種類を 1 つ以上選んでください。",
   "exportFormat": "形式",
   "exportCsvNote": "データの種類ごとに 1 ファイル、各サンプルに時刻付き。複数の種類は 1 つの zip アーカイブにまとめます。",

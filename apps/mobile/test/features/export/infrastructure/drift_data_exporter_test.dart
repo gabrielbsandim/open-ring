@@ -219,6 +219,34 @@ void main() {
       );
     });
 
+    test('weigh-ins keep their optional values empty', () async {
+      for (final (hour, fat, waist) in [(7, 21.5, 84.0), (20, null, null)]) {
+        await db
+            .into(db.weighIns)
+            .insert(
+              WeighInsCompanion.insert(
+                atUtcMs: _ms(DateTime.utc(2026, 10, 25, hour)),
+                offsetMinutes: 60,
+                kilograms: 80.4,
+                bodyFatPercent: Value(fat),
+                waistCentimeters: Value(waist),
+                source: 'manual',
+              ),
+            );
+      }
+
+      final result = await exporter.export(
+        _request(ExportFormat.csv, const [ExportKind.weighIns]),
+      );
+
+      expect(
+        File(result.files.single.path).readAsStringSync(),
+        'time,weight_kg,body_fat_percent,waist_cm,source\r\n'
+        '2026-10-25T08:00:00+01:00,80.4,21.5,84,manual\r\n'
+        '2026-10-25T21:00:00+01:00,80.4,,,manual\r\n',
+      );
+    });
+
     test('each export gets its own folder', () async {
       final request = _request(ExportFormat.csv, const [ExportKind.activity]);
 

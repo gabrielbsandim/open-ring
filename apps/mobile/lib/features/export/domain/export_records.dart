@@ -111,6 +111,31 @@ final class WorkoutRecord extends ExportRecord {
   ];
 }
 
+final class WeighInRecord extends ExportRecord {
+  const new({
+    required this.at,
+    required this.kilograms,
+    required this.source,
+    this.bodyFatPercent,
+    this.waistCentimeters,
+  });
+
+  final OffsetTime at;
+  final double kilograms;
+  final double? bodyFatPercent;
+  final double? waistCentimeters;
+  final String source;
+
+  @override
+  List<Object?> get values => [
+    at,
+    kilograms,
+    bodyFatPercent,
+    waistCentimeters,
+    source,
+  ];
+}
+
 @immutable
 final class ExportDevice {
   const new({required this.id, required this.name, this.model, this.firmware});

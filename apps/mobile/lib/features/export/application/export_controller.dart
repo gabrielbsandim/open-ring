@@ -7,6 +7,8 @@ import 'package:open_ring/features/export/domain/export_kind.dart';
 import 'package:open_ring/features/export/domain/export_request.dart';
 import 'package:open_ring/features/export/domain/file_sharer.dart';
 import 'package:open_ring/features/export/infrastructure/share_plus_file_sharer.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
 
 enum ExportRange { week, month, all }
 
@@ -14,7 +16,20 @@ enum ExportPhase { idle, running, done, failed }
 
 final _allTime = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
-ExportRequest exportRequestFor(ExportState state, DateTime now) {
+final exportKindsProvider = Provider<Set<ExportKind>>((ref) {
+  final bodyOn =
+      ref.watch(enabledModulesProvider).value?.contains(ModuleId.body) ?? false;
+  return {
+    for (final kind in ExportKind.values)
+      if (kind != ExportKind.weighIns || bodyOn) kind,
+  };
+});
+
+ExportRequest exportRequestFor(
+  ExportState state,
+  DateTime now, {
+  Set<ExportKind>? offered,
+}) {
   final to = now.add(const Duration(milliseconds: 1));
   final from = switch (state.range) {
     ExportRange.week => now.subtract(const Duration(days: 7)),
@@ -24,7 +39,7 @@ ExportRequest exportRequestFor(ExportState state, DateTime now) {
   return ExportRequest(
     from: from,
     to: to,
-    kinds: state.kinds,
+    kinds: offered == null ? state.kinds : state.kinds.intersection(offered),
     format: state.format,
   );
 }
@@ -52,7 +67,8 @@ final class ExportState {
 
   bool get running => phase == ExportPhase.running;
 
-  bool get canRun => kinds.isNotEmpty && !running;
+  bool canRunWith(Set<ExportKind> offered) =>
+      !running && kinds.any(offered.contains);
 
   ExportState withOptions({
     ExportRange? range,
@@ -113,8 +129,13 @@ class ExportController extends Notifier<ExportState> {
   }
 
   Future<void> run() async {
-    if (!state.canRun) return;
-    final request = exportRequestFor(state, ref.read(clockProvider)());
+    final offered = ref.read(exportKindsProvider);
+    if (!state.canRunWith(offered)) return;
+    final request = exportRequestFor(
+      state,
+      ref.read(clockProvider)(),
+      offered: offered,
+    );
     state = state.started();
     try {
       final result = await ref.read(dataExporterProvider).export(request);

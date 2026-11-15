@@ -6,7 +6,7 @@ import 'package:open_ring/features/export/domain/export_records.dart';
 import 'package:open_ring/features/export/domain/offset_time.dart';
 
 typedef _TimeCursor = ({int at, String deviceId});
-typedef _WorkoutCursor = ({int at, int id});
+typedef _IdCursor = ({int at, int id});
 
 typedef _SampleTable = ({
   TableInfo<Table, Object?> table,
@@ -65,6 +65,7 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
       ), range),
       ExportKind.activity => _activity(range),
       ExportKind.workouts => _workouts(range),
+      ExportKind.weighIns => _weighIns(range),
     };
   }
 
@@ -182,17 +183,14 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
 
   Stream<List<ExportRecord>> _workouts(({int from, int to}) range) {
     final table = attachedDatabase.workouts;
-    return _paged<_WorkoutCursor, WorkoutRow>(
+    return _paged<_IdCursor, WorkoutRow>(
       (cursor) =>
           (select(table)
-                ..where((w) {
-                  final inRange = _inRange(w.startUtcMs, range);
-                  if (cursor == null) return inRange;
-                  return inRange &
-                      (w.startUtcMs.isBiggerThanValue(cursor.at) |
-                          (w.startUtcMs.equals(cursor.at) &
-                              w.id.isBiggerThanValue(cursor.id)));
-                })
+                ..where(
+                  (w) =>
+                      _inRange(w.startUtcMs, range) &
+                      _afterId(w.startUtcMs, w.id, cursor),
+                )
                 ..orderBy([
                   (w) => OrderingTerm.asc(w.startUtcMs),
                   (w) => OrderingTerm.asc(w.id),
@@ -214,6 +212,33 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
         activityType: row.activityType,
         distanceMeters: row.distanceMeters,
         activeKilocalories: row.activeKilocalories,
+      ),
+    );
+  }
+
+  Stream<List<ExportRecord>> _weighIns(({int from, int to}) range) {
+    final table = attachedDatabase.weighIns;
+    return _paged<_IdCursor, WeighInRow>(
+      (cursor) =>
+          (select(table)
+                ..where(
+                  (w) =>
+                      _inRange(w.atUtcMs, range) &
+                      _afterId(w.atUtcMs, w.id, cursor),
+                )
+                ..orderBy([
+                  (w) => OrderingTerm.asc(w.atUtcMs),
+                  (w) => OrderingTerm.asc(w.id),
+                ])
+                ..limit(pageSize))
+              .get(),
+      (row) => (at: row.atUtcMs, id: row.id),
+      (row) => WeighInRecord(
+        at: OffsetTime(utcMs: row.atUtcMs, offsetMinutes: row.offsetMinutes),
+        kilograms: row.kilograms,
+        bodyFatPercent: row.bodyFatPercent,
+        waistCentimeters: row.waistCentimeters,
+        source: row.source,
       ),
     );
   }
@@ -252,5 +277,15 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
     if (cursor == null) return const Constant(true);
     return at.isBiggerThanValue(cursor.at) |
         (at.equals(cursor.at) & deviceId.isBiggerThanValue(cursor.deviceId));
+  }
+
+  static Expression<bool> _afterId(
+    Expression<int> at,
+    Expression<int> id,
+    _IdCursor? cursor,
+  ) {
+    if (cursor == null) return const Constant(true);
+    return at.isBiggerThanValue(cursor.at) |
+        (at.equals(cursor.at) & id.isBiggerThanValue(cursor.id));
   }
 }

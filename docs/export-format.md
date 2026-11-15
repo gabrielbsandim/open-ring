@@ -46,6 +46,11 @@ record uses exactly the same keys in the same order.
 | Stress | `stress` | `time`, `device_id`, `stress_level` |
 | Steps and activity | `activity` | `start`, `end`, `device_id`, `steps`, `distance_m`, `active_kcal` |
 | Workouts | `workouts` | `start`, `end`, `client_id`, `device_id`, `activity_type`, `duration_s`, `distance_m`, `active_kcal` |
+| Weigh-ins | `weigh_ins` | `time`, `weight_kg`, `body_fat_percent`, `waist_cm`, `source` |
+
+Weigh-ins are offered only while the Body module is on. With the module off the
+kind is not listed and is never written, even when weigh-ins are stored. Hide
+numbers changes the screens only: an export always carries the values.
 
 ### Units and meaning
 
@@ -64,6 +69,10 @@ record uses exactly the same keys in the same order.
 | `active_kcal` | kilocalories | Active energy only, not total energy. |
 | `client_id` | text | The workout's stable id, the same one used for Health Connect and HealthKit. |
 | `activity_type` | text | The workout type as recorded by the app. |
+| `weight_kg` | kilograms | The weigh-in as logged, never the trend weight. Always kilograms, whatever unit the app shows. |
+| `body_fat_percent` | percent | Empty when the weigh-in has none. |
+| `waist_cm` | centimeters | Empty when the weigh-in has none. |
+| `source` | text | `manual` for a weigh-in typed in the app, `demo` for demo data. Weigh-ins have no device id. |
 
 Values are exported as stored: implausible readings that the screens hide (a
 zero heart rate, an SpO2 under the plausible floor) are kept, so an export is

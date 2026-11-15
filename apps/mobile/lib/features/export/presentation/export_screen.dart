@@ -40,6 +40,8 @@ class ExportScreen extends ConsumerWidget {
     final state = ref.watch(exportProvider);
     final export = ref.read(exportProvider.notifier);
     final editable = !state.running;
+    final offered = ref.watch(exportKindsProvider);
+    final picked = state.kinds.intersection(offered);
     return AppPage(
       title: l10n.exportTitle,
       subtitle: l10n.exportIntro,
@@ -57,10 +59,10 @@ class ExportScreen extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Column(
             children: [
-              for (final kind in ExportKind.values)
+              for (final kind in offered)
                 CheckboxListTile(
                   key: ExportKeys.kind(kind),
-                  value: state.kinds.contains(kind),
+                  value: picked.contains(kind),
                   title: Text(kind.label(l10n)),
                   activeColor: colors.textPrimary,
                   checkColor: colors.background,
@@ -69,7 +71,7 @@ class ExportScreen extends ConsumerWidget {
             ],
           ),
         ),
-        if (state.kinds.isEmpty) ...[
+        if (picked.isEmpty) ...[
           const SizedBox(height: 8),
           CaptionText(
             key: ExportKeys.noKind,
@@ -91,7 +93,9 @@ class ExportScreen extends ConsumerWidget {
         ActionButton(
           key: ExportKeys.run,
           label: state.running ? l10n.exportRunning : l10n.exportRun,
-          onPressed: state.canRun ? () => unawaited(export.run()) : null,
+          onPressed: state.canRunWith(offered)
+              ? () => unawaited(export.run())
+              : null,
         ),
         const SizedBox(height: cardGap),
         _Outcome(state: state),
@@ -225,5 +229,6 @@ extension on ExportKind {
     ExportKind.stress => l10n.exportKindStress,
     ExportKind.activity => l10n.exportKindActivity,
     ExportKind.workouts => l10n.exportKindWorkouts,
+    ExportKind.weighIns => l10n.exportKindWeighIns,
   };
 }

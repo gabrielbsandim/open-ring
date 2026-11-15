@@ -2789,5 +2789,115 @@
   "demoLeaveTitle": "Leave demo mode?",
   "demoLeaveBody": "The sample data is deleted and you can pair your own ring.",
   "demoLeaveCancel": "Cancel",
-  "demoLeaveFailed": "Could not leave demo mode. Try again."
+  "demoLeaveFailed": "Could not leave demo mode. Try again.",
+  "bodyWeightEmpty": "No weigh-ins yet. The trend starts with the first one.",
+  "bodyWeightLogFirst": "Log first weigh-in",
+  "bodyWeightLog": "Log weight",
+  "bodyWeightTrend": "trend",
+  "bodyWeightLast": "Last weigh-in",
+  "bodyWeightLastOn": "{weight} · {when}",
+  "@bodyWeightLastOn": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyWeightRate": "28 day rate",
+  "bodyWeightRateBuilding": "not yet",
+  "bodyWeightRateStable": "stable, within the noise",
+  "bodyWeightRatePerWeek": "{value} {unit}/week",
+  "@bodyWeightRatePerWeek": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "bodySheetDecrease": "Decrease by {amount}",
+  "@bodySheetDecrease": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bodySheetIncrease": "Increase by {amount}",
+  "@bodySheetIncrease": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bodySheetWhen": "When",
+  "bodySheetNow": "Now",
+  "bodySheetMore": "More measurements",
+  "bodySheetMoreDetail": "Body fat and waist, optional",
+  "bodySheetBodyFat": "Body fat",
+  "bodySheetWaist": "Waist",
+  "bodySheetUnitNote": "Unit: {unit}. Change it in Settings, Units.",
+  "@bodySheetUnitNote": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "bodySheetErrorWeightEmpty": "Enter the weight to save.",
+  "bodySheetErrorWeight": "Enter a weight from {min} to {max} {unit}.",
+  "@bodySheetErrorWeight": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "bodySheetErrorBodyFat": "Body fat goes from {min} to {max}%.",
+  "@bodySheetErrorBodyFat": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "bodySheetErrorWaist": "Waist goes from {min} to {max} {unit}.",
+  "@bodySheetErrorWaist": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "bodySheetErrorFuture": "The date cannot be in the future.",
+  "bodySheetSaveFailed": "The weigh-in could not be saved. Try again.",
+  "bodySheetSaved": "Weigh-in logged: {weight}.",
+  "@bodySheetSaved": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  }
 }

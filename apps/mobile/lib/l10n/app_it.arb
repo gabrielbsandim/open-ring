@@ -1279,7 +1279,7 @@
   "trendsEmptyDayScore": "Nessun Voto del giorno in questo periodo. Un giorno ha bisogno della sua notte e dei suoi passi per avere un voto.",
   "moduleOpenScoreName": "Open Score",
   "moduleOpenScoreDetail": "Il Voto del giorno: da 0 a 100, com'è andata la tua giornata intera, con il calcolo in chiaro.",
-  "moduleOpenScoreTurnedOn": "Open Score è attivo. La scheda Voto del giorno è in Oggi.",
+  "moduleOpenScoreTurnedOn": "Open Score è attivo. Il Voto del giorno compare in Oggi appena l'anello si sincronizza.",
   "moduleOpenScoreAddsCard": "Una scheda Voto del giorno in Oggi, che sale durante la giornata e si chiude a mezzanotte.",
   "moduleOpenScoreAddsReceipt": "La ricevuta di ogni giorno: cosa è entrato, quanto pesa e quanti punti ha dato.",
   "moduleOpenScoreAddsHistory": "La cronologia del voto, in calendario e in barre di 30 e 90 giorni.",
@@ -1296,6 +1296,6 @@
   "moduleOpenScoreTurnOn": "Attiva Open Score",
   "moduleOpenScoreTurnOff": "Disattiva Open Score",
   "moduleOpenScoreTurnOffNote": "Non viene eliminato nulla.",
-  "modulesTurnedOn": "I tuoi moduli sono attivi. Le loro schede sono in Oggi.",
+  "modulesTurnedOn": "I tuoi moduli sono attivi. Il Voto del giorno compare in Oggi appena l'anello si sincronizza.",
   "onboardingModulesContinue": "{count, plural, =1{Continua con 1 modulo} other{Continua con {count} moduli}}"
 }

@@ -3307,7 +3307,7 @@
   "trendsEmptyDayScore": "No Day Score in this range. A day needs its night and its steps to be scored.",
   "moduleOpenScoreName": "Open Score",
   "moduleOpenScoreDetail": "The Day Score: from 0 to 100, how your whole day went, with the math in the open.",
-  "moduleOpenScoreTurnedOn": "Open Score is on. The Day Score card is on Today.",
+  "moduleOpenScoreTurnedOn": "Open Score is on. The Day Score shows on Today once your ring has synced.",
   "moduleOpenScoreAddsCard": "A Day Score card on Today, which rises through the day and closes at midnight.",
   "moduleOpenScoreAddsReceipt": "The receipt of each day: what went in, how much it weighs and how many points it earned.",
   "moduleOpenScoreAddsHistory": "The score history, as a calendar and as bars of 30 and 90 days.",
@@ -3324,7 +3324,7 @@
   "moduleOpenScoreTurnOn": "Turn Open Score on",
   "moduleOpenScoreTurnOff": "Turn Open Score off",
   "moduleOpenScoreTurnOffNote": "Nothing is deleted.",
-  "modulesTurnedOn": "Your modules are on. Their cards are on Today.",
+  "modulesTurnedOn": "Your modules are on. The Day Score shows on Today once your ring has synced.",
   "onboardingModulesContinue": "{count, plural, =1{Continue with 1 module} other{Continue with {count} modules}}",
   "@onboardingModulesContinue": {"placeholders": {"count": {"type": "int"}}}
 }

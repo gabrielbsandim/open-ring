@@ -1279,7 +1279,7 @@
   "trendsEmptyDayScore": "この期間に今日のスコアはありません。スコアにはその日の夜と歩数が必要です。",
   "moduleOpenScoreName": "Open Score",
   "moduleOpenScoreDetail": "今日のスコア：1日全体がどうだったかを0〜100で示し、計算もすべて見られます。",
-  "moduleOpenScoreTurnedOn": "Open Score がオンになりました。「今日のスコア」カードは「今日」にあります。",
+  "moduleOpenScoreTurnedOn": "Open Score がオンになりました。今日のスコアは、リングの同期後に「今日」に表示されます。",
   "moduleOpenScoreAddsCard": "「今日」に表示される今日のスコアのカード。1日を通して上がり、午前0時に確定します。",
   "moduleOpenScoreAddsReceipt": "各日の内訳：何が計算に入り、配点はいくつで、何点獲得したか。",
   "moduleOpenScoreAddsHistory": "スコアの履歴（カレンダーと30日・90日の棒グラフ）。",
@@ -1296,6 +1296,6 @@
   "moduleOpenScoreTurnOn": "Open Score をオンにする",
   "moduleOpenScoreTurnOff": "Open Score をオフにする",
   "moduleOpenScoreTurnOffNote": "何も削除されません。",
-  "modulesTurnedOn": "モジュールがオンになりました。カードは「今日」にあります。",
+  "modulesTurnedOn": "モジュールがオンになりました。今日のスコアは、リングの同期後に「今日」に表示されます。",
   "onboardingModulesContinue": "{count, plural, other{{count}個のモジュールで続ける}}"
 }

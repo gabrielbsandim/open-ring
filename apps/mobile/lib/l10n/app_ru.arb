@@ -1279,7 +1279,7 @@
   "trendsEmptyDayScore": "За этот период нет оценки дня. Чтобы день получил оценку, нужны его ночь и шаги.",
   "moduleOpenScoreName": "Open Score",
   "moduleOpenScoreDetail": "Оценка дня: от 0 до 100, каким был весь ваш день, с открытым расчётом.",
-  "moduleOpenScoreTurnedOn": "Open Score включён. Карточка «Оценка дня» находится на экране «Сегодня».",
+  "moduleOpenScoreTurnedOn": "Open Score включён. Оценка дня появится на экране «Сегодня» после синхронизации кольца.",
   "moduleOpenScoreAddsCard": "Карточка «Оценка дня» на экране «Сегодня»: она растёт в течение дня и закрывается в полночь.",
   "moduleOpenScoreAddsReceipt": "Расчёт каждого дня: что вошло, какой у этого вес и сколько баллов это дало.",
   "moduleOpenScoreAddsHistory": "История оценки в виде календаря и столбцов за 30 и 90 дней.",
@@ -1296,6 +1296,6 @@
   "moduleOpenScoreTurnOn": "Включить Open Score",
   "moduleOpenScoreTurnOff": "Отключить Open Score",
   "moduleOpenScoreTurnOffNote": "Ничего не удаляется.",
-  "modulesTurnedOn": "Ваши модули включены. Их карточки находятся на экране «Сегодня».",
+  "modulesTurnedOn": "Ваши модули включены. Оценка дня появится на экране «Сегодня» после синхронизации кольца.",
   "onboardingModulesContinue": "{count, plural, one{Продолжить с {count} модулем} few{Продолжить с {count} модулями} many{Продолжить с {count} модулями} other{Продолжить с {count} модуля}}"
 }

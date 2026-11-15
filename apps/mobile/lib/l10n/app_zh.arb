@@ -1279,7 +1279,7 @@
   "trendsEmptyDayScore": "这段时间没有今日评分。一天需要有夜晚和步数才能评分。",
   "moduleOpenScoreName": "Open Score",
   "moduleOpenScoreDetail": "今日评分：从 0 到 100，你这一整天过得怎么样，计算过程完全公开。",
-  "moduleOpenScoreTurnedOn": "Open Score 已开启。“今日评分”卡片在“今天”中。",
+  "moduleOpenScoreTurnedOn": "Open Score 已开启。戒指同步后，今日评分会显示在“今天”中。",
   "moduleOpenScoreAddsCard": "“今天”中的今日评分卡片，全天逐步上升，午夜结算。",
   "moduleOpenScoreAddsReceipt": "每一天的明细：计入了什么、权重多少、得了多少分。",
   "moduleOpenScoreAddsHistory": "评分历史，以日历以及 30 天和 90 天的柱状图呈现。",
@@ -1296,6 +1296,6 @@
   "moduleOpenScoreTurnOn": "开启 Open Score",
   "moduleOpenScoreTurnOff": "关闭 Open Score",
   "moduleOpenScoreTurnOffNote": "不会删除任何内容。",
-  "modulesTurnedOn": "你的模块已开启。它们的卡片在“今天”中。",
+  "modulesTurnedOn": "你的模块已开启。戒指同步后，今日评分会显示在“今天”中。",
   "onboardingModulesContinue": "{count, plural, other{继续使用 {count} 个模块}}"
 }

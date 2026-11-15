@@ -1279,7 +1279,7 @@
   "trendsEmptyDayScore": "Ninguna Nota del día en este periodo. Un día necesita su noche y sus pasos para tener nota.",
   "moduleOpenScoreName": "Open Score",
   "moduleOpenScoreDetail": "La Nota del día: de 0 a 100, cómo fue tu día entero, con la cuenta a la vista.",
-  "moduleOpenScoreTurnedOn": "Open Score está activo. La tarjeta Nota del día está en Hoy.",
+  "moduleOpenScoreTurnedOn": "Open Score está activo. La Nota del día aparece en Hoy en cuanto el anillo se sincronice.",
   "moduleOpenScoreAddsCard": "Una tarjeta Nota del día en Hoy, que sube a lo largo del día y se cierra a medianoche.",
   "moduleOpenScoreAddsReceipt": "El recibo de cada día: qué entró, cuánto pesa y cuántos puntos dio.",
   "moduleOpenScoreAddsHistory": "El historial de la nota, en calendario y en barras de 30 y 90 días.",
@@ -1296,6 +1296,6 @@
   "moduleOpenScoreTurnOn": "Activar Open Score",
   "moduleOpenScoreTurnOff": "Desactivar Open Score",
   "moduleOpenScoreTurnOffNote": "No se borra nada.",
-  "modulesTurnedOn": "Tus módulos están activos. Sus tarjetas están en Hoy.",
+  "modulesTurnedOn": "Tus módulos están activos. La Nota del día aparece en Hoy en cuanto el anillo se sincronice.",
   "onboardingModulesContinue": "{count, plural, =1{Continuar con 1 módulo} other{Continuar con {count} módulos}}"
 }

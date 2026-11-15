@@ -1279,7 +1279,7 @@
   "trendsEmptyDayScore": "Keine Tagesnote in diesem Zeitraum. Ein Tag braucht seine Nacht und seine Schritte, um eine Note zu bekommen.",
   "moduleOpenScoreName": "Open Score",
   "moduleOpenScoreDetail": "Die Tagesnote: von 0 bis 100, wie Ihr ganzer Tag war, mit offener Rechnung.",
-  "moduleOpenScoreTurnedOn": "Open Score ist an. Die Karte Tagesnote steht unter Heute.",
+  "moduleOpenScoreTurnedOn": "Open Score ist an. Die Tagesnote erscheint unter Heute, sobald der Ring synchronisiert ist.",
   "moduleOpenScoreAddsCard": "Eine Karte Tagesnote unter Heute, die im Lauf des Tages steigt und um Mitternacht schließt.",
   "moduleOpenScoreAddsReceipt": "Der Beleg jedes Tages: was einging, wie viel es wiegt und wie viele Punkte es brachte.",
   "moduleOpenScoreAddsHistory": "Der Verlauf der Note, als Kalender und als Balken für 30 und 90 Tage.",
@@ -1296,6 +1296,6 @@
   "moduleOpenScoreTurnOn": "Open Score einschalten",
   "moduleOpenScoreTurnOff": "Open Score ausschalten",
   "moduleOpenScoreTurnOffNote": "Nichts wird gelöscht.",
-  "modulesTurnedOn": "Ihre Module sind an. Ihre Karten stehen unter Heute.",
+  "modulesTurnedOn": "Ihre Module sind an. Die Tagesnote erscheint unter Heute, sobald der Ring synchronisiert ist.",
   "onboardingModulesContinue": "{count, plural, =1{Mit 1 Modul fortfahren} other{Mit {count} Modulen fortfahren}}"
 }

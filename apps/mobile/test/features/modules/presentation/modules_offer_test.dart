@@ -144,7 +144,9 @@ void main() {
 
       expect(await store.read(), {ModuleId.openScore});
       expect(
-        find.text('Open Score is on. The Day Score card is on Today.'),
+        find.text(
+          'Open Score is on. The Day Score shows on Today once your ring has synced.',
+        ),
         findsOneWidget,
       );
       expect(find.byType(TodayScreen), findsOneWidget);
@@ -162,7 +164,9 @@ void main() {
 
       expect(await store.read(), {ModuleId.body, ModuleId.openScore});
       expect(
-        find.text('Your modules are on. Their cards are on Today.'),
+        find.text(
+          'Your modules are on. The Day Score shows on Today once your ring has synced.',
+        ),
         findsOneWidget,
       );
       expect(find.byKey(WeightCardKeys.card), findsOneWidget);

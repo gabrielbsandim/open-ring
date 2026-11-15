@@ -260,7 +260,9 @@ void main() {
     expect(_on(tester, ModulesKeys.openScoreSwitch), isTrue);
     expect(_on(tester, ModulesKeys.bodySwitch), isFalse);
     expect(
-      find.text('Open Score is on. The Day Score card is on Today.'),
+      find.text(
+        'Open Score is on. The Day Score shows on Today once your ring has synced.',
+      ),
       findsOneWidget,
     );
     await tester.tap(find.text('View'));

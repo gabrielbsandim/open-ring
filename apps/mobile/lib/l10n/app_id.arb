@@ -1279,7 +1279,7 @@
   "trendsEmptyDayScore": "Tidak ada Skor Hari pada rentang ini. Sebuah hari butuh malam dan langkahnya untuk mendapat skor.",
   "moduleOpenScoreName": "Open Score",
   "moduleOpenScoreDetail": "Skor Hari: dari 0 sampai 100, bagaimana hari Anda secara keseluruhan, dengan hitungan yang terbuka.",
-  "moduleOpenScoreTurnedOn": "Open Score aktif. Kartu Skor Hari ada di Hari ini.",
+  "moduleOpenScoreTurnedOn": "Open Score aktif. Skor Hari muncul di Hari ini setelah cincin disinkronkan.",
   "moduleOpenScoreAddsCard": "Kartu Skor Hari di Hari ini, yang naik sepanjang hari dan ditutup tengah malam.",
   "moduleOpenScoreAddsReceipt": "Rincian setiap hari: apa yang masuk, berapa bobotnya, dan berapa poin yang diperoleh.",
   "moduleOpenScoreAddsHistory": "Riwayat skor, sebagai kalender dan batang 30 dan 90 hari.",
@@ -1296,6 +1296,6 @@
   "moduleOpenScoreTurnOn": "Aktifkan Open Score",
   "moduleOpenScoreTurnOff": "Matikan Open Score",
   "moduleOpenScoreTurnOffNote": "Tidak ada yang dihapus.",
-  "modulesTurnedOn": "Modul Anda aktif. Kartunya ada di Hari ini.",
+  "modulesTurnedOn": "Modul Anda aktif. Skor Hari muncul di Hari ini setelah cincin disinkronkan.",
   "onboardingModulesContinue": "{count, plural, other{Lanjutkan dengan {count} modul}}"
 }

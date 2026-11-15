@@ -1,7 +1,7 @@
 # Metrics
 
-Every number OpenRing derives from ring samples, with its formula, constants,
-inputs, minimum data rule and sources. The code lives in `packages/metrics`
+Every number OpenRing derives from ring samples or from what the user logs,
+with its formula, constants, inputs, minimum data rule and sources. The code lives in `packages/metrics`
 (pure Dart, no Flutter). The constants below are named constants or parameter
 defaults there, except the stress bands, `220 - age` and the accepted input
 ranges, which are literals in the function that applies them, so this file and
@@ -613,6 +613,58 @@ of section 5 as of today, one SD either side of the mean (on the log scale for
 HRV, then converted back to ms). The other series have no published baseline,
 so they show none.
 
+## 13. Weight (trend, rate, noise)
+
+Functions: `dailyWeights(weighIns)`, `weightTrend(weighIns)`,
+`weightRate(weighIns, today)`, `weightNoise(weighIns)`.
+
+Inputs: weigh-ins in kilograms, each with its local date. Values that are not
+finite are dropped.
+
+```
+daily   = one value per local date, the mean of that date's weigh-ins
+
+trend_1 = mean of the first min(7, n) daily values
+gap     = days since the previous daily value (>= 1)
+pull    = 1 - (1 - alpha)^gap
+trend_d = trend_prev + pull * (daily_d - trend_prev)
+
+window  = daily values with 0 <= today - date < 28
+t_i     = days since the first date of the window
+slope   = sum((t_i - mean t) * (w_i - mean w)) / sum((t_i - mean t)^2)
+se      = sqrt( sum(residual_i^2) / (n - 2) / sum((t_i - mean t)^2) )
+rate    = 7 * slope                              kg per week
+low, high = 7 * (slope -/+ t(0.975, n - 2) * se)
+stable  = low <= 0 <= high
+
+noise   = max( floor, sqrt( mean((daily_d - trend_d)^2) ) )
+```
+
+| Constant | Value | Basis |
+| :--- | :--- | :--- |
+| `weightTrendAlpha` | 0.1 per day | **sourced** method and value: Walker 1991, 10 percent smoothing. Half life 6.6 days. |
+| `weightTrendSeedDays` | 7 | **our choice**. Starting at the mean of the first week keeps one odd first weigh-in from setting the trend for a month. |
+| `weightRateWindowDays` | 28 days | **our choice**. With a day to day spread of 0.6 kg and daily weigh-ins the 95 percent interval of the slope is about 0.55 kg per week either side at 14 days and 0.19 at 28, so four weeks can tell 0.25 kg per week from nothing and two cannot. |
+| `weightRateMinDays` | 8 dates | **our choice**. Six degrees of freedom is the least we accept for an interval. |
+| `weightRateMinSpanDays` | 14 days | **our choice**. Eight dates inside one week measure water, not a rate. |
+| interval | Student t, 95 percent, n - 2 degrees of freedom | **sourced**: the standard interval of a least squares slope. The normal 1.96 would be too narrow at 8 dates (the t value is 2.447). |
+| `weightNoiseMinDays` | 3 dates | **our choice**. Below that the band is `weightNoiseDefault`. |
+| `weightNoiseDefault` | 0.5 kg | **our choice**, the low end of the 0.5 to 1 kg day to day spread of body weight from water, glycogen, gut content and sodium. |
+| `weightNoiseFloor` | 0.35 kg | **our choice**. A few close weigh-ins must not draw a band narrower than a scale and a glass of water can move. |
+
+Below `weightRateMinDays` dates or `weightRateMinSpanDays` of span the rate is
+`WeightRateBuilding(daysMissing, spanMissing)`, never a number. When the
+interval contains zero the rate is `stable`: the change is not larger than the
+noise, and the app shows no direction.
+
+Under a steady change the trend lags the true weight by
+`(1 - alpha) / alpha = 9` days of change. So the trend is for display and the
+rate comes from the raw daily values, not from the trend.
+
+The weigh-ins used for the first trend value are counted again by the
+following steps, and the noise is measured around that same trend, so the band
+of a short series is rough. It is a drawing aid, not an interval.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical
@@ -656,6 +708,8 @@ so they show none.
 - Sinnott RW. Virtues of the haversine. Sky Telesc. 1984;68(2):159.
 - Tanaka H, Monahan KD, Seals DR. Age-predicted maximal heart rate revisited.
   J Am Coll Cardiol. 2001;37(1):153-156.
+- Walker J. The Hacker's Diet. 1991. Chapter "Signal and noise": the
+  exponentially smoothed moving average with 10 percent smoothing.
 - Watson NF, Badr MS, Belenky G, et al. Recommended amount of sleep for a
   healthy adult: a joint consensus statement of the American Academy of Sleep
   Medicine and Sleep Research Society. Sleep. 2015;38(6):843-844.

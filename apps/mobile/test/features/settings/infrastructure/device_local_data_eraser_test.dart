@@ -32,6 +32,10 @@ void main() {
       'INSERT INTO hr_samples (device_id, at_utc_ms, offset_minutes, bpm) '
       "VALUES ('$ringId', 1, 0, 61)",
     );
+    await db.customStatement(
+      'INSERT INTO weigh_ins (at_utc_ms, offset_minutes, kilograms, source) '
+      "VALUES (1, 0, 78.2, 'manual')",
+    );
     await DriftUserProfileStore(db)
         .save(const UserProfile(birthYear: 1990), at: DateTime(2026, 11));
 

@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:open_ring/core/database/app_database.steps.dart';
+import 'package:open_ring/core/database/tables/body_tables.dart';
 import 'package:open_ring/core/database/tables/health_tables.dart';
 import 'package:open_ring/core/database/tables/import_tables.dart';
 import 'package:open_ring/core/database/tables/ring_tables.dart';
@@ -37,13 +38,14 @@ part 'app_database.g.dart';
     ImportedSleepStages,
     HealthReads,
     ImportedWorkouts,
+    WeighIns,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -96,6 +98,7 @@ class AppDatabase extends _$AppDatabase {
         await migrator.addColumn(runs, runs.heartRateIntervalSeenMinutes);
       },
       from9To10: (migrator, schema) => _requeueRecentWorkouts(),
+      from10To11: (migrator, schema) => migrator.createTable(schema.weighIns),
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );

@@ -28,6 +28,7 @@ void main() {
     'imported_sleep_stages',
     'health_reads',
     'imported_workouts',
+    'weigh_ins',
   };
 
   test('creates every table listed in the plan', () async {

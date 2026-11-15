@@ -7,6 +7,8 @@ import 'package:open_ring/core/database/app_database.dart';
 import '../../helpers/database.dart';
 import 'generated/schema.dart';
 import 'generated/schema_v1.dart' as v1;
+import 'generated/schema_v10.dart' as v10;
+import 'generated/schema_v11.dart' as v11;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
@@ -358,4 +360,48 @@ void main() {
       },
     );
   });
+
+  test(
+    'v10 migrates to v11, keeps the data and adds an empty weigh_ins',
+    () async {
+      const ring = v10.RingDevicesData(
+        deviceId: ringId,
+        name: 'R09_C0FE',
+        pairedAtUtcMs: 1762732800000,
+        autoHeartRate: 1,
+        autoSpo2: 1,
+        autoStress: 1,
+        autoHrv: 1,
+      );
+      const profile = v10.UserProfileData(id: 1, updatedAtUtcMs: 1762765200000);
+
+      await verifier.testWithDataIntegrity(
+        oldVersion: 10,
+        newVersion: 11,
+        createOld: v10.DatabaseAtV10.new,
+        createNew: v11.DatabaseAtV11.new,
+        openTestedDatabase: AppDatabase.new,
+        createItems: (batch, oldDb) => batch
+          ..insert(oldDb.ringDevices, ring)
+          ..insert(oldDb.userProfile, profile),
+        validateItems: (newDb) async {
+          expect(await newDb.select(newDb.ringDevices).get(), [
+            const v11.RingDevicesData(
+              deviceId: ringId,
+              name: 'R09_C0FE',
+              pairedAtUtcMs: 1762732800000,
+              autoHeartRate: 1,
+              autoSpo2: 1,
+              autoStress: 1,
+              autoHrv: 1,
+            ),
+          ]);
+          expect(await newDb.select(newDb.userProfile).get(), [
+            const v11.UserProfileData(id: 1, updatedAtUtcMs: 1762765200000),
+          ]);
+          expect(await newDb.select(newDb.weighIns).get(), isEmpty);
+        },
+      );
+    },
+  );
 }

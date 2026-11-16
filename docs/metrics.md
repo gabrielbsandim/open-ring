@@ -929,7 +929,9 @@ samples.
 
 The first Overall does not wait for a Monday. While the last Monday has no
 score, the app shows the Overall of the first day after it on which the
-minimum was met, and keeps it until the next Monday. Next to the score the
+minimum was met, and keeps it until the next Monday. Before that the app counts, of the 14 it
+needs, the nights with a resting heart rate in the 28 days before today.
+Next to the score the
 screen says how far it is from the Monday before, and calls a change under
 2 points noise.
 

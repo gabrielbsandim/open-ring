@@ -77,13 +77,11 @@ class OverallScreen extends ConsumerWidget {
     if (history == null) return const [SizedBox(height: 96)];
     final scored = history.scored;
     if (scored == null) return [_Forming(history: history)];
+    final hidden = ref.watch(numbersHiddenProvider);
     return [
-      _Summary(history: history, scored: scored),
+      _Summary(history: history, scored: scored, hidden: hidden),
       const SizedBox(height: cardGap),
-      _Source(
-        inputs: history.current.inputs,
-        hidden: ref.watch(numbersHiddenProvider),
-      ),
+      _Source(inputs: history.current.inputs, hidden: hidden),
       const SizedBox(height: cardGap),
       const EstimateNote(),
     ];
@@ -134,10 +132,15 @@ String? _change(MetricFormat format, OverallHistory history, int score) {
 }
 
 class _Summary extends StatelessWidget {
-  const new({required this.history, required this.scored});
+  const new({
+    required this.history,
+    required this.scored,
+    required this.hidden,
+  });
 
   final OverallHistory history;
   final Scored<OverallFactor> scored;
+  final bool hidden;
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +195,9 @@ class _Summary extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 1),
                     child: DayScoreMeter(
-                      fill: scored.of(factor)?.subscore,
+                      fill: _secret(factor, hidden: hidden)
+                          ? null
+                          : scored.of(factor)?.subscore,
                       color: overallGroupColor(colors, factor.group),
                     ),
                   ),
@@ -215,6 +220,10 @@ class _Summary extends StatelessWidget {
     );
   }
 }
+
+// Body points give the measure back, so they hide with the numbers.
+bool _secret(OverallFactor factor, {required bool hidden}) =>
+    hidden && factor == OverallFactor.body;
 
 String _capital(String text) =>
     text.isEmpty ? text : '${text[0].toUpperCase()}${text.substring(1)}';
@@ -351,19 +360,20 @@ class _FactorRow extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    Text(
-                      earned == null
-                          ? l10n.overallOutside
-                          : l10n.dayScoreReceiptOf(
-                              format.points(earned.points),
-                              format.integer(earned.weight),
-                            ),
-                      key: OverallKeys.points(factor),
-                      style: theme.bodyMedium?.copyWith(
-                        color: colors.textSecondary,
-                        fontFeatures: const [FontFeature.tabularFigures()],
+                    if (!(earned != null && _secret(factor, hidden: hidden)))
+                      Text(
+                        earned == null
+                            ? l10n.overallOutside
+                            : l10n.dayScoreReceiptOf(
+                                format.points(earned.points),
+                                format.integer(earned.weight),
+                              ),
+                        key: OverallKeys.points(factor),
+                        style: theme.bodyMedium?.copyWith(
+                          color: colors.textSecondary,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
                       ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 2),

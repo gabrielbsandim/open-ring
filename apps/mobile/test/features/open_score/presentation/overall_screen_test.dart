@@ -198,6 +198,11 @@ void main() {
       await pump(tester, const OverallScreen(), historyOf(full), hidden: true);
 
       expect(find.textContaining('0.49'), findsNothing);
+      expect(find.byKey(OverallKeys.points(OverallFactor.body)), findsNothing);
+      expect(
+        find.byKey(OverallKeys.points(OverallFactor.movement)),
+        findsOneWidget,
+      );
       expect(
         find.text('From your last measurement in the Body module.'),
         findsOneWidget,

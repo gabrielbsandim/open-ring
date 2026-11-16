@@ -126,15 +126,14 @@ final class OverallHistory {
       )
         weekOf(day),
     ].where((week) => week.result is Scored<OverallFactor>).firstOrNull;
-    final soon = today.addDays(1);
     return OverallHistory(
       today: today,
       weeks: weeks,
       current: last.result is Scored<OverallFactor> ? last : early ?? last,
-      nights: nights
+      nights: resting
           .where((night) => !excluded.contains(night.date))
-          .where((night) => night.date.compareTo(soon) < 0)
-          .where((night) => soon.daysSince(night.date) <= overallWindowDays)
+          .where((night) => today.daysSince(night.date) >= 1)
+          .where((night) => today.daysSince(night.date) <= overallWindowDays)
           .length,
     );
   }
@@ -145,7 +144,7 @@ final class OverallHistory {
   // The week on screen: the last Monday, or an earlier first score.
   final OverallWeek current;
 
-  // Nights of the last 28 days that would count today.
+  // Nights with a resting heart rate in the window a score would read today.
   final int nights;
 
   LocalDate get nextUpdate => mondayOf(today).addDays(7);

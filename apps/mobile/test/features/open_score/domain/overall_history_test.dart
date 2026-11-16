@@ -52,6 +52,7 @@ WeighIn weighIn(LocalDate date, double kilograms, {double? waist}) => WeighIn(
 OverallHistory collect({
   int days = 105,
   int extra = 0,
+  Set<LocalDate> noHeart = const {},
   Map<LocalDate, DayTag> tags = const {},
   List<WeighIn> weighIns = const [],
   double? heightCentimeters,
@@ -65,7 +66,11 @@ OverallHistory collect({
       for (final date in [...dates, monday]) night(date),
     ],
     heartRate: [
-      for (final date in dates) ...[...nightHeart(date, 52), ...dayHeart(date)],
+      for (final date in dates)
+        if (!noHeart.contains(date)) ...[
+          ...nightHeart(date, 52),
+          ...dayHeart(date),
+        ],
     ],
     utcOffset: Duration.zero,
     steps: [for (final date in dates) (date: date, value: 8000)],
@@ -195,15 +200,37 @@ void main() {
       );
     });
 
-    test('nights counts the last 28 days without the excluded ones', () {
-      expect(collect(extra: 4).nights, 27);
-      expect(
-        collect(
-          extra: 4,
-          tags: {monday: DayTag.sick, back(1): DayTag.rest},
-        ).nights,
-        26,
+    test(
+      'nights counts the 28 days before today without the excluded ones',
+      () {
+        expect(collect(extra: 4).nights, 28);
+        expect(
+          collect(
+            extra: 4,
+            tags: {monday: DayTag.sick, back(1): DayTag.rest},
+          ).nights,
+          27,
+        );
+      },
+    );
+  });
+
+  group('the nights still missing', () {
+    test('14 nights ending today count 13, as the score reads them', () {
+      final history = collect(days: 9, extra: 5);
+
+      expect(history.scored, isNull);
+      expect(history.nights, 13);
+    });
+
+    test('a night without heart rate is not a night with the ring', () {
+      final history = collect(
+        days: 9,
+        extra: 4,
+        noHeart: {back(1), back(2), back(3)},
       );
+
+      expect(history.nights, 10);
     });
   });
 

@@ -1522,5 +1522,9 @@
   "overallRuleBody": "{full} oder weniger zählt voll, {zero} oder mehr zählt null. Im vollen Bereich bringt eine kleinere Taille nichts weiter. Unter {floor} fällt die Zeile aus der Rechnung.",
   "overallSourceBody": "Die Bereiche für Taille zu Größe des NICE, des Gesundheitsinstituts des Vereinigten Königreichs.",
   "overallOursBody": "Die Nullmarke und das Gewicht von {points} Punkten. Ohne Taillenmaß nutzt die Rechnung Gewicht und Größe und zählt die Hälfte, weil diese Lesart bei sehr muskulösen Menschen falsch liegt.",
-  "overallLimitsBody": "Das Maßband gehört dir: Immer an derselben Stelle und zur selben Tageszeit zu messen hilft."
+  "overallLimitsBody": "Das Maßband gehört dir: Immer an derselben Stelle und zur selben Tageszeit zu messen hilft.",
+  "overallWhatBodyBmi": "Der Body-Mass-Index: Gewicht geteilt durch das Quadrat der Körpergröße. Mit einem Taillenmaß würde diese Zeile Taille zu Größe lesen, was mehr aussagt.",
+  "overallRuleBodyBmi": "{full} oder weniger zählt voll, {zero} oder mehr zählt null. Im vollen Bereich bringt ein niedrigerer Index nichts weiter. Unter {floor} fällt die Zeile aus der Rechnung.",
+  "overallSourceBodyBmi": "Die Body-Mass-Index-Bereiche der Weltgesundheitsorganisation.",
+  "overallSheetWindowPairs": "Die {days} Tage vor der letzten Aktualisierung, ohne die als Krank oder Reise markierten Tage. Es braucht {min} Paare aufeinanderfolgender Tage."
 }

@@ -3643,5 +3643,11 @@
   "overallSourceBody": "The waist to height ranges of NICE, the health institute of the United Kingdom.",
   "overallOursBody": "The zero mark and the weight of {points} points. Without a waist measure the count uses weight and height and is worth half, because that reading is wrong for people with a lot of muscle.",
   "@overallOursBody": {"placeholders": {"points": {"type": "String"}}},
-  "overallLimitsBody": "The tape measure is yours: measuring at the same spot and at the same time of day helps."
+  "overallLimitsBody": "The tape measure is yours: measuring at the same spot and at the same time of day helps.",
+  "overallWhatBodyBmi": "The body mass index: weight divided by the square of the height. With a waist measure this row would read waist by height, which says more.",
+  "overallRuleBodyBmi": "{full} or less is worth everything, {zero} or more is worth zero. Inside the full range a lower index earns nothing more. Below {floor} the row leaves the count.",
+  "@overallRuleBodyBmi": {"placeholders": {"full": {"type": "String"}, "zero": {"type": "String"}, "floor": {"type": "String"}}},
+  "overallSourceBodyBmi": "The body mass index ranges of the World Health Organization.",
+  "overallSheetWindowPairs": "The {days} days before the last update, without the days tagged Sick or Travel. It needs {min} pairs of days in a row.",
+  "@overallSheetWindowPairs": {"placeholders": {"days": {"type": "String"}, "min": {"type": "String"}}}
 }

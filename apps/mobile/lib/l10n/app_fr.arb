@@ -1522,5 +1522,9 @@
   "overallRuleBody": "{full} ou moins vaut tout, {zero} ou plus vaut zéro. Dans la plage complète, réduire le tour de taille ne rapporte rien de plus. En dessous de {floor}, la ligne sort du calcul.",
   "overallSourceBody": "Les plages tour de taille sur taille du NICE, l'institut de santé du Royaume-Uni.",
   "overallOursBody": "Le repère du zéro et le poids de {points} points. Sans tour de taille, le calcul utilise le poids et la taille et vaut la moitié, car cette lecture se trompe chez les personnes très musclées.",
-  "overallLimitsBody": "Le mètre ruban est le vôtre : mesurer au même endroit et à la même heure aide."
+  "overallLimitsBody": "Le mètre ruban est le vôtre : mesurer au même endroit et à la même heure aide.",
+  "overallWhatBodyBmi": "L'indice de masse corporelle : le poids divisé par le carré de la taille. Avec un tour de taille, cette ligne utiliserait le rapport tour de taille sur taille, qui en dit plus.",
+  "overallRuleBodyBmi": "{full} ou moins vaut tout, {zero} ou plus vaut zéro. Dans la plage complète, un indice plus bas ne rapporte rien de plus. En dessous de {floor}, la ligne sort du calcul.",
+  "overallSourceBodyBmi": "Les plages d'indice de masse corporelle de l'Organisation mondiale de la Santé.",
+  "overallSheetWindowPairs": "Les {days} jours avant la dernière mise à jour, sans les jours marqués Malade ou Voyage. Il faut {min} paires de jours consécutifs."
 }

@@ -1522,5 +1522,9 @@
   "overallRuleBody": "{full} o menos vale todo, {zero} o más vale cero. Dentro del rango completo, reducir la cintura no da nada más. Por debajo de {floor} la fila sale de la cuenta.",
   "overallSourceBody": "Los rangos de cintura por altura del NICE, el instituto de salud del Reino Unido.",
   "overallOursBody": "La marca del cero y el peso de {points} puntos. Sin la medida de cintura la cuenta usa peso y altura y vale la mitad, porque esa lectura falla con quien tiene mucho músculo.",
-  "overallLimitsBody": "La cinta métrica es tuya: medir siempre en el mismo punto y a la misma hora del día ayuda."
+  "overallLimitsBody": "La cinta métrica es tuya: medir siempre en el mismo punto y a la misma hora del día ayuda.",
+  "overallWhatBodyBmi": "El índice de masa corporal: el peso dividido por la altura al cuadrado. Con la medida de cintura esta fila usaría cintura por altura, que dice más.",
+  "overallRuleBodyBmi": "{full} o menos vale todo, {zero} o más vale cero. Dentro del rango completo, un índice menor no da nada más. Por debajo de {floor} la fila sale de la cuenta.",
+  "overallSourceBodyBmi": "Los rangos de índice de masa corporal de la Organización Mundial de la Salud.",
+  "overallSheetWindowPairs": "Los {days} días anteriores a la última actualización, sin los días marcados Enfermo o Viaje. Necesita {min} pares de días seguidos."
 }

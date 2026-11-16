@@ -113,6 +113,46 @@ void main() {
     expect(find.byKey(OverallEvidenceKeys.points), findsOneWidget);
   });
 
+  testWidgets('a Body row scored on weight and height explains that rule', (
+    tester,
+  ) async {
+    const bmiOnly = OverallInputs(
+      restingHeartRate: 53,
+      sleepHours: 6.6,
+      sleepRegularity: 66,
+      weeklyMinutes: 132,
+      dailySteps: 6900,
+      bmi: 27,
+    );
+    await pump(tester, const OverallScreen(), historyOf(bmiOnly));
+    await open(tester, OverallFactor.body);
+
+    expect(sheetText(tester), contains('The body mass index: weight divided'));
+    expect(
+      sheetText(tester),
+      contains(
+        '${bmiFullAt.round()} or less is worth everything, '
+        '${bmiZeroAt.round()} or more is worth zero',
+      ),
+    );
+    expect(sheetText(tester), contains('Below $bmiFloor the row leaves'));
+    expect(sheetText(tester), isNot(contains('0.50 or less')));
+    expect(text(tester, OverallEvidenceKeys.points), contains('of 5'));
+  });
+
+  testWidgets('sleep regularity asks for pairs of days, not days', (
+    tester,
+  ) async {
+    await pump(tester, const OverallScreen(), historyOf(full));
+    await open(tester, OverallFactor.sleepRegularity);
+
+    expect(
+      sheetText(tester),
+      contains('needs $sleepRegularityMinPairs pairs of days in a row'),
+    );
+    expect(sheetText(tester), isNot(contains('valid days')));
+  });
+
   group('layout', () {
     for (final locale in AppLocales.supported) {
       testWidgets('every sheet fits at large text in $locale', (tester) async {

@@ -1522,5 +1522,9 @@
   "overallRuleBody": "{full} 或以下得满分，{zero} 或以上得零分。在满分范围内，腰围更小不会再加分。低于 {floor} 时这一行不计入。",
   "overallSourceBody": "英国卫生机构 NICE 的腰围身高比范围。",
   "overallOursBody": "零分标准和 {points} 分的权重。没有腰围时，计算使用体重和身高，只占一半分值，因为这种算法对肌肉多的人不准确。",
-  "overallLimitsBody": "卷尺由你掌握：每次在同一位置、同一时间测量会更稳定。"
+  "overallLimitsBody": "卷尺由你掌握：每次在同一位置、同一时间测量会更稳定。",
+  "overallWhatBodyBmi": "体重指数：体重除以身高的平方。有腰围记录时，这一行会改用更能说明问题的腰围身高比。",
+  "overallRuleBodyBmi": "{full} 或以下得满分，{zero} 或以上得零分。在满分范围内，指数更低不会再加分。低于 {floor} 时这一行不计入。",
+  "overallSourceBodyBmi": "世界卫生组织的体重指数范围。",
+  "overallSheetWindowPairs": "上次更新前的 {days} 天，不含标记为“生病”或“出行”的日子。需要 {min} 组连续的两天。"
 }

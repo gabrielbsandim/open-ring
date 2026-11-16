@@ -134,6 +134,18 @@ _Copy _copy(MetricFormat format, OverallFactor factor, OverallInputs inputs) {
       ours: l10n.overallOursMovement(points),
       limits: l10n.overallLimitsMovement,
     ),
+    OverallFactor.body when inputs.waistToHeight == null => (
+      title: l10n.overallFactorBody,
+      what: l10n.overallWhatBodyBmi,
+      rule: l10n.overallRuleBodyBmi(
+        format.integer(bmiFullAt),
+        format.integer(bmiZeroAt),
+        format.decimal(bmiFloor, digits: 1),
+      ),
+      source: l10n.overallSourceBodyBmi,
+      ours: l10n.overallOursBody(points),
+      limits: l10n.overallLimitsBody,
+    ),
     OverallFactor.body => (
       title: l10n.overallFactorBody,
       what: l10n.overallWhatBody,
@@ -156,6 +168,10 @@ String? _window(
 ) => switch (factor) {
   OverallFactor.fitness => null,
   OverallFactor.body => l10n.overallSheetBodyWindow,
+  OverallFactor.sleepRegularity => l10n.overallSheetWindowPairs(
+    format.integer(overallWindowDays),
+    format.integer(sleepRegularityMinPairs),
+  ),
   _ => l10n.overallSheetWindowBody(
     format.integer(overallWindowDays),
     format.integer(overallMinDays),

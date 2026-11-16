@@ -1522,5 +1522,9 @@
   "overallRuleBody": "{full} atau kurang bernilai penuh, {zero} atau lebih bernilai nol. Di dalam rentang penuh, pinggang yang lebih kecil tidak menambah apa pun. Di bawah {floor} baris ini keluar dari hitungan.",
   "overallSourceBody": "Rentang pinggang terhadap tinggi dari NICE, lembaga kesehatan Britania Raya.",
   "overallOursBody": "Tanda nol dan bobot {points} poin. Tanpa ukuran pinggang, hitungan memakai berat dan tinggi dan bernilai setengah, karena bacaan itu keliru untuk orang yang sangat berotot.",
-  "overallLimitsBody": "Pita ukurnya milik Anda: mengukur di titik dan jam yang sama akan membantu."
+  "overallLimitsBody": "Pita ukurnya milik Anda: mengukur di titik dan jam yang sama akan membantu.",
+  "overallWhatBodyBmi": "Indeks massa tubuh: berat dibagi kuadrat tinggi badan. Dengan ukuran pinggang, baris ini akan memakai pinggang terhadap tinggi, yang lebih banyak bercerita.",
+  "overallRuleBodyBmi": "{full} atau kurang bernilai penuh, {zero} atau lebih bernilai nol. Di dalam rentang penuh, indeks yang lebih rendah tidak menambah apa pun. Di bawah {floor} baris ini keluar dari hitungan.",
+  "overallSourceBodyBmi": "Rentang indeks massa tubuh dari Organisasi Kesehatan Dunia.",
+  "overallSheetWindowPairs": "{days} hari sebelum pembaruan terakhir, tanpa hari yang ditandai Sakit atau Perjalanan. Perlu {min} pasang hari berturut-turut."
 }

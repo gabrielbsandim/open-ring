@@ -534,6 +534,131 @@ void main() {
     });
   });
 
+  group('effortBriskMinutes', () {
+    final monday = _today.addDays(-1);
+
+    test('adds the brisk minutes of a day', () {
+      final brisk = effortBriskMinutes(
+        sessions: const [],
+        slots: [
+          _slot(_at(monday, 9)),
+          _slot(_at(monday, 15), minutes: 5, steps: 600),
+        ],
+      );
+      expect(brisk, {monday: 20.0});
+    });
+
+    test('a day with steps and no brisk minute is a zero', () {
+      final brisk = effortBriskMinutes(
+        sessions: const [],
+        slots: [_slot(_at(monday, 9), steps: 300)],
+      );
+      expect(brisk, {monday: 0.0});
+    });
+
+    test(
+      'a slot inside a session adds nothing, and one without steps no day',
+      () {
+        final brisk = effortBriskMinutes(
+          sessions: [_yoga(monday, hour: 9)],
+          slots: [_slot(_at(monday, 9)), _slot(_at(_today, 9), steps: 0)],
+        );
+        expect(brisk, {monday: 0.0});
+      },
+    );
+  });
+
+  group('effortWeekDays', () {
+    final monday = _today.addDays(-1);
+    final days = effortWeekDays(
+      [(date: monday.addDays(-1), value: 99), (date: monday, value: 42.4)],
+      {_today},
+      monday: monday,
+      today: _today,
+    );
+
+    test('has the seven days from Monday', () {
+      expect(
+        [for (final day in days) day.date],
+        [for (var i = 0; i < 7; i++) monday.addDays(i)],
+      );
+    });
+
+    test('a day with data keeps its points and a day without is 0', () {
+      expect(days[0].points, 42.4);
+      expect(days[1].points, 0);
+    });
+
+    test('a day after today has no points', () {
+      expect([
+        for (final day in days.skip(2)) day.points,
+      ], everyElement(isNull));
+    });
+
+    test('marks the strength days only', () {
+      expect(
+        [for (final day in days) day.strength],
+        [false, true, false, false, false, false, false],
+      );
+    });
+  });
+
+  group('effortWeekWalks', () {
+    final monday = _today.addDays(-1);
+
+    test('lists the days of the week with a minute or more, newest first', () {
+      final walks = effortWeekWalks(
+        {
+          monday.addDays(-1): 30,
+          monday: 12.4,
+          _today: 0.5,
+          _today.addDays(1): 20,
+        },
+        monday: monday,
+        today: _today,
+      );
+      expect(walks, [
+        (date: _today, minutes: 0.5),
+        (date: monday, minutes: 12.4),
+      ]);
+    });
+
+    test('leaves out a day under half a minute', () {
+      expect(
+        effortWeekWalks(
+          {_today: 0.4, monday: 0},
+          monday: monday,
+          today: _today,
+        ),
+        isEmpty,
+      );
+    });
+  });
+
+  group('effortPointsByType', () {
+    EffortSession session(WorkoutType type, int minutes) => effortSessionOf(
+      _imported(
+        type: type,
+        elapsed: Duration(minutes: minutes),
+      ),
+    );
+
+    test('adds the points of each type, in order of first appearance', () {
+      final byType = effortPointsByType([
+        session(WorkoutType.walking, 30),
+        session(WorkoutType.running, 20),
+        session(WorkoutType.walking, 10),
+      ]);
+      expect(byType.keys, [WorkoutType.walking, WorkoutType.running]);
+      expect(byType[WorkoutType.walking], 40);
+      expect(byType[WorkoutType.running], 40);
+    });
+
+    test('leaves out a type that earned no point', () {
+      expect(effortPointsByType([session(WorkoutType.yoga, 60)]), isEmpty);
+    });
+  });
+
   group('effortStrengthDays', () {
     test('holds the dates of the strength sessions only', () {
       final strength = effortSessionOf(

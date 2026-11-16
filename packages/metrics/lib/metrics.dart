@@ -1,6 +1,7 @@
 export 'src/activity_load.dart';
 export 'src/baseline.dart';
 export 'src/day_score.dart';
+export 'src/effort.dart';
 export 'src/energy.dart';
 export 'src/fitness_estimate.dart';
 export 'src/heart_rate_zones.dart';

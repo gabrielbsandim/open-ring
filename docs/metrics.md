@@ -1203,6 +1203,98 @@ range of 1.40 to 1.69 for a seated lifestyle, and Shcherbina 2017 (the best of
 seven wrist devices 27 percent off on energy). The net cost of walking is
 given as close to 0.5 kcal per kg per km with no paper named.
 
+## 19. Effort (session load, load lines, coach rule)
+
+`packages/metrics/lib/src/effort.dart`. Pure functions for the Effort module.
+Effort Points are not defined here: they are the intensity minutes of section
+14 (`workoutIntensity`, `walkingIntensity`, `weeklyIntensityMinutes`), which
+this section does not change. Nothing here feeds the Day Score.
+
+### Session load
+
+Minutes are `duration.inSeconds / 60` and every figure is rounded with
+`.round()`.
+
+| Figure | Rule | Basis |
+| --- | --- | --- |
+| By heart rate | sum over zone n of the minutes in zone n times n; none when no time was spent in a zone | the zone weights 1 to 5 follow Edwards 1993, **not yet checked against its source** |
+| By rating | minutes times the rating (`effortMinRating` 1 to `effortMaxRating` 10) divided by `effortRatingDivisor` (2) | minutes times a rating is the session rating method of Foster 2001, **not yet checked against its source**; the divisor is **our choice**, it puts a rating of 10 on the weight of zone 5 |
+| By default | minutes times the default of the workout type, which the app passes in | **our choice** |
+| Walking | `effortWalkingLoadFactor` (1.5) times the brisk minutes outside a session | **our choice** |
+
+`sessionLoad` takes the higher of the heart rate figure and the rating figure,
+and a tie goes to the heart rate. With only one of the two it takes that one,
+even when it is below the default. With neither it takes the default.
+`LoadSource` says which one was taken, and the three figures stay readable on
+`SessionLoad`.
+
+### The week
+
+`effortWeek` reads the calendar week from `mondayOf(today)` to today: the sum
+of the points and the number of days with a strength session. It is covered
+with `effortWeekPoints` (150) and `effortWeekStrengthDays` (2).
+
+| Constant | Basis |
+| --- | --- |
+| `effortWeekPoints` 150 | the 150 minutes of section 14 (Bull 2020), **sourced** |
+| `effortWeekStrengthDays` 2 | the same guideline asks for muscle strengthening on 2 or more days a week, **not yet checked against its source** |
+| `effortStrengthMinMinutes` 20 | **our choice**: `isStrengthSession` counts a session of at least 20 minutes |
+
+This week and the last 7 days of `weeklyIntensityMinutes` are two windows over
+the same points, so their totals differ on most days.
+
+### Load lines
+
+`loadLine` draws an exponential line over the daily load, oldest first: it
+starts at the mean of the first `effortLineSeedDays` (7) values, then for each
+later value `line = load * k + line * (1 - k)`, with `k = 2 / (days + 1)`.
+Under `effortMinLoadDays` (14) values there is no line.
+
+| Constant | Basis |
+| --- | --- |
+| `effortAcuteDays` 7, `effortChronicDays` 28, the weight `2 / (days + 1)` | Williams 2017, **not yet checked against its source** |
+| `effortLineSeedDays` 7, `effortMinLoadDays` 14 | **our choice** |
+
+These lines are separate from the acute and chronic means of
+`activity_load.dart`, which Readiness keeps using unchanged.
+
+### Hard and easy days
+
+- `hardDayFrom(line)` is the larger of `effortHardFloor` (120) and
+  `effortHardFactor` (1.5) times the 28 day line. A day is hard when its load
+  reaches the threshold of the line through the day before it, so a hard day
+  never raises its own threshold. With no line there is no hard day.
+- A day is easy when its load is under `effortEasyFraction` (0.5) of the 28 day
+  line through yesterday. With no line, or a line of zero, no day is counted
+  as not easy.
+
+All three constants are **our choice**.
+
+### Coach rule
+
+`coachAdvice` takes the readiness of the day (or none), the sick tag and the
+daily load ending yesterday, and answers with the first rule that matches:
+
+| # | Rule | When | Verdict |
+| --- | --- | --- | --- |
+| 1 | `sick` | the sick tag is set | recover |
+| 2 | `lowReadiness` | readiness under `readinessFairFrom` (55) | recover |
+| 3 | `hardRun` | `effortHardRunDays` (2) or more hard days in a row ending yesterday | recover |
+| 4 | `noEasyDay` | `effortNoEasyDays` (6) or more days in a row without an easy one | recover |
+| 5 | `fairReadiness` | readiness under `readinessGoodFrom` (70) | maintain |
+| 6 | `spike` | the 28 day line of a week ago times 7 is at least `effortSpikeMinWeekly` (150) and the 7 day line is above `effortSpikeFactor` (1.5) times it | maintain |
+| 7 | `hardYesterday` | yesterday was hard | maintain |
+| 8 | `goodReadiness` | there is a readiness, 70 or more | push |
+| 9 | `noReadiness` | there is no readiness | maintain |
+
+The readiness cuts are the bands of the Readiness score, not new constants.
+The order, the run of 2, the 6 days, the spike factor and its weekly floor are
+**our choice**. Letting the readiness of the morning decide between pushing
+and holding follows the idea of Kiviniemi 2007, **not yet checked against its
+source**. `CoachAdvice` carries every number the rule read (the two lines, the
+line of a week ago, the load of yesterday, the threshold it was tested
+against, the two counts), so a screen can show why.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

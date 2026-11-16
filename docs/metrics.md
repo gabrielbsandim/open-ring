@@ -857,8 +857,8 @@ by the product, not a published clinical formula, and it is stated as such on th
 
 Function: `OverallInputs(...).score`, with `overallBand(score)`. A slow number
 for "how am I in general", built from trailing windows and not from Day
-Scores. This section is the formula alone: where each input comes from, its
-window and the weekly cadence are defined with the code that reads them.
+Scores. The formula comes first; the windows that feed it and the weekly cadence are
+under "Windows and weeks" below.
 
 | Group | Factor | Input | Subscore | Points |
 | :--- | :--- | :--- | :--- | :--- |
@@ -917,6 +917,37 @@ missing factor.
 | `overallNoiseBelow` | 2 points | **our choice**: a weekly change smaller than this is not reported as a change |
 
 The Overall describes habits and measures, not the person's health.
+
+### Windows and weeks
+
+Functions: `overallMondays(today)` and `overallInputsOn(monday, ...)`. The
+app shows the Overall of the last 12 Mondays, oldest first, and the last one
+is the current value: it does not change until the next Monday. Nothing is
+stored. Each Monday is recomputed from the data, so a past Monday can move
+when a day is tagged, a weigh-in is edited or a late sync brings older
+samples.
+
+The window of a Monday is the 28 days that end the day before it, without the
+days tagged Sick or Travel. Rest days stay: rest is part of a routine. A worn
+day is a day of the window with at least one heart rate sample.
+
+| Input | From | Needs |
+| :--- | :--- | :--- |
+| resting heart rate | mean of the nightly resting heart rate (section 3) of the nights that ended in the window | 14 nights |
+| sleep duration | mean time asleep of the main night of each date in the window | 14 nights |
+| sleep regularity | the index below over the worn days, naps included | 14 pairs |
+| weekly minutes | moderate equivalent minutes (section 14) of the worn days, times 7 over their count | 14 worn days |
+| daily steps | mean steps of the worn days; a worn day without steps counts as zero | 14 worn days |
+| strength | distinct days with a strength workout in the window, times 7 over its length | 14 days in the window |
+| body | the last waist and the last weight logged before the Monday, with the profile height; only while the Body module is on | a height and a weigh-in |
+| fitness | no source yet, always left out | |
+
+Sleep comes from one source per date, the first in the user's order that has
+any sleep on it, and that source's naps count for the regularity index. An
+older adult, for the steps rule, is 60 or more this year by the profile's
+birth year. The height, the birth year and the source order of today are
+applied to past Mondays too. The 28 days, the 14, the worn day rule and which
+tags leave are **our choice**.
 
 ### Sleep Regularity Index
 

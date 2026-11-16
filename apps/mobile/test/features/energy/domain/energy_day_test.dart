@@ -404,12 +404,12 @@ void main() {
     test('the range is taken on the unrounded sum', () {
       const estimate = EnergyDayEstimate(
         resting: 1600,
-        base: 1224.4,
-        steps: 24.4,
-        workouts: 24.4,
+        base: 1282,
+        steps: 0.4,
+        workouts: 0.4,
       );
 
-      expect(estimate.range, energyRange(1273.2, energyDayMargin));
+      expect(estimate.range, (low: 1100, high: 1500));
     });
 
     test('a computed day carries the range of its total', () {

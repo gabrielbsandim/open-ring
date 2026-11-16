@@ -12,8 +12,8 @@ import 'package:open_ring/features/workout/application/workout_history_providers
 import 'package:open_ring/features/workout/application/workout_source_selection.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
 
-// A workout outside the day can still hide an overlapping one inside it, so
-// the selection runs over a wider window than the day.
+// A workout outside the day can still hide one inside it, or cover a bucket
+// stored on this date under another offset, so the read is wider than the day.
 const energySelectionPadding = Duration(days: 1);
 
 final FutureProviderFamily<EnergyDay, LocalDate> energyDayProvider =
@@ -54,11 +54,7 @@ final FutureProviderFamily<EnergyDay, LocalDate> energyDayProvider =
           for (final slot in slots)
             (start: slot.start, duration: slot.duration, steps: slot.steps),
         ],
-        workouts: [
-          for (final entry in selected)
-            if (entry.end.isAfter(from) && entry.start.isBefore(to))
-              _workoutOf(entry),
-        ],
+        workouts: selected.map(_workoutOf),
         from: from,
         to: to,
         now: now,

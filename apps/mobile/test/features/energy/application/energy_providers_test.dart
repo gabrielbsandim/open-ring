@@ -266,6 +266,21 @@ void main() {
   });
 
   group('the clock', () {
+    test('the day starts at the local midnight of the clock', () async {
+      final now = _noon.toLocal();
+      final start = localMidnight(_day, now.timeZoneOffset);
+      final day = _estimate(await _read(now: now, own: [_own(1, start, 30)]));
+      final early = _estimate(
+        await _read(
+          now: now,
+          own: [_own(1, start.subtract(const Duration(minutes: 1)), 30)],
+        ),
+      );
+
+      expect(day.workouts, 300);
+      expect(early.workouts, 0);
+    });
+
     test('base is the resting share of the day so far', () async {
       final day = _estimate(await _read());
 
@@ -315,6 +330,20 @@ void main() {
   });
 
   group('steps', () {
+    test('a workout before the day start still covers a slot dated on the '
+        'day', () async {
+      final before = _from.subtract(const Duration(hours: 1));
+      final day = _estimate(
+        await _read(
+          slots: [_slot(before, 1000, offset: const Duration(hours: 2))],
+          own: [_own(1, before, 30)],
+        ),
+      );
+
+      expect(day.steps, closeTo(_walk(500), 1e-9));
+      expect(day.workouts, 0);
+    });
+
     test('the steps of the day slots are counted', () async {
       final day = _estimate(
         await _read(

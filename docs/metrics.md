@@ -1073,11 +1073,14 @@ people outside it. The 15 percent of the day is **our choice**.
 
 ### One day
 
-`apps/mobile/lib/features/energy/domain/energy_day.dart`, `energyDay`. A local
-day runs between two local midnights and is the sum of three parts:
+`apps/mobile/lib/features/energy/domain/energy_day.dart`, `energyDay`. A day
+is the sum of three parts. Base and workouts read the day between two local
+midnights at the offset the phone has now, so a day before a clock change or
+a trip is read that many hours off; the step buckets keep the date they were
+stored with.
 
 - **Base**: the day base for the time gone by, so today grows with the clock
-  and a past day holds the full 24 hours.
+  and a past day holds 24 hours, also on the day the clocks change.
 - **Steps**: every 15 minute bucket of the day. The part of a bucket that a
   workout covers is left out, in proportion to the time covered, because the
   workout already counts that movement. Workouts over the same minutes cover
@@ -1086,7 +1089,8 @@ day runs between two local midnights and is the sum of three parts:
   workout rule above with the current weight (a workout read from another app
   stores none). A workout counts whole on the day it started (owner decision
   of 2026-11-15, the rule the Day Score uses); one that started the day before
-  adds nothing here and still removes the steps it covers.
+  adds nothing here and still removes the steps it covers, as does any
+  workout over a bucket of this date.
 
 An own workout and one from another app that overlap count once, by the
 source order of the workout list. The weight is the latest weigh-in when the

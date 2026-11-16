@@ -6,10 +6,12 @@ import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/l10n/app_locales.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_theme.dart';
+import 'package:open_ring/core/widgets/charts.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/effort/application/effort_providers.dart';
 import 'package:open_ring/features/effort/domain/effort_day.dart';
 import 'package:open_ring/features/effort/presentation/effort_coach_card.dart';
+import 'package:open_ring/features/effort/presentation/effort_load_card.dart';
 import 'package:open_ring/features/effort/presentation/effort_screen.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
@@ -77,6 +79,9 @@ const EffortCoachCard _coach = (
   covered: false,
 );
 
+// 30 days at 40, then yesterday at 100: both lines exist and differ.
+final List<double> _steady = [...List.filled(30, 40), 100];
+
 EffortWeek _week(double points, int strengthDays) =>
     EffortWeek(monday: _monday, points: points, strengthDays: strengthDays);
 
@@ -85,6 +90,7 @@ List<Override> _overrides({
   EffortWeek? week,
   List<EffortSession>? sessions,
   double? lastSeven = 185,
+  List<double>? dailyLoad,
   bool fail = false,
 }) => [
   ...bleOverrides(),
@@ -99,6 +105,7 @@ List<Override> _overrides({
     (ref) async => sessions ?? [_lastWeek, _run, _strength],
   ),
   effortLastSevenProvider.overrideWith((ref) async => lastSeven),
+  effortDailyLoadProvider.overrideWith((ref) async => dailyLoad ?? _steady),
 ];
 
 Future<void> _pump(
@@ -107,6 +114,7 @@ Future<void> _pump(
   EffortWeek? week,
   List<EffortSession>? sessions,
   double? lastSeven = 185,
+  List<double>? dailyLoad,
   bool fail = false,
   Locale locale = const Locale('en'),
   TextScaler textScaler = TextScaler.noScaling,
@@ -122,6 +130,7 @@ Future<void> _pump(
     week: week,
     sessions: sessions,
     lastSeven: lastSeven,
+    dailyLoad: dailyLoad,
     fail: fail,
   ),
 );
@@ -137,8 +146,8 @@ String _text(WidgetTester tester, Key key) =>
       final other => throw StateError('no text in ${other.runtimeType}'),
     };
 
-Future<void> _toFoot(WidgetTester tester) =>
-    tester.scrollUntilVisible(find.byKey(EffortKeys.foot), 300);
+Future<void> _show(WidgetTester tester, Key key) =>
+    tester.scrollUntilVisible(find.byKey(key), 200);
 
 void main() {
   group('the gate', () {
@@ -235,7 +244,7 @@ void main() {
       tester,
     ) async {
       await _pump(tester);
-      await _toFoot(tester);
+      await _show(tester, EffortKeys.sessions);
       final l10n = _l10n(tester);
       expect(find.byKey(EffortKeys.session(0)), findsOneWidget);
       expect(find.byKey(EffortKeys.session(1)), findsOneWidget);
@@ -259,7 +268,7 @@ void main() {
 
     testWidgets('a session prints its points and its load', (tester) async {
       await _pump(tester);
-      await _toFoot(tester);
+      await _show(tester, EffortKeys.sessions);
       final l10n = _l10n(tester);
       final points = _run.points.equivalent.round();
       expect(
@@ -280,7 +289,7 @@ void main() {
 
     testWidgets('only a session without heart rate says so', (tester) async {
       await _pump(tester);
-      await _toFoot(tester);
+      await _show(tester, EffortKeys.sessions);
       final l10n = _l10n(tester);
       expect(_run.load.source, LoadSource.typeDefault);
       expect(_strength.load.source, LoadSource.heartRate);
@@ -295,13 +304,84 @@ void main() {
       tester,
     ) async {
       await _pump(tester, week: _week(12, 0), sessions: [_lastWeek]);
-      await _toFoot(tester);
+      await _show(tester, EffortKeys.sessions);
       expect(find.byKey(EffortKeys.sessionsEmpty), findsOneWidget);
       expect(find.byKey(WorkoutEntryButton.startKey), findsOneWidget);
       expect(
         _text(tester, EffortKeys.weekMessage),
         _l10n(tester).effortWeekOpen('138'),
       );
+    });
+  });
+
+  group('the training load', () {
+    testWidgets('under 14 days it says how many it has', (tester) async {
+      await _pump(tester, dailyLoad: List.filled(9, 30));
+      await _show(tester, EffortLoadKeys.card);
+      final l10n = _l10n(tester);
+      expect(find.byKey(EffortLoadKeys.building), findsOneWidget);
+      expect(
+        _text(tester, EffortLoadKeys.buildingDays),
+        l10n.effortLoadBuildingDays('9', '14'),
+      );
+      expect(find.byKey(EffortLoadKeys.chart), findsNothing);
+      expect(find.byKey(EffortLoadKeys.acute), findsNothing);
+    });
+
+    testWidgets('with history it shows the two lines as two numbers', (
+      tester,
+    ) async {
+      await _pump(tester);
+      await _show(tester, EffortLoadKeys.card);
+      final l10n = _l10n(tester);
+      final acute = loadLine(_steady, days: effortAcuteDays)!.round();
+      final chronic = loadLine(_steady, days: effortChronicDays)!.round();
+      expect(acute, isNot(chronic));
+      expect(find.byKey(EffortLoadKeys.building), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byKey(EffortLoadKeys.acute),
+          matching: find.text(l10n.effortLoadPerDay('$acute')),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(EffortLoadKeys.chronic),
+          matching: find.text(l10n.effortLoadPerDay('$chronic')),
+        ),
+        findsOneWidget,
+      );
+      expect(_text(tester, EffortLoadKeys.noRatio), l10n.effortLoadNoRatio);
+    });
+
+    testWidgets('the chart draws the last 28 days only', (tester) async {
+      await _pump(tester);
+      await _show(tester, EffortLoadKeys.card);
+      final chart = tester.widget<HourlyBars>(find.byKey(EffortLoadKeys.chart));
+      expect(chart.values, _steady.sublist(3));
+      expect(
+        chart.semanticsLabel,
+        _l10n(tester).effortLoadChartSemantics('28'),
+      );
+    });
+
+    testWidgets('the list of what Effort never does has five lines', (
+      tester,
+    ) async {
+      await _pump(tester);
+      await _show(tester, EffortKeys.foot);
+      final l10n = _l10n(tester);
+      expect(find.byKey(EffortKeys.never), findsOneWidget);
+      for (final fact in [
+        l10n.effortNever1,
+        l10n.effortNever2,
+        l10n.effortNever3,
+        l10n.effortNever4,
+        l10n.effortNever5,
+      ]) {
+        expect(find.text(fact), findsOneWidget);
+      }
     });
   });
 
@@ -346,18 +426,19 @@ void main() {
   });
 
   group('layout', () {
-    final states = <String, (EffortWeek, List<EffortSession>)>{
-      'a full week': (_week(140, 1), [_lastWeek, _run, _strength]),
-      'an empty week': (_week(0, 0), const []),
+    final states = <String, (EffortWeek, List<EffortSession>, List<double>)>{
+      'a full week': (_week(140, 1), [_lastWeek, _run, _strength], _steady),
+      'an empty week': (_week(0, 0), const [], const [0, 0, 12]),
     };
     for (final locale in AppLocales.supported) {
-      for (final MapEntry(key: name, value: (week, sessions))
+      for (final MapEntry(key: name, value: (week, sessions, dailyLoad))
           in states.entries) {
         testWidgets('fits 2x in $locale with $name', (tester) async {
           await _pump(
             tester,
             week: week,
             sessions: sessions,
+            dailyLoad: dailyLoad,
             modules: const {ModuleId.effort, ModuleId.openScore},
             locale: locale,
             textScaler: const TextScaler.linear(2),

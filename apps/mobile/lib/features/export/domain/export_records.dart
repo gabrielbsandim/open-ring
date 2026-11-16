@@ -85,6 +85,7 @@ final class WorkoutRecord extends ExportRecord {
     this.deviceId,
     this.distanceMeters,
     this.activeKilocalories,
+    this.effortRating,
   });
 
   final OffsetTime start;
@@ -94,6 +95,7 @@ final class WorkoutRecord extends ExportRecord {
   final String activityType;
   final double? distanceMeters;
   final double? activeKilocalories;
+  final int? effortRating;
 
   @override
   List<Object?> get values => [
@@ -108,6 +110,7 @@ final class WorkoutRecord extends ExportRecord {
     },
     distanceMeters,
     activeKilocalories,
+    effortRating,
   ];
 }
 

@@ -45,7 +45,7 @@ record uses exactly the same keys in the same order.
 | SpO2 | `spo2` | `time`, `device_id`, `spo2_percent` |
 | Stress | `stress` | `time`, `device_id`, `stress_level` |
 | Steps and activity | `activity` | `start`, `end`, `device_id`, `steps`, `distance_m`, `active_kcal` |
-| Workouts | `workouts` | `start`, `end`, `client_id`, `device_id`, `activity_type`, `duration_s`, `distance_m`, `active_kcal` |
+| Workouts | `workouts` | `start`, `end`, `client_id`, `device_id`, `activity_type`, `duration_s`, `distance_m`, `active_kcal`, `effort_rating` |
 | Weigh-ins | `weigh_ins` | `time`, `weight_kg`, `body_fat_percent`, `waist_cm`, `source` |
 | Day tags | `day_tags` | `date`, `tag` |
 
@@ -73,6 +73,7 @@ dates the two ends of the range fall on, both included.
 | `steps` | steps | Steps in the bucket. |
 | `distance_m` | meters | Integer for activity buckets, decimal for workouts. |
 | `active_kcal` | kilocalories | Active energy only, not total energy. |
+| `effort_rating` | 1 to 10 | The effort you gave the workout, 10 the hardest. Empty when it has none. |
 | `client_id` | text | The workout's stable id, the same one used for Health Connect and HealthKit. |
 | `activity_type` | text | The workout type as recorded by the app. |
 | `weight_kg` | kilograms | The weigh-in as logged, never the trend weight. Always kilograms, whatever unit the app shows. |
@@ -83,6 +84,11 @@ dates the two ends of the range fall on, both included.
 Values are exported as stored: implausible readings that the screens hide (a
 zero heart rate, an SpO2 under the plausible floor) are kept, so an export is
 a faithful copy of the database, not of the charts.
+
+`effort_rating` is the same: it is always in the workouts kind, with the
+Effort module on or off, and a stored value outside 1 to 10 is exported as it
+is. Workouts read from other apps (Health Connect) are not exported, so a
+rating given to one of them is in no export file.
 
 ## CSV
 

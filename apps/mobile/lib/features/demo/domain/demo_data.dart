@@ -29,6 +29,7 @@ final class DemoData {
     required List<FinishedWorkout> workouts,
     required List<SyncRun> syncRuns,
     List<WeighInDraft> weighIns = const [],
+    Map<DateTime, int> workoutRatings = const {},
     this.identity = demoRing,
   }) : activity = List.unmodifiable(activity),
        heartRate = List.unmodifiable(heartRate),
@@ -38,7 +39,8 @@ final class DemoData {
        sleep = List.unmodifiable(sleep),
        workouts = List.unmodifiable(workouts),
        syncRuns = List.unmodifiable(syncRuns),
-       weighIns = List.unmodifiable(weighIns);
+       weighIns = List.unmodifiable(weighIns),
+       workoutRatings = Map.unmodifiable(workoutRatings);
 
   final RingIdentity identity;
   final DateTime pairedAt;
@@ -53,6 +55,9 @@ final class DemoData {
   final List<FinishedWorkout> workouts;
   final List<SyncRun> syncRuns;
   final List<WeighInDraft> weighIns;
+
+  /// The effort rating of a demo workout, by the start of that workout.
+  final Map<DateTime, int> workoutRatings;
 
   String get deviceId => identity.deviceId;
 }

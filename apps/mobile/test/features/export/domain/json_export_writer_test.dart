@@ -46,6 +46,14 @@ void main() {
           clientId: 'w-1',
           activityType: 'run "tempo"',
           activeKilocalories: 250,
+          effortRating: 7,
+        ),
+      )
+      ..write(
+        WorkoutRecord(
+          start: _at(DateTime.utc(2026, 10, 25, 11), 60),
+          clientId: 'w-2',
+          activityType: 'walk',
         ),
       )
       ..endKind()
@@ -64,7 +72,9 @@ void main() {
       '  ],\n'
       '  "hrv": [],\n'
       '  "workouts": [\n'
-      r'    {"start":"2026-10-25T10:00:00+01:00","end":null,"client_id":"w-1","device_id":null,"activity_type":"run \"tempo\"","duration_s":null,"distance_m":null,"active_kcal":250}'
+      r'    {"start":"2026-10-25T10:00:00+01:00","end":null,"client_id":"w-1","device_id":null,"activity_type":"run \"tempo\"","duration_s":null,"distance_m":null,"active_kcal":250,"effort_rating":7},'
+      '\n'
+      '    {"start":"2026-10-25T12:00:00+01:00","end":null,"client_id":"w-2","device_id":null,"activity_type":"walk","duration_s":null,"distance_m":null,"active_kcal":null,"effort_rating":null}'
       '\n'
       '  ]\n'
       '}\n',

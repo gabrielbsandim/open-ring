@@ -214,6 +214,7 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
         activityType: row.activityType,
         distanceMeters: row.distanceMeters,
         activeKilocalories: row.activeKilocalories,
+        effortRating: row.effortRating,
       ),
     );
   }

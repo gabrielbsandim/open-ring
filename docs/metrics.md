@@ -1044,6 +1044,33 @@ It compares clock times, so across a daylight saving change the second day is
 read one hour off the 24 hours of the paper. The 5 minute epoch and the 14
 pairs are **our choice**.
 
+## 18. Energy (daily estimate)
+
+`packages/metrics/lib/src/energy.dart`. Pure functions for the Energy module.
+No screen reads them yet. Every figure is an estimate for the average person
+of a given size, never a measurement and never a target for eating.
+
+| Part | Rule | Basis |
+| --- | --- | --- |
+| Resting | `9.99 * kg + 6.25 * cm - 4.92 * age + 5` for men, `- 161` for women, in kcal a day | Mifflin 1990, written from memory and not checked against the paper |
+| Base | resting times `energyBaseFactor` (1.3), spread evenly over the 24 hours | **our choice**: resting plus the small movements of a day without exercise; the factor is not sourced |
+| Steps | steps times `energyStepLengthFactor` (0.415) times height gives the distance; `energyWalkCostPerKgKm` (0.5) kcal per kg per km above rest | both constants are common rules of thumb, **not sourced** |
+| Workout | `(MET - 1) * kg * hours`, never below zero | the rule of section 11 (Ainsworth 2011) |
+
+The owner decided on 2026-11-15 that the step distance always comes from the
+height, for both sexes, and never from the distance the ring reports: the
+ring's formula is not published, and this one can be redone by hand.
+
+`restingEnergy` gives no number without sex, age, weight and height, or under
+`energyAdultAge` (18): the equation was fitted on adults.
+
+A number is shown as a range. `energyRange` takes the margin on the total and
+rounds each end to `energyRangeStep` (50 kcal): `energyRestingMargin` (10
+percent) for the resting figure, `energyDayMargin` (15 percent) for a day.
+Frankenfield 2005 found the equation within 10 percent of the measured resting
+value for more people than the other common equations, which still leaves
+people outside it. The 15 percent of the day is **our choice**.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical
@@ -1060,6 +1087,9 @@ pairs are **our choice**.
   Rome? Front Physiol. 2014;5:73.
 - Fox SM, Naughton JP, Haskell WL. Physical activity and the prevention of
   coronary heart disease. Ann Clin Res. 1971;3(6):404-432.
+- Frankenfield D, Roth-Yousey L, Compher C. Comparison of predictive equations
+  for resting metabolic rate in healthy nonobese and obese adults: a
+  systematic review. J Am Diet Assoc. 2005;105(5):775-789.
 - Gabbett TJ. The training-injury prevention paradox: should athletes be
   training smarter and harder? Br J Sports Med. 2016;50(5):273-280.
 - Garber CE, Blissmer B, Deschenes MR, et al. Quantity and quality of exercise
@@ -1075,6 +1105,9 @@ pairs are **our choice**.
 - Impellizzeri FM, Tenan MS, Kempton T, Novak A, Coutts AJ. Acute:chronic
   workload ratio: conceptual issues and fundamental pitfalls. Int J Sports
   Physiol Perform. 2020;15(6):907-913.
+- Mifflin MD, St Jeor ST, Hill LA, Scott BJ, Daugherty SA, Koh YO. A new
+  predictive equation for resting energy expenditure in healthy individuals.
+  Am J Clin Nutr. 1990;51(2):241-247.
 - Moritz H. Geodetic Reference System 1980. J Geod. 2000;74(1):128-133.
 - Ohayon MM, Carskadon MA, Guilleminault C, Vitiello MV. Meta-analysis of
   quantitative sleep parameters from childhood to old age in healthy

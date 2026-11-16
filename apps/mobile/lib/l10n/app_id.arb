@@ -1631,5 +1631,7 @@
   "energyLegendUsual": "hari biasamu",
   "energyUsualSame": "Kurang lebih sama dengan hari biasamu pada jam ini.",
   "energyUsualMore": "Sekitar {kcal} kkal lebih banyak daripada hari biasamu pada jam ini.",
-  "energyUsualLess": "Sekitar {kcal} kkal lebih sedikit daripada hari biasamu pada jam ini."
+  "energyUsualLess": "Sekitar {kcal} kkal lebih sedikit daripada hari biasamu pada jam ini.",
+  "dayScoreCardMath": "Lihat hitungannya",
+  "dayScoreCardMissing": "Lihat apa yang kurang"
 }

@@ -1631,5 +1631,7 @@
   "energyLegendUsual": "いつもの1日",
   "energyUsualSame": "この時刻までのいつもの1日とほぼ同じです。",
   "energyUsualMore": "この時刻までのいつもの1日より約{kcal} kcal多くなっています。",
-  "energyUsualLess": "この時刻までのいつもの1日より約{kcal} kcal少なくなっています。"
+  "energyUsualLess": "この時刻までのいつもの1日より約{kcal} kcal少なくなっています。",
+  "dayScoreCardMath": "計算を見る",
+  "dayScoreCardMissing": "足りなかったものを見る"
 }

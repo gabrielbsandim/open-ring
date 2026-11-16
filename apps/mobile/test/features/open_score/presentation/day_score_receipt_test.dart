@@ -303,7 +303,7 @@ void main() {
       overrides: overridesFor(historyOf(day())),
     );
 
-    await tester.tap(find.byKey(DayScoreCardKeys.card));
+    await tester.tap(find.byKey(DayScoreCardKeys.value));
     await tester.pumpAndSettle();
 
     expect(router.state.uri.path, AppPaths.dayScore);

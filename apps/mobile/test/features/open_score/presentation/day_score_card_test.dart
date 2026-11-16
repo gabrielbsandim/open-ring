@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/app/l10n/app_locales.dart';
+import 'package:open_ring/app/router/app_routes.dart';
+import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/features/energy/presentation/energy_row.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
@@ -13,6 +17,7 @@ import 'package:open_ring/features/open_score/domain/day_score_history.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_card.dart';
 import 'package:open_ring/features/today/presentation/today_cards.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
+import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 import '../../../helpers/day_score_fakes.dart';
 import '../../../helpers/layout_harness.dart';
@@ -54,6 +59,31 @@ Future<void> pumpToday(
   overrides: <Override>[
     ...metricsOverrides(scenario ?? fullDataScenario),
     moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
+  ],
+);
+
+String _label(WidgetTester tester, Key key) => tester
+    .widget<Text>(
+      find.descendant(of: find.byKey(key), matching: find.byType(Text)),
+    )
+    .data!;
+
+GoRouter _router() => GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (_, _) =>
+          const Scaffold(body: SingleChildScrollView(child: DayScoreCard())),
+    ),
+    for (final path in [
+      AppPaths.dayScore,
+      AppPaths.dayScoreHistory,
+      AppPaths.dayScoreFormula,
+    ])
+      GoRoute(
+        path: path,
+        builder: (_, _) => Scaffold(body: Text(path)),
+      ),
   ],
 );
 
@@ -282,6 +312,93 @@ void main() {
       expect(find.text('ready'), findsNWidgets(2));
       expect(find.text('building'), findsNWidgets(2));
     });
+
+    testWidgets('a scored day links to the math and the score history', (
+      tester,
+    ) async {
+      await pumpCard(tester, historyOf(day()));
+
+      expect(_label(tester, DayScoreCardKeys.openReceipt), 'See the math');
+      expect(_label(tester, DayScoreCardKeys.openOther), 'Score history');
+    });
+
+    testWidgets('a day without a score links to what was missing', (
+      tester,
+    ) async {
+      await pumpCard(tester, historyOf(day(sleepScore: null)));
+
+      expect(
+        _label(tester, DayScoreCardKeys.openReceipt),
+        'See what was missing',
+      );
+      expect(_label(tester, DayScoreCardKeys.openOther), 'Score history');
+    });
+
+    testWidgets('the first days link to the math and the formula', (
+      tester,
+    ) async {
+      await pumpCard(
+        tester,
+        historyOf(
+          day(intensityMinutes: null, baselines: false, stressZ: null),
+          scoredBefore: false,
+        ),
+      );
+
+      expect(_label(tester, DayScoreCardKeys.openReceipt), 'See the math');
+      expect(_label(tester, DayScoreCardKeys.openOther), 'How we calculate');
+    });
+
+    testWidgets('a failed read has no link', (tester) async {
+      await pumpCard(tester, null);
+
+      expect(find.byKey(DayScoreCardKeys.openReceipt), findsNothing);
+      expect(find.byKey(DayScoreCardKeys.openOther), findsNothing);
+    });
+
+    for (final (name, history, path) in [
+      ('a scored day', historyOf(day()), AppPaths.dayScoreHistory),
+      (
+        'the first days',
+        historyOf(
+          day(intensityMinutes: null, baselines: false, stressZ: null),
+          scoredBefore: false,
+        ),
+        AppPaths.dayScoreFormula,
+      ),
+    ]) {
+      testWidgets('the links of $name open their screens', (tester) async {
+        final router = _router();
+        addTearDown(router.dispose);
+        await pumpScaled(
+          tester,
+          MaterialApp.router(
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
+            supportedLocales: AppLocales.supported,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            routerConfig: router,
+          ),
+          textScaler: TextScaler.noScaling,
+          brightness: Brightness.dark,
+          locale: const Locale('en'),
+          overrides: <Override>[
+            clockProvider.overrideWithValue(() => metricsNow),
+            dayScoreHistoryProvider.overrideWith((ref) async => history),
+          ],
+        );
+
+        await tester.tap(find.byKey(DayScoreCardKeys.openOther));
+        await tester.pumpAndSettle();
+        expect(router.state.uri.path, path);
+
+        router.go('/');
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(DayScoreCardKeys.openReceipt));
+        await tester.pumpAndSettle();
+        expect(router.state.uri.path, AppPaths.dayScore);
+      });
+    }
 
     testWidgets('a failed read says so', (tester) async {
       await pumpCard(tester, null);

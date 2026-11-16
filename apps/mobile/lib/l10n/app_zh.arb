@@ -1631,5 +1631,7 @@
   "energyLegendUsual": "你平常的一天",
   "energyUsualSame": "与你平常一天到此时的情况大致相同。",
   "energyUsualMore": "比你平常一天到此时多约 {kcal} 千卡。",
-  "energyUsualLess": "比你平常一天到此时少约 {kcal} 千卡。"
+  "energyUsualLess": "比你平常一天到此时少约 {kcal} 千卡。",
+  "dayScoreCardMath": "查看计算",
+  "dayScoreCardMissing": "查看缺少了什么"
 }

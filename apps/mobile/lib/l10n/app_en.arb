@@ -3785,5 +3785,7 @@
   "energyUsualMore": "About {kcal} kcal more than your usual day by this time.",
   "@energyUsualMore": {"placeholders": {"kcal": {"type": "String"}}},
   "energyUsualLess": "About {kcal} kcal less than your usual day by this time.",
-  "@energyUsualLess": {"placeholders": {"kcal": {"type": "String"}}}
+  "@energyUsualLess": {"placeholders": {"kcal": {"type": "String"}}},
+  "dayScoreCardMath": "See the math",
+  "dayScoreCardMissing": "See what was missing"
 }

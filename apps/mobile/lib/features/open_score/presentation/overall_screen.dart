@@ -12,6 +12,7 @@ import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/overall_providers.dart';
 import 'package:open_ring/features/open_score/domain/overall_history.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_card.dart';
+import 'package:open_ring/features/open_score/presentation/overall_evidence_sheet.dart';
 import 'package:open_ring/features/open_score/presentation/overall_row.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -195,7 +196,7 @@ class _Summary extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 1),
                     child: DayScoreMeter(
-                      fill: _secret(factor, hidden: hidden)
+                      fill: overallSecret(factor, hidden: hidden)
                           ? null
                           : scored.of(factor)?.subscore,
                       color: overallGroupColor(colors, factor.group),
@@ -221,10 +222,6 @@ class _Summary extends StatelessWidget {
   }
 }
 
-// Body points give the measure back, so they hide with the numbers.
-bool _secret(OverallFactor factor, {required bool hidden}) =>
-    hidden && factor == OverallFactor.body;
-
 String _capital(String text) =>
     text.isEmpty ? text : '${text[0].toUpperCase()}${text.substring(1)}';
 
@@ -248,6 +245,7 @@ class _Source extends StatelessWidget {
             style: Theme.of(context).textTheme.titleMedium
                 ?.copyWith(fontWeight: FontWeight.w600),
           ),
+          const SizedBox(height: 7),
           for (final factor in OverallFactor.values)
             _FactorRow(
               factor: factor,
@@ -259,49 +257,6 @@ class _Source extends StatelessWidget {
       ),
     );
   }
-}
-
-String _value(
-  MetricFormat format,
-  OverallFactor factor,
-  OverallInputs inputs, {
-  required bool hidden,
-}) {
-  final l10n = format.l10n;
-  return switch (factor) {
-    OverallFactor.fitness => '',
-    OverallFactor.restingHeartRate => l10n.overallValueResting(
-      format.bpm(inputs.restingHeartRate ?? 0),
-    ),
-    OverallFactor.sleepDuration => l10n.overallValueSleep(
-      format.duration(
-        Duration(minutes: ((inputs.sleepHours ?? 0) * 60).round()),
-      ),
-    ),
-    OverallFactor.sleepRegularity => l10n.overallValueRegularity(
-      format.integer(inputs.sleepRegularity ?? 0),
-    ),
-    OverallFactor.movement => l10n.overallValueMovement(
-      format.integer(inputs.weeklyMinutes ?? 0),
-      format.decimal(inputs.strengthPerWeek, digits: 1),
-      format.integer(inputs.dailySteps ?? 0),
-    ),
-    OverallFactor.body => _body(format, inputs, hidden: hidden),
-  };
-}
-
-String _body(
-  MetricFormat format,
-  OverallInputs inputs, {
-  required bool hidden,
-}) {
-  final l10n = format.l10n;
-  if (hidden) return l10n.overallValueHidden;
-  final waist = inputs.waistToHeight;
-  if (waist != null) {
-    return l10n.overallValueWaist(format.decimal(waist, digits: 2));
-  }
-  return l10n.overallValueBmi(format.decimal(inputs.bmi ?? 0, digits: 1));
 }
 
 class _FactorRow extends StatelessWidget {
@@ -324,68 +279,83 @@ class _FactorRow extends StatelessWidget {
     final colors = AppColors.of(context);
     final theme = Theme.of(context).textTheme;
     final earned = this.earned;
-    return Padding(
+    return InkWell(
       key: OverallKeys.factor(factor),
-      padding: const EdgeInsets.only(top: 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 5, right: 10),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: earned == null
-                    ? null
-                    : overallGroupColor(colors, factor.group),
-                border: Border.all(
-                  color: overallGroupColor(colors, factor.group),
-                  width: 1.5,
+      onTap: () => showOverallEvidence(
+        context,
+        factor: factor,
+        inputs: inputs,
+        earned: earned,
+        hidden: hidden,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 7),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 5, right: 10),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: earned == null
+                      ? null
+                      : overallGroupColor(colors, factor.group),
+                  border: Border.all(
+                    color: overallGroupColor(colors, factor.group),
+                    width: 1.5,
+                  ),
+                  shape: BoxShape.circle,
                 ),
-                shape: BoxShape.circle,
+                child: const SizedBox.square(dimension: 10),
               ),
-              child: const SizedBox.square(dimension: 10),
             ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  spacing: 12,
-                  children: [
-                    Text(
-                      overallFactorLabel(l10n, factor),
-                      style: theme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (!(earned != null && _secret(factor, hidden: hidden)))
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    spacing: 12,
+                    children: [
                       Text(
-                        earned == null
-                            ? l10n.overallOutside
-                            : l10n.dayScoreReceiptOf(
-                                format.points(earned.points),
-                                format.integer(earned.weight),
-                              ),
-                        key: OverallKeys.points(factor),
-                        style: theme.bodyMedium?.copyWith(
-                          color: colors.textSecondary,
-                          fontFeatures: const [FontFeature.tabularFigures()],
+                        overallFactorLabel(l10n, factor),
+                        style: theme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                CaptionText(
-                  earned == null
-                      ? l10n.overallGone(factor.weight.round())
-                      : _value(format, factor, inputs, hidden: hidden),
-                ),
-              ],
+                      if (!(earned != null &&
+                          overallSecret(factor, hidden: hidden)))
+                        Text(
+                          earned == null
+                              ? l10n.overallOutside
+                              : l10n.dayScoreReceiptOf(
+                                  format.points(earned.points),
+                                  format.integer(earned.weight),
+                                ),
+                          key: OverallKeys.points(factor),
+                          style: theme.bodyMedium?.copyWith(
+                            color: colors.textSecondary,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  CaptionText(
+                    earned == null
+                        ? l10n.overallGone(factor.weight.round())
+                        : overallValueText(
+                            format,
+                            factor,
+                            inputs,
+                            hidden: hidden,
+                          ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

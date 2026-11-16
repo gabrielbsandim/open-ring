@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/app_navigation_bar.dart';
+import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/core/records/source_priority.dart';
 import 'package:open_ring/features/activity/presentation/activity_screen.dart';
+import 'package:open_ring/features/effort/presentation/effort_rating_card.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/workout/application/workout_history_providers.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
@@ -16,6 +22,7 @@ import 'package:open_ring/features/workout/presentation/workout_summary_screen.d
 import '../../../helpers/layout_harness.dart';
 import '../../../helpers/metrics_fakes.dart';
 import '../../../helpers/workout_fakes.dart';
+import '../../../helpers/workout_rating_fakes.dart';
 import 'workout_scenarios.dart';
 
 const _watch = 'com.garmin.android.apps.connectmobile';
@@ -180,6 +187,60 @@ void main() {
       find.text('Dieses Training ist nicht mehr auf diesem Telefon.'),
       findsOneWidget,
     );
+  });
+
+  group('the effort rating card', () {
+    Future<void> pumpImported(WidgetTester tester, Set<ModuleId> modules) =>
+        pumpScaled(
+          tester,
+          screenHost(const ImportedWorkoutScreen(recordId: 'ride')),
+          textScaler: TextScaler.noScaling,
+          brightness: Brightness.dark,
+          locale: const Locale('en'),
+          size: tallPhone,
+          overrides: [
+            ..._overrides(),
+            moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
+            workoutRatingStoreProvider.overrideWithValue(MemoryRatings()),
+          ],
+        );
+
+    testWidgets('shows on an imported summary while Effort is on', (
+      tester,
+    ) async {
+      await pumpImported(tester, const {ModuleId.effort});
+
+      expect(find.byKey(EffortRatingKeys.card), findsOneWidget);
+      expect(find.byKey(EffortRatingKeys.option(7)), findsOneWidget);
+    });
+
+    testWidgets('a skip survives the imported summary reloading', (
+      tester,
+    ) async {
+      await pumpImported(tester, const {ModuleId.effort});
+      final skip = find.byKey(EffortRatingKeys.skip);
+      await tester.ensureVisible(skip);
+      await tester.pumpAndSettle();
+      await tester.tap(skip);
+      await tester.pumpAndSettle();
+
+      ProviderScope.containerOf(
+        tester.element(find.byType(ImportedWorkoutScreen)),
+      ).read(dataRevisionProvider.notifier).bump();
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(EffortRatingKeys.rateNow), findsOneWidget);
+      expect(find.byKey(EffortRatingKeys.option(7)), findsNothing);
+    });
+
+    testWidgets('is absent from an imported summary while Effort is off', (
+      tester,
+    ) async {
+      await pumpImported(tester, const {ModuleId.openScore});
+
+      expect(find.byKey(ImportedWorkoutKeys.source), findsOneWidget);
+      expect(find.byKey(EffortRatingKeys.card), findsNothing);
+    });
   });
 
   group('layout', () {

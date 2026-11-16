@@ -142,6 +142,7 @@ class EffortFormulaScreen extends ConsumerWidget {
               for (final fraction in zoneLowerFractions)
                 _percent(format, fraction),
             ].join(', '),
+            format.decimal(effortRatingDivisor),
           ),
           note: effortTypeDefaults(format),
           noteKey: EffortFormulaKeys.defaults,
@@ -203,6 +204,7 @@ class EffortFormulaScreen extends ConsumerWidget {
             l10n.effortFormulaUnchecked2,
             l10n.effortFormulaUnchecked3,
             l10n.effortFormulaUnchecked4,
+            l10n.effortFormulaUnchecked5,
           ],
         ),
         const SizedBox(height: cardGap),

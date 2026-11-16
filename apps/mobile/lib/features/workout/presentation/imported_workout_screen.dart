@@ -8,6 +8,8 @@ import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/effort/application/effort_gate.dart';
+import 'package:open_ring/features/effort/presentation/effort_rating_card.dart';
 import 'package:open_ring/features/settings/presentation/source_labels.dart';
 import 'package:open_ring/features/workout/application/workout_history_providers.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
@@ -69,13 +71,13 @@ class _MissingView extends StatelessWidget {
   }
 }
 
-class _ImportedSummary extends StatelessWidget {
+class _ImportedSummary extends ConsumerWidget {
   const new({required this.workout});
 
   final ImportedWorkout workout;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colors = AppColors.of(context);
     final format = MetricFormat.of(context);
@@ -113,6 +115,10 @@ class _ImportedSummary extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         CaptionText(l10n.workoutImportedNote(app)),
+        if (ref.watch(effortEnabledProvider)) ...[
+          const SizedBox(height: cardGap),
+          EffortRatingCard.imported(recordId: workout.recordId),
+        ],
         const SizedBox(height: 20),
         SecondaryButton(
           key: ImportedWorkoutKeys.back,

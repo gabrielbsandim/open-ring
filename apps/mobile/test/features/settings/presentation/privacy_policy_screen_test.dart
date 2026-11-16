@@ -101,6 +101,8 @@ void main() {
       l.privacyStoresRingDataWhy,
       l.privacyStoresWorkouts,
       l.privacyStoresWorkoutsWhy,
+      l.privacyStoresRatings,
+      l.privacyStoresRatingsWhy,
       l.privacyStoresRoutes,
       l.privacyStoresRoutesWhy,
       l.privacyStoresProfile,
@@ -129,6 +131,35 @@ void main() {
     ]) {
       expect(policy, contains(text));
     }
+  });
+
+  testWidgets('the privacy screen shows the ratings row', (tester) async {
+    await pumpScaled(
+      tester,
+      screenHost(const PrivacyPolicyScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: settingsOverrides(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+
+    await reveal(tester, find.text(l.privacyStoresRatings));
+
+    expect(find.text(l.privacyStoresRatings), findsOneWidget);
+    expect(find.text(l.privacyStoresRatingsWhy), findsOneWidget);
+  });
+
+  test('the policy document has the ratings row in the stored table', () {
+    final policy = _normalized(
+      File('../../docs/privacy-policy.md').readAsStringSync(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+    final row = '| ${l.privacyStoresRatings} |';
+
+    expect(policy, contains(row));
+    expect(policy.indexOf(row), lessThan(policy.indexOf('## Permissions')));
+    expect(policy, contains(l.privacyStoresRatingsWhy));
   });
 
   testWidgets('the Health Connect link opens the privacy screen', (

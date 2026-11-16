@@ -59,6 +59,7 @@ class PrivacyPolicyScreen extends ConsumerWidget {
               (l10n.privacyStoresRing, l10n.privacyStoresRingWhy),
               (l10n.privacyStoresRingData, l10n.privacyStoresRingDataWhy),
               (l10n.privacyStoresWorkouts, l10n.privacyStoresWorkoutsWhy),
+              (l10n.privacyStoresRatings, l10n.privacyStoresRatingsWhy),
               (l10n.privacyStoresRoutes, l10n.privacyStoresRoutesWhy),
               (l10n.privacyStoresProfile, l10n.privacyStoresProfileWhy),
               (l10n.privacyStoresOtherApps, l10n.privacyStoresOtherAppsWhy),

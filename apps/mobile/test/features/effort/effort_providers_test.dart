@@ -419,6 +419,22 @@ void main() {
     });
   });
 
+  group('the coach card', () {
+    test('carries the advice, the readiness and the covered week', () async {
+      final s = _setup(modules: {ModuleId.openScore});
+      await _settle(s.container);
+
+      final card = await s.container.read(effortCoachCardProvider.future);
+      final advice = await s.container.read(effortCoachProvider.future);
+      final readiness = await s.container.read(readinessProvider.future);
+      final week = await s.container.read(effortWeekProvider.future);
+
+      expect(card.advice.rule, advice.rule);
+      expect(card.readiness, readiness.value);
+      expect(card.covered, week.covered);
+    });
+  });
+
   group('criterion 14: the Sick tag and the Open Score module', () {
     final sickToday = {metricsToday: DayTag.sick};
 

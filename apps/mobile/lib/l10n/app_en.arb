@@ -1698,7 +1698,7 @@
   "healthStatusAllowed": "Allowed",
   "healthStatusNotAllowed": "Not allowed",
   "healthStatusKindActivity": "Steps and active energy",
-  "healthStatusExport": "Export works without {platform}: it writes a file with everything saved on this phone.",
+  "healthStatusExport": "Export works without {platform}: it writes your saved health records to a file.",
   "@healthStatusExport": {
     "placeholders": {
       "platform": {

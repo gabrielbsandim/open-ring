@@ -663,7 +663,7 @@
   "healthStatusAllowed": "Разрешено",
   "healthStatusNotAllowed": "Не разрешено",
   "healthStatusKindActivity": "Шаги и активная энергия",
-  "healthStatusExport": "Экспорт работает без {platform}: он создаёт файл со всем, что сохранено на этом телефоне.",
+  "healthStatusExport": "Экспорт работает без {platform}: он создаёт файл с вашими данными о здоровье, сохранёнными на этом телефоне.",
   "healthStatusExportAction": "Экспортировать данные",
   "exportTitle": "Экспорт",
   "exportIntro": "Данные остаются на этом устройстве. Без аккаунта и без облака. Ничего не уходит, пока вы сами не поделитесь.",

@@ -663,7 +663,7 @@
   "healthStatusAllowed": "已允许",
   "healthStatusNotAllowed": "未允许",
   "healthStatusKindActivity": "步数和活动能量",
-  "healthStatusExport": "导出无需 {platform}：它会生成一个文件，包含这部手机上保存的全部数据。",
+  "healthStatusExport": "导出无需 {platform}：它会生成一个文件，包含这部手机上保存的健康记录。",
   "healthStatusExportAction": "导出数据",
   "exportTitle": "导出",
   "exportIntro": "你的数据保存在这台设备上。没有账号，也没有云端。除非你主动分享，否则数据不会离开。",

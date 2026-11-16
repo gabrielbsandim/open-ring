@@ -663,7 +663,7 @@
   "healthStatusAllowed": "Diizinkan",
   "healthStatusNotAllowed": "Tidak diizinkan",
   "healthStatusKindActivity": "Langkah dan energi aktif",
-  "healthStatusExport": "Ekspor bisa dipakai tanpa {platform}: membuat file berisi semua yang tersimpan di ponsel ini.",
+  "healthStatusExport": "Ekspor bisa dipakai tanpa {platform}: membuat file berisi catatan kesehatan Anda yang tersimpan di ponsel ini.",
   "healthStatusExportAction": "Ekspor data",
   "exportTitle": "Ekspor",
   "exportIntro": "Datamu tetap di perangkat ini. Tanpa akun dan tanpa cloud. Tidak ada yang keluar kecuali kamu membagikannya.",

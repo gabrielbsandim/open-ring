@@ -663,7 +663,7 @@
   "healthStatusAllowed": "Consentito",
   "healthStatusNotAllowed": "Non consentito",
   "healthStatusKindActivity": "Passi ed energia attiva",
-  "healthStatusExport": "L'esportazione funziona senza {platform}: crea un file con tutto ciò che è salvato su questo telefono.",
+  "healthStatusExport": "L'esportazione funziona senza {platform}: crea un file con i tuoi dati di salute salvati su questo telefono.",
   "healthStatusExportAction": "Esporta i dati",
   "exportTitle": "Esporta",
   "exportIntro": "I tuoi dati restano su questo dispositivo. Nessun account e nessun cloud. Niente esce se non lo condividi tu.",

@@ -918,6 +918,28 @@ missing factor.
 
 The Overall describes habits and measures, not the person's health.
 
+### Sleep Regularity Index
+
+Function: `sleepRegularity(spans, days)`. The day is cut into 288 epochs of 5
+minutes on the wall clock of each sleep span. An epoch is asleep when its
+start falls inside a span that is not awake, so naps count. For every pair of
+consecutive days in `days`, each epoch is compared with the same clock time
+on the next day:
+
+```
+index = -100 + 200 * epochs with the same state / epochs compared
+```
+
+100 is every day repeating the one before, 0 is what chance gives, -100 is
+opposite days. The caller gives the valid days: a pair counts only when both
+days are in the set, and a valid day without any sleep is a real day awake.
+Fewer than `sleepRegularityMinPairs` (14) pairs give no index.
+
+The definition is the one of Phillips 2017, not checked against the source.
+It compares clock times, so across a daylight saving change the second day is
+read one hour off the 24 hours of the paper. The 5 minute epoch and the 14
+pairs are **our choice**.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

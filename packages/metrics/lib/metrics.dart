@@ -12,6 +12,7 @@ export 'src/rem_reporting.dart';
 export 'src/resting_heart_rate.dart';
 export 'src/score.dart';
 export 'src/sleep_night.dart';
+export 'src/sleep_regularity.dart';
 export 'src/sleep_score.dart';
 export 'src/spo2.dart';
 export 'src/stress.dart';

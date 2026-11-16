@@ -1620,5 +1620,12 @@
   "energyWeekSemantics": "Total harian 7 hari terakhir, sebagai rentang.",
   "energyWeekNoData": "Tidak ada langkah atau latihan yang tercatat untuk hari ini.",
   "energyWeekUsual": "Hari biasamu",
-  "energyWeekNote": "Batang-batangnya saling tumpang tindih: kebanyakan hari berbeda lebih kecil daripada margin perkiraan. Bandingkan tandanya, hari demi hari. Apa pun yang keliru dari persamaan ini tentang dirimu, kelirunya kurang lebih sama setiap hari."
+  "energyWeekNote": "Batang-batangnya saling tumpang tindih: kebanyakan hari berbeda lebih kecil daripada margin perkiraan. Bandingkan tandanya, hari demi hari. Apa pun yang keliru dari persamaan ini tentang dirimu, kelirunya kurang lebih sama setiap hari.",
+  "energyFormulaIntro": "Energi menjumlahkan tiga bagian: dasar dari pembakaran saat istirahat, langkahmu, dan latihanmu. Setiap aturan dan setiap konstanta ada di layar ini.",
+  "energyFormulaMarginsTitle": "Margin",
+  "energyFormulaMargin1": "Pembakaran saat istirahat ditampilkan {resting} persen ke tiap sisi dan hari {day} persen, keduanya dibulatkan ke {step} kkal terdekat.",
+  "energyFormulaMargin2": "Margin hari lebih lebar karena langkah dan latihan menambah kesalahannya sendiri di atas kesalahan persamaan. Besarnya adalah pilihan kami.",
+  "activityActiveEnergyRing": "Energi aktif, dari cincin",
+  "todayActivityDetailRing": "{detail} (dari cincin)",
+  "bodyHideEnergy": "Perkiraan energi juga disembunyikan."
 }

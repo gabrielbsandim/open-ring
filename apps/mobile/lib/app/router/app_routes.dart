@@ -15,6 +15,7 @@ abstract final class AppPaths {
   static const readinessFormula = '/today/readiness/formula';
   static const body = '/today/body';
   static const energy = '/today/energy';
+  static const energyFormula = '/today/energy/formula';
   static const dayScore = '/today/day-score';
   static const dayScoreFormula = '/today/day-score/formula';
   static const dayScoreHistory = '/today/day-score/history';

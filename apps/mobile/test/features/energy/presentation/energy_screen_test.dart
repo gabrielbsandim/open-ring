@@ -430,6 +430,51 @@ void main() {
     });
   });
 
+  group('the formula link', () {
+    testWidgets('opens how the estimate is calculated', (tester) async {
+      final router = GoRouter(
+        initialLocation: AppPaths.energy,
+        routes: [
+          GoRoute(
+            path: AppPaths.energy,
+            builder: (_, _) => const EnergyScreen(),
+          ),
+          GoRoute(
+            path: AppPaths.energyFormula,
+            builder: (_, _) => const Scaffold(body: Text('formula')),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await pumpScaled(
+        tester,
+        MaterialApp.router(
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          supportedLocales: AppLocales.supported,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          routerConfig: router,
+        ),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.dark,
+        locale: const Locale('en'),
+        overrides: _overrides(now: _noon, extra: [_today(_full)]),
+      );
+      await _reveal(tester, find.byKey(EnergyKeys.formula));
+
+      await tester.tap(find.byKey(EnergyKeys.formula));
+      await tester.pumpAndSettle();
+
+      expect(router.state.uri.path, AppPaths.energyFormula);
+    });
+
+    testWidgets('is absent while a profile fact is missing', (tester) async {
+      await _pump(tester, day: const EnergyDayMissing({EnergyField.weight}));
+
+      expect(find.byKey(EnergyKeys.formula, skipOffstage: false), findsNothing);
+    });
+  });
+
   group('the evidence', () {
     for (final part in EnergyPart.values) {
       testWidgets('a tap on ${part.name} opens its sheet', (tester) async {

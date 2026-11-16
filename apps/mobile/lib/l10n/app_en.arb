@@ -3770,5 +3770,14 @@
   "energyWeekSemantics": "Day totals of the last 7 days, as ranges.",
   "energyWeekNoData": "No steps or workouts on record for this day.",
   "energyWeekUsual": "Your usual day",
-  "energyWeekNote": "The bars overlap: most days differ less than the margin of the estimate. Compare the marks, day against day. Whatever the equation gets wrong about you, it gets wrong about the same every day."
+  "energyWeekNote": "The bars overlap: most days differ less than the margin of the estimate. Compare the marks, day against day. Whatever the equation gets wrong about you, it gets wrong about the same every day.",
+  "energyFormulaIntro": "Energy adds three parts: a base from your resting burn, your steps and your workouts. Every rule and every constant is on this screen.",
+  "energyFormulaMarginsTitle": "The margins",
+  "energyFormulaMargin1": "The resting burn is shown {resting} percent to each side and the day {day} percent, both rounded to the nearest {step} kcal.",
+  "@energyFormulaMargin1": {"placeholders": {"resting": {"type": "String"}, "day": {"type": "String"}, "step": {"type": "String"}}},
+  "energyFormulaMargin2": "The margin of the day is wider because steps and workouts add their own error on top of the equation. Its size is our choice.",
+  "activityActiveEnergyRing": "Active energy, from the ring",
+  "todayActivityDetailRing": "{detail} (from the ring)",
+  "@todayActivityDetailRing": {"placeholders": {"detail": {"type": "String"}}},
+  "bodyHideEnergy": "The energy estimate is hidden too."
 }

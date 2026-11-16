@@ -1620,5 +1620,12 @@
   "energyWeekSemantics": "Totaux des 7 derniers jours, sous forme de fourchettes.",
   "energyWeekNoData": "Aucun pas ni séance enregistrés ce jour-là.",
   "energyWeekUsual": "Votre journée habituelle",
-  "energyWeekNote": "Les barres se chevauchent : la plupart des jours diffèrent de moins que la marge de l'estimation. Comparez les repères, jour contre jour. Ce que l'équation rate à votre sujet, elle le rate à peu près pareil chaque jour."
+  "energyWeekNote": "Les barres se chevauchent : la plupart des jours diffèrent de moins que la marge de l'estimation. Comparez les repères, jour contre jour. Ce que l'équation rate à votre sujet, elle le rate à peu près pareil chaque jour.",
+  "energyFormulaIntro": "Énergie additionne trois parts : une base tirée de votre dépense au repos, vos pas et vos séances. Chaque règle et chaque constante figure sur cet écran.",
+  "energyFormulaMarginsTitle": "Les marges",
+  "energyFormulaMargin1": "La dépense au repos est affichée avec {resting} pour cent de chaque côté et la journée avec {day} pour cent, toutes deux arrondies au {step} kcal le plus proche.",
+  "energyFormulaMargin2": "La marge de la journée est plus large parce que les pas et les séances ajoutent leur propre erreur à celle de l'équation. Sa taille est notre choix.",
+  "activityActiveEnergyRing": "Énergie active, de la bague",
+  "todayActivityDetailRing": "{detail} (de la bague)",
+  "bodyHideEnergy": "L'estimation d'énergie est masquée aussi."
 }

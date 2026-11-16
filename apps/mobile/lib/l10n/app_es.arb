@@ -1620,5 +1620,12 @@
   "energyWeekSemantics": "Totales de los últimos 7 días, como rangos.",
   "energyWeekNoData": "Sin pasos ni entrenamientos registrados este día.",
   "energyWeekUsual": "Tu día habitual",
-  "energyWeekNote": "Las barras se solapan: la mayoría de los días difieren menos que el margen de la estimación. Compara las marcas, día contra día. Lo que la ecuación falla contigo, lo falla casi igual todos los días."
+  "energyWeekNote": "Las barras se solapan: la mayoría de los días difieren menos que el margen de la estimación. Compara las marcas, día contra día. Lo que la ecuación falla contigo, lo falla casi igual todos los días.",
+  "energyFormulaIntro": "Energía suma tres partes: una base a partir de tu gasto en reposo, tus pasos y tus entrenamientos. Cada regla y cada constante está en esta pantalla.",
+  "energyFormulaMarginsTitle": "Los márgenes",
+  "energyFormulaMargin1": "El gasto en reposo se muestra con un {resting} por ciento a cada lado y el día con un {day} por ciento, ambos redondeados al {step} kcal más cercano.",
+  "energyFormulaMargin2": "El margen del día es mayor porque los pasos y los entrenamientos suman su propio error al de la ecuación. Su tamaño es elección nuestra.",
+  "activityActiveEnergyRing": "Energía activa, del anillo",
+  "todayActivityDetailRing": "{detail} (del anillo)",
+  "bodyHideEnergy": "La estimación de energía también queda oculta."
 }

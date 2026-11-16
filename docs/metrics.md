@@ -1152,6 +1152,16 @@ margin. A tap picks the closest point; a screen reader steps hour by hour.
 The card is absent while the day is under `energyRowFloor`, and a picked hour
 under the floor shows the starting line and no range.
 
+The formula screen (`energy_formula_screen.dart`, `/today/energy/formula`)
+repeats the rule, the source, our choice and the limits of the four evidence
+sheets with no value of the person, then the two margins and the full
+references. It is empty unless the gate is on.
+
+While the gate is on, the active energy the ring reports is named as coming
+from the ring on Activity and on the Today activity card, because the app
+then shows two energy figures that are not meant to be added. The hide
+numbers choice names the energy estimate only while the Energy module is on.
+
 The last 7 days (`energy_week.dart`, `energyWeekProvider`) are one range bar
 per day, with the middle marked and an axis that starts at zero, so the bars
 visibly overlap. A past day with no steps and no workout on record was most

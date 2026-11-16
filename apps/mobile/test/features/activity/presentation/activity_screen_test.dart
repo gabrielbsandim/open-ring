@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/activity/presentation/activity_screen.dart';
 import 'package:open_ring/features/activity/presentation/hourly_steps_chart.dart';
+import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
 import 'package:open_ring/features/workout/presentation/recent_workouts_card.dart';
@@ -51,6 +52,43 @@ void main() {
     expect(find.text('1.54 km'), findsOneWidget);
     semantics.dispose();
   });
+
+  testWidgets('the ring energy is named while Energy is on', (tester) async {
+    await pumpScaled(
+      tester,
+      screenHost(const ActivityScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: [
+        ...metricsOverrides(fullDataScenario),
+        energyGateProvider.overrideWithValue(EnergyGate.on),
+      ],
+    );
+
+    expect(find.text('Active energy, from the ring'), findsOneWidget);
+    expect(find.text('Active energy'), findsNothing);
+  });
+
+  for (final gate in [EnergyGate.off, EnergyGate.hidden, EnergyGate.underage]) {
+    testWidgets('the ring energy keeps its name while Energy is ${gate.name}', (
+      tester,
+    ) async {
+      await pumpScaled(
+        tester,
+        screenHost(const ActivityScreen()),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.dark,
+        locale: const Locale('en'),
+        overrides: [
+          ...metricsOverrides(fullDataScenario),
+          energyGateProvider.overrideWithValue(gate),
+        ],
+      );
+
+      expect(find.text('Active energy'), findsOneWidget);
+    });
+  }
 
   testWidgets('the start button sits below the recent workouts', (
     tester,

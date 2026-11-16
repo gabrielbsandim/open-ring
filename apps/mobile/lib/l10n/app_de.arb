@@ -1620,5 +1620,12 @@
   "energyWeekSemantics": "Tagessummen der letzten 7 Tage als Bereiche.",
   "energyWeekNoData": "Für diesen Tag sind keine Schritte oder Workouts aufgezeichnet.",
   "energyWeekUsual": "Dein üblicher Tag",
-  "energyWeekNote": "Die Balken überlappen: Die meisten Tage unterscheiden sich um weniger als die Spanne der Schätzung. Vergleiche die Markierungen, Tag gegen Tag. Was die Gleichung bei dir falsch einschätzt, schätzt sie jeden Tag ungefähr gleich falsch ein."
+  "energyWeekNote": "Die Balken überlappen: Die meisten Tage unterscheiden sich um weniger als die Spanne der Schätzung. Vergleiche die Markierungen, Tag gegen Tag. Was die Gleichung bei dir falsch einschätzt, schätzt sie jeden Tag ungefähr gleich falsch ein.",
+  "energyFormulaIntro": "Energie addiert drei Teile: eine Basis aus deinem Ruheverbrauch, deine Schritte und deine Workouts. Jede Regel und jede Konstante steht auf diesem Bildschirm.",
+  "energyFormulaMarginsTitle": "Die Spannen",
+  "energyFormulaMargin1": "Der Ruheverbrauch wird mit {resting} Prozent nach jeder Seite gezeigt und der Tag mit {day} Prozent, beide gerundet auf die nächsten {step} kcal.",
+  "energyFormulaMargin2": "Die Spanne des Tages ist größer, weil Schritte und Workouts ihren eigenen Fehler zu dem der Gleichung addieren. Ihre Größe ist unsere Entscheidung.",
+  "activityActiveEnergyRing": "Aktive Energie, vom Ring",
+  "todayActivityDetailRing": "{detail} (vom Ring)",
+  "bodyHideEnergy": "Die Energieschätzung wird ebenfalls ausgeblendet."
 }

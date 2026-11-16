@@ -5,6 +5,7 @@ import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/tabs_shell.dart';
 import 'package:open_ring/features/activity/presentation/activity_screen.dart';
 import 'package:open_ring/features/body/presentation/body_screen.dart';
+import 'package:open_ring/features/energy/presentation/energy_formula_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_screen.dart';
 import 'package:open_ring/features/heart/presentation/heart_screen.dart';
 import 'package:open_ring/features/heart/presentation/measure_screen.dart';
@@ -116,7 +117,16 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
         routes: [_formulaRoute()],
       ),
       GoRoute(path: 'body', builder: (_, _) => const BodyScreen()),
-      GoRoute(path: 'energy', builder: (_, _) => const EnergyScreen()),
+      GoRoute(
+        path: 'energy',
+        builder: (_, _) => const EnergyScreen(),
+        routes: [
+          GoRoute(
+            path: 'formula',
+            builder: (_, _) => const EnergyFormulaScreen(),
+          ),
+        ],
+      ),
       GoRoute(
         path: 'day-score',
         builder: (_, state) => DayScoreReceiptScreen(

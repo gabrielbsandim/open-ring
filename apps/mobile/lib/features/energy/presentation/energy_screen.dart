@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -38,6 +40,7 @@ abstract final class EnergyKeys {
   static const missing = Key('energy_missing');
   static const missingTitle = Key('energy_missing_title');
   static const openProfile = Key('energy_open_profile');
+  static const formula = Key('energy_formula_link');
   static const never = Key('energy_never');
 
   static Key part(EnergyPart part) => Key('energy_part_${part.name}');
@@ -124,6 +127,8 @@ class EnergyScreen extends ConsumerWidget {
             l10n.energyNever4,
           ],
         ),
+        const SizedBox(height: cardGap),
+        const _FormulaLink(),
         const SizedBox(height: cardGap),
         EstimateNote(lead: l10n.energyStoredNote),
       ],
@@ -534,4 +539,19 @@ class _NeedRow extends StatelessWidget {
       ),
     );
   }
+}
+
+class _FormulaLink extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: AlignmentDirectional.centerStart,
+    child: TextButton.icon(
+      key: EnergyKeys.formula,
+      onPressed: () => unawaited(context.push(AppPaths.energyFormula)),
+      icon: const Icon(Icons.receipt_long_outlined),
+      label: Text(AppLocalizations.of(context).formulaLink),
+    ),
+  );
 }

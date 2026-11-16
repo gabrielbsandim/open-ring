@@ -1614,5 +1614,11 @@
   "energyRuleWorkouts": "(MET - 1) × 体重 × 小时。MET 表示一项活动比静息费力多少倍，取自按活动类型列出的表。减去 1 是因为静息部分已包含在基础中。在应用内记录的训练保留它结束时存储的数值。",
   "energySourceWorkouts": "与训练页面使用的同一张活动表。",
   "energyOursWorkouts": "每种活动类型一个数值，不论配速。",
-  "energyLimitsWorkouts": "时长相同的快节奏和慢节奏训练得到相同的数字。绝不会再叠加戒指自身的活动能量。"
+  "energyLimitsWorkouts": "时长相同的快节奏和慢节奏训练得到相同的数字。绝不会再叠加戒指自身的活动能量。",
+  "energyWeekTitle": "最近 7 天",
+  "energyWeekBody": "每个条形是一天的范围。标记是中间值。点按某一天。",
+  "energyWeekSemantics": "最近 7 天的每日总量，以范围显示。",
+  "energyWeekNoData": "这一天没有步数或训练记录。",
+  "energyWeekUsual": "你平常的一天",
+  "energyWeekNote": "条形会重叠：大多数日子之间的差别小于估算的幅度。请逐日比较标记。公式对你估错的部分，每天错得差不多。"
 }

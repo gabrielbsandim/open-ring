@@ -121,6 +121,28 @@ final energyTodayProvider = FutureProvider<EnergyDay>((ref) {
   return ref.watch(energyDayProvider(today).future);
 });
 
+EnergyDayEstimate? _weekDay(EnergyDay day, {required bool today}) {
+  if (day is! EnergyDayEstimate) return null;
+  if (today || energyDayOnRecord(day)) return day;
+  return null;
+}
+
+// The seven days that end today, each computed at the same instant.
+final energyWeekProvider = FutureProvider<List<EnergyWeekDay>>((ref) async {
+  final asOf = ref.watch(energyAsOfProvider);
+  final today = LocalDate.fromInstant(asOf, asOf.timeZoneOffset);
+  final dates = [
+    for (var back = energyWeekDays - 1; back >= 0; back--) today.addDays(-back),
+  ];
+  final days = await Future.wait([
+    for (final date in dates) ref.watch(energyDayProvider(date).future),
+  ]);
+  return [
+    for (final (index, date) in dates.indexed)
+      (date: date, day: _weekDay(days[index], today: date == today)),
+  ];
+});
+
 typedef EnergyNow = ({EnergyDay day, DateTime asOf});
 
 // Today together with the instant it was computed at, so a view that still

@@ -24,6 +24,7 @@ import 'package:open_ring/features/energy/presentation/energy_evidence_sheet.dar
 import 'package:open_ring/features/energy/presentation/energy_parts.dart';
 import 'package:open_ring/features/energy/presentation/energy_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_through_day.dart';
+import 'package:open_ring/features/energy/presentation/energy_week.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
@@ -392,6 +393,40 @@ void main() {
 
       expect(find.byKey(EnergyKeys.missing), findsOneWidget);
       expect(find.byKey(EnergyThroughKeys.card), findsNothing);
+    });
+  });
+
+  group('the last 7 days', () {
+    testWidgets('are absent while no past day has anything on record', (
+      tester,
+    ) async {
+      await _pump(tester, slots: [_slot(8, 1200)]);
+      await _reveal(tester, find.byKey(EnergyKeys.never));
+
+      expect(find.byType(EnergyWeek, skipOffstage: false), findsNothing);
+    });
+
+    testWidgets('show once a past day has steps', (tester) async {
+      await _pump(
+        tester,
+        slots: [
+          _slot(8, 1200),
+          ActivitySlot(
+            start: DateTime.utc(2026, 11, 8, 9),
+            utcOffset: Duration.zero,
+            duration: const Duration(hours: 1),
+            steps: 4000,
+            activeKilocalories: 0,
+            distanceMeters: 0,
+          ),
+        ],
+      );
+      await _reveal(tester, find.byKey(EnergyWeekKeys.card));
+      final week = tester.widget<EnergyWeek>(find.byType(EnergyWeek));
+
+      expect(week.days, hasLength(energyWeekDays));
+      expect(week.days[4].day, isNotNull);
+      expect(week.days[5].day, isNull);
     });
   });
 

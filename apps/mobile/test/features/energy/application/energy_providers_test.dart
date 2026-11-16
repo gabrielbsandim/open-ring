@@ -149,11 +149,34 @@ Future<EnergyDay> _read({
   List<ImportedWorkout> imported = const [],
   List<String> priority = const [ringSource, _other],
 }) async {
+  final container = await _container(
+    now: now,
+    profile: profile,
+    modules: modules,
+    weighIns: weighIns,
+    slots: slots,
+    own: own,
+    imported: imported,
+    priority: priority,
+  );
+  return await container.read(energyDayProvider(_day).future);
+}
+
+Future<ProviderContainer> _container({
+  DateTime? now,
+  UserProfile? profile = _profile,
+  Set<ModuleId> modules = const {},
+  List<WeighInDraft> weighIns = const [],
+  List<ActivitySlot> slots = const [],
+  List<WorkoutListItem> own = const [],
+  List<ImportedWorkout> imported = const [],
+  List<String> priority = const [ringSource, _other],
+}) async {
   final weighInStore = InMemoryWeighInStore();
   for (final draft in weighIns) {
     await weighInStore.add(draft);
   }
-  final container = ProviderContainer.test(
+  return ProviderContainer.test(
     overrides: [
       clockProvider.overrideWithValue(() => now ?? _noon),
       userProfileStoreProvider.overrideWithValue(
@@ -170,7 +193,6 @@ Future<EnergyDay> _read({
       ),
     ],
   );
-  return await container.read(energyDayProvider(_day).future);
 }
 
 EnergyDayEstimate _estimate(EnergyDay day) {
@@ -516,6 +538,59 @@ void main() {
 
       expect(day.workouts, 0);
       expect(day.steps, closeTo(_walk(1000), 1e-9));
+    });
+  });
+  group('the week', () {
+    test('is the seven days that end today', () async {
+      final container = await _container();
+      final week = await container.read(energyWeekProvider.future);
+
+      expect(week, hasLength(energyWeekDays));
+      expect(week.first.date, _day.addDays(-6));
+      expect(week.last.date, _day);
+    });
+
+    test('today counts with nothing on record, a past day does not', () async {
+      final container = await _container();
+      final week = await container.read(energyWeekProvider.future);
+
+      expect(week.last.day, isNotNull);
+      expect(week.take(6).every((entry) => entry.day == null), isTrue);
+    });
+
+    test('a past day with steps is the whole day', () async {
+      final container = await _container(
+        slots: [_slot(DateTime.utc(2026, 11, 8, 9), 4000)],
+      );
+      final week = await container.read(energyWeekProvider.future);
+      final day = week[4].day!;
+
+      expect(week[4].date, const LocalDate(2026, 11, 8));
+      expect(day.steps, closeTo(_walk(4000), 1e-9));
+      expect(
+        day.base,
+        closeTo(baseEnergy(_resting(70), const Duration(hours: 24)), 1e-9),
+      );
+      expect(week[3].day, isNull);
+    });
+
+    test('a past day with only a workout is on record', () async {
+      final container = await _container(
+        own: [_own(1, DateTime.utc(2026, 11, 6, 18), 30)],
+      );
+      final week = await container.read(energyWeekProvider.future);
+
+      expect(week[2].day!.workouts, 300);
+    });
+
+    test('no day has a number while a profile fact is missing', () async {
+      final container = await _container(
+        profile: const UserProfile(birthYear: 1996, sex: Sex.male),
+        slots: [_slot(DateTime.utc(2026, 11, 8, 9), 4000)],
+      );
+      final week = await container.read(energyWeekProvider.future);
+
+      expect(week.every((entry) => entry.day == null), isTrue);
     });
   });
 }

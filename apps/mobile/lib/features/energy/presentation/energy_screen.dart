@@ -17,6 +17,7 @@ import 'package:open_ring/features/energy/domain/energy_day.dart';
 import 'package:open_ring/features/energy/presentation/energy_evidence_sheet.dart';
 import 'package:open_ring/features/energy/presentation/energy_parts.dart';
 import 'package:open_ring/features/energy/presentation/energy_through_day.dart';
+import 'package:open_ring/features/energy/presentation/energy_week.dart';
 import 'package:open_ring/features/modules/presentation/module_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -108,6 +109,10 @@ class EnergyScreen extends ConsumerWidget {
           EnergyThroughDay(curve: curve, utcOffset: now.asOf.timeZoneOffset),
           const SizedBox(height: cardGap),
         ],
+        if (_week(ref) case final week?) ...[
+          EnergyWeek(days: week, asOf: now.asOf),
+          const SizedBox(height: cardGap),
+        ],
         ModuleFactsCard(
           key: EnergyKeys.never,
           title: l10n.energyNeverTitle,
@@ -132,6 +137,14 @@ EnergyCurve? _curve(WidgetRef ref, EnergyDayEstimate day) {
   if (curve == null || curve.points.length < 2) return null;
   if (day.range.low < energyRowFloor) return null;
   return curve;
+}
+
+// The week only when a past day has something on record to compare with.
+List<EnergyWeekDay>? _week(WidgetRef ref) {
+  final week = ref.watch(energyWeekProvider).value;
+  if (week == null) return null;
+  final past = week.take(week.length - 1);
+  return past.any((entry) => entry.day != null) ? week : null;
 }
 
 class _CardHead extends StatelessWidget {

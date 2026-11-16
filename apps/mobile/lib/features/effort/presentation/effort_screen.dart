@@ -129,7 +129,16 @@ class EffortScreen extends ConsumerWidget {
     final modules = ref.watch(enabledModulesProvider).value ?? const {};
     return [
       if (card != null) ...[
-        EffortCoachCardView(card: card),
+        Builder(
+          builder: (context) => EffortCoachCardView(
+            card: card,
+            onTap: () => showEffortEvidence(
+              context,
+              kind: EffortEvidence.coach,
+              yours: effortCoachYours(MetricFormat.of(context), card),
+            ),
+          ),
+        ),
         const SizedBox(height: cardGap),
       ],
       _Week(
@@ -456,6 +465,50 @@ String _figure(MetricFormat format, int? points) => switch (points) {
   _ => format.integer(points),
 };
 
+/// The load of [session] and where it came from, for its evidence sheet.
+String effortSessionYours(MetricFormat format, EffortSession session) {
+  final l10n = format.l10n;
+  final type = session.type.label(l10n);
+  final day = format.weekday(session.date);
+  final minutes = format.integer(session.elapsed.inMinutes);
+  final load = format.integer(session.load.value);
+  final typeDefault = effortTypeDefault(session.type);
+  return switch (session.load.source) {
+    LoadSource.heartRate => l10n.effortSheetSessionYoursHeartRate(
+      type,
+      day,
+      minutes,
+      load,
+    ),
+    LoadSource.typeDefault => l10n.effortSheetSessionYoursDefault(
+      type,
+      day,
+      minutes,
+      load,
+      format.decimal(
+        typeDefault,
+        digits: typeDefault == typeDefault.roundToDouble() ? 0 : 1,
+      ),
+    ),
+    LoadSource.rating => l10n.effortSessionSemantics(
+      type,
+      l10n.effortSessionDetail(day, minutes),
+      format.integer(session.points.equivalent.round()),
+      load,
+    ),
+  };
+}
+
+/// Today's verdict, the rule that fired and the numbers it read.
+String effortCoachYours(MetricFormat format, EffortCoachCard card) {
+  final rule = card.advice.rule;
+  return format.l10n.effortSheetCoachYours(
+    coachVerdictLabel(format.l10n, rule.verdict),
+    format.integer(rule.number),
+    coachWhy(format, card),
+  );
+}
+
 class _Sessions extends StatelessWidget {
   const new({required this.sessions, required this.walks});
 
@@ -515,6 +568,11 @@ class _SessionRow extends StatelessWidget {
       detail: detail,
       points: points,
       load: load,
+      onTap: () => showEffortEvidence(
+        context,
+        kind: EffortEvidence.session,
+        yours: effortSessionYours(format, session),
+      ),
     );
   }
 }

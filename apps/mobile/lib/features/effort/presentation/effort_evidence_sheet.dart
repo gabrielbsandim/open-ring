@@ -8,7 +8,7 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/features/energy/presentation/energy_evidence_sheet.dart';
 
-enum EffortEvidence { points, strength, lines, walk }
+enum EffortEvidence { points, strength, lines, walk, session, coach }
 
 abstract final class EffortEvidenceKeys {
   static const sheet = Key('effort_evidence');
@@ -85,6 +85,22 @@ EffortEvidenceCopy effortEvidenceCopy(
       source: l10n.effortSheetWalkSource(cadence),
       ours: l10n.effortSheetWalkOurs(walking),
       limits: l10n.effortSheetWalkLimits,
+    ),
+    EffortEvidence.session => (
+      title: l10n.effortFormulaLoadTitle,
+      what: l10n.effortSheetSessionWhat,
+      rule: l10n.effortSheetSessionRule,
+      source: l10n.effortSheetSessionSource,
+      ours: l10n.effortSheetSessionOurs,
+      limits: l10n.effortFormulaCannot1,
+    ),
+    EffortEvidence.coach => (
+      title: l10n.effortFormulaCoachTitle,
+      what: l10n.effortSheetCoachWhat,
+      rule: l10n.effortSheetCoachRule(format.integer(CoachRule.values.length)),
+      source: l10n.effortSheetCoachSource,
+      ours: l10n.effortFormulaOurs5,
+      limits: l10n.effortFormulaCannot4,
     ),
   };
 }

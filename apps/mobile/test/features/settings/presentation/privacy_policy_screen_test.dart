@@ -205,6 +205,7 @@ void main() {
       expect(why, contains('Effort'));
       expect(policy, contains(why));
     }
+    expect(l.privacyStoresDayTagsWhy, contains('Open Score and Effort'));
   });
 
   testWidgets('the Health Connect link opens the privacy screen', (

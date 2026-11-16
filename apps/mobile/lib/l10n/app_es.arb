@@ -963,7 +963,7 @@
   "privacyStoresWeighIns": "Pesajes: peso y, si los añades, grasa corporal y cintura (opcional, módulo Cuerpo)",
   "privacyStoresWeighInsWhy": "Para mostrar la tendencia de tu peso y, con el módulo Open Score activado, puntuar tus medidas corporales; con el módulo Energía activo, también la estimación de la energía de tu día",
   "privacyStoresDayTags": "Marcas de día: los días que apartas como enfermo, viaje o descanso (opcional, módulo Open Score)",
-  "privacyStoresDayTagsWhy": "Para dejar esos días fuera de tus medias; con el módulo Esfuerzo activo, un día marcado como enfermo también hace que la tarjeta del entrenador indique recuperación",
+  "privacyStoresDayTagsWhy": "Para dejar esos días fuera de tus medias; con los módulos Open Score y Esfuerzo activos, un día marcado como enfermo también hace que la tarjeta del entrenador indique recuperación",
   "privacyStoresSettings": "Ajustes: tema, unidades, intervalo de sincronización, opciones de widgets, alertas del anillo, qué tipos van a Health Connect, modo demo",
   "privacyStoresSettingsWhy": "Para recordar tus elecciones",
   "privacyStoresSummary": "Un pequeño resumen de los números de hoy",

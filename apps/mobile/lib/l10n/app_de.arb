@@ -963,7 +963,7 @@
   "privacyStoresWeighIns": "Wiegungen: Gewicht und, falls angegeben, Körperfett und Taillenumfang (optional, Modul Körper)",
   "privacyStoresWeighInsWhy": "Um Ihren Gewichtstrend zu zeigen und, bei eingeschaltetem Modul Open Score, Ihre Körpermaße zu bewerten; bei eingeschaltetem Modul Energie auch die Schätzung der Energie deines Tages",
   "privacyStoresDayTags": "Tagesmarkierungen: die Tage, die Sie als krank, Reise oder Ruhe beiseitelegen (optional, Modul Open Score)",
-  "privacyStoresDayTagsWhy": "Um diese Tage aus Ihren Durchschnitten herauszulassen; bei eingeschaltetem Modul Effort lässt ein als krank markierter Tag die Coach-Karte außerdem Erholung anzeigen",
+  "privacyStoresDayTagsWhy": "Um diese Tage aus Ihren Durchschnitten herauszulassen; sind die Module Open Score und Effort eingeschaltet, lässt ein als krank markierter Tag die Coach-Karte außerdem Erholung anzeigen",
   "privacyStoresSettings": "Einstellungen: Design, Einheiten, Sync-Intervall, Widget-Auswahl, Ring-Hinweise, welche Typen an Health Connect gehen, Demomodus",
   "privacyStoresSettingsWhy": "Um deine Auswahl zu merken",
   "privacyStoresSummary": "Eine kleine Zusammenfassung der heutigen Zahlen",

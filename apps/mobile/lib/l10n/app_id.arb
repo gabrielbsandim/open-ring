@@ -964,7 +964,7 @@
   "privacyStoresWeighInsWhy": "Untuk menampilkan tren berat Anda dan, saat modul Open Score aktif, menilai ukuran tubuh Anda; dengan modul Energi aktif, juga perkiraan energi harimu",
   "privacyStoresDayTags": "Tanda hari: hari yang Anda sisihkan sebagai sakit, perjalanan, atau istirahat (opsional, modul Open Score)",
   "privacyStoresDayTagsWhy": "Agar hari-hari itu tidak masuk ke rata-rata Anda; dengan modul Open Score dan Effort aktif, hari yang ditandai sakit juga membuat kartu pelatih menyarankan pemulihan",
-  "privacyStoresSettings": "Pengaturan: tema, satuan, interval sinkronisasi, pilihan widget, peringatan cincin, jenis yang dikirim ke Health Connect, mode demo",
+  "privacyStoresSettings": "Pengaturan: tema, satuan, interval sinkronisasi, pilihan widget, peringatan cincin, jenis yang dikirim ke Health Connect, mode demo, modul yang aktif, target mingguan",
   "privacyStoresSettingsWhy": "Untuk mengingat pilihan Anda",
   "privacyStoresSummary": "Ringkasan kecil angka hari ini",
   "privacyStoresSummaryWhy": "Untuk mengisi widget layar utama",

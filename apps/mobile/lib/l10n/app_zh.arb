@@ -964,7 +964,7 @@
   "privacyStoresWeighInsWhy": "用于显示你的体重趋势；开启 Open Score 模块后，也用于为身体数据计分；开启能量模块时，也用于估算你一天的能量",
   "privacyStoresDayTags": "日期标记：你标为生病、旅行或休息的日子（可选，Open Score 模块）",
   "privacyStoresDayTagsWhy": "用于把这些日子排除在平均值之外；同时开启 Open Score 和努力模块时，标记为生病的日子也会让教练卡片建议恢复",
-  "privacyStoresSettings": "设置：主题、单位、同步间隔、小组件选项、戒指提醒、发送到 Health Connect 的类型、演示模式",
+  "privacyStoresSettings": "设置：主题、单位、同步间隔、小组件选项、戒指提醒、发送到 Health Connect 的类型、演示模式、已开启的模块、每周目标",
   "privacyStoresSettingsWhy": "用于记住您的选择",
   "privacyStoresSummary": "今日数据的简短摘要",
   "privacyStoresSummaryWhy": "用于填充主屏幕小组件",

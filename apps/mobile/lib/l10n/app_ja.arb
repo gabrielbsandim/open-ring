@@ -1542,7 +1542,7 @@
   "overallValueFitness": "同じ年齢・性別の 100 人中の順位 {position}。",
   "overallSheetFitnessWindow": "最終更新までの {days} 日間に記録した屋外のランニングとウォーキングのうち、最も高い推定値です。安静時心拍数も必要です。",
   "dayScoreFormulaOverall1": "総合スコアは 1 日ではなく、あなたの土台を見ます。毎週月曜までの {days} 日間の 6 つの要素です。データのない要素は計算から外れ、残りが換算されます。",
-  "dayScoreFormulaOverall2": "100 点の内訳：持久力 {fitness}、安静時心拍数 {resting}、睡眠時間 {sleep}、睡眠の規則性 {regularity}、週の運動 {movement}、体 {body}。総合スコア画面の各行から、ルールと出典を開けます。",
+  "dayScoreFormulaOverall2": "100 点の内訳：持久力 {fitness}、安静時心拍数 {resting}、睡眠時間 {sleep}、睡眠の規則性 {regularity}、週の運動 {movement}、からだ {body}。総合スコア画面の各行から、ルールと出典を開けます。",
   "moduleOpenScoreAddsOverall": "総合スコア。直近 4 週間のあなたの土台で、毎週月曜に更新され、各要素のルールと出典、12 週間のグラフが付きます。",
   "moduleOpenScoreUsesOverall": "総合スコアは、プロフィールの年齢・性別・身長、記録したランニングとウォーキング、そして体モジュールがオンのときはウエストと体重も読み取ります。"
 }

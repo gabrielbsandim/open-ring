@@ -1542,7 +1542,7 @@
   "overallValueFitness": "Posição {position} entre 100 pessoas da mesma idade e sexo.",
   "overallSheetFitnessWindow": "A melhor estimativa entre suas corridas e caminhadas ao ar livre dos {days} dias antes da última atualização. Também precisa da sua FC de repouso.",
   "dayScoreFormulaOverall1": "A Nota Geral lê a sua base, não um dia: seis fatores nos {days} dias antes de cada segunda. Fator sem dado sai da conta e o resto é reescalado.",
-  "dayScoreFormulaOverall2": "De 100 pontos: fôlego {fitness}, FC de repouso {resting}, duração do sono {sleep}, regularidade do sono {regularity}, movimento da semana {movement} e corpo {body}. Cada linha da tela da Nota Geral abre a regra e a fonte.",
+  "dayScoreFormulaOverall2": "De 100 pontos: condicionamento {fitness}, FC de repouso {resting}, duração do sono {sleep}, regularidade do sono {regularity}, movimento da semana {movement} e corpo {body}. Cada linha da tela da Nota Geral abre a regra e a fonte.",
   "moduleOpenScoreAddsOverall": "A Nota Geral, a sua base nas últimas 4 semanas, atualizada toda segunda, com a regra e a fonte de cada fator e um gráfico de 12 semanas.",
   "moduleOpenScoreUsesOverall": "A Nota Geral também lê idade, sexo e altura do seu perfil, as corridas e caminhadas que você gravou e, com o módulo Corpo ligado, cintura e peso."
 }

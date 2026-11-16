@@ -1542,7 +1542,7 @@
   "overallValueFitness": "Posición {position} entre 100 personas de la misma edad y sexo.",
   "overallSheetFitnessWindow": "La mejor estimación entre tus carreras y caminatas al aire libre de los {days} días anteriores a la última actualización. También necesita tu FC en reposo.",
   "dayScoreFormulaOverall1": "La Nota general lee tu base, no un día: seis factores en los {days} días anteriores a cada lunes. Un factor sin datos sale de la cuenta y el resto se reescala.",
-  "dayScoreFormulaOverall2": "De 100 puntos: condición física {fitness}, FC en reposo {resting}, duración del sueño {sleep}, regularidad del sueño {regularity}, movimiento semanal {movement} y cuerpo {body}. Cada fila de la pantalla de la Nota general abre su regla y su fuente.",
+  "dayScoreFormulaOverall2": "De 100 puntos: condición física {fitness}, FC en reposo {resting}, duración del sueño {sleep}, regularidad del sueño {regularity}, movimiento de la semana {movement} y cuerpo {body}. Cada fila de la pantalla de la Nota general abre su regla y su fuente.",
   "moduleOpenScoreAddsOverall": "La Nota general, tu base de las últimas 4 semanas, actualizada cada lunes, con la regla y la fuente de cada factor y un gráfico de 12 semanas.",
   "moduleOpenScoreUsesOverall": "La Nota general también lee la edad, el sexo y la altura de tu perfil, las carreras y caminatas que grabaste y, con el módulo Cuerpo activado, tu cintura y tu peso."
 }

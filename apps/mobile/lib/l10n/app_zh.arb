@@ -1542,7 +1542,7 @@
   "overallValueFitness": "在 100 名同龄同性别的人中的位置：{position}。",
   "overallSheetFitnessWindow": "取最近一次更新前 {days} 天内户外跑步和步行的最高估算值。还需要你的静息心率。",
   "dayScoreFormulaOverall1": "总评分看的是你的基础，而不是某一天：每个周一之前 {days} 天内的六个因素。没有数据的因素不计入，其余按比例换算。",
-  "dayScoreFormulaOverall2": "满分 100 分：体能 {fitness}，静息心率 {resting}，睡眠时长 {sleep}，睡眠规律 {regularity}，每周运动 {movement}，身体 {body}。总评分页面的每一行都能打开它的规则和来源。",
+  "dayScoreFormulaOverall2": "满分 100 分：体能 {fitness}，静息心率 {resting}，睡眠时长 {sleep}，睡眠规律性 {regularity}，每周运动 {movement}，身体 {body}。总评分页面的每一行都能打开它的规则和来源。",
   "moduleOpenScoreAddsOverall": "总评分，也就是你最近 4 周的基础，每周一更新，附带每个因素的规则和来源，以及 12 周的图表。",
   "moduleOpenScoreUsesOverall": "总评分还会读取个人资料中的年龄、性别和身高、你记录的跑步和步行，以及在开启身体模块时的腰围和体重。"
 }

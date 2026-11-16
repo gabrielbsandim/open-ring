@@ -1602,7 +1602,7 @@
   "energyLimitsResting": "C'est la moyenne des personnes de votre gabarit, pas une mesure de vous. Elle ne connaît ni vos muscles, ni vos hormones, ni vos médicaments. Elle n'est pas valable avant {age} ans, pendant la grossesse ou après une forte perte de poids. Elle ne peut pas dire combien manger.",
   "energyWhatBase": "La part de la journée qui se passe sans que vous fassiez rien exprès : votre dépense au repos, plus la digestion et les petits mouvements qu'aucun capteur ne compte, comme rester debout, les tâches ménagères et gigoter.",
   "energyRuleBase": "Dépense au repos × {factor}, répartie également sur les 24 heures.",
-  "energySourceBase": "Les tables internationales (FAO, OMS et UNU, 2001) situent un mode de vie assis entre 1,40 et 1,69 fois la dépense au repos, marche comprise.",
+  "energySourceBase": "Les tables internationales (FAO, OMS et UNU, 2001) situent un mode de vie assis entre 1,40 et 1,69 fois la dépense au repos.",
   "energyOursBase": "Le {factor}. Il se place juste sous cette fourchette parce qu'ici les pas et les séances sont ajoutés à part. Toute valeur de 1,2 à 1,4 se défend.",
   "energyLimitsBase": "Elle est répartie également, donc elle augmente à la même vitesse endormi et éveillé. Dans la vie réelle, la nuit est plus lente et le jour plus rapide.",
   "energyWhatSteps": "L'énergie des déplacements à pied, en dehors des séances enregistrées. Les pas faits pendant une séance comptent là-bas, jamais deux fois.",

@@ -3749,7 +3749,7 @@
   "energyWhatBase": "The part of the day that happens without you doing anything on purpose: your resting burn, plus digesting food and the small movements no sensor counts, like standing, chores and fidgeting.",
   "energyRuleBase": "Resting burn × {factor}, spread evenly over the 24 hours.",
   "@energyRuleBase": {"placeholders": {"factor": {"type": "String"}}},
-  "energySourceBase": "International tables (FAO, WHO and UNU, 2001) put a seated lifestyle at 1.40 to 1.69 times the resting burn, walking included.",
+  "energySourceBase": "International tables (FAO, WHO and UNU, 2001) put a seated lifestyle at 1.40 to 1.69 times the resting burn.",
   "energyOursBase": "The {factor}. It sits just under that range because steps and workouts are added separately here. Anything from 1.2 to 1.4 is defensible.",
   "@energyOursBase": {"placeholders": {"factor": {"type": "String"}}},
   "energyLimitsBase": "It is spread evenly, so it grows at the same speed asleep and awake. In real life the night is slower and the day faster.",

@@ -1602,7 +1602,7 @@
   "energyLimitsResting": "È la media delle persone della tua corporatura, non una misura di te. Non conosce i tuoi muscoli, i tuoi ormoni né i tuoi farmaci. Non vale sotto i {age} anni, in gravidanza o dopo una forte perdita di peso. Non può dire quanto mangiare.",
   "energyWhatBase": "La parte del giorno che accade senza che tu faccia nulla di proposito: il tuo consumo a riposo, più la digestione e i piccoli movimenti che nessun sensore conta, come stare in piedi, le faccende e agitarsi sulla sedia.",
   "energyRuleBase": "Consumo a riposo × {factor}, distribuito in modo uniforme sulle 24 ore.",
-  "energySourceBase": "Le tabelle internazionali (FAO, OMS e UNU, 2001) collocano uno stile di vita sedentario tra 1,40 e 1,69 volte il consumo a riposo, camminata inclusa.",
+  "energySourceBase": "Le tabelle internazionali (FAO, OMS e UNU, 2001) collocano uno stile di vita sedentario tra 1,40 e 1,69 volte il consumo a riposo.",
   "energyOursBase": "L'{factor}. Sta appena sotto quell'intervallo perché qui passi e allenamenti sono sommati a parte. Qualsiasi valore da 1,2 a 1,4 è difendibile.",
   "energyLimitsBase": "È distribuita in modo uniforme, quindi cresce alla stessa velocità nel sonno e da svegli. Nella vita reale la notte è più lenta e il giorno più veloce.",
   "energyWhatSteps": "L'energia del camminare in giro, fuori dagli allenamenti registrati. I passi fatti durante un allenamento contano lì, mai due volte.",

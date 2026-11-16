@@ -1602,7 +1602,7 @@
   "energyLimitsResting": "É a média para pessoas do seu tamanho, não uma medição sua. Não conhece seus músculos, seus hormônios nem seus remédios. Não vale para menores de {age} anos, na gravidez nem depois de uma grande perda de peso. Não diz quanto comer.",
   "energyWhatBase": "A parte do dia que acontece sem você fazer nada de propósito: seu gasto em repouso, mais a digestão e os pequenos movimentos que nenhum sensor conta, como ficar em pé, tarefas de casa e se mexer na cadeira.",
   "energyRuleBase": "Gasto em repouso × {factor}, distribuído por igual nas 24 horas.",
-  "energySourceBase": "Tabelas internacionais (FAO, OMS e UNU, 2001) colocam um estilo de vida sentado entre 1,40 e 1,69 vezes o gasto em repouso, caminhada incluída.",
+  "energySourceBase": "Tabelas internacionais (FAO, OMS e UNU, 2001) colocam um estilo de vida sentado entre 1,40 e 1,69 vezes o gasto em repouso.",
   "energyOursBase": "O {factor}. Fica logo abaixo dessa faixa porque aqui passos e treinos são somados à parte. Qualquer valor de 1,2 a 1,4 é defensável.",
   "energyLimitsBase": "É distribuída por igual, então cresce na mesma velocidade dormindo e acordado. Na vida real a noite é mais lenta e o dia mais rápido.",
   "energyWhatSteps": "A energia de andar por aí, fora dos treinos registrados. Os passos dados durante um treino contam lá, nunca duas vezes.",

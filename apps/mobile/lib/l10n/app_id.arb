@@ -1602,7 +1602,7 @@
   "energyLimitsResting": "Ini rata-rata untuk orang seukuranmu, bukan pengukuran atas dirimu. Persamaan ini tidak tahu otot, hormon, atau obatmu. Tidak berlaku untuk usia di bawah {age} tahun, selama kehamilan, atau setelah penurunan berat badan yang besar. Tidak bisa mengatakan berapa banyak harus makan.",
   "energyWhatBase": "Bagian dari hari yang terjadi tanpa kamu sengaja melakukan apa pun: pembakaran saat istirahat, ditambah pencernaan dan gerakan kecil yang tidak dihitung sensor mana pun, seperti berdiri, pekerjaan rumah, dan bergerak-gerak kecil.",
   "energyRuleBase": "Pembakaran saat istirahat × {factor}, dibagi rata selama 24 jam.",
-  "energySourceBase": "Tabel internasional (FAO, WHO, dan UNU, 2001) menempatkan gaya hidup banyak duduk pada 1,40 sampai 1,69 kali pembakaran saat istirahat, termasuk berjalan.",
+  "energySourceBase": "Tabel internasional (FAO, WHO, dan UNU, 2001) menempatkan gaya hidup banyak duduk pada 1,40 sampai 1,69 kali pembakaran saat istirahat.",
   "energyOursBase": "Angka {factor}. Letaknya sedikit di bawah rentang itu karena di sini langkah dan latihan ditambahkan terpisah. Nilai apa pun dari 1,2 sampai 1,4 masih bisa dipertanggungjawabkan.",
   "energyLimitsBase": "Dibagi rata, jadi bertambah dengan kecepatan yang sama saat tidur dan terjaga. Dalam kehidupan nyata malam lebih lambat dan siang lebih cepat.",
   "energyWhatSteps": "Energi dari berjalan ke sana kemari, di luar latihan yang direkam. Langkah selama latihan dihitung di sana, tidak pernah dua kali.",

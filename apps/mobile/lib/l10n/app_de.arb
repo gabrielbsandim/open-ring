@@ -1602,7 +1602,7 @@
   "energyLimitsResting": "Es ist der Durchschnitt für Menschen deiner Größe, keine Messung an dir. Sie kennt weder deine Muskeln noch deine Hormone oder Medikamente. Sie gilt nicht unter {age} Jahren, in der Schwangerschaft oder nach starkem Gewichtsverlust. Sie kann nicht sagen, wie viel du essen sollst.",
   "energyWhatBase": "Der Teil des Tages, der passiert, ohne dass du absichtlich etwas tust: dein Ruheverbrauch plus Verdauung und die kleinen Bewegungen, die kein Sensor zählt, etwa Stehen, Hausarbeit und Zappeln.",
   "energyRuleBase": "Ruheverbrauch × {factor}, gleichmäßig über die 24 Stunden verteilt.",
-  "energySourceBase": "Internationale Tabellen (FAO, WHO und UNU, 2001) setzen einen sitzenden Lebensstil bei 1,40 bis 1,69 mal dem Ruheverbrauch an, Gehen eingeschlossen.",
+  "energySourceBase": "Internationale Tabellen (FAO, WHO und UNU, 2001) setzen einen sitzenden Lebensstil bei 1,40 bis 1,69 mal dem Ruheverbrauch an.",
   "energyOursBase": "Die {factor}. Sie liegt knapp unter diesem Bereich, weil Schritte und Workouts hier getrennt addiert werden. Alles von 1,2 bis 1,4 ist vertretbar.",
   "energyLimitsBase": "Sie ist gleichmäßig verteilt und wächst deshalb im Schlaf und im Wachen gleich schnell. Im echten Leben ist die Nacht langsamer und der Tag schneller.",
   "energyWhatSteps": "Die Energie des Herumgehens außerhalb aufgezeichneter Workouts. Schritte während eines Workouts zählen dort, nie doppelt.",

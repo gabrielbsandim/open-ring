@@ -1561,7 +1561,7 @@
   "energyPartWorkoutsNone": "Nenhum registado hoje até agora.",
   "energyPartAbout": "cerca de {value} kcal",
   "energyKcal": "{value} kcal",
-  "energyFixedNote": "Estimado por equações para a pessoa média do seu tamanho. O seu valor real pode diferir em 300 kcal ou mais. Não é uma meta de alimentação.",
+  "energyFixedNote": "Estimado por equações para a pessoa média do seu tamanho. O seu valor real pode ficar fora do intervalo. Não é uma meta de alimentação.",
   "energyRestingTitle": "O seu gasto em repouso",
   "energyRestingUnit": "kcal por dia, estimativa",
   "energyRestingBody": "O que o seu corpo usa em 24 horas deitado e parado. Vem de uma equação com a sua idade, sexo, altura e peso mais recente.",

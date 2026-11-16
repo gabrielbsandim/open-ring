@@ -3708,7 +3708,7 @@
   "@energyPartAbout": {"placeholders": {"value": {"type": "String"}}},
   "energyKcal": "{value} kcal",
   "@energyKcal": {"placeholders": {"value": {"type": "String"}}},
-  "energyFixedNote": "Estimated from equations for the average person your size. Your real figure can differ by 300 kcal or more. Not a target for eating.",
+  "energyFixedNote": "Estimated from equations for the average person your size. Your real figure can fall outside the range. Not a target for eating.",
   "energyRestingTitle": "Your resting burn",
   "energyRestingUnit": "kcal a day, estimate",
   "energyRestingBody": "What your body uses in 24 hours lying still. It comes from one equation with your age, sex, height and latest weight.",

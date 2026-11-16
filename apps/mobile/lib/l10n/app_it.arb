@@ -1569,7 +1569,7 @@
   "energyPartWorkoutsNone": "Nessuno registrato oggi finora.",
   "energyPartAbout": "circa {value} kcal",
   "energyKcal": "{value} kcal",
-  "energyFixedNote": "Stimato con equazioni per la persona media della tua corporatura. Il tuo valore reale può differire di 300 kcal o più. Non è un obiettivo alimentare.",
+  "energyFixedNote": "Stimato con equazioni per la persona media della tua corporatura. Il tuo valore reale può cadere fuori dall'intervallo. Non è un obiettivo alimentare.",
   "energyRestingTitle": "Il tuo consumo a riposo",
   "energyRestingUnit": "kcal al giorno, stima",
   "energyRestingBody": "Quello che il tuo corpo usa in 24 ore da sdraiato e fermo. Viene da un'equazione con età, sesso, altezza e ultimo peso.",

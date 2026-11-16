@@ -11,6 +11,7 @@ import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
+import 'package:open_ring/core/widgets/charts.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
 import 'package:open_ring/features/activity/domain/activity_history_reader.dart';
@@ -144,8 +145,11 @@ String _range(WidgetTester tester, EnergyRange range) => _l10n(tester)
       _format(tester).integer(range.high),
     );
 
-double _width(WidgetTester tester, Key key) =>
-    tester.getSize(find.byKey(key)).width;
+List<double> _weights(WidgetTester tester) => [
+  for (final segment
+      in tester.widget<SegmentedBar>(find.byKey(EnergyKeys.bar)).segments)
+    segment.weight,
+];
 
 Future<void> _reveal(WidgetTester tester, Finder finder) async {
   await tester.scrollUntilVisible(finder, 100);
@@ -265,26 +269,18 @@ void main() {
       );
       expect(find.text(l10n.energyPartWorkoutsNone), findsOneWidget);
       expect(find.text(l10n.energyPartWorkoutsNote), findsNothing);
-      expect(find.byKey(EnergyKeys.segment(EnergyPart.workouts)), findsNothing);
-      expect(find.byKey(EnergyKeys.segment(EnergyPart.base)), findsOneWidget);
+      expect(_weights(tester)[EnergyPart.workouts.index], 0);
     });
 
-    testWidgets('each segment is as wide as its share of the bar scale', (
+    testWidgets('the bar weighs the three parts against the bar scale', (
       tester,
     ) async {
       await _pump(tester, day: _full);
-      final bar = _width(tester, EnergyKeys.bar);
-      final scale = energyBarScale(_full);
 
-      for (final part in EnergyPart.values) {
-        expect(
-          _width(tester, EnergyKeys.segment(part)),
-          moreOrLessEquals(bar * energyPartValue(_full, part) / scale),
-        );
-      }
+      expect(_weights(tester), [1100, 180, 304, energyBarScale(_full) - 1584]);
     });
 
-    testWidgets('a day past the scale still fits the bar', (tester) async {
+    testWidgets('a day past the scale leaves no empty track', (tester) async {
       const big = EnergyDayEstimate(
         resting: 1700,
         base: 2210,
@@ -293,15 +289,9 @@ void main() {
       );
       await _pump(tester, day: big);
 
-      final parts = [
-        for (final part in EnergyPart.values)
-          _width(tester, EnergyKeys.segment(part)),
-      ];
-      expect(
-        parts.reduce((a, b) => a + b),
-        lessThanOrEqualTo(_width(tester, EnergyKeys.bar)),
-      );
       expect(energyBarScale(big), big.range.high);
+      expect(_weights(tester).last, big.range.high - big.total);
+      expect(_weights(tester).every((weight) => weight >= 0), isTrue);
     });
 
     testWidgets('the bar reads as the range to a screen reader', (

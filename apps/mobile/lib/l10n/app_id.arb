@@ -1569,7 +1569,7 @@
   "energyPartWorkoutsNone": "Belum ada yang direkam hari ini.",
   "energyPartAbout": "sekitar {value} kkal",
   "energyKcal": "{value} kkal",
-  "energyFixedNote": "Diperkirakan dari persamaan untuk orang rata-rata seukuranmu. Angkamu yang sebenarnya bisa berbeda 300 kkal atau lebih. Bukan target makan.",
+  "energyFixedNote": "Diperkirakan dari persamaan untuk orang rata-rata seukuranmu. Angkamu yang sebenarnya bisa berada di luar rentang. Bukan target makan.",
   "energyRestingTitle": "Pembakaran saat istirahat",
   "energyRestingUnit": "kkal per hari, perkiraan",
   "energyRestingBody": "Yang dipakai tubuhmu dalam 24 jam berbaring diam. Berasal dari satu persamaan dengan usia, jenis kelamin, tinggi, dan berat terbarumu.",

@@ -1569,7 +1569,7 @@
   "energyPartWorkoutsNone": "Ninguno registrado hoy hasta ahora.",
   "energyPartAbout": "unas {value} kcal",
   "energyKcal": "{value} kcal",
-  "energyFixedNote": "Estimado con ecuaciones para la persona media de tu tamaño. Tu cifra real puede diferir en 300 kcal o más. No es un objetivo de alimentación.",
+  "energyFixedNote": "Estimado con ecuaciones para la persona media de tu tamaño. Tu cifra real puede quedar fuera del rango. No es un objetivo de alimentación.",
   "energyRestingTitle": "Tu gasto en reposo",
   "energyRestingUnit": "kcal al día, estimación",
   "energyRestingBody": "Lo que tu cuerpo usa en 24 horas tumbado y quieto. Sale de una ecuación con tu edad, sexo, altura y peso más reciente.",

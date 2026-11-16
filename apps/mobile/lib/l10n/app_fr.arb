@@ -1569,7 +1569,7 @@
   "energyPartWorkoutsNone": "Aucune enregistrée aujourd'hui pour l'instant.",
   "energyPartAbout": "environ {value} kcal",
   "energyKcal": "{value} kcal",
-  "energyFixedNote": "Estimé avec des équations pour la personne moyenne de votre gabarit. Votre chiffre réel peut différer de 300 kcal ou plus. Ce n'est pas un objectif alimentaire.",
+  "energyFixedNote": "Estimé avec des équations pour la personne moyenne de votre gabarit. Votre chiffre réel peut sortir de la fourchette. Ce n'est pas un objectif alimentaire.",
   "energyRestingTitle": "Votre dépense au repos",
   "energyRestingUnit": "kcal par jour, estimation",
   "energyRestingBody": "Ce que votre corps utilise en 24 heures allongé et immobile. Cela vient d'une équation avec votre âge, votre sexe, votre taille et votre dernier poids.",

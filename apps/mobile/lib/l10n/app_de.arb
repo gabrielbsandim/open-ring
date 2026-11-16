@@ -1569,7 +1569,7 @@
   "energyPartWorkoutsNone": "Heute bisher keines aufgezeichnet.",
   "energyPartAbout": "etwa {value} kcal",
   "energyKcal": "{value} kcal",
-  "energyFixedNote": "Geschätzt mit Gleichungen für die durchschnittliche Person deiner Größe. Dein echter Wert kann um 300 kcal oder mehr abweichen. Kein Ziel fürs Essen.",
+  "energyFixedNote": "Geschätzt mit Gleichungen für die durchschnittliche Person deiner Größe. Dein echter Wert kann außerhalb des Bereichs liegen. Kein Ziel fürs Essen.",
   "energyRestingTitle": "Dein Ruheverbrauch",
   "energyRestingUnit": "kcal pro Tag, Schätzung",
   "energyRestingBody": "Was dein Körper in 24 Stunden im Liegen ohne Bewegung verbraucht. Es kommt aus einer Gleichung mit deinem Alter, Geschlecht, deiner Größe und deinem letzten Gewicht.",

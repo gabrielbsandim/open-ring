@@ -8,6 +8,7 @@ import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
+import 'package:open_ring/core/widgets/charts.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/energy/application/energy_gate.dart';
@@ -45,8 +46,6 @@ abstract final class EnergyKeys {
 
   static Key partValue(EnergyPart part) =>
       Key('energy_part_value_${part.name}');
-
-  static Key segment(EnergyPart part) => Key('energy_segment_${part.name}');
 
   static Key need(EnergyField field) => Key('energy_need_${field.name}');
 
@@ -274,58 +273,44 @@ class _DayBar extends StatelessWidget {
     final colors = AppColors.of(context);
     final range = day.range;
     final scale = energyBarScale(day);
-    return Semantics(
-      container: true,
-      label: format.l10n.energyBarSemantics(
-        format.integer(range.low),
-        format.integer(range.high),
-      ),
-      child: ExcludeSemantics(
-        child: LayoutBuilder(
-          builder: (context, box) {
-            final width = box.maxWidth;
-            double across(num value) => width * value / scale;
-            return Column(
-              key: EnergyKeys.bar,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: ColoredBox(
-                    color: colors.track,
-                    child: SizedBox(
-                      width: width,
-                      height: 16,
-                      child: Row(
-                        children: [
-                          for (final part in EnergyPart.values)
-                            if (energyPartValue(day, part) > 0)
-                              ColoredBox(
-                                key: EnergyKeys.segment(part),
-                                color: _partColor(colors, part),
-                                child: SizedBox(
-                                  width: across(energyPartValue(day, part)),
-                                  height: 16,
-                                ),
-                              ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Padding(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SegmentedBar(
+          key: EnergyKeys.bar,
+          height: 16,
+          semanticsLabel: format.l10n.energyBarSemantics(
+            format.integer(range.low),
+            format.integer(range.high),
+          ),
+          segments: [
+            for (final part in EnergyPart.values)
+              (
+                weight: energyPartValue(day, part),
+                color: _partColor(colors, part),
+              ),
+            (weight: math.max(0, scale - day.total), color: colors.track),
+          ],
+        ),
+        const SizedBox(height: 3),
+        ExcludeSemantics(
+          child: LayoutBuilder(
+            builder: (context, box) {
+              double across(num value) => box.maxWidth * value / scale;
+              return Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Padding(
                   padding: EdgeInsets.only(left: across(range.low)),
                   child: _Whisker(
                     width: math.max(4, across(range.high - range.low)),
                     color: colors.textPrimary,
                   ),
                 ),
-              ],
-            );
-          },
+              );
+            },
+          ),
         ),
-      ),
+      ],
     );
   }
 }

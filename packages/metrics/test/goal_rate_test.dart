@@ -342,6 +342,18 @@ void main() {
       );
     });
 
+    test('ends two year numbers apart have no arrival', () {
+      expect(
+        arrival(
+          trendKg: 80,
+          referenceKg: 79,
+          rate: fromKg(0.02, 7, 80),
+          when: const LocalDate(2026, 12, 20),
+        ),
+        isNull,
+      );
+    });
+
     test('a latest end in the next calendar year still has an arrival', () {
       final range = arrival(
         trendKg: 77.782,
@@ -376,7 +388,27 @@ void main() {
       expect(range.latest, const LocalDate(2027, 6, 7));
     });
 
-    test('an end that needs a seventh block has no arrival', () {
+    test('six blocks after the one under way still give an arrival', () {
+      final range = arrival(
+        trendKg: 112,
+        referenceKg: 70,
+        rate: fromKg(0.5, 0.5, 112),
+        when: blockStart,
+      )!;
+      expect(range.latestWeeks, closeTo(108, 1e-3));
+      expect(range.latest, const LocalDate(2028, 12, 11));
+      expect(
+        arrival(
+          trendKg: 112.5,
+          referenceKg: 70,
+          rate: fromKg(0.5, 0.5, 112.5),
+          when: blockStart,
+        ),
+        isNull,
+      );
+    });
+
+    test('an end far past the blocks allowed has no arrival', () {
       expect(
         arrival(trendKg: 100, referenceKg: 70, rate: fromKg(0.25, 0.3, 100)),
         isNull,

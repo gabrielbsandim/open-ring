@@ -12,6 +12,7 @@ import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/core/widgets/text_scale.dart';
 import 'package:open_ring/features/body/presentation/weight_card.dart';
 import 'package:open_ring/features/effort/presentation/effort_coach_card.dart';
+import 'package:open_ring/features/effort/presentation/effort_week_tile.dart';
 import 'package:open_ring/features/energy/presentation/energy_row.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/modules/presentation/modules_shortcut.dart';
@@ -101,6 +102,7 @@ class _TodayBody extends StatelessWidget {
               actionKey: TodayKeys.pairAction,
               onAction: () => context.go(AppTab.ring.path),
             ),
+            const EffortWeekTileSlot(padding: EdgeInsets.only(top: cardGap)),
             const WeightCardSlot(),
           ],
           SyncFreshness.unpaired => [
@@ -112,6 +114,7 @@ class _TodayBody extends StatelessWidget {
               actionKey: TodayKeys.pairAction,
               onAction: () => context.go(AppTab.ring.path),
             ),
+            const EffortWeekTileSlot(padding: EdgeInsets.only(top: cardGap)),
             const WeightCardSlot(),
           ],
           SyncFreshness.neverSynced => [
@@ -123,6 +126,7 @@ class _TodayBody extends StatelessWidget {
               actionKey: TodayKeys.pairAction,
               onAction: () => context.go(AppTab.ring.path),
             ),
+            const EffortWeekTileSlot(padding: EdgeInsets.only(top: cardGap)),
             const WeightCardSlot(),
           ],
           SyncFreshness.fresh || SyncFreshness.stale => [
@@ -132,6 +136,7 @@ class _TodayBody extends StatelessWidget {
             ],
             const DayScoreCardSlot(),
             const EnergyRowSlot(),
+            const EffortWeekTileSlot(),
             _ReadinessCard(
               readiness: view.readiness,
               staleSyncAt: freshness == SyncFreshness.stale

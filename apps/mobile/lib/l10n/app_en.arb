@@ -3676,5 +3676,19 @@
   "dayScoreFormulaOverall2": "Of 100 points: fitness {fitness}, resting heart rate {resting}, sleep duration {sleep}, sleep regularity {regularity}, weekly movement {movement} and body {body}. Each row of the Overall screen opens its rule and its source.",
   "@dayScoreFormulaOverall2": {"placeholders": {"fitness": {"type": "String"}, "resting": {"type": "String"}, "sleep": {"type": "String"}, "regularity": {"type": "String"}, "movement": {"type": "String"}, "body": {"type": "String"}}},
   "moduleOpenScoreAddsOverall": "The Overall, your base over the last 4 weeks, updated every Monday, with the rule and the source of each factor and a chart of 12 weeks.",
-  "moduleOpenScoreUsesOverall": "The Overall also reads the age, sex and height in your profile, the runs and walks you recorded and, with the Body module on, your waist and weight."
+  "moduleOpenScoreUsesOverall": "The Overall also reads the age, sex and height in your profile, the runs and walks you recorded and, with the Body module on, your waist and weight.",
+  "energyTitle": "Energy",
+  "energyRowSoFar": "So far · {time}",
+  "@energyRowSoFar": {"placeholders": {"time": {"type": "String"}}},
+  "energyRowRange": "{low} to {high}",
+  "@energyRowRange": {"placeholders": {"low": {"type": "String"}, "high": {"type": "String"}}},
+  "energyRowUnit": "kcal, estimate",
+  "energyRowStarting": "The day is just starting",
+  "energyRowSemantics": "Energy so far today, {low} to {high} kilocalories, estimate.",
+  "@energyRowSemantics": {"placeholders": {"low": {"type": "String"}, "high": {"type": "String"}}},
+  "energyRowMissingAge": "Add your age to see an estimate",
+  "energyRowMissingHeight": "Add your height to see an estimate",
+  "energyRowMissingWeight": "Add your weight to see an estimate",
+  "energyRowMissingSex": "Choose Female or Male to see an estimate",
+  "energyRowMissingSeveral": "Complete your profile to see an estimate"
 }

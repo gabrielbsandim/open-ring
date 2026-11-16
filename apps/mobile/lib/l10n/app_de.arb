@@ -1544,5 +1544,16 @@
   "dayScoreFormulaOverall1": "Die Gesamtnote liest deine Basis, nicht einen Tag: sechs Faktoren über die {days} Tage vor jedem Montag. Ein Faktor ohne Daten fällt aus der Rechnung und der Rest wird umgerechnet.",
   "dayScoreFormulaOverall2": "Von 100 Punkten: Fitness {fitness}, Ruhepuls {resting}, Schlafdauer {sleep}, Schlafregelmäßigkeit {regularity}, Bewegung der Woche {movement} und Körper {body}. Jede Zeile im Bildschirm der Gesamtnote öffnet ihre Regel und ihre Quelle.",
   "moduleOpenScoreAddsOverall": "Die Gesamtnote, deine Basis der letzten 4 Wochen, jeden Montag aktualisiert, mit Regel und Quelle jedes Faktors und einem Diagramm über 12 Wochen.",
-  "moduleOpenScoreUsesOverall": "Die Gesamtnote liest außerdem Alter, Geschlecht und Größe aus deinem Profil, deine aufgezeichneten Läufe und Spaziergänge und, bei aktivem Modul Körper, Taille und Gewicht."
+  "moduleOpenScoreUsesOverall": "Die Gesamtnote liest außerdem Alter, Geschlecht und Größe aus deinem Profil, deine aufgezeichneten Läufe und Spaziergänge und, bei aktivem Modul Körper, Taille und Gewicht.",
+  "energyTitle": "Energie",
+  "energyRowSoFar": "Bisher · {time}",
+  "energyRowRange": "{low} bis {high}",
+  "energyRowUnit": "kcal, Schätzung",
+  "energyRowStarting": "Der Tag fängt gerade erst an",
+  "energyRowSemantics": "Energie heute bisher, {low} bis {high} Kilokalorien, Schätzung.",
+  "energyRowMissingAge": "Gib dein Alter an, um eine Schätzung zu sehen",
+  "energyRowMissingHeight": "Gib deine Größe an, um eine Schätzung zu sehen",
+  "energyRowMissingWeight": "Gib dein Gewicht an, um eine Schätzung zu sehen",
+  "energyRowMissingSex": "Wähle Weiblich oder Männlich, um eine Schätzung zu sehen",
+  "energyRowMissingSeveral": "Vervollständige dein Profil, um eine Schätzung zu sehen"
 }

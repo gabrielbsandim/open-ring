@@ -79,7 +79,7 @@ Future<EnergyGate> _gate({
   await container.read(enabledModulesProvider.future);
   await container.read(userProfileProvider.future);
   await container.read(hideNumbersProvider.future);
-  return container.read(energyGateProvider);
+  return container.read<EnergyGate>(energyGateProvider);
 }
 
 void main() {

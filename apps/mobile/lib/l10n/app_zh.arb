@@ -1544,5 +1544,16 @@
   "dayScoreFormulaOverall1": "总评分看的是你的基础，而不是某一天：每个周一之前 {days} 天内的六个因素。没有数据的因素不计入，其余按比例换算。",
   "dayScoreFormulaOverall2": "满分 100 分：体能 {fitness}，静息心率 {resting}，睡眠时长 {sleep}，睡眠规律性 {regularity}，每周运动 {movement}，身体 {body}。总评分页面的每一行都能打开它的规则和来源。",
   "moduleOpenScoreAddsOverall": "总评分，也就是你最近 4 周的基础，每周一更新，附带每个因素的规则和来源，以及 12 周的图表。",
-  "moduleOpenScoreUsesOverall": "总评分还会读取个人资料中的年龄、性别和身高、你记录的跑步和步行，以及在开启身体模块时的腰围和体重。"
+  "moduleOpenScoreUsesOverall": "总评分还会读取个人资料中的年龄、性别和身高、你记录的跑步和步行，以及在开启身体模块时的腰围和体重。",
+  "energyTitle": "能量",
+  "energyRowSoFar": "截至目前 · {time}",
+  "energyRowRange": "{low} 至 {high}",
+  "energyRowUnit": "千卡，估算",
+  "energyRowStarting": "今天才刚开始",
+  "energyRowSemantics": "今天截至目前的能量，{low} 至 {high} 千卡，估算。",
+  "energyRowMissingAge": "填写年龄即可查看估算",
+  "energyRowMissingHeight": "填写身高即可查看估算",
+  "energyRowMissingWeight": "填写体重即可查看估算",
+  "energyRowMissingSex": "选择女或男即可查看估算",
+  "energyRowMissingSeveral": "完善个人资料即可查看估算"
 }

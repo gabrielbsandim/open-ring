@@ -372,7 +372,6 @@ void main() {
       tester,
     ) async {
       final handle = tester.ensureSemantics();
-      addTearDown(handle.dispose);
       await _pump(tester, slots: _morningSteps);
       final day = await _estimate(tester);
       final format = _format(tester);
@@ -388,6 +387,7 @@ void main() {
           ),
         ),
       );
+      handle.dispose();
     });
 
     testWidgets('a low exactly at the floor still shows the range', (
@@ -424,8 +424,8 @@ void main() {
       expect(_text(tester, EnergyRowKeys.note), 'The day is just starting');
     });
 
-    testWidgets('a low one below the floor has no range', (tester) async {
-      final day = _estimateWithLow(energyRowFloor - 1);
+    testWidgets('a low one step below the floor has no range', (tester) async {
+      final day = _estimateWithLow(energyRowFloor - energyRangeStep);
 
       await _pump(tester, extra: [_today(day)]);
 

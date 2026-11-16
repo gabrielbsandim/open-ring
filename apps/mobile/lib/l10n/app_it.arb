@@ -1544,5 +1544,16 @@
   "dayScoreFormulaOverall1": "Il Voto generale legge la tua base, non un giorno: sei fattori nei {days} giorni prima di ogni lunedì. Un fattore senza dati esce dal conto e il resto viene riscalato.",
   "dayScoreFormulaOverall2": "Su 100 punti: forma fisica {fitness}, FC a riposo {resting}, durata del sonno {sleep}, regolarità del sonno {regularity}, movimento della settimana {movement} e corpo {body}. Ogni riga della schermata del Voto generale apre la sua regola e la sua fonte.",
   "moduleOpenScoreAddsOverall": "Il Voto generale, la tua base nelle ultime 4 settimane, aggiornato ogni lunedì, con la regola e la fonte di ogni fattore e un grafico di 12 settimane.",
-  "moduleOpenScoreUsesOverall": "Il Voto generale legge anche età, sesso e altezza del tuo profilo, le corse e camminate che hai registrato e, con il modulo Corpo attivo, vita e peso."
+  "moduleOpenScoreUsesOverall": "Il Voto generale legge anche età, sesso e altezza del tuo profilo, le corse e camminate che hai registrato e, con il modulo Corpo attivo, vita e peso.",
+  "energyTitle": "Energia",
+  "energyRowSoFar": "Finora · {time}",
+  "energyRowRange": "da {low} a {high}",
+  "energyRowUnit": "kcal, stima",
+  "energyRowStarting": "La giornata è appena iniziata",
+  "energyRowSemantics": "Energia di oggi finora, da {low} a {high} chilocalorie, stima.",
+  "energyRowMissingAge": "Aggiungi la tua età per vedere una stima",
+  "energyRowMissingHeight": "Aggiungi la tua altezza per vedere una stima",
+  "energyRowMissingWeight": "Aggiungi il tuo peso per vedere una stima",
+  "energyRowMissingSex": "Scegli Femmina o Maschio per vedere una stima",
+  "energyRowMissingSeveral": "Completa il tuo profilo per vedere una stima"
 }

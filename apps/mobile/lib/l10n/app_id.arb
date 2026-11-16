@@ -1544,5 +1544,16 @@
   "dayScoreFormulaOverall1": "Skor Keseluruhan membaca dasar Anda, bukan satu hari: enam faktor selama {days} hari sebelum setiap Senin. Faktor tanpa data keluar dari hitungan dan sisanya diskalakan ulang.",
   "dayScoreFormulaOverall2": "Dari 100 poin: kebugaran {fitness}, detak jantung istirahat {resting}, durasi tidur {sleep}, keteraturan tidur {regularity}, gerak mingguan {movement}, dan tubuh {body}. Setiap baris di layar Skor Keseluruhan membuka aturan dan sumbernya.",
   "moduleOpenScoreAddsOverall": "Skor Keseluruhan, dasar Anda selama 4 minggu terakhir, diperbarui setiap Senin, dengan aturan dan sumber tiap faktor serta grafik 12 minggu.",
-  "moduleOpenScoreUsesOverall": "Skor Keseluruhan juga membaca usia, jenis kelamin, dan tinggi di profil Anda, lari dan jalan kaki yang Anda rekam, dan, saat modul Tubuh aktif, lingkar pinggang dan berat Anda."
+  "moduleOpenScoreUsesOverall": "Skor Keseluruhan juga membaca usia, jenis kelamin, dan tinggi di profil Anda, lari dan jalan kaki yang Anda rekam, dan, saat modul Tubuh aktif, lingkar pinggang dan berat Anda.",
+  "energyTitle": "Energi",
+  "energyRowSoFar": "Sejauh ini · {time}",
+  "energyRowRange": "{low} sampai {high}",
+  "energyRowUnit": "kkal, perkiraan",
+  "energyRowStarting": "Hari baru saja dimulai",
+  "energyRowSemantics": "Energi hari ini sejauh ini, {low} sampai {high} kilokalori, perkiraan.",
+  "energyRowMissingAge": "Isi usia kamu untuk melihat perkiraan",
+  "energyRowMissingHeight": "Isi tinggi kamu untuk melihat perkiraan",
+  "energyRowMissingWeight": "Isi berat kamu untuk melihat perkiraan",
+  "energyRowMissingSex": "Pilih Perempuan atau Laki-laki untuk melihat perkiraan",
+  "energyRowMissingSeveral": "Lengkapi profil kamu untuk melihat perkiraan"
 }

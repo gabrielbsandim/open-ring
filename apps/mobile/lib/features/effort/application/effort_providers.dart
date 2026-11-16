@@ -14,6 +14,10 @@ import 'package:open_ring/features/workout/application/workout_history_providers
 import 'package:open_ring/features/workout/application/workout_source_selection.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
 
+// A workout dated inside the window under another offset can start outside
+// these midnights, so the read is one day wider and the date filter decides.
+const _selectionPadding = Duration(days: 1);
+
 /// The workouts of the load window and of today, oldest first.
 final effortSessionsProvider = FutureProvider<List<EffortSession>>((ref) async {
   ref.watch(dataRevisionProvider);
@@ -25,8 +29,16 @@ final effortSessionsProvider = FutureProvider<List<EffortSession>>((ref) async {
   final to = localMidnight(today.addDays(1), offset);
   final reader = ref.watch(workoutHistoryReaderProvider);
   final (own, imported) = await (
-    reader.intersecting(from: from, to: to),
-    ref.watch(importedWorkoutReaderProvider).intersecting(from: from, to: to),
+    reader.intersecting(
+      from: from.subtract(_selectionPadding),
+      to: to.add(_selectionPadding),
+    ),
+    ref
+        .watch(importedWorkoutReaderProvider)
+        .intersecting(
+          from: from.subtract(_selectionPadding),
+          to: to.add(_selectionPadding),
+        ),
   ).wait;
   final selected = selectWorkouts([
     ...own,
@@ -54,11 +66,7 @@ Future<EffortSession> _session(
   HeartRateZones? zones,
 ) async => effortSessionOf(
   entry,
-  heartRate: switch (entry) {
-    ImportedWorkout() => const [],
-    WorkoutListItem(:final id) =>
-      (await reader.byId(id))?.workout.heartRate ?? const [],
-  },
+  heartRate: await workoutHeartRate(reader, entry),
   zones: zones,
 );
 

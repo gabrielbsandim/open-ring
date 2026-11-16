@@ -110,12 +110,13 @@ Future<WorkoutCredit> _credit(
   end: entry.end,
   minutes: workoutPoints(
     entry,
-    heartRate: await _heartRate(reader, entry),
+    heartRate: await workoutHeartRate(reader, entry),
     maxHeartRate: maxHeartRate,
   ),
 );
 
-Future<List<BpmSample>> _heartRate(
+/// The stored samples of a recorded workout. An imported one carries none.
+Future<List<BpmSample>> workoutHeartRate(
   WorkoutHistoryReader reader,
   WorkoutEntry entry,
 ) async => switch (entry) {

@@ -128,6 +128,27 @@ void main() {
     });
   });
 
+  group('criterion 2: the max heart rate reaches the points', () {
+    final entry = _recorded(type: WorkoutType.strength);
+    final samples = _samples(entry.start, 170);
+
+    test('strength with zones counts vigorous minutes double', () {
+      final session = effortSessionOf(
+        entry,
+        heartRate: samples,
+        zones: HeartRateZones(maxHeartRate: 200),
+      );
+
+      expect(session.points.equivalent, closeTo(60, 1e-9));
+    });
+
+    test('strength without zones keeps the type credit', () {
+      final session = effortSessionOf(entry, heartRate: samples);
+
+      expect(session.points.equivalent, closeTo(30, 1e-9));
+    });
+  });
+
   group('criterion 3: the same workout without zones', () {
     final entry = _recorded();
     final samples = _samples(entry.start, 170);

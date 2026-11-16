@@ -123,11 +123,12 @@ SavedWorkout _saved(
   DateTime start, {
   int minutes = 30,
   int? bpm,
+  Duration utcOffset = Duration.zero,
 }) {
   final elapsed = Duration(minutes: minutes);
   return SavedWorkout(
     id: id,
-    utcOffset: Duration.zero,
+    utcOffset: utcOffset,
     workout: FinishedWorkout(
       type: type,
       start: start,
@@ -292,14 +293,14 @@ void main() {
   });
 
   group('the window of the sessions', () {
-    test('reads both readers from local midnight 42 days back to +1', () async {
+    test('reads both readers padded by one day on each side', () async {
       final s = _setup();
 
       await s.container.read(effortSessionsProvider.future);
 
       final range = (
-        from: DateTime.utc(2026, 9, 29),
-        to: DateTime.utc(2026, 11, 11),
+        from: DateTime.utc(2026, 9, 28),
+        to: DateTime.utc(2026, 11, 12),
       );
       expect(s.own.ranges, [range]);
       expect(s.imported.ranges, [range]);
@@ -311,6 +312,7 @@ void main() {
           _saved(1, WorkoutType.treadmill, DateTime.utc(2026, 9, 28, 22)),
           _saved(2, WorkoutType.treadmill, DateTime.utc(2026, 9, 29, 7)),
           _saved(3, WorkoutType.treadmill, DateTime.utc(2026, 11, 10, 7)),
+          _saved(4, WorkoutType.treadmill, DateTime.utc(2026, 9, 28, 23, 50)),
         ],
       );
 
@@ -322,6 +324,30 @@ void main() {
       );
       expect(s.own.reads, unorderedEquals(<int>[2, 3]));
     });
+
+    test(
+      'a workout of the oldest local day is kept despite its offset',
+      () async {
+        final s = _setup(
+          saved: [
+            _saved(
+              1,
+              WorkoutType.treadmill,
+              DateTime.utc(2026, 9, 29, 4, 10),
+              minutes: 40,
+              utcOffset: const Duration(hours: -4),
+            ),
+          ],
+        );
+
+        final sessions = await s.container.read(effortSessionsProvider.future);
+
+        expect(
+          [for (final e in sessions) e.date],
+          [const LocalDate(2026, 9, 29)],
+        );
+      },
+    );
 
     test('a recorded workout is read by id, an imported one is not', () async {
       final s = _setup(

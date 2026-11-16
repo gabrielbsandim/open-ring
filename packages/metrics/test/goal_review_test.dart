@@ -605,7 +605,7 @@ void main() {
         final change = step(
           kind: GoalKind.getFitter,
           levers: fitterLevers(effortTarget: entry.key, effortDone: entry.key),
-          previous: 1.0,
+          previous: 1,
         );
         expectChange(change, LeverKind.effortPoints, entry.key, entry.value);
       });
@@ -615,7 +615,7 @@ void main() {
       final change = step(
         kind: GoalKind.getFitter,
         levers: fitterLevers(effortTarget: 300, effortDone: 300),
-        previous: 1.0,
+        previous: 1,
       );
       expectChange(change, LeverKind.steps, 9000, 10000);
     });
@@ -630,7 +630,7 @@ void main() {
           strengthTarget: 4,
           strengthDone: 4,
         ),
-        previous: 1.0,
+        previous: 1,
       );
       expect(change, isNull);
     });
@@ -639,7 +639,7 @@ void main() {
       final change = step(
         kind: GoalKind.getFitter,
         levers: fitterLevers(),
-        previous: 1.0,
+        previous: 1,
         raises: 3,
       );
       expectChange(change, LeverKind.steps, 9000, 10000);
@@ -649,7 +649,7 @@ void main() {
       final change = step(
         kind: GoalKind.getFitter,
         levers: fitterLevers(),
-        previous: 1.0,
+        previous: 1,
         raises: 2,
       );
       expectChange(change, LeverKind.effortPoints, 150, 165);
@@ -682,7 +682,7 @@ void main() {
       final change = step(
         kind: GoalKind.getFitter,
         levers: fitterLevers(effortDone: 140),
-        previous: 1.0,
+        previous: 1,
       );
       expectChange(change, LeverKind.steps, 9000, 10000);
     });
@@ -846,7 +846,7 @@ void main() {
       final low = reviewOf(
         kind: GoalKind.getFitter,
         levers: fitterLevers(),
-        bmiValue: 18.0,
+        bmiValue: 18,
       );
       expect(low.rule, isNot(ReviewRule.end));
       final pregnant = reviewOf(
@@ -968,12 +968,7 @@ void main() {
     });
 
     test('missing answers are neutral', () {
-      final review = reviewOf(
-        energy: null,
-        energyPrevious: null,
-        foodOrWeight: null,
-        foodOrWeightPrevious: null,
-      );
+      final review = reviewOf();
       expect(review.rule, ReviewRule.build);
     });
 
@@ -1052,8 +1047,8 @@ void main() {
 
     test('it comes before ease', () {
       final review = reviewOf(
-        rate: fromPercents(0.8, 1.0),
-        capPercent: 1.0,
+        rate: fromPercents(0.8, 1),
+        capPercent: 1,
         readiness: lows,
       );
       expect(review.rule, ReviewRule.recoveryWeek);
@@ -1065,8 +1060,8 @@ void main() {
       final review = reviewOf(
         week: 3,
         levers: [strengthWeek(2, 2), sleepWeek(690, 6)],
-        rate: fromPercents(0.8, 1.0),
-        capPercent: 1.0,
+        rate: fromPercents(0.8, 1),
+        capPercent: 1,
       );
       expect(review.rule, ReviewRule.ease);
       expect(review.action, ReviewAction.ease);
@@ -1079,8 +1074,8 @@ void main() {
       final review = reviewOf(
         week: 3,
         levers: [strengthWeek(2, 2), sleepWeek(690, 6)],
-        rate: fromPercents(0.8, 1.0),
-        capPercent: 1.0,
+        rate: fromPercents(0.8, 1),
+        capPercent: 1,
         bodyOn: false,
       );
       expect(review.rule, ReviewRule.holdBuilding);
@@ -1138,7 +1133,7 @@ void main() {
       final review = reviewOf(
         kind: GoalKind.getFitter,
         levers: fitterLevers(),
-        adherencePrevious: 1.0,
+        adherencePrevious: 1,
       );
       expect(review.rule, ReviewRule.build);
       expect(review.action, ReviewAction.nextStep);
@@ -1150,7 +1145,7 @@ void main() {
       final review = reviewOf(
         kind: GoalKind.getFitter,
         levers: fitterLevers(),
-        adherencePrevious: 1.0,
+        adherencePrevious: 1,
         effortRaisesInRow: 3,
       );
       expect(review.rule, ReviewRule.build);
@@ -1162,7 +1157,7 @@ void main() {
         kind: GoalKind.getFitter,
         week: 9,
         levers: fitterLevers(),
-        adherencePrevious: 1.0,
+        adherencePrevious: 1,
       );
       expect(review.rule, ReviewRule.build);
       expectChange(review.change, LeverKind.effortPoints, 150, 165);
@@ -1172,7 +1167,7 @@ void main() {
       final review = reviewOf(
         kind: GoalKind.getFitter,
         levers: fitterLevers(),
-        adherencePrevious: 1.0,
+        adherencePrevious: 1,
         bodyOn: false,
       );
       expect(review.rule, ReviewRule.build);
@@ -1226,7 +1221,7 @@ void main() {
           strengthTarget: 4,
           strengthDone: 4,
         ),
-        adherencePrevious: 1.0,
+        adherencePrevious: 1,
       );
       expect(review.rule, ReviewRule.holdOther);
       expect(review.change, isNull);
@@ -1336,7 +1331,7 @@ void main() {
 
     test('under lose fat strength is never the removed lever', () {
       final layouts = [
-        [strengthWeek(2, 0), sleepWeek(690, 7), stepsWeek(9000, 7)],
+        [strengthWeek(2, 0), sleepWeek(690, 7), stepsWeek(9000, 4)],
         [strengthWeek(2, 0), sleepWeek(690, 0), stepsWeek(9000, 0)],
         [strengthWeek(4, 0), sleepWeek(690, 1), stepsWeek(9000, 2)],
       ];
@@ -1420,7 +1415,7 @@ void main() {
           kind: GoalKind.getFitter,
           week: 6,
           levers: fitterLevers(effortDone: 100),
-          adherencePrevious: 1.0,
+          adherencePrevious: 1,
         );
         expect(review.rule, ReviewRule.holdOther);
         expect(review.action, ReviewAction.hold);
@@ -1485,8 +1480,8 @@ void main() {
 
     test('low readiness with a repeated recovery beats the ease', () {
       final review = reviewOf(
-        rate: fromPercents(0.8, 1.0),
-        capPercent: 1.0,
+        rate: fromPercents(0.8, 1),
+        capPercent: 1,
         readiness: const [52, 49, 54, 50, 70, 70, 70],
         recoveryPrevious: true,
       );
@@ -1498,8 +1493,8 @@ void main() {
       final review = reviewOf(
         week: 3,
         levers: [strengthWeek(2, 2), sleepWeek(690, 6)],
-        rate: fromPercents(0.8, 1.0),
-        capPercent: 1.0,
+        rate: fromPercents(0.8, 1),
+        capPercent: 1,
       );
       expect(review.rule, ReviewRule.ease);
       expect(review.change, isNull);
@@ -1507,7 +1502,7 @@ void main() {
 
     test('the build beats the shrink and the hold rules', () {
       expect(reviewOf().rule, ReviewRule.build);
-      expect(reviewOf(week: 4, rate: null).rule, ReviewRule.build);
+      expect(reviewOf(rate: null).rule, ReviewRule.build);
     });
   });
 

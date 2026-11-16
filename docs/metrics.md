@@ -1152,6 +1152,17 @@ margin. A tap picks the closest point; a screen reader steps hour by hour.
 The card is absent while the day is under `energyRowFloor`, and a picked hour
 under the floor shows the starting line and no range.
 
+A tap on the resting card or on a part of the day opens an evidence sheet
+(`energy_evidence_sheet.dart`): what it is, the value of the person, the rule
+with its constants printed from `packages/metrics`, the source, what is our
+choice and the limits. The sheet of the resting burn shows the range and never
+the exact figure, so it prints no worked sum. The figures it quotes from
+studies are the ones the science review checked: Frankenfield 2005 (within 10
+percent for more people than the other equations), the FAO, WHO and UNU 2001
+range of 1.40 to 1.69 for a seated lifestyle, and Shcherbina 2017 (the best of
+seven wrist devices 27 percent off on energy). The net cost of walking is
+given as close to 0.5 kcal per kg per km with no paper named.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

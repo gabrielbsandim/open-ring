@@ -14,6 +14,7 @@ import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/energy/application/energy_providers.dart';
 import 'package:open_ring/features/energy/domain/energy_day.dart';
+import 'package:open_ring/features/energy/presentation/energy_evidence_sheet.dart';
 import 'package:open_ring/features/energy/presentation/energy_parts.dart';
 import 'package:open_ring/features/energy/presentation/energy_through_day.dart';
 import 'package:open_ring/features/modules/presentation/module_widgets.dart';
@@ -65,13 +66,6 @@ String _partNote(AppLocalizations l10n, EnergyPart part, double value) {
   };
 }
 
-String _partText(MetricFormat format, double value) {
-  final shown = energyPartShown(value);
-  final number = format.integer(shown);
-  if (shown == 0) return format.l10n.energyKcal(number);
-  return format.l10n.energyPartAbout(number);
-}
-
 String _fieldLabel(AppLocalizations l10n, EnergyField field) => switch (field) {
   EnergyField.birthYear => l10n.profileAge,
   EnergyField.sex => l10n.profileSex,
@@ -108,7 +102,7 @@ class EnergyScreen extends ConsumerWidget {
       final EnergyDayEstimate day => [
         _Day(day: day, asOf: now.asOf),
         const SizedBox(height: cardGap),
-        _Resting(resting: day.resting),
+        _Resting(day: day),
         const SizedBox(height: cardGap),
         if (_curve(ref, day) case final curve?) ...[
           EnergyThroughDay(curve: curve, utcOffset: now.asOf.timeZoneOffset),
@@ -238,7 +232,7 @@ class _Day extends StatelessWidget {
             CaptionText(l10n.energyBarNote),
             const SizedBox(height: 6),
             for (final part in EnergyPart.values)
-              _PartRow(part: part, value: energyPartValue(day, part)),
+              _PartRow(part: part, day: day),
           ],
           const SizedBox(height: 12),
           CaptionText(l10n.energyFixedNote),
@@ -329,10 +323,10 @@ class _Whisker extends StatelessWidget {
 }
 
 class _PartRow extends StatelessWidget {
-  const new({required this.part, required this.value});
+  const new({required this.part, required this.day});
 
   final EnergyPart part;
-  final double value;
+  final EnergyDayEstimate day;
 
   @override
   Widget build(BuildContext context) {
@@ -340,61 +334,66 @@ class _PartRow extends StatelessWidget {
     final l10n = format.l10n;
     final colors = AppColors.of(context);
     final theme = Theme.of(context).textTheme;
-    return Padding(
+    final value = energyPartValue(day, part);
+    return InkWell(
       key: EnergyKeys.part(part),
-      padding: const EdgeInsets.symmetric(vertical: 7),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 5, right: 10),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: energyPartColor(colors, part),
-                borderRadius: BorderRadius.circular(3),
-              ),
-              child: const SizedBox.square(dimension: 10),
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  spacing: 12,
-                  children: [
-                    Text(
-                      energyPartLabel(l10n, part),
-                      style: theme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      _partText(format, value),
-                      key: EnergyKeys.partValue(part),
-                      style: theme.bodyMedium?.copyWith(
-                        color: colors.textSecondary,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                  ],
+      onTap: () =>
+          showEnergyEvidence(context, kind: energyEvidenceOf(part), day: day),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 7),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 5, right: 10),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: energyPartColor(colors, part),
+                  borderRadius: BorderRadius.circular(3),
                 ),
-                const SizedBox(height: 2),
-                CaptionText(_partNote(l10n, part, value)),
-              ],
+                child: const SizedBox.square(dimension: 10),
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    spacing: 12,
+                    children: [
+                      Text(
+                        energyPartLabel(l10n, part),
+                        style: theme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        energyPartText(format, value),
+                        key: EnergyKeys.partValue(part),
+                        style: theme.bodyMedium?.copyWith(
+                          color: colors.textSecondary,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  CaptionText(_partNote(l10n, part, value)),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _Resting extends StatelessWidget {
-  const new({required this.resting});
+  const new({required this.day});
 
-  final double resting;
+  final EnergyDayEstimate day;
 
   @override
   Widget build(BuildContext context) {
@@ -402,6 +401,8 @@ class _Resting extends StatelessWidget {
     final l10n = format.l10n;
     return MetricCard(
       key: EnergyKeys.resting,
+      onTap: () =>
+          showEnergyEvidence(context, kind: EnergyEvidence.resting, day: day),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -415,7 +416,7 @@ class _Resting extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _RangeLine(
-            range: energyRange(resting, energyRestingMargin),
+            range: energyRange(day.resting, energyRestingMargin),
             unit: l10n.energyRestingUnit,
             rangeKey: EnergyKeys.restingRange,
           ),

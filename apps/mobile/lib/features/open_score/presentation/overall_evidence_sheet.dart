@@ -28,7 +28,9 @@ String overallValueText(
 }) {
   final l10n = format.l10n;
   return switch (factor) {
-    OverallFactor.fitness => '',
+    OverallFactor.fitness => l10n.overallValueFitness(
+      format.integer(inputs.fitnessPercentile ?? 0),
+    ),
     OverallFactor.restingHeartRate => l10n.overallValueResting(
       format.bpm(inputs.restingHeartRate ?? 0),
     ),
@@ -166,7 +168,9 @@ String? _window(
   MetricFormat format,
   OverallFactor factor,
 ) => switch (factor) {
-  OverallFactor.fitness => null,
+  OverallFactor.fitness => l10n.overallSheetFitnessWindow(
+    format.integer(fitnessWindowDays),
+  ),
   OverallFactor.body => l10n.overallSheetBodyWindow,
   OverallFactor.sleepRegularity => l10n.overallSheetWindowPairs(
     format.integer(overallWindowDays),

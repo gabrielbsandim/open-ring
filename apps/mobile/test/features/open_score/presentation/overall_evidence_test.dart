@@ -58,7 +58,23 @@ void main() {
 
     expect(find.byKey(OverallEvidenceKeys.points), findsNothing);
     expect(sheetText(tester), contains('Its 30 points leave the count'));
-    expect(find.byKey(OverallEvidenceKeys.window), findsNothing);
+    expect(sheetText(tester), contains('outdoor runs and walks'));
+  });
+
+  testWidgets('the fitness sheet shows the position and its window', (
+    tester,
+  ) async {
+    await pump(tester, const OverallScreen(), historyOf(full));
+    await open(tester, OverallFactor.fitness);
+
+    expect(
+      sheetText(tester),
+      contains('Position 52 among 100 people of the same age and sex.'),
+    );
+    expect(
+      sheetText(tester),
+      contains('of the $fitnessWindowDays days before the last update'),
+    );
   });
 
   testWidgets('the movement sheet shows its three parts', (tester) async {

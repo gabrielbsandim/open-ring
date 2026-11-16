@@ -9,6 +9,29 @@ LocalDate overallHistoryStart(LocalDate today) =>
     overallMondays(today).first.addDays(-overallWindowDays);
 const olderAdultFromAge = 60;
 
+/// The position of the best estimate of the 90 days before [day], for the age
+/// the person reaches in the year of [day], or null when a part is missing.
+double? overallFitnessOn(
+  LocalDate day, {
+  required Iterable<FitnessEffort> efforts,
+  required double? restingBpm,
+  required int? birthYear,
+  required FitnessSex? sex,
+  int? maxHeartRate,
+}) {
+  if (restingBpm == null || birthYear == null || sex == null) return null;
+  final age = day.year - birthYear;
+  if (age < fitnessMinAge || age > fitnessMaxAge) return null;
+  final best = bestVo2max(
+    efforts,
+    day: day,
+    restingBpm: restingBpm,
+    maxBpm: (maxHeartRate ?? maxHeartRateForAge(age)).toDouble(),
+  );
+  if (best == null) return null;
+  return fitnessPercentile(best, age: age, sex: sex);
+}
+
 typedef OverallWeek = ({
   LocalDate date,
   OverallInputs inputs,
@@ -72,6 +95,9 @@ final class OverallHistory {
     Iterable<WeighIn> weighIns = const [],
     double? heightCentimeters,
     int? birthYear,
+    Iterable<FitnessEffort> efforts = const [],
+    FitnessSex? sex,
+    int? maxHeartRate,
   }) {
     final nights = mainNightByDate(sessions).values.toList();
     final spans = [for (final session in sessions) ...session.spans];
@@ -97,7 +123,7 @@ final class OverallHistory {
         weighIns: weighIns,
         heightCentimeters: heightCentimeters,
       );
-      final inputs = overallInputsOn(
+      OverallInputs inputsWith(double? fitness) => overallInputsOn(
         monday,
         nights: nights,
         spans: spans,
@@ -107,10 +133,21 @@ final class OverallHistory {
         steps: steps,
         intensity: intensity,
         strengthDates: strengthDates,
+        fitnessPercentile: fitness,
         waistToHeight: body.waistToHeight,
         bmi: body.bmi,
         olderAdult: age != null && age >= olderAdultFromAge,
       );
+      final base = inputsWith(null);
+      final fitness = overallFitnessOn(
+        monday,
+        efforts: efforts,
+        restingBpm: base.restingHeartRate,
+        birthYear: birthYear,
+        sex: sex,
+        maxHeartRate: maxHeartRate,
+      );
+      final inputs = fitness == null ? base : inputsWith(fitness);
       return (date: monday, inputs: inputs, result: inputs.score);
     }
 

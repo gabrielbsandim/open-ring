@@ -102,6 +102,13 @@ abstract interface class WorkoutHistoryReader {
   Future<List<WorkoutListItem>> recent({required int limit});
 
   Future<SavedWorkout?> byId(int id);
+
+  /// Workouts with a route that started in [from, to), oldest first.
+  Future<List<SavedWorkout>> routed({
+    required DateTime from,
+    required DateTime to,
+    required Set<WorkoutType> types,
+  });
 }
 
 final class EmptyWorkoutHistoryReader implements WorkoutHistoryReader {
@@ -112,6 +119,13 @@ final class EmptyWorkoutHistoryReader implements WorkoutHistoryReader {
 
   @override
   Future<SavedWorkout?> byId(int id) async => null;
+
+  @override
+  Future<List<SavedWorkout>> routed({
+    required DateTime from,
+    required DateTime to,
+    required Set<WorkoutType> types,
+  }) async => const [];
 }
 
 typedef ImportedWorkouts = ({

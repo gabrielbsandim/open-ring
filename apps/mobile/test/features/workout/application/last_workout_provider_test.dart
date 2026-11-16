@@ -17,6 +17,13 @@ final class _Own implements WorkoutHistoryReader {
 
   @override
   Future<SavedWorkout?> byId(int id) async => null;
+
+  @override
+  Future<List<SavedWorkout>> routed({
+    required DateTime from,
+    required DateTime to,
+    required Set<WorkoutType> types,
+  }) async => const [];
 }
 
 final class _Imported implements ImportedWorkoutReader {

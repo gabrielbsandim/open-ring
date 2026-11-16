@@ -53,6 +53,53 @@ void main() {
     reader = DriftWorkoutHistoryReader(db);
   });
 
+  test(
+    'routed workouts are the listed types with a route, oldest first',
+    () async {
+      final walk = await store.save(
+        recorded(
+          type: WorkoutType.walking,
+          startAfter: const Duration(days: 1),
+        ),
+        at: at(81),
+      );
+      final run = await store.save(recorded(), at: at(81));
+      await store.save(
+        recorded(
+          type: WorkoutType.cycling,
+          startAfter: const Duration(hours: 3),
+        ),
+        at: at(81),
+      );
+      await store.save(
+        recorded(gps: false, startAfter: const Duration(hours: 5)),
+        at: at(81),
+      );
+      await store.save(
+        recorded(startAfter: const Duration(days: 2)),
+        at: at(81),
+      );
+
+      final routed = await reader.routed(
+        from: workoutStart,
+        to: workoutStart.add(const Duration(days: 2)),
+        types: {WorkoutType.running, WorkoutType.walking},
+      );
+
+      expect(routed.map((w) => w.id), [run, walk]);
+      expect(routed.first.workout.route.segments, hasLength(2));
+      expect(routed.first.workout.heartRate, isNotEmpty);
+      expect(
+        await reader.routed(
+          from: workoutStart.add(const Duration(days: 3)),
+          to: workoutStart.add(const Duration(days: 4)),
+          types: {WorkoutType.running},
+        ),
+        isEmpty,
+      );
+    },
+  );
+
   test('lists finished workouts newest first, up to the limit', () async {
     final first = await store.save(recorded(), at: at(81));
     final second = await store.save(

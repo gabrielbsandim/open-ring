@@ -1409,3 +1409,13 @@ against, the two counts), so a screen can show why.
   Medicine and Sleep Research Society. Sleep. 2015;38(6):843-844.
 - Protocol slot sizes: `docs/protocols/realsil-colmi.md`, from Gadgetbridge
   `YawellRingPacketHandler` (heart rate, HRV, stress and SpO2 logs).
+
+### The module
+
+Effort is off until a person turns it on, in Settings, Modules or in the
+first run offer; it has no age limit and needs no other module. Its module
+screen counts the workouts that carry a rating and can delete every rating in
+one step: `effort_rating` goes back to empty on recorded and imported
+workouts, the workouts stay, and each session load falls back to heart rate
+or the default of its type. Turning the module off deletes nothing, so the
+delete stays on that screen for as long as a rating is stored.

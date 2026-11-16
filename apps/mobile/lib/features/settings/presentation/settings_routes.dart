@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:open_ring/features/body/presentation/body_module_screen.dart';
+import 'package:open_ring/features/effort/presentation/effort_module_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_module_screen.dart';
 import 'package:open_ring/features/export/presentation/export_screen.dart';
 import 'package:open_ring/features/health_sync/presentation/health_status_screen.dart';
@@ -27,6 +28,7 @@ GoRoute settingsRoute() => GoRoute(
           builder: (_, _) => const OpenScoreModuleScreen(),
         ),
         GoRoute(path: 'energy', builder: (_, _) => const EnergyModuleScreen()),
+        GoRoute(path: 'effort', builder: (_, _) => const EffortModuleScreen()),
       ],
     ),
     GoRoute(

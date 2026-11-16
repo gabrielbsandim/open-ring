@@ -67,6 +67,45 @@ final class MemoryRatings implements WorkoutRatingStore, WorkoutHistoryReader {
     return true;
   }
 
+  int get ratedCount =>
+      _saved.values.where((w) => w.rating != null).length +
+      _imported.values.where((w) => w.rating != null).length;
+
+  int clearCalls = 0;
+
+  @override
+  Future<int> countRatings() async => ratedCount;
+
+  @override
+  Future<int> clearRatings() async {
+    clearCalls++;
+    await hold?.future;
+    final error = failure;
+    if (error != null) throw error;
+    final changed = ratedCount;
+    for (final id in _saved.keys.toList()) {
+      final current = _saved[id]!;
+      _saved[id] = SavedWorkout(
+        id: current.id,
+        workout: current.workout,
+        utcOffset: current.utcOffset,
+        health: current.health,
+      );
+    }
+    for (final id in _imported.keys.toList()) {
+      final current = _imported[id]!;
+      _imported[id] = ImportedWorkout(
+        recordId: current.recordId,
+        source: current.source,
+        type: current.type,
+        start: current.start,
+        end: current.end,
+        utcOffset: current.utcOffset,
+      );
+    }
+    return changed;
+  }
+
   @override
   Future<SavedWorkout?> byId(int id) async => _saved[id];
 

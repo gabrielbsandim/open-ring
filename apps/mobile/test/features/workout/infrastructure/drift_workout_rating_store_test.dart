@@ -287,4 +287,80 @@ void main() {
       expect(await importedRating(), 10);
     });
   });
+
+  group('criterion 4: counting and clearing every rating', () {
+    Future<int> rawRated(String table) async {
+      final row = await db
+          .customSelect(
+            'SELECT COUNT(*) AS c FROM $table WHERE effort_rating IS NOT NULL',
+          )
+          .getSingle();
+      return row.read<int>('c');
+    }
+
+    test('counts and clears nothing when no workout is rated', () async {
+      expect(await ratings.countRatings(), 0);
+      expect(await ratings.clearRatings(), 0);
+    });
+
+    test('counts rated rows of both tables and clears them', () async {
+      await ratings.rateRecorded(id, 7);
+      await ratings.rateImported('w1', 3);
+
+      expect(await ratings.countRatings(), 2);
+      expect(await ratings.clearRatings(), 2);
+
+      expect(await ratings.countRatings(), 0);
+      expect(await recordedRating(), isNull);
+      expect(await importedRating(), isNull);
+    });
+
+    test('keeps the workout rows', () async {
+      await ratings.rateRecorded(id, 7);
+      await ratings.rateImported('w1', 3);
+
+      await ratings.clearRatings();
+
+      expect(await rowCount(db, 'workouts'), 1);
+      expect(await rowCount(db, 'imported_workouts'), 1);
+      expect(await recordedReader.byId(id), isNotNull);
+      expect(await importedReader.byRecordId('w1'), isNotNull);
+    });
+
+    test('a raw 0 and a raw 11 are counted and cleared', () async {
+      await db.customStatement(
+        'UPDATE workouts SET effort_rating = 0 WHERE id = $id',
+      );
+      await db.customStatement(
+        'UPDATE imported_workouts SET effort_rating = 11 '
+        "WHERE record_id = 'w1'",
+      );
+
+      expect(await recordedRating(), isNull);
+      expect(await ratings.countRatings(), 2);
+      expect(await ratings.clearRatings(), 2);
+      expect(await ratings.countRatings(), 0);
+      expect(await rawRated('workouts'), 0);
+      expect(await rawRated('imported_workouts'), 0);
+    });
+
+    test('only rated rows are counted among several imports', () async {
+      await health.saveWorkouts([
+        externalWorkout(watch, run, id: 'w1'),
+        externalWorkout(watch, run.subtract(const Duration(days: 1)), id: 'w2'),
+      ], readAt: readAt);
+      await ratings.rateImported('w2', 5);
+
+      expect(await ratings.countRatings(), 1);
+      expect(await ratings.clearRatings(), 1);
+      expect(await importedRating('w2'), isNull);
+    });
+
+    test('a second clear changes nothing', () async {
+      await ratings.rateRecorded(id, 7);
+      await ratings.clearRatings();
+
+      expect(await ratings.clearRatings(), 0);
+    });
+  });
 }

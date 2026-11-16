@@ -8,6 +8,13 @@ abstract interface class WorkoutRatingStore {
 
   /// False when no imported workout has [recordId]. Null clears the rating.
   Future<bool> rateImported(String recordId, int? rating);
+
+  /// How many workouts, recorded or imported, carry a stored rating.
+  Future<int> countRatings();
+
+  /// Clears every stored rating and keeps the workouts. Returns how many
+  /// workouts lost one.
+  Future<int> clearRatings();
 }
 
 bool isEffortRating(int rating) =>

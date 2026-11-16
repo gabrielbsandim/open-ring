@@ -27,6 +27,30 @@ final class DriftWorkoutRatingStore implements WorkoutRatingStore {
     return changed > 0;
   }
 
+  @override
+  Future<int> countRatings() async {
+    final recorded = await _db.workouts
+        .count(where: (w) => w.effortRating.isNotNull())
+        .getSingle();
+    final imported = await _db.importedWorkouts
+        .count(where: (w) => w.effortRating.isNotNull())
+        .getSingle();
+    return recorded + imported;
+  }
+
+  @override
+  Future<int> clearRatings() => _db.transaction(() async {
+    final recorded =
+        await (_db.update(_db.workouts)
+              ..where((w) => w.effortRating.isNotNull()))
+            .write(const WorkoutsCompanion(effortRating: Value(null)));
+    final imported =
+        await (_db.update(_db.importedWorkouts)
+              ..where((w) => w.effortRating.isNotNull()))
+            .write(const ImportedWorkoutsCompanion(effortRating: Value(null)));
+    return recorded + imported;
+  });
+
   static void _check(int? rating) {
     if (rating == null || isEffortRating(rating)) return;
     throw ArgumentError.value(rating, 'rating');

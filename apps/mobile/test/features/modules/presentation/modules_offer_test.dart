@@ -12,6 +12,7 @@ import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/modules/presentation/modules_offer_screen.dart';
 import 'package:open_ring/features/modules/presentation/modules_screen.dart';
 import 'package:open_ring/features/modules/presentation/modules_shortcut.dart';
+import 'package:open_ring/features/modules/presentation/offered_module.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
 
@@ -234,6 +235,108 @@ void main() {
       );
 
       expect(find.byKey(ModulesOfferKeys.energy), findsOneWidget);
+    });
+
+    testWidgets('criterion 2: offers Effort with no profile', (tester) async {
+      await _pump(tester, at: AppPaths.onboardingModules);
+
+      expect(
+        find.byKey(ModulesOfferKeys.module(OfferedModule.effort)),
+        findsOneWidget,
+      );
+      expect(
+        _switchOn(tester, ModulesOfferKeys.module(OfferedModule.effort)),
+        isFalse,
+      );
+      expect(find.text('Effort'), findsOneWidget);
+    });
+
+    testWidgets('criterion 2: offers Effort to an adult, four in all', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        at: AppPaths.onboardingModules,
+        profile: InMemoryUserProfileStore(_aged(30)),
+      );
+
+      expect(
+        find.byKey(ModulesOfferKeys.module(OfferedModule.effort)),
+        findsOneWidget,
+      );
+      expect(find.byType(SwitchListTile), findsNWidgets(4));
+    });
+
+    testWidgets('criterion 2: offers Effort at 17, with Energy left out', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        at: AppPaths.onboardingModules,
+        profile: InMemoryUserProfileStore(_aged(17)),
+      );
+
+      expect(
+        find.byKey(ModulesOfferKeys.module(OfferedModule.effort)),
+        findsOneWidget,
+      );
+      expect(find.byKey(ModulesOfferKeys.energy), findsNothing);
+      expect(find.byType(SwitchListTile), findsNWidgets(3));
+    });
+
+    testWidgets('criterion 2: offers Effort while the profile loads', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        at: AppPaths.onboardingModules,
+        profile: _PendingProfileStore(),
+      );
+
+      expect(
+        find.byKey(ModulesOfferKeys.module(OfferedModule.effort)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('criterion 2: with Effort picked it turns Effort on', (
+      tester,
+    ) async {
+      final store = await _pump(tester, at: AppPaths.onboardingModules);
+
+      await tapAndSettle(
+        tester,
+        find.byKey(ModulesOfferKeys.module(OfferedModule.effort)),
+      );
+
+      expect(find.text('Continue with 1 module'), findsOneWidget);
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.done));
+
+      expect(await store.read(), {ModuleId.effort});
+      expect(find.byType(TodayScreen), findsOneWidget);
+      expect(
+        find.text('Effort is on. The Effort tile is on Today.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('criterion 2: Effort at 17 is stored on and Energy is kept', (
+      tester,
+    ) async {
+      final store = await _pump(
+        tester,
+        at: AppPaths.onboardingModules,
+        modules: InMemoryModuleStore({ModuleId.energy}),
+        profile: InMemoryUserProfileStore(_aged(17)),
+      );
+
+      await tapAndSettle(
+        tester,
+        find.byKey(ModulesOfferKeys.module(OfferedModule.effort)),
+      );
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.done));
+
+      expect(await store.read(), {ModuleId.energy, ModuleId.effort});
     });
 
     testWidgets('with Energy picked it turns Energy on and opens Today', (

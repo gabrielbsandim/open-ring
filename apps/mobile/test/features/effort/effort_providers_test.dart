@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
@@ -35,7 +36,7 @@ import '../../helpers/workout_fakes.dart';
 const _other = 'com.example.other';
 
 final class _Spy extends MemoryWorkoutHistory {
-  new({Iterable<SavedWorkout> seed = const []}) : super(seed: seed);
+  new({super.seed});
 
   final reads = <int>[];
   final ranges = <({DateTime from, DateTime to})>[];

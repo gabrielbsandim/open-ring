@@ -1637,6 +1637,15 @@ from the previous one, whose proposed change raised the effort points and was
 accepted; the first week that is missing, was declined, was not answered or
 changed something else stops the count.
 
+The readiness of a review is seven values, one per day. `weekReadiness`
+takes them from a run of daily values that ends on a known day, for the seven
+days from a given day; a day outside the run is null, and a day with no
+Readiness stays null. Which seven days a review reads is decided by the
+slice that gathers the data.
+
+`closedWeekInputs` refuses, with an `ArgumentError`, a review day that is not
+a Monday and a readiness list that does not hold seven values.
+
 The pregnancy flag and the screening flag are each the newest answer stored;
 a screening that did not ask a question leaves the earlier answer standing,
 and no answer is no.

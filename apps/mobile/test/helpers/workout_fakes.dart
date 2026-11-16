@@ -238,22 +238,34 @@ class MemoryWorkoutHistory implements WorkoutStore, WorkoutHistoryReader {
   Future<List<WorkoutListItem>> recent({required int limit}) async {
     final newest = _saved.values.toList()
       ..sort((a, b) => b.workout.start.compareTo(a.workout.start));
-    return [
-      for (final saved in newest.take(limit))
-        WorkoutListItem(
-          id: saved.id,
-          type: saved.workout.type,
-          start: saved.workout.start,
-          end: saved.workout.end,
-          utcOffset: saved.utcOffset,
-          elapsed: saved.workout.elapsed,
-          distanceMeters: saved.workout.distanceMeters,
-          averageHeartRate: saved.workout.averageHeartRate,
-          activeKilocalories: saved.workout.activeKilocalories,
-          health: saved.health,
-        ),
-    ];
+    return [for (final saved in newest.take(limit)) _item(saved)];
   }
+
+  @override
+  Future<List<WorkoutListItem>> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    final inside = [
+      for (final saved in _saved.values)
+        if (saved.workout.end.isAfter(from) && saved.workout.start.isBefore(to))
+          saved,
+    ]..sort((a, b) => a.workout.start.compareTo(b.workout.start));
+    return [for (final saved in inside) _item(saved)];
+  }
+
+  static WorkoutListItem _item(SavedWorkout saved) => WorkoutListItem(
+    id: saved.id,
+    type: saved.workout.type,
+    start: saved.workout.start,
+    end: saved.workout.end,
+    utcOffset: saved.utcOffset,
+    elapsed: saved.workout.elapsed,
+    distanceMeters: saved.workout.distanceMeters,
+    averageHeartRate: saved.workout.averageHeartRate,
+    activeKilocalories: saved.workout.activeKilocalories,
+    health: saved.health,
+  );
 }
 
 final class FakeRouteExporter implements DataExporter {

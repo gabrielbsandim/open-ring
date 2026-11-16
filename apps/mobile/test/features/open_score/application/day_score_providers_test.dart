@@ -30,6 +30,18 @@ final class _Imported implements ImportedWorkoutReader {
 
   @override
   Future<ImportedWorkout?> byRecordId(String recordId) async => null;
+
+  @override
+  Future<ImportedWorkouts> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async => (
+    priority: [ringSource, otherApp],
+    workouts: [
+      for (final workout in workouts)
+        if (workout.end.isAfter(from) && workout.start.isBefore(to)) workout,
+    ]..sort((a, b) => a.start.compareTo(b.start)),
+  );
 }
 
 SavedWorkout run(int id, DateTime start, {required int bpm}) {

@@ -109,6 +109,13 @@ abstract interface class WorkoutHistoryReader {
     required DateTime to,
     required Set<WorkoutType> types,
   });
+
+  /// Finished workouts with a part inside [from, to), oldest first, read
+  /// without their route.
+  Future<List<WorkoutListItem>> intersecting({
+    required DateTime from,
+    required DateTime to,
+  });
 }
 
 final class EmptyWorkoutHistoryReader implements WorkoutHistoryReader {
@@ -125,6 +132,12 @@ final class EmptyWorkoutHistoryReader implements WorkoutHistoryReader {
     required DateTime from,
     required DateTime to,
     required Set<WorkoutType> types,
+  }) async => const [];
+
+  @override
+  Future<List<WorkoutListItem>> intersecting({
+    required DateTime from,
+    required DateTime to,
   }) async => const [];
 }
 
@@ -144,6 +157,13 @@ abstract interface class ImportedWorkoutReader {
   Future<ImportedWorkouts> recent({required int limit});
 
   Future<ImportedWorkout?> byRecordId(String recordId);
+
+  /// The workouts other apps wrote with a part inside [from, to), oldest
+  /// first, and the same order of sources as [recent].
+  Future<ImportedWorkouts> intersecting({
+    required DateTime from,
+    required DateTime to,
+  });
 }
 
 final class NoImportedWorkoutReader implements ImportedWorkoutReader {
@@ -155,4 +175,10 @@ final class NoImportedWorkoutReader implements ImportedWorkoutReader {
 
   @override
   Future<ImportedWorkout?> byRecordId(String recordId) async => null;
+
+  @override
+  Future<ImportedWorkouts> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async => noImportedWorkouts;
 }

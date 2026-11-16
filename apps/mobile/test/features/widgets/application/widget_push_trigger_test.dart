@@ -40,6 +40,15 @@ final class ListedWorkouts implements WorkoutHistoryReader {
   Future<SavedWorkout?> byId(int id) async => null;
 
   @override
+  Future<List<WorkoutListItem>> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async => [
+    for (final item in items)
+      if (item.end.isAfter(from) && item.start.isBefore(to)) item,
+  ]..sort((a, b) => a.start.compareTo(b.start));
+
+  @override
   Future<List<SavedWorkout>> routed({
     required DateTime from,
     required DateTime to,

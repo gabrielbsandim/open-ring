@@ -46,6 +46,12 @@ final class _FailingHistory implements WorkoutStore, WorkoutHistoryReader {
   Future<SavedWorkout?> byId(int id) async => throw _readFailure;
 
   @override
+  Future<List<WorkoutListItem>> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async => throw _readFailure;
+
+  @override
   Future<List<SavedWorkout>> routed({
     required DateTime from,
     required DateTime to,
@@ -79,6 +85,21 @@ final class _Imported implements ImportedWorkoutReader {
   Future<ImportedWorkout?> byRecordId(String recordId) async {
     if (fail) throw _readFailure;
     return workouts.where((w) => w.recordId == recordId).firstOrNull;
+  }
+
+  @override
+  Future<ImportedWorkouts> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    if (fail) throw _readFailure;
+    return (
+      priority: const [ringSource, _watch],
+      workouts: [
+        for (final workout in workouts)
+          if (workout.end.isAfter(from) && workout.start.isBefore(to)) workout,
+      ]..sort((a, b) => a.start.compareTo(b.start)),
+    );
   }
 }
 

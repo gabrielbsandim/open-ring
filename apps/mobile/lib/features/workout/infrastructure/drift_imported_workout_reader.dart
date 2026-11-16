@@ -23,6 +23,24 @@ final class DriftImportedWorkoutReader implements ImportedWorkoutReader {
   }
 
   @override
+  Future<ImportedWorkouts> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    if (!await _enabled()) return noImportedWorkouts;
+    final rows =
+        await (_db.select(_db.importedWorkouts)
+              ..where(
+                (w) =>
+                    w.endUtcMs.isBiggerThanValue(from.millisecondsSinceEpoch) &
+                    w.startUtcMs.isSmallerThanValue(to.millisecondsSinceEpoch),
+              )
+              ..orderBy([(w) => OrderingTerm.asc(w.startUtcMs)]))
+            .get();
+    return (priority: await _priority(), workouts: rows.map(_workout).toList());
+  }
+
+  @override
   Future<ImportedWorkout?> byRecordId(String recordId) async {
     if (!await _enabled()) return null;
     final row = await (_db.select(

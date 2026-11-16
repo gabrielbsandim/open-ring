@@ -170,7 +170,7 @@ Future<EnergyDay> _read({
       ),
     ],
   );
-  return container.read(energyDayProvider(_day).future);
+  return await container.read(energyDayProvider(_day).future);
 }
 
 EnergyDayEstimate _estimate(EnergyDay day) {

@@ -1071,6 +1071,29 @@ Frankenfield 2005 found the equation within 10 percent of the measured resting
 value for more people than the other common equations, which still leaves
 people outside it. The 15 percent of the day is **our choice**.
 
+### One day
+
+`apps/mobile/lib/features/energy/domain/energy_day.dart`, `energyDay`. A local
+day runs between two local midnights and is the sum of three parts:
+
+- **Base**: the day base for the time gone by, so today grows with the clock
+  and a past day holds the full 24 hours.
+- **Steps**: every 15 minute bucket of the day. The part of a bucket that a
+  workout covers is left out, in proportion to the time covered, because the
+  workout already counts that movement. Workouts over the same minutes cover
+  them once.
+- **Workouts**: the kcal stored with the workout when it has one, else the
+  workout rule above with the current weight (a workout read from another app
+  stores none). A workout counts whole on the day it started (owner decision
+  of 2026-11-15, the rule the Day Score uses); one that started the day before
+  adds nothing here and still removes the steps it covers.
+
+An own workout and one from another app that overlap count once, by the
+source order of the workout list. The weight is the latest weigh-in when the
+Body module is on, else the profile weight. Without sex, birth year, height or
+weight the day has no number and names the missing fields; under 18 it has
+none either. Nothing is stored: the day is computed on every read.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

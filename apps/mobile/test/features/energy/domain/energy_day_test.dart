@@ -4,7 +4,7 @@ import 'package:open_ring/features/energy/domain/energy_day.dart';
 
 final _from = DateTime.utc(2026, 11, 10);
 final _to = DateTime.utc(2026, 11, 11);
-final _noon = _from.add(const Duration(hours: 12));
+final DateTime _noon = _from.add(const Duration(hours: 12));
 
 StepBucket _bucket(int hour, int steps, {int minutes = 60, int minute = 0}) => (
   start: _from.add(Duration(hours: hour, minutes: minute)),

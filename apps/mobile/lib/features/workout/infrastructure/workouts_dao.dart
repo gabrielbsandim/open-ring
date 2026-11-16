@@ -80,6 +80,22 @@ class WorkoutsDao extends DatabaseAccessor<AppDatabase>
             ..limit(limit))
           .get();
 
+  Future<List<WorkoutRow>> finishedIntersecting({
+    required int fromUtcMs,
+    required int toUtcMs,
+  }) =>
+      (select(workouts)
+            ..where(
+              (w) =>
+                  w.endUtcMs.isBiggerThanValue(fromUtcMs) &
+                  w.startUtcMs.isSmallerThanValue(toUtcMs),
+            )
+            ..orderBy([
+              (w) => OrderingTerm.asc(w.startUtcMs),
+              (w) => OrderingTerm.asc(w.id),
+            ]))
+          .get();
+
   Future<List<int>> routedIds({
     required int fromUtcMs,
     required int toUtcMs,

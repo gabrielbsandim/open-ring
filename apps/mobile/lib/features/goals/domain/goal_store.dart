@@ -8,7 +8,8 @@ abstract interface class GoalStore {
   /// Every goal, the newest first.
   Future<List<Goal>> goals();
 
-  /// Null when a goal is already active.
+  /// Null when a goal is already active. A stored goal that can no longer be
+  /// read is ended as [GoalEndReason.unreadable] and does not count.
   Future<Goal?> start(GoalDraft draft);
 
   /// False for [GoalPhase.ended], which only [end] sets, and for a goal that
@@ -33,7 +34,9 @@ abstract interface class GoalStore {
   });
 
   /// Written once per Monday: false when the week exists, when [monday] is
-  /// not a Monday, and when the goal is unknown or ended.
+  /// not a Monday, and when the goal is unknown or ended. Throws an
+  /// [ArgumentError] for a Monday when [inputs] hold a number that is not
+  /// finite.
   Future<bool> addWeek(
     int goalId, {
     required LocalDate monday,
@@ -115,6 +118,7 @@ final class InMemoryGoalStore implements GoalStore {
     required Review review,
   }) async {
     if (mondayOf(monday) != monday) return false;
+    encodeReviewInputs(inputs);
     if (_activeWith(goalId) == null) return false;
     if (_weekIndex(goalId, monday) >= 0) return false;
     _weeks.add(

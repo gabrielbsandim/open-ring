@@ -246,6 +246,36 @@ void main() {
       });
 
       group('criterion 12: addWeek refusals', () {
+        test('inputs with a number that is not finite throw and store '
+            'nothing', () async {
+          await store.start(draftD);
+
+          await expectLater(
+            store.addWeek(
+              1,
+              monday: _firstMonday,
+              inputs: f1WithBmi(double.infinity),
+              review: f1Review,
+            ),
+            throwsArgumentError,
+          );
+
+          expect(await store.weeks(1), isEmpty);
+        });
+
+        test('inputs that are not finite throw for an unknown goal '
+            'too', () async {
+          await expectLater(
+            store.addWeek(
+              99,
+              monday: _firstMonday,
+              inputs: f1WithBmi(double.nan),
+              review: f1Review,
+            ),
+            throwsArgumentError,
+          );
+        });
+
         test(
           'a day that is not a Monday is false and stores nothing',
           () async {

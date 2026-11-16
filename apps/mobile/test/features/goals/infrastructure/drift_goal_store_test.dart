@@ -78,6 +78,55 @@ void main() {
     });
   });
 
+  group('start', () {
+    test('two starts at once leave one active goal', () async {
+      await store.end(1, on: _firstMonday, reason: GoalEndReason.person);
+
+      final started = await Future.wait([
+        store.start(draftD),
+        store.start(draftD),
+      ]);
+
+      expect(started.where((goal) => goal != null), hasLength(1));
+      expect(await rowCount(db, 'goals'), 2);
+    });
+
+    test('an open goal that decodes still refuses a second one', () async {
+      await db.customStatement(_badGoal);
+
+      expect(await store.start(draftD), isNull);
+      expect((await store.active())!.id, 1);
+    });
+
+    test('an open goal that does not decode is ended and the new one '
+        'starts', () async {
+      await store.end(1, on: _firstMonday, reason: GoalEndReason.person);
+      await db.customStatement(_badGoal);
+
+      final started = await store.start(draftD);
+
+      final bad = await db
+          .customSelect(
+            'SELECT phase, ended_on, end_reason FROM goals WHERE id = 2',
+          )
+          .getSingle();
+      expect(started!.id, 3);
+      expect((await store.active())!.id, 3);
+      expect(bad.read<String>('phase'), 'ended');
+      expect(bad.read<String>('ended_on'), '2026-11-16');
+      expect(bad.read<String>('end_reason'), 'unreadable');
+    });
+
+    test('the ended unreadable goal keeps its weeks', () async {
+      await db.customStatement("UPDATE goals SET levers = 'x' WHERE id = 1");
+
+      await store.start(draftD);
+
+      expect(await rowCount(db, 'goal_weeks'), 2);
+      expect((await store.active())!.id, 2);
+    });
+  });
+
   group('criterion 20: a screening row whose date does not parse', () {
     setUp(() => db.customStatement(_badScreening));
 

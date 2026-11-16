@@ -2,7 +2,9 @@ import 'package:metrics/metrics.dart';
 
 enum GoalPhase { block, maintenance, paused, ended }
 
-enum GoalEndReason { person, switched, protection }
+// unreadable closes a stored goal this build can no longer read, so it cannot
+// keep a new one from starting.
+enum GoalEndReason { person, switched, protection, unreadable }
 
 enum WeekAnswer { accepted, declined }
 

@@ -22,12 +22,24 @@ final class DriftGoalStore implements GoalStore {
     return [for (final row in rows) ?_goal(row)];
   }
 
-  // The check counts raw rows, so a goal that no longer decodes still blocks
-  // a second active one.
+  // An open row that no longer decodes is ended and kept: no read returns its
+  // id, so left open it would block every later goal.
   @override
   Future<Goal?> start(GoalDraft draft) => _db.transaction(() async {
     final open = await (_db.select(_db.goals)..where(_open)).get();
-    if (open.isNotEmpty) return null;
+    if (open.any((row) => _goal(row) != null)) return null;
+    for (final row in open) {
+      await _write(
+        row.id,
+        GoalsCompanion(
+          phase: Value(GoalPhase.ended.name),
+          phaseSince: Value(draft.startedOn.iso),
+          phaseUntil: const Value(null),
+          endedOn: Value(draft.startedOn.iso),
+          endReason: Value(GoalEndReason.unreadable.name),
+        ),
+      );
+    }
     final id = await _db
         .into(_db.goals)
         .insert(

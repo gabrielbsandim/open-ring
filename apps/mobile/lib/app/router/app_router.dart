@@ -5,6 +5,7 @@ import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/tabs_shell.dart';
 import 'package:open_ring/features/activity/presentation/activity_screen.dart';
 import 'package:open_ring/features/body/presentation/body_screen.dart';
+import 'package:open_ring/features/effort/presentation/effort_formula_screen.dart';
 import 'package:open_ring/features/effort/presentation/effort_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_formula_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_screen.dart';
@@ -118,7 +119,16 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
         routes: [_formulaRoute()],
       ),
       GoRoute(path: 'body', builder: (_, _) => const BodyScreen()),
-      GoRoute(path: 'effort', builder: (_, _) => const EffortScreen()),
+      GoRoute(
+        path: 'effort',
+        builder: (_, _) => const EffortScreen(),
+        routes: [
+          GoRoute(
+            path: 'formula',
+            builder: (_, _) => const EffortFormulaScreen(),
+          ),
+        ],
+      ),
       GoRoute(
         path: 'energy',
         builder: (_, _) => const EnergyScreen(),

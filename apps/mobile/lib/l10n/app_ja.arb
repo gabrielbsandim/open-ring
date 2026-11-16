@@ -1586,5 +1586,13 @@
   "energyMissingBody": "この式にはあなたに関する4つの情報が必要です。4つそろわないと数値は出ません。アプリが平均的な人で穴を埋めることはありません。",
   "energyNeedMissing": "未入力",
   "energyOpenProfile": "「あなたについて」を開く",
-  "energyMissingSexNote": "式は性別ごとに1つずつあるため、性別は女性か男性が必要です。「回答しない」の場合、エネルギーは数値を表示しません。"
+  "energyMissingSexNote": "式は性別ごとに1つずつあるため、性別は女性か男性が必要です。「回答しない」の場合、エネルギーは数値を表示しません。",
+  "energyThroughTitle": "1日の推移",
+  "energyThroughBody": "今日の積み上がりを1時間ごとに示します。時刻をタップしてください。",
+  "energyThroughSemantics": "1日のエネルギーの累計。3つの部分と範囲で示します。",
+  "energyThroughBy": "{time}まで",
+  "energyThroughByNow": "{time}まで（現在）",
+  "energyThroughParts": "ベース {base} · 歩数 {steps} · ワークアウト {workouts}",
+  "energyThroughNote": "ここまでの安静時消費に動きを加えた推定です。ベースは1日中同じ速さで増え、歩数とワークアウトが段差を作ります。",
+  "energyLegendRange": "範囲"
 }

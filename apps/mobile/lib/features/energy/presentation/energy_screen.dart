@@ -14,18 +14,14 @@ import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/energy/application/energy_providers.dart';
 import 'package:open_ring/features/energy/domain/energy_day.dart';
+import 'package:open_ring/features/energy/presentation/energy_parts.dart';
+import 'package:open_ring/features/energy/presentation/energy_through_day.dart';
 import 'package:open_ring/features/modules/presentation/module_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
-
-// The parts print to the nearest ten: a finer figure would claim more than
-// the estimate knows.
-const energyPartStep = 10;
 
 // The bar is as wide as a day this many times the Base, or as the top of the
 // range when the day is already past that, so it fills as the hours pass.
 const energyBarBaseDays = 1.5;
-
-enum EnergyPart { base, steps, workouts }
 
 abstract final class EnergyKeys {
   static const day = Key('energy_day');
@@ -53,32 +49,10 @@ abstract final class EnergyKeys {
       Key('energy_need_missing_${field.name}');
 }
 
-double energyPartValue(EnergyDayEstimate day, EnergyPart part) =>
-    switch (part) {
-      EnergyPart.base => day.base,
-      EnergyPart.steps => day.steps,
-      EnergyPart.workouts => day.workouts,
-    };
-
-int energyPartShown(double value) =>
-    (value / energyPartStep).round() * energyPartStep;
-
 double energyBarScale(EnergyDayEstimate day) => math.max(
   day.range.high.toDouble(),
   day.resting * energyBaseFactor * energyBarBaseDays,
 );
-
-Color _partColor(AppColors colors, EnergyPart part) => switch (part) {
-  EnergyPart.base => colors.textLabel,
-  EnergyPart.steps => colors.activity,
-  EnergyPart.workouts => colors.textPrimary,
-};
-
-String _partLabel(AppLocalizations l10n, EnergyPart part) => switch (part) {
-  EnergyPart.base => l10n.energyPartBase,
-  EnergyPart.steps => l10n.energyPartSteps,
-  EnergyPart.workouts => l10n.energyPartWorkouts,
-};
 
 String _partNote(AppLocalizations l10n, EnergyPart part, double value) {
   if (part == EnergyPart.workouts && value <= 0) {
@@ -136,6 +110,10 @@ class EnergyScreen extends ConsumerWidget {
         const SizedBox(height: cardGap),
         _Resting(resting: day.resting),
         const SizedBox(height: cardGap),
+        if (_curve(ref, day) case final curve?) ...[
+          EnergyThroughDay(curve: curve, utcOffset: now.asOf.timeZoneOffset),
+          const SizedBox(height: cardGap),
+        ],
         ModuleFactsCard(
           key: EnergyKeys.never,
           title: l10n.energyNeverTitle,
@@ -152,6 +130,14 @@ class EnergyScreen extends ConsumerWidget {
       ],
     };
   }
+}
+
+// The curve only when it has a line to draw and the day shows a range.
+EnergyCurve? _curve(WidgetRef ref, EnergyDayEstimate day) {
+  final curve = ref.watch(energyTodayCurveProvider).value;
+  if (curve == null || curve.points.length < 2) return null;
+  if (day.range.low < energyRowFloor) return null;
+  return curve;
 }
 
 class _CardHead extends StatelessWidget {
@@ -287,7 +273,7 @@ class _DayBar extends StatelessWidget {
             for (final part in EnergyPart.values)
               (
                 weight: energyPartValue(day, part),
-                color: _partColor(colors, part),
+                color: energyPartColor(colors, part),
               ),
             (weight: math.max(0, scale - day.total), color: colors.track),
           ],
@@ -364,7 +350,7 @@ class _PartRow extends StatelessWidget {
             padding: const EdgeInsets.only(top: 5, right: 10),
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: _partColor(colors, part),
+                color: energyPartColor(colors, part),
                 borderRadius: BorderRadius.circular(3),
               ),
               child: const SizedBox.square(dimension: 10),
@@ -379,7 +365,7 @@ class _PartRow extends StatelessWidget {
                   spacing: 12,
                   children: [
                     Text(
-                      _partLabel(l10n, part),
+                      energyPartLabel(l10n, part),
                       style: theme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),

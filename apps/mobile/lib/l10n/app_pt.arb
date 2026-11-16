@@ -1586,5 +1586,13 @@
   "energyMissingBody": "A equação precisa de quatro dados sobre você. Sem os quatro não há número: o app não preenche a lacuna com uma pessoa média.",
   "energyNeedMissing": "faltando",
   "energyOpenProfile": "Abrir Sobre você",
-  "energyMissingSexNote": "O sexo precisa ser Feminino ou Masculino, porque a equação tem uma versão para cada um. Com \"Não informar\", a Energia não mostra número."
+  "energyMissingSexNote": "O sexo precisa ser Feminino ou Masculino, porque a equação tem uma versão para cada um. Com \"Não informar\", a Energia não mostra número.",
+  "energyThroughTitle": "Ao longo do dia",
+  "energyThroughBody": "Como o dia de hoje se soma, hora a hora. Toque em uma hora.",
+  "energyThroughSemantics": "Energia ao longo do dia, acumulada, em três partes com a faixa.",
+  "energyThroughBy": "Até {time}",
+  "energyThroughByNow": "Até {time} (agora)",
+  "energyThroughParts": "Base {base} · passos {steps} · treinos {workouts}",
+  "energyThroughNote": "Gasto em repouso até agora mais o movimento, estimativa. A Base cresce na mesma velocidade o dia todo; passos e treinos fazem os saltos.",
+  "energyLegendRange": "faixa"
 }

@@ -20,7 +20,9 @@ import 'package:open_ring/features/body/domain/hide_numbers_store.dart';
 import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/energy/application/energy_providers.dart';
 import 'package:open_ring/features/energy/domain/energy_day.dart';
+import 'package:open_ring/features/energy/presentation/energy_parts.dart';
 import 'package:open_ring/features/energy/presentation/energy_screen.dart';
+import 'package:open_ring/features/energy/presentation/energy_through_day.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
@@ -354,6 +356,41 @@ void main() {
 
       expect(find.textContaining('1,700'), findsNothing);
       expect(find.textContaining('1700'), findsNothing);
+    });
+  });
+
+  group('through the day', () {
+    testWidgets('the card shows the day the providers compute', (tester) async {
+      await _pump(tester, slots: [_slot(8, 1200), _slot(9, 800)]);
+      await _reveal(tester, find.byKey(EnergyThroughKeys.range));
+      final container = ProviderScope.containerOf(_context(tester));
+      final day = await container.read(energyTodayProvider.future);
+      final curve = await container.read(energyTodayCurveProvider.future);
+
+      expect(curve.points, hasLength(13));
+      expect(curve.points.last.day.total, (day as EnergyDayEstimate).total);
+      expect(
+        _text(tester, EnergyThroughKeys.range),
+        _l10n(tester).energyKcal(_range(tester, day.range)),
+      );
+    });
+
+    testWidgets('there is no card while the day is under the floor', (
+      tester,
+    ) async {
+      await _pump(tester, now: _justAfterMidnight);
+      await tester.scrollUntilVisible(find.byKey(EnergyKeys.never), 100);
+
+      expect(find.byKey(EnergyThroughKeys.card), findsNothing);
+    });
+
+    testWidgets('there is no card for a day with a missing fact', (
+      tester,
+    ) async {
+      await _pump(tester, profile: null);
+
+      expect(find.byKey(EnergyKeys.missing), findsOneWidget);
+      expect(find.byKey(EnergyThroughKeys.card), findsNothing);
     });
   });
 

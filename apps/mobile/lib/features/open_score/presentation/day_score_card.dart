@@ -621,6 +621,12 @@ class _FirstDays extends StatelessWidget {
   final InsufficientData<DayScoreFactor> lacking;
   final DayScoreProgress? progress;
 
+  // A rule can be met while today's reading is missing: no count then.
+  String? _count(AppLocalizations l10n, int? days, int? needed) {
+    if (days == null || needed == null || days >= needed) return null;
+    return l10n.levelBuildingCount(days, needed);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -655,23 +661,13 @@ class _FirstDays extends StatelessWidget {
           key: DayScoreCardKeys.firstActivity,
           label: l10n.dayScoreFirstActivity,
           ready: lacking.has(DayScoreFactor.intensity),
-          count: progress == null
-              ? null
-              : l10n.levelBuildingCount(
-                  progress.activeDays,
-                  progress.activeNeeded,
-                ),
+          count: _count(l10n, progress?.activeDays, progress?.activeNeeded),
         ),
         _Step(
           key: DayScoreCardKeys.firstBaselines,
           label: l10n.dayScoreFirstBaselines,
           ready: baselines,
-          count: progress == null
-              ? null
-              : l10n.levelBuildingCount(
-                  progress.baselineDays,
-                  progress.baselineNeeded,
-                ),
+          count: _count(l10n, progress?.baselineDays, progress?.baselineNeeded),
         ),
         const SizedBox(height: 10),
         CaptionText(l10n.dayScoreFirstNote),

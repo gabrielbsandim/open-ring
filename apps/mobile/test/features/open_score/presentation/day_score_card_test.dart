@@ -380,6 +380,33 @@ void main() {
       expect(find.text('6 of 7'), findsOneWidget);
     });
 
+    testWidgets('a full count on a rule still missing today reads building', (
+      tester,
+    ) async {
+      await pumpCard(
+        tester,
+        DayScoreHistory(
+          today: metricsToday,
+          days: {metricsToday: day(baselines: false, stressZ: null, steps: 0)},
+          progress: (
+            activeDays: 5,
+            activeNeeded: 4,
+            baselineDays: 7,
+            baselineNeeded: 7,
+          ),
+        ),
+      );
+
+      expect(find.text('7 of 7'), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byKey(DayScoreCardKeys.firstBaselines),
+          matching: find.text('building'),
+        ),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('a day without a score draws the bar of what was there', (
       tester,
     ) async {

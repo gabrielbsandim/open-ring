@@ -113,11 +113,30 @@ void main() {
   });
 
   for (final gate in [EnergyGate.off, EnergyGate.underage, EnergyGate.hidden]) {
-    testWidgets('shows nothing while the gate is ${gate.name}', (tester) async {
+    testWidgets('shows its rule cards while the gate is ${gate.name}', (
+      tester,
+    ) async {
       await _pump(tester, gate: gate);
 
-      expect(find.byType(MetricCard), findsNothing);
-      expect(find.byType(BodyText), findsNothing);
+      expect(find.byType(BodyText), findsWidgets);
+      for (final kind in EnergyEvidence.values) {
+        final card = find.byKey(EnergyFormulaKeys.rule(kind));
+        await _reveal(tester, card);
+        expect(card, findsOneWidget);
+        expect(_texts(tester, card), isNotEmpty);
+      }
+      await _reveal(tester, find.byKey(EnergyFormulaKeys.margins));
+      expect(find.byKey(EnergyFormulaKeys.margins), findsOneWidget);
+      await _reveal(tester, find.byKey(EnergyFormulaKeys.sources));
+      expect(find.byKey(EnergyFormulaKeys.sources), findsOneWidget);
+    });
+
+    testWidgets('prints the same intro while the gate is ${gate.name}', (
+      tester,
+    ) async {
+      await _pump(tester, gate: gate);
+
+      expect(find.text(_l10n(tester).energyFormulaIntro), findsOneWidget);
     });
   }
 

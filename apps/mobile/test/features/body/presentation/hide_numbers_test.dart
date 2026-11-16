@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,6 +22,8 @@ import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/modules/presentation/modules_screen.dart';
 import 'package:open_ring/features/ring/presentation/ring_screen.dart';
+import 'package:open_ring/features/settings/application/user_profile_providers.dart';
+import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/settings/presentation/settings_screen.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
 
@@ -30,6 +34,24 @@ import '../../../helpers/ring_fakes.dart';
 import '../../../helpers/settings_fakes.dart';
 
 final _weightValue = RegExp(r'\d\d\.\d|kg|lb');
+
+final class _PendingProfileStore implements UserProfileStore {
+  final Completer<UserProfile?> release = Completer<UserProfile?>();
+
+  @override
+  Future<UserProfile?> read() => release.future;
+
+  @override
+  Future<void> save(UserProfile profile, {required DateTime at}) =>
+      throw StateError('never saves');
+}
+
+UserProfile _profileAged(int age) => UserProfile(
+  birthYear: UserProfile.birthYearFor(age, year: metricsNow.year),
+  sex: Sex.male,
+  heightCentimeters: 175,
+  weightKilograms: 70,
+);
 
 WeighInDraft _draft(
   double kilograms, {
@@ -310,7 +332,11 @@ void main() {
     expect(find.text('Numbers visible again.'), findsOneWidget);
   });
   group('the hide numbers choice', () {
-    Future<void> pump(WidgetTester tester, Set<ModuleId> modules) => pumpScaled(
+    Future<void> pump(
+      WidgetTester tester,
+      Set<ModuleId> modules, {
+      UserProfileStore? profile,
+    }) => pumpScaled(
       tester,
       screenHost(const BodyModuleScreen()),
       textScaler: TextScaler.noScaling,
@@ -318,6 +344,8 @@ void main() {
       locale: const Locale('en'),
       overrides: <Override>[
         ...metricsOverrides(fullDataScenario),
+        if (profile != null)
+          userProfileStoreProvider.overrideWithValue(profile),
         moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
         weighInStoreProvider.overrideWithValue(InMemoryWeighInStore()),
         hideNumbersStoreProvider.overrideWithValue(InMemoryHideNumbersStore()),
@@ -336,6 +364,38 @@ void main() {
       await reveal(tester, find.byKey(BodyModuleKeys.hide));
 
       expect(detail(tester), endsWith('The energy estimate is hidden too.'));
+    });
+
+    testWidgets('names it for an adult with Energy on', (tester) async {
+      await pump(tester, {
+        ModuleId.body,
+        ModuleId.energy,
+      }, profile: InMemoryUserProfileStore(_profileAged(30)));
+      await reveal(tester, find.byKey(BodyModuleKeys.hide));
+
+      expect(detail(tester), endsWith('The energy estimate is hidden too.'));
+    });
+
+    testWidgets('does not name it at 17 with Energy stored on', (tester) async {
+      await pump(tester, {
+        ModuleId.body,
+        ModuleId.energy,
+      }, profile: InMemoryUserProfileStore(_profileAged(17)));
+      await reveal(tester, find.byKey(BodyModuleKeys.hide));
+
+      expect(detail(tester), endsWith('no weight value on any screen.'));
+      expect(detail(tester), isNot(contains('energy estimate')));
+    });
+
+    testWidgets('does not name it while the profile loads', (tester) async {
+      await pump(tester, {
+        ModuleId.body,
+        ModuleId.energy,
+      }, profile: _PendingProfileStore());
+      await reveal(tester, find.byKey(BodyModuleKeys.hide));
+
+      expect(detail(tester), endsWith('no weight value on any screen.'));
+      expect(detail(tester), isNot(contains('energy estimate')));
     });
 
     testWidgets('does not name it while Energy is off', (tester) async {

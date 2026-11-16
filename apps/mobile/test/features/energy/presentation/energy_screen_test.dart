@@ -475,6 +475,55 @@ void main() {
     });
   });
 
+  group('the module link', () {
+    testWidgets('sits next to the formula link', (tester) async {
+      await _pump(tester, day: _full);
+      await _reveal(tester, find.byKey(EnergyKeys.formula));
+
+      expect(find.byKey(EnergyKeys.module), findsOneWidget);
+      final formula = tester.getRect(find.byKey(EnergyKeys.formula));
+      final module = tester.getRect(find.byKey(EnergyKeys.module));
+      expect((module.center.dy - formula.center.dy).abs(), lessThan(150));
+    });
+
+    testWidgets('opens the module screen of Energy', (tester) async {
+      final router = GoRouter(
+        initialLocation: AppPaths.energy,
+        routes: [
+          GoRoute(
+            path: AppPaths.energy,
+            builder: (_, _) => const EnergyScreen(),
+          ),
+          GoRoute(
+            path: AppPaths.settingsModuleEnergy,
+            builder: (_, _) => const Scaffold(body: Text('energy module')),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await pumpScaled(
+        tester,
+        MaterialApp.router(
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          supportedLocales: AppLocales.supported,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          routerConfig: router,
+        ),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.dark,
+        locale: const Locale('en'),
+        overrides: _overrides(now: _noon, extra: [_today(_full)]),
+      );
+      await _reveal(tester, find.byKey(EnergyKeys.module));
+
+      await tester.tap(find.byKey(EnergyKeys.module));
+      await tester.pumpAndSettle();
+
+      expect(router.state.uri.path, AppPaths.settingsModuleEnergy);
+    });
+  });
+
   group('the evidence', () {
     for (final part in EnergyPart.values) {
       testWidgets('a tap on ${part.name} opens its sheet', (tester) async {

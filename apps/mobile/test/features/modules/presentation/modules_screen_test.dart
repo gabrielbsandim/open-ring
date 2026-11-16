@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,6 +10,7 @@ import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/body/domain/weigh_in_store.dart';
 import 'package:open_ring/features/body/presentation/body_module_screen.dart';
+import 'package:open_ring/features/energy/presentation/energy_module_screen.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
@@ -15,6 +18,7 @@ import 'package:open_ring/features/modules/presentation/modules_screen.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_formula_screen.dart';
 import 'package:open_ring/features/open_score/presentation/open_score_module_screen.dart';
 import 'package:open_ring/features/ring/presentation/ring_screen.dart';
+import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/settings/presentation/settings_screen.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
 
@@ -37,10 +41,29 @@ Future<InMemoryWeighInStore> _twoWeighIns() async {
   return store;
 }
 
+final class _PendingProfileStore implements UserProfileStore {
+  final Completer<UserProfile?> release = Completer<UserProfile?>();
+
+  @override
+  Future<UserProfile?> read() => release.future;
+
+  @override
+  Future<void> save(UserProfile profile, {required DateTime at}) =>
+      throw StateError('never saves');
+}
+
+UserProfile _aged(int age) => UserProfile(
+  birthYear: UserProfile.birthYearFor(age, year: settingsNow.year),
+  sex: Sex.male,
+  heightCentimeters: 175,
+  weightKilograms: 70,
+);
+
 Future<void> _pump(
   WidgetTester tester, {
   required ModuleStore modules,
   WeighInStore? weighIns,
+  UserProfileStore? profiles,
 }) => pumpScaled(
   tester,
   const OpenRingApp(),
@@ -50,7 +73,7 @@ Future<void> _pump(
   overrides: [
     ...bleOverrides(),
     ...ringOverrides(),
-    ...settingsOverrides(),
+    ...settingsOverrides(profiles: profiles),
     moduleStoreProvider.overrideWithValue(modules),
     weighInStoreProvider.overrideWithValue(weighIns ?? InMemoryWeighInStore()),
   ],
@@ -102,6 +125,185 @@ void main() {
     await reveal(tester, find.byKey(SettingsScreen.modulesKey));
 
     expect(find.text('On: 1'), findsOneWidget);
+  });
+
+  testWidgets('Settings counts Energy for an adult', (tester) async {
+    await _pump(
+      tester,
+      modules: InMemoryModuleStore({ModuleId.body, ModuleId.energy}),
+      profiles: InMemoryUserProfileStore(_aged(30)),
+    );
+    await _openSettings(tester);
+    await reveal(tester, find.byKey(SettingsScreen.modulesKey));
+
+    expect(find.text('On: 2'), findsOneWidget);
+  });
+
+  testWidgets('Settings does not count Energy stored on at 17', (tester) async {
+    await _pump(
+      tester,
+      modules: InMemoryModuleStore({ModuleId.body, ModuleId.energy}),
+      profiles: InMemoryUserProfileStore(_aged(17)),
+    );
+    await _openSettings(tester);
+    await reveal(tester, find.byKey(SettingsScreen.modulesKey));
+
+    expect(find.text('On: 1'), findsOneWidget);
+  });
+
+  testWidgets('Settings says no module is on with only Energy stored at 17', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      modules: InMemoryModuleStore({ModuleId.energy}),
+      profiles: InMemoryUserProfileStore(_aged(17)),
+    );
+    await _openSettings(tester);
+    await reveal(tester, find.byKey(SettingsScreen.modulesKey));
+
+    expect(find.text('None on. The base app stays as it is.'), findsOneWidget);
+  });
+
+  testWidgets('the Energy row shows its title', (tester) async {
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openModules(tester);
+    await reveal(tester, find.byKey(ModulesKeys.energyRow));
+
+    expect(
+      find.descendant(
+        of: find.byKey(ModulesKeys.energyRow),
+        matching: find.text('Energy'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('the Energy switch turns Energy on and off for an adult', (
+    tester,
+  ) async {
+    final modules = InMemoryModuleStore();
+    await _pump(
+      tester,
+      modules: modules,
+      profiles: InMemoryUserProfileStore(_aged(30)),
+    );
+    await _openModules(tester);
+    await reveal(tester, find.byKey(ModulesKeys.energySwitch));
+
+    expect(_on(tester, ModulesKeys.energySwitch), isFalse);
+    expect(
+      tester.widget<Switch>(find.byKey(ModulesKeys.energySwitch)).onChanged,
+      isNotNull,
+    );
+    await _tap(tester, ModulesKeys.energySwitch);
+
+    expect(await modules.read(), {ModuleId.energy});
+    expect(_on(tester, ModulesKeys.energySwitch), isTrue);
+    expect(
+      find.text('Energy is on. The Energy row is on Today.'),
+      findsOneWidget,
+    );
+    await _tap(tester, ModulesKeys.energySwitch);
+
+    expect(await modules.read(), isEmpty);
+    expect(_on(tester, ModulesKeys.energySwitch), isFalse);
+  });
+
+  testWidgets('the Energy switch turns on with no profile and no birth year', (
+    tester,
+  ) async {
+    final modules = InMemoryModuleStore();
+    await _pump(
+      tester,
+      modules: modules,
+      profiles: InMemoryUserProfileStore(const UserProfile(sex: Sex.female)),
+    );
+    await _openModules(tester);
+    await _tap(tester, ModulesKeys.energySwitch);
+
+    expect(await modules.read(), {ModuleId.energy});
+  });
+
+  testWidgets('the Energy row opens its module screen', (tester) async {
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openModules(tester);
+    await _tap(tester, ModulesKeys.energyRow);
+
+    expect(find.byType(EnergyModuleScreen), findsOneWidget);
+  });
+
+  testWidgets('the Energy switch is off and disabled at 17', (tester) async {
+    final modules = InMemoryModuleStore();
+    await _pump(
+      tester,
+      modules: modules,
+      profiles: InMemoryUserProfileStore(_aged(17)),
+    );
+    await _openModules(tester);
+    await reveal(tester, find.byKey(ModulesKeys.energySwitch));
+
+    expect(_on(tester, ModulesKeys.energySwitch), isFalse);
+    expect(
+      tester.widget<Switch>(find.byKey(ModulesKeys.energySwitch)).onChanged,
+      isNull,
+    );
+    await tester.tap(find.byKey(ModulesKeys.energySwitch));
+    await tester.pumpAndSettle();
+
+    expect(await modules.read(), isEmpty);
+  });
+
+  testWidgets('the Energy switch stays off and disabled with Energy stored on '
+      'at 17', (tester) async {
+    final modules = InMemoryModuleStore({ModuleId.body, ModuleId.energy});
+    await _pump(
+      tester,
+      modules: modules,
+      profiles: InMemoryUserProfileStore(_aged(17)),
+    );
+    await _openModules(tester);
+    await reveal(tester, find.byKey(ModulesKeys.energySwitch));
+
+    expect(_on(tester, ModulesKeys.energySwitch), isFalse);
+    expect(
+      tester.widget<Switch>(find.byKey(ModulesKeys.energySwitch)).onChanged,
+      isNull,
+    );
+    expect(_on(tester, ModulesKeys.bodySwitch), isTrue);
+    expect(await modules.read(), {ModuleId.body, ModuleId.energy});
+  });
+
+  testWidgets('the Energy switch is off and disabled while the profile loads', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      modules: InMemoryModuleStore({ModuleId.energy}),
+      profiles: _PendingProfileStore(),
+    );
+    await _openModules(tester);
+    await reveal(tester, find.byKey(ModulesKeys.energySwitch));
+
+    expect(_on(tester, ModulesKeys.energySwitch), isFalse);
+    expect(
+      tester.widget<Switch>(find.byKey(ModulesKeys.energySwitch)).onChanged,
+      isNull,
+    );
+  });
+
+  testWidgets('the Energy row of an under 18 still opens its module screen', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      modules: InMemoryModuleStore(),
+      profiles: InMemoryUserProfileStore(_aged(17)),
+    );
+    await _openModules(tester);
+    await _tap(tester, ModulesKeys.energyRow);
+
+    expect(find.byType(EnergyModuleScreen), findsOneWidget);
   });
 
   testWidgets('the switch turns Body on and offers the way to Today', (

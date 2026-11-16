@@ -51,9 +51,9 @@ MemoryRatings _memory({int? rating, int? importedRating}) => MemoryRatings(
   imported: [_imported(rating: importedRating)],
 );
 
-Widget _recorded() => EffortRatingCard.recorded(workoutId: savedRunId);
+Widget _recorded() => const EffortRatingCard.recorded(workoutId: savedRunId);
 
-Widget _importedCard() => EffortRatingCard.imported(recordId: _recordId);
+Widget _importedCard() => const EffortRatingCard.imported(recordId: _recordId);
 
 List<Override> _overrides(MemoryRatings memory, Set<ModuleId> modules) => [
   ...bleOverrides(),

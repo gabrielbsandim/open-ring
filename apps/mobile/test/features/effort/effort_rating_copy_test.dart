@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/l10n/app_locales.dart';
@@ -262,6 +261,7 @@ void main() {
         await _format(tester),
         EffortEvidence.session,
       ).source;
+      await tester.pumpWidget(const SizedBox.shrink());
       await _pumpFormula(tester, const Locale('en'));
       await tester.scrollUntilVisible(
         find.byKey(EffortFormulaKeys.sources),

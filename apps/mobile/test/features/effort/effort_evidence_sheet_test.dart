@@ -89,7 +89,7 @@ void main() {
       ).l10n;
 
       expect(copy.title, l10n.effortFormulaLoadTitle);
-      expect(copy.rule, l10n.effortSheetSessionRule);
+      expect(copy.rule, l10n.effortSheetSessionRule('2'));
       expect(copy.limits, l10n.effortFormulaCannot1);
     });
 

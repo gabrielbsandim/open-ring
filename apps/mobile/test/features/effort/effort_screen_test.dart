@@ -49,6 +49,7 @@ EffortSession _session(
       typeDefault: effortTypeDefault(type),
       timeInZones: heartRate ? {4: elapsed} : const <int, Duration>{},
     ),
+    rating: null,
     strength: type == WorkoutType.strength,
   );
 }

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:open_ring/core/records/source_priority.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
 import 'package:open_ring/features/workout/domain/workout_rating_store.dart';
-import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
 
 final class MemoryRatings implements WorkoutRatingStore, WorkoutHistoryReader {

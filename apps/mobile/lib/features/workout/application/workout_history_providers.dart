@@ -73,6 +73,26 @@ Future<bool> deleteWorkout(WidgetRef ref, int id) async {
   return deleted;
 }
 
+Future<bool> rateRecordedWorkout(WidgetRef ref, int id, int? rating) async {
+  final rated = await ref
+      .read(workoutRatingStoreProvider)
+      .rateRecorded(id, rating);
+  if (rated) ref.read(dataRevisionProvider.notifier).bump();
+  return rated;
+}
+
+Future<bool> rateImportedWorkout(
+  WidgetRef ref,
+  String recordId,
+  int? rating,
+) async {
+  final rated = await ref
+      .read(workoutRatingStoreProvider)
+      .rateImported(recordId, rating);
+  if (rated) ref.read(dataRevisionProvider.notifier).bump();
+  return rated;
+}
+
 Future<void> shareWorkoutGpx(WidgetRef ref, FinishedWorkout workout) async {
   final file = await ref
       .read(dataExporterProvider)

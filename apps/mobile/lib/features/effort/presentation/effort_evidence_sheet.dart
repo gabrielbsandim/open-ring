@@ -89,7 +89,7 @@ EffortEvidenceCopy effortEvidenceCopy(
     EffortEvidence.session => (
       title: l10n.effortFormulaLoadTitle,
       what: l10n.effortSheetSessionWhat,
-      rule: l10n.effortSheetSessionRule,
+      rule: l10n.effortSheetSessionRule(format.decimal(effortRatingDivisor)),
       source: l10n.effortSheetSessionSource,
       ours: l10n.effortSheetSessionOurs,
       limits: l10n.effortFormulaCannot1,

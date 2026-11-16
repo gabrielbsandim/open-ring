@@ -29,6 +29,7 @@ on your phone.
 | Ring name, Bluetooth address and battery level | The ring, over Bluetooth | To reconnect to your ring and show its battery |
 | Steps, distance, active energy, heart rate, SpO2, stress, HRV and sleep stages | The ring, over Bluetooth | To show your days and nights and compute the scores; with the Energy module on, also the estimate of your day's energy |
 | Workouts: start, end, type, pauses, heart rate during the workout | The ring and the phone's clock | To record workouts you start; with the Energy module on, also the estimate of your day's energy |
+| Effort ratings: the number from 1 to 10 you give a workout (optional, Effort module) | You | To estimate the load of that workout |
 | Workout routes: location points during an outdoor workout | The phone's GPS | To draw the route, compute distance, pace and splits and, with the Open Score module on, estimate your fitness |
 | Age, height, weight, sex, maximum heart rate, step goal (all optional) | You, on the "About you" screen | Heart rate zones, the calorie estimate and the scores of the Open Score module; with the Energy module on, also the estimate of your day's energy |
 | Sleep sessions and workouts written by other apps, with the name of the app that wrote them (optional, each off by default) | Health Connect | To show sleep and workouts from another device when you turn that type on; with the Energy module on, also the estimate of your day's energy |

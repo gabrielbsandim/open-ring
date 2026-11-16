@@ -490,10 +490,11 @@ String effortSessionYours(MetricFormat format, EffortSession session) {
         digits: typeDefault == typeDefault.roundToDouble() ? 0 : 1,
       ),
     ),
-    LoadSource.rating => l10n.effortSessionSemantics(
+    LoadSource.rating => l10n.effortSheetSessionYoursRating(
       type,
-      l10n.effortSessionDetail(day, minutes),
-      format.integer(session.points.equivalent.round()),
+      day,
+      minutes,
+      format.integer(session.rating ?? effortMinRating),
       load,
     ),
   };

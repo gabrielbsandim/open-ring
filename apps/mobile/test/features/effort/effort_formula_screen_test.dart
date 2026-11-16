@@ -107,7 +107,9 @@ void main() {
 
       expect(
         _texts(tester, EffortFormulaKeys.load),
-        contains(_l10n(tester).effortFormulaLoadBody('50, 60, 70, 80, 90')),
+        contains(
+          _l10n(tester).effortFormulaLoadBody('50, 60, 70, 80, 90', '2'),
+        ),
       );
       final defaults = tester
           .widget<CaptionText>(find.byKey(EffortFormulaKeys.defaults))
@@ -251,6 +253,7 @@ void main() {
         l10n.effortFormulaUnchecked2,
         l10n.effortFormulaUnchecked3,
         l10n.effortFormulaUnchecked4,
+        l10n.effortFormulaUnchecked5,
       ],
       EffortFormulaKeys.cannot: [
         l10n.effortFormulaCannot1,

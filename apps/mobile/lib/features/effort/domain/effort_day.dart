@@ -27,6 +27,7 @@ typedef EffortSession = ({
   WorkoutType type,
   IntensityMinutes points,
   SessionLoad load,
+  int? rating,
   bool strength,
 });
 
@@ -52,6 +53,7 @@ EffortSession effortSessionOf(
     timeInZones: zones?.timeInZones(heartRate) ?? const {},
     rating: entry.rating,
   ),
+  rating: entry.rating,
   strength:
       entry.type == WorkoutType.strength && isStrengthSession(entry.elapsed),
 );

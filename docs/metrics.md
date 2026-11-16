@@ -1687,7 +1687,8 @@ the app closed gets no row, and the gap resets what is carried over.
 
 The weight is read only for a goal of losing fat with Body on, as it stood
 on the closed Sunday: the rate is fitted over the window that ends that day,
-and later weigh-ins are not read. Two reviews are then always seven days
+and the trend is built again from the weigh-ins up to that day, so a later
+weigh-in moves neither. Two reviews are then always seven days
 apart, which is what "too fast twice in a row" compares. A trend whose last
 point is `weightRateWindowDays` or more days before that Sunday is no trend,
 so it gives no BMI. The rate a screen shows is as of today and can differ.
@@ -1707,8 +1708,8 @@ What it cannot say:
 
 - A week written before the ring synced its last day counts that day as
   missed, and the row is not written again.
-- A proposal still waiting when the next Monday is written can still be
-  answered, against levers the newer review already read.
+- A proposal still waiting when the next Monday is written can no longer be
+  answered: only the newest week of a goal takes an answer.
 - A source that keeps failing stops every review, the protections included.
 
 ## References

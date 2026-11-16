@@ -879,6 +879,73 @@ void main() {
           );
         });
 
+        Future<void> startWithTwoOpenWeeks() async {
+          await store.start(draftD);
+          for (final monday in [lastMonday, _firstMonday]) {
+            await addRow(
+              monday,
+              f1With(
+                energy: null,
+                energyPrevious: CheckInEnergy.normal,
+                foodOrWeight: null,
+              ),
+            );
+          }
+        }
+
+        test('an older week with no check-in is refused', () async {
+          await startWithTwoOpenWeeks();
+          final older = (await store.weeks(1)).first;
+
+          final review = await store.amendWeek(
+            1,
+            lastMonday,
+            energy: CheckInEnergy.low,
+            foodOrWeight: null,
+          );
+
+          expect(review, isNull);
+          final after = (await store.weeks(1)).first;
+          expect(after.inputs.energy, isNull);
+          expect(
+            encodeReviewInputs(after.inputs),
+            encodeReviewInputs(older.inputs),
+          );
+        });
+
+        test('an older pending week can no longer be answered', () async {
+          await startWithTwoOpenWeeks();
+          final before = (await store.active())!.levers;
+
+          final answered = await store.answer(
+            1,
+            lastMonday,
+            WeekAnswer.accepted,
+          );
+
+          final weeks = await store.weeks(1);
+          expect(weeks.first.pending, isTrue);
+          expect(answered, isFalse);
+          expect(weeks.first.answer, isNull);
+          expect(
+            encodeLevers((await store.active())!.levers),
+            encodeLevers(before),
+          );
+        });
+
+        test('the newest of two pending weeks is answered', () async {
+          await startWithTwoOpenWeeks();
+
+          final answered = await store.answer(
+            1,
+            _firstMonday,
+            WeekAnswer.accepted,
+          );
+
+          expect(answered, isTrue);
+          expect((await store.weeks(1)).last.answer, WeekAnswer.accepted);
+        });
+
         test('case 6: a week that is not the newest is refused', () async {
           await startWithPausableWeeks();
           final older = (await store.weeks(1)).first;

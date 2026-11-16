@@ -120,7 +120,7 @@ class GoalReviewer extends Notifier<void> {
     }
     final summary = await ref.read(weightSummaryProvider.future);
     if (summary == null) return (rate: null, trendKg: null);
-    return weightSnapshot(daily: summary.daily, line: summary.line, asOf: asOf);
+    return weightSnapshot(daily: summary.daily, asOf: asOf);
   }
 
   void _bump() {

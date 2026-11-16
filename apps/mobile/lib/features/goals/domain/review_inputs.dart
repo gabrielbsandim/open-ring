@@ -37,20 +37,23 @@ typedef WeightReading = ({
 
 typedef WeightSnapshot = ({WeightRate? rate, double? trendKg});
 
-/// The weight as it stood on [asOf]: later weigh-ins are not read, and a
-/// trend whose last point is a whole rate window old is no trend.
+/// The weight as it stood on [asOf], from the weigh-ins up to that day only.
+/// A trend whose last point is a whole rate window old is no trend.
 WeightSnapshot weightSnapshot({
   required List<DailyValue> daily,
-  required List<DailyValue> line,
   required LocalDate asOf,
 }) {
-  final point = line
-      .where((point) => point.date.compareTo(asOf) <= 0)
-      .lastOrNull;
+  // The trend is seeded from its first days, so a later weigh-in would move
+  // it: it is built again from the days that had happened.
+  final past = [
+    for (final day in daily)
+      if (day.date.compareTo(asOf) <= 0) day,
+  ];
+  final point = weightTrend(past).lastOrNull;
   final fresh =
       point != null && asOf.daysSince(point.date) < weightRateWindowDays;
   return (
-    rate: daily.isEmpty ? null : weightRate(daily, today: asOf),
+    rate: past.isEmpty ? null : weightRate(past, today: asOf),
     trendKg: fresh ? point.value : null,
   );
 }

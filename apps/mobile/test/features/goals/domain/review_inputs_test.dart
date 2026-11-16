@@ -759,11 +759,7 @@ void main() {
       for (var i = 0; i < 28; i++)
         (date: day(11, 9).addDays(i), value: 80.0 - 0.05 * i),
     ];
-    final line = [
-      (date: day(12, 5), value: 78.1),
-      (date: day(12, 6), value: 78.0),
-    ];
-    final snapshot = weightSnapshot(daily: daily, line: line, asOf: day(12, 6));
+    final snapshot = weightSnapshot(daily: daily, asOf: day(12, 6));
 
     test('the rate is ready', () {
       expect(snapshot.rate, isA<WeightRateReady>());
@@ -777,14 +773,13 @@ void main() {
       expect(rate.high, closeTo(-0.35, 1e-6));
     });
 
-    test('the trend is the point of the day', () {
-      expect(snapshot.trendKg, 78.0);
+    test('the trend is the trend of the weigh-ins up to the day', () {
+      expect(snapshot.trendKg, closeTo(79.06511, 1e-4));
     });
 
     test('a point after the day changes neither the rate nor the trend', () {
       final later = weightSnapshot(
         daily: [...daily, (date: day(12, 7), value: 70.0)],
-        line: [...line, (date: day(12, 7), value: 70.0)],
         asOf: day(12, 6),
       );
       final rate = later.rate! as WeightRateReady;
@@ -792,20 +787,27 @@ void main() {
       expect(rate.perWeek, closeTo(-0.35, 1e-6));
       expect(rate.low, closeTo(-0.35, 1e-6));
       expect(rate.high, closeTo(-0.35, 1e-6));
-      expect(later.trendKg, 78.0);
+      expect(later.trendKg, snapshot.trendKg);
+    });
+
+    test('a later weigh-in does not move a trend still being seeded', () {
+      final later = weightSnapshot(
+        daily: [
+          for (final d in [30, 32, 34, 36])
+            (date: day(11, 30).addDays(d - 30), value: 80.0),
+          (date: day(12, 7), value: 70.0),
+        ],
+        asOf: day(12, 6),
+      );
+
+      expect(later.trendKg, 80.0);
     });
   });
 
   group('case 2 of G5b2a: the age of the trend and empty lists', () {
-    final daily = [
-      for (var i = 0; i < 28; i++)
-        (date: day(11, 9).addDays(i), value: 80.0 - 0.05 * i),
-    ];
-
     test('a trend 27 days old is kept', () {
       final snapshot = weightSnapshot(
-        daily: daily,
-        line: [(date: day(11, 9), value: 79.5)],
+        daily: [(date: day(11, 9), value: 79.5)],
         asOf: day(12, 6),
       );
 
@@ -814,18 +816,23 @@ void main() {
 
     test('a trend 28 days old is null', () {
       final snapshot = weightSnapshot(
-        daily: daily,
-        line: [(date: day(11, 8), value: 79.5)],
+        daily: [(date: day(11, 8), value: 79.5)],
         asOf: day(12, 6),
       );
 
       expect(snapshot.trendKg, isNull);
     });
 
-    test('empty lists give a null rate and a null trend', () {
+    test('an empty list gives a null rate and a null trend', () {
+      final snapshot = weightSnapshot(daily: const [], asOf: day(12, 6));
+
+      expect(snapshot.rate, isNull);
+      expect(snapshot.trendKg, isNull);
+    });
+
+    test('only weigh-ins after the day give a null rate and trend', () {
       final snapshot = weightSnapshot(
-        daily: const [],
-        line: const [],
+        daily: [(date: day(12, 7), value: 70.0)],
         asOf: day(12, 6),
       );
 

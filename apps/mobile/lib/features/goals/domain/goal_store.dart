@@ -55,8 +55,8 @@ abstract interface class GoalStore {
     required bool? foodOrWeight,
   });
 
-  /// False unless the week waits for an answer on an active goal. Accepting
-  /// puts the proposed change in force.
+  /// False unless the week is the newest of an active goal and waits for an
+  /// answer. Accepting puts the proposed change in force.
   Future<bool> answer(int goalId, LocalDate monday, WeekAnswer answer);
 
   /// The reviewed weeks of a goal, the oldest first.
@@ -151,6 +151,7 @@ final class InMemoryGoalStore implements GoalStore {
     final goal = _activeWith(goalId);
     final index = _weekIndex(goalId, monday);
     if (goal == null || index < 0) return false;
+    if ((await weeks(goalId)).last.monday != monday) return false;
     final week = _weeks[index];
     final change = week.change;
     if (change == null || week.answer != null) return false;

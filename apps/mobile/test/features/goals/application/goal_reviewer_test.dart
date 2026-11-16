@@ -334,8 +334,8 @@ void main() {
 
       final inputs = (await setup.weeks()).single.inputs;
       expect(inputs.bodyOn, isTrue);
-      expect(inputs.rate?.percent, closeTo(0.449, 0.0005));
-      expect(inputs.bmi, closeTo(24.618, 0.0005));
+      expect(inputs.rate?.percent, closeTo(0.4427, 0.0005));
+      expect(inputs.bmi, closeTo(24.954, 0.0005));
     });
 
     test('is the build rule with steps from 9000 to 10000', () async {
@@ -642,6 +642,16 @@ void main() {
       final setup = await _setup(modules: const {});
       setup.container.listen(goalReviewProvider, (_, _) {});
 
+      expect(await setup.container.read(goalReviewProvider.future), isNull);
+    });
+
+    test('is null with Goals off over a stored week', () async {
+      final written = await _ready();
+      await written.reviewer.reviewDueWeek();
+      final setup = await _setup(modules: const {}, store: written.store);
+      setup.container.listen(goalReviewProvider, (_, _) {});
+
+      expect(await written.weeks(), hasLength(1));
       expect(await setup.container.read(goalReviewProvider.future), isNull);
     });
   });

@@ -10,8 +10,10 @@ import 'package:open_ring/features/effort/application/effort_gate.dart';
 import 'package:open_ring/features/effort/application/effort_providers.dart';
 import 'package:open_ring/features/effort/domain/effort_day.dart';
 import 'package:open_ring/features/effort/presentation/effort_coach_card.dart';
+import 'package:open_ring/features/effort/presentation/effort_load_card.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/presentation/module_widgets.dart';
 import 'package:open_ring/features/workout/presentation/workout_entry_button.dart';
 import 'package:open_ring/features/workout/presentation/workout_labels.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -25,6 +27,7 @@ abstract final class EffortKeys {
   static const lastSeven = Key('effort_last_seven');
   static const sessions = Key('effort_sessions');
   static const sessionsEmpty = Key('effort_sessions_empty');
+  static const never = Key('effort_never');
   static const foot = Key('effort_foot');
 
   static Key session(int index) => Key('effort_session_$index');
@@ -92,6 +95,23 @@ class EffortScreen extends ConsumerWidget {
       ),
       const SizedBox(height: cardGap),
       _Sessions(sessions: ofWeek),
+      const SizedBox(height: cardGap),
+      if (ref.watch(effortDailyLoadProvider).value case final dailyLoad?) ...[
+        EffortLoadCard(dailyLoad: dailyLoad),
+        const SizedBox(height: cardGap),
+      ],
+      ModuleFactsCard(
+        key: EffortKeys.never,
+        title: l10n.effortNeverTitle,
+        icon: Icons.block,
+        facts: [
+          l10n.effortNever1,
+          l10n.effortNever2,
+          l10n.effortNever3,
+          l10n.effortNever4,
+          l10n.effortNever5,
+        ],
+      ),
       const SizedBox(height: 16),
       CaptionText(l10n.effortFoot, key: EffortKeys.foot),
     ];

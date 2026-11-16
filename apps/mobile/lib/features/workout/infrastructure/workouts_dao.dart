@@ -19,6 +19,7 @@ class WorkoutsDao extends DatabaseAccessor<AppDatabase>
   Future<int> insertFinished(
     FinishedWorkout workout, {
     String? deviceId,
+    int? effortRating,
   }) async {
     final id = await into(workouts).insert(
       WorkoutsCompanion.insert(
@@ -33,6 +34,7 @@ class WorkoutsDao extends DatabaseAccessor<AppDatabase>
         elapsedMs: Value(workout.elapsed.inMilliseconds),
         averageHeartRate: Value(workout.averageHeartRate),
         maxHeartRate: Value(workout.maxHeartRate),
+        effortRating: Value(effortRating),
       ),
     );
     await batch((batch) {

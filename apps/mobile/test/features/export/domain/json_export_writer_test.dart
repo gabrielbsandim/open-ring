@@ -74,7 +74,7 @@ void main() {
       '  "workouts": [\n'
       r'    {"start":"2026-10-25T10:00:00+01:00","end":null,"client_id":"w-1","device_id":null,"activity_type":"run \"tempo\"","duration_s":null,"distance_m":null,"active_kcal":250,"effort_rating":7},'
       '\n'
-      r'    {"start":"2026-10-25T12:00:00+01:00","end":null,"client_id":"w-2","device_id":null,"activity_type":"walk","duration_s":null,"distance_m":null,"active_kcal":null,"effort_rating":null}'
+      '    {"start":"2026-10-25T12:00:00+01:00","end":null,"client_id":"w-2","device_id":null,"activity_type":"walk","duration_s":null,"distance_m":null,"active_kcal":null,"effort_rating":null}'
       '\n'
       '  ]\n'
       '}\n',

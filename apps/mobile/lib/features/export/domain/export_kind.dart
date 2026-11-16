@@ -30,6 +30,7 @@ enum ExportKind {
     'duration_s',
     'distance_m',
     'active_kcal',
+    'effort_rating',
   ]),
   weighIns('weigh_ins', [
     'time',

@@ -37,10 +37,15 @@ final class DemoDataGenerator {
       for (var ago = days; ago >= -1; ago--)
         _key(_dayAgo(ago)): _night(_dayAgo(ago)),
     };
-    final workouts = [
+    final plans = [
       for (final plan in _plans)
-        if (plan.daysAgo <= days) _workout(plan),
+        if (plan.daysAgo <= days) plan,
     ];
+    final workouts = [for (final plan in plans) _workout(plan)];
+    final workoutRatings = {
+      for (final (index, plan) in plans.indexed)
+        workouts[index].start: ?plan.rating,
+    };
     final timeline = _Timeline(nights: nights, workouts: workouts);
     final from = nights[_key(_dayAgo(days))]!.bed;
     final activity = _activity(timeline);
@@ -86,6 +91,7 @@ final class DemoDataGenerator {
       workouts: workouts,
       syncRuns: _syncRuns(),
       weighIns: _weighIns(),
+      workoutRatings: workoutRatings,
     );
   }
 
@@ -308,6 +314,7 @@ final class DemoDataGenerator {
       hour: 18,
       minute: 10,
       minutes: 32,
+      rating: 7,
     ),
     _WorkoutPlan(
       type: WorkoutType.strength,
@@ -399,6 +406,7 @@ final class _WorkoutPlan {
     required this.hour,
     required this.minute,
     required this.minutes,
+    this.rating,
   });
 
   final WorkoutType type;
@@ -406,6 +414,7 @@ final class _WorkoutPlan {
   final int hour;
   final int minute;
   final int minutes;
+  final int? rating;
 }
 
 @immutable

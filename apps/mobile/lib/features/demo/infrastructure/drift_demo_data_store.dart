@@ -45,7 +45,11 @@ final class DriftDemoDataStore implements DemoDataStore {
     await _samples.upsertStress(id, data.stress);
     await _sleep.replaceNights(id, data.sleep);
     for (final workout in data.workouts) {
-      await _workouts.insertFinished(workout, deviceId: id);
+      await _workouts.insertFinished(
+        workout,
+        deviceId: id,
+        effortRating: data.workoutRatings[workout.start],
+      );
     }
     for (final run in data.syncRuns) {
       await _runs.record(id, run);

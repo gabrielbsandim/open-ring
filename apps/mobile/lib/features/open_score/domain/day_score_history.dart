@@ -57,13 +57,41 @@ List<DailyValue> dailyStress(
   });
 }
 
+// How far today is from the two rules that keep a factor out in the first
+// days: the active days of the week and the least advanced baseline.
+typedef DayScoreProgress = ({
+  int activeDays,
+  int activeNeeded,
+  int baselineDays,
+  int baselineNeeded,
+});
+
+int _activeDays(Iterable<DailyValue> intensity, LocalDate today) => {
+  for (final day in intensity)
+    if (_countsAsActive(day, today)) day.date,
+}.length;
+
+bool _countsAsActive(DailyValue day, LocalDate today) {
+  final age = today.daysSince(day.date);
+  if (age < 0 || age >= intensityWindowDays) return false;
+  return day.value.isFinite && day.value >= 0;
+}
+
+int _collected(BaselineResult baseline) => switch (baseline) {
+  BaselineBuilding(:final daysCollected) => daysCollected,
+  BaselineReady() => baselineMinDays,
+};
+
 @immutable
 final class DayScoreHistory {
-  new({required this.today, required Map<LocalDate, DayScoreInputs> days})
-    : _inputs = Map.unmodifiable(days),
-      _days = Map.unmodifiable({
-        for (final entry in days.entries) entry.key: entry.value.score,
-      });
+  new({
+    required this.today,
+    required Map<LocalDate, DayScoreInputs> days,
+    this.progress,
+  }) : _inputs = Map.unmodifiable(days),
+       _days = Map.unmodifiable({
+         for (final entry in days.entries) entry.key: entry.value.score,
+       });
 
   factory collect({
     required LocalDate today,
@@ -113,8 +141,19 @@ final class DayScoreHistory {
       );
     }
 
+    final baselines = [
+      hrvBaseline(hrv, today: today),
+      restingHeartRateBaseline(resting, today: today),
+      stressBaseline(stress, today: today),
+    ].map(_collected);
     return DayScoreHistory(
       today: today,
+      progress: (
+        activeDays: _activeDays(intensity, today),
+        activeNeeded: intensityMinDays,
+        baselineDays: baselines.reduce((a, b) => a < b ? a : b),
+        baselineNeeded: baselineMinDays,
+      ),
       days: {
         for (var age = dayScoreHistoryDays - 1; age >= 0; age--)
           today.addDays(-age): inputsOn(today.addDays(-age)),
@@ -123,6 +162,7 @@ final class DayScoreHistory {
   }
 
   final LocalDate today;
+  final DayScoreProgress? progress;
   final Map<LocalDate, DayScoreInputs> _inputs;
   final Map<LocalDate, ScoreResult<DayScoreFactor>> _days;
 

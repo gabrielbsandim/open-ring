@@ -31,7 +31,10 @@ abstract final class DayScoreCardKeys {
   static const bar = Key('today_day_score_bar');
   static const line = Key('today_day_score_line');
   static const none = Key('today_day_score_none');
+  static const noneBar = Key('today_day_score_none_bar');
   static const first = Key('today_day_score_first');
+  static const firstActivity = Key('today_day_score_first_activity');
+  static const firstBaselines = Key('today_day_score_first_baselines');
   static const tag = Key('today_day_score_tag');
   static const tagged = Key('today_day_score_tagged');
   static const lowReadiness = Key('today_day_score_low_readiness');
@@ -242,9 +245,10 @@ class DayScoreCard extends ConsumerWidget {
     ),
     final InsufficientData<DayScoreFactor> lacking
         when history.firstScored == null =>
-      _FirstDays(lacking: lacking),
+      _FirstDays(lacking: lacking, progress: history.progress),
     final InsufficientData<DayScoreFactor> lacking => _NoScore(
       lacking: lacking,
+      inputs: history.inputsOn(history.today),
       level: level,
     ),
     null => const SizedBox.shrink(),
@@ -564,14 +568,17 @@ class _Legend extends StatelessWidget {
 }
 
 class _NoScore extends StatelessWidget {
-  const new({required this.lacking, required this.level});
+  const new({required this.lacking, required this.inputs, required this.level});
 
   final InsufficientData<DayScoreFactor> lacking;
+  final DayScoreInputs? inputs;
   final Widget? level;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final inputs = this.inputs;
+    final receipt = inputs == null ? null : DayScoreReceipt(inputs);
     final l10n = AppLocalizations.of(context);
     return Column(
       key: DayScoreCardKeys.none,
@@ -591,6 +598,15 @@ class _NoScore extends StatelessWidget {
             lacking.coverage.round(),
           ),
         }),
+        if (receipt != null) ...[
+          const SizedBox(height: 12),
+          ExcludeSemantics(
+            child: DayScoreBar(
+              key: DayScoreCardKeys.noneBar,
+              subscore: (factor) => receipt.of(factor)?.subscore,
+            ),
+          ),
+        ],
         const SizedBox(height: 10),
         CaptionText(l10n.dayScoreNoneNote),
         if (level != null) ...[const SizedBox(height: 12), ?level],
@@ -600,14 +616,16 @@ class _NoScore extends StatelessWidget {
 }
 
 class _FirstDays extends StatelessWidget {
-  const new({required this.lacking});
+  const new({required this.lacking, required this.progress});
 
   final InsufficientData<DayScoreFactor> lacking;
+  final DayScoreProgress? progress;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
+    final progress = this.progress;
     final baselines =
         lacking.has(DayScoreFactor.hrv) &&
         lacking.has(DayScoreFactor.restingHeartRate) &&
@@ -634,10 +652,27 @@ class _FirstDays extends StatelessWidget {
           ready: lacking.has(DayScoreFactor.steps),
         ),
         _Step(
+          key: DayScoreCardKeys.firstActivity,
           label: l10n.dayScoreFirstActivity,
           ready: lacking.has(DayScoreFactor.intensity),
+          count: progress == null
+              ? null
+              : l10n.levelBuildingCount(
+                  progress.activeDays,
+                  progress.activeNeeded,
+                ),
         ),
-        _Step(label: l10n.dayScoreFirstBaselines, ready: baselines),
+        _Step(
+          key: DayScoreCardKeys.firstBaselines,
+          label: l10n.dayScoreFirstBaselines,
+          ready: baselines,
+          count: progress == null
+              ? null
+              : l10n.levelBuildingCount(
+                  progress.baselineDays,
+                  progress.baselineNeeded,
+                ),
+        ),
         const SizedBox(height: 10),
         CaptionText(l10n.dayScoreFirstNote),
       ],
@@ -646,10 +681,13 @@ class _FirstDays extends StatelessWidget {
 }
 
 class _Step extends StatelessWidget {
-  const new({required this.label, required this.ready});
+  const new({required this.label, required this.ready, this.count, super.key});
 
   final String label;
   final bool ready;
+
+  // Shown in place of the word while the rule is not met yet.
+  final String? count;
 
   @override
   Widget build(BuildContext context) {
@@ -670,7 +708,9 @@ class _Step extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(child: BodyText(label)),
             const SizedBox(width: 10),
-            CaptionText(ready ? l10n.dayScoreReady : l10n.dayScoreBuilding),
+            CaptionText(
+              ready ? l10n.dayScoreReady : count ?? l10n.dayScoreBuilding,
+            ),
           ],
         ),
       ),

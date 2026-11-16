@@ -663,7 +663,7 @@
   "healthStatusAllowed": "許可済み",
   "healthStatusNotAllowed": "未許可",
   "healthStatusKindActivity": "歩数とアクティブエネルギー",
-  "healthStatusExport": "エクスポートは {platform} がなくても使えます。このスマートフォンに保存されたすべてのデータをファイルに書き出します。",
+  "healthStatusExport": "エクスポートは {platform} がなくても使えます。このスマートフォンに保存された健康記録をファイルに書き出します。",
   "healthStatusExportAction": "データをエクスポート",
   "exportTitle": "エクスポート",
   "exportIntro": "データはこの端末に保存されます。アカウントもクラウドもありません。自分で共有しない限り、外には出ません。",

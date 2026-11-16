@@ -341,10 +341,7 @@ void main() {
           point(11, 13, 0),
         ];
 
-        expect(
-          weeklyIntensityMinutes(withZeros, today: today, minDays: 4),
-          170,
-        );
+        expect(weeklyIntensityMinutes(withZeros, today: today), 170);
       },
     );
 
@@ -593,7 +590,7 @@ void main() {
     });
 
     test('sick wins over a hard run and a missing readiness', () {
-      final load = [...List.filled(20, 40), 200, 200];
+      final load = <double>[...List.filled(20, 40), 200, 200];
 
       expect(advise(load, readiness: null, sick: true).rule, CoachRule.sick);
       expect(advise(load, readiness: 40, sick: true).rule, CoachRule.sick);
@@ -633,7 +630,7 @@ void main() {
     });
 
     test('hardRun beats a fair readiness and loses to a low one', () {
-      final load = [...List.filled(20, 40), 200, 200];
+      final load = <double>[...List.filled(20, 40), 200, 200];
 
       expect(advise(load, readiness: 60).rule, CoachRule.hardRun);
       expect(advise(load, readiness: 50).rule, CoachRule.lowReadiness);
@@ -685,7 +682,7 @@ void main() {
     final base = [
       for (var i = 0; i < 14; i++) ...[100.0, 0.0],
     ];
-    final spikeSeries = [...base, 110, 110, 110, 0, 110, 110, 110];
+    final spikeSeries = <double>[...base, 110, 110, 110, 0, 110, 110, 110];
 
     test('a jump over 1.5 times the line of a week ago maintains', () {
       final advice = advise(spikeSeries);
@@ -704,7 +701,7 @@ void main() {
     });
 
     test('a week ago line under 150 a week does not spike', () {
-      final quiet = [
+      final quiet = <double>[
         ...List.filled(14, 20),
         ...List.filled(7, 20),
         ...List.filled(3, 100),
@@ -714,7 +711,7 @@ void main() {
       final advice = advise(quiet);
 
       expect(advice.chronicWeekAgo! * 7, lessThan(150));
-      expect(advice.acute!, greaterThan(1.5 * advice.chronicWeekAgo!));
+      expect(advice.acute, greaterThan(1.5 * advice.chronicWeekAgo!));
       expect(advice.rule, isNot(CoachRule.spike));
     });
   });

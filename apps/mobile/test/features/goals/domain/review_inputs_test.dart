@@ -121,7 +121,7 @@ SleepNight nightEnding(LocalDate date, {required int onset}) {
   ]);
 }
 
-const _lateSleeper = 23 * 60 + 30;
+const int _lateSleeper = 23 * 60 + 30;
 
 GoalWeekData closedWeek() => GoalWeekData(
   steps: {

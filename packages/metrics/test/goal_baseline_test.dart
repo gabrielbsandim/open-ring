@@ -101,7 +101,7 @@ void main() {
           steps: {
             for (var day = 11; day <= 15; day++) nov(day): 8000,
             nov(1): 8000,
-            LocalDate(2026, 10, 31): 8000,
+            const LocalDate(2026, 10, 31): 8000,
           },
         ),
         end: end,
@@ -201,8 +201,8 @@ void main() {
 
   group('case 4: the effort mean of four weeks', () {
     final weekPoints = <DailyValue>[
-      (date: LocalDate(2026, 10, 20), value: 135),
-      (date: LocalDate(2026, 10, 27), value: 150),
+      (date: const LocalDate(2026, 10, 20), value: 135),
+      (date: const LocalDate(2026, 10, 27), value: 150),
       (date: nov(3), value: 145),
       (date: nov(10), value: 170),
     ];
@@ -240,7 +240,7 @@ void main() {
       final baseline = leverBaseline(
         GoalWeekData(
           points: [
-            (date: LocalDate(2026, 10, 18), value: 500),
+            (date: const LocalDate(2026, 10, 18), value: 500),
             (date: nov(16), value: 500),
           ],
         ),
@@ -335,7 +335,10 @@ void main() {
 
     test('keeps a null value of the trailing list', () {
       final week = weekReadiness(
-        [for (var value = 1; value <= 14; value++) value == 9 ? null : value],
+        [
+          for (var value = 1; value <= 14; value++)
+            if (value == 9) null else value,
+        ],
         last: last,
         from: const LocalDate(2026, 11, 30),
       );

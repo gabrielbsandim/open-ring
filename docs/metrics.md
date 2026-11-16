@@ -1466,7 +1466,7 @@ Functions: `leverFits(week)`, `leverFitRatio(week)`, `adherence(levers)`,
 | Strength days | days a week | the days done reach the target | the usual days plus 1, at least 2 under a weight goal and 1 otherwise | 1 day | 4 days |
 | Sleep window | bedtime, minutes after noon | 5 days of 7 met it | the median bedtime minus 15 minutes, never under 7 hours before the median wake time | 15 minutes earlier | 9 hours in bed |
 | Steps | steps a day | 5 days of 7 met it | the 14 day median rounded to 500, plus 1,000 | 1,000 | 10,000 |
-| Effort points | points a week | the points earned reach the target | the mean of the last 4 weeks | 10 percent, at least 15 | 300 |
+| Effort points | points a week | the points earned reach the target | the mean of the last 4 weeks, at least 15 | 10 percent, at least 15 | 300 |
 | Wake time | minutes after midnight | 5 days of 7 met it | the median wake time | never | none |
 
 Adherence is the levers that fit over the active levers. The fit ratio that
@@ -1493,7 +1493,7 @@ lever is a proposal the person accepts or declines.
 | # | Rule | Goals | Holds when | Answer |
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | `end` | lose fat | BMI under 18.5, pregnancy or breastfeeding, or a positive screening | the goal ends |
-| 2 | `pauseFastLoss` | lose fat | the low end of the loss is above the cap now and was at the previous review | pause of 28 days |
+| 2 | `pauseFastLoss` | lose fat | the low end of the loss is above the cap now, and the low end of the previous review is above that same cap, the one of today | pause of 28 days |
 | 3 | `pauseCheckIn` | all | "yes" to the food or weight question two weeks in a row, or low energy two weeks in a row | pause, no length set here |
 | 4 | `recoveryWeek` | all | 4 or more days of the last 7 with a Readiness under 55 | a recovery week, or a pause of 14 days when the week before was one too |
 | 5 | `ease` | lose fat | Body is on and the path state is above | nothing is added, no lever changes |
@@ -1516,14 +1516,14 @@ build rule proposes steps for weeks 2 to 4 of a weight goal.
 | `goalBuildWeeks` | 4 weeks | **our choice** |
 | `goalStepsStep`, `goalStepsRound` | 1,000 and 500 steps | **our choice** |
 | `goalStepsCeiling` | 10,000 steps | **our choice**. Paluch 2022 on steps and mortality is **not yet checked against its source**. |
-| `goalEffortStepPercent`, `goalEffortStepMin` | 10 percent, 15 points | **our choice** |
-| `goalEffortCeiling` | 300 points | **our choice**, twice the 150 minutes of section 14 |
+| `goalEffortStepPercent`, `goalEffortStepMin` | 10 percent, 15 points | **our choice**. 15 is also the lowest target an effort lever enters at, so a person with no effort yet does not get a target of 0. |
+| `goalEffortCeiling` | 300 points | **our choice**, twice the `effortWeekPoints` of section 19 |
 | `goalEffortRaisesBeforeHold` | 3 raises | **our choice** |
 | `goalStrengthFloor` | 2 days | two days of muscle strengthening a week is from WHO 2020, **not yet checked against its source**. Keeping strength under a loss follows Cava 2017, **not yet checked against its source**. |
 | `goalStrengthCeiling` | 4 days | **our choice** |
 | `goalSleepStepMinutes` | 15 minutes | **our choice** |
-| `goalSleepMinMinutes`, `goalSleepMaxMinutes` | 7 and 9 hours in bed | the adult range of Hirshkowitz 2015 and Watson 2015, **not yet checked against its source** |
-| `goalWakeToleranceMinutes` | 30 minutes | **our choice**. Read by the code that counts the days, not here. |
+| `goalSleepMinMinutes`, `goalSleepMaxMinutes` | 7 and 9 hours in bed | 7 to 9 hours of sleep is the adult range of Hirshkowitz 2015 and 7 hours the floor of Watson 2015, **not yet checked against its source**. Applying hours of sleep to time in bed is **our choice**. |
+| `goalWakeToleranceMinutes` | 30 minutes | **our choice**. Nothing reads it yet: it is for the later slice that counts the days a wake time was met. |
 | `goalLowReadinessDays` | 4 days of 7 | **our choice**. The cut of 55 is `readinessFairFrom`. |
 | `goalFastLossPauseDays` | 28 days | **our choice** |
 | `goalRecoveryPauseDays` | 14 days | **our choice** |

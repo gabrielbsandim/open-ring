@@ -194,6 +194,14 @@ void main() {
     });
   });
 
+  group('a weekly lever with a target of zero', () {
+    test('has a ratio of one, not a number that is not one', () {
+      final week = effortWeek(0, 0);
+      expect(leverFitRatio(week), 1);
+      expect(leverFits(week), isTrue);
+    });
+  });
+
   group('adherence', () {
     test('no levers is zero', () {
       expect(adherence(const []), 0);
@@ -396,6 +404,17 @@ void main() {
     test('a mean over 300 enters at 300', () {
       expect(effortFor(400)!.target, 300);
       expect(effortFor(300)!.target, 300);
+    });
+
+    test('a mean that rounds under 15 enters at 15', () {
+      for (final mean in [0.0, 0.4, 14.4]) {
+        final entry = leverEntry(
+          LeverKind.effortPoints,
+          GoalKind.getFitter,
+          baselineOf(effort: mean),
+        );
+        expect(entry?.target, 15);
+      }
     });
 
     test('a missing mean has no entry', () {

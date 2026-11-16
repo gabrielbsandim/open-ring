@@ -193,8 +193,13 @@ bool leverFits(LeverWeek week) => switch (week.lever.cadence) {
 
 double leverFitRatio(LeverWeek week) => switch (week.lever.cadence) {
   LeverCadence.daily => week.achieved / _daysInWeek,
-  LeverCadence.weekly => math.min(1, week.achieved / week.lever.target),
+  LeverCadence.weekly => _weeklyRatio(week),
 };
+
+double _weeklyRatio(LeverWeek week) {
+  if (week.lever.target <= 0) return 1;
+  return math.min(1, week.achieved / week.lever.target);
+}
 
 double adherence(List<LeverWeek> levers) {
   if (levers.isEmpty) return 0;
@@ -517,5 +522,5 @@ int? _stepsEntry(LeverBaseline baseline) {
 int? _effortEntry(LeverBaseline baseline) {
   final mean = baseline.effortMean4Weeks;
   if (mean == null) return null;
-  return math.min(goalEffortCeiling, mean.round());
+  return mean.round().clamp(goalEffortStepMin, goalEffortCeiling);
 }

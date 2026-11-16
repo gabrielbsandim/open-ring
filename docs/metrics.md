@@ -1240,9 +1240,12 @@ the table on 2026-11-16; every value is **our choice**.
 | walking | 1.5 |
 | yoga | 1 |
 
-A workout read from another app has no heart rate here, so it always takes
-its default. A recorded workout takes it when the profile gives no zones (no
-age and no maximum heart rate) or when no sample reaches zone 1.
+A workout read from another app has no heart rate here, so it takes its
+rating when it has one and its default otherwise. A recorded workout has no
+heart rate figure when the profile gives no zones (no age and no maximum
+heart rate) or when no sample reaches zone 1, and then it follows the same
+rule. The rating is stored with the workout (`effort_rating`, 1 to 10, empty
+when nobody rated it); a stored value outside the scale reads as no rating.
 
 ### From stored data
 

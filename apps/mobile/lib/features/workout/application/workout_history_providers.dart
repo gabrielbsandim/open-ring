@@ -11,6 +11,7 @@ import 'package:open_ring/features/workout/application/workout_controller.dart';
 import 'package:open_ring/features/workout/application/workout_source_selection.dart';
 import 'package:open_ring/features/workout/domain/workout_analysis.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
+import 'package:open_ring/features/workout/domain/workout_rating_store.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 
 const recentWorkoutLimit = 5;
@@ -21,6 +22,10 @@ final workoutHistoryReaderProvider = Provider<WorkoutHistoryReader>(
 
 final importedWorkoutReaderProvider = Provider<ImportedWorkoutReader>(
   (ref) => const NoImportedWorkoutReader(),
+);
+
+final workoutRatingStoreProvider = Provider<WorkoutRatingStore>(
+  (ref) => throw UnimplementedError('Override workoutRatingStoreProvider.'),
 );
 
 final recentWorkoutsProvider = FutureProvider<List<WorkoutEntry>>((ref) async {

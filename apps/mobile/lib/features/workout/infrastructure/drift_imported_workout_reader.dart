@@ -4,6 +4,7 @@ import 'package:open_ring/core/records/epoch.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/core/records/source_priority.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
+import 'package:open_ring/features/workout/domain/workout_rating_store.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
 
 final class DriftImportedWorkoutReader implements ImportedWorkoutReader {
@@ -57,6 +58,7 @@ final class DriftImportedWorkoutReader implements ImportedWorkoutReader {
     start: fromUtcMs(row.startUtcMs),
     end: fromUtcMs(row.endUtcMs),
     utcOffset: offsetOf(row.offsetMinutes),
+    rating: storedRatingOf(row.effortRating),
   );
 
   Future<bool> _enabled() async {

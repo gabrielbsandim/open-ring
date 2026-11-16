@@ -14,6 +14,7 @@ sealed class WorkoutEntry {
   Duration get utcOffset;
   Duration get elapsed;
   String get source;
+  int? get rating;
 
   bool overlaps(WorkoutEntry other) =>
       start.isBefore(other.end) && other.start.isBefore(end);
@@ -32,6 +33,7 @@ final class WorkoutListItem extends WorkoutEntry {
     this.averageHeartRate,
     this.activeKilocalories,
     this.health = WorkoutHealthStatus.notQueued,
+    this.rating,
   });
 
   final int id;
@@ -49,6 +51,8 @@ final class WorkoutListItem extends WorkoutEntry {
   final int? averageHeartRate;
   final double? activeKilocalories;
   final WorkoutHealthStatus health;
+  @override
+  final int? rating;
 
   @override
   String get source => ringSource;
@@ -65,6 +69,7 @@ final class ImportedWorkout extends WorkoutEntry {
     required this.start,
     required this.end,
     required this.utcOffset,
+    this.rating,
   });
 
   final String recordId;
@@ -78,6 +83,8 @@ final class ImportedWorkout extends WorkoutEntry {
   final DateTime end;
   @override
   final Duration utcOffset;
+  @override
+  final int? rating;
 
   @override
   Duration get elapsed => end.difference(start);
@@ -90,12 +97,14 @@ final class SavedWorkout {
     required this.workout,
     required this.utcOffset,
     this.health = WorkoutHealthStatus.notQueued,
+    this.rating,
   });
 
   final int id;
   final FinishedWorkout workout;
   final Duration utcOffset;
   final WorkoutHealthStatus health;
+  final int? rating;
 }
 
 abstract interface class WorkoutHistoryReader {

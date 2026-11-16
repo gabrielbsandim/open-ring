@@ -57,6 +57,33 @@ void main() {
     }
   });
 
+  test('leaves no rated workout, recorded or imported', () async {
+    final db = memoryDatabase();
+    await db.customStatement(
+      'INSERT INTO workouts (client_id, activity_type, start_utc_ms, '
+      'end_utc_ms, offset_minutes, effort_rating) '
+      "VALUES ('phone:1', 'running', 1, 2, 0, 7)",
+    );
+    await db.customStatement(
+      'INSERT INTO imported_workouts (record_id, source, activity_type, '
+      'start_utc_ms, end_utc_ms, offset_minutes, imported_at_utc_ms, '
+      "effort_rating) VALUES ('w1', 'com.example', 'running', 1, 2, 0, 3, 8)",
+    );
+
+    await DeviceLocalDataEraser(db).eraseAll();
+
+    expect(await rowCount(db, 'workouts'), 0);
+    expect(await rowCount(db, 'imported_workouts'), 0);
+    final rated = await db
+        .customSelect(
+          'SELECT (SELECT COUNT(*) FROM workouts '
+          'WHERE effort_rating IS NOT NULL) + (SELECT COUNT(*) '
+          'FROM imported_workouts WHERE effort_rating IS NOT NULL) AS c',
+        )
+        .getSingle();
+    expect(rated.read<int>('c'), 0);
+  });
+
   test('removes the app preferences and leaves the rest', () async {
     await DeviceLocalDataEraser(memoryDatabase()).eraseAll();
 

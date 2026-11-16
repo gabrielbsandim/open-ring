@@ -83,6 +83,7 @@ void main() {
     expect(request.kinds, isNot(contains(ExportKind.stress)));
     expect(request.kinds, isNot(contains(ExportKind.weighIns)));
     expect(request.kinds, isNot(contains(ExportKind.dayTags)));
+    expect(request.kinds, contains(ExportKind.importedWorkouts));
     expect(request.kinds, hasLength(ExportKind.values.length - 3));
     expect(request.from, settingsNow.subtract(const Duration(days: 7)));
     expect(request.to.isAfter(settingsNow), isTrue);
@@ -182,6 +183,18 @@ void main() {
       exporter.requests.single.kinds,
       ExportKind.values.toSet()..remove(ExportKind.dayTags),
     );
+  });
+
+  testWidgets('the imported workouts tile shows with no module on', (
+    tester,
+  ) async {
+    await _pump(tester, settingsOverrides());
+    await tester.pumpAndSettle();
+
+    final tile = find.byKey(const Key('export_kind_importedWorkouts'));
+    await reveal(tester, tile);
+    expect(tile, findsOneWidget);
+    expect(find.text('Workouts from other apps'), findsOneWidget);
   });
 
   testWidgets('without a data type the export cannot start', (tester) async {

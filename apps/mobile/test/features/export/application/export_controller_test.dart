@@ -60,6 +60,7 @@ void main() {
       final kinds = exporter.requests.single.kinds;
       expect(kinds.contains(ExportKind.weighIns), offered);
       expect(kinds.contains(ExportKind.dayTags), isFalse);
+      expect(kinds.contains(ExportKind.importedWorkouts), isTrue);
       expect(kinds, hasLength(ExportKind.values.length - (offered ? 1 : 2)));
     });
   }

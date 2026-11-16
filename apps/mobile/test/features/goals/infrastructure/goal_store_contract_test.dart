@@ -758,6 +758,269 @@ void main() {
           expect(await store.count(), 1);
         });
       });
+
+      group('G5b2a amendWeek', () {
+        const lastMonday = LocalDate(2026, 11, 30);
+
+        Future<void> addRow(LocalDate monday, ReviewInputs inputs) =>
+            store.addWeek(
+              1,
+              monday: monday,
+              inputs: inputs,
+              review: reviewWeek(inputs),
+            );
+
+        Future<void> startWithPausableWeeks() async {
+          await store.start(draftD);
+          await addRow(
+            lastMonday,
+            f1With(
+              energy: CheckInEnergy.low,
+              energyPrevious: CheckInEnergy.normal,
+              foodOrWeight: false,
+            ),
+          );
+          await addRow(
+            _firstMonday,
+            f1With(
+              energy: null,
+              energyPrevious: CheckInEnergy.low,
+              foodOrWeight: null,
+            ),
+          );
+        }
+
+        Future<void> startWithBuildWeek() async {
+          await store.start(draftD);
+          await addRow(
+            _firstMonday,
+            f1With(
+              energy: null,
+              energyPrevious: CheckInEnergy.normal,
+              foodOrWeight: null,
+            ),
+          );
+        }
+
+        Future<void> expectUntouched(
+          Future<Review?> Function() amend,
+          GoalWeek before,
+        ) async {
+          expect(await amend(), isNull);
+
+          final after = (await store.weeks(1)).last;
+          expect(after.monday, before.monday);
+          expect(after.rule, before.rule);
+          expect(after.action, before.action);
+          expectSameChange(after.change, before.change);
+          expect(after.answer, before.answer);
+          expect(
+            encodeReviewInputs(after.inputs),
+            encodeReviewInputs(before.inputs),
+          );
+        }
+
+        test('case 4: a second low energy gives the check-in pause', () async {
+          await startWithPausableWeeks();
+
+          final review = await store.amendWeek(
+            1,
+            _firstMonday,
+            energy: CheckInEnergy.low,
+            foodOrWeight: null,
+          );
+
+          expect(review, isNotNull);
+          expect(review!.rule, ReviewRule.pauseCheckIn);
+          expect(review.action, ReviewAction.pause);
+          expect(review.pauseDays, isNull);
+        });
+
+        test('case 4: the row then holds the rule, no change and the '
+            'energy', () async {
+          await startWithPausableWeeks();
+
+          await store.amendWeek(
+            1,
+            _firstMonday,
+            energy: CheckInEnergy.low,
+            foodOrWeight: null,
+          );
+
+          final week = (await store.weeks(1)).last;
+          expect(week.monday, _firstMonday);
+          expect(week.rule, ReviewRule.pauseCheckIn);
+          expect(week.action, ReviewAction.pause);
+          expect(week.change, isNull);
+          expect(week.pending, isFalse);
+          expect(week.inputs.energy, CheckInEnergy.low);
+          expect(week.inputs.foodOrWeight, isNull);
+        });
+
+        test('case 5: a second amend of the week is refused and '
+            'changes nothing', () async {
+          await startWithPausableWeeks();
+          await store.amendWeek(
+            1,
+            _firstMonday,
+            energy: CheckInEnergy.low,
+            foodOrWeight: null,
+          );
+          final before = (await store.weeks(1)).last;
+
+          await expectUntouched(
+            () => store.amendWeek(
+              1,
+              _firstMonday,
+              energy: CheckInEnergy.good,
+              foodOrWeight: true,
+            ),
+            before,
+          );
+        });
+
+        test('case 6: a week that is not the newest is refused', () async {
+          await startWithPausableWeeks();
+          final older = (await store.weeks(1)).first;
+
+          final review = await store.amendWeek(
+            1,
+            lastMonday,
+            energy: CheckInEnergy.low,
+            foodOrWeight: null,
+          );
+
+          expect(review, isNull);
+          final after = (await store.weeks(1)).first;
+          expect(after.rule, older.rule);
+          expect(
+            encodeReviewInputs(after.inputs),
+            encodeReviewInputs(older.inputs),
+          );
+        });
+
+        test('case 6: no answer at all is refused and a later amend '
+            'still works', () async {
+          await startWithPausableWeeks();
+          final before = (await store.weeks(1)).last;
+
+          await expectUntouched(
+            () => store.amendWeek(
+              1,
+              _firstMonday,
+              energy: null,
+              foodOrWeight: null,
+            ),
+            before,
+          );
+
+          final later = await store.amendWeek(
+            1,
+            _firstMonday,
+            energy: CheckInEnergy.low,
+            foodOrWeight: null,
+          );
+          expect(later?.rule, ReviewRule.pauseCheckIn);
+        });
+
+        test('case 6: an answered week is refused', () async {
+          await startWithPausableWeeks();
+          await store.answer(1, _firstMonday, WeekAnswer.declined);
+          final before = (await store.weeks(1)).last;
+
+          await expectUntouched(
+            () => store.amendWeek(
+              1,
+              _firstMonday,
+              energy: CheckInEnergy.low,
+              foodOrWeight: null,
+            ),
+            before,
+          );
+        });
+
+        test('case 6: a week with a stored check-in answer is '
+            'refused', () async {
+          await store.start(draftD);
+          await addRow(
+            _firstMonday,
+            f1With(
+              energy: null,
+              energyPrevious: CheckInEnergy.low,
+              foodOrWeight: false,
+            ),
+          );
+          final before = (await store.weeks(1)).last;
+
+          await expectUntouched(
+            () => store.amendWeek(
+              1,
+              _firstMonday,
+              energy: CheckInEnergy.low,
+              foodOrWeight: null,
+            ),
+            before,
+          );
+        });
+
+        test('case 6: an ended goal is refused', () async {
+          await startWithPausableWeeks();
+          await store.end(1, on: _endDay, reason: GoalEndReason.person);
+          final before = (await store.weeks(1)).last;
+
+          await expectUntouched(
+            () => store.amendWeek(
+              1,
+              _firstMonday,
+              energy: CheckInEnergy.low,
+              foodOrWeight: null,
+            ),
+            before,
+          );
+        });
+
+        test('case 6: an unknown Monday is refused', () async {
+          await startWithPausableWeeks();
+          final before = (await store.weeks(1)).last;
+
+          await expectUntouched(
+            () => store.amendWeek(
+              1,
+              _secondMonday,
+              energy: CheckInEnergy.low,
+              foodOrWeight: null,
+            ),
+            before,
+          );
+          expect(await store.weeks(1), hasLength(2));
+        });
+
+        test(
+          'case 7: a pending build week keeps its rule and change',
+          () async {
+            await startWithBuildWeek();
+
+            final review = await store.amendWeek(
+              1,
+              _firstMonday,
+              energy: CheckInEnergy.normal,
+              foodOrWeight: null,
+            );
+
+            expect(review?.rule, ReviewRule.build);
+            final week = (await store.weeks(1)).single;
+            expect(week.rule, ReviewRule.build);
+            expect(week.action, ReviewAction.nextStep);
+            expectSameChange(
+              week.change,
+              const LeverChange(kind: LeverKind.steps, from: 9000, to: 10000),
+            );
+            expect(week.pending, isTrue);
+            expect(week.answer, isNull);
+            expect(week.inputs.energy, CheckInEnergy.normal);
+          },
+        );
+      });
     });
   }
 }

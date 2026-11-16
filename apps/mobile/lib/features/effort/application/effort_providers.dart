@@ -119,3 +119,16 @@ final effortCoachProvider = FutureProvider<CoachAdvice>((ref) async {
     dailyLoad: dailyLoad,
   );
 });
+
+typedef EffortCoachCard = ({CoachAdvice advice, int? readiness, bool covered});
+
+/// What the coach card prints: the advice, the readiness it read and whether
+/// the week is already covered.
+final effortCoachCardProvider = FutureProvider<EffortCoachCard>((ref) async {
+  final (advice, readiness, week) = await (
+    ref.watch(effortCoachProvider.future),
+    ref.watch(readinessProvider.future),
+    ref.watch(effortWeekProvider.future),
+  ).wait;
+  return (advice: advice, readiness: readiness.value, covered: week.covered);
+});

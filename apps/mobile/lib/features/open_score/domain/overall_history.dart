@@ -3,7 +3,10 @@ import 'package:metrics/metrics.dart';
 import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/open_score/domain/day_tag.dart';
 
-const int overallHistoryDays = 7 * (overallWeeks - 1) + overallWindowDays;
+// The first day of the oldest Monday's window: the last Monday can be up to
+// six days before today, so the reach is not a constant.
+LocalDate overallHistoryStart(LocalDate today) =>
+    overallMondays(today).first.addDays(-overallWindowDays);
 const olderAdultFromAge = 60;
 
 typedef OverallWeek = ({

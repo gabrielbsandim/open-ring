@@ -51,7 +51,7 @@ final overallHistoryProvider = FutureProvider<OverallHistory>((ref) async {
   final now = ref.watch(clockProvider)();
   final today = ref.watch(currentDateProvider);
   final offset = now.timeZoneOffset;
-  final from = today.addDays(-overallHistoryDays);
+  final from = overallHistoryStart(today);
   final profile = await ref.watch(userProfileProvider.future);
   // Two extra days so the oldest night, which starts the evening before its date, is complete.
   final start = localMidnight(from.addDays(-2), offset);
@@ -74,7 +74,7 @@ final overallHistoryProvider = FutureProvider<OverallHistory>((ref) async {
     ref
         .watch(activityHistoryReaderProvider)
         .dailyActivity(from: from, to: today),
-    readDailyIntensity(ref, days: overallHistoryDays),
+    readDailyIntensity(ref, days: today.daysSince(from)),
     ref.watch(overallStrengthDatesProvider.future),
     ref.watch(dayTagsProvider.future),
     ref.watch(overallWeighInsProvider.future),

@@ -50,7 +50,7 @@ WeighIn weighIn(LocalDate date, double kilograms, {double? waist}) => WeighIn(
 );
 
 OverallHistory collect({
-  int days = overallHistoryDays,
+  int days = 105,
   Map<LocalDate, DayTag> tags = const {},
   List<WeighIn> weighIns = const [],
   double? heightCentimeters,
@@ -78,6 +78,20 @@ OverallHistory collect({
 }
 
 void main() {
+  group('the reach', () {
+    test('starts 28 days before the oldest Monday', () {
+      expect(overallHistoryStart(monday), back(105));
+      expect(overallHistoryStart(today), back(105));
+    });
+
+    test('on a Sunday it is 111 days back, not 105', () {
+      const sunday = LocalDate(2026, 11, 15);
+
+      expect(overallHistoryStart(sunday), const LocalDate(2026, 7, 27));
+      expect(sunday.daysSince(overallHistoryStart(sunday)), 111);
+    });
+  });
+
   group('the weeks', () {
     test('are the last 12 Mondays, oldest first', () {
       final history = collect();

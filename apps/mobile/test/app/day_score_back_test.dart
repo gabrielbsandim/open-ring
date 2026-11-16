@@ -7,6 +7,7 @@ import 'package:open_ring/features/modules/application/enabled_modules_controlle
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_formula_screen.dart';
+import 'package:open_ring/features/open_score/presentation/day_score_history_screen.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_receipt_screen.dart';
 import 'package:open_ring/features/open_score/presentation/open_score_module_screen.dart';
 
@@ -46,50 +47,68 @@ void main() {
   testWidgets('back from the formula returns to the receipt of the same day', (
     tester,
   ) async {
-    final yesterday = DateTime.now().subtract(const Duration(days: 1));
-    final container = await pumpOnboardingApp(
+    await _backOnPastDay(
       tester,
-      store: InMemoryOnboardingStore(completed: true),
-      overrides: [
-        ...bleOverrides(),
-        ...ringOverrides(),
-        ...onboardingOverrides(),
-        moduleStoreProvider.overrideWithValue(
-          InMemoryModuleStore({ModuleId.openScore}),
-        ),
-      ],
+      DayScoreReceiptKeys.formula,
+      find.byType(DayScoreFormulaScreen),
     );
-    final today = await _open(tester, container, AppPaths.dayScore);
-    final past = await _open(
-      tester,
-      container,
-      AppPaths.dayScoreOn(_iso(yesterday)),
-    );
-    expect(past, isNot(today));
-
-    final link = find.byKey(DayScoreReceiptKeys.formula);
-    await tester.scrollUntilVisible(
-      link,
-      120,
-      scrollable: find.byType(Scrollable).first,
-    );
-    // Centred, so the tab bar at the bottom does not take the tap.
-    await Scrollable.ensureVisible(tester.element(link), alignment: 0.5);
-    await tester.pumpAndSettle();
-    await tester.tap(link);
-    await tester.pumpAndSettle();
-    expect(find.byType(DayScoreFormulaScreen), findsOneWidget);
-
-    container.read(appRouterProvider).pop();
-    await tester.pumpAndSettle();
-
-    await tester.scrollUntilVisible(
-      find.byKey(DayScoreReceiptKeys.day),
-      -300,
-      scrollable: find.byType(Scrollable).first,
-    );
-    expect(_dayLabel(tester), past);
   });
+
+  testWidgets('back from the history returns to the receipt of the same day', (
+    tester,
+  ) async {
+    await _backOnPastDay(
+      tester,
+      DayScoreReceiptKeys.history,
+      find.byType(DayScoreHistoryScreen),
+    );
+  });
+}
+
+Future<void> _backOnPastDay(WidgetTester tester, Key key, Finder opened) async {
+  final yesterday = DateTime.now().subtract(const Duration(days: 1));
+  final container = await pumpOnboardingApp(
+    tester,
+    store: InMemoryOnboardingStore(completed: true),
+    overrides: [
+      ...bleOverrides(),
+      ...ringOverrides(),
+      ...onboardingOverrides(),
+      moduleStoreProvider.overrideWithValue(
+        InMemoryModuleStore({ModuleId.openScore}),
+      ),
+    ],
+  );
+  final today = await _open(tester, container, AppPaths.dayScore);
+  final past = await _open(
+    tester,
+    container,
+    AppPaths.dayScoreOn(_iso(yesterday)),
+  );
+  expect(past, isNot(today));
+
+  final link = find.byKey(key);
+  await tester.scrollUntilVisible(
+    link,
+    120,
+    scrollable: find.byType(Scrollable).first,
+  );
+  // Centred, so the tab bar at the bottom does not take the tap.
+  await Scrollable.ensureVisible(tester.element(link), alignment: 0.5);
+  await tester.pumpAndSettle();
+  await tester.tap(link);
+  await tester.pumpAndSettle();
+  expect(opened, findsOneWidget);
+
+  container.read(appRouterProvider).pop();
+  await tester.pumpAndSettle();
+
+  await tester.scrollUntilVisible(
+    find.byKey(DayScoreReceiptKeys.day),
+    -300,
+    scrollable: find.byType(Scrollable).first,
+  );
+  expect(_dayLabel(tester), past);
 }
 
 Future<String> _open(

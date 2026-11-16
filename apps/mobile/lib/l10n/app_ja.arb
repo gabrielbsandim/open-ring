@@ -1627,5 +1627,9 @@
   "energyFormulaMargin2": "1日の幅のほうが広いのは、歩数とワークアウトが式の誤差にそれぞれの誤差を加えるためです。その大きさは私たちが選んだものです。",
   "activityActiveEnergyRing": "アクティブエネルギー(リングの値)",
   "todayActivityDetailRing": "{detail}(リングの値)",
-  "bodyHideEnergy": "エネルギーの推定も非表示になります。"
+  "bodyHideEnergy": "エネルギーの推定も非表示になります。",
+  "energyLegendUsual": "いつもの1日",
+  "energyUsualSame": "この時刻までのいつもの1日とほぼ同じです。",
+  "energyUsualMore": "この時刻までのいつもの1日より約{kcal} kcal多くなっています。",
+  "energyUsualLess": "この時刻までのいつもの1日より約{kcal} kcal少なくなっています。"
 }

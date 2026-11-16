@@ -174,4 +174,103 @@ void main() {
   test('an underage profile has no point', () {
     expect(_curve(now: _at(12), age: 16).points, isEmpty);
   });
+  group('the usual day by hour', () {
+    EnergyCurve flat(List<num> totals) => (
+      from: DateTime.utc(2026, 11, 10),
+      to: DateTime.utc(2026, 11, 11),
+      points: [
+        for (final (hour, total) in totals.indexed)
+          (
+            at: DateTime.utc(2026, 11, 10, hour),
+            day: EnergyDayEstimate(
+              resting: 1700,
+              base: total.toDouble(),
+              steps: 0,
+              workouts: 0,
+            ),
+          ),
+      ],
+    );
+
+    test('is the mean of the days at each hour', () {
+      final usual = energyUsualByHour([
+        flat([0, 100, 200]),
+        flat([0, 200, 400]),
+        flat([0, 300, 900]),
+      ]);
+
+      expect(usual, [0, 200, 500]);
+    });
+
+    test('needs the minimum of days and skips a day with no point', () {
+      expect(
+        energyUsualByHour([
+          flat([0, 100]),
+          flat([0, 200]),
+          flat([]),
+        ]),
+        isNull,
+      );
+    });
+
+    test('stops at the shortest day', () {
+      final usual = energyUsualByHour([
+        flat([0, 100, 200]),
+        flat([0, 100]),
+        flat([0, 100, 200]),
+      ]);
+
+      expect(usual, hasLength(2));
+    });
+
+    test('a day that is not 24 hours long stays out', () {
+      final from = DateTime.utc(2026, 11, 10);
+      EnergyCurve whole(int hours, int steps) => energyCurve(
+        sex: EnergySex.male,
+        age: 30,
+        kilograms: 70,
+        centimeters: 175,
+        slots: [
+          (
+            start: from.add(const Duration(hours: 9)),
+            duration: const Duration(hours: 1),
+            steps: steps,
+          ),
+        ],
+        workouts: const [],
+        from: from,
+        to: from.add(Duration(hours: hours)),
+        now: from.add(const Duration(days: 2)),
+      );
+      final days = [whole(24, 1000), whole(24, 2000), whole(24, 3000)];
+      final usual = energyUsualByHour([...days, whole(23, 9000)])!;
+
+      expect(usual, hasLength(25));
+      expect(
+        usual.last,
+        closeTo(
+          energyUsual([for (final day in days) day.points.last.day])!,
+          1e-9,
+        ),
+      );
+      expect(energyUsualByHour([days[0], days[1], whole(25, 9000)]), isNull);
+    });
+
+    test('between two hours it is on the straight line', () {
+      const usual = <double>[0, 200, 500];
+
+      expect(energyUsualAt(usual, Duration.zero), 0);
+      expect(energyUsualAt(usual, const Duration(minutes: 30)), 100);
+      expect(energyUsualAt(usual, const Duration(minutes: 90)), 350);
+      expect(energyUsualAt(usual, const Duration(hours: 2)), 500);
+    });
+
+    test('outside its hours there is no value', () {
+      const usual = <double>[0, 200, 500];
+
+      expect(energyUsualAt(usual, const Duration(minutes: 121)), isNull);
+      expect(energyUsualAt(usual, const Duration(minutes: -1)), isNull);
+      expect(energyUsualAt(const <double>[100], Duration.zero), isNull);
+    });
+  });
 }

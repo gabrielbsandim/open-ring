@@ -47,6 +47,7 @@ final EnergyCurve _afternoon = _curveAt(_at(14, 30));
 Future<void> _pump(
   WidgetTester tester, {
   EnergyCurve? curve,
+  List<double>? usual,
   Locale locale = const Locale('en'),
   TextScaler textScaler = TextScaler.noScaling,
   Brightness brightness = Brightness.dark,
@@ -59,6 +60,7 @@ Future<void> _pump(
         child: EnergyThroughDay(
           curve: curve ?? _afternoon,
           utcOffset: Duration.zero,
+          usual: usual,
         ),
       ),
     ),
@@ -274,6 +276,116 @@ void main() {
           expect(find.byKey(EnergyThroughKeys.card), findsOneWidget);
         });
       }
+    }
+  });
+  group('the usual day', () {
+    List<double> level(double total) => [
+      for (var hour = 0; hour <= 24; hour++) total * hour / 24,
+    ];
+
+    double nowTotal() => _afternoon.points.last.day.total;
+
+    testWidgets('without it there is no sentence', (tester) async {
+      await _pump(tester);
+
+      expect(find.byKey(EnergyThroughKeys.usual), findsNothing);
+      expect(find.text(_l10n(tester).energyLegendUsual), findsNothing);
+    });
+
+    testWidgets('says how much more than usual by this time', (tester) async {
+      final usual = level((nowTotal() - 230) * 24 / 14.5);
+      await _pump(tester, usual: usual);
+
+      expect(
+        energyUsualDifference(_afternoon, _afternoon.points.last, usual),
+        250,
+      );
+      expect(
+        tester.widget<BodyText>(find.byKey(EnergyThroughKeys.usual)).text,
+        _l10n(tester).energyUsualMore('250'),
+      );
+      expect(find.text(_l10n(tester).energyLegendUsual), findsOneWidget);
+    });
+
+    testWidgets('says how much less than usual by this time', (tester) async {
+      await _pump(tester, usual: level((nowTotal() + 420) * 24 / 14.5));
+
+      expect(
+        tester.widget<BodyText>(find.byKey(EnergyThroughKeys.usual)).text,
+        _l10n(tester).energyUsualLess('400'),
+      );
+    });
+
+    testWidgets('a small difference reads as about the same', (tester) async {
+      await _pump(tester, usual: level((nowTotal() + 20) * 24 / 14.5));
+
+      expect(
+        tester.widget<BodyText>(find.byKey(EnergyThroughKeys.usual)).text,
+        _l10n(tester).energyUsualSame,
+      );
+    });
+
+    testWidgets('the sentence follows the picked hour', (tester) async {
+      final usual = level(4800);
+      await _pump(tester, usual: usual);
+
+      await _tapHour(tester, 9);
+      await tester.pump();
+      final index = energyPointNear(_afternoon, _at(9));
+      final difference = energyUsualDifference(
+        _afternoon,
+        _afternoon.points[index],
+        usual,
+      )!;
+
+      expect(difference, isNot(0));
+      expect(
+        tester.widget<BodyText>(find.byKey(EnergyThroughKeys.usual)).text,
+        contains(_format(tester).integer(difference.abs())),
+      );
+    });
+
+    testWidgets('no sentence while the picked hour is under the floor', (
+      tester,
+    ) async {
+      await _pump(tester, usual: level(2400));
+
+      await _tapHour(tester, 0);
+      await tester.pump();
+
+      expect(find.byKey(EnergyThroughKeys.usual), findsNothing);
+    });
+
+    testWidgets('a day that is not 24 hours long shows no usual day', (
+      tester,
+    ) async {
+      final short = (
+        from: _afternoon.from,
+        to: _afternoon.to.subtract(const Duration(hours: 1)),
+        points: _afternoon.points,
+      );
+      await _pump(tester, curve: short, usual: level(2400));
+
+      expect(find.byKey(EnergyThroughKeys.usual), findsNothing);
+      expect(find.text(_l10n(tester).energyLegendUsual), findsNothing);
+    });
+
+    test('the axis rises to hold the usual day', () {
+      expect(energyChartTop(_afternoon), 3000);
+      expect(energyChartTop(_afternoon, usual: level(3600)), 4000);
+    });
+
+    for (final locale in AppLocales.supported) {
+      testWidgets('fits 2.0x in $locale', (tester) async {
+        await _pump(
+          tester,
+          usual: level(3000),
+          locale: locale,
+          textScaler: const TextScaler.linear(2),
+        );
+
+        expect(find.byKey(EnergyThroughKeys.usual), findsOneWidget);
+      });
     }
   });
 }

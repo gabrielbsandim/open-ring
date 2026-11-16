@@ -16,6 +16,7 @@ abstract final class EnergyThroughKeys {
   static const by = Key('energy_through_by');
   static const range = Key('energy_through_range');
   static const parts = Key('energy_through_parts');
+  static const usual = Key('energy_through_usual');
 }
 
 const energyChartGridStep = 1000;
@@ -25,8 +26,11 @@ const _chartHeight = 176.0;
 
 /// The top of the vertical axis: the first grid step above the upper end of
 /// the margin at the last point.
-int energyChartTop(EnergyCurve curve) {
-  final peak = curve.points.last.day.total * (1 + energyDayMargin);
+int energyChartTop(EnergyCurve curve, {List<double>? usual}) {
+  final peak = math.max(
+    curve.points.last.day.total * (1 + energyDayMargin),
+    usual?.last ?? 0,
+  );
   return math.max(1, (peak / energyChartGridStep).ceil()) * energyChartGridStep;
 }
 
@@ -58,11 +62,31 @@ int energyPointNear(EnergyCurve curve, DateTime target) {
   return best;
 }
 
+/// How far [point] is from the usual day at the same hour, to the nearest
+/// step of a range. Null when the usual day does not cover that hour.
+int? energyUsualDifference(
+  EnergyCurve curve,
+  EnergyPoint point,
+  List<double> usual,
+) {
+  final at = energyUsualAt(usual, point.at.difference(curve.from));
+  if (at == null) return null;
+  return ((point.day.total - at) / energyRangeStep).round() * energyRangeStep;
+}
+
 class EnergyThroughDay extends StatefulWidget {
-  const new({required this.curve, required this.utcOffset, super.key});
+  const new({
+    required this.curve,
+    required this.utcOffset,
+    this.usual,
+    super.key,
+  });
 
   final EnergyCurve curve;
   final Duration utcOffset;
+
+  /// The usual day at each elapsed hour, or null while there is none.
+  final List<double>? usual;
 
   @override
   State<EnergyThroughDay> createState() => _EnergyThroughDayState();
@@ -107,10 +131,36 @@ class _EnergyThroughDayState extends State<EnergyThroughDay> {
         : format.l10n.energyThroughBy(time);
   }
 
+  // On a day that is not 24 hours long the hours of the usual day do not
+  // line up with the chart, so it is left out.
+  List<double>? get _usual {
+    final curve = widget.curve;
+    return curve.to.difference(curve.from) == energyUsualDay
+        ? widget.usual
+        : null;
+  }
+
+  String? _usualText(MetricFormat format, EnergyPoint point) {
+    final usual = _usual;
+    if (usual == null || point.day.range.low < energyRowFloor) return null;
+    final difference = energyUsualDifference(widget.curve, point, usual);
+    if (difference == null) return null;
+    final kcal = format.integer(difference.abs());
+    return switch (difference.sign) {
+      0 => format.l10n.energyUsualSame,
+      > 0 => format.l10n.energyUsualMore(kcal),
+      _ => format.l10n.energyUsualLess(kcal),
+    };
+  }
+
   String? _spoken(MetricFormat format, int index) {
     if (index < 0 || index > _last) return null;
-    final range = _rangeText(format, widget.curve.points[index].day.range);
-    return '${_by(format, index)}, $range';
+    final point = widget.curve.points[index];
+    final range = _rangeText(format, point.day.range);
+    return [
+      '${_by(format, index)}, $range',
+      ?_usualText(format, point),
+    ].join(' ');
   }
 
   @override
@@ -124,7 +174,9 @@ class _EnergyThroughDayState extends State<EnergyThroughDay> {
     final point = curve.points[index];
     final by = _by(format, index);
     final range = _rangeText(format, point.day.range);
-    final top = energyChartTop(curve);
+    final usual = _usual;
+    final usualText = _usualText(format, point);
+    final top = energyChartTop(curve, usual: usual);
     final band = colors.textLabel.withValues(alpha: 0.28);
     return MetricCard(
       key: EnergyThroughKeys.card,
@@ -166,6 +218,8 @@ class _EnergyThroughDayState extends State<EnergyThroughDay> {
                   size: Size(box.maxWidth, _chartHeight),
                   painter: _ThroughPainter(
                     curve: curve,
+                    usual: usual,
+                    usualLine: colors.textSecondary,
                     selected: index,
                     top: top,
                     marks: [
@@ -215,6 +269,12 @@ class _EnergyThroughDayState extends State<EnergyThroughDay> {
                     color: energyPartColor(colors, part),
                   ),
                 _Legend(label: l10n.energyLegendRange, color: band),
+                if (usual != null)
+                  _Legend(
+                    label: l10n.energyLegendUsual,
+                    color: colors.textSecondary,
+                    height: 2,
+                  ),
               ],
             ),
           ),
@@ -235,6 +295,10 @@ class _EnergyThroughDayState extends State<EnergyThroughDay> {
             ),
             key: EnergyThroughKeys.parts,
           ),
+          if (usualText != null) ...[
+            const SizedBox(height: 6),
+            BodyText(usualText, key: EnergyThroughKeys.usual),
+          ],
           const SizedBox(height: 10),
           CaptionText(l10n.energyThroughNote),
         ],
@@ -244,10 +308,11 @@ class _EnergyThroughDayState extends State<EnergyThroughDay> {
 }
 
 class _Legend extends StatelessWidget {
-  const new({required this.label, required this.color});
+  const new({required this.label, required this.color, this.height = 10});
 
   final String label;
   final Color color;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -259,7 +324,7 @@ class _Legend extends StatelessWidget {
             color: color,
             borderRadius: BorderRadius.circular(3),
           ),
-          child: const SizedBox.square(dimension: 10),
+          child: SizedBox(width: 10, height: height),
         ),
         const SizedBox(width: 6),
         Flexible(child: CaptionText(label)),
@@ -273,6 +338,8 @@ typedef _Mark = ({int value, String label});
 class _ThroughPainter extends CustomPainter {
   const new({
     required this.curve,
+    required this.usual,
+    required this.usualLine,
     required this.selected,
     required this.top,
     required this.marks,
@@ -287,6 +354,8 @@ class _ThroughPainter extends CustomPainter {
   });
 
   final EnergyCurve curve;
+  final List<double>? usual;
+  final Color usualLine;
   final int selected;
   final int top;
   final List<_Mark> marks;
@@ -303,6 +372,8 @@ class _ThroughPainter extends CustomPainter {
   static const right = 8.0;
   static const _top = 8.0;
   static const _bottom = 4.0;
+  static const _dash = 4.0;
+  static const _gap = 4.0;
 
   static double fractionAt(double dx, double width) =>
       ((dx - left) / (width - left - right)).clamp(0, 1);
@@ -377,6 +448,8 @@ class _ThroughPainter extends CustomPainter {
         ..strokeWidth = 1.5,
     );
 
+    _usual(canvas, x, y);
+
     final chosen = points[selected];
     final at = Offset(x(chosen.at), y(chosen.day.total));
     canvas
@@ -391,9 +464,49 @@ class _ThroughPainter extends CustomPainter {
       ..drawCircle(at, 4, Paint()..color = cursor);
   }
 
+  // Dashes over a wider stroke of the surface, to read on every area.
+  void _usual(
+    Canvas canvas,
+    double Function(DateTime) x,
+    double Function(num) y,
+  ) {
+    final hours = usual;
+    if (hours == null || hours.length < 2) return;
+    Offset at(int hour) {
+      final instant = curve.from.add(Duration(hours: hour));
+      return Offset(
+        x(instant.isAfter(curve.to) ? curve.to : instant),
+        y(hours[hour]),
+      );
+    }
+
+    final line = Path()..moveTo(at(0).dx, at(0).dy);
+    for (var hour = 1; hour < hours.length; hour++) {
+      line.lineTo(at(hour).dx, at(hour).dy);
+    }
+    canvas.drawPath(
+      line,
+      Paint()
+        ..color = surface
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3.5,
+    );
+    final stroke = Paint()
+      ..color = usualLine
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 1.5;
+    for (final metric in line.computeMetrics()) {
+      for (var start = 0.0; start < metric.length; start += _dash + _gap) {
+        canvas.drawPath(metric.extractPath(start, start + _dash), stroke);
+      }
+    }
+  }
+
   @override
   bool shouldRepaint(_ThroughPainter old) =>
       old.curve != curve ||
+      old.usual != usual ||
       old.selected != selected ||
       old.top != top ||
       old.band != band ||

@@ -1627,5 +1627,9 @@
   "energyFormulaMargin2": "La marge de la journée est plus large parce que les pas et les séances ajoutent leur propre erreur à celle de l'équation. Sa taille est notre choix.",
   "activityActiveEnergyRing": "Énergie active, de la bague",
   "todayActivityDetailRing": "{detail} (de la bague)",
-  "bodyHideEnergy": "L'estimation d'énergie est masquée aussi."
+  "bodyHideEnergy": "L'estimation d'énergie est masquée aussi.",
+  "energyLegendUsual": "votre journée habituelle",
+  "energyUsualSame": "À peu près comme votre journée habituelle à cette heure.",
+  "energyUsualMore": "Environ {kcal} kcal de plus que votre journée habituelle à cette heure.",
+  "energyUsualLess": "Environ {kcal} kcal de moins que votre journée habituelle à cette heure."
 }

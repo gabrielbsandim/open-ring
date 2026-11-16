@@ -95,22 +95,27 @@ final FutureProviderFamily<EnergyDay, LocalDate> energyDayProvider =
       );
     });
 
+final FutureProviderFamily<EnergyCurve, LocalDate> _energyCurveProvider =
+    FutureProvider.family<EnergyCurve, LocalDate>((ref, day) async {
+      final inputs = await ref.watch(_energyInputsProvider(day).future);
+      return energyCurve(
+        sex: inputs.sex,
+        age: inputs.age,
+        kilograms: inputs.kilograms,
+        centimeters: inputs.centimeters,
+        slots: inputs.slots,
+        workouts: inputs.workouts,
+        from: inputs.from,
+        to: inputs.to,
+        now: inputs.now,
+      );
+    });
+
 // Today hour by hour, from the same inputs and the same instant as the day.
-final energyTodayCurveProvider = FutureProvider<EnergyCurve>((ref) async {
+final energyTodayCurveProvider = FutureProvider<EnergyCurve>((ref) {
   final asOf = ref.watch(energyAsOfProvider);
   final today = LocalDate.fromInstant(asOf, asOf.timeZoneOffset);
-  final inputs = await ref.watch(_energyInputsProvider(today).future);
-  return energyCurve(
-    sex: inputs.sex,
-    age: inputs.age,
-    kilograms: inputs.kilograms,
-    centimeters: inputs.centimeters,
-    slots: inputs.slots,
-    workouts: inputs.workouts,
-    from: inputs.from,
-    to: inputs.to,
-    now: inputs.now,
-  );
+  return ref.watch(_energyCurveProvider(today).future);
 });
 
 // Today is the date of the instant, so a resume after midnight moves the day
@@ -168,3 +173,16 @@ EnergyWorkout _workoutOf(WorkoutEntry entry) => (
     ImportedWorkout() => null,
   },
 );
+
+// The usual day hour by hour, from the same past days as the usual day total.
+final energyUsualByHourProvider = FutureProvider<List<double>?>((ref) async {
+  final week = await ref.watch(energyWeekProvider.future);
+  final dates = [
+    for (final entry in week.take(week.length - 1))
+      if (entry.day != null) entry.date,
+  ];
+  final curves = await Future.wait([
+    for (final date in dates) ref.watch(_energyCurveProvider(date).future),
+  ]);
+  return energyUsualByHour(curves);
+});

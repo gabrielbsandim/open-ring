@@ -3,6 +3,7 @@ import 'package:open_ring/core/records/epoch.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/features/workout/domain/workout_analysis.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
+import 'package:open_ring/features/workout/domain/workout_rating_store.dart';
 import 'package:open_ring/features/workout/domain/workout_route.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
@@ -46,6 +47,7 @@ final class DriftWorkoutHistoryReader implements WorkoutHistoryReader {
             averageHeartRate: row.averageHeartRate,
             activeKilocalories: row.activeKilocalories,
             health: healthStatusOf(statuses[row.startUtcMs]),
+            rating: storedRatingOf(row.effortRating),
           ),
     ];
   }
@@ -73,6 +75,7 @@ final class DriftWorkoutHistoryReader implements WorkoutHistoryReader {
       id: row.id,
       utcOffset: offsetOf(row.offsetMinutes),
       health: healthStatusOf(statuses[row.startUtcMs]),
+      rating: storedRatingOf(row.effortRating),
       workout: FinishedWorkout(
         type: type,
         start: fromUtcMs(row.startUtcMs),

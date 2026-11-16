@@ -47,7 +47,7 @@ class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -102,6 +102,12 @@ class AppDatabase extends _$AppDatabase {
       from9To10: (migrator, schema) => _requeueRecentWorkouts(),
       from10To11: (migrator, schema) => migrator.createTable(schema.weighIns),
       from11To12: (migrator, schema) => migrator.createTable(schema.dayTags),
+      from12To13: (migrator, schema) async {
+        final workouts = schema.workouts;
+        final imported = schema.importedWorkouts;
+        await migrator.addColumn(workouts, workouts.effortRating);
+        await migrator.addColumn(imported, imported.effortRating);
+      },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );

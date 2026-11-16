@@ -4892,6 +4892,17 @@ class $WorkoutsTable extends Workouts
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _effortRatingMeta = const VerificationMeta(
+    'effortRating',
+  );
+  @override
+  late final GeneratedColumn<int> effortRating = GeneratedColumn<int>(
+    'effort_rating',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4906,6 +4917,7 @@ class $WorkoutsTable extends Workouts
     elapsedMs,
     averageHeartRate,
     maxHeartRate,
+    effortRating,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5017,6 +5029,15 @@ class $WorkoutsTable extends Workouts
         ),
       );
     }
+    if (data.containsKey('effort_rating')) {
+      context.handle(
+        _effortRatingMeta,
+        effortRating.isAcceptableOrUnknown(
+          data['effort_rating']!,
+          _effortRatingMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -5074,6 +5095,10 @@ class $WorkoutsTable extends Workouts
         DriftSqlType.int,
         data['${effectivePrefix}max_heart_rate'],
       ),
+      effortRating: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}effort_rating'],
+      ),
     );
   }
 
@@ -5096,6 +5121,7 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
   final int? elapsedMs;
   final int? averageHeartRate;
   final int? maxHeartRate;
+  final int? effortRating;
   const WorkoutRow({
     required this.id,
     required this.clientId,
@@ -5109,6 +5135,7 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
     this.elapsedMs,
     this.averageHeartRate,
     this.maxHeartRate,
+    this.effortRating,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5138,6 +5165,9 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
     }
     if (!nullToAbsent || maxHeartRate != null) {
       map['max_heart_rate'] = Variable<int>(maxHeartRate);
+    }
+    if (!nullToAbsent || effortRating != null) {
+      map['effort_rating'] = Variable<int>(effortRating);
     }
     return map;
   }
@@ -5170,6 +5200,9 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
       maxHeartRate: maxHeartRate == null && nullToAbsent
           ? const Value.absent()
           : Value(maxHeartRate),
+      effortRating: effortRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(effortRating),
     );
   }
 
@@ -5193,6 +5226,7 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
       elapsedMs: serializer.fromJson<int?>(json['elapsedMs']),
       averageHeartRate: serializer.fromJson<int?>(json['averageHeartRate']),
       maxHeartRate: serializer.fromJson<int?>(json['maxHeartRate']),
+      effortRating: serializer.fromJson<int?>(json['effortRating']),
     );
   }
   @override
@@ -5211,6 +5245,7 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
       'elapsedMs': serializer.toJson<int?>(elapsedMs),
       'averageHeartRate': serializer.toJson<int?>(averageHeartRate),
       'maxHeartRate': serializer.toJson<int?>(maxHeartRate),
+      'effortRating': serializer.toJson<int?>(effortRating),
     };
   }
 
@@ -5227,6 +5262,7 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
     Value<int?> elapsedMs = const Value.absent(),
     Value<int?> averageHeartRate = const Value.absent(),
     Value<int?> maxHeartRate = const Value.absent(),
+    Value<int?> effortRating = const Value.absent(),
   }) => WorkoutRow(
     id: id ?? this.id,
     clientId: clientId ?? this.clientId,
@@ -5246,6 +5282,7 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
         ? averageHeartRate.value
         : this.averageHeartRate,
     maxHeartRate: maxHeartRate.present ? maxHeartRate.value : this.maxHeartRate,
+    effortRating: effortRating.present ? effortRating.value : this.effortRating,
   );
   WorkoutRow copyWithCompanion(WorkoutsCompanion data) {
     return WorkoutRow(
@@ -5275,6 +5312,9 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
       maxHeartRate: data.maxHeartRate.present
           ? data.maxHeartRate.value
           : this.maxHeartRate,
+      effortRating: data.effortRating.present
+          ? data.effortRating.value
+          : this.effortRating,
     );
   }
 
@@ -5292,7 +5332,8 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
           ..write('activeKilocalories: $activeKilocalories, ')
           ..write('elapsedMs: $elapsedMs, ')
           ..write('averageHeartRate: $averageHeartRate, ')
-          ..write('maxHeartRate: $maxHeartRate')
+          ..write('maxHeartRate: $maxHeartRate, ')
+          ..write('effortRating: $effortRating')
           ..write(')'))
         .toString();
   }
@@ -5311,6 +5352,7 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
     elapsedMs,
     averageHeartRate,
     maxHeartRate,
+    effortRating,
   );
   @override
   bool operator ==(Object other) =>
@@ -5327,7 +5369,8 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
           other.activeKilocalories == this.activeKilocalories &&
           other.elapsedMs == this.elapsedMs &&
           other.averageHeartRate == this.averageHeartRate &&
-          other.maxHeartRate == this.maxHeartRate);
+          other.maxHeartRate == this.maxHeartRate &&
+          other.effortRating == this.effortRating);
 }
 
 class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
@@ -5343,6 +5386,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
   final Value<int?> elapsedMs;
   final Value<int?> averageHeartRate;
   final Value<int?> maxHeartRate;
+  final Value<int?> effortRating;
   const WorkoutsCompanion({
     this.id = const Value.absent(),
     this.clientId = const Value.absent(),
@@ -5356,6 +5400,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     this.elapsedMs = const Value.absent(),
     this.averageHeartRate = const Value.absent(),
     this.maxHeartRate = const Value.absent(),
+    this.effortRating = const Value.absent(),
   });
   WorkoutsCompanion.insert({
     this.id = const Value.absent(),
@@ -5370,6 +5415,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     this.elapsedMs = const Value.absent(),
     this.averageHeartRate = const Value.absent(),
     this.maxHeartRate = const Value.absent(),
+    this.effortRating = const Value.absent(),
   }) : clientId = Value(clientId),
        activityType = Value(activityType),
        startUtcMs = Value(startUtcMs),
@@ -5387,6 +5433,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     Expression<int>? elapsedMs,
     Expression<int>? averageHeartRate,
     Expression<int>? maxHeartRate,
+    Expression<int>? effortRating,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -5401,6 +5448,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
       if (elapsedMs != null) 'elapsed_ms': elapsedMs,
       if (averageHeartRate != null) 'average_heart_rate': averageHeartRate,
       if (maxHeartRate != null) 'max_heart_rate': maxHeartRate,
+      if (effortRating != null) 'effort_rating': effortRating,
     });
   }
 
@@ -5417,6 +5465,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     Value<int?>? elapsedMs,
     Value<int?>? averageHeartRate,
     Value<int?>? maxHeartRate,
+    Value<int?>? effortRating,
   }) {
     return WorkoutsCompanion(
       id: id ?? this.id,
@@ -5431,6 +5480,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
       elapsedMs: elapsedMs ?? this.elapsedMs,
       averageHeartRate: averageHeartRate ?? this.averageHeartRate,
       maxHeartRate: maxHeartRate ?? this.maxHeartRate,
+      effortRating: effortRating ?? this.effortRating,
     );
   }
 
@@ -5473,6 +5523,9 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     if (maxHeartRate.present) {
       map['max_heart_rate'] = Variable<int>(maxHeartRate.value);
     }
+    if (effortRating.present) {
+      map['effort_rating'] = Variable<int>(effortRating.value);
+    }
     return map;
   }
 
@@ -5490,7 +5543,8 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
           ..write('activeKilocalories: $activeKilocalories, ')
           ..write('elapsedMs: $elapsedMs, ')
           ..write('averageHeartRate: $averageHeartRate, ')
-          ..write('maxHeartRate: $maxHeartRate')
+          ..write('maxHeartRate: $maxHeartRate, ')
+          ..write('effortRating: $effortRating')
           ..write(')'))
         .toString();
   }
@@ -9311,6 +9365,17 @@ class $ImportedWorkoutsTable extends ImportedWorkouts
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _effortRatingMeta = const VerificationMeta(
+    'effortRating',
+  );
+  @override
+  late final GeneratedColumn<int> effortRating = GeneratedColumn<int>(
+    'effort_rating',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     recordId,
@@ -9320,6 +9385,7 @@ class $ImportedWorkoutsTable extends ImportedWorkouts
     endUtcMs,
     offsetMinutes,
     importedAtUtcMs,
+    effortRating,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -9401,6 +9467,15 @@ class $ImportedWorkoutsTable extends ImportedWorkouts
     } else if (isInserting) {
       context.missing(_importedAtUtcMsMeta);
     }
+    if (data.containsKey('effort_rating')) {
+      context.handle(
+        _effortRatingMeta,
+        effortRating.isAcceptableOrUnknown(
+          data['effort_rating']!,
+          _effortRatingMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -9438,6 +9513,10 @@ class $ImportedWorkoutsTable extends ImportedWorkouts
         DriftSqlType.int,
         data['${effectivePrefix}imported_at_utc_ms'],
       )!,
+      effortRating: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}effort_rating'],
+      ),
     );
   }
 
@@ -9456,6 +9535,7 @@ class ImportedWorkoutRow extends DataClass
   final int endUtcMs;
   final int offsetMinutes;
   final int importedAtUtcMs;
+  final int? effortRating;
   const ImportedWorkoutRow({
     required this.recordId,
     required this.source,
@@ -9464,6 +9544,7 @@ class ImportedWorkoutRow extends DataClass
     required this.endUtcMs,
     required this.offsetMinutes,
     required this.importedAtUtcMs,
+    this.effortRating,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -9475,6 +9556,9 @@ class ImportedWorkoutRow extends DataClass
     map['end_utc_ms'] = Variable<int>(endUtcMs);
     map['offset_minutes'] = Variable<int>(offsetMinutes);
     map['imported_at_utc_ms'] = Variable<int>(importedAtUtcMs);
+    if (!nullToAbsent || effortRating != null) {
+      map['effort_rating'] = Variable<int>(effortRating);
+    }
     return map;
   }
 
@@ -9487,6 +9571,9 @@ class ImportedWorkoutRow extends DataClass
       endUtcMs: Value(endUtcMs),
       offsetMinutes: Value(offsetMinutes),
       importedAtUtcMs: Value(importedAtUtcMs),
+      effortRating: effortRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(effortRating),
     );
   }
 
@@ -9503,6 +9590,7 @@ class ImportedWorkoutRow extends DataClass
       endUtcMs: serializer.fromJson<int>(json['endUtcMs']),
       offsetMinutes: serializer.fromJson<int>(json['offsetMinutes']),
       importedAtUtcMs: serializer.fromJson<int>(json['importedAtUtcMs']),
+      effortRating: serializer.fromJson<int?>(json['effortRating']),
     );
   }
   @override
@@ -9516,6 +9604,7 @@ class ImportedWorkoutRow extends DataClass
       'endUtcMs': serializer.toJson<int>(endUtcMs),
       'offsetMinutes': serializer.toJson<int>(offsetMinutes),
       'importedAtUtcMs': serializer.toJson<int>(importedAtUtcMs),
+      'effortRating': serializer.toJson<int?>(effortRating),
     };
   }
 
@@ -9527,6 +9616,7 @@ class ImportedWorkoutRow extends DataClass
     int? endUtcMs,
     int? offsetMinutes,
     int? importedAtUtcMs,
+    Value<int?> effortRating = const Value.absent(),
   }) => ImportedWorkoutRow(
     recordId: recordId ?? this.recordId,
     source: source ?? this.source,
@@ -9535,6 +9625,7 @@ class ImportedWorkoutRow extends DataClass
     endUtcMs: endUtcMs ?? this.endUtcMs,
     offsetMinutes: offsetMinutes ?? this.offsetMinutes,
     importedAtUtcMs: importedAtUtcMs ?? this.importedAtUtcMs,
+    effortRating: effortRating.present ? effortRating.value : this.effortRating,
   );
   ImportedWorkoutRow copyWithCompanion(ImportedWorkoutsCompanion data) {
     return ImportedWorkoutRow(
@@ -9553,6 +9644,9 @@ class ImportedWorkoutRow extends DataClass
       importedAtUtcMs: data.importedAtUtcMs.present
           ? data.importedAtUtcMs.value
           : this.importedAtUtcMs,
+      effortRating: data.effortRating.present
+          ? data.effortRating.value
+          : this.effortRating,
     );
   }
 
@@ -9565,7 +9659,8 @@ class ImportedWorkoutRow extends DataClass
           ..write('startUtcMs: $startUtcMs, ')
           ..write('endUtcMs: $endUtcMs, ')
           ..write('offsetMinutes: $offsetMinutes, ')
-          ..write('importedAtUtcMs: $importedAtUtcMs')
+          ..write('importedAtUtcMs: $importedAtUtcMs, ')
+          ..write('effortRating: $effortRating')
           ..write(')'))
         .toString();
   }
@@ -9579,6 +9674,7 @@ class ImportedWorkoutRow extends DataClass
     endUtcMs,
     offsetMinutes,
     importedAtUtcMs,
+    effortRating,
   );
   @override
   bool operator ==(Object other) =>
@@ -9590,7 +9686,8 @@ class ImportedWorkoutRow extends DataClass
           other.startUtcMs == this.startUtcMs &&
           other.endUtcMs == this.endUtcMs &&
           other.offsetMinutes == this.offsetMinutes &&
-          other.importedAtUtcMs == this.importedAtUtcMs);
+          other.importedAtUtcMs == this.importedAtUtcMs &&
+          other.effortRating == this.effortRating);
 }
 
 class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
@@ -9601,6 +9698,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
   final Value<int> endUtcMs;
   final Value<int> offsetMinutes;
   final Value<int> importedAtUtcMs;
+  final Value<int?> effortRating;
   final Value<int> rowid;
   const ImportedWorkoutsCompanion({
     this.recordId = const Value.absent(),
@@ -9610,6 +9708,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
     this.endUtcMs = const Value.absent(),
     this.offsetMinutes = const Value.absent(),
     this.importedAtUtcMs = const Value.absent(),
+    this.effortRating = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ImportedWorkoutsCompanion.insert({
@@ -9620,6 +9719,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
     required int endUtcMs,
     required int offsetMinutes,
     required int importedAtUtcMs,
+    this.effortRating = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : recordId = Value(recordId),
        source = Value(source),
@@ -9636,6 +9736,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
     Expression<int>? endUtcMs,
     Expression<int>? offsetMinutes,
     Expression<int>? importedAtUtcMs,
+    Expression<int>? effortRating,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -9646,6 +9747,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
       if (endUtcMs != null) 'end_utc_ms': endUtcMs,
       if (offsetMinutes != null) 'offset_minutes': offsetMinutes,
       if (importedAtUtcMs != null) 'imported_at_utc_ms': importedAtUtcMs,
+      if (effortRating != null) 'effort_rating': effortRating,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -9658,6 +9760,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
     Value<int>? endUtcMs,
     Value<int>? offsetMinutes,
     Value<int>? importedAtUtcMs,
+    Value<int?>? effortRating,
     Value<int>? rowid,
   }) {
     return ImportedWorkoutsCompanion(
@@ -9668,6 +9771,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
       endUtcMs: endUtcMs ?? this.endUtcMs,
       offsetMinutes: offsetMinutes ?? this.offsetMinutes,
       importedAtUtcMs: importedAtUtcMs ?? this.importedAtUtcMs,
+      effortRating: effortRating ?? this.effortRating,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -9696,6 +9800,9 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
     if (importedAtUtcMs.present) {
       map['imported_at_utc_ms'] = Variable<int>(importedAtUtcMs.value);
     }
+    if (effortRating.present) {
+      map['effort_rating'] = Variable<int>(effortRating.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -9712,6 +9819,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
           ..write('endUtcMs: $endUtcMs, ')
           ..write('offsetMinutes: $offsetMinutes, ')
           ..write('importedAtUtcMs: $importedAtUtcMs, ')
+          ..write('effortRating: $effortRating, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();

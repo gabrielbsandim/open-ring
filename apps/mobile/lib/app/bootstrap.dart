@@ -83,6 +83,7 @@ import 'package:open_ring/features/workout/application/workout_controller.dart';
 import 'package:open_ring/features/workout/application/workout_history_providers.dart';
 import 'package:open_ring/features/workout/infrastructure/drift_imported_workout_reader.dart';
 import 'package:open_ring/features/workout/infrastructure/drift_workout_history_reader.dart';
+import 'package:open_ring/features/workout/infrastructure/drift_workout_rating_store.dart';
 import 'package:open_ring/features/workout/infrastructure/drift_workout_store.dart';
 import 'package:open_ring/features/workout/infrastructure/geolocator_location_source.dart';
 import 'package:open_ring/features/workout/infrastructure/method_channel_workout_notifier.dart';
@@ -211,6 +212,9 @@ Future<void> bootstrap() async {
         if (ref.watch(demoModeProvider)) return DemoWorkoutStore(database);
         return DriftWorkoutStore(database);
       }),
+      workoutRatingStoreProvider.overrideWith(
+        (ref) => DriftWorkoutRatingStore(ref.watch(appDatabaseProvider)),
+      ),
       workoutHistoryReaderProvider.overrideWith(
         (ref) => DriftWorkoutHistoryReader(ref.watch(appDatabaseProvider)),
       ),

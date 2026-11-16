@@ -172,7 +172,7 @@ void main() {
 
       await ratings.rateImported('w1', 7);
 
-      expect(await importedRating('w1'), 7);
+      expect(await importedRating(), 7);
       expect(await importedRating('w2'), isNull);
     });
   });

@@ -507,7 +507,6 @@ void main() {
               startUtcMs: 1762758000000,
               endUtcMs: 1762759800000,
               offsetMinutes: -180,
-              effortRating: null,
             ),
           ]);
           expect(await newDb.select(newDb.importedWorkouts).get(), [
@@ -519,7 +518,6 @@ void main() {
               endUtcMs: 1762760400000,
               offsetMinutes: -180,
               importedAtUtcMs: 1762765200000,
-              effortRating: null,
             ),
           ]);
         },

@@ -50,6 +50,7 @@ EffortSession effortSessionOf(
     elapsed: entry.elapsed,
     typeDefault: effortTypeDefault(entry.type),
     timeInZones: zones?.timeInZones(heartRate) ?? const {},
+    rating: entry.rating,
   ),
   strength:
       entry.type == WorkoutType.strength && isStrengthSession(entry.elapsed),

@@ -848,7 +848,14 @@ best leaves when its day does.
 **Celebration.** The morning after, Today shows one card when yesterday completed the weekly goal, set a best
 day over an earlier one, or set a highest Level over an earlier one. The highest Level is celebrated once a week:
 only when the best it beat was set before that week's Monday. The app stores only the date of the last card the
-user closed, so a closed card stays closed for that day.
+user closed, so a closed card stays closed for that day, unless that date is deleted (below).
+
+**Deleting it.** The module screen counts the stored day tags, shows the weekly goal when it is not the default,
+and can delete what the module stores in one confirmed step: every day tag, the weekly goal (it goes back to 4 of
+7) and the date of the last closed card, so a celebration card closed that day may show once more. The action is there with the module on or off, for as long as a tag is
+stored or the goal is not the default; turning the module off deletes nothing. When the stored tags cannot be
+read, the screen says so and offers no delete until they can be. A tag older than 6 days cannot be
+set again, so the Level, the bests and the usual lines count those days again for good.
 
 **What it is not.** Not a streak, not a rank against other people, not a health forecast. It is an average chosen
 by the product, not a published clinical formula, and it is stated as such on the screen that shows it.
@@ -1343,6 +1350,16 @@ source**. `CoachAdvice` carries every number the rule read (the two lines, the
 line of a week ago, the load of yesterday, the threshold it was tested
 against, the two counts), so a screen can show why.
 
+### The module
+
+Effort is off until a person turns it on, in Settings, Modules or in the
+first run offer; it has no age limit and needs no other module. Its module
+screen counts the workouts that carry a rating and can delete every rating in
+one step: `effort_rating` goes back to empty on recorded and imported
+workouts, the workouts stay, and each session load falls back to heart rate
+or the default of its type. Turning the module off deletes nothing, so the
+delete stays on that screen for as long as a rating is stored.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical
@@ -1409,13 +1426,3 @@ against, the two counts), so a screen can show why.
   Medicine and Sleep Research Society. Sleep. 2015;38(6):843-844.
 - Protocol slot sizes: `docs/protocols/realsil-colmi.md`, from Gadgetbridge
   `YawellRingPacketHandler` (heart rate, HRV, stress and SpO2 logs).
-
-### The module
-
-Effort is off until a person turns it on, in Settings, Modules or in the
-first run offer; it has no age limit and needs no other module. Its module
-screen counts the workouts that carry a rating and can delete every rating in
-one step: `effort_rating` goes back to empty on recorded and imported
-workouts, the workouts stay, and each session load falls back to heart rate
-or the default of its type. Turning the module off deletes nothing, so the
-delete stays on that screen for as long as a rating is stored.

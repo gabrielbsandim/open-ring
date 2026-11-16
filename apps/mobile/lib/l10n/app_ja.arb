@@ -1326,7 +1326,7 @@
   "dayScoreHistoryCellTaggedNone": "{day}、「{tag}」とマーク、スコアなし",
   "dayScoreHistoryLegendTagged": "マーク済み",
   "dayScoreHistoryHow4": "マークした日は薄く表示されます。見えたまま、レベルにも平均にも入りません。",
-  "moduleOpenScoreUsesStore": "保存するのは日のマークと週の目標だけです。スコアは常にリングのデータから再計算されます。",
+  "moduleOpenScoreUsesStore": "保存するのは日のマーク、週の目標、最後にお祝いカードを閉じた日だけです。スコアは常にリングのデータから再計算されます。",
   "levelTitle": "レベル",
   "levelLead": "あなたのライン：最近の「今日のスコア」の平均です。今日の一日が超えようとする線です。",
   "levelValue": "レベル {value}",
@@ -1841,5 +1841,16 @@
   "moduleEffortDeleted": "エフォートの評価を削除しました。",
   "moduleEffortDeleteFailed": "エフォートの評価を削除できませんでした。もう一度お試しください。",
   "moduleEffortTurnOn": "エフォートをオンにする",
-  "moduleEffortTurnOff": "エフォートをオフにする"
+  "moduleEffortTurnOff": "エフォートをオフにする",
+  "moduleOpenScoreDataTitle": "Open Score のデータ",
+  "moduleOpenScoreDataEmpty": "このスマートフォンに保存された日のマークはありません。",
+  "moduleOpenScoreDataUnread": "Open Score のデータを読み込めませんでした。アプリを閉じて、もう一度開いてください。",
+  "moduleOpenScoreDataCount": "このスマートフォンに保存された日のマーク: {count}件。",
+  "moduleOpenScoreDataGoal": "週の目標: 7日中{goal}日。",
+  "moduleOpenScoreKept": "Open Score はオフです。このスマートフォンに保存された日のマーク: {count}件。オンにすると再び反映されます。",
+  "moduleOpenScoreDelete": "Open Score のデータを削除",
+  "moduleOpenScoreDeleteTitle": "Open Score のデータを削除しますか?",
+  "moduleOpenScoreDeleteBody": "削除する日のマーク: {count}件。週の目標は7日中{goal}日に戻ります。元に戻せません。6日より前のマークは付け直せず、レベル、自己ベスト、平均はその日を再び数えます。",
+  "moduleOpenScoreDeleted": "Open Score のデータを削除しました。",
+  "moduleOpenScoreDeleteFailed": "Open Score のデータを削除できませんでした。もう一度お試しください。"
 }

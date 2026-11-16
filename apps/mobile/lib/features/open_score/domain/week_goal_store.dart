@@ -2,6 +2,8 @@ abstract interface class WeekGoalStore {
   Future<int?> read();
 
   Future<void> write(int goal);
+
+  Future<void> clear();
 }
 
 final class InMemoryWeekGoalStore implements WeekGoalStore {
@@ -14,4 +16,7 @@ final class InMemoryWeekGoalStore implements WeekGoalStore {
 
   @override
   Future<void> write(int goal) async => this.goal = goal;
+
+  @override
+  Future<void> clear() async => goal = null;
 }

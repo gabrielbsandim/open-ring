@@ -1326,7 +1326,7 @@
   "dayScoreHistoryCellTaggedNone": "{day}, marqué {tag}, sans note",
   "dayScoreHistoryLegendTagged": "marqué",
   "dayScoreHistoryHow4": "Un jour marqué apparaît estompé : il reste visible et hors du Niveau et de la moyenne.",
-  "moduleOpenScoreUsesStore": "Il ne stocke que vos marques de jour et votre objectif de la semaine : la note est toujours recalculée à partir des données de la bague.",
+  "moduleOpenScoreUsesStore": "Il ne stocke que vos marques de jour, votre objectif de la semaine et le jour où vous avez fermé la dernière carte de célébration : la note est toujours recalculée à partir des données de la bague.",
   "levelTitle": "Niveau",
   "levelLead": "Votre ligne : la moyenne récente de vos Notes du jour. C'est elle que la journée essaie de dépasser.",
   "levelValue": "Niveau {value}",
@@ -1841,5 +1841,16 @@
   "moduleEffortDeleted": "Notes d'effort supprimées.",
   "moduleEffortDeleteFailed": "Impossible de supprimer les notes d'effort. Réessayez.",
   "moduleEffortTurnOn": "Activer Effort",
-  "moduleEffortTurnOff": "Désactiver Effort"
+  "moduleEffortTurnOff": "Désactiver Effort",
+  "moduleOpenScoreDataTitle": "Données d'Open Score",
+  "moduleOpenScoreDataEmpty": "Aucune marque de jour enregistrée sur ce téléphone.",
+  "moduleOpenScoreDataUnread": "Impossible de lire les données d'Open Score. Fermez l'application et rouvrez-la.",
+  "moduleOpenScoreDataCount": "Marques de jour enregistrées sur ce téléphone : {count}.",
+  "moduleOpenScoreDataGoal": "Objectif de la semaine : {goal} jours sur 7.",
+  "moduleOpenScoreKept": "Open Score est désactivé. Marques de jour gardées sur ce téléphone : {count}. Elles comptent de nouveau quand vous le réactivez.",
+  "moduleOpenScoreDelete": "Supprimer les données d'Open Score",
+  "moduleOpenScoreDeleteTitle": "Supprimer les données d'Open Score ?",
+  "moduleOpenScoreDeleteBody": "Marques de jour à supprimer : {count}. L'objectif de la semaine revient à {goal} sur 7. C'est irréversible. Une marque de plus de 6 jours ne peut pas être remise, et le Niveau, les records et les moyennes comptent de nouveau ces jours.",
+  "moduleOpenScoreDeleted": "Données d'Open Score supprimées.",
+  "moduleOpenScoreDeleteFailed": "Impossible de supprimer les données d'Open Score. Réessayez."
 }

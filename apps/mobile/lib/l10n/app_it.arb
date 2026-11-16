@@ -1326,7 +1326,7 @@
   "dayScoreHistoryCellTaggedNone": "{day}, segnato come {tag}, nessun voto",
   "dayScoreHistoryLegendTagged": "segnato",
   "dayScoreHistoryHow4": "Un giorno segnato appare attenuato: resta visibile e fuori dal Livello e dalla media.",
-  "moduleOpenScoreUsesStore": "Salva solo i tuoi segni dei giorni e il tuo obiettivo della settimana: il voto viene sempre ricalcolato dai dati dell'anello.",
+  "moduleOpenScoreUsesStore": "Salva solo i tuoi segni dei giorni, il tuo obiettivo della settimana e il giorno in cui hai chiuso l'ultima scheda di festa: il voto viene sempre ricalcolato dai dati dell'anello.",
   "levelTitle": "Livello",
   "levelLead": "La tua linea: la media recente dei tuoi Voti del giorno. È quella che la giornata di oggi prova a superare.",
   "levelValue": "Livello {value}",
@@ -1841,5 +1841,16 @@
   "moduleEffortDeleted": "Voti di sforzo eliminati.",
   "moduleEffortDeleteFailed": "Non è stato possibile eliminare i voti di sforzo. Riprova.",
   "moduleEffortTurnOn": "Attiva Sforzo",
-  "moduleEffortTurnOff": "Disattiva Sforzo"
+  "moduleEffortTurnOff": "Disattiva Sforzo",
+  "moduleOpenScoreDataTitle": "Dati di Open Score",
+  "moduleOpenScoreDataEmpty": "Nessun segno dei giorni salvato su questo telefono.",
+  "moduleOpenScoreDataUnread": "Non è stato possibile leggere i dati di Open Score. Chiudi l'app e riaprila.",
+  "moduleOpenScoreDataCount": "Segni dei giorni salvati su questo telefono: {count}.",
+  "moduleOpenScoreDataGoal": "Obiettivo della settimana: {goal} giorni su 7.",
+  "moduleOpenScoreKept": "Open Score è spento. Segni dei giorni conservati su questo telefono: {count}. Tornano a contare quando lo riattivi.",
+  "moduleOpenScoreDelete": "Elimina i dati di Open Score",
+  "moduleOpenScoreDeleteTitle": "Eliminare i dati di Open Score?",
+  "moduleOpenScoreDeleteBody": "Segni dei giorni da eliminare: {count}. L'obiettivo della settimana torna a {goal} su 7. Non si può annullare. Un segno più vecchio di 6 giorni non si può rimettere, e il Livello, i record e le medie tornano a contare quei giorni.",
+  "moduleOpenScoreDeleted": "Dati di Open Score eliminati.",
+  "moduleOpenScoreDeleteFailed": "Non è stato possibile eliminare i dati di Open Score. Riprova."
 }

@@ -1326,7 +1326,7 @@
   "dayScoreHistoryCellTaggedNone": "{day}, метка «{tag}», нет оценки",
   "dayScoreHistoryLegendTagged": "с меткой",
   "dayScoreHistoryHow4": "Отмеченный день показан приглушённо: он виден, но не входит в Уровень и в среднее.",
-  "moduleOpenScoreUsesStore": "Сохраняет только ваши метки дней и цель недели: оценка всегда пересчитывается по данным кольца.",
+  "moduleOpenScoreUsesStore": "Сохраняет только ваши метки дней, цель недели и день, когда вы в последний раз закрыли карточку с поздравлением: оценка всегда пересчитывается по данным кольца.",
   "levelTitle": "Уровень",
   "levelLead": "Ваша линия: недавнее среднее ваших Оценок дня. Её сегодняшний день пытается превзойти.",
   "levelValue": "Уровень {value}",
@@ -1841,5 +1841,16 @@
   "moduleEffortDeleted": "Оценки усилия удалены.",
   "moduleEffortDeleteFailed": "Не удалось удалить оценки усилия. Попробуйте ещё раз.",
   "moduleEffortTurnOn": "Включить «Усилие»",
-  "moduleEffortTurnOff": "Выключить «Усилие»"
+  "moduleEffortTurnOff": "Выключить «Усилие»",
+  "moduleOpenScoreDataTitle": "Данные Open Score",
+  "moduleOpenScoreDataEmpty": "На этом телефоне нет меток дней.",
+  "moduleOpenScoreDataUnread": "Не удалось прочитать данные Open Score. Закройте приложение и откройте его снова.",
+  "moduleOpenScoreDataCount": "Меток дней на этом телефоне: {count}.",
+  "moduleOpenScoreDataGoal": "Цель недели: {goal} из 7 дней.",
+  "moduleOpenScoreKept": "Open Score выключен. Меток дней на этом телефоне: {count}. Они снова будут учитываться, когда вы его включите.",
+  "moduleOpenScoreDelete": "Удалить данные Open Score",
+  "moduleOpenScoreDeleteTitle": "Удалить данные Open Score?",
+  "moduleOpenScoreDeleteBody": "{count, plural, one{Будет удалена {count} метка дня} few{Будут удалены {count} метки дней} many{Будет удалено {count} меток дней} other{Будет удалено {count} метки дней}}. Цель недели вернётся к {goal} из 7. Это нельзя отменить. Метку старше 6 дней нельзя поставить снова, а Уровень, рекорды и средние снова будут учитывать эти дни.",
+  "moduleOpenScoreDeleted": "Данные Open Score удалены.",
+  "moduleOpenScoreDeleteFailed": "Не удалось удалить данные Open Score. Попробуйте ещё раз."
 }

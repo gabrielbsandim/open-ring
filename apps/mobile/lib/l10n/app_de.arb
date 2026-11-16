@@ -1326,7 +1326,7 @@
   "dayScoreHistoryCellTaggedNone": "{day}, markiert als {tag}, keine Note",
   "dayScoreHistoryLegendTagged": "markiert",
   "dayScoreHistoryHow4": "Ein markierter Tag erscheint blass: Er bleibt sichtbar und zählt weder zur Stufe noch zum Durchschnitt.",
-  "moduleOpenScoreUsesStore": "Es speichert nur deine Tagesmarkierungen und dein Wochenziel: Die Note wird immer aus den Daten des Rings neu berechnet.",
+  "moduleOpenScoreUsesStore": "Es speichert nur deine Tagesmarkierungen, dein Wochenziel und den Tag, an dem du zuletzt eine Feierkarte geschlossen hast: Die Note wird immer aus den Daten des Rings neu berechnet.",
   "levelTitle": "Stufe",
   "levelLead": "Deine Linie: der jüngste Durchschnitt deiner Tagesnoten. Sie versucht der heutige Tag zu übertreffen.",
   "levelValue": "Stufe {value}",
@@ -1841,5 +1841,16 @@
   "moduleEffortDeleted": "Effort-Bewertungen gelöscht.",
   "moduleEffortDeleteFailed": "Die Effort-Bewertungen konnten nicht gelöscht werden. Versuche es noch einmal.",
   "moduleEffortTurnOn": "Effort einschalten",
-  "moduleEffortTurnOff": "Effort ausschalten"
+  "moduleEffortTurnOff": "Effort ausschalten",
+  "moduleOpenScoreDataTitle": "Open-Score-Daten",
+  "moduleOpenScoreDataEmpty": "Keine Tagesmarkierungen auf diesem Telefon gespeichert.",
+  "moduleOpenScoreDataUnread": "Die Open-Score-Daten konnten nicht gelesen werden. Schließe die App und öffne sie erneut.",
+  "moduleOpenScoreDataCount": "Auf diesem Telefon gespeicherte Tagesmarkierungen: {count}.",
+  "moduleOpenScoreDataGoal": "Wochenziel: {goal} von 7 Tagen.",
+  "moduleOpenScoreKept": "Open Score ist aus. Auf diesem Telefon behaltene Tagesmarkierungen: {count}. Sie zählen wieder, sobald du es einschaltest.",
+  "moduleOpenScoreDelete": "Open-Score-Daten löschen",
+  "moduleOpenScoreDeleteTitle": "Die Open-Score-Daten löschen?",
+  "moduleOpenScoreDeleteBody": "Zu löschende Tagesmarkierungen: {count}. Das Wochenziel geht zurück auf {goal} von 7. Das lässt sich nicht rückgängig machen. Eine Markierung, die älter als 6 Tage ist, kann nicht erneut gesetzt werden, und die Stufe, die Bestwerte und die Durchschnitte zählen diese Tage wieder mit.",
+  "moduleOpenScoreDeleted": "Open-Score-Daten gelöscht.",
+  "moduleOpenScoreDeleteFailed": "Die Open-Score-Daten konnten nicht gelöscht werden. Versuche es noch einmal."
 }

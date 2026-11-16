@@ -1326,7 +1326,7 @@
   "dayScoreHistoryCellTaggedNone": "{day}，标记为“{tag}”，无评分",
   "dayScoreHistoryLegendTagged": "已标记",
   "dayScoreHistoryHow4": "被标记的一天显示为淡色：仍然可见，但不计入等级和平均值。",
-  "moduleOpenScoreUsesStore": "只保存你的当日标记和每周目标：评分始终根据戒指数据重新计算。",
+  "moduleOpenScoreUsesStore": "只保存你的当日标记、每周目标和你上次关闭庆祝卡片的日期：评分始终根据戒指数据重新计算。",
   "levelTitle": "等级",
   "levelLead": "你的基准线：近期“今日评分”的平均值。今天要超过的就是它。",
   "levelValue": "等级 {value}",
@@ -1841,5 +1841,16 @@
   "moduleEffortDeleted": "努力评分已删除。",
   "moduleEffortDeleteFailed": "无法删除努力评分。请重试。",
   "moduleEffortTurnOn": "开启努力",
-  "moduleEffortTurnOff": "关闭努力"
+  "moduleEffortTurnOff": "关闭努力",
+  "moduleOpenScoreDataTitle": "Open Score 数据",
+  "moduleOpenScoreDataEmpty": "这部手机上没有保存当日标记。",
+  "moduleOpenScoreDataUnread": "无法读取 Open Score 数据。请关闭应用后重新打开。",
+  "moduleOpenScoreDataCount": "这部手机上保存的当日标记：{count}。",
+  "moduleOpenScoreDataGoal": "每周目标：7 天中的 {goal} 天。",
+  "moduleOpenScoreKept": "Open Score 已关闭。这部手机上保留的当日标记：{count}。重新开启后会再次计入。",
+  "moduleOpenScoreDelete": "删除 Open Score 数据",
+  "moduleOpenScoreDeleteTitle": "删除 Open Score 数据？",
+  "moduleOpenScoreDeleteBody": "将删除的当日标记：{count}。每周目标会回到 7 天中的 {goal} 天。此操作无法撤销。超过 6 天的标记无法重新添加，等级、个人最佳和平均值会重新计入这些日子。",
+  "moduleOpenScoreDeleted": "Open Score 数据已删除。",
+  "moduleOpenScoreDeleteFailed": "无法删除 Open Score 数据。请重试。"
 }

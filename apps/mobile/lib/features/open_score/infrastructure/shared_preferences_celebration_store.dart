@@ -16,4 +16,7 @@ final class SharedPreferencesCelebrationStore implements CelebrationStore {
 
   @override
   Future<void> write(String isoDate) => _store.setString(key, isoDate);
+
+  @override
+  Future<void> clear() => _store.remove(key);
 }

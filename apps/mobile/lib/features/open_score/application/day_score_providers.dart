@@ -108,13 +108,19 @@ Future<WorkoutCredit> _credit(
   date: _dateOf(entry),
   start: entry.start,
   end: entry.end,
-  minutes: switch (entry) {
-    ImportedWorkout() => metIntensity(entry.type.met, entry.elapsed),
-    WorkoutListItem(:final id) => workoutIntensity(
-      met: entry.type.met,
-      elapsed: entry.elapsed,
-      heartRate: (await reader.byId(id))?.workout.heartRate ?? const [],
-      maxHeartRate: maxHeartRate,
-    ),
-  },
+  minutes: workoutPoints(
+    entry,
+    heartRate: await workoutHeartRate(reader, entry),
+    maxHeartRate: maxHeartRate,
+  ),
 );
+
+/// The stored samples of a recorded workout. An imported one carries none.
+Future<List<BpmSample>> workoutHeartRate(
+  WorkoutHistoryReader reader,
+  WorkoutEntry entry,
+) async => switch (entry) {
+  ImportedWorkout() => const [],
+  WorkoutListItem(:final id) =>
+    (await reader.byId(id))?.workout.heartRate ?? const [],
+};

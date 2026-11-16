@@ -35,6 +35,8 @@ abstract final class DayScoreCardKeys {
   static const tag = Key('today_day_score_tag');
   static const tagged = Key('today_day_score_tagged');
   static const lowReadiness = Key('today_day_score_low_readiness');
+  static const openReceipt = Key('today_day_score_open_receipt');
+  static const openOther = Key('today_day_score_open_other');
 }
 
 String dayScoreBandLabel(AppLocalizations l10n, DayScoreBand band) =>
@@ -153,6 +155,40 @@ class DayScoreCard extends ConsumerWidget {
     if (history.hasError) return BodyText(format.l10n.metricLoadError);
     final loaded = history.value;
     if (loaded == null) return const SizedBox(height: 96);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _state(context, ref, format, loaded),
+        _links(context, format.l10n, loaded),
+      ],
+    );
+  }
+
+  Widget _links(
+    BuildContext context,
+    AppLocalizations l10n,
+    DayScoreHistory history,
+  ) {
+    final state = history.on(history.today);
+    if (state == null) return const SizedBox.shrink();
+    final scored = state is Scored<DayScoreFactor>;
+    final first = !scored && history.firstScored == null;
+    return _CardLinks(
+      receipt: scored || first
+          ? l10n.dayScoreCardMath
+          : l10n.dayScoreCardMissing,
+      other: first ? l10n.formulaLink : l10n.dayScoreHistoryTitle,
+      otherIcon: first ? Icons.functions : Icons.calendar_today_outlined,
+      otherPath: first ? AppPaths.dayScoreFormula : AppPaths.dayScoreHistory,
+    );
+  }
+
+  Widget _state(
+    BuildContext context,
+    WidgetRef ref,
+    MetricFormat format,
+    DayScoreHistory loaded,
+  ) {
     final tag = ref.watch(dayTagsProvider).value?[loaded.today];
     final track = ref.watch(levelTrackProvider).value;
     final level = track == null
@@ -213,6 +249,42 @@ class DayScoreCard extends ConsumerWidget {
     ),
     null => const SizedBox.shrink(),
   };
+}
+
+class _CardLinks extends StatelessWidget {
+  const new({
+    required this.receipt,
+    required this.other,
+    required this.otherIcon,
+    required this.otherPath,
+  });
+
+  final String receipt;
+  final String other;
+  final IconData otherIcon;
+  final String otherPath;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 8),
+    child: Wrap(
+      spacing: 4,
+      children: [
+        TextButton.icon(
+          key: DayScoreCardKeys.openReceipt,
+          onPressed: () => context.go(AppPaths.dayScore),
+          icon: const Icon(Icons.receipt_long_outlined),
+          label: Text(receipt),
+        ),
+        TextButton.icon(
+          key: DayScoreCardKeys.openOther,
+          onPressed: () => context.go(otherPath),
+          icon: Icon(otherIcon),
+          label: Text(other),
+        ),
+      ],
+    ),
+  );
 }
 
 class _Scored extends StatelessWidget {

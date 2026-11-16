@@ -1631,5 +1631,7 @@
   "energyLegendUsual": "votre journée habituelle",
   "energyUsualSame": "À peu près comme votre journée habituelle à cette heure.",
   "energyUsualMore": "Environ {kcal} kcal de plus que votre journée habituelle à cette heure.",
-  "energyUsualLess": "Environ {kcal} kcal de moins que votre journée habituelle à cette heure."
+  "energyUsualLess": "Environ {kcal} kcal de moins que votre journée habituelle à cette heure.",
+  "dayScoreCardMath": "Voir le calcul",
+  "dayScoreCardMissing": "Voir ce qui a manqué"
 }

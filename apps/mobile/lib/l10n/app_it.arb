@@ -1706,7 +1706,7 @@
   "effortWalkDetail": "{day} · {minutes} min fuori dagli allenamenti",
   "effortSheetPointsWhat": "Minuti di sforzo vero. Un minuto moderato vale 1 punto e un minuto intenso vale {weight}.",
   "effortSheetPointsYours": "Questa settimana, da lunedì a oggi: {points}.",
-  "effortSheetPointsRule": "In un allenamento, il maggiore tra frequenza cardiaca e tipo di allenamento. Fuori dagli allenamenti, solo la camminata veloce. La settimana somma i suoi giorni, da lunedì a domenica.",
+  "effortSheetPointsRule": "In un allenamento registrato con una frequenza cardiaca massima, il maggiore tra frequenza cardiaca e tipo di allenamento. In ogni altro allenamento, solo il tipo. Fuori dagli allenamenti, solo la camminata veloce. La settimana somma i suoi giorni, da lunedì a domenica.",
   "effortSheetPointsSource": "{points} minuti moderati a settimana o più, o la metà se intensi: OMS, 2020. Le soglie di frequenza cardiaca sono dell'ACSM, 2011.",
   "effortSheetPointsOurs": "Contare una sessione di forza in base al tipo. L'OMS tratta la forza come una raccomandazione a parte, per questo qui ha un obiettivo suo.",
   "effortSheetPointsLimits": "I punti non sono un verdetto sulla salute. Oltre {points} non ti viene chiesto altro.",

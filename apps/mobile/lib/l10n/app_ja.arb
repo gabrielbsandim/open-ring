@@ -1706,7 +1706,7 @@
   "effortWalkDetail": "{day} · ワークアウト外で{minutes}分",
   "effortSheetPointsWhat": "本当に体を動かした分数です。中強度の1分は1ポイント、高強度の1分は{weight}ポイントです。",
   "effortSheetPointsYours": "今週（月曜から今日まで）：{points}。",
-  "effortSheetPointsRule": "ワークアウト中は、心拍数と種類のうち大きいほうを使います。ワークアウト以外では早歩きだけを数えます。週は月曜から日曜までの日を合計します。",
+  "effortSheetPointsRule": "最大心拍数がある記録したワークアウトでは、心拍数と種類のうち大きいほうを使います。それ以外のワークアウトでは種類だけを使います。ワークアウト以外では早歩きだけを数えます。週は月曜から日曜までの日を合計します。",
   "effortSheetPointsSource": "週に{points}分以上の中強度、またはその半分の高強度：WHO、2020年。心拍数の区切りはACSM、2011年によります。",
   "effortSheetPointsOurs": "筋力のセッションを種類で数えること。WHOは筋力を別の推奨として扱うため、ここでも独自の目標があります。",
   "effortSheetPointsLimits": "ポイントは健康の判定ではありません。{points}を超えたら、それ以上は求めません。",

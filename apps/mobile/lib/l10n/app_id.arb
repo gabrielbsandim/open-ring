@@ -1706,7 +1706,7 @@
   "effortWalkDetail": "{day} · {minutes} mnt di luar latihan",
   "effortSheetPointsWhat": "Menit usaha yang nyata. Satu menit sedang bernilai 1 poin dan satu menit berat bernilai {weight}.",
   "effortSheetPointsYours": "Minggu ini, Senin sampai hari ini: {points}.",
-  "effortSheetPointsRule": "Dalam latihan, yang lebih besar antara detak jantung dan jenis latihan. Di luar latihan, hanya jalan cepat. Minggu menjumlahkan hari-harinya, Senin sampai Minggu.",
+  "effortSheetPointsRule": "Dalam latihan yang direkam dengan detak jantung maksimum, yang lebih besar antara detak jantung dan jenis latihan. Dalam latihan lain, hanya jenisnya. Di luar latihan, hanya jalan cepat. Minggu menjumlahkan hari-harinya, Senin sampai Minggu.",
   "effortSheetPointsSource": "{points} menit sedang per minggu atau lebih, atau setengahnya jika berat: WHO, 2020. Batas detak jantung berasal dari ACSM, 2011.",
   "effortSheetPointsOurs": "Menghitung sesi kekuatan dari jenisnya. WHO memperlakukan kekuatan sebagai anjuran terpisah, karena itu di sini ia punya target sendiri.",
   "effortSheetPointsLimits": "Poin bukan vonis kesehatan. Setelah {points}, tidak ada lagi yang diminta dari Anda.",

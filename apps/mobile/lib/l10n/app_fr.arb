@@ -1706,7 +1706,7 @@
   "effortWalkDetail": "{day} · {minutes} min hors séances",
   "effortSheetPointsWhat": "Des minutes d'effort réel. Une minute modérée vaut 1 point et une minute intense vaut {weight}.",
   "effortSheetPointsYours": "Cette semaine, de lundi à aujourd'hui : {points}.",
-  "effortSheetPointsRule": "Dans une séance, le plus grand entre la fréquence cardiaque et le type de séance. Hors séances, seulement la marche rapide. La semaine additionne ses jours, du lundi au dimanche.",
+  "effortSheetPointsRule": "Dans une séance enregistrée avec une fréquence cardiaque maximale, le plus grand entre la fréquence cardiaque et le type de séance. Dans toute autre séance, seulement le type. Hors séances, seulement la marche rapide. La semaine additionne ses jours, du lundi au dimanche.",
   "effortSheetPointsSource": "{points} minutes modérées par semaine ou plus, ou la moitié en intense : OMS, 2020. Les seuils de fréquence cardiaque viennent de l'ACSM, 2011.",
   "effortSheetPointsOurs": "Compter une séance de force selon son type. L'OMS traite la force comme une recommandation à part, et c'est pourquoi elle a ici son propre objectif.",
   "effortSheetPointsLimits": "Les points ne sont pas un verdict de santé. Au-delà de {points}, rien de plus ne vous est demandé.",

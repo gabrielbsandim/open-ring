@@ -3889,7 +3889,7 @@
   "@effortSheetPointsWhat": {"placeholders": {"weight": {"type": "String"}}},
   "effortSheetPointsYours": "This week, Monday to today: {points}.",
   "@effortSheetPointsYours": {"placeholders": {"points": {"type": "String"}}},
-  "effortSheetPointsRule": "In a workout, the larger of heart rate and workout type. Outside workouts, brisk walking only. The week adds its days, Monday to Sunday.",
+  "effortSheetPointsRule": "In a recorded workout with a max heart rate, the larger of heart rate and workout type. In any other workout, the type alone. Outside workouts, brisk walking only. The week adds its days, Monday to Sunday.",
   "effortSheetPointsSource": "{points} moderate minutes a week or more, or half that vigorous: WHO, 2020. The heart rate limits are from the ACSM, 2011.",
   "@effortSheetPointsSource": {"placeholders": {"points": {"type": "String"}}},
   "effortSheetPointsOurs": "Counting a strength session by its type. The WHO treats strength as a separate recommendation, which is why it has its own target here.",

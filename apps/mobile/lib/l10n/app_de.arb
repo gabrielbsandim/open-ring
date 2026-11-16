@@ -1706,7 +1706,7 @@
   "effortWalkDetail": "{day} · {minutes} min außerhalb von Trainings",
   "effortSheetPointsWhat": "Minuten echter Anstrengung. Eine moderate Minute ist 1 Punkt und eine intensive Minute {weight}.",
   "effortSheetPointsYours": "Diese Woche, Montag bis heute: {points}.",
-  "effortSheetPointsRule": "In einem Training zählt der größere Wert aus Herzfrequenz und Trainingsart. Außerhalb von Trainings zählt nur zügiges Gehen. Die Woche addiert ihre Tage, Montag bis Sonntag.",
+  "effortSheetPointsRule": "In einem aufgezeichneten Training mit maximaler Herzfrequenz zählt der größere Wert aus Herzfrequenz und Trainingsart. In jedem anderen Training zählt nur die Art. Außerhalb von Trainings zählt nur zügiges Gehen. Die Woche addiert ihre Tage, Montag bis Sonntag.",
   "effortSheetPointsSource": "{points} moderate Minuten pro Woche oder mehr, oder die Hälfte davon intensiv: WHO, 2020. Die Herzfrequenzgrenzen stammen vom ACSM, 2011.",
   "effortSheetPointsOurs": "Ein Krafttraining nach seiner Art zu zählen. Die WHO behandelt Kraft als eigene Empfehlung, deshalb hat sie hier ein eigenes Ziel.",
   "effortSheetPointsLimits": "Punkte sind kein Urteil über deine Gesundheit. Über {points} hinaus wird nichts mehr verlangt.",

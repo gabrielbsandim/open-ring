@@ -1706,7 +1706,7 @@
   "effortWalkDetail": "{day} · 训练之外 {minutes} 分钟",
   "effortSheetPointsWhat": "真正用力的分钟数。中等强度的一分钟计 1 点，高强度的一分钟计 {weight} 点。",
   "effortSheetPointsYours": "本周（周一到今天）：{points}。",
-  "effortSheetPointsRule": "训练中取心率和训练类型两者中较大的一个。训练之外只计快走。一周把周一到周日的每一天加起来。",
+  "effortSheetPointsRule": "在有最大心率的已记录训练中，取心率和训练类型两者中较大的一个。其他训练只看类型。训练之外只计快走。一周把周一到周日的每一天加起来。",
   "effortSheetPointsSource": "每周 {points} 分钟或以上的中等强度，或一半时间的高强度：世卫组织，2020。心率界限来自 ACSM，2011。",
   "effortSheetPointsOurs": "按类型计算力量训练。世卫组织把力量作为单独的建议，所以它在这里有自己的目标。",
   "effortSheetPointsLimits": "点数不是健康结论。超过 {points} 之后不再要求更多。",

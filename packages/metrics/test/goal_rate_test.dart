@@ -5,7 +5,11 @@ const blockStart = LocalDate(2026, 11, 16);
 const today = LocalDate(2026, 12, 7);
 const tight = 1e-9;
 
-final block = goalBlock(startKg: 78.4, percentPerWeek: 0.5, start: blockStart);
+final GoalBlock block = goalBlock(
+  startKg: 78.4,
+  percentPerWeek: 0.5,
+  start: blockStart,
+);
 
 const caseFourRate = WeightRateReady(
   perWeek: -0.2958,

@@ -24,7 +24,8 @@ screen), **JSON** (one document), and **GPX 1.1** for a single workout route.
   and a night that crosses a spring forward keeps the offset of each stage.
   Sort by instant, not by the text of the wall clock time.
 - **Order**: rows are sorted by time, then by device id (workouts: by start,
-  then by internal id; workouts from other apps: by start, then by record id).
+  then by internal id; workouts and sleep from other apps: by start, then by
+  record id).
 - **Numbers**: integers as integers. Decimals are rounded to 2 places with
   trailing zeros removed (`31.5`, `402`, `6012.35`).
 - **Missing values**: an empty CSV field, `null` in JSON.
@@ -49,6 +50,7 @@ record uses exactly the same keys in the same order.
 | Weigh-ins | `weigh_ins` | `time`, `weight_kg`, `body_fat_percent`, `waist_cm`, `source` |
 | Day tags | `day_tags` | `date`, `tag` |
 | Workouts from other apps | `imported_workouts` | `start`, `end`, `record_id`, `source`, `activity_type`, `duration_s`, `effort_rating` |
+| Sleep from other apps | `imported_sleep` | `session_start`, `start`, `end`, `record_id`, `source`, `stage`, `duration_s` |
 
 Weigh-ins are offered only while the Body module is on. With the module off the
 kind is not listed and is never written, even when weigh-ins are stored. Hide
@@ -66,11 +68,19 @@ overlaps one you recorded. The app reads no distance, energy or device id for
 these workouts, so the kind has none. The time the row was imported is stored
 and is not exported.
 
+Sleep from other apps is the nights read from Health Connect, one row per
+stage, like the sleep kind. It is always offered and carries every stage of a
+night whose start is in the range: also with the reading switched off, and also
+a night the app does not show because another source comes first. A stage has
+no offset of its own, so every timestamp of a night carries the offset of its
+session. The end of the session and the time the row was imported are stored
+and are not exported, and a night stored with no stages has no row.
+
 ### Units and meaning
 
 | Column | Unit | Notes |
 | :--- | :--- | :--- |
-| `session_start` | timestamp | Start of the night the stage belongs to, with the session's own offset. Rows with the same value are one night. |
+| `session_start` | timestamp | Start of the night the stage belongs to, with the session's own offset. Rows with the same value are one night. For sleep from other apps, rows with the same `record_id` are one night. |
 | `start`, `end` | timestamp | `end` is exclusive. For activity it is `start` plus the bucket length. A workout still running has an empty `end`; a workout from another app always has one. |
 | `stage` | text | One of `light`, `deep`, `rem`, `awake`. |
 | `duration_s` | seconds | `end - start`, whole seconds. Empty when `end` is empty. |
@@ -84,11 +94,11 @@ and is not exported.
 | `effort_rating` | 1 to 10 | The effort you gave the workout, 10 the hardest. Empty when it has none. |
 | `client_id` | text | The workout's stable id, the same one used for Health Connect and HealthKit. |
 | `activity_type` | text | The workout type as recorded by the app. For a workout from another app, the type the app gave it when it was read. |
-| `record_id` | text | The id Health Connect gives the record. |
+| `record_id` | text | The id Health Connect gives the record: the workout, or the night a stage belongs to. |
 | `weight_kg` | kilograms | The weigh-in as logged, never the trend weight. Always kilograms, whatever unit the app shows. |
 | `body_fat_percent` | percent | Empty when the weigh-in has none. |
 | `waist_cm` | centimeters | Empty when the weigh-in has none. |
-| `source` | text | `manual` for a weigh-in typed in the app, `demo` for demo data. Weigh-ins have no device id. For a workout from another app, the package name of the app that wrote it, as stored. |
+| `source` | text | `manual` for a weigh-in typed in the app, `demo` for demo data. Weigh-ins have no device id. For a workout or a night from another app, the package name of the app that wrote it, as stored. |
 
 Values are exported as stored: implausible readings that the screens hide (a
 zero heart rate, an SpO2 under the plausible floor) are kept, so an export is

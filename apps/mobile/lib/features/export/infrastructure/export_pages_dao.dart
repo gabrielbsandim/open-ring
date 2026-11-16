@@ -69,6 +69,7 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
       ExportKind.weighIns => _weighIns(range),
       ExportKind.dayTags => _dayTags(range),
       ExportKind.importedWorkouts => _importedWorkouts(range),
+      ExportKind.importedSleep => _importedSleep(range),
     };
   }
 
@@ -295,6 +296,54 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
         activityType: row.activityType,
         effortRating: row.effortRating,
       ),
+    );
+  }
+
+  // A stage has no offset of its own, so the whole night carries the offset
+  // of its session, and the range is read on the session start.
+  Stream<List<ExportRecord>> _importedSleep(({int from, int to}) range) {
+    final stages = attachedDatabase.importedSleepStages;
+    final sessions = attachedDatabase.importedSleepSessions;
+    return _paged<_TimeCursor, TypedResult>(
+      (cursor) {
+        final query =
+            select(stages).join([
+                innerJoin(
+                  sessions,
+                  sessions.recordId.equalsExp(stages.recordId),
+                ),
+              ])
+              ..where(
+                _inRange(sessions.startUtcMs, range) &
+                    _after(stages.startUtcMs, stages.recordId, cursor),
+              )
+              ..orderBy([
+                OrderingTerm.asc(stages.startUtcMs),
+                OrderingTerm.asc(stages.recordId),
+              ])
+              ..limit(pageSize);
+        return query.get();
+      },
+      (row) {
+        final stage = row.readTable(stages);
+        return (at: stage.startUtcMs, deviceId: stage.recordId);
+      },
+      (row) {
+        final stage = row.readTable(stages);
+        final session = row.readTable(sessions);
+        final offset = session.offsetMinutes;
+        return ImportedSleepStageRecord(
+          sessionStart: OffsetTime(
+            utcMs: session.startUtcMs,
+            offsetMinutes: offset,
+          ),
+          start: OffsetTime(utcMs: stage.startUtcMs, offsetMinutes: offset),
+          end: OffsetTime(utcMs: stage.endUtcMs, offsetMinutes: offset),
+          recordId: stage.recordId,
+          source: session.source,
+          stage: stage.stage,
+        );
+      },
     );
   }
 

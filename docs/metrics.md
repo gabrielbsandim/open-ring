@@ -1450,6 +1450,84 @@ What it cannot say: a scale does not tell fat from water or muscle, the rate
 of the last 28 days is not the rate of the next weeks, and none of the guards
 detects an illness.
 
+### Levers and the weekly review
+
+`packages/metrics/lib/src/goal_review.dart`. A goal is worked through at most
+three levers, and once a week a table of rules reads the closed week and
+answers with one action.
+
+Functions: `leverFits(week)`, `leverFitRatio(week)`, `adherence(levers)`,
+`goalLeverOrder(kind)`, `leverEntry(kind, goal, baseline)`,
+`startingLever(kind, baseline)`, `nextStep(...)`, `shrink(levers, kind)`,
+`reviewWeek(inputs)`.
+
+| Lever | Target | Fits the week when | Enters at | Raised by | Ceiling |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Strength days | days a week | the days done reach the target | the usual days plus 1, at least 2 under a weight goal and 1 otherwise | 1 day | 4 days |
+| Sleep window | bedtime, minutes after noon | 5 days of 7 met it | the median bedtime minus 15 minutes, never under 7 hours before the median wake time | 15 minutes earlier | 9 hours in bed |
+| Steps | steps a day | 5 days of 7 met it | the 14 day median rounded to 500, plus 1,000 | 1,000 | 10,000 |
+| Effort points | points a week | the points earned reach the target | the mean of the last 4 weeks, at least 15 | 10 percent, at least 15 | 300 |
+| Wake time | minutes after midnight | 5 days of 7 met it | the median wake time | never | none |
+
+Adherence is the levers that fit over the active levers. The fit ratio that
+ranks levers is the days over 7 for a daily lever and the achieved over the
+target, at most 1, for a weekly one.
+
+The next step adds a lever while fewer than three are active and one is left
+to add, in this order: strength days, sleep window, steps to lose fat; effort
+points, steps, strength days to get fitter; wake time, sleep window to sleep
+better. With nothing left to add it raises the first lever that fit this week
+and is under its ceiling: steps, sleep window, strength days to lose fat;
+effort points, steps, strength days to get fitter; the sleep window to sleep
+better. Effort points are raised only when the week before had an adherence
+of 0.8 or more, and after three raises in a row the next one is skipped.
+
+Shrinking keeps the two levers with the highest fit ratio, ties going to the
+order above. To lose fat, strength days always stay and the best of the other
+two stays with them.
+
+The rules are read in this order and the first that holds is the answer.
+Rules 1 to 4 are protections and apply without asking; a rule that changes a
+lever is a proposal the person accepts or declines.
+
+| # | Rule | Goals | Holds when | Answer |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | `end` | lose fat | BMI under 18.5, pregnancy or breastfeeding, or a positive screening | the goal ends |
+| 2 | `pauseFastLoss` | lose fat | the low end of the loss is above the cap now, and the low end of the previous review is above that same cap, the one of today | pause of 28 days |
+| 3 | `pauseCheckIn` | all | "yes" to the food or weight question two weeks in a row, or low energy two weeks in a row | pause, no length set here |
+| 4 | `recoveryWeek` | all | 4 or more days of the last 7 with a Readiness under 55 | a recovery week, or a pause of 14 days when the week before was one too |
+| 5 | `ease` | lose fat | Body is on and the path state is above | nothing is added, no lever changes |
+| 6 | `build` | all | adherence of 0.8 or more and a next step exists; to lose fat also Body on and week 4 or earlier | the next step |
+| 7 | `holdBuilding` | lose fat | Body is off, or there is no rate yet | hold |
+| 8 | `shrink` | all | three levers active and adherence under 0.6 | one lever is removed |
+| 9 | `holdOnTrack` | lose fat | the path state is on track | hold |
+| 10 | `stepSlow` | lose fat | the path state is below, adherence of 0.8 or more and a next step exists | the next step |
+| 11 | `holdOther` | all | anything else | hold |
+
+A day with no Readiness and a question left unanswered count as neither low
+nor "yes". The week number is the week that starts on the review day, so the
+build rule proposes steps for weeks 2 to 4 of a weight goal.
+
+| Constant | Value | Basis |
+| :--- | :--- | :--- |
+| `goalDailyFitDays` | 5 days of 7 | **our choice** |
+| `goalShrinkBelow`, `goalStepFrom` | 0.6 and 0.8 | **our choice** |
+| `goalMaxLevers` | 3 levers | **our choice** |
+| `goalBuildWeeks` | 4 weeks | **our choice** |
+| `goalStepsStep`, `goalStepsRound` | 1,000 and 500 steps | **our choice** |
+| `goalStepsCeiling` | 10,000 steps | **our choice**. Paluch 2022 on steps and mortality is **not yet checked against its source**. |
+| `goalEffortStepPercent`, `goalEffortStepMin` | 10 percent, 15 points | **our choice**. 15 is also the lowest target an effort lever enters at, so a person with no effort yet does not get a target of 0. |
+| `goalEffortCeiling` | 300 points | **our choice**, twice the `effortWeekPoints` of section 19 |
+| `goalEffortRaisesBeforeHold` | 3 raises | **our choice** |
+| `goalStrengthFloor` | 2 days | two days of muscle strengthening a week is from WHO 2020, **not yet checked against its source**. Keeping strength under a loss follows Cava 2017, **not yet checked against its source**. |
+| `goalStrengthCeiling` | 4 days | **our choice** |
+| `goalSleepStepMinutes` | 15 minutes | **our choice** |
+| `goalSleepMinMinutes`, `goalSleepMaxMinutes` | 7 and 9 hours in bed | 7 to 9 hours of sleep is the adult range of Hirshkowitz 2015 and 7 hours the floor of Watson 2015, **not yet checked against its source**. Applying hours of sleep to time in bed is **our choice**. |
+| `goalWakeToleranceMinutes` | 30 minutes | **our choice**. Nothing reads it yet: it is for the later slice that counts the days a wake time was met. |
+| `goalLowReadinessDays` | 4 days of 7 | **our choice**. The cut of 55 is `readinessFairFrom`. |
+| `goalFastLossPauseDays` | 28 days | **our choice** |
+| `goalRecoveryPauseDays` | 14 days | **our choice** |
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

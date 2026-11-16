@@ -11,6 +11,7 @@ import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/domain/weigh_in.dart';
+import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/presentation/module_widgets.dart';
@@ -207,9 +208,9 @@ class BodyModuleScreen extends ConsumerWidget {
   }
 }
 
-// The energy estimate is named only for a person who has it turned on.
+// The energy estimate is named only for a person for whom it counts as on.
 String _hideDetail(AppLocalizations l10n, WidgetRef ref) {
-  final modules = ref.watch(enabledModulesProvider).value ?? const {};
+  final modules = ref.watch(activeModulesProvider);
   if (!modules.contains(ModuleId.energy)) return l10n.bodyHideDetail;
   return '${l10n.bodyHideDetail} ${l10n.bodyHideEnergy}';
 }

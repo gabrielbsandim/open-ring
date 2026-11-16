@@ -7,6 +7,7 @@ import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/presentation/offered_module.dart';
 import 'package:open_ring/features/onboarding/presentation/onboarding_page.dart';
@@ -15,6 +16,7 @@ import 'package:open_ring/l10n/generated/app_localizations.dart';
 abstract final class ModulesOfferKeys {
   static const body = Key('modules_offer_body');
   static const openScore = Key('modules_offer_openScore');
+  static const energy = Key('modules_offer_energy');
   static const done = Key('modules_offer_done');
 
   static Key module(OfferedModule module) =>
@@ -32,14 +34,27 @@ class _ModulesOfferScreenState extends ConsumerState<ModulesOfferScreen> {
   final _picked = <OfferedModule, bool>{};
   bool _busy = false;
 
-  Future<void> _done(List<OfferedModule> on) async {
+  // Energy is offered to a known adult only, and a module that is not
+  // offered keeps whatever is stored for it.
+  List<OfferedModule> get _offered {
+    final adult = ref.watch(energyUnderageProvider) == false;
+    return [
+      for (final module in OfferedModule.values)
+        if (module != OfferedModule.energy || adult) module,
+    ];
+  }
+
+  Future<void> _done(
+    List<OfferedModule> offered,
+    List<OfferedModule> on,
+  ) async {
     setState(() => _busy = true);
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
     final modules = ref.read(enabledModulesProvider.notifier);
     try {
-      for (final module in OfferedModule.values) {
+      for (final module in offered) {
         await (on.contains(module)
             ? modules.enable(module.id)
             : modules.disable(module.id));
@@ -68,8 +83,9 @@ class _ModulesOfferScreenState extends ConsumerState<ModulesOfferScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final enabled = ref.watch(enabledModulesProvider).value ?? const {};
+    final offered = _offered;
     final on = [
-      for (final module in OfferedModule.values)
+      for (final module in offered)
         if (_picked[module] ?? enabled.contains(module.id)) module,
     ];
     return OnboardingPage(
@@ -77,7 +93,7 @@ class _ModulesOfferScreenState extends ConsumerState<ModulesOfferScreen> {
       title: l10n.onboardingModulesTitle,
       intro: l10n.onboardingModulesIntro,
       children: [
-        for (final module in OfferedModule.values) ...[
+        for (final module in offered) ...[
           _Offer(
             module: module,
             on: on.contains(module),
@@ -92,7 +108,7 @@ class _ModulesOfferScreenState extends ConsumerState<ModulesOfferScreen> {
           label: on.isEmpty
               ? l10n.onboardingModulesSkip
               : l10n.onboardingModulesContinue(on.length),
-          onPressed: _busy ? null : () => unawaited(_done(on)),
+          onPressed: _busy ? null : () => unawaited(_done(offered, on)),
         ),
         const SizedBox(height: 10),
         CaptionText(l10n.onboardingModulesLater, textAlign: TextAlign.center),

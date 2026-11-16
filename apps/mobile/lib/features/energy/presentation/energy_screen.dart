@@ -41,6 +41,7 @@ abstract final class EnergyKeys {
   static const missingTitle = Key('energy_missing_title');
   static const openProfile = Key('energy_open_profile');
   static const formula = Key('energy_formula_link');
+  static const module = Key('energy_module_link');
   static const never = Key('energy_never');
 
   static Key part(EnergyPart part) => Key('energy_part_${part.name}');
@@ -549,13 +550,24 @@ class _FormulaLink extends StatelessWidget {
   const new();
 
   @override
-  Widget build(BuildContext context) => Align(
-    alignment: AlignmentDirectional.centerStart,
-    child: TextButton.icon(
-      key: EnergyKeys.formula,
-      onPressed: () => unawaited(context.push(AppPaths.energyFormula)),
-      icon: const Icon(Icons.receipt_long_outlined),
-      label: Text(AppLocalizations.of(context).formulaLink),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Wrap(
+      spacing: 4,
+      children: [
+        TextButton.icon(
+          key: EnergyKeys.formula,
+          onPressed: () => unawaited(context.push(AppPaths.energyFormula)),
+          icon: const Icon(Icons.receipt_long_outlined),
+          label: Text(l10n.formulaLink),
+        ),
+        TextButton.icon(
+          key: EnergyKeys.module,
+          onPressed: () => context.go(AppPaths.settingsModuleEnergy),
+          icon: const Icon(Icons.grid_view_rounded),
+          label: Text(l10n.energyModuleLink),
+        ),
+      ],
+    );
+  }
 }

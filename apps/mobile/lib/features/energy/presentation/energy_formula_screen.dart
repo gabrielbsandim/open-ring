@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
-import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/energy/presentation/energy_evidence_sheet.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_formula_screen.dart';
 
@@ -39,16 +37,13 @@ const List<String> energyFormulaSources = [
   _shcherbina,
 ];
 
-class EnergyFormulaScreen extends ConsumerWidget {
+class EnergyFormulaScreen extends StatelessWidget {
   const new({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final format = MetricFormat.of(context);
     final l10n = format.l10n;
-    if (ref.watch(energyGateProvider) != EnergyGate.on) {
-      return AppPage(title: l10n.formulaLink, children: const []);
-    }
     String percent(double share) => format.integer(share * 100);
     return AppPage(
       title: l10n.formulaLink,

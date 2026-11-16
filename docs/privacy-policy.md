@@ -27,12 +27,12 @@ on your phone.
 | Data | Where it comes from | Why |
 | :--- | :--- | :--- |
 | Ring name, Bluetooth address and battery level | The ring, over Bluetooth | To reconnect to your ring and show its battery |
-| Steps, distance, active energy, heart rate, SpO2, stress, HRV and sleep stages | The ring, over Bluetooth | To show your days and nights and compute the scores |
-| Workouts: start, end, type, pauses, heart rate during the workout | The ring and the phone's clock | To record workouts you start |
+| Steps, distance, active energy, heart rate, SpO2, stress, HRV and sleep stages | The ring, over Bluetooth | To show your days and nights and compute the scores; with the Energy module on, also the estimate of your day's energy |
+| Workouts: start, end, type, pauses, heart rate during the workout | The ring and the phone's clock | To record workouts you start; with the Energy module on, also the estimate of your day's energy |
 | Workout routes: location points during an outdoor workout | The phone's GPS | To draw the route, compute distance, pace and splits and, with the Open Score module on, estimate your fitness |
-| Age, height, weight, sex, maximum heart rate, step goal (all optional) | You, on the "About you" screen | Heart rate zones, the calorie estimate and the scores of the Open Score module |
-| Sleep sessions and workouts written by other apps, with the name of the app that wrote them (optional, each off by default) | Health Connect | To show sleep and workouts from another device when you turn that type on |
-| Weigh-ins: weight and, if you add them, body fat and waist (optional, Body module) | You | To show your weight trend and, with the Open Score module on, to score your body measures |
+| Age, height, weight, sex, maximum heart rate, step goal (all optional) | You, on the "About you" screen | Heart rate zones, the calorie estimate and the scores of the Open Score module; with the Energy module on, also the estimate of your day's energy |
+| Sleep sessions and workouts written by other apps, with the name of the app that wrote them (optional, each off by default) | Health Connect | To show sleep and workouts from another device when you turn that type on; with the Energy module on, also the estimate of your day's energy |
+| Weigh-ins: weight and, if you add them, body fat and waist (optional, Body module) | You | To show your weight trend and, with the Open Score module on, to score your body measures; with the Energy module on, also the estimate of your day's energy |
 | Day tags: the days you set aside as sick, travel or rest (optional, Open Score module) | You | To leave those days out of your averages |
 | Settings: theme, units, sync interval, widget choices, ring alerts, which types go to Health Connect, demo mode | You | To remember your choices |
 | A small summary of today's numbers | The app itself | To fill the home screen widgets |

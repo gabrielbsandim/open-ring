@@ -333,9 +333,9 @@ void main() {
             _saved(
               1,
               WorkoutType.treadmill,
-              DateTime.utc(2026, 9, 29, 4, 10),
+              DateTime.utc(2026, 9, 28, 20, 10),
               minutes: 40,
-              utcOffset: const Duration(hours: -4),
+              utcOffset: const Duration(hours: 4),
             ),
           ],
         );

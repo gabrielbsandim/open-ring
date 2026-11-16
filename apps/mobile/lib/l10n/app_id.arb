@@ -959,7 +959,7 @@
   "privacyStoresProfile": "Usia, tinggi, berat, jenis kelamin, detak jantung maksimum, target langkah (semua opsional)",
   "privacyStoresProfileWhy": "Zona detak jantung, estimasi kalori, dan skor modul Open Score; dengan modul Energi aktif, juga perkiraan energi harimu",
   "privacyStoresOtherApps": "Sesi tidur dan latihan yang ditulis aplikasi lain, beserta nama aplikasi penulisnya (opsional, masing-masing nonaktif secara default)",
-  "privacyStoresOtherAppsWhy": "Untuk menampilkan tidur dan latihan dari perangkat lain saat Anda mengaktifkan jenis itu",
+  "privacyStoresOtherAppsWhy": "Untuk menampilkan tidur dan latihan dari perangkat lain saat Anda mengaktifkan jenis itu; dengan modul Energi aktif, juga perkiraan energi harimu",
   "privacyStoresWeighIns": "Penimbangan: berat dan, jika Anda menambahkannya, lemak tubuh dan lingkar pinggang (opsional, modul Tubuh)",
   "privacyStoresWeighInsWhy": "Untuk menampilkan tren berat Anda dan, saat modul Open Score aktif, menilai ukuran tubuh Anda; dengan modul Energi aktif, juga perkiraan energi harimu",
   "privacyStoresDayTags": "Tanda hari: hari yang Anda sisihkan sebagai sakit, perjalanan, atau istirahat (opsional, modul Open Score)",

@@ -959,7 +959,7 @@
   "privacyStoresProfile": "年齢、身長、体重、性別、最大心拍数、歩数の目標（すべて任意）",
   "privacyStoresProfileWhy": "心拍ゾーン、カロリーの推定、Open Score モジュールのスコア。エネルギーモジュールがオンのときは、1日のエネルギーの推定にも使います",
   "privacyStoresOtherApps": "他のアプリが書き込んだ睡眠セッションとワークアウト、および書き込んだアプリの名前（任意、いずれも既定でオフ）",
-  "privacyStoresOtherAppsWhy": "その種類をオンにしたときに、別のデバイスの睡眠とワークアウトを表示するため",
+  "privacyStoresOtherAppsWhy": "その種類をオンにしたときに、別のデバイスの睡眠とワークアウトを表示するため。エネルギーモジュールがオンのときは、1日のエネルギーの推定にも使います",
   "privacyStoresWeighIns": "体重記録：体重と、追加した場合は体脂肪率とウエスト（任意、ボディモジュール）",
   "privacyStoresWeighInsWhy": "体重の傾向を表示するため。Open Score モジュールがオンのときは、からだの記録の採点にも使います。エネルギーモジュールがオンのときは、1日のエネルギーの推定にも使います",
   "privacyStoresDayTags": "日のタグ：体調不良、旅行、休養として除外した日（任意、Open Score モジュール）",

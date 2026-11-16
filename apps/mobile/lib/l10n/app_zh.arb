@@ -959,7 +959,7 @@
   "privacyStoresProfile": "年龄、身高、体重、性别、最大心率、步数目标（均为可选）",
   "privacyStoresProfileWhy": "心率区间、卡路里估算，以及 Open Score 模块的评分；开启能量模块时，也用于估算你一天的能量",
   "privacyStoresOtherApps": "其他应用写入的睡眠记录和训练，以及写入它们的应用名称（可选，默认均关闭）",
-  "privacyStoresOtherAppsWhy": "在您开启该类型时显示来自其他设备的睡眠和训练",
+  "privacyStoresOtherAppsWhy": "在您开启该类型时显示来自其他设备的睡眠和训练；开启能量模块时，也用于估算你一天的能量",
   "privacyStoresWeighIns": "称重记录：体重，以及你添加的体脂率和腰围（可选，身体模块）",
   "privacyStoresWeighInsWhy": "用于显示你的体重趋势；开启 Open Score 模块后，也用于为身体数据计分；开启能量模块时，也用于估算你一天的能量",
   "privacyStoresDayTags": "日期标记：你标为生病、旅行或休息的日子（可选，Open Score 模块）",

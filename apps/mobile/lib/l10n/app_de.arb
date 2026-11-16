@@ -959,7 +959,7 @@
   "privacyStoresProfile": "Alter, Größe, Gewicht, Geschlecht, maximale Herzfrequenz, Schrittziel (alles optional)",
   "privacyStoresProfileWhy": "Herzfrequenzzonen, die Kalorienschätzung und die Noten des Moduls Open Score; bei eingeschaltetem Modul Energie auch die Schätzung der Energie deines Tages",
   "privacyStoresOtherApps": "Schlafeinheiten und Trainings anderer Apps mit dem Namen der App, die sie geschrieben hat (optional, jeweils standardmäßig aus)",
-  "privacyStoresOtherAppsWhy": "Um Schlaf und Trainings von einem anderen Gerät zu zeigen, wenn du diesen Typ einschaltest",
+  "privacyStoresOtherAppsWhy": "Um Schlaf und Trainings von einem anderen Gerät zu zeigen, wenn du diesen Typ einschaltest; bei eingeschaltetem Modul Energie auch die Schätzung der Energie deines Tages",
   "privacyStoresWeighIns": "Wiegungen: Gewicht und, falls angegeben, Körperfett und Taillenumfang (optional, Modul Körper)",
   "privacyStoresWeighInsWhy": "Um Ihren Gewichtstrend zu zeigen und, bei eingeschaltetem Modul Open Score, Ihre Körpermaße zu bewerten; bei eingeschaltetem Modul Energie auch die Schätzung der Energie deines Tages",
   "privacyStoresDayTags": "Tagesmarkierungen: die Tage, die Sie als krank, Reise oder Ruhe beiseitelegen (optional, Modul Open Score)",

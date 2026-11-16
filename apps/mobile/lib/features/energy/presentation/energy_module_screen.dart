@@ -135,6 +135,7 @@ class EnergyModuleScreen extends ConsumerWidget {
           title: l10n.formulaLink,
           caption: l10n.moduleEnergyFormulaCaption,
           path: AppPaths.energyFormula,
+          push: true,
         ),
         const SizedBox(height: 12),
         CaptionText('${l10n.energyFixedNote} ${l10n.moduleEnergyAdultsOnly}'),

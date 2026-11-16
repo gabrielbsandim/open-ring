@@ -757,6 +757,7 @@ class DayScoreLink extends StatelessWidget {
     required this.title,
     required this.caption,
     required this.path,
+    this.push = false,
     super.key,
   });
 
@@ -764,12 +765,16 @@ class DayScoreLink extends StatelessWidget {
   final String caption;
   final String path;
 
+  // Pushed, back returns to the screen that holds the link instead of the
+  // parent route of the target.
+  final bool push;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = AppColors.of(context);
     return MetricCard(
-      onTap: () => context.go(path),
+      onTap: () => push ? unawaited(context.push(path)) : context.go(path),
       child: Row(
         children: [
           Expanded(

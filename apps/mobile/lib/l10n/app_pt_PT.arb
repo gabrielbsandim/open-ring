@@ -951,7 +951,7 @@
   "privacyStoresProfile": "Idade, altura, peso, sexo, frequência cardíaca máxima, objetivo de passos (todos opcionais)",
   "privacyStoresProfileWhy": "Zonas de frequência cardíaca, estimativa de calorias e as notas do módulo Open Score; com o módulo Energia ativo, também a estimativa de energia do seu dia",
   "privacyStoresOtherApps": "Sessões de sono e treinos gravados por outras apps, com o nome da app que os gravou (opcional, cada um desligado por predefinição)",
-  "privacyStoresOtherAppsWhy": "Para mostrar sono e treinos de outro dispositivo quando liga esse tipo",
+  "privacyStoresOtherAppsWhy": "Para mostrar sono e treinos de outro dispositivo quando liga esse tipo; com o módulo Energia ativo, também a estimativa de energia do seu dia",
   "privacyStoresWeighIns": "Pesagens: peso e, se os indicar, gordura corporal e cintura (opcional, módulo Corpo)",
   "privacyStoresWeighInsWhy": "Para mostrar a tendência do seu peso e, com o módulo Open Score ligado, pontuar as medidas do corpo; com o módulo Energia ativo, também a estimativa de energia do seu dia",
   "privacyStoresDayTags": "Marcas de dia: os dias que põe de parte como doente, viagem ou descanso (opcional, módulo Open Score)",

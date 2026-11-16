@@ -959,7 +959,7 @@
   "privacyStoresProfile": "Âge, taille, poids, sexe, fréquence cardiaque maximale, objectif de pas (tous facultatifs)",
   "privacyStoresProfileWhy": "Zones de fréquence cardiaque, estimation des calories et notes du module Open Score ; avec le module Énergie activé, aussi l'estimation de l'énergie de votre journée",
   "privacyStoresOtherApps": "Sessions de sommeil et séances écrites par d'autres applications, avec le nom de l'application qui les a écrites (facultatif, chacun désactivé par défaut)",
-  "privacyStoresOtherAppsWhy": "Pour afficher le sommeil et les séances d'un autre appareil quand vous activez ce type",
+  "privacyStoresOtherAppsWhy": "Pour afficher le sommeil et les séances d'un autre appareil quand vous activez ce type ; avec le module Énergie activé, aussi l'estimation de l'énergie de votre journée",
   "privacyStoresWeighIns": "Pesées : poids et, si vous les ajoutez, masse grasse et tour de taille (facultatif, module Corps)",
   "privacyStoresWeighInsWhy": "Pour afficher la tendance de votre poids et, avec le module Open Score activé, noter vos mesures corporelles ; avec le module Énergie activé, aussi l'estimation de l'énergie de votre journée",
   "privacyStoresDayTags": "Marques de jour : les jours que vous mettez de côté comme malade, voyage ou repos (facultatif, module Open Score)",

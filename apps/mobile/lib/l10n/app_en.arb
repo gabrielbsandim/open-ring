@@ -2707,7 +2707,7 @@
   "privacyStoresProfile": "Age, height, weight, sex, maximum heart rate, step goal (all optional)",
   "privacyStoresProfileWhy": "Heart rate zones, the calorie estimate and the scores of the Open Score module; with the Energy module on, also the estimate of your day's energy",
   "privacyStoresOtherApps": "Sleep sessions and workouts written by other apps, with the name of the app that wrote them (optional, each off by default)",
-  "privacyStoresOtherAppsWhy": "To show sleep and workouts from another device when you turn that type on",
+  "privacyStoresOtherAppsWhy": "To show sleep and workouts from another device when you turn that type on; with the Energy module on, also the estimate of your day's energy",
   "privacyStoresWeighIns": "Weigh-ins: weight and, if you add them, body fat and waist (optional, Body module)",
   "privacyStoresWeighInsWhy": "To show your weight trend and, with the Open Score module on, to score your body measures; with the Energy module on, also the estimate of your day's energy",
   "privacyStoresDayTags": "Day tags: the days you set aside as sick, travel or rest (optional, Open Score module)",

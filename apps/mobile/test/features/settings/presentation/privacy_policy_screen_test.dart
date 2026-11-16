@@ -162,6 +162,51 @@ void main() {
     expect(policy, contains(l.privacyStoresRatingsWhy));
   });
 
+  testWidgets('criterion 10: the privacy screen names Effort in five rows', (
+    tester,
+  ) async {
+    await pumpScaled(
+      tester,
+      screenHost(const PrivacyPolicyScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: settingsOverrides(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+    final whys = {
+      'ring data': l.privacyStoresRingDataWhy,
+      'workouts': l.privacyStoresWorkoutsWhy,
+      'profile': l.privacyStoresProfileWhy,
+      'other apps': l.privacyStoresOtherAppsWhy,
+      'day tags': l.privacyStoresDayTagsWhy,
+    };
+
+    for (final MapEntry(key: row, value: why) in whys.entries) {
+      expect(why, contains('Effort'), reason: row);
+      await reveal(tester, find.text(why));
+      expect(find.text(why), findsOneWidget, reason: row);
+    }
+  });
+
+  test('criterion 10: the policy document names Effort in the five rows', () {
+    final policy = _normalized(
+      File('../../docs/privacy-policy.md').readAsStringSync(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+
+    for (final why in [
+      l.privacyStoresRingDataWhy,
+      l.privacyStoresWorkoutsWhy,
+      l.privacyStoresProfileWhy,
+      l.privacyStoresOtherAppsWhy,
+      l.privacyStoresDayTagsWhy,
+    ]) {
+      expect(why, contains('Effort'));
+      expect(policy, contains(why));
+    }
+  });
+
   testWidgets('the Health Connect link opens the privacy screen', (
     tester,
   ) async {

@@ -722,6 +722,29 @@ void main() {
     expect(find.text('formula screen'), findsOneWidget);
   });
 
+  testWidgets('criterion 3: the Module button opens the module screen', (
+    tester,
+  ) async {
+    final router = GoRouter(
+      initialLocation: AppPaths.effort,
+      routes: [
+        GoRoute(path: AppPaths.effort, builder: (_, _) => const EffortScreen()),
+        GoRoute(
+          path: AppPaths.settingsModuleEffort,
+          builder: (_, _) => const Scaffold(body: Text('module screen')),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await _pumpRouter(tester, router);
+    await _show(tester, EffortKeys.module);
+    await tester.tap(find.byKey(EffortKeys.module));
+    await tester.pumpAndSettle();
+
+    expect(AppPaths.settingsModuleEffort, '/ring/settings/modules/effort');
+    expect(find.text('module screen'), findsOneWidget);
+  });
+
   testWidgets('the coach card on Today opens the Effort screen', (
     tester,
   ) async {

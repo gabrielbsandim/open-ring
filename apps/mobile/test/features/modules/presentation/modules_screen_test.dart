@@ -10,11 +10,13 @@ import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/body/domain/weigh_in_store.dart';
 import 'package:open_ring/features/body/presentation/body_module_screen.dart';
+import 'package:open_ring/features/effort/presentation/effort_module_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_module_screen.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/modules/presentation/modules_screen.dart';
+import 'package:open_ring/features/modules/presentation/offered_module.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_formula_screen.dart';
 import 'package:open_ring/features/open_score/presentation/open_score_module_screen.dart';
 import 'package:open_ring/features/ring/presentation/ring_screen.dart';
@@ -541,5 +543,108 @@ void main() {
     await _tap(tester, OpenScoreModuleKeys.formula);
 
     expect(find.byType(DayScoreFormulaScreen), findsOneWidget);
+  });
+
+  testWidgets('criterion 1: the Modules screen lists four rows', (
+    tester,
+  ) async {
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openModules(tester);
+
+    expect(OfferedModule.values, hasLength(4));
+    for (final module in OfferedModule.values) {
+      await reveal(tester, find.byKey(ModulesKeys.row(module)));
+      expect(find.byKey(ModulesKeys.row(module)), findsOneWidget);
+    }
+    expect(find.byType(Switch), findsNWidgets(4));
+    expect(
+      find.descendant(
+        of: find.byKey(ModulesKeys.row(OfferedModule.effort)),
+        matching: find.text('Effort'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('criterion 1: the Effort switch stores ModuleId.effort', (
+    tester,
+  ) async {
+    final modules = InMemoryModuleStore();
+    await _pump(tester, modules: modules);
+    await _openModules(tester);
+    final toggle = ModulesKeys.toggle(OfferedModule.effort);
+    await reveal(tester, find.byKey(toggle));
+
+    expect(_on(tester, toggle), isFalse);
+    await _tap(tester, toggle);
+
+    expect(await modules.read(), {ModuleId.effort});
+    expect(_on(tester, toggle), isTrue);
+    expect(
+      find.text('Effort is on. The Effort tile is on Today.'),
+      findsOneWidget,
+    );
+    await _tap(tester, toggle);
+
+    expect(await modules.read(), isEmpty);
+    expect(_on(tester, toggle), isFalse);
+  });
+
+  testWidgets('criterion 1: the Effort switch is enabled at 17', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      modules: InMemoryModuleStore(),
+      profiles: InMemoryUserProfileStore(_aged(17)),
+    );
+    await _openModules(tester);
+    final toggle = ModulesKeys.toggle(OfferedModule.effort);
+    await reveal(tester, find.byKey(toggle));
+
+    expect(tester.widget<Switch>(find.byKey(toggle)).onChanged, isNotNull);
+  });
+
+  testWidgets('criterion 3: the Effort row opens its module screen', (
+    tester,
+  ) async {
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openModules(tester);
+    await _tap(tester, ModulesKeys.row(OfferedModule.effort));
+
+    expect(find.byType(EffortModuleScreen), findsOneWidget);
+  });
+
+  testWidgets('criterion 1: Settings counts Effort with four modules', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      modules: InMemoryModuleStore({
+        ModuleId.body,
+        ModuleId.openScore,
+        ModuleId.energy,
+        ModuleId.effort,
+      }),
+      profiles: InMemoryUserProfileStore(_aged(30)),
+    );
+    await _openSettings(tester);
+    await reveal(tester, find.byKey(SettingsScreen.modulesKey));
+
+    expect(find.text('On: 4'), findsOneWidget);
+  });
+
+  testWidgets('criterion 1: Settings counts Effort stored on at 17', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      modules: InMemoryModuleStore({ModuleId.energy, ModuleId.effort}),
+      profiles: InMemoryUserProfileStore(_aged(17)),
+    );
+    await _openSettings(tester);
+    await reveal(tester, find.byKey(SettingsScreen.modulesKey));
+
+    expect(find.text('On: 1'), findsOneWidget);
   });
 }

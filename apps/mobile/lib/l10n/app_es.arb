@@ -1627,5 +1627,9 @@
   "energyFormulaMargin2": "El margen del día es mayor porque los pasos y los entrenamientos suman su propio error al de la ecuación. Su tamaño es elección nuestra.",
   "activityActiveEnergyRing": "Energía activa, del anillo",
   "todayActivityDetailRing": "{detail} (del anillo)",
-  "bodyHideEnergy": "La estimación de energía también queda oculta."
+  "bodyHideEnergy": "La estimación de energía también queda oculta.",
+  "energyLegendUsual": "tu día habitual",
+  "energyUsualSame": "Casi igual que tu día habitual a esta hora.",
+  "energyUsualMore": "Unas {kcal} kcal más que tu día habitual a esta hora.",
+  "energyUsualLess": "Unas {kcal} kcal menos que tu día habitual a esta hora."
 }

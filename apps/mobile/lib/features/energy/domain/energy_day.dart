@@ -178,6 +178,35 @@ EnergyCurve energyCurve({
   return (from: from, to: to, points: points);
 }
 
+/// The mean total of whole past days at each elapsed hour, index 0 at the
+/// start of the day. Null with fewer than [energyUsualMinDays] days.
+List<double>? energyUsualByHour(Iterable<EnergyCurve> days) {
+  final curves = [
+    for (final day in days)
+      if (day.points.isNotEmpty) day.points,
+  ];
+  if (curves.length < energyUsualMinDays) return null;
+  final hours = curves.fold<int>(
+    curves.first.length,
+    (least, points) => points.length < least ? points.length : least,
+  );
+  return [
+    for (var hour = 0; hour < hours; hour++)
+      curves.fold<double>(0, (sum, points) => sum + points[hour].day.total) /
+          curves.length,
+  ];
+}
+
+/// The value of [usual] at [elapsed] since the start of the day, on the
+/// straight line between its two hours. Null outside the hours it covers.
+double? energyUsualAt(List<double> usual, Duration elapsed) {
+  if (usual.length < 2 || elapsed.isNegative) return null;
+  final hours = elapsed.inMicroseconds / Duration.microsecondsPerHour;
+  if (hours > usual.length - 1) return null;
+  final before = hours.floor().clamp(0, usual.length - 2);
+  return usual[before] + (usual[before + 1] - usual[before]) * (hours - before);
+}
+
 // A slot counts at an hour only once it is over, so every workout that can
 // cover it has already started and the total never falls at a later hour.
 bool _endedBy(StepBucket slot, DateTime instant) =>

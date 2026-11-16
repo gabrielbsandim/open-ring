@@ -1152,6 +1152,15 @@ margin. A tap picks the closest point; a screen reader steps hour by hour.
 The card is absent while the day is under `energyRowFloor`, and a picked hour
 under the floor shows the starting line and no range.
 
+The chart through the day also draws the usual day as a dashed line
+(`energyUsualByHour`, `energyUsualByHourProvider`): the mean total, at each
+elapsed hour, of the same past days that make the usual day of the week
+card, so its last point is that usual day. Under the readout one sentence
+says how far the picked hour is from the usual day at that hour
+(`energyUsualAt` reads between two hours on a straight line), to the nearest
+50 kcal, or that it is about the same. No line and no sentence with fewer
+than 3 past days, and no sentence while the picked hour is under the floor.
+
 The formula screen (`energy_formula_screen.dart`, `/today/energy/formula`)
 repeats the rule, the source, our choice and the limits of the four evidence
 sheets with no value of the person, then the two margins and the full

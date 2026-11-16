@@ -1627,5 +1627,9 @@
   "energyFormulaMargin2": "Il margine del giorno è più ampio perché passi e allenamenti aggiungono il proprio errore a quello dell'equazione. La sua ampiezza è una nostra scelta.",
   "activityActiveEnergyRing": "Energia attiva, dall'anello",
   "todayActivityDetailRing": "{detail} (dall'anello)",
-  "bodyHideEnergy": "Anche la stima di energia viene nascosta."
+  "bodyHideEnergy": "Anche la stima di energia viene nascosta.",
+  "energyLegendUsual": "il tuo giorno abituale",
+  "energyUsualSame": "Più o meno come il tuo giorno abituale a quest'ora.",
+  "energyUsualMore": "Circa {kcal} kcal in più del tuo giorno abituale a quest'ora.",
+  "energyUsualLess": "Circa {kcal} kcal in meno del tuo giorno abituale a quest'ora."
 }

@@ -593,4 +593,44 @@ void main() {
       expect(week.every((entry) => entry.day == null), isTrue);
     });
   });
+  group('the usual day by hour', () {
+    List<ActivitySlot> walks(List<int> days) => [
+      for (final day in days) _slot(DateTime.utc(2026, 11, day, 9), 4000),
+    ];
+
+    test('is absent with fewer past days than the minimum', () async {
+      final container = await _container(slots: walks([8, 9]));
+
+      expect(await container.read(energyUsualByHourProvider.future), isNull);
+    });
+
+    test('covers the whole day and ends on the usual day total', () async {
+      final container = await _container(slots: walks([7, 8, 9]));
+      final usual = (await container.read(energyUsualByHourProvider.future))!;
+      final week = await container.read(energyWeekProvider.future);
+      final total = energyUsual([
+        for (final entry in week.take(6)) ?entry.day,
+      ])!;
+
+      expect(usual, hasLength(25));
+      expect(usual.first, 0);
+      expect(usual.last, closeTo(total, 1e-6));
+      expect(usual[10] - usual[9], greaterThan(_walk(4000)));
+    });
+
+    test('today stays out of it', () async {
+      final container = await _container(
+        slots: [
+          ...walks([7, 8, 9]),
+          _slot(DateTime.utc(2026, 11, 10, 9), 9000),
+        ],
+      );
+      final other = await _container(slots: walks([7, 8, 9]));
+
+      expect(
+        await container.read(energyUsualByHourProvider.future),
+        await other.read(energyUsualByHourProvider.future),
+      );
+    });
+  });
 }

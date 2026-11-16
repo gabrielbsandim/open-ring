@@ -109,7 +109,11 @@ class EnergyScreen extends ConsumerWidget {
         _Resting(day: day),
         const SizedBox(height: cardGap),
         if (_curve(ref, day) case final curve?) ...[
-          EnergyThroughDay(curve: curve, utcOffset: now.asOf.timeZoneOffset),
+          EnergyThroughDay(
+            curve: curve,
+            utcOffset: now.asOf.timeZoneOffset,
+            usual: ref.watch(energyUsualByHourProvider).value,
+          ),
           const SizedBox(height: cardGap),
         ],
         if (_week(ref) case final week?) ...[

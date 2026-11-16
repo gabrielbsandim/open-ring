@@ -3779,5 +3779,11 @@
   "activityActiveEnergyRing": "Active energy, from the ring",
   "todayActivityDetailRing": "{detail} (from the ring)",
   "@todayActivityDetailRing": {"placeholders": {"detail": {"type": "String"}}},
-  "bodyHideEnergy": "The energy estimate is hidden too."
+  "bodyHideEnergy": "The energy estimate is hidden too.",
+  "energyLegendUsual": "your usual day",
+  "energyUsualSame": "About the same as your usual day by this time.",
+  "energyUsualMore": "About {kcal} kcal more than your usual day by this time.",
+  "@energyUsualMore": {"placeholders": {"kcal": {"type": "String"}}},
+  "energyUsualLess": "About {kcal} kcal less than your usual day by this time.",
+  "@energyUsualLess": {"placeholders": {"kcal": {"type": "String"}}}
 }

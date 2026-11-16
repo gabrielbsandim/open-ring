@@ -174,4 +174,70 @@ void main() {
   test('an underage profile has no point', () {
     expect(_curve(now: _at(12), age: 16).points, isEmpty);
   });
+  group('the usual day by hour', () {
+    EnergyCurve flat(List<num> totals) => (
+      from: DateTime.utc(2026, 11, 10),
+      to: DateTime.utc(2026, 11, 11),
+      points: [
+        for (final (hour, total) in totals.indexed)
+          (
+            at: DateTime.utc(2026, 11, 10, hour),
+            day: EnergyDayEstimate(
+              resting: 1700,
+              base: total.toDouble(),
+              steps: 0,
+              workouts: 0,
+            ),
+          ),
+      ],
+    );
+
+    test('is the mean of the days at each hour', () {
+      final usual = energyUsualByHour([
+        flat([0, 100, 200]),
+        flat([0, 200, 400]),
+        flat([0, 300, 900]),
+      ]);
+
+      expect(usual, [0, 200, 500]);
+    });
+
+    test('needs the minimum of days and skips a day with no point', () {
+      expect(
+        energyUsualByHour([
+          flat([0, 100]),
+          flat([0, 200]),
+          flat([]),
+        ]),
+        isNull,
+      );
+    });
+
+    test('stops at the shortest day', () {
+      final usual = energyUsualByHour([
+        flat([0, 100, 200]),
+        flat([0, 100]),
+        flat([0, 100, 200]),
+      ]);
+
+      expect(usual, hasLength(2));
+    });
+
+    test('between two hours it is on the straight line', () {
+      const usual = <double>[0, 200, 500];
+
+      expect(energyUsualAt(usual, Duration.zero), 0);
+      expect(energyUsualAt(usual, const Duration(minutes: 30)), 100);
+      expect(energyUsualAt(usual, const Duration(minutes: 90)), 350);
+      expect(energyUsualAt(usual, const Duration(hours: 2)), 500);
+    });
+
+    test('outside its hours there is no value', () {
+      const usual = <double>[0, 200, 500];
+
+      expect(energyUsualAt(usual, const Duration(minutes: 121)), isNull);
+      expect(energyUsualAt(usual, const Duration(minutes: -1)), isNull);
+      expect(energyUsualAt(const <double>[100], Duration.zero), isNull);
+    });
+  });
 }

@@ -1627,5 +1627,9 @@
   "energyFormulaMargin2": "全天的幅度更宽，因为步数和训练会在公式的误差之上再加上各自的误差。它的大小是我们的选择。",
   "activityActiveEnergyRing": "活动能量（来自戒指）",
   "todayActivityDetailRing": "{detail}（来自戒指）",
-  "bodyHideEnergy": "能量估算也会隐藏。"
+  "bodyHideEnergy": "能量估算也会隐藏。",
+  "energyLegendUsual": "你平常的一天",
+  "energyUsualSame": "与你平常一天到此时的情况大致相同。",
+  "energyUsualMore": "比你平常一天到此时多约 {kcal} 千卡。",
+  "energyUsualLess": "比你平常一天到此时少约 {kcal} 千卡。"
 }

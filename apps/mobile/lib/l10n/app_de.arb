@@ -1627,5 +1627,9 @@
   "energyFormulaMargin2": "Die Spanne des Tages ist größer, weil Schritte und Workouts ihren eigenen Fehler zu dem der Gleichung addieren. Ihre Größe ist unsere Entscheidung.",
   "activityActiveEnergyRing": "Aktive Energie, vom Ring",
   "todayActivityDetailRing": "{detail} (vom Ring)",
-  "bodyHideEnergy": "Die Energieschätzung wird ebenfalls ausgeblendet."
+  "bodyHideEnergy": "Die Energieschätzung wird ebenfalls ausgeblendet.",
+  "energyLegendUsual": "dein üblicher Tag",
+  "energyUsualSame": "Etwa wie dein üblicher Tag um diese Zeit.",
+  "energyUsualMore": "Etwa {kcal} kcal mehr als dein üblicher Tag um diese Zeit.",
+  "energyUsualLess": "Etwa {kcal} kcal weniger als dein üblicher Tag um diese Zeit."
 }

@@ -150,7 +150,7 @@ void main() {
         CoachRule.hardRun: l10n.effortFormulaRuleHardRun('2'),
         CoachRule.noEasyDay: l10n.effortFormulaRuleNoEasy('6'),
         CoachRule.fairReadiness: l10n.effortFormulaRuleReadinessUnder('70'),
-        CoachRule.spike: l10n.effortFormulaRuleSpike('1.5', '150'),
+        CoachRule.spike: l10n.effortFormulaRuleSpike('7', '1.5', '28', '150'),
         CoachRule.hardYesterday: l10n.effortFormulaRuleHardYesterday,
         CoachRule.goodReadiness: l10n.effortFormulaRuleReadinessFrom('70'),
         CoachRule.noReadiness: l10n.effortFormulaRuleNoReadiness,
@@ -168,26 +168,44 @@ void main() {
       }
     });
 
-    testWidgets('the note names the rules that wait for the load lines', (
+    testWidgets('the notes carry the day counts and the rule numbers', (
       tester,
     ) async {
       await _pump(tester);
-      await _reveal(tester, EffortFormulaKeys.coach);
+      await _reveal(tester, EffortFormulaKeys.history);
+      final l10n = _l10n(tester);
 
       expect(
         _texts(tester, EffortFormulaKeys.coach),
-        contains(_l10n(tester).effortFormulaCoachNote('120', '1.5', '50')),
+        containsAll([
+          l10n.effortFormulaCoachNote('120', '1.5', '28', '50', '1'),
+          l10n.effortFormulaCoachHistory(
+            '4',
+            '14',
+            '7',
+            '15',
+            '3',
+            '16',
+            '6',
+            '21',
+          ),
+        ]),
       );
-      expect(
-        [
-          CoachRule.sick,
-          CoachRule.hardRun,
-          CoachRule.noEasyDay,
-          CoachRule.spike,
-          CoachRule.hardYesterday,
-        ].map((rule) => rule.number),
-        [1, 3, 4, 6, 7],
-      );
+    });
+
+    test('the day counts of the history note are where the rules start', () {
+      CoachAdvice advice(List<double> dailyLoad) =>
+          coachAdvice(readiness: null, sick: false, dailyLoad: dailyLoad);
+      List<double> flat(int days) => List.filled(days, 10);
+
+      expect(advice(flat(13)).chronic, isNull);
+      expect(advice(flat(14)).chronic, isNotNull);
+      expect(advice([...flat(13), 500]).hardDays, 0);
+      expect(advice([...flat(14), 500]).rule, CoachRule.hardYesterday);
+      expect(advice([...flat(13), 500, 5000]).hardDays, 1);
+      expect(advice([...flat(14), 500, 5000]).rule, CoachRule.hardRun);
+      expect(advice(flat(20)).chronicWeekAgo, isNull);
+      expect(advice(flat(21)).chronicWeekAgo, isNotNull);
     });
 
     testWidgets('marks the rule on the card while Effort is on', (

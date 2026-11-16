@@ -21,6 +21,7 @@ abstract final class EffortFormulaKeys {
   static const lines = Key('effort_formula_lines');
   static const coach = Key('effort_formula_coach');
   static const current = Key('effort_formula_current');
+  static const history = Key('effort_formula_history');
   static const sources = Key('effort_formula_sources');
   static const ours = Key('effort_formula_ours');
   static const unchecked = Key('effort_formula_unchecked');
@@ -55,7 +56,9 @@ String coachRuleCondition(MetricFormat format, CoachRule rule) {
       format.integer(readinessGoodFrom),
     ),
     CoachRule.spike => l10n.effortFormulaRuleSpike(
+      format.integer(effortAcuteDays),
       _plain(format, effortSpikeFactor),
+      format.integer(effortChronicDays),
       format.integer(effortSpikeMinWeekly),
     ),
     CoachRule.hardYesterday => l10n.effortFormulaRuleHardYesterday,
@@ -64,6 +67,21 @@ String coachRuleCondition(MetricFormat format, CoachRule rule) {
     ),
     CoachRule.noReadiness => l10n.effortFormulaRuleNoReadiness,
   };
+}
+
+/// From how many days of history each rule on load can match.
+String coachRuleHistory(MetricFormat format) {
+  String number(CoachRule rule) => format.integer(rule.number);
+  return format.l10n.effortFormulaCoachHistory(
+    number(CoachRule.noEasyDay),
+    format.integer(effortMinLoadDays),
+    number(CoachRule.hardYesterday),
+    format.integer(effortMinLoadDays + 1),
+    number(CoachRule.hardRun),
+    format.integer(effortMinLoadDays + effortHardRunDays),
+    number(CoachRule.spike),
+    format.integer(effortMinLoadDays + DateTime.daysPerWeek),
+  );
 }
 
 /// The load a minute of each workout type, as one line.
@@ -278,9 +296,13 @@ class _Coach extends StatelessWidget {
             l10n.effortFormulaCoachNote(
               format.integer(effortHardFloor),
               _plain(format, effortHardFactor),
+              format.integer(effortChronicDays),
               _percent(format, effortEasyFraction),
+              format.integer(CoachRule.sick.number),
             ),
           ),
+          const SizedBox(height: 6),
+          CaptionText(coachRuleHistory(format), key: EffortFormulaKeys.history),
         ],
       ),
     );

@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/presentation/module_widgets.dart';
 import 'package:open_ring/features/modules/presentation/offered_module.dart';
@@ -17,6 +19,8 @@ abstract final class ModulesKeys {
   static const bodySwitch = Key('modules_body_switch');
   static const openScoreRow = Key('modules_openScore_row');
   static const openScoreSwitch = Key('modules_openScore_switch');
+  static const energyRow = Key('modules_energy_row');
+  static const energySwitch = Key('modules_energy_switch');
 
   static Key row(OfferedModule module) => Key('modules_${module.name}_row');
   static Key toggle(OfferedModule module) =>
@@ -37,7 +41,12 @@ Future<void> setModule(
     await modules.disable(module.id);
     return;
   }
+  // With numbers hidden Energy shows nothing, so saying where it is would
+  // be false.
+  final silent =
+      module == OfferedModule.energy && ref.read(profileWeightHiddenProvider);
   await modules.enable(module.id);
+  if (silent) return;
   messenger
     ..clearSnackBars()
     ..showSnackBar(
@@ -57,7 +66,8 @@ class ModulesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final enabled = ref.watch(enabledModulesProvider).value ?? const {};
+    final enabled = ref.watch(activeModulesProvider);
+    final adult = ref.watch(energyUnderageProvider) == false;
     return AppPage(
       title: l10n.modulesTitle,
       subtitle: l10n.modulesIntro,
@@ -65,7 +75,11 @@ class ModulesScreen extends ConsumerWidget {
         TileGroup(
           children: [
             for (final module in OfferedModule.values)
-              _ModuleRow(module: module, on: enabled.contains(module.id)),
+              _ModuleRow(
+                module: module,
+                on: enabled.contains(module.id),
+                available: module != OfferedModule.energy || adult,
+              ),
           ],
         ),
         const SizedBox(height: cardGap),
@@ -84,10 +98,11 @@ class ModulesScreen extends ConsumerWidget {
 }
 
 class _ModuleRow extends ConsumerWidget {
-  const new({required this.module, required this.on});
+  const new({required this.module, required this.on, required this.available});
 
   final OfferedModule module;
   final bool on;
+  final bool available;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -111,8 +126,10 @@ class _ModuleRow extends ConsumerWidget {
           child: Switch(
             key: ModulesKeys.toggle(module),
             value: on,
-            onChanged: (value) =>
-                unawaited(setModule(context, ref, module, on: value)),
+            onChanged: available
+                ? (value) =>
+                      unawaited(setModule(context, ref, module, on: value))
+                : null,
           ),
         ),
       ],

@@ -9,9 +9,9 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
+import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/health_sync/application/health_status_providers.dart';
 import 'package:open_ring/features/health_sync/presentation/health_status_screen.dart';
-import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/onboarding/presentation/onboarding_page.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
@@ -60,7 +60,7 @@ class SettingsScreen extends ConsumerWidget {
               title: l10n.modulesTitle,
               detail: _modulesDetail(
                 l10n,
-                ref.watch(enabledModulesProvider).value?.length ?? 0,
+                ref.watch(activeModulesProvider).length,
               ),
               chevron: true,
               onTap: () => context.go(AppPaths.settingsModules),

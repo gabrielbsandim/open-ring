@@ -28,3 +28,20 @@ final energyGateProvider = Provider<EnergyGate>((ref) {
   if (ref.watch(profileWeightHiddenProvider)) return EnergyGate.hidden;
   return EnergyGate.on;
 });
+
+/// Whether the person is under the adult age. Null while the profile loads.
+final energyUnderageProvider = Provider<bool?>((ref) {
+  final profile = ref.watch(userProfileProvider);
+  if (!profile.hasValue) return null;
+  final asOf = ref.watch(energyAsOfProvider);
+  final year = LocalDate.fromInstant(asOf, asOf.timeZoneOffset).year;
+  final age = profile.value?.ageIn(year);
+  return age != null && age < energyAdultAge;
+});
+
+/// The modules that count as on: a stored Energy only for a known adult.
+final activeModulesProvider = Provider<Set<ModuleId>>((ref) {
+  final stored = ref.watch(enabledModulesProvider).value ?? const <ModuleId>{};
+  if (ref.watch(energyUnderageProvider) == false) return stored;
+  return {...stored}..remove(ModuleId.energy);
+});

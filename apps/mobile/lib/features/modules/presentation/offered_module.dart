@@ -13,6 +13,11 @@ enum OfferedModule {
     ModuleId.openScore,
     Icons.speed_rounded,
     AppPaths.settingsModuleOpenScore,
+  ),
+  energy(
+    ModuleId.energy,
+    Icons.local_fire_department_outlined,
+    AppPaths.settingsModuleEnergy,
   );
 
   new(this.id, this.icon, this.path);
@@ -24,15 +29,18 @@ enum OfferedModule {
   String title(AppLocalizations l10n) => switch (this) {
     OfferedModule.body => l10n.moduleBodyName,
     OfferedModule.openScore => l10n.moduleOpenScoreName,
+    OfferedModule.energy => l10n.energyTitle,
   };
 
   String detail(AppLocalizations l10n) => switch (this) {
     OfferedModule.body => l10n.moduleBodyDetail,
     OfferedModule.openScore => l10n.moduleOpenScoreDetail,
+    OfferedModule.energy => l10n.moduleEnergyDetail,
   };
 
   String turnedOn(AppLocalizations l10n) => switch (this) {
     OfferedModule.body => l10n.moduleBodyTurnedOn,
     OfferedModule.openScore => l10n.moduleOpenScoreTurnedOn,
+    OfferedModule.energy => l10n.moduleEnergyTurnedOn(l10n.tabToday),
   };
 }

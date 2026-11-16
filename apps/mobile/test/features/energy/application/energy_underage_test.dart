@@ -68,7 +68,8 @@ Future<bool?> _underage({UserProfile? profile, DateTime? now}) async {
     now: now,
   );
   await container.read(userProfileProvider.future);
-  return container.read(energyUnderageProvider);
+  final value = container.read(energyUnderageProvider);
+  return value;
 }
 
 Future<Set<ModuleId>> _active({
@@ -81,7 +82,8 @@ Future<Set<ModuleId>> _active({
   );
   await container.read(enabledModulesProvider.future);
   await container.read(userProfileProvider.future);
-  return container.read(activeModulesProvider);
+  final value = container.read(activeModulesProvider);
+  return value;
 }
 
 void main() {

@@ -1166,7 +1166,17 @@ chart shows no usual day, because the hours would not line up.
 The formula screen (`energy_formula_screen.dart`, `/today/energy/formula`)
 repeats the rule, the source, our choice and the limits of the four evidence
 sheets with no value of the person, then the two margins and the full
-references. It is empty unless the gate is on.
+references. It opens with any gate, because it reads nothing of the person.
+
+The module is turned on from the Modules screen, from the first run offer and
+from its own screen (`energy_module_screen.dart`,
+`/ring/settings/modules/energy`). `energyUnderageProvider` is true under
+`energyAdultAge`, false for an adult and for a profile with no birth year, and
+null while the profile loads. Only on false is the switch enabled, the offer
+shown and the button drawn. `activeModulesProvider` is the stored set without
+Energy unless that value is false, so a stored on under the adult age counts as
+off in the Settings count and in the hide numbers sentence, and is never
+erased. Turning Energy on while numbers are hidden shows no message.
 
 While the gate is on, the active energy the ring reports is named as coming
 from the ring on Activity and on the Today activity card, because the app

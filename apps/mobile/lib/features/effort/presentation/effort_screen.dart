@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
@@ -28,6 +32,7 @@ abstract final class EffortKeys {
   static const sessions = Key('effort_sessions');
   static const sessionsEmpty = Key('effort_sessions_empty');
   static const never = Key('effort_never');
+  static const formula = Key('effort_formula_link');
   static const foot = Key('effort_foot');
 
   static Key session(int index) => Key('effort_session_$index');
@@ -112,9 +117,28 @@ class EffortScreen extends ConsumerWidget {
           l10n.effortNever5,
         ],
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: 8),
+      const _FormulaLink(),
+      const SizedBox(height: 8),
       CaptionText(l10n.effortFoot, key: EffortKeys.foot),
     ];
+  }
+}
+
+class _FormulaLink extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: TextButton.icon(
+        key: EffortKeys.formula,
+        onPressed: () => unawaited(context.push(AppPaths.effortFormula)),
+        icon: const Icon(Icons.receipt_long_outlined),
+        label: Text(AppLocalizations.of(context).formulaLink),
+      ),
+    );
   }
 }
 

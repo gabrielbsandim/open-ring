@@ -385,6 +385,45 @@ void main() {
     });
   });
 
+  testWidgets('the link opens the formula screen', (tester) async {
+    final router = GoRouter(
+      initialLocation: AppPaths.effort,
+      routes: [
+        GoRoute(
+          path: AppPaths.effort,
+          builder: (_, _) => const EffortScreen(),
+          routes: [
+            GoRoute(
+              path: 'formula',
+              builder: (_, _) => const Scaffold(body: Text('formula screen')),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await pumpScaled(
+      tester,
+      MaterialApp.router(
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        localeListResolutionCallback: AppLocales.resolve,
+        supportedLocales: AppLocales.supported,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        routerConfig: router,
+      ),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: _overrides(),
+    );
+    await _show(tester, EffortKeys.formula);
+    await tester.tap(find.byKey(EffortKeys.formula));
+    await tester.pumpAndSettle();
+
+    expect(find.text('formula screen'), findsOneWidget);
+  });
+
   testWidgets('the coach card on Today opens the Effort screen', (
     tester,
   ) async {

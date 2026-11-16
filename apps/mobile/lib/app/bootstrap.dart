@@ -20,6 +20,8 @@ import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/demo/infrastructure/demo_workout_store.dart';
 import 'package:open_ring/features/demo/infrastructure/drift_demo_data_store.dart';
 import 'package:open_ring/features/demo/infrastructure/shared_preferences_demo_mode_store.dart';
+import 'package:open_ring/features/goals/application/goal_store_providers.dart';
+import 'package:open_ring/features/goals/infrastructure/drift_goal_store.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/health_sync/application/health_status_providers.dart';
 import 'package:open_ring/features/health_sync/application/health_sync_controller.dart';
@@ -149,6 +151,9 @@ Future<void> bootstrap() async {
       ),
       stepGoalHistoryProvider.overrideWith(
         (ref) => DriftStepGoalHistory(ref.watch(appDatabaseProvider)),
+      ),
+      goalStoreProvider.overrideWith(
+        (ref) => DriftGoalStore(ref.watch(appDatabaseProvider)),
       ),
       ringAlertPreferencesProvider.overrideWithValue(
         SharedPreferencesRingAlertPreferences(),

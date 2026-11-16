@@ -10787,6 +10787,1598 @@ class StepGoalChangesCompanion extends UpdateCompanion<StepGoalChangeRow> {
   }
 }
 
+class $GoalsTable extends Goals with TableInfo<$GoalsTable, GoalRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _paceMeta = const VerificationMeta('pace');
+  @override
+  late final GeneratedColumn<String> pace = GeneratedColumn<String>(
+    'pace',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _startedOnMeta = const VerificationMeta(
+    'startedOn',
+  );
+  @override
+  late final GeneratedColumn<String> startedOn = GeneratedColumn<String>(
+    'started_on',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _anchorKgMeta = const VerificationMeta(
+    'anchorKg',
+  );
+  @override
+  late final GeneratedColumn<double> anchorKg = GeneratedColumn<double>(
+    'anchor_kg',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _referenceKgMeta = const VerificationMeta(
+    'referenceKg',
+  );
+  @override
+  late final GeneratedColumn<double> referenceKg = GeneratedColumn<double>(
+    'reference_kg',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _blockStartedOnMeta = const VerificationMeta(
+    'blockStartedOn',
+  );
+  @override
+  late final GeneratedColumn<String> blockStartedOn = GeneratedColumn<String>(
+    'block_started_on',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _blockAnchorKgMeta = const VerificationMeta(
+    'blockAnchorKg',
+  );
+  @override
+  late final GeneratedColumn<double> blockAnchorKg = GeneratedColumn<double>(
+    'block_anchor_kg',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _phaseMeta = const VerificationMeta('phase');
+  @override
+  late final GeneratedColumn<String> phase = GeneratedColumn<String>(
+    'phase',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _phaseSinceMeta = const VerificationMeta(
+    'phaseSince',
+  );
+  @override
+  late final GeneratedColumn<String> phaseSince = GeneratedColumn<String>(
+    'phase_since',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _phaseUntilMeta = const VerificationMeta(
+    'phaseUntil',
+  );
+  @override
+  late final GeneratedColumn<String> phaseUntil = GeneratedColumn<String>(
+    'phase_until',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _leversMeta = const VerificationMeta('levers');
+  @override
+  late final GeneratedColumn<String> levers = GeneratedColumn<String>(
+    'levers',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endedOnMeta = const VerificationMeta(
+    'endedOn',
+  );
+  @override
+  late final GeneratedColumn<String> endedOn = GeneratedColumn<String>(
+    'ended_on',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endReasonMeta = const VerificationMeta(
+    'endReason',
+  );
+  @override
+  late final GeneratedColumn<String> endReason = GeneratedColumn<String>(
+    'end_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    kind,
+    pace,
+    startedOn,
+    anchorKg,
+    referenceKg,
+    blockStartedOn,
+    blockAnchorKg,
+    phase,
+    phaseSince,
+    phaseUntil,
+    levers,
+    endedOn,
+    endReason,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'goals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GoalRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('pace')) {
+      context.handle(
+        _paceMeta,
+        pace.isAcceptableOrUnknown(data['pace']!, _paceMeta),
+      );
+    }
+    if (data.containsKey('started_on')) {
+      context.handle(
+        _startedOnMeta,
+        startedOn.isAcceptableOrUnknown(data['started_on']!, _startedOnMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startedOnMeta);
+    }
+    if (data.containsKey('anchor_kg')) {
+      context.handle(
+        _anchorKgMeta,
+        anchorKg.isAcceptableOrUnknown(data['anchor_kg']!, _anchorKgMeta),
+      );
+    }
+    if (data.containsKey('reference_kg')) {
+      context.handle(
+        _referenceKgMeta,
+        referenceKg.isAcceptableOrUnknown(
+          data['reference_kg']!,
+          _referenceKgMeta,
+        ),
+      );
+    }
+    if (data.containsKey('block_started_on')) {
+      context.handle(
+        _blockStartedOnMeta,
+        blockStartedOn.isAcceptableOrUnknown(
+          data['block_started_on']!,
+          _blockStartedOnMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_blockStartedOnMeta);
+    }
+    if (data.containsKey('block_anchor_kg')) {
+      context.handle(
+        _blockAnchorKgMeta,
+        blockAnchorKg.isAcceptableOrUnknown(
+          data['block_anchor_kg']!,
+          _blockAnchorKgMeta,
+        ),
+      );
+    }
+    if (data.containsKey('phase')) {
+      context.handle(
+        _phaseMeta,
+        phase.isAcceptableOrUnknown(data['phase']!, _phaseMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_phaseMeta);
+    }
+    if (data.containsKey('phase_since')) {
+      context.handle(
+        _phaseSinceMeta,
+        phaseSince.isAcceptableOrUnknown(data['phase_since']!, _phaseSinceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_phaseSinceMeta);
+    }
+    if (data.containsKey('phase_until')) {
+      context.handle(
+        _phaseUntilMeta,
+        phaseUntil.isAcceptableOrUnknown(data['phase_until']!, _phaseUntilMeta),
+      );
+    }
+    if (data.containsKey('levers')) {
+      context.handle(
+        _leversMeta,
+        levers.isAcceptableOrUnknown(data['levers']!, _leversMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_leversMeta);
+    }
+    if (data.containsKey('ended_on')) {
+      context.handle(
+        _endedOnMeta,
+        endedOn.isAcceptableOrUnknown(data['ended_on']!, _endedOnMeta),
+      );
+    }
+    if (data.containsKey('end_reason')) {
+      context.handle(
+        _endReasonMeta,
+        endReason.isAcceptableOrUnknown(data['end_reason']!, _endReasonMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GoalRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GoalRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      pace: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pace'],
+      ),
+      startedOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}started_on'],
+      )!,
+      anchorKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}anchor_kg'],
+      ),
+      referenceKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}reference_kg'],
+      ),
+      blockStartedOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}block_started_on'],
+      )!,
+      blockAnchorKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}block_anchor_kg'],
+      ),
+      phase: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phase'],
+      )!,
+      phaseSince: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phase_since'],
+      )!,
+      phaseUntil: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phase_until'],
+      ),
+      levers: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}levers'],
+      )!,
+      endedOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ended_on'],
+      ),
+      endReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}end_reason'],
+      ),
+    );
+  }
+
+  @override
+  $GoalsTable createAlias(String alias) {
+    return $GoalsTable(attachedDatabase, alias);
+  }
+}
+
+class GoalRow extends DataClass implements Insertable<GoalRow> {
+  final int id;
+  final String kind;
+  final String? pace;
+  final String startedOn;
+  final double? anchorKg;
+  final double? referenceKg;
+  final String blockStartedOn;
+  final double? blockAnchorKg;
+  final String phase;
+  final String phaseSince;
+  final String? phaseUntil;
+  final String levers;
+  final String? endedOn;
+  final String? endReason;
+  const GoalRow({
+    required this.id,
+    required this.kind,
+    this.pace,
+    required this.startedOn,
+    this.anchorKg,
+    this.referenceKg,
+    required this.blockStartedOn,
+    this.blockAnchorKg,
+    required this.phase,
+    required this.phaseSince,
+    this.phaseUntil,
+    required this.levers,
+    this.endedOn,
+    this.endReason,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['kind'] = Variable<String>(kind);
+    if (!nullToAbsent || pace != null) {
+      map['pace'] = Variable<String>(pace);
+    }
+    map['started_on'] = Variable<String>(startedOn);
+    if (!nullToAbsent || anchorKg != null) {
+      map['anchor_kg'] = Variable<double>(anchorKg);
+    }
+    if (!nullToAbsent || referenceKg != null) {
+      map['reference_kg'] = Variable<double>(referenceKg);
+    }
+    map['block_started_on'] = Variable<String>(blockStartedOn);
+    if (!nullToAbsent || blockAnchorKg != null) {
+      map['block_anchor_kg'] = Variable<double>(blockAnchorKg);
+    }
+    map['phase'] = Variable<String>(phase);
+    map['phase_since'] = Variable<String>(phaseSince);
+    if (!nullToAbsent || phaseUntil != null) {
+      map['phase_until'] = Variable<String>(phaseUntil);
+    }
+    map['levers'] = Variable<String>(levers);
+    if (!nullToAbsent || endedOn != null) {
+      map['ended_on'] = Variable<String>(endedOn);
+    }
+    if (!nullToAbsent || endReason != null) {
+      map['end_reason'] = Variable<String>(endReason);
+    }
+    return map;
+  }
+
+  GoalsCompanion toCompanion(bool nullToAbsent) {
+    return GoalsCompanion(
+      id: Value(id),
+      kind: Value(kind),
+      pace: pace == null && nullToAbsent ? const Value.absent() : Value(pace),
+      startedOn: Value(startedOn),
+      anchorKg: anchorKg == null && nullToAbsent
+          ? const Value.absent()
+          : Value(anchorKg),
+      referenceKg: referenceKg == null && nullToAbsent
+          ? const Value.absent()
+          : Value(referenceKg),
+      blockStartedOn: Value(blockStartedOn),
+      blockAnchorKg: blockAnchorKg == null && nullToAbsent
+          ? const Value.absent()
+          : Value(blockAnchorKg),
+      phase: Value(phase),
+      phaseSince: Value(phaseSince),
+      phaseUntil: phaseUntil == null && nullToAbsent
+          ? const Value.absent()
+          : Value(phaseUntil),
+      levers: Value(levers),
+      endedOn: endedOn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endedOn),
+      endReason: endReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endReason),
+    );
+  }
+
+  factory GoalRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GoalRow(
+      id: serializer.fromJson<int>(json['id']),
+      kind: serializer.fromJson<String>(json['kind']),
+      pace: serializer.fromJson<String?>(json['pace']),
+      startedOn: serializer.fromJson<String>(json['startedOn']),
+      anchorKg: serializer.fromJson<double?>(json['anchorKg']),
+      referenceKg: serializer.fromJson<double?>(json['referenceKg']),
+      blockStartedOn: serializer.fromJson<String>(json['blockStartedOn']),
+      blockAnchorKg: serializer.fromJson<double?>(json['blockAnchorKg']),
+      phase: serializer.fromJson<String>(json['phase']),
+      phaseSince: serializer.fromJson<String>(json['phaseSince']),
+      phaseUntil: serializer.fromJson<String?>(json['phaseUntil']),
+      levers: serializer.fromJson<String>(json['levers']),
+      endedOn: serializer.fromJson<String?>(json['endedOn']),
+      endReason: serializer.fromJson<String?>(json['endReason']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'kind': serializer.toJson<String>(kind),
+      'pace': serializer.toJson<String?>(pace),
+      'startedOn': serializer.toJson<String>(startedOn),
+      'anchorKg': serializer.toJson<double?>(anchorKg),
+      'referenceKg': serializer.toJson<double?>(referenceKg),
+      'blockStartedOn': serializer.toJson<String>(blockStartedOn),
+      'blockAnchorKg': serializer.toJson<double?>(blockAnchorKg),
+      'phase': serializer.toJson<String>(phase),
+      'phaseSince': serializer.toJson<String>(phaseSince),
+      'phaseUntil': serializer.toJson<String?>(phaseUntil),
+      'levers': serializer.toJson<String>(levers),
+      'endedOn': serializer.toJson<String?>(endedOn),
+      'endReason': serializer.toJson<String?>(endReason),
+    };
+  }
+
+  GoalRow copyWith({
+    int? id,
+    String? kind,
+    Value<String?> pace = const Value.absent(),
+    String? startedOn,
+    Value<double?> anchorKg = const Value.absent(),
+    Value<double?> referenceKg = const Value.absent(),
+    String? blockStartedOn,
+    Value<double?> blockAnchorKg = const Value.absent(),
+    String? phase,
+    String? phaseSince,
+    Value<String?> phaseUntil = const Value.absent(),
+    String? levers,
+    Value<String?> endedOn = const Value.absent(),
+    Value<String?> endReason = const Value.absent(),
+  }) => GoalRow(
+    id: id ?? this.id,
+    kind: kind ?? this.kind,
+    pace: pace.present ? pace.value : this.pace,
+    startedOn: startedOn ?? this.startedOn,
+    anchorKg: anchorKg.present ? anchorKg.value : this.anchorKg,
+    referenceKg: referenceKg.present ? referenceKg.value : this.referenceKg,
+    blockStartedOn: blockStartedOn ?? this.blockStartedOn,
+    blockAnchorKg: blockAnchorKg.present
+        ? blockAnchorKg.value
+        : this.blockAnchorKg,
+    phase: phase ?? this.phase,
+    phaseSince: phaseSince ?? this.phaseSince,
+    phaseUntil: phaseUntil.present ? phaseUntil.value : this.phaseUntil,
+    levers: levers ?? this.levers,
+    endedOn: endedOn.present ? endedOn.value : this.endedOn,
+    endReason: endReason.present ? endReason.value : this.endReason,
+  );
+  GoalRow copyWithCompanion(GoalsCompanion data) {
+    return GoalRow(
+      id: data.id.present ? data.id.value : this.id,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      pace: data.pace.present ? data.pace.value : this.pace,
+      startedOn: data.startedOn.present ? data.startedOn.value : this.startedOn,
+      anchorKg: data.anchorKg.present ? data.anchorKg.value : this.anchorKg,
+      referenceKg: data.referenceKg.present
+          ? data.referenceKg.value
+          : this.referenceKg,
+      blockStartedOn: data.blockStartedOn.present
+          ? data.blockStartedOn.value
+          : this.blockStartedOn,
+      blockAnchorKg: data.blockAnchorKg.present
+          ? data.blockAnchorKg.value
+          : this.blockAnchorKg,
+      phase: data.phase.present ? data.phase.value : this.phase,
+      phaseSince: data.phaseSince.present
+          ? data.phaseSince.value
+          : this.phaseSince,
+      phaseUntil: data.phaseUntil.present
+          ? data.phaseUntil.value
+          : this.phaseUntil,
+      levers: data.levers.present ? data.levers.value : this.levers,
+      endedOn: data.endedOn.present ? data.endedOn.value : this.endedOn,
+      endReason: data.endReason.present ? data.endReason.value : this.endReason,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalRow(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('pace: $pace, ')
+          ..write('startedOn: $startedOn, ')
+          ..write('anchorKg: $anchorKg, ')
+          ..write('referenceKg: $referenceKg, ')
+          ..write('blockStartedOn: $blockStartedOn, ')
+          ..write('blockAnchorKg: $blockAnchorKg, ')
+          ..write('phase: $phase, ')
+          ..write('phaseSince: $phaseSince, ')
+          ..write('phaseUntil: $phaseUntil, ')
+          ..write('levers: $levers, ')
+          ..write('endedOn: $endedOn, ')
+          ..write('endReason: $endReason')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    kind,
+    pace,
+    startedOn,
+    anchorKg,
+    referenceKg,
+    blockStartedOn,
+    blockAnchorKg,
+    phase,
+    phaseSince,
+    phaseUntil,
+    levers,
+    endedOn,
+    endReason,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GoalRow &&
+          other.id == this.id &&
+          other.kind == this.kind &&
+          other.pace == this.pace &&
+          other.startedOn == this.startedOn &&
+          other.anchorKg == this.anchorKg &&
+          other.referenceKg == this.referenceKg &&
+          other.blockStartedOn == this.blockStartedOn &&
+          other.blockAnchorKg == this.blockAnchorKg &&
+          other.phase == this.phase &&
+          other.phaseSince == this.phaseSince &&
+          other.phaseUntil == this.phaseUntil &&
+          other.levers == this.levers &&
+          other.endedOn == this.endedOn &&
+          other.endReason == this.endReason);
+}
+
+class GoalsCompanion extends UpdateCompanion<GoalRow> {
+  final Value<int> id;
+  final Value<String> kind;
+  final Value<String?> pace;
+  final Value<String> startedOn;
+  final Value<double?> anchorKg;
+  final Value<double?> referenceKg;
+  final Value<String> blockStartedOn;
+  final Value<double?> blockAnchorKg;
+  final Value<String> phase;
+  final Value<String> phaseSince;
+  final Value<String?> phaseUntil;
+  final Value<String> levers;
+  final Value<String?> endedOn;
+  final Value<String?> endReason;
+  const GoalsCompanion({
+    this.id = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.pace = const Value.absent(),
+    this.startedOn = const Value.absent(),
+    this.anchorKg = const Value.absent(),
+    this.referenceKg = const Value.absent(),
+    this.blockStartedOn = const Value.absent(),
+    this.blockAnchorKg = const Value.absent(),
+    this.phase = const Value.absent(),
+    this.phaseSince = const Value.absent(),
+    this.phaseUntil = const Value.absent(),
+    this.levers = const Value.absent(),
+    this.endedOn = const Value.absent(),
+    this.endReason = const Value.absent(),
+  });
+  GoalsCompanion.insert({
+    this.id = const Value.absent(),
+    required String kind,
+    this.pace = const Value.absent(),
+    required String startedOn,
+    this.anchorKg = const Value.absent(),
+    this.referenceKg = const Value.absent(),
+    required String blockStartedOn,
+    this.blockAnchorKg = const Value.absent(),
+    required String phase,
+    required String phaseSince,
+    this.phaseUntil = const Value.absent(),
+    required String levers,
+    this.endedOn = const Value.absent(),
+    this.endReason = const Value.absent(),
+  }) : kind = Value(kind),
+       startedOn = Value(startedOn),
+       blockStartedOn = Value(blockStartedOn),
+       phase = Value(phase),
+       phaseSince = Value(phaseSince),
+       levers = Value(levers);
+  static Insertable<GoalRow> custom({
+    Expression<int>? id,
+    Expression<String>? kind,
+    Expression<String>? pace,
+    Expression<String>? startedOn,
+    Expression<double>? anchorKg,
+    Expression<double>? referenceKg,
+    Expression<String>? blockStartedOn,
+    Expression<double>? blockAnchorKg,
+    Expression<String>? phase,
+    Expression<String>? phaseSince,
+    Expression<String>? phaseUntil,
+    Expression<String>? levers,
+    Expression<String>? endedOn,
+    Expression<String>? endReason,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (kind != null) 'kind': kind,
+      if (pace != null) 'pace': pace,
+      if (startedOn != null) 'started_on': startedOn,
+      if (anchorKg != null) 'anchor_kg': anchorKg,
+      if (referenceKg != null) 'reference_kg': referenceKg,
+      if (blockStartedOn != null) 'block_started_on': blockStartedOn,
+      if (blockAnchorKg != null) 'block_anchor_kg': blockAnchorKg,
+      if (phase != null) 'phase': phase,
+      if (phaseSince != null) 'phase_since': phaseSince,
+      if (phaseUntil != null) 'phase_until': phaseUntil,
+      if (levers != null) 'levers': levers,
+      if (endedOn != null) 'ended_on': endedOn,
+      if (endReason != null) 'end_reason': endReason,
+    });
+  }
+
+  GoalsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? kind,
+    Value<String?>? pace,
+    Value<String>? startedOn,
+    Value<double?>? anchorKg,
+    Value<double?>? referenceKg,
+    Value<String>? blockStartedOn,
+    Value<double?>? blockAnchorKg,
+    Value<String>? phase,
+    Value<String>? phaseSince,
+    Value<String?>? phaseUntil,
+    Value<String>? levers,
+    Value<String?>? endedOn,
+    Value<String?>? endReason,
+  }) {
+    return GoalsCompanion(
+      id: id ?? this.id,
+      kind: kind ?? this.kind,
+      pace: pace ?? this.pace,
+      startedOn: startedOn ?? this.startedOn,
+      anchorKg: anchorKg ?? this.anchorKg,
+      referenceKg: referenceKg ?? this.referenceKg,
+      blockStartedOn: blockStartedOn ?? this.blockStartedOn,
+      blockAnchorKg: blockAnchorKg ?? this.blockAnchorKg,
+      phase: phase ?? this.phase,
+      phaseSince: phaseSince ?? this.phaseSince,
+      phaseUntil: phaseUntil ?? this.phaseUntil,
+      levers: levers ?? this.levers,
+      endedOn: endedOn ?? this.endedOn,
+      endReason: endReason ?? this.endReason,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (pace.present) {
+      map['pace'] = Variable<String>(pace.value);
+    }
+    if (startedOn.present) {
+      map['started_on'] = Variable<String>(startedOn.value);
+    }
+    if (anchorKg.present) {
+      map['anchor_kg'] = Variable<double>(anchorKg.value);
+    }
+    if (referenceKg.present) {
+      map['reference_kg'] = Variable<double>(referenceKg.value);
+    }
+    if (blockStartedOn.present) {
+      map['block_started_on'] = Variable<String>(blockStartedOn.value);
+    }
+    if (blockAnchorKg.present) {
+      map['block_anchor_kg'] = Variable<double>(blockAnchorKg.value);
+    }
+    if (phase.present) {
+      map['phase'] = Variable<String>(phase.value);
+    }
+    if (phaseSince.present) {
+      map['phase_since'] = Variable<String>(phaseSince.value);
+    }
+    if (phaseUntil.present) {
+      map['phase_until'] = Variable<String>(phaseUntil.value);
+    }
+    if (levers.present) {
+      map['levers'] = Variable<String>(levers.value);
+    }
+    if (endedOn.present) {
+      map['ended_on'] = Variable<String>(endedOn.value);
+    }
+    if (endReason.present) {
+      map['end_reason'] = Variable<String>(endReason.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalsCompanion(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('pace: $pace, ')
+          ..write('startedOn: $startedOn, ')
+          ..write('anchorKg: $anchorKg, ')
+          ..write('referenceKg: $referenceKg, ')
+          ..write('blockStartedOn: $blockStartedOn, ')
+          ..write('blockAnchorKg: $blockAnchorKg, ')
+          ..write('phase: $phase, ')
+          ..write('phaseSince: $phaseSince, ')
+          ..write('phaseUntil: $phaseUntil, ')
+          ..write('levers: $levers, ')
+          ..write('endedOn: $endedOn, ')
+          ..write('endReason: $endReason')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GoalWeeksTable extends GoalWeeks
+    with TableInfo<$GoalWeeksTable, GoalWeekRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoalWeeksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _goalIdMeta = const VerificationMeta('goalId');
+  @override
+  late final GeneratedColumn<int> goalId = GeneratedColumn<int>(
+    'goal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES goals (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _mondayMeta = const VerificationMeta('monday');
+  @override
+  late final GeneratedColumn<String> monday = GeneratedColumn<String>(
+    'monday',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _inputsMeta = const VerificationMeta('inputs');
+  @override
+  late final GeneratedColumn<String> inputs = GeneratedColumn<String>(
+    'inputs',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ruleMeta = const VerificationMeta('rule');
+  @override
+  late final GeneratedColumn<String> rule = GeneratedColumn<String>(
+    'rule',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _actionMeta = const VerificationMeta('action');
+  @override
+  late final GeneratedColumn<String> action = GeneratedColumn<String>(
+    'action',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _changeMeta = const VerificationMeta('change');
+  @override
+  late final GeneratedColumn<String> change = GeneratedColumn<String>(
+    'change',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _answerMeta = const VerificationMeta('answer');
+  @override
+  late final GeneratedColumn<String> answer = GeneratedColumn<String>(
+    'answer',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    goalId,
+    monday,
+    inputs,
+    rule,
+    action,
+    change,
+    answer,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'goal_weeks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GoalWeekRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('goal_id')) {
+      context.handle(
+        _goalIdMeta,
+        goalId.isAcceptableOrUnknown(data['goal_id']!, _goalIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_goalIdMeta);
+    }
+    if (data.containsKey('monday')) {
+      context.handle(
+        _mondayMeta,
+        monday.isAcceptableOrUnknown(data['monday']!, _mondayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mondayMeta);
+    }
+    if (data.containsKey('inputs')) {
+      context.handle(
+        _inputsMeta,
+        inputs.isAcceptableOrUnknown(data['inputs']!, _inputsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_inputsMeta);
+    }
+    if (data.containsKey('rule')) {
+      context.handle(
+        _ruleMeta,
+        rule.isAcceptableOrUnknown(data['rule']!, _ruleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ruleMeta);
+    }
+    if (data.containsKey('action')) {
+      context.handle(
+        _actionMeta,
+        action.isAcceptableOrUnknown(data['action']!, _actionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_actionMeta);
+    }
+    if (data.containsKey('change')) {
+      context.handle(
+        _changeMeta,
+        change.isAcceptableOrUnknown(data['change']!, _changeMeta),
+      );
+    }
+    if (data.containsKey('answer')) {
+      context.handle(
+        _answerMeta,
+        answer.isAcceptableOrUnknown(data['answer']!, _answerMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {goalId, monday};
+  @override
+  GoalWeekRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GoalWeekRow(
+      goalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}goal_id'],
+      )!,
+      monday: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}monday'],
+      )!,
+      inputs: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}inputs'],
+      )!,
+      rule: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rule'],
+      )!,
+      action: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}action'],
+      )!,
+      change: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}change'],
+      ),
+      answer: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}answer'],
+      ),
+    );
+  }
+
+  @override
+  $GoalWeeksTable createAlias(String alias) {
+    return $GoalWeeksTable(attachedDatabase, alias);
+  }
+}
+
+class GoalWeekRow extends DataClass implements Insertable<GoalWeekRow> {
+  final int goalId;
+  final String monday;
+  final String inputs;
+  final String rule;
+  final String action;
+  final String? change;
+  final String? answer;
+  const GoalWeekRow({
+    required this.goalId,
+    required this.monday,
+    required this.inputs,
+    required this.rule,
+    required this.action,
+    this.change,
+    this.answer,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['goal_id'] = Variable<int>(goalId);
+    map['monday'] = Variable<String>(monday);
+    map['inputs'] = Variable<String>(inputs);
+    map['rule'] = Variable<String>(rule);
+    map['action'] = Variable<String>(action);
+    if (!nullToAbsent || change != null) {
+      map['change'] = Variable<String>(change);
+    }
+    if (!nullToAbsent || answer != null) {
+      map['answer'] = Variable<String>(answer);
+    }
+    return map;
+  }
+
+  GoalWeeksCompanion toCompanion(bool nullToAbsent) {
+    return GoalWeeksCompanion(
+      goalId: Value(goalId),
+      monday: Value(monday),
+      inputs: Value(inputs),
+      rule: Value(rule),
+      action: Value(action),
+      change: change == null && nullToAbsent
+          ? const Value.absent()
+          : Value(change),
+      answer: answer == null && nullToAbsent
+          ? const Value.absent()
+          : Value(answer),
+    );
+  }
+
+  factory GoalWeekRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GoalWeekRow(
+      goalId: serializer.fromJson<int>(json['goalId']),
+      monday: serializer.fromJson<String>(json['monday']),
+      inputs: serializer.fromJson<String>(json['inputs']),
+      rule: serializer.fromJson<String>(json['rule']),
+      action: serializer.fromJson<String>(json['action']),
+      change: serializer.fromJson<String?>(json['change']),
+      answer: serializer.fromJson<String?>(json['answer']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'goalId': serializer.toJson<int>(goalId),
+      'monday': serializer.toJson<String>(monday),
+      'inputs': serializer.toJson<String>(inputs),
+      'rule': serializer.toJson<String>(rule),
+      'action': serializer.toJson<String>(action),
+      'change': serializer.toJson<String?>(change),
+      'answer': serializer.toJson<String?>(answer),
+    };
+  }
+
+  GoalWeekRow copyWith({
+    int? goalId,
+    String? monday,
+    String? inputs,
+    String? rule,
+    String? action,
+    Value<String?> change = const Value.absent(),
+    Value<String?> answer = const Value.absent(),
+  }) => GoalWeekRow(
+    goalId: goalId ?? this.goalId,
+    monday: monday ?? this.monday,
+    inputs: inputs ?? this.inputs,
+    rule: rule ?? this.rule,
+    action: action ?? this.action,
+    change: change.present ? change.value : this.change,
+    answer: answer.present ? answer.value : this.answer,
+  );
+  GoalWeekRow copyWithCompanion(GoalWeeksCompanion data) {
+    return GoalWeekRow(
+      goalId: data.goalId.present ? data.goalId.value : this.goalId,
+      monday: data.monday.present ? data.monday.value : this.monday,
+      inputs: data.inputs.present ? data.inputs.value : this.inputs,
+      rule: data.rule.present ? data.rule.value : this.rule,
+      action: data.action.present ? data.action.value : this.action,
+      change: data.change.present ? data.change.value : this.change,
+      answer: data.answer.present ? data.answer.value : this.answer,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalWeekRow(')
+          ..write('goalId: $goalId, ')
+          ..write('monday: $monday, ')
+          ..write('inputs: $inputs, ')
+          ..write('rule: $rule, ')
+          ..write('action: $action, ')
+          ..write('change: $change, ')
+          ..write('answer: $answer')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(goalId, monday, inputs, rule, action, change, answer);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GoalWeekRow &&
+          other.goalId == this.goalId &&
+          other.monday == this.monday &&
+          other.inputs == this.inputs &&
+          other.rule == this.rule &&
+          other.action == this.action &&
+          other.change == this.change &&
+          other.answer == this.answer);
+}
+
+class GoalWeeksCompanion extends UpdateCompanion<GoalWeekRow> {
+  final Value<int> goalId;
+  final Value<String> monday;
+  final Value<String> inputs;
+  final Value<String> rule;
+  final Value<String> action;
+  final Value<String?> change;
+  final Value<String?> answer;
+  final Value<int> rowid;
+  const GoalWeeksCompanion({
+    this.goalId = const Value.absent(),
+    this.monday = const Value.absent(),
+    this.inputs = const Value.absent(),
+    this.rule = const Value.absent(),
+    this.action = const Value.absent(),
+    this.change = const Value.absent(),
+    this.answer = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GoalWeeksCompanion.insert({
+    required int goalId,
+    required String monday,
+    required String inputs,
+    required String rule,
+    required String action,
+    this.change = const Value.absent(),
+    this.answer = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : goalId = Value(goalId),
+       monday = Value(monday),
+       inputs = Value(inputs),
+       rule = Value(rule),
+       action = Value(action);
+  static Insertable<GoalWeekRow> custom({
+    Expression<int>? goalId,
+    Expression<String>? monday,
+    Expression<String>? inputs,
+    Expression<String>? rule,
+    Expression<String>? action,
+    Expression<String>? change,
+    Expression<String>? answer,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (goalId != null) 'goal_id': goalId,
+      if (monday != null) 'monday': monday,
+      if (inputs != null) 'inputs': inputs,
+      if (rule != null) 'rule': rule,
+      if (action != null) 'action': action,
+      if (change != null) 'change': change,
+      if (answer != null) 'answer': answer,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GoalWeeksCompanion copyWith({
+    Value<int>? goalId,
+    Value<String>? monday,
+    Value<String>? inputs,
+    Value<String>? rule,
+    Value<String>? action,
+    Value<String?>? change,
+    Value<String?>? answer,
+    Value<int>? rowid,
+  }) {
+    return GoalWeeksCompanion(
+      goalId: goalId ?? this.goalId,
+      monday: monday ?? this.monday,
+      inputs: inputs ?? this.inputs,
+      rule: rule ?? this.rule,
+      action: action ?? this.action,
+      change: change ?? this.change,
+      answer: answer ?? this.answer,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (goalId.present) {
+      map['goal_id'] = Variable<int>(goalId.value);
+    }
+    if (monday.present) {
+      map['monday'] = Variable<String>(monday.value);
+    }
+    if (inputs.present) {
+      map['inputs'] = Variable<String>(inputs.value);
+    }
+    if (rule.present) {
+      map['rule'] = Variable<String>(rule.value);
+    }
+    if (action.present) {
+      map['action'] = Variable<String>(action.value);
+    }
+    if (change.present) {
+      map['change'] = Variable<String>(change.value);
+    }
+    if (answer.present) {
+      map['answer'] = Variable<String>(answer.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalWeeksCompanion(')
+          ..write('goalId: $goalId, ')
+          ..write('monday: $monday, ')
+          ..write('inputs: $inputs, ')
+          ..write('rule: $rule, ')
+          ..write('action: $action, ')
+          ..write('change: $change, ')
+          ..write('answer: $answer, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GoalScreeningsTable extends GoalScreenings
+    with TableInfo<$GoalScreeningsTable, GoalScreeningRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoalScreeningsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _askedOnMeta = const VerificationMeta(
+    'askedOn',
+  );
+  @override
+  late final GeneratedColumn<String> askedOn = GeneratedColumn<String>(
+    'asked_on',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _softModeMeta = const VerificationMeta(
+    'softMode',
+  );
+  @override
+  late final GeneratedColumn<bool> softMode = GeneratedColumn<bool>(
+    'soft_mode',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("soft_mode" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _pregnantOrBreastfeedingMeta =
+      const VerificationMeta('pregnantOrBreastfeeding');
+  @override
+  late final GeneratedColumn<bool> pregnantOrBreastfeeding =
+      GeneratedColumn<bool>(
+        'pregnant_or_breastfeeding',
+        aliasedName,
+        true,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("pregnant_or_breastfeeding" IN (0, 1))',
+        ),
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    askedOn,
+    softMode,
+    pregnantOrBreastfeeding,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'goal_screenings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GoalScreeningRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('asked_on')) {
+      context.handle(
+        _askedOnMeta,
+        askedOn.isAcceptableOrUnknown(data['asked_on']!, _askedOnMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_askedOnMeta);
+    }
+    if (data.containsKey('soft_mode')) {
+      context.handle(
+        _softModeMeta,
+        softMode.isAcceptableOrUnknown(data['soft_mode']!, _softModeMeta),
+      );
+    }
+    if (data.containsKey('pregnant_or_breastfeeding')) {
+      context.handle(
+        _pregnantOrBreastfeedingMeta,
+        pregnantOrBreastfeeding.isAcceptableOrUnknown(
+          data['pregnant_or_breastfeeding']!,
+          _pregnantOrBreastfeedingMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GoalScreeningRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GoalScreeningRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      askedOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}asked_on'],
+      )!,
+      softMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}soft_mode'],
+      ),
+      pregnantOrBreastfeeding: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}pregnant_or_breastfeeding'],
+      ),
+    );
+  }
+
+  @override
+  $GoalScreeningsTable createAlias(String alias) {
+    return $GoalScreeningsTable(attachedDatabase, alias);
+  }
+}
+
+class GoalScreeningRow extends DataClass
+    implements Insertable<GoalScreeningRow> {
+  final int id;
+  final String askedOn;
+  final bool? softMode;
+  final bool? pregnantOrBreastfeeding;
+  const GoalScreeningRow({
+    required this.id,
+    required this.askedOn,
+    this.softMode,
+    this.pregnantOrBreastfeeding,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['asked_on'] = Variable<String>(askedOn);
+    if (!nullToAbsent || softMode != null) {
+      map['soft_mode'] = Variable<bool>(softMode);
+    }
+    if (!nullToAbsent || pregnantOrBreastfeeding != null) {
+      map['pregnant_or_breastfeeding'] = Variable<bool>(
+        pregnantOrBreastfeeding,
+      );
+    }
+    return map;
+  }
+
+  GoalScreeningsCompanion toCompanion(bool nullToAbsent) {
+    return GoalScreeningsCompanion(
+      id: Value(id),
+      askedOn: Value(askedOn),
+      softMode: softMode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(softMode),
+      pregnantOrBreastfeeding: pregnantOrBreastfeeding == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pregnantOrBreastfeeding),
+    );
+  }
+
+  factory GoalScreeningRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GoalScreeningRow(
+      id: serializer.fromJson<int>(json['id']),
+      askedOn: serializer.fromJson<String>(json['askedOn']),
+      softMode: serializer.fromJson<bool?>(json['softMode']),
+      pregnantOrBreastfeeding: serializer.fromJson<bool?>(
+        json['pregnantOrBreastfeeding'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'askedOn': serializer.toJson<String>(askedOn),
+      'softMode': serializer.toJson<bool?>(softMode),
+      'pregnantOrBreastfeeding': serializer.toJson<bool?>(
+        pregnantOrBreastfeeding,
+      ),
+    };
+  }
+
+  GoalScreeningRow copyWith({
+    int? id,
+    String? askedOn,
+    Value<bool?> softMode = const Value.absent(),
+    Value<bool?> pregnantOrBreastfeeding = const Value.absent(),
+  }) => GoalScreeningRow(
+    id: id ?? this.id,
+    askedOn: askedOn ?? this.askedOn,
+    softMode: softMode.present ? softMode.value : this.softMode,
+    pregnantOrBreastfeeding: pregnantOrBreastfeeding.present
+        ? pregnantOrBreastfeeding.value
+        : this.pregnantOrBreastfeeding,
+  );
+  GoalScreeningRow copyWithCompanion(GoalScreeningsCompanion data) {
+    return GoalScreeningRow(
+      id: data.id.present ? data.id.value : this.id,
+      askedOn: data.askedOn.present ? data.askedOn.value : this.askedOn,
+      softMode: data.softMode.present ? data.softMode.value : this.softMode,
+      pregnantOrBreastfeeding: data.pregnantOrBreastfeeding.present
+          ? data.pregnantOrBreastfeeding.value
+          : this.pregnantOrBreastfeeding,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalScreeningRow(')
+          ..write('id: $id, ')
+          ..write('askedOn: $askedOn, ')
+          ..write('softMode: $softMode, ')
+          ..write('pregnantOrBreastfeeding: $pregnantOrBreastfeeding')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, askedOn, softMode, pregnantOrBreastfeeding);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GoalScreeningRow &&
+          other.id == this.id &&
+          other.askedOn == this.askedOn &&
+          other.softMode == this.softMode &&
+          other.pregnantOrBreastfeeding == this.pregnantOrBreastfeeding);
+}
+
+class GoalScreeningsCompanion extends UpdateCompanion<GoalScreeningRow> {
+  final Value<int> id;
+  final Value<String> askedOn;
+  final Value<bool?> softMode;
+  final Value<bool?> pregnantOrBreastfeeding;
+  const GoalScreeningsCompanion({
+    this.id = const Value.absent(),
+    this.askedOn = const Value.absent(),
+    this.softMode = const Value.absent(),
+    this.pregnantOrBreastfeeding = const Value.absent(),
+  });
+  GoalScreeningsCompanion.insert({
+    this.id = const Value.absent(),
+    required String askedOn,
+    this.softMode = const Value.absent(),
+    this.pregnantOrBreastfeeding = const Value.absent(),
+  }) : askedOn = Value(askedOn);
+  static Insertable<GoalScreeningRow> custom({
+    Expression<int>? id,
+    Expression<String>? askedOn,
+    Expression<bool>? softMode,
+    Expression<bool>? pregnantOrBreastfeeding,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (askedOn != null) 'asked_on': askedOn,
+      if (softMode != null) 'soft_mode': softMode,
+      if (pregnantOrBreastfeeding != null)
+        'pregnant_or_breastfeeding': pregnantOrBreastfeeding,
+    });
+  }
+
+  GoalScreeningsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? askedOn,
+    Value<bool?>? softMode,
+    Value<bool?>? pregnantOrBreastfeeding,
+  }) {
+    return GoalScreeningsCompanion(
+      id: id ?? this.id,
+      askedOn: askedOn ?? this.askedOn,
+      softMode: softMode ?? this.softMode,
+      pregnantOrBreastfeeding:
+          pregnantOrBreastfeeding ?? this.pregnantOrBreastfeeding,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (askedOn.present) {
+      map['asked_on'] = Variable<String>(askedOn.value);
+    }
+    if (softMode.present) {
+      map['soft_mode'] = Variable<bool>(softMode.value);
+    }
+    if (pregnantOrBreastfeeding.present) {
+      map['pregnant_or_breastfeeding'] = Variable<bool>(
+        pregnantOrBreastfeeding.value,
+      );
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalScreeningsCompanion(')
+          ..write('id: $id, ')
+          ..write('askedOn: $askedOn, ')
+          ..write('softMode: $softMode, ')
+          ..write('pregnantOrBreastfeeding: $pregnantOrBreastfeeding')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $RingDevicesTable ringDevices = $RingDevicesTable(this);
@@ -10827,6 +12419,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $StepGoalChangesTable stepGoalChanges = $StepGoalChangesTable(
     this,
   );
+  late final $GoalsTable goals = $GoalsTable(this);
+  late final $GoalWeeksTable goalWeeks = $GoalWeeksTable(this);
+  late final $GoalScreeningsTable goalScreenings = $GoalScreeningsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -10857,6 +12452,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     weighIns,
     dayTags,
     stepGoalChanges,
+    goals,
+    goalWeeks,
+    goalScreenings,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -10887,6 +12485,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('imported_sleep_stages', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'goals',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('goal_weeks', kind: UpdateKind.delete)],
     ),
   ]);
 }

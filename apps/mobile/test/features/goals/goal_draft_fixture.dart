@@ -8,6 +8,6 @@ const draftD = GoalDraft(
   pace: GoalPace.standard,
   startedOn: LocalDate(2026, 11, 16),
   anchorKg: 78.4,
-  referenceKg: 74.0,
+  referenceKg: 74,
   levers: [strengthLever],
 );

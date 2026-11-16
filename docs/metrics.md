@@ -1119,6 +1119,29 @@ equation has no third form. The row is absent for a person under 18, while
 the Body module hides the numbers, and until the modules, the profile and the
 hide choice have loaded (`energy_gate.dart`).
 
+A tap on the range or on the starting line opens the Energy screen.
+
+### The Energy screen
+
+`apps/mobile/lib/features/energy/presentation/energy_screen.dart`, at
+`/today/energy`. It reads the same day and the same instant as the row, and it
+is empty under the same conditions: module off, under 18, numbers hidden.
+
+The day card shows the range, the middle of the range (the total rounded to
+50 kcal), a bar and the three parts. Each part prints to the nearest 10 kcal
+with the word "about", because a finer figure would claim more than the
+estimate knows; the parts are single figures, and only the total is a range.
+The bar is as wide as 1.5 times a full day of Base (`energyBarBaseDays`), or
+as the top of the range once the day is past that, so it fills as the hours
+pass; the factor is a choice with no source. The thin line under the bar is
+the range. Under `energyRowFloor` the card says the day is just starting and
+shows no range, bar or parts.
+
+The resting card shows the resting burn as a range of 10 percent to each side
+and never the exact figure. With a profile fact missing the screen lists the
+four facts, marks the missing ones and offers Settings; it shows no number
+at all.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

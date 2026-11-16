@@ -16,15 +16,6 @@ abstract final class EnergyRowKeys {
   static const unit = Key('today_energy_row_unit');
 }
 
-// The day together with the instant it was computed at, so a row that still
-// shows the last day while a new one loads keeps the time of that day.
-final _energyRowProvider = FutureProvider<({EnergyDay day, DateTime asOf})>((
-  ref,
-) async {
-  final asOf = ref.watch(energyAsOfProvider);
-  return (day: await ref.watch(energyTodayProvider.future), asOf: asOf);
-});
-
 String _missingLine(AppLocalizations l10n, List<EnergyField> fields) {
   if (fields.length != 1) return l10n.energyRowMissingSeveral;
   return switch (fields.single) {
@@ -73,7 +64,7 @@ class EnergyRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final row = ref.watch(_energyRowProvider);
+    final row = ref.watch(energyNowProvider);
     final computed = row.value;
     if (row.hasError || computed == null) return const SizedBox.shrink();
     final format = MetricFormat.of(context);
@@ -87,18 +78,25 @@ class EnergyRow extends ConsumerWidget {
           onTap: () => context.go(AppPaths.settings),
         );
       case EnergyDayEstimate(:final range) when range.low < energyRowFloor:
-        return _EnergyCard(note: l10n.energyRowStarting);
+        return _EnergyCard(
+          note: l10n.energyRowStarting,
+          onTap: () => context.go(AppPaths.energy),
+        );
       case EnergyDayEstimate(:final range):
         final asOf = computed.asOf;
         final low = format.integer(range.low);
         final high = format.integer(range.high);
+        void open() => context.go(AppPaths.energy);
         return Semantics(
           container: true,
           excludeSemantics: true,
+          button: true,
+          onTap: open,
           label: l10n.energyRowSemantics(low, high),
           child: _EnergyCard(
             note: l10n.energyRowSoFar(format.clock(asOf, asOf.timeZoneOffset)),
             range: l10n.energyRowRange(low, high),
+            onTap: open,
           ),
         );
     }

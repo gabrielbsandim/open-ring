@@ -174,6 +174,10 @@ GoRouter _router() => GoRouter(
       path: AppPaths.settings,
       builder: (_, _) => const Scaffold(body: Text('settings')),
     ),
+    GoRoute(
+      path: AppPaths.energy,
+      builder: (_, _) => const Scaffold(body: Text('energy')),
+    ),
   ],
 );
 
@@ -366,16 +370,7 @@ void main() {
       expect(_text(tester, EnergyRowKeys.range), isNot(contains(',')));
     });
 
-    testWidgets('the card has no tap', (tester) async {
-      await _pump(tester);
-
-      expect(
-        tester.widget<MetricCard>(find.byKey(EnergyRowKeys.row)).onTap,
-        isNull,
-      );
-    });
-
-    testWidgets('tapping the card goes nowhere', (tester) async {
+    testWidgets('tapping the card opens the Energy screen', (tester) async {
       final router = _router();
       addTearDown(router.dispose);
       await _pumpRouted(tester, router);
@@ -383,7 +378,18 @@ void main() {
       await tester.tap(find.byKey(EnergyRowKeys.row));
       await tester.pumpAndSettle();
 
-      expect(router.state.uri.path, '/');
+      expect(router.state.uri.path, AppPaths.energy);
+    });
+
+    testWidgets('the semantics offer the tap', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _pump(tester);
+
+      expect(
+        tester.getSemantics(find.byKey(EnergyRowKeys.row)),
+        isSemantics(isButton: true, hasTapAction: true),
+      );
+      handle.dispose();
     });
 
     testWidgets('the semantics label names the range and the estimate', (
@@ -455,13 +461,15 @@ void main() {
       );
     });
 
-    testWidgets('the card has no tap', (tester) async {
-      await _pump(tester, now: _justAfterMidnight);
+    testWidgets('tapping the card opens the Energy screen', (tester) async {
+      final router = _router();
+      addTearDown(router.dispose);
+      await _pumpRouted(tester, router, now: _justAfterMidnight);
 
-      expect(
-        tester.widget<MetricCard>(find.byKey(EnergyRowKeys.row)).onTap,
-        isNull,
-      );
+      await tester.tap(find.byKey(EnergyRowKeys.row));
+      await tester.pumpAndSettle();
+
+      expect(router.state.uri.path, AppPaths.energy);
     });
   });
 

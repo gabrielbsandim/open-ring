@@ -75,6 +75,15 @@ final energyTodayProvider = FutureProvider<EnergyDay>((ref) {
   return ref.watch(energyDayProvider(today).future);
 });
 
+typedef EnergyNow = ({EnergyDay day, DateTime asOf});
+
+// Today together with the instant it was computed at, so a view that still
+// shows the last day while a new one loads keeps the time of that day.
+final energyNowProvider = FutureProvider<EnergyNow>((ref) async {
+  final asOf = ref.watch(energyAsOfProvider);
+  return (day: await ref.watch(energyTodayProvider.future), asOf: asOf);
+});
+
 EnergySex? _sexOf(Sex? sex) => switch (sex) {
   null => null,
   Sex.female => EnergySex.female,

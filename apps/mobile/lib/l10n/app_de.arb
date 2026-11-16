@@ -1586,5 +1586,13 @@
   "energyMissingBody": "Die Gleichung braucht vier Angaben über dich. Ohne alle vier gibt es keine Zahl: Die App füllt die Lücke nicht mit einer Durchschnittsperson.",
   "energyNeedMissing": "fehlt",
   "energyOpenProfile": "Über dich öffnen",
-  "energyMissingSexNote": "Das Geschlecht muss Weiblich oder Männlich sein, weil die Gleichung für jedes eine eigene Fassung hat. Mit „Keine Angabe“ zeigt Energie keine Zahl."
+  "energyMissingSexNote": "Das Geschlecht muss Weiblich oder Männlich sein, weil die Gleichung für jedes eine eigene Fassung hat. Mit „Keine Angabe“ zeigt Energie keine Zahl.",
+  "energyThroughTitle": "Im Lauf des Tages",
+  "energyThroughBody": "Wie sich der heutige Tag summiert, Stunde für Stunde. Tippe auf eine Stunde.",
+  "energyThroughSemantics": "Energie im Lauf des Tages, kumuliert, in drei Teilen mit dem Bereich.",
+  "energyThroughBy": "Bis {time}",
+  "energyThroughByNow": "Bis {time} (jetzt)",
+  "energyThroughParts": "Basis {base} · Schritte {steps} · Workouts {workouts}",
+  "energyThroughNote": "Ruheverbrauch bis jetzt plus Bewegung, Schätzung. Die Basis wächst den ganzen Tag gleich schnell; Schritte und Workouts machen die Sprünge.",
+  "energyLegendRange": "Bereich"
 }

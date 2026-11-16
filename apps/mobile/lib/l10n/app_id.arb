@@ -1586,5 +1586,13 @@
   "energyMissingBody": "Persamaan ini butuh empat data tentang kamu. Tanpa keempatnya tidak ada angka: aplikasi tidak mengisi kekosongan dengan orang rata-rata.",
   "energyNeedMissing": "belum ada",
   "energyOpenProfile": "Buka Tentang kamu",
-  "energyMissingSexNote": "Jenis kelamin harus Perempuan atau Laki-laki, karena persamaannya punya satu versi untuk masing-masing. Dengan \"Tidak ingin menyebutkan\", Energi tidak menampilkan angka."
+  "energyMissingSexNote": "Jenis kelamin harus Perempuan atau Laki-laki, karena persamaannya punya satu versi untuk masing-masing. Dengan \"Tidak ingin menyebutkan\", Energi tidak menampilkan angka.",
+  "energyThroughTitle": "Sepanjang hari",
+  "energyThroughBody": "Bagaimana hari ini bertambah, jam demi jam. Ketuk satu jam.",
+  "energyThroughSemantics": "Energi sepanjang hari, kumulatif, dalam tiga bagian dengan rentangnya.",
+  "energyThroughBy": "Sampai {time}",
+  "energyThroughByNow": "Sampai {time} (sekarang)",
+  "energyThroughParts": "Dasar {base} · langkah {steps} · latihan {workouts}",
+  "energyThroughNote": "Pembakaran saat istirahat sejauh ini ditambah gerakan, perkiraan. Dasar bertambah dengan kecepatan yang sama sepanjang hari; langkah dan latihan membuat lonjakan.",
+  "energyLegendRange": "rentang"
 }

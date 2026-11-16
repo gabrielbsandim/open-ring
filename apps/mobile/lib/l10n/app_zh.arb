@@ -1586,5 +1586,13 @@
   "energyMissingBody": "公式需要关于你的四项信息。缺少任何一项就没有数字：应用不会用普通人的数据来填补。",
   "energyNeedMissing": "缺少",
   "energyOpenProfile": "打开“关于你”",
-  "energyMissingSexNote": "性别需要选择女或男，因为公式对两者各有一个版本。选择“不透露”时，能量不显示数字。"
+  "energyMissingSexNote": "性别需要选择女或男，因为公式对两者各有一个版本。选择“不透露”时，能量不显示数字。",
+  "energyThroughTitle": "一天的变化",
+  "energyThroughBody": "今天是如何逐小时累加的。点按某个小时。",
+  "energyThroughSemantics": "一天中累计的能量，分为三部分并带有范围。",
+  "energyThroughBy": "截至 {time}",
+  "energyThroughByNow": "截至 {time}（现在）",
+  "energyThroughParts": "基础 {base} · 步数 {steps} · 训练 {workouts}",
+  "energyThroughNote": "到目前为止的静息消耗加上活动，估算。基础全天以相同速度增长；步数和训练带来起伏。",
+  "energyLegendRange": "范围"
 }

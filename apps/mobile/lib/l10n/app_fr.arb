@@ -1586,5 +1586,13 @@
   "energyMissingBody": "L'équation a besoin de quatre informations sur vous. Sans les quatre, pas de chiffre : l'app ne comble pas le vide avec une personne moyenne.",
   "energyNeedMissing": "manquant",
   "energyOpenProfile": "Ouvrir À propos de vous",
-  "energyMissingSexNote": "Le sexe doit être Femme ou Homme, car l'équation a une version pour chacun. Avec « Ne pas préciser », Énergie n'affiche aucun chiffre."
+  "energyMissingSexNote": "Le sexe doit être Femme ou Homme, car l'équation a une version pour chacun. Avec « Ne pas préciser », Énergie n'affiche aucun chiffre.",
+  "energyThroughTitle": "Au fil de la journée",
+  "energyThroughBody": "Comment la journée s'additionne, heure par heure. Touchez une heure.",
+  "energyThroughSemantics": "Énergie au fil de la journée, cumulée, en trois parts avec la fourchette.",
+  "energyThroughBy": "Jusqu'à {time}",
+  "energyThroughByNow": "Jusqu'à {time} (maintenant)",
+  "energyThroughParts": "Base {base} · pas {steps} · séances {workouts}",
+  "energyThroughNote": "Dépense au repos jusqu'ici plus le mouvement, estimation. La Base augmente à la même vitesse toute la journée ; les pas et les séances font les bosses.",
+  "energyLegendRange": "fourchette"
 }

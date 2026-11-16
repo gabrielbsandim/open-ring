@@ -23,8 +23,20 @@ final energyAsOfProvider = Provider<DateTime>((ref) {
   return ref.read(clockProvider)();
 });
 
-final FutureProviderFamily<EnergyDay, LocalDate> energyDayProvider =
-    FutureProvider.family<EnergyDay, LocalDate>((ref, day) async {
+typedef _Inputs = ({
+  EnergySex? sex,
+  int? age,
+  double? kilograms,
+  double? centimeters,
+  List<StepBucket> slots,
+  List<EnergyWorkout> workouts,
+  DateTime from,
+  DateTime to,
+  DateTime now,
+});
+
+final FutureProviderFamily<_Inputs, LocalDate> _energyInputsProvider =
+    FutureProvider.family<_Inputs, LocalDate>((ref, day) async {
       final now = ref.watch(energyAsOfProvider);
       final from = localMidnight(day, now.timeZoneOffset);
       final to = localMidnight(day.addDays(1), now.timeZoneOffset);
@@ -51,7 +63,7 @@ final FutureProviderFamily<EnergyDay, LocalDate> energyDayProvider =
         ...own,
         ...imported.workouts,
       ], imported.priority);
-      return energyDay(
+      return (
         sex: _sexOf(profile?.sex),
         age: profile?.ageIn(day.year),
         kilograms: logged ?? profile?.weightKilograms,
@@ -60,12 +72,46 @@ final FutureProviderFamily<EnergyDay, LocalDate> energyDayProvider =
           for (final slot in slots)
             (start: slot.start, duration: slot.duration, steps: slot.steps),
         ],
-        workouts: selected.map(_workoutOf),
+        workouts: selected.map(_workoutOf).toList(),
         from: from,
         to: to,
         now: now,
       );
     });
+
+final FutureProviderFamily<EnergyDay, LocalDate> energyDayProvider =
+    FutureProvider.family<EnergyDay, LocalDate>((ref, day) async {
+      final inputs = await ref.watch(_energyInputsProvider(day).future);
+      return energyDay(
+        sex: inputs.sex,
+        age: inputs.age,
+        kilograms: inputs.kilograms,
+        centimeters: inputs.centimeters,
+        slots: inputs.slots,
+        workouts: inputs.workouts,
+        from: inputs.from,
+        to: inputs.to,
+        now: inputs.now,
+      );
+    });
+
+// Today hour by hour, from the same inputs and the same instant as the day.
+final energyTodayCurveProvider = FutureProvider<EnergyCurve>((ref) async {
+  final asOf = ref.watch(energyAsOfProvider);
+  final today = LocalDate.fromInstant(asOf, asOf.timeZoneOffset);
+  final inputs = await ref.watch(_energyInputsProvider(today).future);
+  return energyCurve(
+    sex: inputs.sex,
+    age: inputs.age,
+    kilograms: inputs.kilograms,
+    centimeters: inputs.centimeters,
+    slots: inputs.slots,
+    workouts: inputs.workouts,
+    from: inputs.from,
+    to: inputs.to,
+    now: inputs.now,
+  );
+});
 
 // Today is the date of the instant, so a resume after midnight moves the day
 // together with the clock.

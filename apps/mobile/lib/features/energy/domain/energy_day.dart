@@ -107,6 +107,56 @@ EnergyDay energyDay({
   );
 }
 
+typedef EnergyPoint = ({DateTime at, EnergyDayEstimate day});
+
+typedef EnergyCurve = ({DateTime from, DateTime to, List<EnergyPoint> points});
+
+/// The same day as [energyDay] gives, as it stood at each full hour up to
+/// [now] and at [now] itself. Empty when the day has no estimate.
+EnergyCurve energyCurve({
+  required EnergySex? sex,
+  required int? age,
+  required double? kilograms,
+  required double? centimeters,
+  required Iterable<StepBucket> slots,
+  required Iterable<EnergyWorkout> workouts,
+  required DateTime from,
+  required DateTime to,
+  required DateTime now,
+}) {
+  EnergyDay at(DateTime instant, {required bool whole}) => energyDay(
+    sex: sex,
+    age: age,
+    kilograms: kilograms,
+    centimeters: centimeters,
+    slots: whole ? slots : slots.where((s) => s.start.isBefore(instant)),
+    workouts: whole
+        ? workouts
+        : workouts.where((w) => w.start.isBefore(instant)),
+    from: from,
+    to: to,
+    now: instant,
+  );
+
+  final end = now.isAfter(to) ? to : now;
+  final instants = [
+    for (
+      var hour = from;
+      hour.isBefore(end);
+      hour = hour.add(const Duration(hours: 1))
+    )
+      hour,
+  ];
+  final last = end.isBefore(from) ? null : at(end, whole: true);
+  final points = <EnergyPoint>[
+    for (final instant in instants)
+      if (at(instant, whole: false) case final EnergyDayEstimate day)
+        (at: instant, day: day),
+    if (last case final EnergyDayEstimate day) (at: end, day: day),
+  ];
+  return (from: from, to: to, points: points);
+}
+
 Duration _elapsed(DateTime from, DateTime to, DateTime now) {
   if (now.isBefore(from)) return Duration.zero;
   if (now.isAfter(to)) return to.difference(from);

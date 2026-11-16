@@ -3726,5 +3726,16 @@
   "energyMissingBody": "The equation needs four facts about you. Without all four there is no number: the app does not fill the gap with an average person.",
   "energyNeedMissing": "missing",
   "energyOpenProfile": "Open About you",
-  "energyMissingSexNote": "Sex needs Female or Male, because the equation has one version for each. With \"Prefer not to say\", Energy shows no number."
+  "energyMissingSexNote": "Sex needs Female or Male, because the equation has one version for each. With \"Prefer not to say\", Energy shows no number.",
+  "energyThroughTitle": "Through the day",
+  "energyThroughBody": "How today adds up, hour by hour. Tap an hour.",
+  "energyThroughSemantics": "Energy through the day, cumulative, in three parts with the range.",
+  "energyThroughBy": "By {time}",
+  "@energyThroughBy": {"placeholders": {"time": {"type": "String"}}},
+  "energyThroughByNow": "By {time} (now)",
+  "@energyThroughByNow": {"placeholders": {"time": {"type": "String"}}},
+  "energyThroughParts": "Base {base} · steps {steps} · workouts {workouts}",
+  "@energyThroughParts": {"placeholders": {"base": {"type": "String"}, "steps": {"type": "String"}, "workouts": {"type": "String"}}},
+  "energyThroughNote": "Resting burn so far plus movement, estimate. The Base grows at the same speed all day; steps and workouts make the bumps.",
+  "energyLegendRange": "range"
 }

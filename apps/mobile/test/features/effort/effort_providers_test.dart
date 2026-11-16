@@ -621,6 +621,60 @@ void main() {
     });
   });
 
+  group('the days and the walks of this week', () {
+    final monday = metricsToday.addDays(-1);
+
+    ActivitySlot slot(DateTime start) => ActivitySlot(
+      start: start,
+      utcOffset: Duration.zero,
+      duration: const Duration(minutes: 15),
+      steps: 1800,
+      activeKilocalories: 0,
+      distanceMeters: 0,
+    );
+
+    test(
+      'the walks are of this week, newest first, outside workouts',
+      () async {
+        final s = _setup(
+          imported: [_imported('y', WorkoutType.yoga, _at(metricsToday, 8))],
+          slots: [
+            slot(_at(monday.addDays(-1), 9)),
+            slot(_at(monday, 9)),
+            slot(_at(metricsToday, 8, 10)),
+            slot(_at(metricsToday, 12)),
+          ],
+        );
+
+        expect(await s.container.read(effortWeekWalksProvider.future), [
+          (date: metricsToday, minutes: 15.0),
+          (date: monday, minutes: 15.0),
+        ]);
+      },
+    );
+
+    test(
+      'the days carry the points of each day and the strength mark',
+      () async {
+        final s = _setup(
+          imported: [
+            _imported('s', WorkoutType.strength, _at(monday, 7), minutes: 45),
+          ],
+          slots: [slot(_at(metricsToday, 12))],
+        );
+
+        final days = await s.container.read(effortWeekDaysProvider.future);
+
+        expect(days, hasLength(7));
+        expect(days[0], (date: monday, points: 45.0, strength: true));
+        expect(days[1], (date: metricsToday, points: 15.0, strength: false));
+        expect([
+          for (final day in days.skip(2)) day.points,
+        ], everyElement(isNull));
+      },
+    );
+  });
+
   group('criterion 17: a workout recorded today', () {
     test('is in the sessions and the week, not in the load series', () async {
       final s = _setup(

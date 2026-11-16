@@ -79,6 +79,19 @@ const EffortCoachCard _coach = (
   covered: false,
 );
 
+final List<EffortWeekDay> _days = [
+  (date: _monday, points: 80, strength: false),
+  (date: _monday.addDays(1), points: 60.4, strength: true),
+  (date: _monday.addDays(2), points: 0, strength: false),
+  for (var i = 3; i < 7; i++)
+    (date: _monday.addDays(i), points: null, strength: false),
+];
+
+final List<EffortWalk> _walks = [
+  (date: _monday.addDays(1), minutes: 12.4),
+  (date: _monday, minutes: 20),
+];
+
 // 30 days at 40, then yesterday at 100: both lines exist and differ.
 final List<double> _steady = [...List.filled(30, 40), 100];
 
@@ -91,6 +104,7 @@ List<Override> _overrides({
   List<EffortSession>? sessions,
   double? lastSeven = 185,
   List<double>? dailyLoad,
+  List<EffortWalk> walks = const [],
   bool fail = false,
 }) => [
   ...bleOverrides(),
@@ -106,6 +120,8 @@ List<Override> _overrides({
   ),
   effortLastSevenProvider.overrideWith((ref) async => lastSeven),
   effortDailyLoadProvider.overrideWith((ref) async => dailyLoad ?? _steady),
+  effortWeekDaysProvider.overrideWith((ref) async => _days),
+  effortWeekWalksProvider.overrideWith((ref) async => walks),
 ];
 
 Future<void> _pump(
@@ -115,6 +131,7 @@ Future<void> _pump(
   List<EffortSession>? sessions,
   double? lastSeven = 185,
   List<double>? dailyLoad,
+  List<EffortWalk> walks = const [],
   bool fail = false,
   Locale locale = const Locale('en'),
   TextScaler textScaler = TextScaler.noScaling,
@@ -131,6 +148,7 @@ Future<void> _pump(
     sessions: sessions,
     lastSeven: lastSeven,
     dailyLoad: dailyLoad,
+    walks: walks,
     fail: fail,
   ),
 );
@@ -239,6 +257,76 @@ void main() {
     });
   });
 
+  group('the days of the week', () {
+    String figure(WidgetTester tester, int index) => tester
+        .widget<Text>(
+          find
+              .descendant(
+                of: find.byKey(EffortKeys.weekDay(index)),
+                matching: find.byType(Text),
+              )
+              .last,
+        )
+        .data!;
+
+    testWidgets('each day shows its points, a zero or nothing', (tester) async {
+      await _pump(tester);
+      await _show(tester, EffortKeys.weekDays);
+      expect(
+        [for (var i = 0; i < 7; i++) figure(tester, i)],
+        ['80', '60', '·', ' ', ' ', ' ', ' '],
+      );
+    });
+
+    testWidgets('the strip reads each day, its strength mark and what is to '
+        'come', (tester) async {
+      await _pump(tester);
+      await _show(tester, EffortKeys.weekDays);
+      final l10n = _l10n(tester);
+      final label = tester
+          .widget<Semantics>(find.byKey(EffortKeys.weekDays))
+          .properties
+          .label;
+      expect(
+        label,
+        [
+          l10n.effortWeekDayPoints('Mon', '80'),
+          l10n.effortWeekDayStrength('Tue', '60'),
+          l10n.effortWeekDayPoints('Wed', '0'),
+          l10n.effortWeekDayFuture('Thu'),
+          l10n.effortWeekDayFuture('Fri'),
+          l10n.effortWeekDayFuture('Sat'),
+          l10n.effortWeekDayFuture('Sun'),
+        ].join('. '),
+      );
+    });
+
+    testWidgets('the sources name each type and brisk walking', (tester) async {
+      await _pump(tester, walks: _walks);
+      await _show(tester, EffortKeys.weekSources);
+      final l10n = _l10n(tester);
+      final run = _run.points.equivalent.round();
+      final strength = _strength.points.equivalent.round();
+      expect(
+        find.descendant(
+          of: find.byKey(EffortKeys.weekSources),
+          matching: find.text(
+            '${WorkoutType.running.label(l10n)} $run · '
+            '${WorkoutType.strength.label(l10n)} $strength · '
+            '${l10n.effortBriskWalking} 32',
+          ),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('a week with no points has no sources', (tester) async {
+      await _pump(tester, week: _week(0, 0), sessions: const []);
+      await _show(tester, EffortKeys.weekMessage);
+      expect(find.byKey(EffortKeys.weekSources), findsNothing);
+    });
+  });
+
   group('the sessions', () {
     testWidgets('lists the sessions of this week, newest first', (
       tester,
@@ -311,6 +399,33 @@ void main() {
         _text(tester, EffortKeys.weekMessage),
         _l10n(tester).effortWeekOpen('138'),
       );
+    });
+  });
+
+  group('brisk walking', () {
+    testWidgets('one row per day with its minutes, points and load', (
+      tester,
+    ) async {
+      await _pump(tester, walks: _walks);
+      await _show(tester, EffortKeys.walk(1));
+      final l10n = _l10n(tester);
+      Finder inRow(int index, String text) => find.descendant(
+        of: find.byKey(EffortKeys.walk(index)),
+        matching: find.text(text),
+      );
+      expect(inRow(0, l10n.effortBriskWalking), findsOneWidget);
+      expect(inRow(0, l10n.effortWalkDetail('Tue', '12')), findsOneWidget);
+      expect(inRow(0, l10n.effortSessionPoints('12')), findsOneWidget);
+      expect(inRow(0, l10n.effortSessionLoad('19')), findsOneWidget);
+      expect(inRow(1, l10n.effortWalkDetail('Mon', '20')), findsOneWidget);
+      expect(inRow(1, l10n.effortSessionLoad('30')), findsOneWidget);
+    });
+
+    testWidgets('walking alone does not show the empty text', (tester) async {
+      await _pump(tester, sessions: const [], walks: _walks);
+      await _show(tester, EffortKeys.walk(0));
+      expect(find.byKey(EffortKeys.sessionsEmpty), findsNothing);
+      expect(find.byKey(WorkoutEntryButton.startKey), findsNothing);
     });
   });
 
@@ -478,6 +593,7 @@ void main() {
             week: week,
             sessions: sessions,
             dailyLoad: dailyLoad,
+            walks: sessions.isEmpty ? const [] : _walks,
             modules: const {ModuleId.effort, ModuleId.openScore},
             locale: locale,
             textScaler: const TextScaler.linear(2),

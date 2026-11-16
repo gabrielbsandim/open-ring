@@ -3,6 +3,7 @@ import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
+import 'package:open_ring/features/activity/domain/activity_history_reader.dart';
 import 'package:open_ring/features/effort/domain/effort_day.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
@@ -70,17 +71,51 @@ Future<EffortSession> _session(
   zones: zones,
 );
 
+final _slotsProvider = FutureProvider<List<ActivitySlot>>((ref) {
+  ref.watch(dataRevisionProvider);
+  final today = ref.watch(currentDateProvider);
+  return ref
+      .watch(activityHistoryReaderProvider)
+      .activitySlots(from: today.addDays(-effortLoadDays), to: today);
+});
+
 /// The daily load that ends yesterday, which the load lines are drawn over.
 final effortDailyLoadProvider = FutureProvider<List<double>>((ref) async {
-  ref.watch(dataRevisionProvider);
   final today = ref.watch(currentDateProvider);
   final (sessions, slots) = await (
     ref.watch(effortSessionsProvider.future),
-    ref
-        .watch(activityHistoryReaderProvider)
-        .activitySlots(from: today.addDays(-effortLoadDays), to: today),
+    ref.watch(_slotsProvider.future),
   ).wait;
   return effortDailyLoad(sessions: sessions, slots: slots, today: today);
+});
+
+/// The brisk walking of this week outside workouts, newest day first.
+final effortWeekWalksProvider = FutureProvider<List<EffortWalk>>((ref) async {
+  final today = ref.watch(currentDateProvider);
+  final (sessions, slots) = await (
+    ref.watch(effortSessionsProvider.future),
+    ref.watch(_slotsProvider.future),
+  ).wait;
+  return effortWeekWalks(
+    effortBriskMinutes(sessions: sessions, slots: slots),
+    monday: mondayOf(today),
+    today: today,
+  );
+});
+
+/// The seven days of this week with their points and strength marks.
+final effortWeekDaysProvider = FutureProvider<List<EffortWeekDay>>((ref) async {
+  final today = ref.watch(currentDateProvider);
+  final (points, sessions) = await (
+    ref.watch(dailyIntensityProvider.future),
+    ref.watch(effortSessionsProvider.future),
+  ).wait;
+  return effortWeekDays(
+    points,
+    effortStrengthDays(sessions),
+    monday: mondayOf(today),
+    today: today,
+  );
 });
 
 final effortWeekProvider = FutureProvider<EffortWeek>((ref) async {

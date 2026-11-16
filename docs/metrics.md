@@ -1552,10 +1552,51 @@ build rule proposes steps for weeks 2 to 4 of a weight goal.
 | `goalStrengthCeiling` | 4 days | **our choice** |
 | `goalSleepStepMinutes` | 15 minutes | **our choice** |
 | `goalSleepMinMinutes`, `goalSleepMaxMinutes` | 7 and 9 hours in bed | 7 to 9 hours of sleep is the adult range of Hirshkowitz 2015 and 7 hours the floor of Watson 2015, **not yet checked against its source**. Applying hours of sleep to time in bed is **our choice**. |
-| `goalWakeToleranceMinutes` | 30 minutes | **our choice**. Nothing reads it yet: it is for the later slice that counts the days a wake time was met. |
+| `goalWakeToleranceMinutes` | 30 minutes | **our choice**. Read by the count of the days a wake time was met, see The week in progress. |
 | `goalLowReadinessDays` | 4 days of 7 | **our choice**. The cut of 55 is `readinessFairFrom`. |
 | `goalFastLossPauseDays` | 28 days | **our choice** |
 | `goalRecoveryPauseDays` | 14 days | **our choice** |
+
+### The week in progress
+
+`packages/metrics/lib/src/goal_progress.dart` counts how far each lever of the
+active goal is in the calendar week of today, Monday to Sunday.
+`goalWeekProvider` in the app feeds it from the steps, the nights, the
+strength sessions and the effort points already on the phone, and reads only
+the sources a lever of the goal counts from. It answers with one of four
+states: the module is off, there is no goal, the goal is paused, or the week
+is running. A pause stays a pause after its last day, until something resumes
+the goal. Maintenance counts like a block.
+
+Clock values are whole local minutes with the seconds dropped. A bedtime is
+the minutes after noon, so 23:30 is 690 and 00:05 is 725; a wake time is the
+minutes after midnight.
+
+| Lever | A day is met when | Counted |
+| --- | --- | --- |
+| Steps | the steps of the day reach the target | days met |
+| Sleep window | the first span asleep of the night that ended that day starts at or before the target, read with the offset of that span | days met |
+| Wake time | the end of the night that ended that day is within `goalWakeToleranceMinutes` of the target, either side, across midnight | days met |
+| Strength days | | days of the week with a strength session, up to today |
+| Effort points | | the sum of the points of the week up to today, rounded once; a value that is negative or not finite is left out |
+
+Each day of a daily lever carries a mark. A day after today is ahead. A day
+that met the target is met. Today, not met yet, is open. Any other day is
+missed, a day with no data included.
+
+The week number counts from the start of the block under way. Week 1 runs to
+the first Monday at least seven days after that start, so it lasts 7 to 13
+days; week 2 starts on that Monday.
+
+What it cannot say:
+
+- A day the ring has not synced yet reads as missed until it does.
+- A nap that is the only night of its date is read as that night: an onset at
+  14:00 is 120 minutes after noon and meets any bedtime target.
+- The end of a night is the end of its last span. When the ring records time
+  awake in bed after the last sleep, the wake time is the end of that span,
+  later than the last minute asleep.
+- A goal started midweek counts the days of that week before its start.
 
 ## References
 

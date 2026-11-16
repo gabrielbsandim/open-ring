@@ -61,6 +61,7 @@ void main() {
       expect(kinds.contains(ExportKind.weighIns), offered);
       expect(kinds.contains(ExportKind.dayTags), isFalse);
       expect(kinds.contains(ExportKind.importedWorkouts), isTrue);
+      expect(kinds.contains(ExportKind.importedSleep), isTrue);
       expect(kinds, hasLength(ExportKind.values.length - (offered ? 1 : 2)));
     });
   }

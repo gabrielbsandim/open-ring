@@ -12,6 +12,7 @@ import 'generated/schema_v11.dart' as v11;
 import 'generated/schema_v12.dart' as v12;
 import 'generated/schema_v13.dart' as v13;
 import 'generated/schema_v14.dart' as v14;
+import 'generated/schema_v15.dart' as v15;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
@@ -550,6 +551,35 @@ void main() {
           ),
         ]);
         expect(await newDb.select(newDb.stepGoalChanges).get(), isEmpty);
+      },
+    );
+  });
+
+  test('v14 migrates to v15, keeps the step goal changes and starts with no '
+      'goals', () async {
+    const change = v14.StepGoalChangesData(
+      effectiveDate: '2026-12-07',
+      steps: 10000,
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 14,
+      newVersion: 15,
+      createOld: v14.DatabaseAtV14.new,
+      createNew: v15.DatabaseAtV15.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) =>
+          batch.insert(oldDb.stepGoalChanges, change),
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.stepGoalChanges).get(), [
+          const v15.StepGoalChangesData(
+            effectiveDate: '2026-12-07',
+            steps: 10000,
+          ),
+        ]);
+        expect(await newDb.select(newDb.goals).get(), isEmpty);
+        expect(await newDb.select(newDb.goalWeeks).get(), isEmpty);
+        expect(await newDb.select(newDb.goalScreenings).get(), isEmpty);
       },
     );
   });

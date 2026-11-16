@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:open_ring/core/database/app_database.steps.dart';
 import 'package:open_ring/core/database/tables/body_tables.dart';
+import 'package:open_ring/core/database/tables/goal_tables.dart';
 import 'package:open_ring/core/database/tables/health_tables.dart';
 import 'package:open_ring/core/database/tables/import_tables.dart';
 import 'package:open_ring/core/database/tables/open_score_tables.dart';
@@ -42,13 +43,16 @@ part 'app_database.g.dart';
     WeighIns,
     DayTags,
     StepGoalChanges,
+    Goals,
+    GoalWeeks,
+    GoalScreenings,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -111,6 +115,11 @@ class AppDatabase extends _$AppDatabase {
       },
       from13To14: (migrator, schema) =>
           migrator.createTable(schema.stepGoalChanges),
+      from14To15: (migrator, schema) async {
+        await migrator.createTable(schema.goals);
+        await migrator.createTable(schema.goalWeeks);
+        await migrator.createTable(schema.goalScreenings);
+      },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );

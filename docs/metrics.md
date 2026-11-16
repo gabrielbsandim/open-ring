@@ -1144,10 +1144,10 @@ at all.
 
 The card "Through the day" (`energy_through_day.dart`) draws how today adds
 up. `energyCurve` computes the same day at each full hour and at the instant
-of the estimate, from the same inputs: at an hour it counts the step slots and
-the workouts that started before it, so a slot or a workout shows up whole at
-the next full hour and not minute by minute. The last point is the day
-itself. The band above the total and the line under it are the 15 percent
+of the estimate, from the same inputs: at an hour it counts the step slots
+that ended by it and the workouts that started before it, so a slot or a
+workout shows up whole at a full hour and not minute by minute, and the total
+never falls from one hour to the next. The last point is the day itself. The band above the total and the line under it are the 15 percent
 margin. A tap picks the closest point; a screen reader steps hour by hour.
 The card is absent while the day is under `energyRowFloor`, and a picked hour
 under the floor shows the starting line and no range.

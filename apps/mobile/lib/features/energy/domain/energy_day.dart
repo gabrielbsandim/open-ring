@@ -129,7 +129,7 @@ EnergyCurve energyCurve({
     age: age,
     kilograms: kilograms,
     centimeters: centimeters,
-    slots: whole ? slots : slots.where((s) => s.start.isBefore(instant)),
+    slots: whole ? slots : slots.where((s) => _endedBy(s, instant)),
     workouts: whole
         ? workouts
         : workouts.where((w) => w.start.isBefore(instant)),
@@ -156,6 +156,12 @@ EnergyCurve energyCurve({
   ];
   return (from: from, to: to, points: points);
 }
+
+// A slot counts at an hour only once it is over, so every workout that can
+// cover it has already started and the total never falls at a later hour.
+bool _endedBy(StepBucket slot, DateTime instant) =>
+    slot.start.isBefore(instant) &&
+    !slot.start.add(slot.duration).isAfter(instant);
 
 Duration _elapsed(DateTime from, DateTime to, DateTime now) {
   if (now.isBefore(from)) return Duration.zero;

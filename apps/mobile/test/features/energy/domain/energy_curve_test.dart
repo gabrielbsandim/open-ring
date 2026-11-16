@@ -131,6 +131,29 @@ void main() {
     }
   });
 
+  test('a slot across the hour a workout starts in never lowers the total', () {
+    final curve = _curve(
+      now: _at(13),
+      slots: [
+        (
+          start: _at(10, 50),
+          duration: const Duration(minutes: 30),
+          steps: 9000,
+        ),
+      ],
+      workouts: [_workout(_at(11), 20, 1)],
+    );
+
+    for (var i = 1; i < curve.points.length; i++) {
+      expect(
+        curve.points[i].day.total,
+        greaterThanOrEqualTo(curve.points[i - 1].day.total),
+        reason: 'point $i',
+      );
+    }
+    expect(curve.points[11].day.steps, 0);
+  });
+
   test('an instant past the day ends at the end of the day', () {
     final curve = _curve(now: _to.add(const Duration(hours: 3)));
 

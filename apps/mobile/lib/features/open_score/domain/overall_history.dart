@@ -53,8 +53,12 @@ OverallBody overallBodyOn(
 
 @immutable
 final class OverallHistory {
-  new({required this.today, required Iterable<OverallWeek> weeks})
-    : weeks = List.unmodifiable(weeks);
+  new({
+    required this.today,
+    required Iterable<OverallWeek> weeks,
+    required this.current,
+    required this.nights,
+  }) : weeks = List.unmodifiable(weeks);
 
   factory collect({
     required LocalDate today,
@@ -110,16 +114,49 @@ final class OverallHistory {
       return (date: monday, inputs: inputs, result: inputs.score);
     }
 
+    final weeks = overallMondays(today).map(weekOf).toList();
+    final last = weeks.last;
+    // The first score does not wait for a Monday: it is the one of the first
+    // day after the last Monday on which the minimum was met.
+    final early = [
+      for (
+        var day = last.date.addDays(1);
+        day.compareTo(today) <= 0;
+        day = day.addDays(1)
+      )
+        weekOf(day),
+    ].where((week) => week.result is Scored<OverallFactor>).firstOrNull;
     return OverallHistory(
       today: today,
-      weeks: overallMondays(today).map(weekOf),
+      weeks: weeks,
+      current: last.result is Scored<OverallFactor> ? last : early ?? last,
+      nights: resting
+          .where((night) => !excluded.contains(night.date))
+          .where((night) => today.daysSince(night.date) >= 1)
+          .where((night) => today.daysSince(night.date) <= overallWindowDays)
+          .length,
     );
   }
 
   final LocalDate today;
   final List<OverallWeek> weeks;
 
-  OverallWeek get current => weeks.last;
+  // The week on screen: the last Monday, or an earlier first score.
+  final OverallWeek current;
+
+  // Nights with a resting heart rate in the window a score would read today.
+  final int nights;
+
+  LocalDate get nextUpdate => mondayOf(today).addDays(7);
+
+  // The Monday before the one on screen, only when both are scored Mondays.
+  int? get previous {
+    if (weeks.length < 2 || current.date != weeks.last.date) return null;
+    return switch (weeks[weeks.length - 2].result) {
+      final Scored<OverallFactor> before => before.value,
+      InsufficientData() => null,
+    };
+  }
 
   Scored<OverallFactor>? get scored => switch (current.result) {
     final Scored<OverallFactor> scored => scored,

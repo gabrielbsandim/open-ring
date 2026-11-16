@@ -51,20 +51,26 @@ WeighIn weighIn(LocalDate date, double kilograms, {double? waist}) => WeighIn(
 
 OverallHistory collect({
   int days = 105,
+  int extra = 0,
+  Set<LocalDate> noHeart = const {},
   Map<LocalDate, DayTag> tags = const {},
   List<WeighIn> weighIns = const [],
   double? heightCentimeters,
   int? birthYear,
   List<LocalDate> strengthDates = const [],
 }) {
-  final dates = [for (var age = days; age >= 1; age--) back(age)];
+  final dates = [for (var age = days; age >= 1 - extra; age--) back(age)];
   return OverallHistory.collect(
     today: today,
     sessions: [
       for (final date in [...dates, monday]) night(date),
     ],
     heartRate: [
-      for (final date in dates) ...[...nightHeart(date, 52), ...dayHeart(date)],
+      for (final date in dates)
+        if (!noHeart.contains(date)) ...[
+          ...nightHeart(date, 52),
+          ...dayHeart(date),
+        ],
     ],
     utcOffset: Duration.zero,
     steps: [for (final date in dates) (date: date, value: 8000)],
@@ -153,6 +159,78 @@ void main() {
       );
 
       expect(history.current.inputs.strengthPerWeek, 1);
+    });
+  });
+
+  group('the first score', () {
+    test('appears on the day the minimum is met, before the next Monday', () {
+      // 12 nights by the Monday, 14 by Wednesday, today is Friday.
+      final history = collect(days: 12, extra: 4);
+
+      expect(history.weeks.last.result, isA<InsufficientData<OverallFactor>>());
+      expect(history.current.date, monday.addDays(2));
+      expect(history.scored, isNotNull);
+      expect(history.previous, isNull);
+    });
+
+    test('without enough nights the week on screen is the last Monday', () {
+      final history = collect(days: 5, extra: 4);
+
+      expect(history.current.date, monday);
+      expect(history.scored, isNull);
+      expect(history.nights, 9);
+    });
+
+    test('a scored Monday is never replaced by a later day', () {
+      expect(collect(extra: 4).current.date, monday);
+    });
+  });
+
+  group('around the week on screen', () {
+    test('the next update is the Monday after today', () {
+      expect(collect().nextUpdate, monday.addDays(7));
+    });
+
+    test('previous is the score of the Monday before', () {
+      final history = collect();
+
+      expect(
+        history.previous,
+        (history.weeks[10].result as Scored<OverallFactor>).value,
+      );
+    });
+
+    test(
+      'nights counts the 28 days before today without the excluded ones',
+      () {
+        expect(collect(extra: 4).nights, 28);
+        expect(
+          collect(
+            extra: 4,
+            tags: {monday: DayTag.sick, back(1): DayTag.rest},
+          ).nights,
+          27,
+        );
+      },
+    );
+  });
+
+  group('the nights still missing', () {
+    test('14 nights ending today count 13, as the score reads them', () {
+      final history = collect(days: 9, extra: 5);
+
+      expect(history.scored, isNull);
+      expect(history.nights, 13);
+    });
+
+    test('a night without heart rate is not a night with the ring', () {
+      final history = collect(
+        days: 9,
+        extra: 4,
+        noHeart: {back(1), back(2), back(3)},
+      );
+
+      expect(history.nights, 10);
     });
   });
 

@@ -20,6 +20,7 @@ import 'package:open_ring/features/open_score/domain/day_tag.dart';
 import 'package:open_ring/features/open_score/presentation/day_tag_sheet.dart';
 import 'package:open_ring/features/open_score/presentation/level_block.dart';
 import 'package:open_ring/features/open_score/presentation/level_celebration_card.dart';
+import 'package:open_ring/features/open_score/presentation/overall_row.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class DayScoreCardKeys {
@@ -103,6 +104,7 @@ class DayScoreCardSlot extends ConsumerWidget {
           padding: EdgeInsets.only(bottom: cardGap),
           child: DayScoreCard(),
         ),
+        OverallRow(),
       ],
     );
   }

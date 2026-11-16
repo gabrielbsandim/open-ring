@@ -348,6 +348,7 @@ void main() {
         profile: InMemoryUserProfileStore(const UserProfile(maxHeartRate: 200)),
       );
 
+      await s.container.read(userProfileProvider.future);
       final session = (await s.container.read(effortSessionsProvider.future))
           .single;
 

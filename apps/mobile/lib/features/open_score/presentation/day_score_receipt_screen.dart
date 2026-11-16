@@ -163,6 +163,7 @@ class _ReceiptState extends ConsumerState<DayScoreReceiptScreen> {
         title: format.l10n.dayScoreHistoryTitle,
         caption: format.l10n.dayScoreHistoryLinkCaption,
         path: AppPaths.dayScoreHistory,
+        push: true,
       ),
       const SizedBox(height: cardGap),
       CaptionText(format.l10n.metricEstimateNote),

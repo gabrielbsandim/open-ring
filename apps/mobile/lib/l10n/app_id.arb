@@ -320,7 +320,7 @@
   "profileSexFemale": "Perempuan",
   "profileSexMale": "Laki-laki",
   "profileSexUnspecified": "Tidak ingin menyebutkan",
-  "profileSexNote": "Hanya dipakai dalam rumus kalori.",
+  "profileSexNote": "Dipakai dalam rumus kalori dan untuk membandingkan kebugaran Anda dengan orang berjenis kelamin sama.",
   "profileMaxHr": "Detak jantung maksimum",
   "profileMaxHrEstimated": "Diperkirakan dari usia (220 dikurangi usia). Ubah jika kamu tahu nilaimu.",
   "profileMaxHrNeedsAge": "Isi usia agar kami memperkirakannya, atau ketik nilaimu sendiri.",
@@ -955,7 +955,7 @@
   "privacyStoresWorkouts": "Latihan: mulai, selesai, jenis, jeda, detak jantung selama latihan",
   "privacyStoresWorkoutsWhy": "Untuk merekam latihan yang Anda mulai",
   "privacyStoresRoutes": "Rute latihan: titik lokasi selama latihan di luar ruangan",
-  "privacyStoresRoutesWhy": "Untuk menggambar rute dan menghitung jarak, kecepatan, dan split",
+  "privacyStoresRoutesWhy": "Untuk menggambar rute, menghitung jarak, kecepatan, dan split, serta, saat modul Open Score aktif, memperkirakan kebugaran Anda",
   "privacyStoresProfile": "Usia, tinggi, berat, jenis kelamin, detak jantung maksimum, target langkah (semua opsional)",
   "privacyStoresProfileWhy": "Zona detak jantung, estimasi kalori, dan skor modul Open Score",
   "privacyStoresOtherApps": "Sesi tidur dan latihan yang ditulis aplikasi lain, beserta nama aplikasi penulisnya (opsional, masing-masing nonaktif secara default)",
@@ -1495,9 +1495,9 @@
   "overallPartSteps": "Langkah",
   "overallWhatFitness": "Seberapa banyak oksigen yang dapat dipakai tubuh saat berusaha, ukuran kebugaran yang umum. Di sini berupa perkiraan lapangan, bukan tes laboratorium.",
   "overallRuleFitness": "Perkiraan itu menjadi posisi di antara 100 orang dengan usia dan jenis kelamin yang sama. Posisi {full} atau lebih bernilai penuh.",
-  "overallSourceFitness": "Rumus tes: Cooper, 1968. Tabel pembanding: FRIEND (Kaminsky dan rekan, 2015), disusun dari orang di Amerika Serikat yang memilih menjalani tes treadmill.",
+  "overallSourceFitness": "Kebutuhan oksigen saat berjalan dan berlari: persamaan metabolik American College of Sports Medicine. Usaha dibaca dari cadangan detak jantung: Swain dan Leutholtz, 1997. Tabel pembanding: FRIEND (Kaminsky dan rekan, 2015), disusun dari orang di Amerika Serikat yang memilih menjalani tes treadmill.",
   "overallOursFitness": "Batas atas pada posisi itu dan bobot {points} poin.",
-  "overallLimitsFitness": "Aplikasi belum bisa mengukurnya, jadi baris ini tetap di luar hitungan. Aplikasi tidak pernah memperkirakan kebugaran hanya dari detak jantung istirahat: itu berarti menghitung satu ukuran dua kali.",
+  "overallLimitsFitness": "Berasal dari lari dan jalan kaki luar ruangan yang direkam di sini dengan GPS dan cincin, pada bagian 10 menit atau lebih tanpa jeda. Medan dianggap datar, jadi tanjakan membuat hasilnya terbaca rendah. Detak jantung maksimum yang diperkirakan dari usia bisa meleset 10 detak atau lebih, dan itu menggeser hasilnya. Tanpa jenis kelamin dan usia 20 sampai 79 tahun di profil, baris ini tetap di luar hitungan. Aplikasi tidak pernah memperkirakan kebugaran hanya dari detak jantung istirahat: itu berarti menghitung satu ukuran dua kali.",
   "overallWhatResting": "Berapa kali jantung berdetak per menit saat benar-benar istirahat. Cincin memakai bagian paling tenang dari setiap malam.",
   "overallRuleResting": "{zero} atau lebih bernilai nol, {full} atau kurang bernilai penuh, dan di antaranya sebanding.",
   "overallSourceResting": "Rentangnya: Quer dan rekan, 2020, dengan orang dewasa yang memakai gelang setiap hari.",
@@ -1539,5 +1539,7 @@
   "overallWeeksChangedTitle": "Apa yang berubah sejak {date}",
   "overallWeeksFew": "Grafik dimulai dengan {needed} Senin yang memiliki skor. Anda punya {weeks}.",
   "overallWeeksChart": "Skor Keseluruhan dari {weeks} Senin, dari {first} sampai {last}.",
-  "overallWeeksSame": "sama"
+  "overallWeeksSame": "sama",
+  "overallValueFitness": "Posisi {position} di antara 100 orang dengan usia dan jenis kelamin yang sama.",
+  "overallSheetFitnessWindow": "Perkiraan terbaik dari lari dan jalan kaki luar ruangan Anda dalam {days} hari sebelum pembaruan terakhir. Juga memerlukan detak jantung istirahat Anda."
 }

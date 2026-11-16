@@ -46,6 +46,13 @@ final class _FailingHistory implements WorkoutStore, WorkoutHistoryReader {
   Future<SavedWorkout?> byId(int id) async => throw _readFailure;
 
   @override
+  Future<List<SavedWorkout>> routed({
+    required DateTime from,
+    required DateTime to,
+    required Set<WorkoutType> types,
+  }) async => throw _readFailure;
+
+  @override
   Future<int> save(FinishedWorkout workout, {required DateTime at}) async =>
       throw _readFailure;
 

@@ -320,7 +320,7 @@
   "profileSexFemale": "女",
   "profileSexMale": "男",
   "profileSexUnspecified": "不透露",
-  "profileSexNote": "只用于卡路里公式。",
+  "profileSexNote": "用于卡路里公式，以及把你的体能与同性别的人比较。",
   "profileMaxHr": "最大心率",
   "profileMaxHrEstimated": "根据年龄估算（220 减年龄）。如果你知道自己的数值，可以修改。",
   "profileMaxHrNeedsAge": "填写年龄后我们会估算，也可以直接输入。",
@@ -955,7 +955,7 @@
   "privacyStoresWorkouts": "训练：开始、结束、类型、暂停、训练期间的心率",
   "privacyStoresWorkoutsWhy": "用于记录您开始的训练",
   "privacyStoresRoutes": "训练路线：户外训练期间的位置点",
-  "privacyStoresRoutesWhy": "用于绘制路线并计算距离、配速和分段",
+  "privacyStoresRoutesWhy": "用于绘制路线，计算距离、配速和分段，并在开启 Open Score 模块时估算你的体能",
   "privacyStoresProfile": "年龄、身高、体重、性别、最大心率、步数目标（均为可选）",
   "privacyStoresProfileWhy": "心率区间、卡路里估算，以及 Open Score 模块的评分",
   "privacyStoresOtherApps": "其他应用写入的睡眠记录和训练，以及写入它们的应用名称（可选，默认均关闭）",
@@ -1495,9 +1495,9 @@
   "overallPartSteps": "步数",
   "overallWhatFitness": "身体在用力时能利用多少氧气，这是衡量体能的常用指标。这里是现场估算，而非实验室检测。",
   "overallRuleFitness": "估算值会换算成在 100 名同龄同性别人群中的位置。位置达到 {full} 或以上得满分。",
-  "overallSourceFitness": "测试公式：Cooper，1968 年。对照表：FRIEND（Kaminsky 等，2015 年），数据来自美国自愿做跑步机测试的人。",
+  "overallSourceFitness": "步行和跑步的耗氧量：American College of Sports Medicine 的代谢公式。用心率储备衡量用力程度：Swain 和 Leutholtz，1997 年。对照表：FRIEND（Kaminsky 等，2015 年），数据来自美国自愿做跑步机测试的人。",
   "overallOursFitness": "该位置的上限，以及 {points} 分的权重。",
-  "overallLimitsFitness": "应用目前还无法测量，所以这一行不计入。应用绝不会只凭静息心率估算体能：那等于把同一项测量算两次。",
+  "overallLimitsFitness": "它来自在这里用 GPS 和戒指记录的户外跑步和步行，取连续 10 分钟以上且没有暂停的路段。地面按平地计算，所以上坡会让结果偏低。按年龄估算的最大心率可能相差 10 次或更多，这会改变结果。个人资料中没有性别和 20 到 79 岁的年龄时，这一行不计入。应用绝不会只凭静息心率估算体能：那等于把同一项测量算两次。",
   "overallWhatResting": "完全静息时心脏每分钟跳动的次数。戒指取每晚最平静的一段。",
   "overallRuleResting": "{zero} 或以上得零分，{full} 或以下得满分，中间按比例计算。",
   "overallSourceResting": "范围：Quer 等，2020 年，对象是日常佩戴手环的成年人。",
@@ -1539,5 +1539,7 @@
   "overallWeeksChangedTitle": "自 {date} 起的变化",
   "overallWeeksFew": "图表需要 {needed} 个有评分的周一。你现在有 {weeks} 个。",
   "overallWeeksChart": "{weeks} 个周一的总评分，从 {first} 到 {last}。",
-  "overallWeeksSame": "持平"
+  "overallWeeksSame": "持平",
+  "overallValueFitness": "在 100 名同龄同性别的人中的位置：{position}。",
+  "overallSheetFitnessWindow": "取最近一次更新前 {days} 天内户外跑步和步行的最高估算值。还需要你的静息心率。"
 }

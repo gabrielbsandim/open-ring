@@ -23,6 +23,7 @@ import 'package:open_ring/features/workout/domain/workout_history.dart';
 import 'package:open_ring/features/workout/domain/workout_route.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_store.dart';
+import 'package:open_ring/features/workout/domain/workout_type.dart';
 
 final workoutStart = DateTime.utc(2026, 11, 10, 7);
 
@@ -197,6 +198,20 @@ class MemoryWorkoutHistory implements WorkoutStore, WorkoutHistoryReader {
   final _saved = <int, SavedWorkout>{};
   var _next = 1;
   bool failDelete = false;
+
+  @override
+  Future<List<SavedWorkout>> routed({
+    required DateTime from,
+    required DateTime to,
+    required Set<WorkoutType> types,
+  }) async => [
+    for (final saved in _saved.values)
+      if (types.contains(saved.workout.type) &&
+          saved.workout.gps &&
+          !saved.workout.start.isBefore(from) &&
+          saved.workout.start.isBefore(to))
+        saved,
+  ];
 
   @override
   Future<int> save(FinishedWorkout workout, {required DateTime at}) async {

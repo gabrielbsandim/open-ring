@@ -10,8 +10,10 @@ import 'package:open_ring/features/modules/application/enabled_modules_controlle
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/day_score_providers.dart';
 import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
+import 'package:open_ring/features/open_score/domain/fitness_efforts.dart';
 import 'package:open_ring/features/open_score/domain/overall_history.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
+import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/sleep/application/sleep_providers.dart';
 import 'package:open_ring/features/sleep/application/sleep_source_selection.dart';
 import 'package:open_ring/features/workout/application/workout_history_providers.dart';
@@ -40,6 +42,24 @@ final overallStrengthDatesProvider = FutureProvider<List<LocalDate>>((
   ];
 });
 
+// Every recorded run or walk with a route that a Monday on screen can read.
+final overallFitnessEffortsProvider = FutureProvider<List<FitnessEffort>>((
+  ref,
+) async {
+  ref.watch(dataRevisionProvider);
+  final now = ref.watch(clockProvider)();
+  final from = overallMondays(ref.watch(currentDateProvider)).first
+      .addDays(-fitnessWindowDays);
+  final saved = await ref
+      .watch(workoutHistoryReaderProvider)
+      .routed(
+        from: localMidnight(from, now.timeZoneOffset),
+        to: now,
+        types: fitnessTypes,
+      );
+  return [for (final workout in saved) ?fitnessEffortOf(workout)];
+});
+
 final overallWeighInsProvider = FutureProvider<List<WeighIn>>((ref) async {
   final modules = await ref.watch(enabledModulesProvider.future);
   if (!modules.contains(ModuleId.body)) return const [];
@@ -63,6 +83,7 @@ final overallHistoryProvider = FutureProvider<OverallHistory>((ref) async {
     strength,
     tags,
     weighIns,
+    efforts,
   ) = await (
     readSleepSessions(
       ring: ref.watch(sleepHistoryReaderProvider),
@@ -78,6 +99,7 @@ final overallHistoryProvider = FutureProvider<OverallHistory>((ref) async {
     ref.watch(overallStrengthDatesProvider.future),
     ref.watch(dayTagsProvider.future),
     ref.watch(overallWeighInsProvider.future),
+    ref.watch(overallFitnessEffortsProvider.future),
   ).wait;
   return OverallHistory.collect(
     today: today,
@@ -93,5 +115,12 @@ final overallHistoryProvider = FutureProvider<OverallHistory>((ref) async {
     weighIns: weighIns,
     heightCentimeters: profile?.heightCentimeters,
     birthYear: profile?.birthYear,
+    efforts: efforts,
+    sex: switch (profile?.sex) {
+      Sex.female => FitnessSex.female,
+      Sex.male => FitnessSex.male,
+      null => null,
+    },
+    maxHeartRate: profile?.maxHeartRate,
   );
 });

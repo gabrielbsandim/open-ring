@@ -92,6 +92,25 @@ final class DriftWorkoutHistoryReader implements WorkoutHistoryReader {
     );
   }
 
+  @override
+  Future<List<SavedWorkout>> routed({
+    required DateTime from,
+    required DateTime to,
+    required Set<WorkoutType> types,
+  }) async {
+    final ids = await _dao.routedIds(
+      fromUtcMs: from.utcMs,
+      toUtcMs: to.utcMs,
+      activityTypes: [for (final type in types) type.activityType],
+    );
+    final saved = <SavedWorkout>[];
+    for (final id in ids) {
+      final workout = await byId(id);
+      if (workout != null) saved.add(workout);
+    }
+    return saved;
+  }
+
   static Duration _elapsed(WorkoutRow row, int endUtcMs) =>
       Duration(milliseconds: row.elapsedMs ?? endUtcMs - row.startUtcMs);
 }

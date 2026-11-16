@@ -948,7 +948,7 @@ day is a day of the window with at least one heart rate sample.
 | daily steps | mean steps of the worn days; a worn day without steps counts as zero | 14 worn days |
 | strength | distinct days with a strength workout in the window, times 7 over its length | 14 days in the window |
 | body | the last waist and the last weight logged before the Monday, with the profile height; only while the Body module is on | a height and a weigh-in |
-| fitness | no source yet, always left out | |
+| fitness | the position, by age and sex, of the best estimate among the outdoor runs and walks recorded in the 90 days before the Monday (below) | one estimate, a resting heart rate, a sex and an age from 20 to 79 |
 
 Sleep comes from one source per date, the first in the user's order that has
 any sleep on it, and that source's naps count for the regularity index. An
@@ -971,6 +971,56 @@ rest, so those two scores do not compare exactly. It needs two scored
 weeks; an early first score counts as the last one, so "now" is the number
 of the Overall screen. The change of the Body points is not listed while the
 Body numbers are hidden. These choices are **our choice**.
+
+### Fitness estimate
+
+`packages/metrics/lib/src/fitness_estimate.dart` and
+`features/open_score/domain/fitness_efforts.dart`. The source is a workout of
+type running or walking recorded in the app with a route. Workouts imported
+from Health Connect carry no route here and are not read.
+
+1. A workout is cut at its pauses. Each pause free stretch loses its first
+   3 minutes, while the heart rate is still rising, and needs 10 minutes
+   after that and at least one heart rate sample a minute.
+2. The speed of a stretch is its distance over its time. The oxygen cost of
+   that speed on flat ground is `3.5 + 0.1 * speed` for a walk between 50 and
+   100 m/min and `3.5 + 0.2 * speed` for a run at 80 m/min or more, in
+   mL/kg/min with the speed in m/min. Grade is ignored, so a climb reads low.
+3. The share of the heart rate reserve used is
+   `(mean bpm - resting) / (maximum - resting)`. The resting value is the
+   Overall's own, the mean of the window; the maximum is the profile's, else
+   `220 - age`. A stretch counts between 60 and 90 percent of the reserve.
+4. `VO2max = 3.5 + (cost - 3.5) / share`.
+5. A workout is the median of its stretches, and the value of a Monday is the
+   highest workout of the 90 days before it.
+6. The position comes from the table below by linear interpolation, kept
+   between 5 and 95, for the age reached in the year of that Monday.
+
+VO2max in mL/kg/min at percentiles 5, 10, 25, 50, 75, 90 and 95:
+
+| Age | Men | Women |
+| :--- | :--- | :--- |
+| 20 to 29 | 29.0, 32.1, 40.1, 48.0, 55.2, 61.8, 66.3 | 21.7, 23.9, 30.5, 37.6, 44.7, 51.3, 56.0 |
+| 30 to 39 | 27.2, 30.2, 35.9, 42.4, 49.2, 56.5, 59.8 | 19.0, 20.9, 25.3, 30.2, 36.1, 41.4, 45.8 |
+| 40 to 49 | 24.2, 26.8, 31.9, 37.8, 45.0, 52.1, 55.6 | 17.0, 18.8, 22.1, 26.7, 32.4, 38.4, 41.7 |
+| 50 to 59 | 20.9, 22.8, 27.1, 32.6, 39.7, 45.6, 50.7 | 16.0, 17.3, 19.9, 23.4, 27.6, 32.0, 35.9 |
+| 60 to 69 | 17.4, 19.8, 23.7, 28.2, 34.5, 40.3, 43.0 | 13.4, 14.6, 17.2, 20.0, 23.8, 27.0, 29.4 |
+| 70 to 79 | 16.3, 17.1, 20.4, 24.4, 30.4, 36.6, 39.7 | 13.1, 13.6, 15.6, 18.3, 20.8, 23.1, 24.1 |
+
+| Part | Basis |
+| :--- | :--- |
+| the table | **sourced**, Kaminsky 2015, table 2 (FRIEND registry, treadmill tests in the United States), read from the paper at PMC4919021 |
+| the cost of walking and running | **sourced**, the ACSM metabolic equations. Not checked against the source. |
+| reserve share equals share of the oxygen reserve | **sourced**, Swain and Leutholtz 1997. Not checked against the source. |
+| speed limits of each equation, 3 and 10 minutes, 60 to 90 percent, one sample a minute | **our choice** |
+| best of 90 days, median inside a workout | **our choice**: a tired or hot day should not lower a capacity number |
+| no grade | **our choice**: phone altitude is noisy, and flat ground errs low |
+
+Known limits: the resting heart rate is measured asleep, lower than the awake
+value the reserve method assumes, which lowers the estimate a little; a
+maximum heart rate from age can be off by 10 beats or more; the table is not
+a sample of any population. The app never estimates fitness from the resting
+heart rate alone.
 
 ### Sleep Regularity Index
 

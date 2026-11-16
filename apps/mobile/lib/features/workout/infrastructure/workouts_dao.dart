@@ -80,6 +80,24 @@ class WorkoutsDao extends DatabaseAccessor<AppDatabase>
             ..limit(limit))
           .get();
 
+  Future<List<int>> routedIds({
+    required int fromUtcMs,
+    required int toUtcMs,
+    required Iterable<String> activityTypes,
+  }) =>
+      (selectOnly(workouts)
+            ..addColumns([workouts.id])
+            ..where(
+              workouts.endUtcMs.isNotNull() &
+                  workouts.distanceMeters.isNotNull() &
+                  workouts.startUtcMs.isBiggerOrEqualValue(fromUtcMs) &
+                  workouts.startUtcMs.isSmallerThanValue(toUtcMs) &
+                  workouts.activityType.isIn(activityTypes),
+            )
+            ..orderBy([OrderingTerm.asc(workouts.startUtcMs)]))
+          .map((row) => row.read(workouts.id)!)
+          .get();
+
   Future<WorkoutRow?> finishedById(int id) => (select(
     workouts,
   )..where((w) => w.id.equals(id) & w.endUtcMs.isNotNull())).getSingleOrNull();

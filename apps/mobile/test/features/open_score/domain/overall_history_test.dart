@@ -58,6 +58,9 @@ OverallHistory collect({
   double? heightCentimeters,
   int? birthYear,
   List<LocalDate> strengthDates = const [],
+  List<FitnessEffort> efforts = const [],
+  FitnessSex? sex,
+  int? maxHeartRate,
 }) {
   final dates = [for (var age = days; age >= 1 - extra; age--) back(age)];
   return OverallHistory.collect(
@@ -80,10 +83,126 @@ OverallHistory collect({
     weighIns: weighIns,
     heightCentimeters: heightCentimeters,
     birthYear: birthYear,
+    efforts: efforts,
+    sex: sex,
+    maxHeartRate: maxHeartRate,
   );
 }
 
+FitnessEffort run(LocalDate date, {double metersPerMinute = 160}) => (
+  date: date,
+  gait: FitnessGait.run,
+  stretches: [
+    (
+      duration: const Duration(minutes: 20),
+      meters: metersPerMinute * 20,
+      meanBpm: 150,
+    ),
+  ],
+);
+
+double? positionOf(double metersPerMinute, {double maxBpm = 184}) =>
+    fitnessPercentile(
+      steadyVo2max(
+        gait: FitnessGait.run,
+        metersPerMinute: metersPerMinute,
+        meanBpm: 150,
+        restingBpm: 52,
+        maxBpm: maxBpm,
+      )!,
+      age: 36,
+      sex: FitnessSex.male,
+    );
+
 void main() {
+  group('fitness', () {
+    OverallHistory fit({
+      List<FitnessEffort>? efforts,
+      int? birthYear = 1990,
+      FitnessSex? sex = FitnessSex.male,
+      int? maxHeartRate,
+    }) => collect(
+      efforts: efforts ?? [run(back(10))],
+      birthYear: birthYear,
+      sex: sex,
+      maxHeartRate: maxHeartRate,
+    );
+
+    test('a recorded run gives the Monday its position', () {
+      final inputs = fit().current.inputs;
+
+      expect(inputs.restingHeartRate, 52);
+      expect(inputs.fitnessPercentile, closeTo(positionOf(160)!, 1e-9));
+      expect(inputs.isFull, isFalse);
+      expect(
+        (fit().current.result as Scored<OverallFactor>).contributions.map(
+          (c) => c.factor,
+        ),
+        contains(OverallFactor.fitness),
+      );
+    });
+
+    test('the best run of the 90 days counts, not the latest', () {
+      final inputs = fit(
+        efforts: [run(back(60), metersPerMinute: 180), run(back(3))],
+      ).current.inputs;
+
+      expect(inputs.fitnessPercentile, closeTo(positionOf(180)!, 1e-9));
+    });
+
+    test('a run older than 90 days or after the Monday is not read', () {
+      final history = fit(efforts: [run(back(100)), run(monday)]);
+
+      expect(history.current.inputs.fitnessPercentile, isNull);
+      expect(history.weeks.first.inputs.fitnessPercentile, isNotNull);
+    });
+
+    test('the profile maximum heart rate replaces the one from age', () {
+      final inputs = fit(maxHeartRate: 200).current.inputs;
+
+      expect(
+        inputs.fitnessPercentile,
+        closeTo(positionOf(160, maxBpm: 200)!, 1e-9),
+      );
+    });
+
+    test('without sex the row stays out and the score does not move', () {
+      final without = fit(sex: null).current;
+
+      expect(without.inputs.fitnessPercentile, isNull);
+      expect(
+        (without.result as Scored<OverallFactor>).value,
+        (collect(birthYear: 1990).current.result as Scored<OverallFactor>)
+            .value,
+      );
+    });
+
+    test('without an age from 20 to 79 the row stays out', () {
+      double? at(int? birthYear) => fit(
+        birthYear: birthYear,
+        maxHeartRate: 184,
+      ).current.inputs.fitnessPercentile;
+
+      expect(at(null), isNull);
+      expect(at(2007), isNull);
+      expect(at(1946), isNull);
+      expect(at(2006), isNotNull);
+      expect(at(1947), isNotNull);
+    });
+
+    test('without a resting heart rate the row stays out', () {
+      final history = collect(
+        days: 10,
+        efforts: [run(back(5))],
+        birthYear: 1990,
+        sex: FitnessSex.male,
+      );
+
+      expect(history.current.inputs.restingHeartRate, isNull);
+      expect(history.current.inputs.fitnessPercentile, isNull);
+    });
+  });
+
   group('the reach', () {
     test('starts 28 days before the oldest Monday', () {
       expect(overallHistoryStart(monday), back(105));

@@ -5,6 +5,7 @@ export 'src/effort.dart';
 export 'src/energy.dart';
 export 'src/fitness_estimate.dart';
 export 'src/goal_rate.dart';
+export 'src/goal_review.dart';
 export 'src/heart_rate_zones.dart';
 export 'src/intensity_minutes.dart';
 export 'src/level.dart';

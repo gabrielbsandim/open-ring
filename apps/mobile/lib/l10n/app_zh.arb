@@ -1526,5 +1526,18 @@
   "overallWhatBodyBmi": "体重指数：体重除以身高的平方。有腰围记录时，这一行会改用更能说明问题的腰围身高比。",
   "overallRuleBodyBmi": "{full} 或以下得满分，{zero} 或以上得零分。在满分范围内，指数更低不会再加分。低于 {floor} 时这一行不计入。",
   "overallSourceBodyBmi": "世界卫生组织的体重指数范围。",
-  "overallSheetWindowPairs": "上次更新前的 {days} 天，不含标记为“生病”或“出行”的日子。需要 {min} 组连续的两天。"
+  "overallSheetWindowPairs": "上次更新前的 {days} 天，不含标记为“生病”或“出行”的日子。需要 {min} 组连续的两天。",
+  "overallWeeksTitle": "12 周",
+  "overallWeeksLead": "每个周一的总评分。它有意变化得很慢。",
+  "overallWeeksSince": "自 {date} 起 {change}",
+  "overallWeeksNow": "现在",
+  "overallWeeksTypical": "典型的一周",
+  "overallWeeksFloor": "你的底线",
+  "overallWeeksFloorNote": "底线是这段时间里你最弱几周的评分。抬高底线比刷新纪录更有价值。",
+  "overallWeeksNoise": "相邻两周的变化不到 {points} 分属于噪声。",
+  "overallWeeksHollow": "空心点表示那一周的计分项目与最近一周不同。评分已按比例换算，因此两者不能完全对比。",
+  "overallWeeksChangedTitle": "自 {date} 起的变化",
+  "overallWeeksFew": "图表需要 {needed} 个有评分的周一。你现在有 {weeks} 个。",
+  "overallWeeksChart": "{weeks} 个周一的总评分，从 {first} 到 {last}。",
+  "overallWeeksSame": "持平"
 }

@@ -1526,5 +1526,18 @@
   "overallWhatBodyBmi": "Indeks massa tubuh: berat dibagi kuadrat tinggi badan. Dengan ukuran pinggang, baris ini akan memakai pinggang terhadap tinggi, yang lebih banyak bercerita.",
   "overallRuleBodyBmi": "{full} atau kurang bernilai penuh, {zero} atau lebih bernilai nol. Di dalam rentang penuh, indeks yang lebih rendah tidak menambah apa pun. Di bawah {floor} baris ini keluar dari hitungan.",
   "overallSourceBodyBmi": "Rentang indeks massa tubuh dari Organisasi Kesehatan Dunia.",
-  "overallSheetWindowPairs": "{days} hari sebelum pembaruan terakhir, tanpa hari yang ditandai Sakit atau Perjalanan. Perlu {min} pasang hari berturut-turut."
+  "overallSheetWindowPairs": "{days} hari sebelum pembaruan terakhir, tanpa hari yang ditandai Sakit atau Perjalanan. Perlu {min} pasang hari berturut-turut.",
+  "overallWeeksTitle": "12 minggu",
+  "overallWeeksLead": "Skor Keseluruhan setiap Senin. Sengaja bergerak pelan.",
+  "overallWeeksSince": "{change} sejak {date}",
+  "overallWeeksNow": "sekarang",
+  "overallWeeksTypical": "minggu biasa",
+  "overallWeeksFloor": "batas bawah Anda",
+  "overallWeeksFloorNote": "Batas bawah adalah skor minggu-minggu terlemah Anda dalam periode ini. Menaikkan batas bawah lebih berarti daripada memecahkan rekor.",
+  "overallWeeksNoise": "Perubahan di bawah {points} poin dari satu minggu ke minggu berikutnya hanyalah derau.",
+  "overallWeeksHollow": "Titik kosong adalah minggu yang dinilai dari bagian yang berbeda dengan minggu terakhir. Skornya diskalakan ulang, jadi keduanya tidak sepenuhnya sebanding.",
+  "overallWeeksChangedTitle": "Apa yang berubah sejak {date}",
+  "overallWeeksFew": "Grafik dimulai dengan {needed} Senin yang memiliki skor. Anda punya {weeks}.",
+  "overallWeeksChart": "Skor Keseluruhan dari {weeks} Senin, dari {first} sampai {last}.",
+  "overallWeeksSame": "sama"
 }

@@ -1518,5 +1518,18 @@
   "overallWhatBodyBmi": "O índice de massa corporal: o peso dividido pela altura ao quadrado. Com a medida da cintura esta linha usaria cintura por altura, que diz mais.",
   "overallRuleBodyBmi": "{full} ou menos vale tudo, {zero} ou mais vale zero. Dentro da faixa cheia, um índice menor não rende mais nada. Abaixo de {floor} a linha sai da conta.",
   "overallSourceBodyBmi": "Faixas de índice de massa corporal da Organização Mundial da Saúde.",
-  "overallSheetWindowPairs": "Os {days} dias antes da última atualização, sem os dias marcados Doente ou Viagem. Precisa de {min} pares de dias seguidos."
+  "overallSheetWindowPairs": "Os {days} dias antes da última atualização, sem os dias marcados Doente ou Viagem. Precisa de {min} pares de dias seguidos.",
+  "overallWeeksTitle": "12 semanas",
+  "overallWeeksLead": "A Nota Geral de cada segunda-feira. Anda devagar de propósito.",
+  "overallWeeksSince": "{change} desde {date}",
+  "overallWeeksNow": "agora",
+  "overallWeeksTypical": "semana típica",
+  "overallWeeksFloor": "o seu piso",
+  "overallWeeksFloorNote": "O piso é a nota das suas semanas mais fracas no período. Subir o piso vale mais do que bater um recorde.",
+  "overallWeeksNoise": "Uma mudança de menos de {points} pontos de uma semana para a outra é ruído.",
+  "overallWeeksHollow": "Um ponto vazio é uma semana em que a nota usou partes diferentes das da última. A nota foi reescalada, por isso as duas não se comparam exatamente.",
+  "overallWeeksChangedTitle": "O que mudou desde {date}",
+  "overallWeeksFew": "O gráfico começa com {needed} segundas com nota. Tem {weeks}.",
+  "overallWeeksChart": "Nota Geral de {weeks} segundas, de {first} a {last}.",
+  "overallWeeksSame": "igual"
 }

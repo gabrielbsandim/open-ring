@@ -1526,5 +1526,18 @@
   "overallWhatBodyBmi": "L'indice di massa corporea: il peso diviso per il quadrato dell'altezza. Con la misura della vita questa riga userebbe vita su altezza, che dice di più.",
   "overallRuleBodyBmi": "{full} o meno vale tutto, {zero} o più vale zero. Dentro l'intervallo pieno, un indice più basso non dà altro. Sotto {floor} la riga esce dal conto.",
   "overallSourceBodyBmi": "Gli intervalli di indice di massa corporea dell'Organizzazione Mondiale della Sanità.",
-  "overallSheetWindowPairs": "I {days} giorni prima dell'ultimo aggiornamento, senza i giorni segnati Malattia o Viaggio. Servono {min} coppie di giorni consecutivi."
+  "overallSheetWindowPairs": "I {days} giorni prima dell'ultimo aggiornamento, senza i giorni segnati Malattia o Viaggio. Servono {min} coppie di giorni consecutivi.",
+  "overallWeeksTitle": "12 settimane",
+  "overallWeeksLead": "Il Voto generale di ogni lunedì. Si muove piano di proposito.",
+  "overallWeeksSince": "{change} dal {date}",
+  "overallWeeksNow": "adesso",
+  "overallWeeksTypical": "settimana tipica",
+  "overallWeeksFloor": "il tuo minimo",
+  "overallWeeksFloorNote": "Il minimo è il voto delle tue settimane più deboli nel periodo. Alzare il minimo vale più che battere un record.",
+  "overallWeeksNoise": "Una variazione sotto i {points} punti da una settimana all'altra è rumore.",
+  "overallWeeksHollow": "Un punto vuoto è una settimana valutata su parti diverse dall'ultima. Il voto è stato riscalato, quindi i due non si confrontano esattamente.",
+  "overallWeeksChangedTitle": "Che cosa è cambiato dal {date}",
+  "overallWeeksFew": "Il grafico parte con {needed} lunedì con un voto. Ne hai {weeks}.",
+  "overallWeeksChart": "Voto generale di {weeks} lunedì, dal {first} al {last}.",
+  "overallWeeksSame": "uguale"
 }

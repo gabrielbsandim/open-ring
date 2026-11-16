@@ -962,6 +962,14 @@ window, the rule, its source, what is our choice and the limits. The numbers
 of the rule in that sheet are the constants above, formatted, so the sheet
 cannot drift from the formula.
 
+The 12 weeks screen (`OverallTrend.of`) reads the same 12 Mondays. The
+typical week is the median of the scored weeks and the floor is their 10th
+percentile by nearest rank, which is the lowest week until there are 11 of
+them. A point is drawn hollow, and the line breaks, where a week was scored
+on other factors than the latest scored week: a missing factor rescales the
+rest, so those two scores do not compare exactly. It needs two scored
+Mondays. These choices are **our choice**.
+
 ### Sleep Regularity Index
 
 Function: `sleepRegularity(spans, days)`. The day is cut into 288 epochs of 5

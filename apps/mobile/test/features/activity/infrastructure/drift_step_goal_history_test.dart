@@ -67,16 +67,19 @@ void main() {
         expect(changes, hasLength(3));
       });
 
-      test('changes come back ascending whatever the insert order', () async {
-        await store.record(on: _dec9, steps: 11000, previous: 8000);
+      test(
+        'a record on an earlier day drops the rows dated after it',
+        () async {
+          await store.record(on: _dec9, steps: 11000, previous: 8000);
 
-        await store.record(on: _dec7, steps: 10000, previous: 11000);
+          await store.record(on: _dec7, steps: 10000, previous: 11000);
 
-        expect(
-          [for (final change in await store.changes()) change.from],
-          [stepGoalBaselineDate, _dec7, _dec9],
-        );
-      });
+          expect(await store.changes(), [
+            (from: stepGoalBaselineDate, steps: 8000),
+            (from: _dec7, steps: 10000),
+          ]);
+        },
+      );
     });
   }
 

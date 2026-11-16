@@ -30,6 +30,9 @@ final class DriftStepGoalHistory implements StepGoalHistory {
       _db.stepGoalChanges,
     )..limit(1)).getSingleOrNull();
     if (stored == null) await _put(stepGoalBaselineDate, previous);
+    await (_db.delete(
+      _db.stepGoalChanges,
+    )..where((row) => row.effectiveDate.isBiggerThanValue(on.iso))).go();
     await _put(on, steps);
   });
 

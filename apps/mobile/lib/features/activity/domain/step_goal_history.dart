@@ -24,7 +24,8 @@ int stepGoalOn(
 abstract interface class StepGoalHistory {
   Future<List<StepGoalChange>> changes();
 
-  /// Stores [steps] as the goal from [on]. The first call also stores
+  /// Stores [steps] as the goal from [on] and drops every change dated after
+  /// it, so the newest save always decides today. The first call also stores
   /// [previous] as the goal of every earlier day.
   Future<void> record({
     required LocalDate on,
@@ -49,6 +50,8 @@ final class InMemoryStepGoalHistory implements StepGoalHistory {
     required int previous,
   }) async {
     if (_steps.isEmpty) _steps[stepGoalBaselineDate] = previous;
-    _steps[on] = steps;
+    _steps
+      ..removeWhere((date, _) => date.compareTo(on) > 0)
+      ..[on] = steps;
   }
 }

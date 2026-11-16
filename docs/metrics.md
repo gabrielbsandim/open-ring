@@ -815,11 +815,14 @@ uses the goal of the profile.
 
 The changes live in the table `step_goal_changes`, one row per date. A row is
 written when the profile is saved with a different step goal, dated with the
-phone's date; a second change the same day replaces the row, and a cleared
-goal is stored as the default of 8,000. The first change also writes a row
+phone's date at the save; a second change the same day replaces the row, a
+cleared goal is stored as the default of 8,000, and a change removes every
+row dated after it, so the newest save always decides today. The first change also writes a row
 dated 1970-01-01 with the goal held until then, which is what keeps every
 day before it unchanged. Today, Activity and the widget show the goal of the
-profile, which is the goal in force today.
+profile. That is the goal in force today except in two cases, both closed by
+the next save of the profile: the profile failed to save after the row was
+written, or the phone's date went back behind the newest row.
 
 What it cannot say: the goal a person had in mind before the app stored
 changes. Those days are scored against the goal held when the first change

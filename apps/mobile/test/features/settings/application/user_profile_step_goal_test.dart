@@ -175,4 +175,88 @@ void main() {
       ]);
     },
   );
+
+  test(
+    'a save after a failed one brings the history back to the profile',
+    () async {
+      final history = InMemoryStepGoalHistory();
+      await history.record(on: _dec7, steps: 10000, previous: 8000);
+      final container = ProviderContainer.test(
+        overrides: [
+          clockProvider.overrideWithValue(() => _clock),
+          userProfileStoreProvider.overrideWithValue(
+            InMemoryUserProfileStore(),
+          ),
+          stepGoalHistoryProvider.overrideWithValue(history),
+        ],
+      );
+      await container.read(userProfileProvider.future);
+
+      await container
+          .read(userProfileProvider.notifier)
+          .save(const UserProfile(heightCentimeters: 178));
+
+      expect(await history.changes(), [
+        (from: stepGoalBaselineDate, steps: 8000),
+        (from: _dec7, steps: defaultStepGoal),
+      ]);
+    },
+  );
+
+  test('a save with the date gone back drops the row dated ahead', () async {
+    final history = InMemoryStepGoalHistory();
+    await history.record(
+      on: const LocalDate(2026, 12, 9),
+      steps: 10000,
+      previous: 8000,
+    );
+    final container = ProviderContainer.test(
+      overrides: [
+        clockProvider.overrideWithValue(() => _clock),
+        userProfileStoreProvider.overrideWithValue(
+          InMemoryUserProfileStore(const UserProfile(dailyStepGoal: 10000)),
+        ),
+        stepGoalHistoryProvider.overrideWithValue(history),
+      ],
+    );
+    await container.read(userProfileProvider.future);
+
+    await container
+        .read(userProfileProvider.notifier)
+        .save(const UserProfile(dailyStepGoal: 12000));
+
+    expect(await history.changes(), [
+      (from: stepGoalBaselineDate, steps: 8000),
+      (from: _dec7, steps: 12000),
+    ]);
+  });
+
+  test(
+    'the row is dated by the clock at the save, not by a cached date',
+    () async {
+      var now = DateTime.utc(2026, 12, 6, 23, 50);
+      final history = InMemoryStepGoalHistory();
+      final container = ProviderContainer.test(
+        overrides: [
+          clockProvider.overrideWithValue(() => now),
+          userProfileStoreProvider.overrideWithValue(
+            InMemoryUserProfileStore(),
+          ),
+          stepGoalHistoryProvider.overrideWithValue(history),
+        ],
+      );
+      await container.read(userProfileProvider.future);
+      expect(container.read(currentDateProvider), const LocalDate(2026, 12, 6));
+      now = DateTime.utc(2026, 12, 7, 0, 10);
+
+      await container
+          .read(userProfileProvider.notifier)
+          .save(const UserProfile(dailyStepGoal: 10000));
+
+      expect(await history.changes(), [
+        (from: stepGoalBaselineDate, steps: 8000),
+        (from: _dec7, steps: 10000),
+      ]);
+    },
+  );
 }

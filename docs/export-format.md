@@ -62,8 +62,9 @@ dates the two ends of the range fall on, both included.
 Workouts from other apps are the workouts read from Health Connect. The kind is
 always offered and carries every stored row whose start is in the range: also
 with the reading switched off, and also a workout the app hides because it
-overlaps one you recorded. Only the columns below are stored, so there is no
-distance, energy or device id.
+overlaps one you recorded. The app reads no distance, energy or device id for
+these workouts, so the kind has none. The time the row was imported is stored
+and is not exported.
 
 ### Units and meaning
 

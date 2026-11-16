@@ -957,6 +957,11 @@ birth year. The height, the birth year and the source order of today are
 applied to past Mondays too. The 28 days, the 14, the worn day rule and which
 tags leave are **our choice**.
 
+Each row of the Overall screen opens an evidence sheet with the value, the
+window, the rule, its source, what is our choice and the limits. The numbers
+of the rule in that sheet are the constants above, formatted, so the sheet
+cannot drift from the formula.
+
 ### Sleep Regularity Index
 
 Function: `sleepRegularity(spans, days)`. The day is cut into 288 epochs of 5

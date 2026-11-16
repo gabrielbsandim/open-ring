@@ -33,6 +33,12 @@ final class _UnreadableHistory implements WorkoutStore, WorkoutHistoryReader {
   Future<SavedWorkout?> byId(int id) async => null;
 
   @override
+  Future<List<WorkoutListItem>> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async => throw const FileSystemException('database is locked');
+
+  @override
   Future<List<SavedWorkout>> routed({
     required DateTime from,
     required DateTime to,

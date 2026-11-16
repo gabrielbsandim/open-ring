@@ -39,6 +39,18 @@ final class _FixedImportedWorkouts implements ImportedWorkoutReader {
     }
     return null;
   }
+
+  @override
+  Future<ImportedWorkouts> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async => (
+    priority: const [ringSource, _watch, _fit],
+    workouts: [
+      for (final workout in workouts)
+        if (workout.end.isAfter(from) && workout.start.isBefore(to)) workout,
+    ]..sort((a, b) => a.start.compareTo(b.start)),
+  );
 }
 
 ImportedWorkout _imported(

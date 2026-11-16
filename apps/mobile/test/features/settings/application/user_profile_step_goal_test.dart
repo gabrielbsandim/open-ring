@@ -203,32 +203,66 @@ void main() {
     },
   );
 
-  test('a save with the date gone back drops the row dated ahead', () async {
-    final history = InMemoryStepGoalHistory();
-    await history.record(
-      on: const LocalDate(2026, 12, 9),
-      steps: 10000,
-      previous: 8000,
-    );
-    final container = ProviderContainer.test(
-      overrides: [
-        clockProvider.overrideWithValue(() => _clock),
-        userProfileStoreProvider.overrideWithValue(
-          InMemoryUserProfileStore(const UserProfile(dailyStepGoal: 10000)),
-        ),
-        stepGoalHistoryProvider.overrideWithValue(history),
-      ],
-    );
-    await container.read(userProfileProvider.future);
+  group('with the date gone back behind the newest row', () {
+    const dec9 = LocalDate(2026, 12, 9);
 
-    await container
-        .read(userProfileProvider.notifier)
-        .save(const UserProfile(dailyStepGoal: 12000));
+    Future<(ProviderContainer, InMemoryStepGoalHistory)> behind() async {
+      final history = InMemoryStepGoalHistory();
+      await history.record(on: dec9, steps: 10000, previous: 8000);
+      final container = ProviderContainer.test(
+        overrides: [
+          clockProvider.overrideWithValue(() => _clock),
+          userProfileStoreProvider.overrideWithValue(
+            InMemoryUserProfileStore(const UserProfile(dailyStepGoal: 10000)),
+          ),
+          stepGoalHistoryProvider.overrideWithValue(history),
+        ],
+      );
+      await container.read(userProfileProvider.future);
+      return (container, history);
+    }
 
-    expect(await history.changes(), [
-      (from: stepGoalBaselineDate, steps: 8000),
-      (from: _dec7, steps: 12000),
-    ]);
+    test('a new goal replaces the newest row and removes nothing', () async {
+      final (container, history) = await behind();
+
+      await container
+          .read(userProfileProvider.notifier)
+          .save(const UserProfile(dailyStepGoal: 12000));
+
+      expect(await history.changes(), [
+        (from: stepGoalBaselineDate, steps: 8000),
+        (from: dec9, steps: 12000),
+      ]);
+    });
+
+    test('a save that keeps the goal writes nothing', () async {
+      final (container, history) = await behind();
+
+      await container
+          .read(userProfileProvider.notifier)
+          .save(
+            const UserProfile(dailyStepGoal: 10000, heightCentimeters: 178),
+          );
+
+      expect(await history.changes(), [
+        (from: stepGoalBaselineDate, steps: 8000),
+        (from: dec9, steps: 10000),
+      ]);
+    });
+
+    test('a goal equal to the one of the older day still replaces the newest '
+        'row', () async {
+      final (container, history) = await behind();
+
+      await container
+          .read(userProfileProvider.notifier)
+          .save(const UserProfile(dailyStepGoal: 8000));
+
+      expect(await history.changes(), [
+        (from: stepGoalBaselineDate, steps: 8000),
+        (from: dec9, steps: 8000),
+      ]);
+    });
   });
 
   test(

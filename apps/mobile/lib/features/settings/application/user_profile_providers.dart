@@ -4,7 +4,6 @@ import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/activity/application/step_goal_history_providers.dart';
 import 'package:open_ring/features/activity/domain/activity_history_reader.dart';
-import 'package:open_ring/features/activity/domain/step_goal_history.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 
 final userProfileStoreProvider = Provider<UserProfileStore>(
@@ -28,12 +27,9 @@ class UserProfileController extends AsyncNotifier<UserProfile?> {
     final history = ref.read(stepGoalHistoryProvider);
     final previous = (await future)?.dailyStepGoal ?? defaultStepGoal;
     final next = profile.dailyStepGoal ?? defaultStepGoal;
-    final inForce = stepGoalOn(
-      today,
-      changes: await history.changes(),
-      current: previous,
-    );
-    if (next != inForce) {
+    final changes = await history.changes();
+    final held = changes.isEmpty ? previous : changes.last.steps;
+    if (next != held) {
       await history.record(on: today, steps: next, previous: previous);
       ref.read(dataRevisionProvider.notifier).bump();
     }

@@ -67,19 +67,18 @@ void main() {
         expect(changes, hasLength(3));
       });
 
-      test(
-        'a record on an earlier day drops the rows dated after it',
-        () async {
-          await store.record(on: _dec9, steps: 11000, previous: 8000);
+      test('a record dated before the newest row replaces that row', () async {
+        await store.record(on: _dec7, steps: 9000, previous: 8000);
+        await store.record(on: _dec9, steps: 11000, previous: 9000);
 
-          await store.record(on: _dec7, steps: 10000, previous: 11000);
+        await store.record(on: _dec7, steps: 10000, previous: 11000);
 
-          expect(await store.changes(), [
-            (from: stepGoalBaselineDate, steps: 8000),
-            (from: _dec7, steps: 10000),
-          ]);
-        },
-      );
+        expect(await store.changes(), [
+          (from: stepGoalBaselineDate, steps: 8000),
+          (from: _dec7, steps: 9000),
+          (from: _dec9, steps: 10000),
+        ]);
+      });
     });
   }
 

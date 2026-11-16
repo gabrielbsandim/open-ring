@@ -26,19 +26,19 @@ final class DriftStepGoalHistory implements StepGoalHistory {
     required int steps,
     required int previous,
   }) => _db.transaction(() async {
-    final stored = await (_db.select(
-      _db.stepGoalChanges,
-    )..limit(1)).getSingleOrNull();
-    if (stored == null) await _put(stepGoalBaselineDate, previous);
-    await (_db.delete(
-      _db.stepGoalChanges,
-    )..where((row) => row.effectiveDate.isBiggerThanValue(on.iso))).go();
-    await _put(on, steps);
+    final newest =
+        await (_db.select(_db.stepGoalChanges)
+              ..orderBy([(row) => OrderingTerm.desc(row.effectiveDate)])
+              ..limit(1))
+            .getSingleOrNull();
+    if (newest == null) await _put(stepGoalBaselineDate.iso, previous);
+    final ahead = newest != null && newest.effectiveDate.compareTo(on.iso) > 0;
+    await _put(ahead ? newest.effectiveDate : on.iso, steps);
   });
 
-  Future<void> _put(LocalDate date, int steps) => _db
+  Future<void> _put(String date, int steps) => _db
       .into(_db.stepGoalChanges)
       .insertOnConflictUpdate(
-        StepGoalChangesCompanion.insert(effectiveDate: date.iso, steps: steps),
+        StepGoalChangesCompanion.insert(effectiveDate: date, steps: steps),
       );
 }

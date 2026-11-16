@@ -60,6 +60,7 @@ List<Override> _overrides({
   Set<ModuleId> modules = _on,
   bool hidden = false,
   List<ActivitySlot> slots = const [],
+  ActivityHistoryReader? reader,
   List<Override> extra = const [],
 }) => [
   clockProvider.overrideWithValue(clock),
@@ -69,7 +70,7 @@ List<Override> _overrides({
     InMemoryHideNumbersStore(hidden: hidden),
   ),
   activityHistoryReaderProvider.overrideWithValue(
-    FakeActivityHistoryReader(const [], slots: slots),
+    reader ?? FakeActivityHistoryReader(const [], slots: slots),
   ),
   ...extra,
 ];
@@ -82,6 +83,7 @@ Future<void> _pump(
   Set<ModuleId> modules = _on,
   bool hidden = false,
   List<ActivitySlot> slots = const [],
+  ActivityHistoryReader? reader,
   List<Override> extra = const [],
   Widget child = const Scaffold(body: EnergyRowSlot()),
   Locale locale = const Locale('en'),
@@ -101,6 +103,7 @@ Future<void> _pump(
       modules: modules,
       hidden: hidden,
       slots: slots,
+      reader: reader,
       extra: extra,
     ),
   );
@@ -205,6 +208,21 @@ Future<void> _lifecycle(
   for (final state in states) {
     tester.binding.handleAppLifecycleStateChanged(state);
     await tester.pump();
+  }
+}
+
+final class _FailingLaterReader extends FakeActivityHistoryReader {
+  new() : super(const []);
+
+  bool failing = false;
+
+  @override
+  Future<List<ActivitySlot>> activitySlots({
+    required LocalDate from,
+    required LocalDate to,
+  }) async {
+    if (failing) throw StateError('no database');
+    return const [];
   }
 }
 
@@ -648,6 +666,64 @@ void main() {
 
       expect(_text(tester, EnergyRowKeys.note), noteBefore);
       expect(_text(tester, EnergyRowKeys.range), rangeBefore);
+    });
+
+    testWidgets('a resume after midnight starts the new day', (tester) async {
+      var now = DateTime.utc(2026, 11, 10, 23, 50);
+      await _pump(tester, clock: () => now, slots: _morningSteps);
+      expect(find.byKey(EnergyRowKeys.range), findsOneWidget);
+      await _lifecycle(tester, _toBackground);
+
+      now = DateTime.utc(2026, 11, 11, 0, 5);
+      await _lifecycle(tester, _toForeground);
+      await tester.pumpAndSettle();
+
+      expect(
+        _text(tester, EnergyRowKeys.note),
+        _l10n(tester).energyRowStarting,
+      );
+      expect(find.byKey(EnergyRowKeys.range), findsNothing);
+    });
+
+    testWidgets('a person who comes of age in the new year gets the row', (
+      tester,
+    ) async {
+      var now = DateTime.utc(2026, 12, 31, 20);
+      await _pump(
+        tester,
+        clock: () => now,
+        profile: const UserProfile(
+          birthYear: 2027 - energyAdultAge,
+          sex: Sex.male,
+          heightCentimeters: 175,
+          weightKilograms: 70,
+        ),
+      );
+      expect(find.byKey(EnergyRowKeys.row), findsNothing);
+      await _lifecycle(tester, _toBackground);
+
+      now = DateTime.utc(2027, 1, 1, 12);
+      await _lifecycle(tester, _toForeground);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(EnergyRowKeys.range), findsOneWidget);
+    });
+
+    testWidgets('a day that fails after one that worked leaves no row', (
+      tester,
+    ) async {
+      var now = _noon;
+      final reader = _FailingLaterReader();
+      await _pump(tester, clock: () => now, reader: reader);
+      await _lifecycle(tester, _toBackground);
+
+      reader.failing = true;
+      now = _evening;
+      await _lifecycle(tester, _toForeground);
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byKey(EnergyRowKeys.row), findsNothing);
     });
 
     testWidgets('a row that was starting shows the range after resume', (

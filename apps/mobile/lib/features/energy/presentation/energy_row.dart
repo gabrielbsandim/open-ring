@@ -16,6 +16,15 @@ abstract final class EnergyRowKeys {
   static const unit = Key('today_energy_row_unit');
 }
 
+// The day together with the instant it was computed at, so a row that still
+// shows the last day while a new one loads keeps the time of that day.
+final _energyRowProvider = FutureProvider<({EnergyDay day, DateTime asOf})>((
+  ref,
+) async {
+  final asOf = ref.watch(energyAsOfProvider);
+  return (day: await ref.watch(energyTodayProvider.future), asOf: asOf);
+});
+
 String _missingLine(AppLocalizations l10n, List<EnergyField> fields) {
   if (fields.length != 1) return l10n.energyRowMissingSeveral;
   return switch (fields.single) {
@@ -64,11 +73,13 @@ class EnergyRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final day = ref.watch(energyTodayProvider).value;
+    final row = ref.watch(_energyRowProvider);
+    final computed = row.value;
+    if (row.hasError || computed == null) return const SizedBox.shrink();
     final format = MetricFormat.of(context);
     final l10n = format.l10n;
-    switch (day) {
-      case null || EnergyDayUnderage():
+    switch (computed.day) {
+      case EnergyDayUnderage():
         return const SizedBox.shrink();
       case EnergyDayMissing(:final fields):
         return _EnergyCard(
@@ -78,7 +89,7 @@ class EnergyRow extends ConsumerWidget {
       case EnergyDayEstimate(:final range) when range.low < energyRowFloor:
         return _EnergyCard(note: l10n.energyRowStarting);
       case EnergyDayEstimate(:final range):
-        final asOf = ref.watch(energyAsOfProvider);
+        final asOf = computed.asOf;
         final low = format.integer(range.low);
         final high = format.integer(range.high);
         return Semantics(

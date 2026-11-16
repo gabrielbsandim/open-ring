@@ -1844,6 +1844,7 @@
   "moduleEffortTurnOff": "Desativar Esforço",
   "moduleOpenScoreDataTitle": "Dados do Open Score",
   "moduleOpenScoreDataEmpty": "Nenhuma marca de dia guardada neste celular.",
+  "moduleOpenScoreDataUnread": "Não foi possível ler os dados do Open Score. Feche o app e abra de novo.",
   "moduleOpenScoreDataCount": "Marcas de dia guardadas neste celular: {count}.",
   "moduleOpenScoreDataGoal": "Meta da semana: {goal} de 7 dias.",
   "moduleOpenScoreKept": "O Open Score está desligado. Marcas de dia guardadas neste celular: {count}. Elas voltam a contar quando você ativar.",

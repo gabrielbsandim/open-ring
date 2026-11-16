@@ -1844,6 +1844,7 @@
   "moduleEffortTurnOff": "エフォートをオフにする",
   "moduleOpenScoreDataTitle": "Open Score のデータ",
   "moduleOpenScoreDataEmpty": "このスマートフォンに保存された日のマークはありません。",
+  "moduleOpenScoreDataUnread": "Open Score のデータを読み込めませんでした。アプリを閉じて、もう一度開いてください。",
   "moduleOpenScoreDataCount": "このスマートフォンに保存された日のマーク: {count}件。",
   "moduleOpenScoreDataGoal": "週の目標: 7日中{goal}日。",
   "moduleOpenScoreKept": "Open Score はオフです。このスマートフォンに保存された日のマーク: {count}件。オンにすると再び反映されます。",

@@ -1844,6 +1844,7 @@
   "moduleEffortTurnOff": "Matikan Effort",
   "moduleOpenScoreDataTitle": "Data Open Score",
   "moduleOpenScoreDataEmpty": "Tidak ada tanda hari yang disimpan di ponsel ini.",
+  "moduleOpenScoreDataUnread": "Data Open Score tidak dapat dibaca. Tutup aplikasi lalu buka lagi.",
   "moduleOpenScoreDataCount": "Tanda hari yang disimpan di ponsel ini: {count}.",
   "moduleOpenScoreDataGoal": "Target mingguan: {goal} dari 7 hari.",
   "moduleOpenScoreKept": "Open Score sedang mati. Tanda hari yang disimpan di ponsel ini: {count}. Tanda dihitung lagi saat Anda menyalakannya.",

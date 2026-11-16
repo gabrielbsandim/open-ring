@@ -4081,6 +4081,7 @@
   "moduleEffortTurnOff": "Turn Effort off",
   "moduleOpenScoreDataTitle": "Open Score data",
   "moduleOpenScoreDataEmpty": "No day tags stored on this phone.",
+  "moduleOpenScoreDataUnread": "The Open Score data could not be read. Close the app and open it again.",
   "moduleOpenScoreDataCount": "Day tags stored on this phone: {count}.",
   "@moduleOpenScoreDataCount": {"placeholders": {"count": {"type": "int"}}},
   "moduleOpenScoreDataGoal": "Weekly goal: {goal} of 7 days.",

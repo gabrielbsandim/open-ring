@@ -848,11 +848,11 @@ best leaves when its day does.
 **Celebration.** The morning after, Today shows one card when yesterday completed the weekly goal, set a best
 day over an earlier one, or set a highest Level over an earlier one. The highest Level is celebrated once a week:
 only when the best it beat was set before that week's Monday. The app stores only the date of the last card the
-user closed, so a closed card stays closed for that day.
+user closed, so a closed card stays closed for that day, unless that date is deleted (below).
 
 **Deleting it.** The module screen counts the stored day tags, shows the weekly goal when it is not the default,
 and can delete what the module stores in one confirmed step: every day tag, the weekly goal (it goes back to 4 of
-7) and the date of the last closed card. The action is there with the module on or off, for as long as a tag is
+7) and the date of the last closed card, so a celebration card closed that day may show once more. The action is there with the module on or off, for as long as a tag is
 stored or the goal is not the default; turning the module off deletes nothing. A tag older than 6 days cannot be
 set again, so the Level, the bests and the usual lines count those days again for good.
 

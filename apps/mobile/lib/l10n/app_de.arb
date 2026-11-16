@@ -1844,6 +1844,7 @@
   "moduleEffortTurnOff": "Effort ausschalten",
   "moduleOpenScoreDataTitle": "Open-Score-Daten",
   "moduleOpenScoreDataEmpty": "Keine Tagesmarkierungen auf diesem Telefon gespeichert.",
+  "moduleOpenScoreDataUnread": "Die Open-Score-Daten konnten nicht gelesen werden. Schließe die App und öffne sie erneut.",
   "moduleOpenScoreDataCount": "Auf diesem Telefon gespeicherte Tagesmarkierungen: {count}.",
   "moduleOpenScoreDataGoal": "Wochenziel: {goal} von 7 Tagen.",
   "moduleOpenScoreKept": "Open Score ist aus. Auf diesem Telefon behaltene Tagesmarkierungen: {count}. Sie zählen wieder, sobald du es einschaltest.",

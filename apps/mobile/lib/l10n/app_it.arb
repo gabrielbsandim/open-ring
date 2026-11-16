@@ -1844,6 +1844,7 @@
   "moduleEffortTurnOff": "Disattiva Sforzo",
   "moduleOpenScoreDataTitle": "Dati di Open Score",
   "moduleOpenScoreDataEmpty": "Nessun segno dei giorni salvato su questo telefono.",
+  "moduleOpenScoreDataUnread": "Non è stato possibile leggere i dati di Open Score. Chiudi l'app e riaprila.",
   "moduleOpenScoreDataCount": "Segni dei giorni salvati su questo telefono: {count}.",
   "moduleOpenScoreDataGoal": "Obiettivo della settimana: {goal} giorni su 7.",
   "moduleOpenScoreKept": "Open Score è spento. Segni dei giorni conservati su questo telefono: {count}. Tornano a contare quando lo riattivi.",

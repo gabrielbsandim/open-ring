@@ -10,6 +10,7 @@ final class SpyDayTagStore implements DayTagStore {
 
   final InMemoryDayTagStore _inner;
   Error? clearFailure;
+  Error? countFailure;
   int clearCalls = 0;
 
   @override
@@ -23,7 +24,11 @@ final class SpyDayTagStore implements DayTagStore {
   Future<bool> remove(LocalDate date) => _inner.remove(date);
 
   @override
-  Future<int> count() => _inner.count();
+  Future<int> count() async {
+    final error = countFailure;
+    if (error != null) throw error;
+    return await _inner.count();
+  }
 
   @override
   Future<int> clear() async {

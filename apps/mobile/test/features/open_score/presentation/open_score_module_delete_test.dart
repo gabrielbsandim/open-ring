@@ -7,6 +7,7 @@ import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
+import 'package:open_ring/features/modules/presentation/module_widgets.dart';
 import 'package:open_ring/features/open_score/application/celebration_providers.dart';
 import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
 import 'package:open_ring/features/open_score/application/week_goal_providers.dart';
@@ -81,8 +82,16 @@ ProviderContainer _container(WidgetTester tester) => ProviderScope.containerOf(
 int _revision(WidgetTester tester) =>
     _container(tester).read(dataRevisionProvider);
 
+// A lazy list that lost rows above the viewport corrects its offset on the
+// next layout, so one jump may not land on the top.
 Future<void> _toTop(WidgetTester tester) async {
-  await tester.drag(find.byType(Scrollable).first, const Offset(0, 9000));
+  final position = tester
+      .state<ScrollableState>(find.byType(Scrollable).first)
+      .position;
+  for (var step = 0; step < 40 && position.pixels > 0; step++) {
+    position.jumpTo(0);
+    await tester.pump();
+  }
   await tester.pumpAndSettle();
 }
 
@@ -108,12 +117,13 @@ void main() {
       testWidgets('shows the empty text and no delete action', (tester) async {
         await _pump(tester, _World(on: on));
 
-        expect(find.byKey(OpenScoreModuleKeys.delete), findsNothing);
         expect(find.byKey(OpenScoreModuleKeys.kept), findsNothing);
-        expect(find.byKey(OpenScoreModuleKeys.goal), findsNothing);
+        await reveal(tester, find.byKey(OpenScoreModuleKeys.toggle));
         await reveal(tester, find.byKey(OpenScoreModuleKeys.stored));
         expect(find.text('Open Score data'), findsOneWidget);
         expect(find.text(_emptyText), findsOneWidget);
+        expect(find.byKey(OpenScoreModuleKeys.delete), findsNothing);
+        expect(find.byKey(OpenScoreModuleKeys.goal), findsNothing);
       });
 
       testWidgets('an explicit goal of 4 counts as the default', (
@@ -121,10 +131,32 @@ void main() {
       ) async {
         await _pump(tester, _World(goal: 4, on: on));
 
-        expect(find.byKey(OpenScoreModuleKeys.delete), findsNothing);
-        expect(find.byKey(OpenScoreModuleKeys.goal), findsNothing);
+        await reveal(tester, find.byKey(OpenScoreModuleKeys.toggle));
         await reveal(tester, find.byKey(OpenScoreModuleKeys.stored));
         expect(find.text(_emptyText), findsOneWidget);
+        expect(find.byKey(OpenScoreModuleKeys.delete), findsNothing);
+        expect(find.byKey(OpenScoreModuleKeys.goal), findsNothing);
+      });
+
+      testWidgets('a count that cannot be read is not shown as empty', (
+        tester,
+      ) async {
+        final world = _World(tags: {_monday: DayTag.sick}, on: on);
+        world.tagStore.countFailure = StateError('disk');
+        await _pump(tester, world);
+
+        expect(find.byKey(OpenScoreModuleKeys.kept), findsNothing);
+        await reveal(tester, find.byKey(OpenScoreModuleKeys.toggle));
+        await reveal(tester, find.byKey(OpenScoreModuleKeys.stored));
+        expect(find.text(_emptyText), findsNothing);
+        expect(
+          find.text(
+            'The Open Score data could not be read. Close the app and open '
+            'it again.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.byKey(OpenScoreModuleKeys.delete), findsNothing);
       });
     });
   }
@@ -181,9 +213,10 @@ void main() {
     testWidgets('tags with the default goal show no goal line', (tester) async {
       await _pump(tester, _World(tags: {_monday: DayTag.sick}, goal: 4));
 
-      expect(find.byKey(OpenScoreModuleKeys.goal), findsNothing);
       await reveal(tester, find.byKey(OpenScoreModuleKeys.delete));
       expect(find.byKey(OpenScoreModuleKeys.delete), findsOneWidget);
+      expect(find.byKey(OpenScoreModuleKeys.stored), findsOneWidget);
+      expect(find.byKey(OpenScoreModuleKeys.goal), findsNothing);
     });
 
     testWidgets('module off with tags: the kept card and the delete', (
@@ -302,9 +335,12 @@ void main() {
       expect(world.celebrationStore.closed, isNull);
       expect(_revision(tester), before + 1);
       expect(await world.modules.read(), isEmpty);
-      expect(find.byKey(OpenScoreModuleKeys.kept), findsNothing);
+      expect(find.byKey(OpenScoreModuleKeys.stored), findsOneWidget);
       expect(find.byKey(OpenScoreModuleKeys.delete), findsNothing);
       expect(find.text(_deleted), findsOneWidget);
+      await _toTop(tester);
+      expect(find.byType(ModuleStatePill), findsOneWidget);
+      expect(find.byKey(OpenScoreModuleKeys.kept), findsNothing);
     });
 
     testWidgets('a goal-only delete resets the goal and bumps once', (
@@ -449,7 +485,14 @@ void main() {
             );
             await scrollThrough(tester);
             await _toTop(tester);
-            await reveal(tester, find.byKey(OpenScoreModuleKeys.delete));
+            await tester.scrollUntilVisible(
+              find.byKey(OpenScoreModuleKeys.delete),
+              400,
+              scrollable: find.byType(Scrollable).first,
+              maxScrolls: 200,
+            );
+            await tester.ensureVisible(find.byKey(OpenScoreModuleKeys.delete));
+            await tester.pumpAndSettle();
             await expectNoLayoutOverflow(() async {
               await tester.tap(find.byKey(OpenScoreModuleKeys.delete));
               await tester.pumpAndSettle();

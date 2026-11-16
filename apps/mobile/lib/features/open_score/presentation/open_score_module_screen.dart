@@ -43,10 +43,13 @@ class OpenScoreModuleScreen extends ConsumerWidget {
       ),
     );
     final colors = AppColors.of(context);
-    final tags = ref.watch(openScoreTagCountProvider).value ?? 0;
+    final count = ref.watch(openScoreTagCountProvider);
+    // A count that could not be read is not "nothing stored".
+    final unread = count.hasError && !count.hasValue;
+    final tags = count.value ?? 0;
     final goal = ref.watch(weekGoalProvider).value ?? weekGoalDefault;
     final customGoal = goal != weekGoalDefault;
-    final deletable = tags > 0 || customGoal;
+    final deletable = !unread && (tags > 0 || customGoal);
     void toggle() =>
         unawaited(setModule(context, ref, OfferedModule.openScore, on: !on));
     return AppPage(
@@ -113,9 +116,7 @@ class OpenScoreModuleScreen extends ConsumerWidget {
         SectionHeader(l10n.moduleOpenScoreDataTitle),
         BodyText(
           key: OpenScoreModuleKeys.stored,
-          tags > 0
-              ? l10n.moduleOpenScoreDataCount(tags)
-              : l10n.moduleOpenScoreDataEmpty,
+          _storedText(l10n, tags: tags, unread: unread),
         ),
         if (customGoal) ...[
           const SizedBox(height: 4),
@@ -161,6 +162,16 @@ class OpenScoreModuleScreen extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  String _storedText(
+    AppLocalizations l10n, {
+    required int tags,
+    required bool unread,
+  }) {
+    if (unread) return l10n.moduleOpenScoreDataUnread;
+    if (tags > 0) return l10n.moduleOpenScoreDataCount(tags);
+    return l10n.moduleOpenScoreDataEmpty;
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref, int count) async {

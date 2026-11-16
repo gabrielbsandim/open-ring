@@ -1844,6 +1844,7 @@
   "moduleEffortTurnOff": "Выключить «Усилие»",
   "moduleOpenScoreDataTitle": "Данные Open Score",
   "moduleOpenScoreDataEmpty": "На этом телефоне нет меток дней.",
+  "moduleOpenScoreDataUnread": "Не удалось прочитать данные Open Score. Закройте приложение и откройте его снова.",
   "moduleOpenScoreDataCount": "Меток дней на этом телефоне: {count}.",
   "moduleOpenScoreDataGoal": "Цель недели: {goal} из 7 дней.",
   "moduleOpenScoreKept": "Open Score выключен. Меток дней на этом телефоне: {count}. Они снова будут учитываться, когда вы его включите.",

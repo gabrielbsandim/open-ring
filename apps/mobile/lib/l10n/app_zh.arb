@@ -1844,6 +1844,7 @@
   "moduleEffortTurnOff": "关闭努力",
   "moduleOpenScoreDataTitle": "Open Score 数据",
   "moduleOpenScoreDataEmpty": "这部手机上没有保存当日标记。",
+  "moduleOpenScoreDataUnread": "无法读取 Open Score 数据。请关闭应用后重新打开。",
   "moduleOpenScoreDataCount": "这部手机上保存的当日标记：{count}。",
   "moduleOpenScoreDataGoal": "每周目标：7 天中的 {goal} 天。",
   "moduleOpenScoreKept": "Open Score 已关闭。这部手机上保留的当日标记：{count}。重新开启后会再次计入。",

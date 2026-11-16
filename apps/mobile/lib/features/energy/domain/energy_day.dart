@@ -46,7 +46,9 @@ final class EnergyDayUnderage extends EnergyDay {
 }
 
 /// The estimate of the local day that runs from [from] to [to], as far as
-/// [now]. [workouts] are the ones that intersect the day, already selected.
+/// [now]. [workouts] are already selected and may reach outside the day:
+/// each one covers the steps it overlaps and adds kcal only when it starts
+/// inside the day.
 EnergyDay energyDay({
   required EnergySex? sex,
   required int? age,

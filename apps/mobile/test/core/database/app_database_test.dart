@@ -30,6 +30,7 @@ void main() {
     'imported_workouts',
     'weigh_ins',
     'day_tags',
+    'step_goal_changes',
   };
 
   test('creates every table listed in the plan', () async {

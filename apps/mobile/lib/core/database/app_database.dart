@@ -41,13 +41,14 @@ part 'app_database.g.dart';
     ImportedWorkouts,
     WeighIns,
     DayTags,
+    StepGoalChanges,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -108,6 +109,8 @@ class AppDatabase extends _$AppDatabase {
         await migrator.addColumn(workouts, workouts.effortRating);
         await migrator.addColumn(imported, imported.effortRating);
       },
+      from13To14: (migrator, schema) =>
+          migrator.createTable(schema.stepGoalChanges),
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );

@@ -11,6 +11,7 @@ import 'generated/schema_v10.dart' as v10;
 import 'generated/schema_v11.dart' as v11;
 import 'generated/schema_v12.dart' as v12;
 import 'generated/schema_v13.dart' as v13;
+import 'generated/schema_v14.dart' as v14;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
@@ -524,4 +525,32 @@ void main() {
       );
     },
   );
+
+  test('v13 migrates to v14, keeps the profile and starts with no goal '
+      'changes', () async {
+    const profile = v13.UserProfileData(
+      id: 1,
+      dailyStepGoal: 9000,
+      updatedAtUtcMs: 1762765200000,
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 13,
+      newVersion: 14,
+      createOld: v13.DatabaseAtV13.new,
+      createNew: v14.DatabaseAtV14.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch.insert(oldDb.userProfile, profile),
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.userProfile).get(), [
+          const v14.UserProfileData(
+            id: 1,
+            dailyStepGoal: 9000,
+            updatedAtUtcMs: 1762765200000,
+          ),
+        ]);
+        expect(await newDb.select(newDb.stepGoalChanges).get(), isEmpty);
+      },
+    );
+  });
 }

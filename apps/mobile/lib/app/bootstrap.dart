@@ -9,7 +9,9 @@ import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/database/app_database_provider.dart';
 import 'package:open_ring/core/database/open_app_database.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
+import 'package:open_ring/features/activity/application/step_goal_history_providers.dart';
 import 'package:open_ring/features/activity/infrastructure/drift_activity_history_reader.dart';
+import 'package:open_ring/features/activity/infrastructure/drift_step_goal_history.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/infrastructure/drift_weigh_in_store.dart';
@@ -144,6 +146,9 @@ Future<void> bootstrap() async {
       ),
       dayTagStoreProvider.overrideWith(
         (ref) => DriftDayTagStore(ref.watch(appDatabaseProvider)),
+      ),
+      stepGoalHistoryProvider.overrideWith(
+        (ref) => DriftStepGoalHistory(ref.watch(appDatabaseProvider)),
       ),
       ringAlertPreferencesProvider.overrideWithValue(
         SharedPreferencesRingAlertPreferences(),

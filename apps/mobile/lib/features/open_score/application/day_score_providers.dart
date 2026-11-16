@@ -3,6 +3,7 @@ import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
+import 'package:open_ring/features/activity/application/step_goal_history_providers.dart';
 import 'package:open_ring/features/heart/application/heart_providers.dart';
 import 'package:open_ring/features/open_score/domain/day_score_history.dart';
 import 'package:open_ring/features/trends/application/trends_providers.dart';
@@ -76,11 +77,12 @@ final dailyActiveLoadProvider = FutureProvider<List<DailyValue>>((ref) async {
 
 final dayScoreHistoryProvider = FutureProvider<DayScoreHistory>((ref) async {
   final stepGoal = ref.watch(stepGoalProvider);
-  final (history, stress, intensity, activeLoad) = await (
+  final (history, stress, intensity, activeLoad, stepGoalChanges) = await (
     ref.watch(trendHistoryProvider.future),
     ref.watch(dailyStressProvider.future),
     ref.watch(dailyIntensityProvider.future),
     ref.watch(dailyActiveLoadProvider.future),
+    ref.watch(stepGoalChangesProvider.future),
   ).wait;
   return DayScoreHistory.collect(
     today: history.today,
@@ -89,6 +91,7 @@ final dayScoreHistoryProvider = FutureProvider<DayScoreHistory>((ref) async {
     intensity: intensity,
     stepGoal: stepGoal,
     activeLoad: activeLoad,
+    stepGoalChanges: stepGoalChanges,
   );
 });
 

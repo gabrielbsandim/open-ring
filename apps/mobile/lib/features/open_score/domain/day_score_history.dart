@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/features/activity/domain/activity_history_reader.dart';
+import 'package:open_ring/features/activity/domain/step_goal_history.dart';
 import 'package:open_ring/features/heart/application/heart_view.dart';
 import 'package:open_ring/features/trends/domain/trend_history.dart';
 import 'package:open_ring/features/trends/domain/trend_metric.dart';
@@ -116,6 +117,7 @@ final class DayScoreHistory {
     required List<DailyValue> intensity,
     required int stepGoal,
     required List<DailyValue> activeLoad,
+    List<StepGoalChange> stepGoalChanges = const [],
   }) {
     final sleep = history.values(TrendMetric.sleepScore);
     final steps = history.values(TrendMetric.steps);
@@ -141,7 +143,7 @@ final class DayScoreHistory {
       return DayScoreInputs(
         sleepScore: sleepScore,
         steps: _valueOn(steps, date)?.round(),
-        stepGoal: stepGoal,
+        stepGoal: stepGoalOn(date, changes: stepGoalChanges, current: stepGoal),
         intensityMinutes: weeklyIntensityMinutes(intensity, today: date),
         hrv: hrvDeviation,
         restingHeartRate: restingDeviation,

@@ -10565,6 +10565,228 @@ class DayTagsCompanion extends UpdateCompanion<DayTagRow> {
   }
 }
 
+class $StepGoalChangesTable extends StepGoalChanges
+    with TableInfo<$StepGoalChangesTable, StepGoalChangeRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StepGoalChangesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _effectiveDateMeta = const VerificationMeta(
+    'effectiveDate',
+  );
+  @override
+  late final GeneratedColumn<String> effectiveDate = GeneratedColumn<String>(
+    'effective_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _stepsMeta = const VerificationMeta('steps');
+  @override
+  late final GeneratedColumn<int> steps = GeneratedColumn<int>(
+    'steps',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [effectiveDate, steps];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'step_goal_changes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StepGoalChangeRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('effective_date')) {
+      context.handle(
+        _effectiveDateMeta,
+        effectiveDate.isAcceptableOrUnknown(
+          data['effective_date']!,
+          _effectiveDateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_effectiveDateMeta);
+    }
+    if (data.containsKey('steps')) {
+      context.handle(
+        _stepsMeta,
+        steps.isAcceptableOrUnknown(data['steps']!, _stepsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_stepsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {effectiveDate};
+  @override
+  StepGoalChangeRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StepGoalChangeRow(
+      effectiveDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}effective_date'],
+      )!,
+      steps: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}steps'],
+      )!,
+    );
+  }
+
+  @override
+  $StepGoalChangesTable createAlias(String alias) {
+    return $StepGoalChangesTable(attachedDatabase, alias);
+  }
+}
+
+class StepGoalChangeRow extends DataClass
+    implements Insertable<StepGoalChangeRow> {
+  final String effectiveDate;
+  final int steps;
+  const StepGoalChangeRow({required this.effectiveDate, required this.steps});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['effective_date'] = Variable<String>(effectiveDate);
+    map['steps'] = Variable<int>(steps);
+    return map;
+  }
+
+  StepGoalChangesCompanion toCompanion(bool nullToAbsent) {
+    return StepGoalChangesCompanion(
+      effectiveDate: Value(effectiveDate),
+      steps: Value(steps),
+    );
+  }
+
+  factory StepGoalChangeRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StepGoalChangeRow(
+      effectiveDate: serializer.fromJson<String>(json['effectiveDate']),
+      steps: serializer.fromJson<int>(json['steps']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'effectiveDate': serializer.toJson<String>(effectiveDate),
+      'steps': serializer.toJson<int>(steps),
+    };
+  }
+
+  StepGoalChangeRow copyWith({String? effectiveDate, int? steps}) =>
+      StepGoalChangeRow(
+        effectiveDate: effectiveDate ?? this.effectiveDate,
+        steps: steps ?? this.steps,
+      );
+  StepGoalChangeRow copyWithCompanion(StepGoalChangesCompanion data) {
+    return StepGoalChangeRow(
+      effectiveDate: data.effectiveDate.present
+          ? data.effectiveDate.value
+          : this.effectiveDate,
+      steps: data.steps.present ? data.steps.value : this.steps,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StepGoalChangeRow(')
+          ..write('effectiveDate: $effectiveDate, ')
+          ..write('steps: $steps')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(effectiveDate, steps);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StepGoalChangeRow &&
+          other.effectiveDate == this.effectiveDate &&
+          other.steps == this.steps);
+}
+
+class StepGoalChangesCompanion extends UpdateCompanion<StepGoalChangeRow> {
+  final Value<String> effectiveDate;
+  final Value<int> steps;
+  final Value<int> rowid;
+  const StepGoalChangesCompanion({
+    this.effectiveDate = const Value.absent(),
+    this.steps = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  StepGoalChangesCompanion.insert({
+    required String effectiveDate,
+    required int steps,
+    this.rowid = const Value.absent(),
+  }) : effectiveDate = Value(effectiveDate),
+       steps = Value(steps);
+  static Insertable<StepGoalChangeRow> custom({
+    Expression<String>? effectiveDate,
+    Expression<int>? steps,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (effectiveDate != null) 'effective_date': effectiveDate,
+      if (steps != null) 'steps': steps,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  StepGoalChangesCompanion copyWith({
+    Value<String>? effectiveDate,
+    Value<int>? steps,
+    Value<int>? rowid,
+  }) {
+    return StepGoalChangesCompanion(
+      effectiveDate: effectiveDate ?? this.effectiveDate,
+      steps: steps ?? this.steps,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (effectiveDate.present) {
+      map['effective_date'] = Variable<String>(effectiveDate.value);
+    }
+    if (steps.present) {
+      map['steps'] = Variable<int>(steps.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StepGoalChangesCompanion(')
+          ..write('effectiveDate: $effectiveDate, ')
+          ..write('steps: $steps, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $RingDevicesTable ringDevices = $RingDevicesTable(this);
@@ -10602,6 +10824,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $WeighInsTable weighIns = $WeighInsTable(this);
   late final $DayTagsTable dayTags = $DayTagsTable(this);
+  late final $StepGoalChangesTable stepGoalChanges = $StepGoalChangesTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -10631,6 +10856,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     importedWorkouts,
     weighIns,
     dayTags,
+    stepGoalChanges,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

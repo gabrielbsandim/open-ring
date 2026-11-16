@@ -1360,6 +1360,96 @@ workouts, the workouts stay, and each session load falls back to heart rate
 or the default of its type. Turning the module off deletes nothing, so the
 delete stays on that screen for as long as a rating is stored.
 
+## 20. Goals (rate as a loss, block, arrival, guards)
+
+`packages/metrics/lib/src/goal_rate.dart`. Pure functions for the Goals
+module. Nothing here feeds the Day Score, the Level or the Overall, and no
+screen reads them yet.
+
+Functions: `goalPacePercent(pace)`, `bmi(kg, heightCm)`,
+`lossCapPercent(bmi)`, `goalBlock(startKg, percentPerWeek, start)`,
+`lossRate(rate, trendKg)`, `pathState(rate, targetPercent, capPercent)`,
+`overCap(rate, capPercent)`,
+`arrivalRange(trendKg, referenceKg, rate, today, block)`,
+`referenceFloorKg(heightCm)`, `weightGoalRefusal(...)`, `softMode(yesCount)`.
+
+Inputs: the weight rate of section 13 (`WeightRateReady`, kilograms per week,
+negative for a loss), the trend weight in kilograms, height in centimeters,
+age in whole years. A percent is percent of body weight per week, written as
+a number (0.5). A loss is positive here.
+
+```
+bmi        = kg / (heightCm / 100)^2
+cap        = 0.5 under bmi 25, 0.75 from 25 to under 30, 1.0 from 30
+
+weeks      = min(12, floor(10 / percentPerWeek))
+weeklyKg   = startKg * percentPerWeek / 100
+blockKg    = weeklyKg * weeks
+end        = start + 7 * weeks - 1 days
+maintEnd   = end + 28 days
+
+loss       = -rate.perWeek
+lossLow    = -rate.high
+lossHigh   = -rate.low
+percent    = loss / trendKg * 100, the same for each end
+
+state      = building   when there is no rate yet
+             above      when percentLow > cap
+             below      when percentHigh < 0.5 * target
+             above      when percentLow > 1.5 * target
+             on track   otherwise
+overCap    = percentLow > cap
+
+left       = (block.end - today + 1) / 7, kept between 0 and block.weeks
+for each end r of the loss (lossHigh for the earliest, lossLow for the latest):
+  rem = trendKg - referenceKg, waited = 0
+  while rem / r > left, at most 6 times:
+    rem = rem - r * left, waited = waited + left + 4, left = block.weeks
+  no arrival when rem / r is still above left
+  weeks = waited + rem / r
+  date  = today + round(weeks * 7) days
+no arrival when lossLow <= 0, when trendKg <= referenceKg, when either end
+needs more than 6 blocks after the one under way, or when the year of the latest date is
+more than one above the year of the earliest
+
+floor      = ceil(18.5 * (heightCm / 100)^2 / 0.5) * 0.5
+```
+
+The state is read on the interval of the rate, not on its middle: an interval
+that only touches the band from half the target to one and a half times the
+target is on track. The cap is read first, so a loss that is too fast is
+never reported as slow. The arrival is a range of two dates, one for each end
+of the interval, and the part of the way that does not fit in the weeks left
+of a block waits out the four maintenance weeks before the next block.
+
+A weight goal is refused by the first of these that holds: the age is not
+known, the age is under 18, the height is not known, the person is pregnant
+or breastfeeding, the BMI of the trend weight is under 18.5 (exactly 18.5
+passes). Age comes from a birth year, so a person who turns 18 later in the
+year already counts as 18. Two or more "yes" answers to the five screening
+questions turn the soft mode on.
+
+| Constant | Value | Basis |
+| :--- | :--- | :--- |
+| `goalStandardPercent` | 0.5 percent a week | **our choice**. Loss of 0.5 to 1 kg a week as the usual range is from NHLBI 1998, **not yet checked against its source**. |
+| `goalGentlePercent` | 0.25 percent a week | **our choice** |
+| `goalCapBmiMid`, `goalCapBmiHigh` | 25 and 30 | the WHO classes of BMI; the caps of 0.5, 0.75 and 1.0 percent tied to them are **our choice** |
+| `goalBlockWeeks` | 12 weeks | **our choice** |
+| `goalBlockMaxLossPercent` | 10 percent of the start weight | **our choice**. It shortens a block only above 0.83 percent a week. |
+| `goalMaintenanceWeeks` | 4 weeks | **our choice** |
+| `goalBandLow`, `goalBandHigh` | 0.5 and 1.5 times the target | **our choice** |
+| `goalArrivalMaxBlocks` | 6 blocks | **our choice**. It counts the blocks after the one under way. An end that would need one more has no arrival: that is over two years away, further than a rate of 28 days can say anything about. |
+| arrival days | rounded to the nearest day | **our choice** |
+| year numbers of the two dates more than one apart | no arrival | **our choice**. The rule reads the year numbers, not the days between the dates: March 2027 to November 2028 is shown, December 2027 to January 2029 is not. |
+| `bmiFloor` | 18.5 | reused from section 17, the WHO lower bound of the normal class |
+| `goalReferenceStepKg` | 0.5 kg | **our choice**. The floor of a reference weight is rounded up to it. |
+| `goalMinAge` | 18 years | **our choice** |
+| `goalSoftModeYes` | 2 answers | the threshold of the SCOFF questionnaire, Morgan 1999, **not yet checked against its source** |
+
+What it cannot say: a scale does not tell fat from water or muscle, the rate
+of the last 28 days is not the rate of the next weeks, and none of the guards
+detects an illness.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

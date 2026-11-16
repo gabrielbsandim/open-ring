@@ -264,6 +264,15 @@ void main() {
     });
   });
 
+  // The lines spell these counts out as words, so a change to a constant has
+  // to come with new wording in the 11 locales.
+  test('the counts the lines spell out match the constants', () {
+    expect(effortHardRunDays, 2);
+    expect(effortNoEasyDays, 6);
+    expect(effortAcuteDays, 7);
+    expect(effortChronicDays, 28);
+  });
+
   group('layout', () {
     for (final locale in AppLocales.supported) {
       for (final MapEntry(key: name, value: card) in _cards.entries) {

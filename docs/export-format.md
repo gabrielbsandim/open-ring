@@ -22,7 +22,10 @@ screen), **JSON** (one document), and **GPX 1.1** for a single workout route.
 - **Daylight saving time**: every row carries its own offset, so the repeated
   hour of a fall back is unambiguous (`02:30:00+02:00`, then `02:30:00+01:00`)
   and a night that crosses a spring forward keeps the offset of each stage.
-  Sort by instant, not by the text of the wall clock time.
+  Sort by instant, not by the text of the wall clock time. Sleep from other
+  apps is the exception: every stage of a night is written with the offset of
+  its session, so after a clock change inside the night the instant is right
+  and the wall clock time is the one of the old offset.
 - **Order**: rows are sorted by time, then by device id (workouts: by start,
   then by internal id; workouts and sleep from other apps: by start, then by
   record id).

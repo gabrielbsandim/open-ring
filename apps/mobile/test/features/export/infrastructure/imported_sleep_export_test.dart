@@ -151,6 +151,31 @@ void main() {
     expect(records.last.start.utcMs, greaterThan(_ms(_to)));
   });
 
+  test(
+    'stages tied on the start are split by record id across pages',
+    () async {
+      final start = DateTime.utc(2026, 11, 10, 1);
+      for (final id in ['c', 'a', 'b']) {
+        await session(id, start);
+        await stage(id, start);
+      }
+
+      final pages = await ExportPagesDao(
+        db,
+        pageSize: 2,
+      ).pages(ExportKind.importedSleep, from: _from, to: _to).toList();
+
+      expect(pages.map((p) => p.length), [2, 1]);
+      expect(
+        [
+          for (final page in pages)
+            for (final r in page.cast<ImportedSleepStageRecord>()) r.recordId,
+        ],
+        ['a', 'b', 'c'],
+      );
+    },
+  );
+
   test('five stages of two sessions with equal starts page cleanly', () async {
     final start = DateTime.utc(2026, 11, 10, 1);
     final later = start.add(const Duration(hours: 1));

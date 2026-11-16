@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
+import 'package:open_ring/features/energy/presentation/energy_row.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
@@ -39,18 +40,22 @@ Future<void> pumpCard(
   ],
 );
 
-Future<void> pumpToday(WidgetTester tester, Set<ModuleId> modules) =>
-    pumpScaled(
-      tester,
-      screenHost(const TodayScreen()),
-      textScaler: TextScaler.noScaling,
-      brightness: Brightness.dark,
-      locale: const Locale('en'),
-      overrides: <Override>[
-        ...metricsOverrides(fullDataScenario),
-        moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
-      ],
-    );
+Future<void> pumpToday(
+  WidgetTester tester,
+  Set<ModuleId> modules, {
+  MetricsScenario? scenario,
+}) => pumpScaled(
+  tester,
+  screenHost(const TodayScreen()),
+  textScaler: TextScaler.noScaling,
+  brightness: Brightness.dark,
+  locale: const Locale('en'),
+  size: const Size(360, 3000),
+  overrides: <Override>[
+    ...metricsOverrides(scenario ?? fullDataScenario),
+    moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
+  ],
+);
 
 String textOf(WidgetTester tester, Key key) =>
     tester.widget<Text>(find.byKey(key)).data!;
@@ -102,6 +107,69 @@ void main() {
       final readiness = tester.getTopLeft(find.byKey(TodayKeys.readiness)).dy;
       expect(card, lessThan(readiness));
       expect(find.byKey(DayScoreCardKeys.value), findsOneWidget);
+    });
+
+    testWidgets('with Energy off there is no energy row', (tester) async {
+      await pumpToday(tester, const {ModuleId.openScore});
+
+      expect(find.byKey(EnergyRowKeys.row), findsNothing);
+    });
+
+    testWidgets('with no module on there is no energy row', (tester) async {
+      await pumpToday(tester, const {});
+
+      expect(find.byKey(EnergyRowKeys.row), findsNothing);
+    });
+
+    testWidgets('with Energy on the row sits right after the Day Score', (
+      tester,
+    ) async {
+      await pumpToday(tester, const {ModuleId.openScore, ModuleId.energy});
+
+      final card = tester.getBottomLeft(find.byKey(DayScoreCardKeys.card)).dy;
+      final row = tester.getTopLeft(find.byKey(EnergyRowKeys.row)).dy;
+      final readiness = tester.getTopLeft(find.byKey(TodayKeys.readiness)).dy;
+      expect(find.byKey(EnergyRowKeys.row), findsOneWidget);
+      expect(row, greaterThanOrEqualTo(card));
+      expect(row, lessThan(readiness));
+    });
+
+    testWidgets('with only Energy on the row comes before the readiness', (
+      tester,
+    ) async {
+      await pumpToday(tester, const {ModuleId.energy});
+
+      final row = tester.getTopLeft(find.byKey(EnergyRowKeys.row)).dy;
+      final readiness = tester.getTopLeft(find.byKey(TodayKeys.readiness)).dy;
+      expect(find.byKey(DayScoreCardKeys.card), findsNothing);
+      expect(row, lessThan(readiness));
+    });
+
+    testWidgets('when the ring is stale the row still follows the Day Score', (
+      tester,
+    ) async {
+      await pumpToday(tester, const {
+        ModuleId.openScore,
+        ModuleId.energy,
+      }, scenario: offlineScenario);
+
+      final offline = tester.getTopLeft(find.byKey(TodayKeys.offline)).dy;
+      final card = tester.getBottomLeft(find.byKey(DayScoreCardKeys.card)).dy;
+      final row = tester.getTopLeft(find.byKey(EnergyRowKeys.row)).dy;
+      final readiness = tester.getTopLeft(find.byKey(TodayKeys.readiness)).dy;
+      expect(offline, lessThan(card));
+      expect(row, greaterThanOrEqualTo(card));
+      expect(row, lessThan(readiness));
+    });
+
+    testWidgets('a single row shows on Today with the stale ring', (
+      tester,
+    ) async {
+      await pumpToday(tester, const {
+        ModuleId.energy,
+      }, scenario: offlineScenario);
+
+      expect(find.byKey(EnergyRowKeys.row), findsOneWidget);
     });
   });
 

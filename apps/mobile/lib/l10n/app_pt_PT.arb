@@ -655,7 +655,7 @@
   "healthStatusAllowed": "Permitido",
   "healthStatusNotAllowed": "Não permitido",
   "healthStatusKindActivity": "Passos e energia ativa",
-  "healthStatusExport": "A exportação funciona sem o {platform}: cria um ficheiro com tudo o que está guardado neste telemóvel.",
+  "healthStatusExport": "A exportação funciona sem o {platform}: cria um ficheiro com os seus registos de saúde guardados neste telemóvel.",
   "healthStatusExportAction": "Exportar dados",
   "exportTitle": "Exportar",
   "exportIntro": "Os seus dados ficam neste dispositivo. Sem conta e sem nuvem. Nada sai daqui sem o partilhar.",

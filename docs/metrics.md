@@ -853,6 +853,71 @@ user closed, so a closed card stays closed for that day.
 **What it is not.** Not a streak, not a rank against other people, not a health forecast. It is an average chosen
 by the product, not a published clinical formula, and it is stated as such on the screen that shows it.
 
+## 17. Overall
+
+Function: `OverallInputs(...).score`, with `overallBand(score)`. A slow number
+for "how am I in general", built from trailing windows and not from Day
+Scores. This section is the formula alone: where each input comes from, its
+window and the weekly cadence are defined with the code that reads them.
+
+| Group | Factor | Input | Subscore | Points |
+| :--- | :--- | :--- | :--- | :--- |
+| Heart | fitness | position among people of the same age and sex, 0 to 100 | `ramp(position, 0, 90)` | 30 |
+| Heart | resting heart rate | mean nightly value, bpm | `ramp(bpm, 80, 50)` | 15 |
+| Sleep | sleep duration | mean hours asleep | `ramp(hours, 5, 7)` | 10 |
+| Sleep | sleep regularity | Sleep Regularity Index | `ramp(sri, 50, 90)` | 15 |
+| Movement | movement | three habits, below | sum of the three, over 20 | 20 |
+| Body | body | waist to height ratio, or BMI | below | 10, or 5 with BMI |
+
+```
+coverage = sum of the points of the factors present
+score    = round(100 * sum(points_i * subscore_i) / coverage)
+```
+
+Movement adds three parts: weekly moderate equivalent minutes, 10 points,
+`0.75 * ramp(m, 0, 150) + 0.25 * ramp(m, 150, 300)`; strength sessions a
+week, 4 points, `ramp(sessions, 0, 2)`; mean daily steps, 6 points,
+`ramp(steps, 2500, 8000)`, or full at 7,000 for an older adult. It needs
+minutes and steps; no strength session counts as zero, not as missing.
+
+Body with a waist measure is `ramp(ratio, 0.65, 0.50)` over 10 points, full
+anywhere at or below 0.50. Without the waist it is BMI over 5 points: full
+from 18.5 to 25, then `ramp(bmi, 35, 25)`. A ratio under 0.40 or a BMI under
+18.5 removes the factor: it is neither scored low nor high, so the score
+never rewards getting leaner inside or below the healthy range.
+
+A missing factor is left out and the rest is rescaled, so it never costs
+points. HRV is not a factor.
+
+Minimum data: 50 points of coverage, with fitness or resting heart rate, and
+with one sleep factor. Otherwise the result is `InsufficientData` with every
+missing factor.
+
+| Band | Score |
+| :--- | :--- |
+| strong | 85 to 100 |
+| solid | 70 to 84 |
+| building | 55 to 69 |
+| start | 0 to 54 |
+
+| Constant | Value | Basis |
+| :--- | :--- | :--- |
+| weights | 30, 15, 10, 15, 20, 10 | **our choice** |
+| `fitnessFullPercentile` | 90 | **our choice**, so the score does not push people who are already fit toward extremes |
+| resting heart rate ramp | 80 to 50 bpm | **sourced**, the central range of Quer 2020. Not checked against the source. |
+| `sleepHoursFullAt` | 7 h | **sourced**, Watson 2015. Not checked against the source. Zero at 5 h is **our choice**. |
+| sleep regularity ramp | 50 to 90 | **our choice** |
+| movement minutes | 150 and 300 a week | **sourced**, the WHO 2020 range, as in section 14. The three quarters share is **our choice**. |
+| `movementStrengthTarget` | 2 a week | **sourced**, WHO 2020. Not checked against the source. |
+| steps ramp | 2,500 to 8,000, or 7,000 | **sourced** for the full mark, Paluch 2022, not checked against the source. The floor is **our choice**. |
+| waist to height | 0.40, 0.50, 0.65 | 0.40 and 0.50 from the NICE bands, not checked against the source. Zero at 0.65 is **our choice**. |
+| BMI | 18.5, 25, 35 | 18.5 and 25 from the WHO bands. Zero at 35 and the 5 points are **our choice**. |
+| `overallMinCoverage` | 50 points | **our choice** |
+| band cut points | 85, 70, 55 | **our choice**, the Day Score cut points |
+| `overallNoiseBelow` | 2 points | **our choice**: a weekly change smaller than this is not reported as a change |
+
+The Overall describes habits and measures, not the person's health.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

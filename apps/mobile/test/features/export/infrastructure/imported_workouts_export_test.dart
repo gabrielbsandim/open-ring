@@ -52,7 +52,10 @@ void main() {
   }
 
   test('the kind is appended after day tags with its columns', () {
-    expect(ExportKind.values.last, ExportKind.importedWorkouts);
+    expect(
+      ExportKind.values[ExportKind.values.length - 2],
+      ExportKind.importedWorkouts,
+    );
     expect(ExportKind.importedWorkouts.key, 'imported_workouts');
     expect(ExportKind.importedWorkouts.columns, [
       'start',

@@ -217,7 +217,9 @@ rule to order it by.
   it wrote.
 - **Storage.** `imported_sleep_sessions` (platform record id, source package,
   span, offset) and `imported_sleep_stages`, keyed by record id. Imported nights
-  never enter `health_outbox`, so they are never written back.
+  never enter `health_outbox`, so they are never written back. The stored
+  stages are in the data export, in the `imported_sleep` kind (see
+  `export-format.md`).
 - **Window.** The first read covers 30 days, later reads start 2 days before the
   last read so a night the other app revised is read again. Nights are upserted
   by record id. On Android the plugin turns any read error (permission

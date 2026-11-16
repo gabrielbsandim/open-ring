@@ -114,6 +114,35 @@ final class WorkoutRecord extends ExportRecord {
   ];
 }
 
+final class ImportedSleepStageRecord extends ExportRecord {
+  const new({
+    required this.sessionStart,
+    required this.start,
+    required this.end,
+    required this.recordId,
+    required this.source,
+    required this.stage,
+  });
+
+  final OffsetTime sessionStart;
+  final OffsetTime start;
+  final OffsetTime end;
+  final String recordId;
+  final String source;
+  final SleepStage stage;
+
+  @override
+  List<Object?> get values => [
+    sessionStart,
+    start,
+    end,
+    recordId,
+    source,
+    stage.name,
+    (end.utcMs - start.utcMs) ~/ Duration.millisecondsPerSecond,
+  ];
+}
+
 final class ImportedWorkoutRecord extends ExportRecord {
   const new({
     required this.start,

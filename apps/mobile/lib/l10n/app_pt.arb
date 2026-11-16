@@ -682,6 +682,7 @@
   "exportKindWeighIns": "Pesagens",
   "exportKindDayTags": "Marcas de dia",
   "exportKindImportedWorkouts": "Treinos de outros apps",
+  "exportKindImportedSleep": "Sono de outros apps",
   "exportPickKind": "Escolha pelo menos um tipo de dado.",
   "exportFormat": "Formato",
   "exportCsvNote": "Um arquivo por tipo de dado, com cada amostra e seu horário. Vários tipos vêm num arquivo zip.",

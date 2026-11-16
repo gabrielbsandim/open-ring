@@ -804,6 +804,27 @@ coverage. Zero steps reads as the ring off the finger. Otherwise the result is
 `InsufficientData` with every missing factor. The Day Score describes the day,
 not the person's health.
 
+### The step goal in force on a day
+
+The history scores each day against the step goal that was in force on that
+date, so changing the goal never moves an earlier day, the Level or the
+bests. `stepGoalOn(date, changes, current)` in
+`apps/mobile/lib/features/activity/domain/step_goal_history.dart` takes the
+last change dated on or before the day; with no change stored, every day
+uses the goal of the profile.
+
+The changes live in the table `step_goal_changes`, one row per date. A row is
+written when the profile is saved with a different step goal, dated with the
+phone's date; a second change the same day replaces the row, and a cleared
+goal is stored as the default of 8,000. The first change also writes a row
+dated 1970-01-01 with the goal held until then, which is what keeps every
+day before it unchanged. Today, Activity and the widget show the goal of the
+profile, which is the goal in force today.
+
+What it cannot say: the goal a person had in mind before the app stored
+changes. Those days are scored against the goal held when the first change
+was made.
+
 ## 16. Level
 
 The Level is the user's own recent average of Day Scores, shown with one decimal. It is the line a day is

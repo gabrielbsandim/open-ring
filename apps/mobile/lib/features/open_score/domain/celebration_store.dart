@@ -3,6 +3,8 @@ abstract interface class CelebrationStore {
   Future<String?> read();
 
   Future<void> write(String isoDate);
+
+  Future<void> clear();
 }
 
 final class InMemoryCelebrationStore implements CelebrationStore {
@@ -15,4 +17,7 @@ final class InMemoryCelebrationStore implements CelebrationStore {
 
   @override
   Future<void> write(String isoDate) async => closed = isoDate;
+
+  @override
+  Future<void> clear() async => closed = null;
 }

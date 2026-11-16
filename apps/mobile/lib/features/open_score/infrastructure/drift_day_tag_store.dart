@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/features/open_score/domain/day_tag.dart';
@@ -47,4 +48,14 @@ final class DriftDayTagStore implements DayTagStore {
     )..where((row) => row.date.equals(date.iso))).go();
     return removed > 0;
   }
+
+  @override
+  Future<int> count() async {
+    final rows = countAll();
+    final query = _db.selectOnly(_db.dayTags)..addColumns([rows]);
+    return await query.map((row) => row.read(rows)).getSingle() ?? 0;
+  }
+
+  @override
+  Future<int> clear() => _db.delete(_db.dayTags).go();
 }

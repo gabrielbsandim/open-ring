@@ -30,7 +30,7 @@ final class SpyDayTagStore implements DayTagStore {
     clearCalls++;
     final error = clearFailure;
     if (error != null) throw error;
-    return _inner.clear();
+    return await _inner.clear();
   }
 }
 

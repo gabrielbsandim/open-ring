@@ -1326,7 +1326,7 @@
   "dayScoreHistoryCellTaggedNone": "{day}, marcado como {tag}, sin nota",
   "dayScoreHistoryLegendTagged": "marcado",
   "dayScoreHistoryHow4": "Un día marcado se ve atenuado: sigue visible y fuera del Nivel y de la media.",
-  "moduleOpenScoreUsesStore": "Solo guarda tus marcas de día y tu meta semanal: la nota siempre se recalcula a partir de los datos del anillo.",
+  "moduleOpenScoreUsesStore": "Solo guarda tus marcas de día, tu meta semanal y el día en que cerraste la última tarjeta de celebración: la nota siempre se recalcula a partir de los datos del anillo.",
   "levelTitle": "Nivel",
   "levelLead": "Tu línea: la media reciente de tus Notas del día. Es lo que el día de hoy intenta superar.",
   "levelValue": "Nivel {value}",
@@ -1841,5 +1841,15 @@
   "moduleEffortDeleted": "Notas de esfuerzo borradas.",
   "moduleEffortDeleteFailed": "No se pudieron borrar las notas de esfuerzo. Inténtalo de nuevo.",
   "moduleEffortTurnOn": "Activar Esfuerzo",
-  "moduleEffortTurnOff": "Desactivar Esfuerzo"
+  "moduleEffortTurnOff": "Desactivar Esfuerzo",
+  "moduleOpenScoreDataTitle": "Datos de Open Score",
+  "moduleOpenScoreDataEmpty": "No hay marcas de día guardadas en este teléfono.",
+  "moduleOpenScoreDataCount": "Marcas de día guardadas en este teléfono: {count}.",
+  "moduleOpenScoreDataGoal": "Meta semanal: {goal} de 7 días.",
+  "moduleOpenScoreKept": "Open Score está apagado. Marcas de día guardadas en este teléfono: {count}. Vuelven a contar cuando lo actives.",
+  "moduleOpenScoreDelete": "Borrar datos de Open Score",
+  "moduleOpenScoreDeleteTitle": "¿Borrar los datos de Open Score?",
+  "moduleOpenScoreDeleteBody": "Marcas de día que se borran: {count}. La meta semanal vuelve a {goal} de 7. No se puede deshacer. Una marca de hace más de 6 días no se puede volver a poner, y el Nivel, los récords y las medias vuelven a contar esos días.",
+  "moduleOpenScoreDeleted": "Datos de Open Score borrados.",
+  "moduleOpenScoreDeleteFailed": "No se pudieron borrar los datos de Open Score. Inténtalo de nuevo."
 }

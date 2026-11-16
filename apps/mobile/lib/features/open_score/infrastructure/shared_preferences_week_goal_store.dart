@@ -16,4 +16,7 @@ final class SharedPreferencesWeekGoalStore implements WeekGoalStore {
 
   @override
   Future<void> write(int goal) => _store.setInt(key, goal);
+
+  @override
+  Future<void> clear() => _store.remove(key);
 }

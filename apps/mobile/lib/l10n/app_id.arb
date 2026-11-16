@@ -1326,7 +1326,7 @@
   "dayScoreHistoryCellTaggedNone": "{day}, ditandai {tag}, tanpa skor",
   "dayScoreHistoryLegendTagged": "ditandai",
   "dayScoreHistoryHow4": "Hari yang ditandai tampak redup: tetap terlihat dan tidak masuk Level maupun rata-rata.",
-  "moduleOpenScoreUsesStore": "Hanya menyimpan tanda hari dan target mingguan Anda: skor selalu dihitung ulang dari data cincin.",
+  "moduleOpenScoreUsesStore": "Hanya menyimpan tanda hari, target mingguan, dan hari saat Anda terakhir menutup kartu perayaan: skor selalu dihitung ulang dari data cincin.",
   "levelTitle": "Level",
   "levelLead": "Garis Anda: rata-rata terbaru Skor Hari Anda. Inilah yang coba dilampaui hari ini.",
   "levelValue": "Level {value}",
@@ -1841,5 +1841,15 @@
   "moduleEffortDeleted": "Nilai effort dihapus.",
   "moduleEffortDeleteFailed": "Nilai effort tidak dapat dihapus. Coba lagi.",
   "moduleEffortTurnOn": "Nyalakan Effort",
-  "moduleEffortTurnOff": "Matikan Effort"
+  "moduleEffortTurnOff": "Matikan Effort",
+  "moduleOpenScoreDataTitle": "Data Open Score",
+  "moduleOpenScoreDataEmpty": "Tidak ada tanda hari yang disimpan di ponsel ini.",
+  "moduleOpenScoreDataCount": "Tanda hari yang disimpan di ponsel ini: {count}.",
+  "moduleOpenScoreDataGoal": "Target mingguan: {goal} dari 7 hari.",
+  "moduleOpenScoreKept": "Open Score sedang mati. Tanda hari yang disimpan di ponsel ini: {count}. Tanda dihitung lagi saat Anda menyalakannya.",
+  "moduleOpenScoreDelete": "Hapus data Open Score",
+  "moduleOpenScoreDeleteTitle": "Hapus data Open Score?",
+  "moduleOpenScoreDeleteBody": "Tanda hari yang dihapus: {count}. Target mingguan kembali ke {goal} dari 7. Tindakan ini tidak dapat dibatalkan. Tanda yang lebih lama dari 6 hari tidak dapat dipasang lagi, dan Level, rekor, serta rata-rata kembali menghitung hari-hari itu.",
+  "moduleOpenScoreDeleted": "Data Open Score dihapus.",
+  "moduleOpenScoreDeleteFailed": "Data Open Score tidak dapat dihapus. Coba lagi."
 }

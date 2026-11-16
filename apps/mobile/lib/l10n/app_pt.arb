@@ -1326,7 +1326,7 @@
   "dayScoreHistoryCellTaggedNone": "{day}, marcado como {tag}, sem nota",
   "dayScoreHistoryLegendTagged": "marcado",
   "dayScoreHistoryHow4": "Dia marcado aparece apagado: fica visível e fora do Nível e da média.",
-  "moduleOpenScoreUsesStore": "Guarda só as suas marcas de dia e a sua meta da semana: a nota é sempre recalculada a partir dos dados do anel.",
+  "moduleOpenScoreUsesStore": "Guarda só as suas marcas de dia, a sua meta da semana e o dia em que você fechou o último cartão de comemoração: a nota é sempre recalculada a partir dos dados do anel.",
   "levelTitle": "Nível",
   "levelLead": "A sua linha: a média recente das suas Notas do Dia. É ela que o dia de hoje tenta passar.",
   "levelValue": "Nível {value}",
@@ -1841,5 +1841,15 @@
   "moduleEffortDeleted": "Notas de esforço apagadas.",
   "moduleEffortDeleteFailed": "Não foi possível apagar as notas de esforço. Tente de novo.",
   "moduleEffortTurnOn": "Ativar Esforço",
-  "moduleEffortTurnOff": "Desativar Esforço"
+  "moduleEffortTurnOff": "Desativar Esforço",
+  "moduleOpenScoreDataTitle": "Dados do Open Score",
+  "moduleOpenScoreDataEmpty": "Nenhuma marca de dia guardada neste celular.",
+  "moduleOpenScoreDataCount": "Marcas de dia guardadas neste celular: {count}.",
+  "moduleOpenScoreDataGoal": "Meta da semana: {goal} de 7 dias.",
+  "moduleOpenScoreKept": "O Open Score está desligado. Marcas de dia guardadas neste celular: {count}. Elas voltam a contar quando você ativar.",
+  "moduleOpenScoreDelete": "Apagar dados do Open Score",
+  "moduleOpenScoreDeleteTitle": "Apagar os dados do Open Score?",
+  "moduleOpenScoreDeleteBody": "Marcas de dia a apagar: {count}. A meta da semana volta para {goal} de 7. Não dá para desfazer. Uma marca de mais de 6 dias atrás não pode ser colocada de novo, e o Nível, os recordes e as médias voltam a contar esses dias.",
+  "moduleOpenScoreDeleted": "Dados do Open Score apagados.",
+  "moduleOpenScoreDeleteFailed": "Não foi possível apagar os dados do Open Score. Tente de novo."
 }

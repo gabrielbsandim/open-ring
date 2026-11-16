@@ -20,9 +20,9 @@ const _closed = LocalDate(2026, 11, 15);
 const _run = Key('run_clear');
 
 class _Host extends ConsumerWidget {
-  const new({required this.onResult, super.key});
+  const new({required this.onResult});
 
-  final void Function(bool) onResult;
+  final ValueChanged<bool> onResult;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => TextButton(
@@ -33,7 +33,7 @@ class _Host extends ConsumerWidget {
 }
 
 class _World {
-  _World({Map<LocalDate, DayTag> tags = const {}, int? goal, String? closed})
+  new({Map<LocalDate, DayTag> tags = const {}, int? goal, String? closed})
     : tagStore = SpyDayTagStore(tags),
       goalStore = SpyWeekGoalStore(goal),
       celebrationStore = SpyCelebrationStore(closed);

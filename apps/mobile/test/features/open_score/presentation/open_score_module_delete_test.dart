@@ -31,7 +31,7 @@ const _deleted = 'Open Score data deleted.';
 const _failed = 'The Open Score data could not be deleted. Try again.';
 
 class _World {
-  _World({
+  new({
     Map<LocalDate, DayTag> tags = const {},
     int? goal,
     String? closed,
@@ -80,6 +80,11 @@ ProviderContainer _container(WidgetTester tester) => ProviderScope.containerOf(
 
 int _revision(WidgetTester tester) =>
     _container(tester).read(dataRevisionProvider);
+
+Future<void> _toTop(WidgetTester tester) async {
+  await tester.drag(find.byType(Scrollable).first, const Offset(0, 9000));
+  await tester.pumpAndSettle();
+}
 
 Future<void> _tap(WidgetTester tester, Key key) async {
   await reveal(tester, find.byKey(key));
@@ -165,10 +170,11 @@ void main() {
     testWidgets('a goal below the default also counts as changed', (
       tester,
     ) async {
-      await _pump(tester, _World(goal: 2, on: true));
+      await _pump(tester, _World(goal: 3, on: true));
 
       await reveal(tester, find.byKey(OpenScoreModuleKeys.goal));
-      expect(find.text('Weekly goal: 2 of 7 days.'), findsOneWidget);
+      expect(find.text('Weekly goal: 3 of 7 days.'), findsOneWidget);
+      await reveal(tester, find.byKey(OpenScoreModuleKeys.delete));
       expect(find.byKey(OpenScoreModuleKeys.delete), findsOneWidget);
     });
 
@@ -406,6 +412,7 @@ void main() {
       await _confirm(tester);
 
       expect(find.text(_failed), findsOneWidget);
+      await _toTop(tester);
       expect(find.byKey(OpenScoreModuleKeys.kept), findsOneWidget);
       expect(await world.modules.read(), isEmpty);
     });
@@ -441,6 +448,7 @@ void main() {
               brightness: brightness,
             );
             await scrollThrough(tester);
+            await _toTop(tester);
             await reveal(tester, find.byKey(OpenScoreModuleKeys.delete));
             await expectNoLayoutOverflow(() async {
               await tester.tap(find.byKey(OpenScoreModuleKeys.delete));

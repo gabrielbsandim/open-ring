@@ -43,6 +43,24 @@ final goalWeekProvider = FutureProvider<GoalWeekView>((ref) async {
   );
 });
 
+final class GoalReviewView {
+  const new({required this.week, required this.review});
+
+  final GoalWeek week;
+  final Review review;
+}
+
+/// The newest reviewed week of the goal under way, with the review its
+/// stored inputs give.
+final goalReviewProvider = FutureProvider<GoalReviewView?>((ref) async {
+  ref.watch(dataRevisionProvider);
+  final goal = await ref.watch(activeGoalProvider.future);
+  if (goal == null) return null;
+  final week = (await ref.watch(goalStoreProvider).weeks(goal.id)).lastOrNull;
+  if (week == null) return null;
+  return GoalReviewView(week: week, review: reviewWeek(week.inputs));
+});
+
 // A source is read only when a lever counts from it, so a goal never waits
 // on, or fails with, data it does not use.
 Future<GoalWeekData> _weekData(Ref ref, Set<LeverKind> kinds) async {

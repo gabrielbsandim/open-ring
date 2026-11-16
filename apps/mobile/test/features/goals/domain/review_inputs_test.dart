@@ -770,7 +770,7 @@ void main() {
     });
 
     test('the rate per week, low and high are -0.35', () {
-      final rate = snapshot.rate as WeightRateReady;
+      final rate = snapshot.rate! as WeightRateReady;
 
       expect(rate.perWeek, closeTo(-0.35, 1e-6));
       expect(rate.low, closeTo(-0.35, 1e-6));
@@ -787,7 +787,7 @@ void main() {
         line: [...line, (date: day(12, 7), value: 70.0)],
         asOf: day(12, 6),
       );
-      final rate = later.rate as WeightRateReady;
+      final rate = later.rate! as WeightRateReady;
 
       expect(rate.perWeek, closeTo(-0.35, 1e-6));
       expect(rate.low, closeTo(-0.35, 1e-6));

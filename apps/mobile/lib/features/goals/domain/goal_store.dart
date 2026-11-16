@@ -1,6 +1,7 @@
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_codec.dart';
+import 'package:open_ring/features/goals/domain/review_inputs.dart';
 
 abstract interface class GoalStore {
   Future<Goal?> active();
@@ -42,6 +43,16 @@ abstract interface class GoalStore {
     required LocalDate monday,
     required ReviewInputs inputs,
     required Review review,
+  });
+
+  /// Adds the check-in answers to the newest week of an active goal and
+  /// stores the review they give. Null, with nothing written, when the week
+  /// is answered or already holds a check-in, and when both answers are null.
+  Future<Review?> amendWeek(
+    int goalId,
+    LocalDate monday, {
+    required CheckInEnergy? energy,
+    required bool? foodOrWeight,
   });
 
   /// False unless the week waits for an answer on an active goal. Accepting
@@ -151,6 +162,26 @@ final class InMemoryGoalStore implements GoalStore {
   }
 
   @override
+  Future<Review?> amendWeek(
+    int goalId,
+    LocalDate monday, {
+    required CheckInEnergy? energy,
+    required bool? foodOrWeight,
+  }) async {
+    final index = _weekIndex(goalId, monday);
+    if (_activeWith(goalId) == null || index < 0) return null;
+    if ((await weeks(goalId)).last.monday != monday) return null;
+    final amended = amendedWeek(
+      _weeks[index],
+      energy: energy,
+      foodOrWeight: foodOrWeight,
+    );
+    if (amended == null) return null;
+    _weeks[index] = amended.week;
+    return amended.review;
+  }
+
+  @override
   Future<List<GoalWeek>> weeks(int goalId) async => [
     for (final week in _weeks)
       if (week.goalId == goalId) week,
@@ -201,6 +232,38 @@ final class InMemoryGoalStore implements GoalStore {
 
   int _weekIndex(int goalId, LocalDate monday) => _weeks.indexWhere(
     (week) => week.goalId == goalId && week.monday == monday,
+  );
+}
+
+/// The week with its check-in and the review that follows, null when the
+/// week may not be amended.
+({GoalWeek week, Review review})? amendedWeek(
+  GoalWeek week, {
+  required CheckInEnergy? energy,
+  required bool? foodOrWeight,
+}) {
+  if (week.answer != null) return null;
+  if (week.inputs.energy != null || week.inputs.foodOrWeight != null) {
+    return null;
+  }
+  if (energy == null && foodOrWeight == null) return null;
+  final inputs = withCheckIn(
+    week.inputs,
+    energy: energy,
+    foodOrWeight: foodOrWeight,
+  );
+  final review = reviewWeek(inputs);
+  return (
+    week: GoalWeek(
+      goalId: week.goalId,
+      monday: week.monday,
+      inputs: inputs,
+      rule: review.rule,
+      action: review.action,
+      change: review.change,
+      answer: null,
+    ),
+    review: review,
   );
 }
 

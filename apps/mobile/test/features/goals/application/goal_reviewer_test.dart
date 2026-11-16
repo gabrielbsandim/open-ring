@@ -28,7 +28,7 @@ import 'package:open_ring/features/workout/domain/workout_type.dart';
 
 import '../goal_fixtures.dart';
 
-const _both = {ModuleId.goals, ModuleId.body};
+const Set<ModuleId> _both = {ModuleId.goals, ModuleId.body};
 const _closedReadiness = [76, 72, 70, 68, 74, 71, 76];
 const _otherDayReadiness = 40;
 

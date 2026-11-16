@@ -160,6 +160,44 @@ final class DriftGoalStore implements GoalStore {
       });
 
   @override
+  Future<Review?> amendWeek(
+    int goalId,
+    LocalDate monday, {
+    required CheckInEnergy? energy,
+    required bool? foodOrWeight,
+  }) => _db.transaction(() async {
+    if (await _openRow(goalId) == null) return null;
+    final newest =
+        await (_db.select(_db.goalWeeks)
+              ..where((row) => row.goalId.equals(goalId))
+              ..orderBy([(row) => OrderingTerm.desc(row.monday)])
+              ..limit(1))
+            .getSingleOrNull();
+    if (newest == null || newest.monday != monday.iso) return null;
+    final week = _week(newest);
+    if (week == null) return null;
+    final amended = amendedWeek(
+      week,
+      energy: energy,
+      foodOrWeight: foodOrWeight,
+    );
+    if (amended == null) return null;
+    final change = amended.review.change;
+    await (_db.update(_db.goalWeeks)..where(
+          (row) => row.goalId.equals(goalId) & row.monday.equals(monday.iso),
+        ))
+        .write(
+          GoalWeeksCompanion(
+            inputs: Value(encodeReviewInputs(amended.week.inputs)),
+            rule: Value(amended.review.rule.name),
+            action: Value(amended.review.action.name),
+            change: Value(change == null ? null : encodeLeverChange(change)),
+          ),
+        );
+    return amended.review;
+  });
+
+  @override
   Future<List<GoalWeek>> weeks(int goalId) async {
     final rows =
         await (_db.select(_db.goalWeeks)

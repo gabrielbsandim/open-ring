@@ -39,7 +39,16 @@ enum ExportKind {
     'waist_cm',
     'source',
   ]),
-  dayTags('day_tags', ['date', 'tag']);
+  dayTags('day_tags', ['date', 'tag']),
+  importedWorkouts('imported_workouts', [
+    'start',
+    'end',
+    'record_id',
+    'source',
+    'activity_type',
+    'duration_s',
+    'effort_rating',
+  ]);
 
   new(this.key, this.columns);
 

@@ -30,7 +30,7 @@ final _rows = [
 
 final _header = ExportHeader(
   exportedAt: _at(DateTime.utc(2026, 11, 10, 15), 0),
-  from: _at(DateTime.utc(2026, 11, 1), 0),
+  from: _at(DateTime.utc(2026, 11), 0),
   to: _at(DateTime.utc(2026, 11, 11), 0),
 );
 
@@ -78,7 +78,8 @@ void main() {
 
     expect(decoded['schema_version'], 1);
     expect(decoded.keys.last, 'imported_workouts');
-    final rows = (decoded['imported_workouts']! as List).cast<Map>();
+    final rows = (decoded['imported_workouts']! as List)
+        .cast<Map<String, dynamic>>();
     expect(rows.first.keys, ExportKind.importedWorkouts.columns);
     expect(rows.first['source'], 'com.garmin,connect');
     expect(rows.first['duration_s'], 2550);

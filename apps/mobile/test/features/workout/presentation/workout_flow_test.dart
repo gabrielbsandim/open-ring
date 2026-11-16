@@ -3,8 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/app_navigation_bar.dart';
+import 'package:open_ring/features/effort/presentation/effort_rating_card.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/workout/application/workout_controller.dart';
+import 'package:open_ring/features/workout/application/workout_history_providers.dart';
+import 'package:open_ring/features/workout/application/workout_state.dart';
 import 'package:open_ring/features/workout/domain/location_access.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
@@ -20,6 +26,7 @@ import '../../../helpers/layout_harness.dart';
 import '../../../helpers/metrics_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
 import '../../../helpers/workout_fakes.dart';
+import '../../../helpers/workout_rating_fakes.dart';
 import 'workout_scenarios.dart';
 
 Future<void> _pumpApp(WidgetTester tester, WorkoutRig rig) async {
@@ -59,7 +66,113 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 WorkoutStatus _status(WidgetTester tester) =>
     workoutContainer(tester).read(workoutProvider).status;
 
+final class _FlakyHistory extends MemoryWorkoutHistory {
+  new();
+
+  bool failNext = true;
+
+  @override
+  Future<int> save(FinishedWorkout workout, {required DateTime at}) {
+    if (!failNext) return super.save(workout, at: at);
+    failNext = false;
+    return Future.error(StateError('disk full'));
+  }
+}
+
+Future<void> _pumpSummary(
+  WidgetTester tester,
+  Widget summary,
+  WorkoutRig rig, {
+  Set<ModuleId> modules = const {ModuleId.effort},
+}) => pumpScaled(
+  tester,
+  screenHost(summary),
+  textScaler: TextScaler.noScaling,
+  brightness: Brightness.dark,
+  locale: const Locale('en'),
+  size: tallPhone,
+  overrides: [
+    ...bleOverrides(),
+    ...ringOverrides(),
+    ...rig.overrides(),
+    ringStatusReaderProvider.overrideWithValue(
+      FakeRingStatusReader(pairedRing),
+    ),
+    moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
+    workoutRatingStoreProvider.overrideWithValue(MemoryRatings()),
+  ],
+);
+
 void main() {
+  group('the effort rating card on the summary', () {
+    testWidgets('shows on a saved summary while Effort is on', (tester) async {
+      final history = MemoryWorkoutHistory(seed: [savedRun()]);
+      await _pumpSummary(
+        tester,
+        const WorkoutSummaryScreen(workoutId: savedRunId),
+        WorkoutRig(store: history),
+      );
+
+      expect(find.byKey(EffortRatingKeys.card), findsOneWidget);
+    });
+
+    testWidgets('is absent from a saved summary while Effort is off', (
+      tester,
+    ) async {
+      final history = MemoryWorkoutHistory(seed: [savedRun()]);
+      await _pumpSummary(
+        tester,
+        const WorkoutSummaryScreen(workoutId: savedRunId),
+        WorkoutRig(store: history),
+        modules: const {ModuleId.openScore},
+      );
+
+      expect(find.byKey(WorkoutSummaryKeys.delete), findsOneWidget);
+      expect(find.byKey(EffortRatingKeys.card), findsNothing);
+    });
+
+    testWidgets('a summary not saved yet shows no card until it is saved', (
+      tester,
+    ) async {
+      final history = _FlakyHistory();
+      final rig = WorkoutRig(store: history);
+      await _pumpSummary(tester, const WorkoutSummaryScreen(), rig);
+      await startRunning(tester, rig, seconds: 60);
+      await finishWorkout(tester);
+
+      expect(
+        workoutContainer(tester).read(workoutProvider).save,
+        WorkoutSave.failed,
+      );
+      expect(find.byKey(WorkoutSummaryKeys.retry), findsOneWidget);
+      expect(find.byKey(EffortRatingKeys.card), findsNothing);
+
+      await _tap(tester, find.byKey(WorkoutSummaryKeys.retry));
+      await flushStreams(tester);
+
+      expect(
+        workoutContainer(tester).read(workoutProvider).save,
+        WorkoutSave.saved,
+      );
+      final id = workoutContainer(tester).read(workoutProvider).workoutId!;
+      expect(await history.byId(id), isNotNull);
+      expect(find.byKey(EffortRatingKeys.card), findsOneWidget);
+    });
+
+    testWidgets('a summary saved at once shows the card', (tester) async {
+      final rig = WorkoutRig(store: MemoryWorkoutHistory());
+      await _pumpSummary(tester, const WorkoutSummaryScreen(), rig);
+      await startRunning(tester, rig, seconds: 60);
+      await finishWorkout(tester);
+
+      expect(
+        workoutContainer(tester).read(workoutProvider).save,
+        WorkoutSave.saved,
+      );
+      expect(find.byKey(EffortRatingKeys.card), findsOneWidget);
+    });
+  });
+
   testWidgets('Activity starts an indoor workout without asking for location', (
     tester,
   ) async {

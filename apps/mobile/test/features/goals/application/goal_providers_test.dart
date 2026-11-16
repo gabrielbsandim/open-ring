@@ -24,10 +24,10 @@ import 'package:open_ring/features/sleep/application/sleep_providers.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
 
 const _monday = LocalDate(2026, 12, 7);
-const _met = LeverDayMark.met;
-const _missed = LeverDayMark.missed;
-const _open = LeverDayMark.open;
-const _ahead = LeverDayMark.ahead;
+const LeverDayMark _met = LeverDayMark.met;
+const LeverDayMark _missed = LeverDayMark.missed;
+const LeverDayMark _open = LeverDayMark.open;
+const LeverDayMark _ahead = LeverDayMark.ahead;
 
 const _strength = Lever(kind: LeverKind.strengthDays, target: 2);
 const _sleep = Lever(kind: LeverKind.sleepWindow, target: 690);

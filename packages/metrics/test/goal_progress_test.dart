@@ -39,12 +39,17 @@ const wakeLever = Lever(kind: LeverKind.wakeTime, target: 405);
 const strengthLever = Lever(kind: LeverKind.strengthDays, target: 2);
 const effortLever = Lever(kind: LeverKind.effortPoints, target: 165);
 
-const met = LeverDayMark.met;
-const missed = LeverDayMark.missed;
-const open = LeverDayMark.open;
-const ahead = LeverDayMark.ahead;
+const LeverDayMark met = LeverDayMark.met;
+const LeverDayMark missed = LeverDayMark.missed;
+const LeverDayMark open = LeverDayMark.open;
+const LeverDayMark ahead = LeverDayMark.ahead;
 
-final weekSteps = {dec(7): 10420, dec(8): 8310, dec(9): 11050, dec(10): 8640};
+final Map<LocalDate, int> weekSteps = {
+  dec(7): 10420,
+  dec(8): 8310,
+  dec(9): 11050,
+  dec(10): 8640,
+};
 
 void main() {
   group('criterion 1: a steps lever marks each day against the target', () {
@@ -232,7 +237,7 @@ void main() {
     });
 
     test('the onset skips a leading awake span', () {
-      final started = DateTime.utc(2026, 12, 7, 23, 0);
+      final started = DateTime.utc(2026, 12, 7, 23);
       final asleep = DateTime.utc(2026, 12, 8, 0, 20);
       final woke = DateTime.utc(2026, 12, 8, 7);
       final lateNight = SleepNight([
@@ -376,7 +381,7 @@ void main() {
   });
 
   group('criterion 5: a strength days lever counts the days of the week', () {
-    final days = {dec(7), LocalDate(2026, 11, 30), dec(12)};
+    final days = {dec(7), const LocalDate(2026, 11, 30), dec(12)};
 
     test('counts only the days from Monday to today', () {
       final progress = leverProgress(
@@ -574,11 +579,11 @@ void main() {
   group('criterion 9: the number of the week in the block', () {
     const start = LocalDate(2026, 11, 16);
     final cases = <(LocalDate, int)>[
-      (LocalDate(2026, 11, 16), 1),
-      (LocalDate(2026, 11, 22), 1),
-      (LocalDate(2026, 11, 23), 2),
-      (LocalDate(2026, 12, 7), 4),
-      (LocalDate(2026, 12, 10), 4),
+      (const LocalDate(2026, 11, 16), 1),
+      (const LocalDate(2026, 11, 22), 1),
+      (const LocalDate(2026, 11, 23), 2),
+      (const LocalDate(2026, 12, 7), 4),
+      (const LocalDate(2026, 12, 10), 4),
     ];
 
     for (final (today, expected) in cases) {
@@ -590,8 +595,8 @@ void main() {
     test('a block started on a Wednesday is week 1 on 2026-11-29', () {
       expect(
         goalWeekNumber(
-          start: LocalDate(2026, 11, 18),
-          today: LocalDate(2026, 11, 29),
+          start: const LocalDate(2026, 11, 18),
+          today: const LocalDate(2026, 11, 29),
         ),
         1,
       );
@@ -600,15 +605,18 @@ void main() {
     test('a block started on a Wednesday is week 2 on 2026-11-30', () {
       expect(
         goalWeekNumber(
-          start: LocalDate(2026, 11, 18),
-          today: LocalDate(2026, 11, 30),
+          start: const LocalDate(2026, 11, 18),
+          today: const LocalDate(2026, 11, 30),
         ),
         2,
       );
     });
 
     test('a day before the start is week 1', () {
-      expect(goalWeekNumber(start: start, today: LocalDate(2026, 11, 10)), 1);
+      expect(
+        goalWeekNumber(start: start, today: const LocalDate(2026, 11, 10)),
+        1,
+      );
     });
   });
 }

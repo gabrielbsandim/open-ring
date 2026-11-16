@@ -13,6 +13,7 @@ abstract final class DayScoreFormulaKeys {
   static const expression = Key('day_score_formula_expression');
   static const total = Key('day_score_formula_total');
   static const sources = Key('day_score_formula_sources');
+  static const overall = Key('day_score_formula_overall');
 
   static Key factor(DayScoreFactor factor) =>
       Key('day_score_formula_${factor.name}');
@@ -99,6 +100,22 @@ class DayScoreFormulaScreen extends StatelessWidget {
               l10n.metricPercent(format.decimal(levelAlpha * 100, digits: 1)),
             ),
             l10n.dayScoreFormulaLevel2,
+          ],
+        ),
+        const SizedBox(height: cardGap),
+        DayScoreListCard(
+          key: DayScoreFormulaKeys.overall,
+          title: l10n.overallTitle,
+          lines: [
+            l10n.dayScoreFormulaOverall1(format.integer(overallWindowDays)),
+            l10n.dayScoreFormulaOverall2(
+              format.integer(OverallFactor.fitness.weight),
+              format.integer(OverallFactor.restingHeartRate.weight),
+              format.integer(OverallFactor.sleepDuration.weight),
+              format.integer(OverallFactor.sleepRegularity.weight),
+              format.integer(OverallFactor.movement.weight),
+              format.integer(OverallFactor.body.weight),
+            ),
           ],
         ),
         const SizedBox(height: cardGap),

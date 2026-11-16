@@ -1295,7 +1295,6 @@
   "moduleOpenScoreNeverAge": "生物学的年齢や余命は推定しません。",
   "moduleOpenScoreNeverStreak": "連続日数は数えず、休養日を責めることもありません。",
   "moduleOpenScoreNeverMissing": "データがなくても減点しません。リングがないときは、スコアを換算するか、その日を空欄にします。",
-  "moduleOpenScoreMore": "このモジュールには今後、総合スコアが加わります。どの画面よりも先にここに表示されます。",
   "moduleOpenScoreFoot": "オフにすると「今日」と「履歴」からスコアが消えます。リングのデータは変わらず、再びオンにすると履歴はすべて戻ります。",
   "moduleOpenScoreTurnOn": "Open Score をオンにする",
   "moduleOpenScoreTurnOff": "Open Score をオフにする",
@@ -1541,5 +1540,9 @@
   "overallWeeksChart": "月曜日 {weeks} 回分の総合スコア（{first} から {last}）。",
   "overallWeeksSame": "変化なし",
   "overallValueFitness": "同じ年齢・性別の 100 人中の順位 {position}。",
-  "overallSheetFitnessWindow": "最終更新までの {days} 日間に記録した屋外のランニングとウォーキングのうち、最も高い推定値です。安静時心拍数も必要です。"
+  "overallSheetFitnessWindow": "最終更新までの {days} 日間に記録した屋外のランニングとウォーキングのうち、最も高い推定値です。安静時心拍数も必要です。",
+  "dayScoreFormulaOverall1": "総合スコアは 1 日ではなく、あなたの土台を見ます。毎週月曜までの {days} 日間の 6 つの要素です。データのない要素は計算から外れ、残りが換算されます。",
+  "dayScoreFormulaOverall2": "100 点の内訳：持久力 {fitness}、安静時心拍数 {resting}、睡眠時間 {sleep}、睡眠の規則性 {regularity}、週の運動 {movement}、体 {body}。総合スコア画面の各行から、ルールと出典を開けます。",
+  "moduleOpenScoreAddsOverall": "総合スコア。直近 4 週間のあなたの土台で、毎週月曜に更新され、各要素のルールと出典、12 週間のグラフが付きます。",
+  "moduleOpenScoreUsesOverall": "総合スコアは、プロフィールの年齢・性別・身長、記録したランニングとウォーキング、そして体モジュールがオンのときはウエストと体重も読み取ります。"
 }

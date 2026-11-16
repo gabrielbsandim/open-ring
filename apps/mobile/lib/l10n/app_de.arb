@@ -1295,7 +1295,6 @@
   "moduleOpenScoreNeverAge": "Es schätzt weder ein biologisches Alter noch eine Lebenserwartung.",
   "moduleOpenScoreNeverStreak": "Es zählt keine Serien und hält Ihnen keinen Ruhetag vor.",
   "moduleOpenScoreNeverMissing": "Es zieht keine Punkte für fehlende Daten ab: Ohne den Ring wird die Note umgerechnet oder der Tag bleibt leer.",
-  "moduleOpenScoreMore": "In diesem Modul kommt noch mehr: die Gesamtnote. Sie erscheint hier, bevor es einen Bildschirm dafür gibt.",
   "moduleOpenScoreFoot": "Ausschalten entfernt die Note aus Heute und aus dem Verlauf. Die Daten des Rings ändern sich nicht, und beim Einschalten ist der ganze Verlauf wieder da.",
   "moduleOpenScoreTurnOn": "Open Score einschalten",
   "moduleOpenScoreTurnOff": "Open Score ausschalten",
@@ -1541,5 +1540,9 @@
   "overallWeeksChart": "Gesamtnote von {weeks} Montagen, von {first} bis {last}.",
   "overallWeeksSame": "gleich",
   "overallValueFitness": "Position {position} unter 100 Menschen gleichen Alters und Geschlechts.",
-  "overallSheetFitnessWindow": "Die beste Schätzung aus deinen Läufen und Spaziergängen im Freien in den {days} Tagen vor der letzten Aktualisierung. Sie braucht auch deinen Ruhepuls."
+  "overallSheetFitnessWindow": "Die beste Schätzung aus deinen Läufen und Spaziergängen im Freien in den {days} Tagen vor der letzten Aktualisierung. Sie braucht auch deinen Ruhepuls.",
+  "dayScoreFormulaOverall1": "Die Gesamtnote liest deine Basis, nicht einen Tag: sechs Faktoren über die {days} Tage vor jedem Montag. Ein Faktor ohne Daten fällt aus der Rechnung und der Rest wird umgerechnet.",
+  "dayScoreFormulaOverall2": "Von 100 Punkten: Fitness {fitness}, Ruhepuls {resting}, Schlafdauer {sleep}, Schlafregelmäßigkeit {regularity}, Bewegung der Woche {movement} und Körper {body}. Jede Zeile im Bildschirm der Gesamtnote öffnet ihre Regel und ihre Quelle.",
+  "moduleOpenScoreAddsOverall": "Die Gesamtnote, deine Basis der letzten 4 Wochen, jeden Montag aktualisiert, mit Regel und Quelle jedes Faktors und einem Diagramm über 12 Wochen.",
+  "moduleOpenScoreUsesOverall": "Die Gesamtnote liest außerdem Alter, Geschlecht und Größe aus deinem Profil, deine aufgezeichneten Läufe und Spaziergänge und, bei aktivem Modul Körper, Taille und Gewicht."
 }

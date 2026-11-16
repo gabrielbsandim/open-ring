@@ -77,6 +77,43 @@ void main() {
     );
   });
 
+  testWidgets('the Overall section prints the weights of its factors', (
+    tester,
+  ) async {
+    await pumpFormula(tester);
+
+    final weights = [for (final f in OverallFactor.values) f.weight.round()];
+    expect(weights.reduce((a, b) => a + b), 100);
+    expect(
+      within(
+        DayScoreFormulaKeys.overall,
+        'Of 100 points: fitness ${weights[0]}, resting heart rate '
+        '${weights[1]}, sleep duration ${weights[2]}, sleep regularity '
+        '${weights[3]}, weekly movement ${weights[4]} and body ${weights[5]}. '
+        'Each row of the Overall screen opens its rule and its source.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('over the $overallWindowDays days before'),
+      findsOneWidget,
+    );
+  });
+
+  for (final locale in AppLocalizations.supportedLocales) {
+    testWidgets('the Overall section fits at large text in $locale', (
+      tester,
+    ) async {
+      await pumpFormula(
+        tester,
+        locale: locale,
+        textScaler: const TextScaler.linear(1.6),
+      );
+
+      expect(find.byKey(DayScoreFormulaKeys.overall), findsOneWidget);
+    });
+  }
+
   testWidgets('gives each band its range', (tester) async {
     await pumpFormula(tester);
 

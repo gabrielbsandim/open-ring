@@ -10,6 +10,7 @@ import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v10.dart' as v10;
 import 'generated/schema_v11.dart' as v11;
 import 'generated/schema_v12.dart' as v12;
+import 'generated/schema_v13.dart' as v13;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
@@ -462,6 +463,65 @@ void main() {
             ),
           ]);
           expect(await newDb.select(newDb.dayTags).get(), isEmpty);
+        },
+      );
+    },
+  );
+
+  test(
+    'v12 migrates to v13, keeps a workout and an imported workout unrated',
+    () async {
+      const workout = v12.WorkoutsData(
+        id: 1,
+        clientId: 'phone:1762758000000',
+        activityType: 'running',
+        startUtcMs: 1762758000000,
+        endUtcMs: 1762759800000,
+        offsetMinutes: -180,
+      );
+      const imported = v12.ImportedWorkoutsData(
+        recordId: 'w1',
+        source: 'com.garmin.android.apps.connectmobile',
+        activityType: 'running',
+        startUtcMs: 1762758000000,
+        endUtcMs: 1762760400000,
+        offsetMinutes: -180,
+        importedAtUtcMs: 1762765200000,
+      );
+
+      await verifier.testWithDataIntegrity(
+        oldVersion: 12,
+        newVersion: 13,
+        createOld: v12.DatabaseAtV12.new,
+        createNew: v13.DatabaseAtV13.new,
+        openTestedDatabase: AppDatabase.new,
+        createItems: (batch, oldDb) => batch
+          ..insert(oldDb.workouts, workout)
+          ..insert(oldDb.importedWorkouts, imported),
+        validateItems: (newDb) async {
+          expect(await newDb.select(newDb.workouts).get(), [
+            const v13.WorkoutsData(
+              id: 1,
+              clientId: 'phone:1762758000000',
+              activityType: 'running',
+              startUtcMs: 1762758000000,
+              endUtcMs: 1762759800000,
+              offsetMinutes: -180,
+              effortRating: null,
+            ),
+          ]);
+          expect(await newDb.select(newDb.importedWorkouts).get(), [
+            const v13.ImportedWorkoutsData(
+              recordId: 'w1',
+              source: 'com.garmin.android.apps.connectmobile',
+              activityType: 'running',
+              startUtcMs: 1762758000000,
+              endUtcMs: 1762760400000,
+              offsetMinutes: -180,
+              importedAtUtcMs: 1762765200000,
+              effortRating: null,
+            ),
+          ]);
         },
       );
     },

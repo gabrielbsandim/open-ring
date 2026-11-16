@@ -659,6 +659,64 @@ void main() {
     });
   });
 
+  group('stored rating reaches the load', () {
+    final start = DateTime.utc(2026, 11, 9, 7);
+
+    WorkoutListItem ratedRecorded(int? rating, {int minutes = 32}) =>
+        WorkoutListItem(
+          id: 1,
+          type: WorkoutType.treadmill,
+          start: start,
+          end: start.add(Duration(minutes: minutes)),
+          utcOffset: Duration.zero,
+          elapsed: Duration(minutes: minutes),
+          rating: rating,
+        );
+
+    test('32 minutes rated 7 with no zones is 112 from the rating', () {
+      final session = effortSessionOf(ratedRecorded(7));
+
+      expect(session.load.value, 112);
+      expect(session.load.source, LoadSource.rating);
+    });
+
+    test('32 minutes with no rating keeps the type default', () {
+      final session = effortSessionOf(ratedRecorded(null));
+
+      expect(session.load.value, 96);
+      expect(session.load.source, LoadSource.typeDefault);
+    });
+
+    test('an imported workout rated 7 is 112 from the rating', () {
+      final session = effortSessionOf(
+        ImportedWorkout(
+          recordId: 'r',
+          source: 'com.example.other',
+          type: WorkoutType.yoga,
+          start: start,
+          end: start.add(const Duration(minutes: 32)),
+          utcOffset: Duration.zero,
+          rating: 7,
+        ),
+      );
+
+      expect(session.load.value, 112);
+      expect(session.load.source, LoadSource.rating);
+    });
+
+    test('a heart rate figure above the rating figure still wins', () {
+      final entry = ratedRecorded(7, minutes: 30);
+      final session = effortSessionOf(
+        entry,
+        heartRate: _samples(entry.start, 170),
+        zones: HeartRateZones(maxHeartRate: 200),
+      );
+
+      expect(session.load.value, 120);
+      expect(session.load.source, LoadSource.heartRate);
+    });
+  });
+
   group('effortStrengthDays', () {
     test('holds the dates of the strength sessions only', () {
       final strength = effortSessionOf(

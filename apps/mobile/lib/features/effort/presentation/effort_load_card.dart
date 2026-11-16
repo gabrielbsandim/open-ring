@@ -6,6 +6,7 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/charts.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
+import 'package:open_ring/features/effort/presentation/effort_evidence_sheet.dart';
 
 abstract final class EffortLoadKeys {
   static const card = Key('effort_load');
@@ -15,6 +16,7 @@ abstract final class EffortLoadKeys {
   static const acute = Key('effort_load_acute');
   static const chronic = Key('effort_load_chronic');
   static const noRatio = Key('effort_load_no_ratio');
+  static const lines = Key('effort_load_lines');
 }
 
 /// The daily load, oldest first and ending yesterday, with its two lines as
@@ -144,16 +146,35 @@ class _Lines extends StatelessWidget {
           height: 110,
         ),
         const SizedBox(height: 12),
-        _Line(
-          key: EffortLoadKeys.acute,
-          label: l10n.effortLoadAcute,
-          value: l10n.effortLoadPerDay(format.integer(acute.round())),
-        ),
-        const SizedBox(height: 6),
-        _Line(
-          key: EffortLoadKeys.chronic,
-          label: l10n.effortLoadChronic,
-          value: l10n.effortLoadPerDay(format.integer(chronic.round())),
+        MergeSemantics(
+          child: InkWell(
+            key: EffortLoadKeys.lines,
+            onTap: () => showEffortEvidence(
+              context,
+              kind: EffortEvidence.lines,
+              yours: l10n.effortSheetLinesYours(
+                format.integer(effortAcuteDays),
+                format.integer(acute.round()),
+                format.integer(effortChronicDays),
+                format.integer(chronic.round()),
+              ),
+            ),
+            child: Column(
+              children: [
+                _Line(
+                  key: EffortLoadKeys.acute,
+                  label: l10n.effortLoadAcute,
+                  value: l10n.effortLoadPerDay(format.integer(acute.round())),
+                ),
+                const SizedBox(height: 6),
+                _Line(
+                  key: EffortLoadKeys.chronic,
+                  label: l10n.effortLoadChronic,
+                  value: l10n.effortLoadPerDay(format.integer(chronic.round())),
+                ),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 8),
         CaptionText(l10n.effortLoadNoRatio, key: EffortLoadKeys.noRatio),

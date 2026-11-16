@@ -11,8 +11,10 @@ import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/effort/application/effort_providers.dart';
 import 'package:open_ring/features/effort/domain/effort_day.dart';
 import 'package:open_ring/features/effort/presentation/effort_coach_card.dart';
+import 'package:open_ring/features/effort/presentation/effort_evidence_sheet.dart';
 import 'package:open_ring/features/effort/presentation/effort_load_card.dart';
 import 'package:open_ring/features/effort/presentation/effort_screen.dart';
+import 'package:open_ring/features/energy/presentation/energy_evidence_sheet.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
@@ -166,6 +168,46 @@ String _text(WidgetTester tester, Key key) =>
 
 Future<void> _show(WidgetTester tester, Key key) =>
     tester.scrollUntilVisible(find.byKey(key), 200);
+
+Future<void> _open(WidgetTester tester, Key key) async {
+  await _show(tester, key);
+  await tester.ensureVisible(find.byKey(key));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(key));
+  await tester.pumpAndSettle();
+}
+
+GoRouter _router() => GoRouter(
+  initialLocation: AppPaths.effort,
+  routes: [
+    GoRoute(
+      path: AppPaths.effort,
+      builder: (_, _) => const EffortScreen(),
+      routes: [
+        GoRoute(
+          path: 'formula',
+          builder: (_, _) => const Scaffold(body: Text('formula screen')),
+        ),
+      ],
+    ),
+  ],
+);
+
+Future<void> _pumpRouter(WidgetTester tester, GoRouter router) => pumpScaled(
+  tester,
+  MaterialApp.router(
+    theme: AppTheme.light(),
+    darkTheme: AppTheme.dark(),
+    localeListResolutionCallback: AppLocales.resolve,
+    supportedLocales: AppLocales.supported,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    routerConfig: router,
+  ),
+  textScaler: TextScaler.noScaling,
+  brightness: Brightness.dark,
+  locale: const Locale('en'),
+  overrides: _overrides(),
+);
 
 void main() {
   group('the gate', () {
@@ -500,38 +542,113 @@ void main() {
     });
   });
 
-  testWidgets('the link opens the formula screen', (tester) async {
-    final router = GoRouter(
-      initialLocation: AppPaths.effort,
-      routes: [
-        GoRoute(
-          path: AppPaths.effort,
-          builder: (_, _) => const EffortScreen(),
-          routes: [
-            GoRoute(
-              path: 'formula',
-              builder: (_, _) => const Scaffold(body: Text('formula screen')),
-            ),
-          ],
-        ),
-      ],
-    );
-    addTearDown(router.dispose);
-    await pumpScaled(
+  group('the evidence sheets', () {
+    String body(WidgetTester tester, Key key) =>
+        tester.widget<EnergyEvidenceSection>(find.byKey(key)).body;
+
+    testWidgets('the points open theirs with the week and the last 7 days', (
       tester,
-      MaterialApp.router(
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        localeListResolutionCallback: AppLocales.resolve,
-        supportedLocales: AppLocales.supported,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        routerConfig: router,
-      ),
-      textScaler: TextScaler.noScaling,
-      brightness: Brightness.dark,
-      locale: const Locale('en'),
-      overrides: _overrides(),
-    );
+    ) async {
+      await _pump(tester);
+      await _open(tester, EffortKeys.pointsSheet);
+      final l10n = _l10n(tester);
+
+      expect(
+        _text(tester, EffortEvidenceKeys.title),
+        l10n.effortFormulaPointsTitle,
+      );
+      expect(
+        body(tester, EffortEvidenceKeys.yours),
+        '${l10n.effortSheetPointsYours('140')} ${l10n.effortLastSeven('185')}',
+      );
+      expect(body(tester, EffortEvidenceKeys.rule), l10n.effortSheetPointsRule);
+    });
+
+    testWidgets('without a last 7 days figure the points say the week only', (
+      tester,
+    ) async {
+      await _pump(tester, lastSeven: null);
+      await _open(tester, EffortKeys.pointsSheet);
+
+      expect(
+        body(tester, EffortEvidenceKeys.yours),
+        _l10n(tester).effortSheetPointsYours('140'),
+      );
+    });
+
+    testWidgets('the strength days open theirs', (tester) async {
+      await _pump(tester);
+      await _open(tester, EffortKeys.strengthSheet);
+      final l10n = _l10n(tester);
+
+      expect(
+        _text(tester, EffortEvidenceKeys.title),
+        l10n.effortSheetStrengthTitle,
+      );
+      expect(
+        body(tester, EffortEvidenceKeys.yours),
+        l10n.effortSheetStrengthYours('1', '2'),
+      );
+    });
+
+    testWidgets('the two lines open theirs with both numbers', (tester) async {
+      await _pump(tester);
+      await _open(tester, EffortLoadKeys.lines);
+      final l10n = _l10n(tester);
+      final acute = loadLine(_steady, days: effortAcuteDays)!.round();
+      final chronic = loadLine(_steady, days: effortChronicDays)!.round();
+
+      expect(
+        _text(tester, EffortEvidenceKeys.title),
+        l10n.effortSheetLinesTitle,
+      );
+      expect(
+        body(tester, EffortEvidenceKeys.yours),
+        l10n.effortSheetLinesYours('7', '$acute', '28', '$chronic'),
+      );
+    });
+
+    testWidgets('a brisk walking row opens its sheet with the day', (
+      tester,
+    ) async {
+      await _pump(tester, walks: _walks);
+      await _open(tester, EffortKeys.walk(0));
+      final l10n = _l10n(tester);
+
+      expect(_text(tester, EffortEvidenceKeys.title), l10n.effortBriskWalking);
+      expect(
+        body(tester, EffortEvidenceKeys.yours),
+        l10n.effortSheetWalkYours('Tue', '12', '12', '19'),
+      );
+    });
+
+    testWidgets('a session row opens nothing', (tester) async {
+      await _pump(tester);
+      await _open(tester, EffortKeys.session(0));
+
+      expect(find.byKey(EffortEvidenceKeys.sheet), findsNothing);
+    });
+  });
+
+  testWidgets('the link on a sheet closes it and opens the formula screen', (
+    tester,
+  ) async {
+    final router = _router();
+    addTearDown(router.dispose);
+    await _pumpRouter(tester, router);
+    await _open(tester, EffortKeys.pointsSheet);
+    await tester.ensureVisible(find.byKey(EffortEvidenceKeys.formula));
+    await tester.tap(find.byKey(EffortEvidenceKeys.formula));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(EffortEvidenceKeys.sheet), findsNothing);
+    expect(find.text('formula screen'), findsOneWidget);
+  });
+
+  testWidgets('the link opens the formula screen', (tester) async {
+    final router = _router();
+    addTearDown(router.dispose);
+    await _pumpRouter(tester, router);
     await _show(tester, EffortKeys.formula);
     await tester.tap(find.byKey(EffortKeys.formula));
     await tester.pumpAndSettle();

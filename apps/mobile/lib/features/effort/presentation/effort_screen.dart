@@ -15,6 +15,7 @@ import 'package:open_ring/features/effort/application/effort_gate.dart';
 import 'package:open_ring/features/effort/application/effort_providers.dart';
 import 'package:open_ring/features/effort/domain/effort_day.dart';
 import 'package:open_ring/features/effort/presentation/effort_coach_card.dart';
+import 'package:open_ring/features/effort/presentation/effort_evidence_sheet.dart';
 import 'package:open_ring/features/effort/presentation/effort_load_card.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
@@ -29,6 +30,8 @@ abstract final class EffortKeys {
   static const weekPoints = Key('effort_week_points');
   static const weekStrength = Key('effort_week_strength');
   static const weekMessage = Key('effort_week_message');
+  static const pointsSheet = Key('effort_points_sheet');
+  static const strengthSheet = Key('effort_strength_sheet');
   static const weekDays = Key('effort_week_days');
   static const weekSources = Key('effort_week_sources');
   static const lastSeven = Key('effort_last_seven');
@@ -244,41 +247,61 @@ class _Week extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           MergeSemantics(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  points,
-                  key: EffortKeys.weekPoints,
-                  style: theme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+            child: InkWell(
+              key: EffortKeys.pointsSheet,
+              onTap: () => showEffortEvidence(
+                context,
+                kind: EffortEvidence.points,
+                yours: [
+                  l10n.effortSheetPointsYours(points),
+                  if (lastSeven != null)
+                    l10n.effortLastSeven(format.integer(lastSeven.round())),
+                ].join(' '),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    points,
+                    key: EffortKeys.weekPoints,
+                    style: theme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                CaptionText(l10n.effortWeekPoints(target)),
-                const SizedBox(height: 8),
-                ExcludeSemantics(
-                  child: ProgressBar(
-                    value: (week.points / effortWeekPoints).clamp(0, 1),
-                    color: colors.activity,
+                  CaptionText(l10n.effortWeekPoints(target)),
+                  const SizedBox(height: 8),
+                  ExcludeSemantics(
+                    child: ProgressBar(
+                      value: (week.points / effortWeekPoints).clamp(0, 1),
+                      color: colors.activity,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 14),
           MergeSemantics(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  days,
-                  key: EffortKeys.weekStrength,
-                  style: theme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+            child: InkWell(
+              key: EffortKeys.strengthSheet,
+              onTap: () => showEffortEvidence(
+                context,
+                kind: EffortEvidence.strength,
+                yours: l10n.effortSheetStrengthYours(days, strengthTarget),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    days,
+                    key: EffortKeys.weekStrength,
+                    style: theme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                CaptionText(l10n.effortWeekStrength(strengthTarget)),
-              ],
+                  CaptionText(l10n.effortWeekStrength(strengthTarget)),
+                ],
+              ),
             ),
           ),
           if (weekDays != null) ...[
@@ -506,12 +529,19 @@ class _WalkRow extends StatelessWidget {
     final format = MetricFormat.of(context);
     final l10n = format.l10n;
     final minutes = format.integer(walk.minutes.round());
+    final day = format.weekday(walk.date);
+    final load = format.integer(walkingLoad(walk.minutes));
     return _EntryRow(
       icon: Icons.directions_walk,
       title: l10n.effortBriskWalking,
-      detail: l10n.effortWalkDetail(format.weekday(walk.date), minutes),
+      detail: l10n.effortWalkDetail(day, minutes),
       points: minutes,
-      load: format.integer(walkingLoad(walk.minutes)),
+      load: load,
+      onTap: () => showEffortEvidence(
+        context,
+        kind: EffortEvidence.walk,
+        yours: l10n.effortSheetWalkYours(day, minutes, minutes, load),
+      ),
     );
   }
 }
@@ -523,6 +553,7 @@ class _EntryRow extends StatelessWidget {
     required this.detail,
     required this.points,
     required this.load,
+    this.onTap,
   });
 
   final IconData icon;
@@ -530,6 +561,7 @@ class _EntryRow extends StatelessWidget {
   final String detail;
   final String points;
   final String load;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -539,50 +571,57 @@ class _EntryRow extends StatelessWidget {
     return Semantics(
       container: true,
       excludeSemantics: true,
+      button: onTap != null,
+      onTap: onTap,
       label: l10n.effortSessionSemantics(title, detail, points, load),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        // A Wrap and not a Row: at a large text scale the numbers drop under
-        // the name instead of squeezing it.
-        child: Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 12,
-          runSpacing: 4,
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, color: colors.textSecondary),
-                const SizedBox(width: 12),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: theme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          // A Wrap and not a Row: at a large text scale the numbers drop under
+          // the name instead of squeezing it.
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 4,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, color: colors.textSecondary),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: theme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      CaptionText(detail),
-                    ],
+                        CaptionText(detail),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  l10n.effortSessionPoints(points),
-                  style: theme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                CaptionText(l10n.effortSessionLoad(load)),
-              ],
-            ),
-          ],
+                ],
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    l10n.effortSessionPoints(points),
+                    style: theme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  CaptionText(l10n.effortSessionLoad(load)),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

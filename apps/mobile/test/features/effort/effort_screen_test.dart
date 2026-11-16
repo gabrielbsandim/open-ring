@@ -622,12 +622,77 @@ void main() {
       );
     });
 
-    testWidgets('a session row opens nothing', (tester) async {
+    testWidgets('a session with heart rate says its load came from it', (
+      tester,
+    ) async {
       await _pump(tester);
       await _open(tester, EffortKeys.session(0));
+      final l10n = _l10n(tester);
 
-      expect(find.byKey(EffortEvidenceKeys.sheet), findsNothing);
+      expect(
+        _text(tester, EffortEvidenceKeys.title),
+        l10n.effortFormulaLoadTitle,
+      );
+      expect(
+        body(tester, EffortEvidenceKeys.yours),
+        l10n.effortSheetSessionYoursHeartRate(
+          WorkoutType.strength.label(l10n),
+          'Tue',
+          '45',
+          '${_strength.load.value}',
+        ),
+      );
     });
+
+    testWidgets('a session without heart rate names the default of its type', (
+      tester,
+    ) async {
+      await _pump(tester);
+      await _open(tester, EffortKeys.session(1));
+      final l10n = _l10n(tester);
+      final typeDefault = effortTypeDefault(WorkoutType.running);
+
+      expect(_run.load.source, LoadSource.typeDefault);
+      expect(
+        body(tester, EffortEvidenceKeys.yours),
+        l10n.effortSheetSessionYoursDefault(
+          WorkoutType.running.label(l10n),
+          'Mon',
+          '40',
+          '${_run.load.value}',
+          typeDefault == typeDefault.roundToDouble()
+              ? typeDefault.toStringAsFixed(0)
+              : typeDefault.toStringAsFixed(1),
+        ),
+      );
+    });
+
+    testWidgets(
+      'the coach card opens its sheet with the rule and its numbers',
+      (tester) async {
+        await _pump(tester);
+        await _open(tester, EffortCoachKeys.card);
+        final l10n = _l10n(tester);
+
+        expect(
+          _text(tester, EffortEvidenceKeys.title),
+          l10n.effortFormulaCoachTitle,
+        );
+        expect(
+          body(tester, EffortEvidenceKeys.yours),
+          l10n.effortSheetCoachYours(
+            l10n.effortCoachPush,
+            '${CoachRule.goodReadiness.number}',
+            l10n.effortCoachWhyGoodNotHard(
+              '78',
+              '$readinessGoodFrom',
+              '23',
+              '120',
+            ),
+          ),
+        );
+      },
+    );
   });
 
   testWidgets('the link on a sheet closes it and opens the formula screen', (

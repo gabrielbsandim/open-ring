@@ -80,6 +80,31 @@ void main() {
       expect(copy.source, l10n.effortSheetWalkSource('100'));
       expect(copy.ours, l10n.effortSheetWalkOurs('1.5'));
     });
+
+    testWidgets('one session', (tester) async {
+      await _pump(tester, EffortEvidence.session);
+      final copy = _copy(tester, EffortEvidence.session);
+      final l10n = MetricFormat.of(
+        tester.element(find.byType(EffortEvidenceSheet)),
+      ).l10n;
+
+      expect(copy.title, l10n.effortFormulaLoadTitle);
+      expect(copy.rule, l10n.effortSheetSessionRule);
+      expect(copy.limits, l10n.effortFormulaCannot1);
+    });
+
+    testWidgets('the coach card', (tester) async {
+      await _pump(tester, EffortEvidence.coach);
+      final copy = _copy(tester, EffortEvidence.coach);
+      final l10n = MetricFormat.of(
+        tester.element(find.byType(EffortEvidenceSheet)),
+      ).l10n;
+
+      expect(copy.title, l10n.effortFormulaCoachTitle);
+      expect(copy.rule, l10n.effortSheetCoachRule('9'));
+      expect(copy.ours, l10n.effortFormulaOurs5);
+      expect(copy.limits, l10n.effortFormulaCannot4);
+    });
   });
 
   testWidgets('a sheet shows the six sections and the reader numbers', (

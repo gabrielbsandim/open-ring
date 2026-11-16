@@ -27,7 +27,14 @@ final dailyStressProvider = FutureProvider<List<DailyValue>>((ref) async {
   return dailyStress(readings, utcOffset: offset);
 });
 
-final dailyIntensityProvider = FutureProvider<List<DailyValue>>((ref) async {
+final dailyIntensityProvider = FutureProvider<List<DailyValue>>(
+  (ref) => readDailyIntensity(ref, days: dayIntensityDays),
+);
+
+Future<List<DailyValue>> readDailyIntensity(
+  Ref ref, {
+  required int days,
+}) async {
   ref.watch(dataRevisionProvider);
   final today = ref.watch(currentDateProvider);
   final maxHeartRate = ref.watch(savedWorkoutZonesProvider)?.maxHeartRate;
@@ -35,7 +42,7 @@ final dailyIntensityProvider = FutureProvider<List<DailyValue>>((ref) async {
   final (slots, own, imported) = await (
     ref
         .watch(activityHistoryReaderProvider)
-        .activitySlots(from: today.addDays(-dayIntensityDays), to: today),
+        .activitySlots(from: today.addDays(-days), to: today),
     reader.recent(limit: dayScoreWorkoutScanLimit),
     ref
         .watch(importedWorkoutReaderProvider)
@@ -47,11 +54,11 @@ final dailyIntensityProvider = FutureProvider<List<DailyValue>>((ref) async {
   ], imported.priority);
   final credits = await Future.wait([
     for (final entry in selected)
-      if (_inWindow(today, _dateOf(entry)))
+      if (_inWindow(today, _dateOf(entry), days))
         _credit(reader, entry, maxHeartRate),
   ]);
   return dailyIntensity(slots: slots, workouts: credits);
-});
+}
 
 // Readiness on the oldest day of the history still needs its own chronic
 // window of active load before it.
@@ -88,9 +95,9 @@ final dayScoreHistoryProvider = FutureProvider<DayScoreHistory>((ref) async {
 LocalDate _dateOf(WorkoutEntry entry) =>
     LocalDate.fromInstant(entry.start, entry.utcOffset);
 
-bool _inWindow(LocalDate today, LocalDate date) {
+bool _inWindow(LocalDate today, LocalDate date, int days) {
   final age = today.daysSince(date);
-  return age >= 0 && age <= dayIntensityDays;
+  return age >= 0 && age <= days;
 }
 
 Future<WorkoutCredit> _credit(

@@ -26,6 +26,18 @@ Future<void> _pump(
 );
 
 void main() {
+  testWidgets('the module screen lists the Overall and promises nothing', (
+    tester,
+  ) async {
+    await _pump(tester, const OpenScoreModuleScreen(), {
+      ModuleId.openScore,
+    }, const Locale('en'));
+
+    expect(find.textContaining('The Overall, your base'), findsOneWidget);
+    expect(find.textContaining('The Overall also reads'), findsOneWidget);
+    expect(find.textContaining('More to come'), findsNothing);
+  });
+
   for (final locale in const [Locale('de'), Locale('ru'), Locale('ja')]) {
     for (final modules in const [
       <ModuleId>{},

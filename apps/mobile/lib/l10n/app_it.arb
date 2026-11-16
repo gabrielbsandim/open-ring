@@ -1295,7 +1295,6 @@
   "moduleOpenScoreNeverAge": "Non stima l'età biologica né l'aspettativa di vita.",
   "moduleOpenScoreNeverStreak": "Non conta le serie e non ti penalizza per un giorno di riposo.",
   "moduleOpenScoreNeverMissing": "Non toglie punti per un dato mancante: senza l'anello, il voto viene riscalato o il giorno resta vuoto.",
-  "moduleOpenScoreMore": "Altro in arrivo in questo modulo: il Voto generale. Comparirà qui prima di qualsiasi schermata.",
   "moduleOpenScoreFoot": "Disattivarlo toglie il voto da Oggi e da Cronologia. I dati dell'anello non cambiano e, riattivandolo, torna tutta la cronologia.",
   "moduleOpenScoreTurnOn": "Attiva Open Score",
   "moduleOpenScoreTurnOff": "Disattiva Open Score",
@@ -1541,5 +1540,9 @@
   "overallWeeksChart": "Voto generale di {weeks} lunedì, dal {first} al {last}.",
   "overallWeeksSame": "uguale",
   "overallValueFitness": "Posizione {position} tra 100 persone della stessa età e dello stesso sesso.",
-  "overallSheetFitnessWindow": "La stima migliore tra le tue corse e camminate all'aperto dei {days} giorni prima dell'ultimo aggiornamento. Serve anche la tua FC a riposo."
+  "overallSheetFitnessWindow": "La stima migliore tra le tue corse e camminate all'aperto dei {days} giorni prima dell'ultimo aggiornamento. Serve anche la tua FC a riposo.",
+  "dayScoreFormulaOverall1": "Il Voto generale legge la tua base, non un giorno: sei fattori nei {days} giorni prima di ogni lunedì. Un fattore senza dati esce dal conto e il resto viene riscalato.",
+  "dayScoreFormulaOverall2": "Su 100 punti: forma fisica {fitness}, FC a riposo {resting}, durata del sonno {sleep}, regolarità del sonno {regularity}, movimento della settimana {movement} e corpo {body}. Ogni riga della schermata del Voto generale apre la sua regola e la sua fonte.",
+  "moduleOpenScoreAddsOverall": "Il Voto generale, la tua base nelle ultime 4 settimane, aggiornato ogni lunedì, con la regola e la fonte di ogni fattore e un grafico di 12 settimane.",
+  "moduleOpenScoreUsesOverall": "Il Voto generale legge anche età, sesso e altezza del tuo profilo, le corse e camminate che hai registrato e, con il modulo Corpo attivo, vita e peso."
 }

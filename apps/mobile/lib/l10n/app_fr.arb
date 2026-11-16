@@ -1295,7 +1295,6 @@
   "moduleOpenScoreNeverAge": "Il n'estime ni l'âge biologique ni l'espérance de vie.",
   "moduleOpenScoreNeverStreak": "Il ne compte pas de séries et ne vous reproche pas un jour de repos.",
   "moduleOpenScoreNeverMissing": "Il ne retire aucun point pour une donnée manquante : sans l'anneau, la note est remise à l'échelle ou le jour reste vide.",
-  "moduleOpenScoreMore": "D'autres éléments arrivent dans ce module : la Note globale. Elle apparaîtra ici avant tout écran.",
   "moduleOpenScoreFoot": "Le désactiver retire la note d'Aujourd'hui et d'Historique. Les données de l'anneau ne changent pas, et tout l'historique revient quand vous le réactivez.",
   "moduleOpenScoreTurnOn": "Activer Open Score",
   "moduleOpenScoreTurnOff": "Désactiver Open Score",
@@ -1541,5 +1540,9 @@
   "overallWeeksChart": "Note globale de {weeks} lundis, du {first} au {last}.",
   "overallWeeksSame": "identique",
   "overallValueFitness": "Position {position} parmi 100 personnes du même âge et du même sexe.",
-  "overallSheetFitnessWindow": "La meilleure estimation parmi vos courses et marches en extérieur des {days} jours précédant la dernière mise à jour. Elle a aussi besoin de votre FC au repos."
+  "overallSheetFitnessWindow": "La meilleure estimation parmi vos courses et marches en extérieur des {days} jours précédant la dernière mise à jour. Elle a aussi besoin de votre FC au repos.",
+  "dayScoreFormulaOverall1": "La Note globale lit votre base, pas un jour : six facteurs sur les {days} jours précédant chaque lundi. Un facteur sans données sort du calcul et le reste est remis à l'échelle.",
+  "dayScoreFormulaOverall2": "Sur 100 points : condition physique {fitness}, FC au repos {resting}, durée du sommeil {sleep}, régularité du sommeil {regularity}, mouvement de la semaine {movement} et corps {body}. Chaque ligne de l'écran de la Note globale ouvre sa règle et sa source.",
+  "moduleOpenScoreAddsOverall": "La Note globale, votre base sur les 4 dernières semaines, mise à jour chaque lundi, avec la règle et la source de chaque facteur et un graphique de 12 semaines.",
+  "moduleOpenScoreUsesOverall": "La Note globale lit aussi l'âge, le sexe et la taille de votre profil, les courses et marches que vous avez enregistrées et, avec le module Corps activé, votre tour de taille et votre poids."
 }

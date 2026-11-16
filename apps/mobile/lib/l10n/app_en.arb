@@ -3323,7 +3323,6 @@
   "moduleOpenScoreNeverAge": "It does not estimate biological age or life expectancy.",
   "moduleOpenScoreNeverStreak": "It counts no streaks and does not hold a rest day against you.",
   "moduleOpenScoreNeverMissing": "It takes no points for data that is missing: without the ring, the score is rescaled or the day stays blank.",
-  "moduleOpenScoreMore": "More to come in this module: the Overall score. It will show up here before any screen.",
   "moduleOpenScoreFoot": "Turning it off removes the score from Today and from History. The ring's data does not change, and the whole history is back when you turn it on again.",
   "moduleOpenScoreTurnOn": "Turn Open Score on",
   "moduleOpenScoreTurnOff": "Turn Open Score off",
@@ -3671,5 +3670,11 @@
   "overallValueFitness": "Position {position} among 100 people of the same age and sex.",
   "@overallValueFitness": {"placeholders": {"position": {"type": "String"}}},
   "overallSheetFitnessWindow": "The best estimate among your outdoor runs and walks of the {days} days before the last update. It also needs your resting heart rate.",
-  "@overallSheetFitnessWindow": {"placeholders": {"days": {"type": "String"}}}
+  "@overallSheetFitnessWindow": {"placeholders": {"days": {"type": "String"}}},
+  "dayScoreFormulaOverall1": "The Overall reads your base, not one day: six factors over the {days} days before each Monday. A factor without data leaves the count and the rest is rescaled.",
+  "@dayScoreFormulaOverall1": {"placeholders": {"days": {"type": "String"}}},
+  "dayScoreFormulaOverall2": "Of 100 points: fitness {fitness}, resting heart rate {resting}, sleep duration {sleep}, sleep regularity {regularity}, weekly movement {movement} and body {body}. Each row of the Overall screen opens its rule and its source.",
+  "@dayScoreFormulaOverall2": {"placeholders": {"fitness": {"type": "String"}, "resting": {"type": "String"}, "sleep": {"type": "String"}, "regularity": {"type": "String"}, "movement": {"type": "String"}, "body": {"type": "String"}}},
+  "moduleOpenScoreAddsOverall": "The Overall, your base over the last 4 weeks, updated every Monday, with the rule and the source of each factor and a chart of 12 weeks.",
+  "moduleOpenScoreUsesOverall": "The Overall also reads the age, sex and height in your profile, the runs and walks you recorded and, with the Body module on, your waist and weight."
 }

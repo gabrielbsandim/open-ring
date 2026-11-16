@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/app/router/app_routes.dart';
-import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
@@ -18,7 +17,6 @@ import 'package:open_ring/l10n/generated/app_localizations.dart';
 abstract final class OpenScoreModuleKeys {
   static const state = Key('open_score_module_state');
   static const formula = Key('open_score_module_formula');
-  static const more = Key('open_score_module_more');
   static const toggle = Key('open_score_module_toggle');
 }
 
@@ -28,7 +26,6 @@ class OpenScoreModuleScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final colors = AppColors.of(context);
     final on = ref.watch(
       enabledModulesProvider.select(
         (modules) => modules.value?.contains(ModuleId.openScore) ?? false,
@@ -55,6 +52,7 @@ class OpenScoreModuleScreen extends ConsumerWidget {
             l10n.moduleOpenScoreAddsHistory,
             l10n.moduleOpenScoreAddsTrends,
             l10n.moduleOpenScoreAddsLevel,
+            l10n.moduleOpenScoreAddsOverall,
           ],
         ),
         const SizedBox(height: cardGap),
@@ -65,6 +63,7 @@ class OpenScoreModuleScreen extends ConsumerWidget {
             l10n.moduleOpenScoreUsesData,
             l10n.moduleOpenScoreUsesNoPermission,
             l10n.moduleOpenScoreUsesStore,
+            l10n.moduleOpenScoreUsesOverall,
           ],
         ),
         const SizedBox(height: cardGap),
@@ -85,12 +84,6 @@ class OpenScoreModuleScreen extends ConsumerWidget {
           title: l10n.formulaLink,
           caption: l10n.dayScoreFormulaLinkCaption,
           path: AppPaths.dayScoreFormula,
-        ),
-        const SizedBox(height: cardGap),
-        MetricCard(
-          key: OpenScoreModuleKeys.more,
-          color: colors.surfaceInner,
-          child: BodyText(l10n.moduleOpenScoreMore),
         ),
         const SizedBox(height: 12),
         CaptionText(l10n.moduleOpenScoreFoot),

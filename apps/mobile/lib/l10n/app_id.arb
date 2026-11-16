@@ -1295,7 +1295,6 @@
   "moduleOpenScoreNeverAge": "Tidak memperkirakan usia biologis atau harapan hidup.",
   "moduleOpenScoreNeverStreak": "Tidak menghitung hari berturut-turut dan tidak menyalahkan Anda atas hari istirahat.",
   "moduleOpenScoreNeverMissing": "Tidak mengurangi poin untuk data yang tidak ada: tanpa cincin, skor diskalakan ulang atau hari dibiarkan kosong.",
-  "moduleOpenScoreMore": "Masih ada lagi di modul ini: Skor Keseluruhan. Akan muncul di sini sebelum layar mana pun.",
   "moduleOpenScoreFoot": "Mematikannya menghapus skor dari Hari ini dan Riwayat. Data cincin tidak berubah, dan seluruh riwayat kembali saat Anda mengaktifkannya lagi.",
   "moduleOpenScoreTurnOn": "Aktifkan Open Score",
   "moduleOpenScoreTurnOff": "Matikan Open Score",
@@ -1541,5 +1540,9 @@
   "overallWeeksChart": "Skor Keseluruhan dari {weeks} Senin, dari {first} sampai {last}.",
   "overallWeeksSame": "sama",
   "overallValueFitness": "Posisi {position} di antara 100 orang dengan usia dan jenis kelamin yang sama.",
-  "overallSheetFitnessWindow": "Perkiraan terbaik dari lari dan jalan kaki luar ruangan Anda dalam {days} hari sebelum pembaruan terakhir. Juga memerlukan detak jantung istirahat Anda."
+  "overallSheetFitnessWindow": "Perkiraan terbaik dari lari dan jalan kaki luar ruangan Anda dalam {days} hari sebelum pembaruan terakhir. Juga memerlukan detak jantung istirahat Anda.",
+  "dayScoreFormulaOverall1": "Skor Keseluruhan membaca dasar Anda, bukan satu hari: enam faktor selama {days} hari sebelum setiap Senin. Faktor tanpa data keluar dari hitungan dan sisanya diskalakan ulang.",
+  "dayScoreFormulaOverall2": "Dari 100 poin: kebugaran {fitness}, detak jantung istirahat {resting}, durasi tidur {sleep}, keteraturan tidur {regularity}, gerak mingguan {movement}, dan tubuh {body}. Setiap baris di layar Skor Keseluruhan membuka aturan dan sumbernya.",
+  "moduleOpenScoreAddsOverall": "Skor Keseluruhan, dasar Anda selama 4 minggu terakhir, diperbarui setiap Senin, dengan aturan dan sumber tiap faktor serta grafik 12 minggu.",
+  "moduleOpenScoreUsesOverall": "Skor Keseluruhan juga membaca usia, jenis kelamin, dan tinggi di profil Anda, lari dan jalan kaki yang Anda rekam, dan, saat modul Tubuh aktif, lingkar pinggang dan berat Anda."
 }

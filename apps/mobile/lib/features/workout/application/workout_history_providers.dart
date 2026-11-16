@@ -95,6 +95,19 @@ Future<bool> rateImportedWorkout(
   return rated;
 }
 
+/// How many workouts carry an effort rating, for the Effort module screen.
+final effortRatingCountProvider = FutureProvider<int>((ref) {
+  ref.watch(dataRevisionProvider);
+  return ref.watch(workoutRatingStoreProvider).countRatings();
+});
+
+Future<bool> clearWorkoutRatings(WidgetRef ref) async {
+  final revision = ref.read(dataRevisionProvider.notifier);
+  await ref.read(workoutRatingStoreProvider).clearRatings();
+  revision.bump();
+  return true;
+}
+
 Future<void> shareWorkoutGpx(WidgetRef ref, FinishedWorkout workout) async {
   final file = await ref
       .read(dataExporterProvider)

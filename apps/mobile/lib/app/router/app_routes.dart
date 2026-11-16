@@ -38,6 +38,7 @@ abstract final class AppPaths {
   static const settingsModuleBody = '/ring/settings/modules/body';
   static const settingsModuleOpenScore = '/ring/settings/modules/open-score';
   static const settingsModuleEnergy = '/ring/settings/modules/energy';
+  static const settingsModuleEffort = '/ring/settings/modules/effort';
   static const measure = '/heart/measure';
   static const trends = '/heart/trends';
   static const pair = '/ring/pair';

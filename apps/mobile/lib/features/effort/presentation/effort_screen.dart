@@ -39,6 +39,7 @@ abstract final class EffortKeys {
   static const sessionsEmpty = Key('effort_sessions_empty');
   static const never = Key('effort_never');
   static const formula = Key('effort_formula_link');
+  static const module = Key('effort_module_link');
   static const foot = Key('effort_foot');
 
   static Key session(int index) => Key('effort_session_$index');
@@ -183,14 +184,23 @@ class _FormulaLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: TextButton.icon(
-        key: EffortKeys.formula,
-        onPressed: () => unawaited(context.push(AppPaths.effortFormula)),
-        icon: const Icon(Icons.receipt_long_outlined),
-        label: Text(AppLocalizations.of(context).formulaLink),
-      ),
+    final l10n = AppLocalizations.of(context);
+    return Wrap(
+      spacing: 4,
+      children: [
+        TextButton.icon(
+          key: EffortKeys.formula,
+          onPressed: () => unawaited(context.push(AppPaths.effortFormula)),
+          icon: const Icon(Icons.receipt_long_outlined),
+          label: Text(l10n.formulaLink),
+        ),
+        TextButton.icon(
+          key: EffortKeys.module,
+          onPressed: () => context.go(AppPaths.settingsModuleEffort),
+          icon: const Icon(Icons.grid_view_rounded),
+          label: Text(l10n.energyModuleLink),
+        ),
+      ],
     );
   }
 }

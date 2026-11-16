@@ -18,7 +18,8 @@ enum OfferedModule {
     ModuleId.energy,
     Icons.local_fire_department_outlined,
     AppPaths.settingsModuleEnergy,
-  );
+  ),
+  effort(ModuleId.effort, Icons.bolt_rounded, AppPaths.settingsModuleEffort);
 
   new(this.id, this.icon, this.path);
 
@@ -30,17 +31,20 @@ enum OfferedModule {
     OfferedModule.body => l10n.moduleBodyName,
     OfferedModule.openScore => l10n.moduleOpenScoreName,
     OfferedModule.energy => l10n.energyTitle,
+    OfferedModule.effort => l10n.effortTitle,
   };
 
   String detail(AppLocalizations l10n) => switch (this) {
     OfferedModule.body => l10n.moduleBodyDetail,
     OfferedModule.openScore => l10n.moduleOpenScoreDetail,
     OfferedModule.energy => l10n.moduleEnergyDetail,
+    OfferedModule.effort => l10n.moduleEffortDetail,
   };
 
   String turnedOn(AppLocalizations l10n) => switch (this) {
     OfferedModule.body => l10n.moduleBodyTurnedOn,
     OfferedModule.openScore => l10n.moduleOpenScoreTurnedOn,
     OfferedModule.energy => l10n.moduleEnergyTurnedOn(l10n.tabToday),
+    OfferedModule.effort => l10n.moduleEffortTurnedOn(l10n.tabToday),
   };
 }

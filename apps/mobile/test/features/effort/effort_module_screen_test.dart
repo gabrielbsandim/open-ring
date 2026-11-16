@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/l10n/app_locales.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_theme.dart';
@@ -166,8 +165,10 @@ void main() {
       await _tap(tester, EffortModuleKeys.toggle);
 
       expect(await modules.read(), {ModuleId.effort});
-      expect(_inState('On'), findsOneWidget);
       expect(find.text('Turn Effort off'), findsOneWidget);
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, 5000));
+      await tester.pumpAndSettle();
+      expect(_inState('On'), findsOneWidget);
       tester
           .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger).first)
           .clearSnackBars();
@@ -175,6 +176,7 @@ void main() {
       await _tap(tester, EffortModuleKeys.toggle);
 
       expect(await modules.read(), isEmpty);
+      await reveal(tester, find.byKey(EffortModuleKeys.toggle));
       expect(find.text('Turn Effort on'), findsOneWidget);
       expect(memory.ratedCount, 2);
       expect(memory.clearCalls, 0);
@@ -331,7 +333,7 @@ void main() {
 
   group('criterion 6: a store that throws', () {
     testWidgets('says the delete failed and clears nothing', (tester) async {
-      final memory = _rated()..failure = Exception('disk');
+      final memory = _rated()..failure = StateError('disk');
       await _pump(
         tester,
         memory,

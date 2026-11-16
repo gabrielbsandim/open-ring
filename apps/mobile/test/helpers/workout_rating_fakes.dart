@@ -22,7 +22,7 @@ final class MemoryRatings implements WorkoutRatingStore, WorkoutHistoryReader {
   final _imported = <String, ImportedWorkout>{};
   final recorded = <(int, int?)>[];
   final importedWrites = <(String, int?)>[];
-  Object? failure;
+  Error? failure;
   Completer<void>? hold;
 
   int? ratingOfSaved(int id) => _saved[id]?.rating;

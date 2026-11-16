@@ -1219,7 +1219,7 @@ Minutes are `duration.inSeconds / 60` and every figure is rounded with
 | --- | --- | --- |
 | By heart rate | sum over zone n of the minutes in zone n times n; none when no time was spent in a zone | the zone weights 1 to 5 follow Edwards 1993, **not yet checked against its source** |
 | By rating | minutes times the rating (`effortMinRating` 1 to `effortMaxRating` 10) divided by `effortRatingDivisor` (2) | minutes times a rating is the session rating method of Foster 2001, **not yet checked against its source**; the divisor is **our choice**, it puts a rating of 10 on the weight of zone 5 |
-| By default | minutes times the default of the workout type, which the app passes in | **our choice** |
+| By default | minutes times the default of the workout type, from the table below | **our choice** |
 | Walking | `effortWalkingLoadFactor` (1.5) times the brisk minutes outside a session | **our choice** |
 
 `sessionLoad` takes the higher of the heart rate figure and the rating figure,
@@ -1227,6 +1227,51 @@ and a tie goes to the heart rate. With only one of the two it takes that one,
 even when it is below the default. With neither it takes the default.
 `LoadSource` says which one was taken, and the three figures stay readable on
 `SessionLoad`.
+
+The default a minute by workout type is `effortTypeDefault`, in the app
+(`apps/mobile/lib/features/effort/domain/effort_day.dart`). The owner chose
+the table on 2026-11-16; every value is **our choice**.
+
+| Type | Load a minute |
+| --- | --- |
+| running, treadmill | 3 |
+| strength, stationary bike, cycling | 2.5 |
+| hiking, elliptical, other | 2 |
+| walking | 1.5 |
+| yoga | 1 |
+
+A workout read from another app has no heart rate here, so it always takes
+its default. A recorded workout takes it when the profile gives no zones (no
+age and no maximum heart rate) or when no sample reaches zone 1.
+
+### From stored data
+
+`effort_providers.dart` reads what the functions above compute on. All of it
+is recomputed on each read and nothing is stored.
+
+- A workout counts whole on the day it started, in the offset it was recorded
+  with. When a recorded workout and one from another app overlap, the order
+  of sources picks one, as everywhere else.
+- The points of a workout are `workoutPoints`, the figure the Day Score
+  counts for it.
+- The daily load reads `effortLoadDays` (42) days that end yesterday. The
+  series starts on the first of those days with steps or a workout, and a
+  later day without data is 0. Under 14 days of series there is no line, so
+  a new user gets no hard day and no spike from an empty history. The seed
+  weighs on a line, so a line read over another length would be another
+  number: 42 is fixed, and it is **our choice**, as is where the series
+  starts.
+- The load of a day is the load of its sessions plus `walkingLoad` of its
+  brisk minutes: the minutes `walkingIntensity` counts outside every session,
+  summed over the day and rounded once.
+- Today is in the week and never in the load series.
+- A strength day is a day with a strength workout of at least 20 minutes,
+  recorded or read from another app.
+- The sick rule reads the Sick tag of today, and only while the Open Score
+  module is on: the tag belongs to that module. The owner decided this on
+  2026-11-16.
+- A day the ring was not worn counts as a load of 0, which the lines cannot
+  tell from a day of rest.
 
 ### The week
 

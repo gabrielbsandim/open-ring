@@ -4,6 +4,7 @@ import 'package:open_ring/features/activity/domain/activity_history_reader.dart'
 import 'package:open_ring/features/heart/application/heart_view.dart';
 import 'package:open_ring/features/trends/domain/trend_history.dart';
 import 'package:open_ring/features/trends/domain/trend_metric.dart';
+import 'package:open_ring/features/workout/domain/workout_history.dart';
 
 final int dayScoreHistoryDays = trendHistoryDays;
 final int dayIntensityDays = dayScoreHistoryDays + intensityWindowDays - 1;
@@ -15,6 +16,21 @@ typedef WorkoutCredit = ({
   DateTime end,
   IntensityMinutes minutes,
 });
+
+// The Effort Points of one workout, the same figure the Day Score counts.
+IntensityMinutes workoutPoints(
+  WorkoutEntry entry, {
+  Iterable<BpmSample> heartRate = const [],
+  int? maxHeartRate,
+}) => switch (entry) {
+  ImportedWorkout() => metIntensity(entry.type.met, entry.elapsed),
+  WorkoutListItem() => workoutIntensity(
+    met: entry.type.met,
+    elapsed: entry.elapsed,
+    heartRate: heartRate,
+    maxHeartRate: maxHeartRate,
+  ),
+};
 
 List<DailyValue> _sorted(Map<LocalDate, double> byDate) =>
     [for (final entry in byDate.entries) (date: entry.key, value: entry.value)]

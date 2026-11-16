@@ -1526,5 +1526,18 @@
   "overallWhatBodyBmi": "BMI（体格指数）：体重を身長の 2 乗で割った値です。ウエストの記録があれば、より多くを示すウエスト身長比を使います。",
   "overallRuleBodyBmi": "{full} 以下は満点、{zero} 以上は 0 点です。満点の範囲内では指数が低くなっても加点はありません。{floor} 未満ではこの行は計算から外れます。",
   "overallSourceBodyBmi": "世界保健機関による BMI の区分。",
-  "overallSheetWindowPairs": "前回の更新より前の {days} 日間（「病気」「旅行」とマークした日を除く）。連続する 2 日の組が {min} 組必要です。"
+  "overallSheetWindowPairs": "前回の更新より前の {days} 日間（「病気」「旅行」とマークした日を除く）。連続する 2 日の組が {min} 組必要です。",
+  "overallWeeksTitle": "12 週間",
+  "overallWeeksLead": "毎週月曜日の総合スコアです。意図的にゆっくり動きます。",
+  "overallWeeksSince": "{date} から {change}",
+  "overallWeeksNow": "現在",
+  "overallWeeksTypical": "標準的な週",
+  "overallWeeksFloor": "あなたの下限",
+  "overallWeeksFloorNote": "下限は、期間中でもっとも低かった週のスコアです。記録を更新するより、下限を上げるほうが価値があります。",
+  "overallWeeksNoise": "週ごとの変化が {points} 点未満なら誤差です。",
+  "overallWeeksHollow": "白抜きの点は、最新の週とは異なる項目で採点された週です。スコアは換算されているため、厳密には比較できません。",
+  "overallWeeksChangedTitle": "{date} から変わったこと",
+  "overallWeeksFew": "グラフにはスコアのある月曜日が {needed} 回必要です。現在 {weeks} 回です。",
+  "overallWeeksChart": "月曜日 {weeks} 回分の総合スコア（{first} から {last}）。",
+  "overallWeeksSame": "変化なし"
 }

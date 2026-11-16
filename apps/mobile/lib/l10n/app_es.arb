@@ -1526,5 +1526,18 @@
   "overallWhatBodyBmi": "El índice de masa corporal: el peso dividido por la altura al cuadrado. Con la medida de cintura esta fila usaría cintura por altura, que dice más.",
   "overallRuleBodyBmi": "{full} o menos vale todo, {zero} o más vale cero. Dentro del rango completo, un índice menor no da nada más. Por debajo de {floor} la fila sale de la cuenta.",
   "overallSourceBodyBmi": "Los rangos de índice de masa corporal de la Organización Mundial de la Salud.",
-  "overallSheetWindowPairs": "Los {days} días anteriores a la última actualización, sin los días marcados Enfermo o Viaje. Necesita {min} pares de días seguidos."
+  "overallSheetWindowPairs": "Los {days} días anteriores a la última actualización, sin los días marcados Enfermo o Viaje. Necesita {min} pares de días seguidos.",
+  "overallWeeksTitle": "12 semanas",
+  "overallWeeksLead": "La Nota general de cada lunes. Se mueve despacio a propósito.",
+  "overallWeeksSince": "{change} desde el {date}",
+  "overallWeeksNow": "ahora",
+  "overallWeeksTypical": "semana típica",
+  "overallWeeksFloor": "tu suelo",
+  "overallWeeksFloorNote": "El suelo es la nota de tus semanas más flojas del periodo. Subir el suelo vale más que batir un récord.",
+  "overallWeeksNoise": "Un cambio de menos de {points} puntos de una semana a otra es ruido.",
+  "overallWeeksHollow": "Un punto hueco es una semana en la que la nota usó partes distintas de las de la última. La nota se reescaló, así que las dos no se comparan exactamente.",
+  "overallWeeksChangedTitle": "Qué cambió desde el {date}",
+  "overallWeeksFew": "El gráfico empieza con {needed} lunes con nota. Tienes {weeks}.",
+  "overallWeeksChart": "Nota general de {weeks} lunes, del {first} al {last}.",
+  "overallWeeksSame": "igual"
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
@@ -25,6 +27,7 @@ abstract final class OverallKeys {
   static const updated = Key('overall_updated');
   static const change = Key('overall_change');
   static const source = Key('overall_source');
+  static const weeks = Key('overall_weeks_link');
 
   static Key factor(OverallFactor factor) =>
       Key('overall_factor_${factor.name}');
@@ -67,11 +70,15 @@ class OverallScreen extends ConsumerWidget {
     return AppPage(
       title: l10n.overallTitle,
       subtitle: on ? l10n.overallLead : null,
-      children: on ? _content(ref, l10n) : [],
+      children: on ? _content(context, ref, l10n) : [],
     );
   }
 
-  List<Widget> _content(WidgetRef ref, AppLocalizations l10n) {
+  List<Widget> _content(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) {
     final loaded = ref.watch(overallHistoryProvider);
     if (loaded.hasError) return [BodyText(l10n.metricLoadError)];
     final history = loaded.value;
@@ -83,6 +90,12 @@ class OverallScreen extends ConsumerWidget {
       _Summary(history: history, scored: scored, hidden: hidden),
       const SizedBox(height: cardGap),
       _Source(inputs: history.current.inputs, hidden: hidden),
+      const SizedBox(height: cardGap),
+      SecondaryButton(
+        key: OverallKeys.weeks,
+        label: l10n.overallWeeksTitle,
+        onPressed: () => context.go(AppPaths.dayScoreOverallWeeks),
+      ),
       const SizedBox(height: cardGap),
       const EstimateNote(),
     ];

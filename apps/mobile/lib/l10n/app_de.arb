@@ -1526,5 +1526,18 @@
   "overallWhatBodyBmi": "Der Body-Mass-Index: Gewicht geteilt durch das Quadrat der Körpergröße. Mit einem Taillenmaß würde diese Zeile Taille zu Größe lesen, was mehr aussagt.",
   "overallRuleBodyBmi": "{full} oder weniger zählt voll, {zero} oder mehr zählt null. Im vollen Bereich bringt ein niedrigerer Index nichts weiter. Unter {floor} fällt die Zeile aus der Rechnung.",
   "overallSourceBodyBmi": "Die Body-Mass-Index-Bereiche der Weltgesundheitsorganisation.",
-  "overallSheetWindowPairs": "Die {days} Tage vor der letzten Aktualisierung, ohne die als Krank oder Reise markierten Tage. Es braucht {min} Paare aufeinanderfolgender Tage."
+  "overallSheetWindowPairs": "Die {days} Tage vor der letzten Aktualisierung, ohne die als Krank oder Reise markierten Tage. Es braucht {min} Paare aufeinanderfolgender Tage.",
+  "overallWeeksTitle": "12 Wochen",
+  "overallWeeksLead": "Die Gesamtnote jedes Montags. Sie bewegt sich absichtlich langsam.",
+  "overallWeeksSince": "{change} seit {date}",
+  "overallWeeksNow": "jetzt",
+  "overallWeeksTypical": "typische Woche",
+  "overallWeeksFloor": "deine Untergrenze",
+  "overallWeeksFloorNote": "Die Untergrenze ist die Note deiner schwächsten Wochen im Zeitraum. Die Untergrenze anzuheben zählt mehr als ein Rekord.",
+  "overallWeeksNoise": "Eine Änderung unter {points} Punkten von einer Woche zur nächsten ist Rauschen.",
+  "overallWeeksHollow": "Ein hohler Punkt ist eine Woche, deren Note aus anderen Teilen stammt als die letzte. Die Note wurde umgerechnet, die beiden sind also nicht genau vergleichbar.",
+  "overallWeeksChangedTitle": "Was sich seit {date} geändert hat",
+  "overallWeeksFew": "Das Diagramm beginnt mit {needed} Montagen mit Note. Du hast {weeks}.",
+  "overallWeeksChart": "Gesamtnote von {weeks} Montagen, von {first} bis {last}.",
+  "overallWeeksSame": "gleich"
 }

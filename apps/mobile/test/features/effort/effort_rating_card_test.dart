@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:ui' show Tristate;
+import 'dart:ui' show SemanticsAction, Tristate;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -280,6 +280,85 @@ void main() {
     });
   });
 
+  group('the grid', () {
+    testWidgets('a screen reader tap on an option rates', (tester) async {
+      final memory = _memory();
+      await _pump(tester, memory);
+      final handle = tester.ensureSemantics();
+
+      final node = tester.getSemantics(_option(7));
+      expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      tester.semantics.tap(find.semantics.byPredicate((n) => n.id == node.id));
+      await tester.pumpAndSettle();
+
+      expect(memory.recorded, [(savedRunId, 7)]);
+      handle.dispose();
+    });
+
+    testWidgets('wraps above text scale 1.3 and keeps the text scale', (
+      tester,
+    ) async {
+      await _pump(tester, _memory(), scale: 2);
+
+      expect(
+        find.descendant(
+          of: _key(EffortRatingKeys.card),
+          matching: find.byType(Wrap),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: _key(EffortRatingKeys.card),
+          matching: find.byType(FittedBox),
+        ),
+        findsNothing,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('keeps 48 dp options on a 320 dp wide screen', (tester) async {
+      await _pump(tester, _memory(), size: const Size(320, 800));
+
+      for (final rating in _ratings) {
+        final size = tester.getSize(_option(rating));
+        expect(size.width, greaterThanOrEqualTo(48), reason: '$rating');
+        expect(size.height, greaterThanOrEqualTo(48), reason: '$rating');
+      }
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a write that ends after the card left still bumps', (
+      tester,
+    ) async {
+      final memory = _memory()..hold = Completer<void>();
+      final shown = ValueNotifier(true);
+      addTearDown(shown.dispose);
+      await _pump(
+        tester,
+        memory,
+        card: ValueListenableBuilder<bool>(
+          valueListenable: shown,
+          builder: (_, visible, _) =>
+              visible ? _recorded() : const SizedBox.shrink(),
+        ),
+      );
+      final container = _container(tester);
+      final before = container.read(dataRevisionProvider);
+
+      await tester.tap(_option(7));
+      await tester.pump();
+      shown.value = false;
+      await tester.pump();
+      expect(find.byType(EffortRatingCard), findsNothing);
+      memory.hold!.complete();
+      await tester.pumpAndSettle();
+
+      expect(memory.ratingOfSaved(savedRunId), 7);
+      expect(container.read(dataRevisionProvider), before + 1);
+    });
+  });
+
   group('skipping', () {
     testWidgets('writes nothing and offers to rate it now', (tester) async {
       final memory = _memory();
@@ -318,6 +397,38 @@ void main() {
       await _tap(tester, _key(EffortRatingKeys.skip));
 
       _container(tester).read(dataRevisionProvider.notifier).bump();
+      await tester.pumpAndSettle();
+
+      expect(_key(EffortRatingKeys.rateNow), findsOneWidget);
+      _expectGrid(false);
+    });
+
+    testWidgets('survives being scrolled far out of a lazy list', (
+      tester,
+    ) async {
+      await pumpScaled(
+        tester,
+        screenHost(
+          Scaffold(
+            body: ListView(
+              children: [const SizedBox(height: 4000), _recorded()],
+            ),
+          ),
+        ),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.dark,
+        locale: const Locale('en'),
+        size: tallPhone,
+        overrides: _overrides(_memory(), const {ModuleId.effort}),
+      );
+      await tester.drag(find.byType(ListView), const Offset(0, -5000));
+      await tester.pumpAndSettle();
+      await _tap(tester, _key(EffortRatingKeys.skip));
+
+      await tester.drag(find.byType(ListView), const Offset(0, 5000));
+      await tester.pumpAndSettle();
+      expect(_key(EffortRatingKeys.rateNow), findsNothing);
+      await tester.drag(find.byType(ListView), const Offset(0, -5000));
       await tester.pumpAndSettle();
 
       expect(_key(EffortRatingKeys.rateNow), findsOneWidget);

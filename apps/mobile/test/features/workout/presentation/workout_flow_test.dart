@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/app_navigation_bar.dart';
+import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/effort/presentation/effort_rating_card.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
@@ -114,6 +115,22 @@ void main() {
       );
 
       expect(find.byKey(EffortRatingKeys.card), findsOneWidget);
+    });
+
+    testWidgets('a skip survives the summary reloading', (tester) async {
+      final history = MemoryWorkoutHistory(seed: [savedRun()]);
+      await _pumpSummary(
+        tester,
+        const WorkoutSummaryScreen(workoutId: savedRunId),
+        WorkoutRig(store: history),
+      );
+      await _tap(tester, find.byKey(EffortRatingKeys.skip));
+
+      workoutContainer(tester).read(dataRevisionProvider.notifier).bump();
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(EffortRatingKeys.rateNow), findsOneWidget);
+      expect(find.byKey(EffortRatingKeys.option(7)), findsNothing);
     });
 
     testWidgets('is absent from a saved summary while Effort is off', (

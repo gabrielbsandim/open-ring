@@ -473,7 +473,7 @@ String effortSessionYours(MetricFormat format, EffortSession session) {
   final minutes = format.integer(session.elapsed.inMinutes);
   final load = format.integer(session.load.value);
   final typeDefault = effortTypeDefault(session.type);
-  return switch (session.load.source) {
+  final sentence = switch (session.load.source) {
     LoadSource.heartRate => l10n.effortSheetSessionYoursHeartRate(
       type,
       day,
@@ -498,6 +498,15 @@ String effortSessionYours(MetricFormat format, EffortSession session) {
       load,
     ),
   };
+  final rating = session.rating;
+  if (rating == null || session.load.source == LoadSource.rating) {
+    return sentence;
+  }
+  final rated = l10n.effortRatingValue(
+    format.integer(rating),
+    format.integer(effortMaxRating),
+  );
+  return '$sentence\n$rated';
 }
 
 /// Today's verdict, the rule that fired and the numbers it read.

@@ -104,7 +104,7 @@ void main() {
       );
     });
 
-    testWidgets('a rating under the heart rate figure changes nothing', (
+    testWidgets('a rating under the heart rate figure is still named', (
       tester,
     ) async {
       final format = await _format(tester);
@@ -118,12 +118,15 @@ void main() {
       expect(session.load.source, LoadSource.heartRate);
       expect(
         effortSessionYours(format, session),
-        l10n.effortSheetSessionYoursHeartRate(
-          WorkoutType.running.label(l10n),
-          'Tue',
-          '40',
-          '${session.load.value}',
-        ),
+        [
+          l10n.effortSheetSessionYoursHeartRate(
+            WorkoutType.running.label(l10n),
+            'Tue',
+            '40',
+            '${session.load.value}',
+          ),
+          l10n.effortRatingValue('1', '10'),
+        ].join('\n'),
       );
     });
 
@@ -161,7 +164,7 @@ void main() {
         expect(yours, isNot(contains('{')));
         expect(yours, contains('7'));
         expect(yours, contains('140'));
-        expect(yours, contains('40'));
+        expect(yours.replaceAll('140', ''), contains('40'));
       });
     }
   });

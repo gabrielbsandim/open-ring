@@ -74,10 +74,11 @@ Future<bool> deleteWorkout(WidgetRef ref, int id) async {
 }
 
 Future<bool> rateRecordedWorkout(WidgetRef ref, int id, int? rating) async {
+  final revision = ref.read(dataRevisionProvider.notifier);
   final rated = await ref
       .read(workoutRatingStoreProvider)
       .rateRecorded(id, rating);
-  if (rated) ref.read(dataRevisionProvider.notifier).bump();
+  if (rated) revision.bump();
   return rated;
 }
 
@@ -86,10 +87,11 @@ Future<bool> rateImportedWorkout(
   String recordId,
   int? rating,
 ) async {
+  final revision = ref.read(dataRevisionProvider.notifier);
   final rated = await ref
       .read(workoutRatingStoreProvider)
       .rateImported(recordId, rating);
-  if (rated) ref.read(dataRevisionProvider.notifier).bump();
+  if (rated) revision.bump();
   return rated;
 }
 

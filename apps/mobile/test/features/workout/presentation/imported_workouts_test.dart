@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/app_navigation_bar.dart';
+import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/core/records/source_priority.dart';
 import 'package:open_ring/features/activity/presentation/activity_screen.dart';
 import 'package:open_ring/features/effort/presentation/effort_rating_card.dart';
@@ -210,6 +212,25 @@ void main() {
 
       expect(find.byKey(EffortRatingKeys.card), findsOneWidget);
       expect(find.byKey(EffortRatingKeys.option(7)), findsOneWidget);
+    });
+
+    testWidgets('a skip survives the imported summary reloading', (
+      tester,
+    ) async {
+      await pumpImported(tester, const {ModuleId.effort});
+      final skip = find.byKey(EffortRatingKeys.skip);
+      await tester.ensureVisible(skip);
+      await tester.pumpAndSettle();
+      await tester.tap(skip);
+      await tester.pumpAndSettle();
+
+      ProviderScope.containerOf(
+        tester.element(find.byType(ImportedWorkoutScreen)),
+      ).read(dataRevisionProvider.notifier).bump();
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(EffortRatingKeys.rateNow), findsOneWidget);
+      expect(find.byKey(EffortRatingKeys.option(7)), findsNothing);
     });
 
     testWidgets('is absent from an imported summary while Effort is off', (

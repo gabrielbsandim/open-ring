@@ -4,6 +4,7 @@ import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
+import 'package:open_ring/core/widgets/text_scale.dart';
 import 'package:open_ring/features/effort/application/effort_gate.dart';
 import 'package:open_ring/features/workout/application/workout_history_providers.dart';
 
@@ -22,6 +23,7 @@ abstract final class EffortRatingKeys {
 const _optionsPerRow = 5;
 const _optionGap = 8.0;
 const _optionSize = 48.0;
+const int _optionCount = effortMaxRating - effortMinRating + 1;
 
 /// Asks how hard one workout was and stores the answer. It shows only while
 /// the Effort module is on and the workout is stored.
@@ -39,7 +41,11 @@ class EffortRatingCard extends ConsumerStatefulWidget {
   ConsumerState<EffortRatingCard> createState() => _EffortRatingCardState();
 }
 
-class _EffortRatingCardState extends ConsumerState<EffortRatingCard> {
+class _EffortRatingCardState extends ConsumerState<EffortRatingCard>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   bool _skipped = false;
   bool _editing = false;
   bool _busy = false;
@@ -85,6 +91,7 @@ class _EffortRatingCardState extends ConsumerState<EffortRatingCard> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     if (!ref.watch(effortEnabledProvider)) return const SizedBox.shrink();
     final stored = _stored();
     if (stored == null) return const SizedBox.shrink();
@@ -177,30 +184,51 @@ class _Options extends StatelessWidget {
   final ValueChanged<int> onRate;
 
   @override
-  Widget build(BuildContext context) {
-    const rows = (effortMaxRating - effortMinRating + 1) ~/ _optionsPerRow;
-    return Column(
-      children: [
-        for (var row = 0; row < rows; row++) ...[
-          if (row > 0) const SizedBox(height: _optionGap),
-          Row(
-            children: [
-              for (var column = 0; column < _optionsPerRow; column++) ...[
-                if (column > 0) const SizedBox(width: _optionGap),
-                Expanded(child: _option(row * _optionsPerRow + column)),
-              ],
-            ],
-          ),
-        ],
-      ],
-    );
-  }
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      const gaps = _optionGap * (_optionsPerRow - 1);
+      final cell = (constraints.maxWidth - gaps) / _optionsPerRow;
+      if (context.prefersSingleColumn || cell < _optionSize) return _wrapped();
+      return _grid();
+    },
+  );
 
-  Widget _option(int index) {
+  Widget _wrapped() => SizedBox(
+    width: double.infinity,
+    child: Wrap(
+      spacing: _optionGap,
+      runSpacing: _optionGap,
+      children: [
+        for (var index = 0; index < _optionCount; index++)
+          _option(index, compact: true),
+      ],
+    ),
+  );
+
+  Widget _grid() => Column(
+    children: [
+      for (var row = 0; row < _optionCount ~/ _optionsPerRow; row++) ...[
+        if (row > 0) const SizedBox(height: _optionGap),
+        Row(
+          children: [
+            for (var column = 0; column < _optionsPerRow; column++) ...[
+              if (column > 0) const SizedBox(width: _optionGap),
+              Expanded(
+                child: _option(row * _optionsPerRow + column, compact: false),
+              ),
+            ],
+          ],
+        ),
+      ],
+    ],
+  );
+
+  Widget _option(int index, {required bool compact}) {
     final rating = effortMinRating + index;
     return _Option(
       rating: rating,
       selected: rating == selected,
+      compact: compact,
       onTap: () => onRate(rating),
     );
   }
@@ -210,11 +238,13 @@ class _Option extends StatelessWidget {
   const new({
     required this.rating,
     required this.selected,
+    required this.compact,
     required this.onTap,
   });
 
   final int rating;
   final bool selected;
+  final bool compact;
   final VoidCallback onTap;
 
   @override
@@ -234,6 +264,7 @@ class _Option extends StatelessWidget {
         format.integer(rating),
         format.integer(effortMaxRating),
       ),
+      onTap: onTap,
       excludeSemantics: true,
       child: Material(
         color: selected ? colors.activity : colors.surfaceInner,
@@ -242,12 +273,19 @@ class _Option extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: _optionSize),
+            constraints: const BoxConstraints(
+              minWidth: _optionSize,
+              minHeight: _optionSize,
+            ),
             child: Center(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
+              widthFactor: compact ? 1 : null,
+              heightFactor: 1,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
                   format.integer(rating),
+                  maxLines: 1,
+                  softWrap: false,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: selected ? colors.onAccent : colors.textPrimary,
                   ),

@@ -178,13 +178,16 @@ EnergyCurve energyCurve({
   return (from: from, to: to, points: points);
 }
 
+const energyUsualDay = Duration(hours: 24);
+
+// A day of 23 or 25 hours has its hours at other indexes, so it stays out.
+bool _usualDay(EnergyCurve day) =>
+    day.points.isNotEmpty && day.to.difference(day.from) == energyUsualDay;
+
 /// The mean total of whole past days at each elapsed hour, index 0 at the
 /// start of the day. Null with fewer than [energyUsualMinDays] days.
 List<double>? energyUsualByHour(Iterable<EnergyCurve> days) {
-  final curves = [
-    for (final day in days)
-      if (day.points.isNotEmpty) day.points,
-  ];
+  final curves = [for (final day in days.where(_usualDay)) day.points];
   if (curves.length < energyUsualMinDays) return null;
   final hours = curves.fold<int>(
     curves.first.length,

@@ -131,8 +131,17 @@ class _EnergyThroughDayState extends State<EnergyThroughDay> {
         : format.l10n.energyThroughBy(time);
   }
 
+  // On a day that is not 24 hours long the hours of the usual day do not
+  // line up with the chart, so it is left out.
+  List<double>? get _usual {
+    final curve = widget.curve;
+    return curve.to.difference(curve.from) == energyUsualDay
+        ? widget.usual
+        : null;
+  }
+
   String? _usualText(MetricFormat format, EnergyPoint point) {
-    final usual = widget.usual;
+    final usual = _usual;
     if (usual == null || point.day.range.low < energyRowFloor) return null;
     final difference = energyUsualDifference(widget.curve, point, usual);
     if (difference == null) return null;
@@ -165,7 +174,7 @@ class _EnergyThroughDayState extends State<EnergyThroughDay> {
     final point = curve.points[index];
     final by = _by(format, index);
     final range = _rangeText(format, point.day.range);
-    final usual = widget.usual;
+    final usual = _usual;
     final usualText = _usualText(format, point);
     final top = energyChartTop(curve, usual: usual);
     final band = colors.textLabel.withValues(alpha: 0.28);

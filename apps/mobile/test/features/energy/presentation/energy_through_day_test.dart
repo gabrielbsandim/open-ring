@@ -356,6 +356,20 @@ void main() {
       expect(find.byKey(EnergyThroughKeys.usual), findsNothing);
     });
 
+    testWidgets('a day that is not 24 hours long shows no usual day', (
+      tester,
+    ) async {
+      final short = (
+        from: _afternoon.from,
+        to: _afternoon.to.subtract(const Duration(hours: 1)),
+        points: _afternoon.points,
+      );
+      await _pump(tester, curve: short, usual: level(2400));
+
+      expect(find.byKey(EnergyThroughKeys.usual), findsNothing);
+      expect(find.text(_l10n(tester).energyLegendUsual), findsNothing);
+    });
+
     test('the axis rises to hold the usual day', () {
       expect(energyChartTop(_afternoon), 3000);
       expect(energyChartTop(_afternoon, usual: level(3600)), 4000);

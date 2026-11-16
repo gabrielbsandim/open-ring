@@ -223,6 +223,39 @@ void main() {
       expect(usual, hasLength(2));
     });
 
+    test('a day that is not 24 hours long stays out', () {
+      final from = DateTime.utc(2026, 11, 10);
+      EnergyCurve whole(int hours, int steps) => energyCurve(
+        sex: EnergySex.male,
+        age: 30,
+        kilograms: 70,
+        centimeters: 175,
+        slots: [
+          (
+            start: from.add(const Duration(hours: 9)),
+            duration: const Duration(hours: 1),
+            steps: steps,
+          ),
+        ],
+        workouts: const [],
+        from: from,
+        to: from.add(Duration(hours: hours)),
+        now: from.add(const Duration(days: 2)),
+      );
+      final days = [whole(24, 1000), whole(24, 2000), whole(24, 3000)];
+      final usual = energyUsualByHour([...days, whole(23, 9000)])!;
+
+      expect(usual, hasLength(25));
+      expect(
+        usual.last,
+        closeTo(
+          energyUsual([for (final day in days) day.points.last.day])!,
+          1e-9,
+        ),
+      );
+      expect(energyUsualByHour([days[0], days[1], whole(25, 9000)]), isNull);
+    });
+
     test('between two hours it is on the straight line', () {
       const usual = <double>[0, 200, 500];
 

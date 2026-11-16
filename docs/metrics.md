@@ -1160,6 +1160,8 @@ says how far the picked hour is from the usual day at that hour
 (`energyUsualAt` reads between two hours on a straight line), to the nearest
 50 kcal, or that it is about the same. No line and no sentence with fewer
 than 3 past days, and no sentence while the picked hour is under the floor.
+A past day of 23 or 25 hours stays out of the line, and on such a day the
+chart shows no usual day, because the hours would not line up.
 
 The formula screen (`energy_formula_screen.dart`, `/today/energy/formula`)
 repeats the rule, the source, our choice and the limits of the four evidence

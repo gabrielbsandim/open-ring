@@ -1598,6 +1598,75 @@ What it cannot say:
   later than the last minute asleep.
 - A goal started midweek counts the days of that week before its start.
 
+### The inputs of a review
+
+A review reads the week that closed the day before its Monday.
+`closedWeekInputs` in `apps/mobile/lib/features/goals/domain/review_inputs.dart`
+builds the inputs from plain data and the weeks reviewed before, and
+`packages/metrics/lib/src/goal_baseline.dart` holds the baseline. Nothing
+calls them yet: gathering the data and writing the week is a later slice.
+
+The levers are counted over the closed Monday to Sunday with the rules of
+The week in progress, so no day is open or ahead. The week number is the
+week of the block on the review Monday.
+
+The baseline is what the person usually does, read over the days that end on
+a given day:
+
+| Field | Rule |
+| --- | --- |
+| Step median | the median of the days with steps in the last `goalBaselineDays`, null under `goalBaselineMinDays` days |
+| Bedtime median | the median of the minutes after noon of the first span asleep of each night, same window and minimum; a night with no span asleep is left out |
+| Wake median | the median of the minutes after midnight of the end of each night, same window and minimum |
+| Effort mean | the points of the last `goalBaselineWeeks` weeks divided by `goalBaselineWeeks`, null with no point in them; a value that is negative or not finite adds nothing |
+| Usual strength days | the strength days of those weeks divided by `goalBaselineWeeks`, rounded down |
+
+A median of an even count is the mean of the two middle values, rounded.
+
+| Constant | Value | Basis |
+| --- | --- | --- |
+| `goalBaselineDays` | 14 days | **our choice** |
+| `goalBaselineMinDays` | 7 days | **our choice**, the same floor as `baselineMinDays` |
+| `goalBaselineWeeks` | 4 weeks | **our choice** |
+
+From the weeks reviewed before, only the one reviewed seven days earlier is
+the previous week: its adherence, the low end of its rate, whether it was a
+recovery week and its two check-in answers. After a gap nothing is carried
+over. The effort raises in a row are the reviews, going back week by week
+from the previous one, whose proposed change raised the effort points and was
+accepted; the first week that is missing, was declined, was not answered or
+changed something else stops the count.
+
+The readiness of a review is seven values, one per day. `weekReadiness`
+takes them from a run of daily values that ends on a known day, for the seven
+days from a given day; a day outside the run is null, and a day with no
+Readiness stays null. Which seven days a review reads is decided by the
+slice that gathers the data.
+
+`closedWeekInputs` refuses, with an `ArgumentError`, a review day that is not
+a Monday and a readiness list that does not hold seven values.
+
+The pregnancy flag and the screening flag are each the newest answer stored;
+a screening that did not ask a question leaves the earlier answer standing,
+and no answer is no.
+
+The weight reading exists only for a goal of losing fat. The target is the
+pace of the goal. The BMI needs Body on, a trend and a height; the cap comes
+from it and is 0.5 percent without one. The rate needs Body on and a ready
+weight rate. With Body off the rate and the BMI are empty even when weigh-ins
+are stored, so no weight rule can fire.
+
+What it cannot say:
+
+- A person with under 7 days of steps or nights has no median, so no step or
+  sleep lever can be entered from it.
+- A change accepted in the middle of a week counts the whole closed week
+  against the new target.
+- The trend is the value at the last weigh-in, of any age, so the BMI can
+  rest on an old weight while the rate is still building.
+- A week reviewed before a new block still counts as the previous week when
+  it is exactly seven days old.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

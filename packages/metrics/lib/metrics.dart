@@ -4,6 +4,7 @@ export 'src/day_score.dart';
 export 'src/effort.dart';
 export 'src/energy.dart';
 export 'src/fitness_estimate.dart';
+export 'src/goal_baseline.dart';
 export 'src/goal_progress.dart';
 export 'src/goal_rate.dart';
 export 'src/goal_review.dart';

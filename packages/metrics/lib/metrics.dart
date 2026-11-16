@@ -7,6 +7,7 @@ export 'src/level.dart';
 export 'src/level_goal.dart';
 export 'src/local_date.dart';
 export 'src/overall_score.dart';
+export 'src/overall_window.dart';
 export 'src/readiness.dart';
 export 'src/rem_reporting.dart';
 export 'src/resting_heart_rate.dart';

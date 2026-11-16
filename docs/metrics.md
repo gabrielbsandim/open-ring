@@ -1405,10 +1405,12 @@ for each end r of the loss (lossHigh for the earliest, lossLow for the latest):
   rem = trendKg - referenceKg, waited = 0
   while rem / r > left, at most 6 times:
     rem = rem - r * left, waited = waited + left + 4, left = block.weeks
+  no arrival when rem / r is still above left
   weeks = waited + rem / r
   date  = today + round(weeks * 7) days
-no arrival when lossLow <= 0, when trendKg <= referenceKg, or when the two
-dates are more than one calendar year apart
+no arrival when lossLow <= 0, when trendKg <= referenceKg, when either end
+needs more blocks than the 6 allowed, or when the year of the latest date is
+more than one above the year of the earliest
 
 floor      = ceil(18.5 * (heightCm / 100)^2 / 0.5) * 0.5
 ```
@@ -1436,9 +1438,9 @@ questions turn the soft mode on.
 | `goalBlockMaxLossPercent` | 10 percent of the start weight | **our choice**. It shortens a block only above 0.83 percent a week. |
 | `goalMaintenanceWeeks` | 4 weeks | **our choice** |
 | `goalBandLow`, `goalBandHigh` | 0.5 and 1.5 times the target | **our choice** |
-| `goalArrivalMaxBlocks` | 6 blocks | **our choice**. It bounds the walk; a range that long is cut by the one year rule first. |
+| `goalArrivalMaxBlocks` | 6 blocks | **our choice**. An end that would need a seventh block has no arrival: that is about two years away, further than a rate of 28 days can say anything about. |
 | arrival days | rounded to the nearest day | **our choice** |
-| one calendar year between the two dates | no arrival | **our choice**. A range that wide says nothing. |
+| year numbers of the two dates more than one apart | no arrival | **our choice**. The rule reads the year numbers, not the days between the dates: March 2027 to November 2028 is shown, December 2027 to January 2029 is not. |
 | `bmiFloor` | 18.5 | reused from section 17, the WHO lower bound of the normal class |
 | `goalReferenceStepKg` | 0.5 kg | **our choice**. The floor of a reference weight is rounded up to it. |
 | `goalMinAge` | 18 years | **our choice** |

@@ -93,11 +93,11 @@ double bmi(double kg, double heightCm) {
   return kg / (meters * meters);
 }
 
-double lossCapPercent(double bmi) {
-  if (bmi < goalCapBmiMid) return 0.5;
-  if (bmi < goalCapBmiHigh) return 0.75;
-  return 1;
-}
+double lossCapPercent(double bmi) => switch (bmi) {
+  < goalCapBmiMid => 0.5,
+  < goalCapBmiHigh => 0.75,
+  _ => 1,
+};
 
 GoalBlock goalBlock({
   required double startKg,
@@ -166,6 +166,8 @@ ArrivalRange? arrivalRange({
       .toDouble();
   final earliestWeeks = _weeksTo(remaining, rate.kgHigh, left, block.weeks);
   final latestWeeks = _weeksTo(remaining, rate.kgLow, left, block.weeks);
+  if (earliestWeeks == null) return null;
+  if (latestWeeks == null) return null;
   final earliest = today.addDays((earliestWeeks * 7).round());
   final latest = today.addDays((latestWeeks * 7).round());
   if (latest.year - earliest.year > 1) return null;
@@ -178,8 +180,13 @@ ArrivalRange? arrivalRange({
 }
 
 // What does not fit in the weeks left of a block waits out the maintenance
-// weeks, then a new block of the same length starts.
-double _weeksTo(double remaining, double perWeek, double left, int blockWeeks) {
+// weeks, then a new block starts. Null when the blocks allowed are not enough.
+double? _weeksTo(
+  double remaining,
+  double perWeek,
+  double left,
+  int blockWeeks,
+) {
   var rem = remaining;
   var weeksLeft = left;
   var waited = 0.0;
@@ -190,6 +197,7 @@ double _weeksTo(double remaining, double perWeek, double left, int blockWeeks) {
     weeksLeft = blockWeeks.toDouble();
     rounds++;
   }
+  if (rem / perWeek > weeksLeft) return null;
   return waited + rem / perWeek;
 }
 

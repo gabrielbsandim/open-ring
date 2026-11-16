@@ -364,6 +364,43 @@ void main() {
       expect(range.latest, const LocalDate(2027, 5, 24));
     });
 
+    test('a day long after the block end never counts negative weeks', () {
+      final range = arrival(
+        trendKg: 80,
+        referenceKg: 75,
+        rate: fromKg(0.5, 0.5, 80),
+        when: const LocalDate(2027, 3, 1),
+      )!;
+      expect(range.earliestWeeks, closeTo(14, 1e-3));
+      expect(range.latestWeeks, closeTo(14, 1e-3));
+      expect(range.latest, const LocalDate(2027, 6, 7));
+    });
+
+    test('an end that needs a seventh block has no arrival', () {
+      expect(
+        arrival(trendKg: 100, referenceKg: 70, rate: fromKg(0.25, 0.3, 100)),
+        isNull,
+      );
+      expect(
+        arrival(
+          trendKg: 120,
+          referenceKg: 60,
+          rate: fromKg(0.5, 0.5, 120),
+          when: blockStart,
+        ),
+        isNull,
+      );
+    });
+
+    test('a loss barely above zero has no arrival and does not throw', () {
+      for (final low in [1e-8, 1e-300, 4.9e-324]) {
+        expect(
+          arrival(trendKg: 80, referenceKg: 70, rate: fromKg(low, 0.5, 80)),
+          isNull,
+        );
+      }
+    });
+
     test('a day before the block start counts at most the block weeks', () {
       final range = arrival(
         trendKg: 80,

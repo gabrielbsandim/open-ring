@@ -964,7 +964,7 @@
   "privacyStoresWeighInsWhy": "Pour afficher la tendance de votre poids et, avec le module Open Score activé, noter vos mesures corporelles ; avec le module Énergie activé, aussi l'estimation de l'énergie de votre journée",
   "privacyStoresDayTags": "Marques de jour : les jours que vous mettez de côté comme malade, voyage ou repos (facultatif, module Open Score)",
   "privacyStoresDayTagsWhy": "Pour laisser ces jours hors de vos moyennes ; avec les modules Open Score et Effort activés, un jour marqué malade fait aussi indiquer la récupération par la carte du coach",
-  "privacyStoresSettings": "Réglages : thème, unités, intervalle de synchronisation, choix des widgets, alertes de la bague, types envoyés à Health Connect, mode démo",
+  "privacyStoresSettings": "Réglages : thème, unités, intervalle de synchronisation, choix des widgets, alertes de la bague, types envoyés à Health Connect, mode démo, modules activés, objectif de la semaine",
   "privacyStoresSettingsWhy": "Pour mémoriser vos choix",
   "privacyStoresSummary": "Un petit résumé des chiffres du jour",
   "privacyStoresSummaryWhy": "Pour remplir les widgets de l'écran d'accueil",

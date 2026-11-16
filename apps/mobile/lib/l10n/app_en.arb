@@ -2712,7 +2712,7 @@
   "privacyStoresWeighInsWhy": "To show your weight trend and, with the Open Score module on, to score your body measures; with the Energy module on, also the estimate of your day's energy",
   "privacyStoresDayTags": "Day tags: the days you set aside as sick, travel or rest (optional, Open Score module)",
   "privacyStoresDayTagsWhy": "To leave those days out of your averages; with the Open Score and Effort modules both on, a sick day also makes the coach card say recover",
-  "privacyStoresSettings": "Settings: theme, units, sync interval, widget choices, ring alerts, which types go to Health Connect, demo mode",
+  "privacyStoresSettings": "Settings: theme, units, sync interval, widget choices, ring alerts, which types go to Health Connect, demo mode, which modules are on, the weekly goal",
   "privacyStoresSettingsWhy": "To remember your choices",
   "privacyStoresSummary": "A small summary of today's numbers",
   "privacyStoresSummaryWhy": "To fill the home screen widgets",

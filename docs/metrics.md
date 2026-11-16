@@ -927,6 +927,12 @@ stored. Each Monday is recomputed from the data, so a past Monday can move
 when a day is tagged, a weigh-in is edited or a late sync brings older
 samples.
 
+The first Overall does not wait for a Monday. While the last Monday has no
+score, the app shows the Overall of the first day after it on which the
+minimum was met, and keeps it until the next Monday. Next to the score the
+screen says how far it is from the Monday before, and calls a change under
+2 points noise.
+
 The window of a Monday is the 28 days that end the day before it, without the
 days tagged Sick or Travel. Rest days stay: rest is part of a routine. A worn
 day is a day of the window with at least one heart rate sample.

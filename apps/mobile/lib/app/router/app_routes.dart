@@ -18,6 +18,7 @@ abstract final class AppPaths {
   static const dayScoreFormula = '/today/day-score/formula';
   static const dayScoreHistory = '/today/day-score/history';
   static const dayScoreLevel = '/today/day-score/level';
+  static const dayScoreOverall = '/today/day-score/overall';
 
   static String dayScoreOn(String isoDate) => '$dayScore?day=$isoDate';
   static const sleepFormula = '/sleep/formula';

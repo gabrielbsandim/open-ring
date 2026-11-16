@@ -51,13 +51,14 @@ WeighIn weighIn(LocalDate date, double kilograms, {double? waist}) => WeighIn(
 
 OverallHistory collect({
   int days = 105,
+  int extra = 0,
   Map<LocalDate, DayTag> tags = const {},
   List<WeighIn> weighIns = const [],
   double? heightCentimeters,
   int? birthYear,
   List<LocalDate> strengthDates = const [],
 }) {
-  final dates = [for (var age = days; age >= 1; age--) back(age)];
+  final dates = [for (var age = days; age >= 1 - extra; age--) back(age)];
   return OverallHistory.collect(
     today: today,
     sessions: [
@@ -153,6 +154,56 @@ void main() {
       );
 
       expect(history.current.inputs.strengthPerWeek, 1);
+    });
+  });
+
+  group('the first score', () {
+    test('appears on the day the minimum is met, before the next Monday', () {
+      // 12 nights by the Monday, 14 by Wednesday, today is Friday.
+      final history = collect(days: 12, extra: 4);
+
+      expect(history.weeks.last.result, isA<InsufficientData<OverallFactor>>());
+      expect(history.current.date, monday.addDays(2));
+      expect(history.scored, isNotNull);
+      expect(history.previous, isNull);
+    });
+
+    test('without enough nights the week on screen is the last Monday', () {
+      final history = collect(days: 5, extra: 4);
+
+      expect(history.current.date, monday);
+      expect(history.scored, isNull);
+      expect(history.nights, 9);
+    });
+
+    test('a scored Monday is never replaced by a later day', () {
+      expect(collect(extra: 4).current.date, monday);
+    });
+  });
+
+  group('around the week on screen', () {
+    test('the next update is the Monday after today', () {
+      expect(collect().nextUpdate, monday.addDays(7));
+    });
+
+    test('previous is the score of the Monday before', () {
+      final history = collect();
+
+      expect(
+        history.previous,
+        (history.weeks[10].result as Scored<OverallFactor>).value,
+      );
+    });
+
+    test('nights counts the last 28 days without the excluded ones', () {
+      expect(collect(extra: 4).nights, 27);
+      expect(
+        collect(
+          extra: 4,
+          tags: {monday: DayTag.sick, back(1): DayTag.rest},
+        ).nights,
+        26,
+      );
     });
   });
 

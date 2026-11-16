@@ -84,6 +84,7 @@ class OpenScoreModuleScreen extends ConsumerWidget {
           title: l10n.formulaLink,
           caption: l10n.dayScoreFormulaLinkCaption,
           path: AppPaths.dayScoreFormula,
+          push: true,
         ),
         const SizedBox(height: 12),
         CaptionText(l10n.moduleOpenScoreFoot),

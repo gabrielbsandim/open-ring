@@ -155,6 +155,7 @@ class _ReceiptState extends ConsumerState<DayScoreReceiptScreen> {
         title: format.l10n.formulaLink,
         caption: format.l10n.dayScoreFormulaLinkCaption,
         path: AppPaths.dayScoreFormula,
+        push: true,
       ),
       const SizedBox(height: cardGap),
       DayScoreLink(

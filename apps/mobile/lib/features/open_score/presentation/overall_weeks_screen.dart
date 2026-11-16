@@ -5,10 +5,12 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/overall_providers.dart';
 import 'package:open_ring/features/open_score/domain/overall_trend.dart';
+import 'package:open_ring/features/open_score/presentation/overall_evidence_sheet.dart';
 import 'package:open_ring/features/open_score/presentation/overall_screen.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -48,7 +50,7 @@ class OverallWeeksScreen extends ConsumerWidget {
     if (loaded.hasError) return [BodyText(l10n.metricLoadError)];
     final history = loaded.value;
     if (history == null) return const [SizedBox(height: 96)];
-    final trend = OverallTrend.of(history.weeks);
+    final trend = OverallTrend.of(history.weeks, current: history.current);
     if (trend == null) {
       return [
         MetricCard(
@@ -69,7 +71,7 @@ class OverallWeeksScreen extends ConsumerWidget {
       const SizedBox(height: cardGap),
       _Numbers(trend: trend),
       const SizedBox(height: cardGap),
-      _Changed(trend: trend),
+      _Changed(trend: trend, hidden: ref.watch(numbersHiddenProvider)),
       const SizedBox(height: cardGap),
       CaptionText(l10n.overallWeeksNoise(overallNoiseBelow)),
       const SizedBox(height: 6),
@@ -266,9 +268,10 @@ class _Number extends StatelessWidget {
 }
 
 class _Changed extends StatelessWidget {
-  const new({required this.trend});
+  const new({required this.trend, required this.hidden});
 
   final OverallTrend trend;
+  final bool hidden;
 
   @override
   Widget build(BuildContext context) {
@@ -285,20 +288,21 @@ class _Changed extends StatelessWidget {
                 ?.copyWith(fontWeight: FontWeight.w600),
           ),
           for (final change in trend.changes)
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                spacing: 12,
-                children: [
-                  BodyText(overallFactorLabel(l10n, change.factor)),
-                  BodyText(
-                    key: OverallWeeksKeys.change(change.factor),
-                    _delta(format, change.points),
-                  ),
-                ],
+            if (!overallSecret(change.factor, hidden: hidden))
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  spacing: 12,
+                  children: [
+                    BodyText(overallFactorLabel(l10n, change.factor)),
+                    BodyText(
+                      key: OverallWeeksKeys.change(change.factor),
+                      _delta(format, change.points),
+                    ),
+                  ],
+                ),
               ),
-            ),
         ],
       ),
     );

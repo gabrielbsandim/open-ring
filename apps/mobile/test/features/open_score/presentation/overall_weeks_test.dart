@@ -114,6 +114,41 @@ void main() {
     );
   });
 
+  testWidgets('the Body change is not listed while numbers are hidden', (
+    tester,
+  ) async {
+    const before = OverallInputs(
+      restingHeartRate: 60,
+      sleepHours: 6.6,
+      sleepRegularity: 66,
+      weeklyMinutes: 132,
+      dailySteps: 6900,
+      waistToHeight: 0.58,
+    );
+    await pump(
+      tester,
+      const OverallWeeksScreen(),
+      weeksOf([before, full]),
+      hidden: true,
+    );
+
+    expect(
+      find.byKey(OverallWeeksKeys.change(OverallFactor.body)),
+      findsNothing,
+    );
+    expect(
+      find.byKey(OverallWeeksKeys.change(OverallFactor.restingHeartRate)),
+      findsOneWidget,
+    );
+
+    await pump(tester, const OverallWeeksScreen(), weeksOf([before, full]));
+
+    expect(
+      find.byKey(OverallWeeksKeys.change(OverallFactor.body)),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('a factor that did not move reads the same', (tester) async {
     await pump(tester, const OverallWeeksScreen(), weeksOf([partial, partial]));
 

@@ -20,7 +20,9 @@ final class OverallTrend {
        changes = List.unmodifiable(changes);
 
   // Null while fewer than two Mondays have a score.
-  static OverallTrend? of(List<OverallWeek> weeks) {
+  // An early first score, dated after the last Monday, is the last point.
+  static OverallTrend? of(List<OverallWeek> mondays, {OverallWeek? current}) {
+    final weeks = [...mondays, ?_after(mondays, current)];
     final scored = [
       for (final week in weeks)
         if (week.result case final Scored<OverallFactor> result)
@@ -83,3 +85,8 @@ Set<OverallFactor> _factors(OverallInputs inputs) => {
 
 bool _same(Set<OverallFactor> a, Set<OverallFactor> b) =>
     a.length == b.length && a.containsAll(b);
+
+OverallWeek? _after(List<OverallWeek> mondays, OverallWeek? current) {
+  if (current == null || mondays.isEmpty) return null;
+  return current.date.compareTo(mondays.last.date) > 0 ? current : null;
+}

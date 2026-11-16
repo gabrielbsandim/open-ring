@@ -968,7 +968,9 @@ percentile by nearest rank, which is the lowest week until there are 11 of
 them. A point is drawn hollow, and the line breaks, where a week was scored
 on other factors than the latest scored week: a missing factor rescales the
 rest, so those two scores do not compare exactly. It needs two scored
-Mondays. These choices are **our choice**.
+weeks; an early first score counts as the last one, so "now" is the number
+of the Overall screen. The change of the Body points is not listed while the
+Body numbers are hidden. These choices are **our choice**.
 
 ### Sleep Regularity Index
 

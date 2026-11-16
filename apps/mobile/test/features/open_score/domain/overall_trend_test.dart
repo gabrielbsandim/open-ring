@@ -91,6 +91,31 @@ void main() {
     );
   });
 
+  test('an early first score after the last Monday is the last point', () {
+    final early = week(0, inputs(55));
+    final trend = OverallTrend.of(
+      [week(2, inputs(70)), week(1, inputs(65)), week(0, null)],
+      current: (
+        date: monday.addDays(3),
+        inputs: early.inputs,
+        result: early.result,
+      ),
+    )!;
+
+    expect(trend.points, hasLength(4));
+    expect(trend.points[2].score, isNull);
+    expect(trend.points.last.date, monday.addDays(3));
+    expect(trend.now, scoreOf(inputs(55)));
+    expect(trend.since.change, scoreOf(inputs(55)) - scoreOf(inputs(70)));
+  });
+
+  test('the current week is not added twice when it is the last Monday', () {
+    final last = week(0, inputs(60));
+    final trend = OverallTrend.of([week(1, inputs(70)), last], current: last)!;
+
+    expect(trend.points, hasLength(2));
+  });
+
   test('changes list the factors present in both weeks', () {
     final trend = OverallTrend.of([
       week(1, inputs(70)),

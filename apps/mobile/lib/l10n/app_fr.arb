@@ -1614,5 +1614,11 @@
   "energyRuleWorkouts": "(MET - 1) × poids × heures. Le MET dit combien de fois une activité est plus intense que le repos, selon une table par type d'activité. Le 1 est retiré parce que le repos est déjà dans la Base. Une séance enregistrée dans l'app garde le chiffre stocké à sa fin.",
   "energySourceWorkouts": "La même table d'activités que celle de l'écran de séance.",
   "energyOursWorkouts": "Une valeur par type d'activité, quelle que soit l'allure.",
-  "energyLimitsWorkouts": "Une séance rapide et une lente de même durée reçoivent le même chiffre. L'énergie active de la bague n'est jamais ajoutée par-dessus."
+  "energyLimitsWorkouts": "Une séance rapide et une lente de même durée reçoivent le même chiffre. L'énergie active de la bague n'est jamais ajoutée par-dessus.",
+  "energyWeekTitle": "7 derniers jours",
+  "energyWeekBody": "Chaque barre est la fourchette d'un jour. Le repère est le milieu. Touchez un jour.",
+  "energyWeekSemantics": "Totaux des 7 derniers jours, sous forme de fourchettes.",
+  "energyWeekNoData": "Aucun pas ni séance enregistrés ce jour-là.",
+  "energyWeekUsual": "Votre journée habituelle",
+  "energyWeekNote": "Les barres se chevauchent : la plupart des jours diffèrent de moins que la marge de l'estimation. Comparez les repères, jour contre jour. Ce que l'équation rate à votre sujet, elle le rate à peu près pareil chaque jour."
 }

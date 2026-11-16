@@ -107,6 +107,27 @@ EnergyDay energyDay({
   );
 }
 
+// Fewer days than this say too little about what is usual for a person.
+const energyUsualMinDays = 3;
+
+const energyWeekDays = 7;
+
+/// One day of the week view. The estimate is null when the day has none or
+/// has nothing on record.
+typedef EnergyWeekDay = ({LocalDate date, EnergyDayEstimate? day});
+
+/// A past day with no steps and no workouts was most likely a day without
+/// the ring, so it is no evidence of a day of Base alone.
+bool energyDayOnRecord(EnergyDayEstimate day) =>
+    day.steps > 0 || day.workouts > 0;
+
+/// The mean total of [days], or null with fewer than [energyUsualMinDays].
+double? energyUsual(Iterable<EnergyDayEstimate> days) {
+  final totals = [for (final day in days) day.total];
+  if (totals.length < energyUsualMinDays) return null;
+  return totals.reduce((a, b) => a + b) / totals.length;
+}
+
 typedef EnergyPoint = ({DateTime at, EnergyDayEstimate day});
 
 typedef EnergyCurve = ({DateTime from, DateTime to, List<EnergyPoint> points});

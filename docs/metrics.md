@@ -1152,6 +1152,15 @@ margin. A tap picks the closest point; a screen reader steps hour by hour.
 The card is absent while the day is under `energyRowFloor`, and a picked hour
 under the floor shows the starting line and no range.
 
+The last 7 days (`energy_week.dart`, `energyWeekProvider`) are one range bar
+per day, with the middle marked and an axis that starts at zero, so the bars
+visibly overlap. A past day with no steps and no workout on record was most
+likely a day without the ring: it shows as no data and stays out of the usual
+day. The usual day is the mean total of the past days on record, without
+today, shown as a range with the same 15 percent margin, and only with 3 days
+or more (`energyUsualMinDays`, our choice). The card appears once one past day
+is on record. A past day is computed with the weight and the profile of today.
+
 A tap on the resting card or on a part of the day opens an evidence sheet
 (`energy_evidence_sheet.dart`): what it is, the value of the person, the rule
 with its constants printed from `packages/metrics`, the source, what is our

@@ -425,4 +425,29 @@ void main() {
       expect(estimate.range, energyRange(estimate.total, energyDayMargin));
     });
   });
+  group('the usual day', () {
+    EnergyDayEstimate day(double steps) =>
+        EnergyDayEstimate(resting: 1700, base: 2000, steps: steps, workouts: 0);
+
+    test('needs the minimum of days', () {
+      expect(energyUsual([day(100), day(200)]), isNull);
+      expect(energyUsual([day(100), day(200), day(600)]), 2300);
+    });
+
+    test('a day with steps or a workout is on record', () {
+      expect(energyDayOnRecord(day(1)), isTrue);
+      expect(energyDayOnRecord(day(0)), isFalse);
+      expect(
+        energyDayOnRecord(
+          const EnergyDayEstimate(
+            resting: 1700,
+            base: 2000,
+            steps: 0,
+            workouts: 120,
+          ),
+        ),
+        isTrue,
+      );
+    });
+  });
 }

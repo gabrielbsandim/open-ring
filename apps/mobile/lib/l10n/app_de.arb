@@ -1614,5 +1614,11 @@
   "energyRuleWorkouts": "(MET - 1) × Gewicht × Stunden. Der MET sagt, wie viel mal anstrengender als Ruhe eine Aktivität ist, aus einer Tabelle nach Aktivitätstyp. Die 1 fällt weg, weil die Ruhe schon in der Basis steckt. Ein in der App aufgezeichnetes Workout behält den Wert, den es am Ende gespeichert hat.",
   "energySourceWorkouts": "Dieselbe Aktivitätstabelle, die der Workout-Bildschirm verwendet.",
   "energyOursWorkouts": "Ein Wert pro Aktivitätstyp, egal bei welchem Tempo.",
-  "energyLimitsWorkouts": "Eine schnelle und eine langsame Einheit gleicher Dauer bekommen dieselbe Zahl. Die aktive Energie des Rings wird nie obendrauf gerechnet."
+  "energyLimitsWorkouts": "Eine schnelle und eine langsame Einheit gleicher Dauer bekommen dieselbe Zahl. Die aktive Energie des Rings wird nie obendrauf gerechnet.",
+  "energyWeekTitle": "Letzte 7 Tage",
+  "energyWeekBody": "Jeder Balken ist der Bereich eines Tages. Die Markierung ist die Mitte. Tippe auf einen Tag.",
+  "energyWeekSemantics": "Tagessummen der letzten 7 Tage als Bereiche.",
+  "energyWeekNoData": "Für diesen Tag sind keine Schritte oder Workouts aufgezeichnet.",
+  "energyWeekUsual": "Dein üblicher Tag",
+  "energyWeekNote": "Die Balken überlappen: Die meisten Tage unterscheiden sich um weniger als die Spanne der Schätzung. Vergleiche die Markierungen, Tag gegen Tag. Was die Gleichung bei dir falsch einschätzt, schätzt sie jeden Tag ungefähr gleich falsch ein."
 }

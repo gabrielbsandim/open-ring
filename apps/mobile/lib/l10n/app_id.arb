@@ -1614,5 +1614,11 @@
   "energyRuleWorkouts": "(MET - 1) × berat × jam. MET menyatakan berapa kali lebih berat suatu aktivitas dibanding istirahat, dari tabel per jenis aktivitas. Angka 1 dikurangi karena istirahat sudah ada di Dasar. Latihan yang direkam di aplikasi mempertahankan angka yang disimpannya saat selesai.",
   "energySourceWorkouts": "Tabel aktivitas yang sama dengan yang dipakai layar latihan.",
   "energyOursWorkouts": "Satu nilai per jenis aktivitas, berapa pun kecepatannya.",
-  "energyLimitsWorkouts": "Sesi cepat dan sesi lambat dengan durasi sama mendapat angka yang sama. Energi aktif dari cincin tidak pernah ditambahkan di atasnya."
+  "energyLimitsWorkouts": "Sesi cepat dan sesi lambat dengan durasi sama mendapat angka yang sama. Energi aktif dari cincin tidak pernah ditambahkan di atasnya.",
+  "energyWeekTitle": "7 hari terakhir",
+  "energyWeekBody": "Tiap batang adalah rentang satu hari. Tandanya adalah titik tengah. Ketuk satu hari.",
+  "energyWeekSemantics": "Total harian 7 hari terakhir, sebagai rentang.",
+  "energyWeekNoData": "Tidak ada langkah atau latihan yang tercatat untuk hari ini.",
+  "energyWeekUsual": "Hari biasamu",
+  "energyWeekNote": "Batang-batangnya saling tumpang tindih: kebanyakan hari berbeda lebih kecil daripada margin perkiraan. Bandingkan tandanya, hari demi hari. Apa pun yang keliru dari persamaan ini tentang dirimu, kelirunya kurang lebih sama setiap hari."
 }

@@ -1614,5 +1614,11 @@
   "energyRuleWorkouts": "(MET - 1) × peso × horas. El MET dice cuántas veces más intensa que el reposo es una actividad, según una tabla por tipo de actividad. El 1 se resta porque el reposo ya está en la Base. Un entrenamiento registrado en la app conserva la cifra que guardó al terminar.",
   "energySourceWorkouts": "La misma tabla de actividades que usa la pantalla de entrenamiento.",
   "energyOursWorkouts": "Un valor por tipo de actividad, sea cual sea el ritmo.",
-  "energyLimitsWorkouts": "Una sesión rápida y una lenta de la misma duración reciben el mismo número. La energía activa del propio anillo nunca se suma encima."
+  "energyLimitsWorkouts": "Una sesión rápida y una lenta de la misma duración reciben el mismo número. La energía activa del propio anillo nunca se suma encima.",
+  "energyWeekTitle": "Últimos 7 días",
+  "energyWeekBody": "Cada barra es el rango de un día. La marca es el centro. Toca un día.",
+  "energyWeekSemantics": "Totales de los últimos 7 días, como rangos.",
+  "energyWeekNoData": "Sin pasos ni entrenamientos registrados este día.",
+  "energyWeekUsual": "Tu día habitual",
+  "energyWeekNote": "Las barras se solapan: la mayoría de los días difieren menos que el margen de la estimación. Compara las marcas, día contra día. Lo que la ecuación falla contigo, lo falla casi igual todos los días."
 }

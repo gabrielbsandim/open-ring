@@ -3764,5 +3764,11 @@
   "energyRuleWorkouts": "(MET - 1) × weight × hours. MET says how many times harder than rest an activity is, from a table by activity type. The 1 comes out because rest is already in the Base. A workout recorded in the app keeps the figure it stored when it ended.",
   "energySourceWorkouts": "The same activity table the workout screen uses.",
   "energyOursWorkouts": "One value per activity type, whatever the pace.",
-  "energyLimitsWorkouts": "A fast and a slow session of the same length get the same number. The ring's own active energy is never added on top."
+  "energyLimitsWorkouts": "A fast and a slow session of the same length get the same number. The ring's own active energy is never added on top.",
+  "energyWeekTitle": "Last 7 days",
+  "energyWeekBody": "Each bar is the range of one day. The mark is the middle. Tap a day.",
+  "energyWeekSemantics": "Day totals of the last 7 days, as ranges.",
+  "energyWeekNoData": "No steps or workouts on record for this day.",
+  "energyWeekUsual": "Your usual day",
+  "energyWeekNote": "The bars overlap: most days differ less than the margin of the estimate. Compare the marks, day against day. Whatever the equation gets wrong about you, it gets wrong about the same every day."
 }

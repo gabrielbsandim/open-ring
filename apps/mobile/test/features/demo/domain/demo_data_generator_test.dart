@@ -3,6 +3,7 @@ import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/demo/domain/demo_data.dart';
 import 'package:open_ring/features/demo/domain/demo_data_generator.dart';
 import 'package:open_ring/features/ring/domain/sleep_session_span.dart';
+import 'package:open_ring/features/workout/domain/workout_type.dart';
 import 'package:ring_driver/ring_driver.dart';
 
 final now = DateTime(2026, 11, 11, 14, 37);
@@ -195,6 +196,32 @@ void main() {
     final data = DemoDataGenerator(now: now, days: 3).generate();
 
     expect(data.workouts, hasLength(1));
+  });
+
+  test('the treadmill workout is rated 7 and the strength one is not', () {
+    final data = generate();
+    final treadmill = data.workouts.singleWhere(
+      (w) => w.type == WorkoutType.treadmill,
+    );
+
+    expect(data.workoutRatings, {treadmill.start: 7});
+  });
+
+  test('a short history drops the rating with its workout', () {
+    final data = DemoDataGenerator(now: now, days: 3).generate();
+
+    expect(data.workouts.map((w) => w.start), isNotEmpty);
+    expect(
+      data.workoutRatings.keys.toSet().difference(
+        data.workouts.map((w) => w.start).toSet(),
+      ),
+      isEmpty,
+    );
+    expect(data.workoutRatings, hasLength(1));
+
+    final shortest = DemoDataGenerator(now: now, days: 1).generate();
+    expect(shortest.workouts, isEmpty);
+    expect(shortest.workoutRatings, isEmpty);
   });
 
   group('weigh-ins', () {

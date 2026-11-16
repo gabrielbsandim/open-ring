@@ -112,9 +112,14 @@ Future<void> _seed(AppDatabase db) async {
         ),
       );
 
-  for (final (clientId, start, end) in [
-    ('w-2', DateTime.utc(2026, 10, 25, 18), null),
-    ('w-1', DateTime.utc(2026, 10, 25, 9), DateTime.utc(2026, 10, 25, 9, 40)),
+  for (final (clientId, start, end, rating) in [
+    ('w-2', DateTime.utc(2026, 10, 25, 18), null, null),
+    (
+      'w-1',
+      DateTime.utc(2026, 10, 25, 9),
+      DateTime.utc(2026, 10, 25, 9, 40),
+      7,
+    ),
   ]) {
     await db
         .into(db.workouts)
@@ -126,6 +131,7 @@ Future<void> _seed(AppDatabase db) async {
             endUtcMs: Value.absentIfNull(end == null ? null : _ms(end)),
             offsetMinutes: 60,
             distanceMeters: const Value(6012.3),
+            effortRating: Value(rating),
           ),
         );
   }
@@ -213,9 +219,9 @@ void main() {
       expect(file.path, endsWith('openring-workouts-20261110-150000.csv'));
       expect(
         File(file.path).readAsStringSync(),
-        'start,end,client_id,device_id,activity_type,duration_s,distance_m,active_kcal\r\n'
-        '2026-10-25T10:00:00+01:00,2026-10-25T10:40:00+01:00,w-1,,running,2400,6012.3,\r\n'
-        '2026-10-25T19:00:00+01:00,,w-2,,running,,6012.3,\r\n',
+        'start,end,client_id,device_id,activity_type,duration_s,distance_m,active_kcal,effort_rating\r\n'
+        '2026-10-25T10:00:00+01:00,2026-10-25T10:40:00+01:00,w-1,,running,2400,6012.3,,7\r\n'
+        '2026-10-25T19:00:00+01:00,,w-2,,running,,6012.3,,\r\n',
       );
     });
 
@@ -307,6 +313,13 @@ void main() {
       ],
       ['w-1', 'w-2'],
     );
+    final workouts = [
+      for (final w in json['workouts']! as List<Object?>)
+        w! as Map<String, Object?>,
+    ];
+    expect(workouts.map((w) => w['effort_rating']), [7, null]);
+    expect(workouts.first.keys.toList(), ExportKind.workouts.columns);
+    expect(workouts.first.keys.last, 'effort_rating');
     expect(result.recordCount, 10);
   });
 

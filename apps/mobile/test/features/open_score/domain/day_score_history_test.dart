@@ -134,6 +134,32 @@ void main() {
       activeLoad: const [],
     );
 
+    test('counts the active days of the week against the rule', () {
+      final result = collect(historyOf(days: 30), intensity: flat(3, 30));
+
+      expect(result.progress?.activeDays, 3);
+      expect(result.progress?.activeNeeded, intensityMinDays);
+    });
+
+    test('an active day older than the week does not count', () {
+      final result = collect(historyOf(days: 30), intensity: flat(40, 30));
+
+      expect(result.progress?.activeDays, intensityWindowDays);
+    });
+
+    test('the baseline count is the least advanced of the three', () {
+      final result = collect(historyOf(days: 30), stress: flat(3, 40));
+
+      expect(result.progress?.baselineDays, 2);
+      expect(result.progress?.baselineNeeded, baselineMinDays);
+    });
+
+    test('ready baselines count as the days they need', () {
+      final result = collect(historyOf(days: 30));
+
+      expect(result.progress?.baselineDays, baselineMinDays);
+    });
+
     test('covers ninety days ending today', () {
       final history = collect(historyOf(days: 30));
 

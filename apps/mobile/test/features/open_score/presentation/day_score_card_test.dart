@@ -313,6 +313,112 @@ void main() {
       expect(find.text('building'), findsNWidgets(2));
     });
 
+    testWidgets('the first days count the active days and the baselines', (
+      tester,
+    ) async {
+      await pumpCard(
+        tester,
+        DayScoreHistory(
+          today: metricsToday,
+          days: {
+            metricsToday: day(
+              intensityMinutes: null,
+              baselines: false,
+              stressZ: null,
+            ),
+          },
+          progress: (
+            activeDays: 3,
+            activeNeeded: 4,
+            baselineDays: 2,
+            baselineNeeded: 7,
+          ),
+        ),
+      );
+
+      expect(
+        find.descendant(
+          of: find.byKey(DayScoreCardKeys.firstActivity),
+          matching: find.text('3 of 4'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(DayScoreCardKeys.firstBaselines),
+          matching: find.text('2 of 7'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('building'), findsNothing);
+      expect(find.text('ready'), findsNWidgets(2));
+    });
+
+    testWidgets('a rule that is met reads ready, not a count', (tester) async {
+      await pumpCard(
+        tester,
+        DayScoreHistory(
+          today: metricsToday,
+          days: {metricsToday: day(baselines: false, stressZ: null, steps: 0)},
+          progress: (
+            activeDays: 5,
+            activeNeeded: 4,
+            baselineDays: 6,
+            baselineNeeded: 7,
+          ),
+        ),
+      );
+
+      expect(
+        find.descendant(
+          of: find.byKey(DayScoreCardKeys.firstActivity),
+          matching: find.text('ready'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('5 of 4'), findsNothing);
+      expect(find.text('6 of 7'), findsOneWidget);
+    });
+
+    testWidgets('a full count on a rule still missing today reads building', (
+      tester,
+    ) async {
+      await pumpCard(
+        tester,
+        DayScoreHistory(
+          today: metricsToday,
+          days: {metricsToday: day(baselines: false, stressZ: null, steps: 0)},
+          progress: (
+            activeDays: 5,
+            activeNeeded: 4,
+            baselineDays: 7,
+            baselineNeeded: 7,
+          ),
+        ),
+      );
+
+      expect(find.text('7 of 7'), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byKey(DayScoreCardKeys.firstBaselines),
+          matching: find.text('building'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('a day without a score draws the bar of what was there', (
+      tester,
+    ) async {
+      await pumpCard(tester, historyOf(day(sleepScore: null)));
+
+      final bar = tester.widget<DayScoreBar>(
+        find.byKey(DayScoreCardKeys.noneBar),
+      );
+      expect(bar.subscore(DayScoreFactor.sleep), isNull);
+      expect(bar.subscore(DayScoreFactor.steps), 1);
+    });
+
     testWidgets('a scored day links to the math and the score history', (
       tester,
     ) async {

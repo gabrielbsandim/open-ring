@@ -101,6 +101,10 @@ void main() {
     test('no steps cost nothing', () {
       expect(stepEnergy(steps: 0, kilograms: 78.4, centimeters: 178), 0);
     });
+
+    test('a negative count costs nothing', () {
+      expect(stepEnergy(steps: -3, kilograms: 78.4, centimeters: 178), 0);
+    });
   });
 
   group('workoutEnergy', () {
@@ -123,6 +127,10 @@ void main() {
 
     test('no time costs nothing', () {
       expect(workout(9.8, Duration.zero), 0);
+    });
+
+    test('a negative time costs nothing', () {
+      expect(workout(9.8, const Duration(minutes: -5)), 0);
     });
   });
 }

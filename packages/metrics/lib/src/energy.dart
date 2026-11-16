@@ -62,7 +62,8 @@ double stepEnergy({
   required double kilograms,
   required double centimeters,
 }) {
-  final kilometers = steps * energyStepLengthFactor * centimeters / 100000;
+  final kilometers =
+      math.max(steps, 0) * energyStepLengthFactor * centimeters / 100000;
   return energyWalkCostPerKgKm * kilograms * kilometers;
 }
 
@@ -74,5 +75,5 @@ double workoutEnergy({
 }) =>
     math.max(met - 1, 0) *
     kilograms *
-    elapsed.inMicroseconds /
+    math.max(elapsed.inMicroseconds, 0) /
     Duration.microsecondsPerHour;

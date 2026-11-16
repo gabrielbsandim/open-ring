@@ -272,7 +272,8 @@ rule to order it by.
   `READ_EXERCISE_ROUTES` or a per-session consent intent, neither of which the
   plugin offers; heart rate needs `READ_HEART_RATE`, and heart rate from other
   sources has no defined use. An imported workout therefore has no route, so it
-  has no GPX export.
+  has no GPX export. The stored rows are in the data export, in the
+  `imported_workouts` kind (see `export-format.md`).
 - **Own records excluded** by `isExternalSource`, as for sleep. Workouts with no
   duration are dropped.
 - **Storage.** `imported_workouts` (schema v7), keyed by record id, upserted,

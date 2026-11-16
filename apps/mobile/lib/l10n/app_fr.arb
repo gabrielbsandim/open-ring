@@ -681,6 +681,7 @@
   "exportKindWorkouts": "Séances",
   "exportKindWeighIns": "Pesées",
   "exportKindDayTags": "Marques de jour",
+  "exportKindImportedWorkouts": "Entraînements d'autres apps",
   "exportPickKind": "Choisissez au moins un type de données.",
   "exportFormat": "Format",
   "exportCsvNote": "Un fichier par type de données, chaque mesure avec son heure. Plusieurs types arrivent dans une archive zip.",

@@ -1723,6 +1723,7 @@
   "exportKindWorkouts": "Workouts",
   "exportKindWeighIns": "Weigh-ins",
   "exportKindDayTags": "Day tags",
+  "exportKindImportedWorkouts": "Workouts from other apps",
   "exportPickKind": "Pick at least one data type.",
   "exportFormat": "Format",
   "exportCsvNote": "One file per data type, every sample with its time. Several types come in one zip archive.",

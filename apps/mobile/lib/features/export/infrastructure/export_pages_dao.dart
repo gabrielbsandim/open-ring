@@ -68,6 +68,7 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
       ExportKind.workouts => _workouts(range),
       ExportKind.weighIns => _weighIns(range),
       ExportKind.dayTags => _dayTags(range),
+      ExportKind.importedWorkouts => _importedWorkouts(range),
     };
   }
 
@@ -265,6 +266,35 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
               .get(),
       (row) => (date: row.date),
       (row) => DayTagRecord(date: row.date, tag: row.tag),
+    );
+  }
+
+  // Every stored row goes out, also one the app hides: the export is a copy
+  // of the database, not of the screens.
+  Stream<List<ExportRecord>> _importedWorkouts(({int from, int to}) range) {
+    final table = attachedDatabase.importedWorkouts;
+    return _paged<_TimeCursor, ImportedWorkoutRow>(
+      (cursor) =>
+          (select(table)
+                ..where((w) => _window(w.startUtcMs, w.recordId, range, cursor))
+                ..orderBy([
+                  (w) => OrderingTerm.asc(w.startUtcMs),
+                  (w) => OrderingTerm.asc(w.recordId),
+                ])
+                ..limit(pageSize))
+              .get(),
+      (row) => (at: row.startUtcMs, deviceId: row.recordId),
+      (row) => ImportedWorkoutRecord(
+        start: OffsetTime(
+          utcMs: row.startUtcMs,
+          offsetMinutes: row.offsetMinutes,
+        ),
+        end: OffsetTime(utcMs: row.endUtcMs, offsetMinutes: row.offsetMinutes),
+        recordId: row.recordId,
+        source: row.source,
+        activityType: row.activityType,
+        effortRating: row.effortRating,
+      ),
     );
   }
 

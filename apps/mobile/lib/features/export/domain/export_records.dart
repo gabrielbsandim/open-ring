@@ -114,6 +114,35 @@ final class WorkoutRecord extends ExportRecord {
   ];
 }
 
+final class ImportedWorkoutRecord extends ExportRecord {
+  const new({
+    required this.start,
+    required this.end,
+    required this.recordId,
+    required this.source,
+    required this.activityType,
+    this.effortRating,
+  });
+
+  final OffsetTime start;
+  final OffsetTime end;
+  final String recordId;
+  final String source;
+  final String activityType;
+  final int? effortRating;
+
+  @override
+  List<Object?> get values => [
+    start,
+    end,
+    recordId,
+    source,
+    activityType,
+    (end.utcMs - start.utcMs) ~/ Duration.millisecondsPerSecond,
+    effortRating,
+  ];
+}
+
 final class WeighInRecord extends ExportRecord {
   const new({
     required this.at,

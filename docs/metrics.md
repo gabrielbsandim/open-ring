@@ -1236,7 +1236,7 @@ with `effortWeekPoints` (150) and `effortWeekStrengthDays` (2).
 
 | Constant | Basis |
 | --- | --- |
-| `effortWeekPoints` 150 | the 150 minutes of section 14 (Bull 2020), **sourced** |
+| `effortWeekPoints` 150 | the `intensityWeeklyTarget` of section 15 (150 minutes, Bull 2020), **sourced** |
 | `effortWeekStrengthDays` 2 | the same guideline asks for muscle strengthening on 2 or more days a week, **not yet checked against its source** |
 | `effortStrengthMinMinutes` 20 | **our choice**: `isStrengthSession` counts a session of at least 20 minutes |
 

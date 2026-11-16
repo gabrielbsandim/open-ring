@@ -521,6 +521,15 @@ void main() {
       }
     });
 
+    test('a high load with no line before it is not a hard day', () {
+      for (final before in [9, 13]) {
+        final advice = advise([...List.filled(before, 40), 130]);
+
+        expect(advice.hardFrom, isNull, reason: '$before');
+        expect(advice.hardDays, 0, reason: '$before');
+      }
+    });
+
     test('14 days give the lines but no threshold and no week ago line', () {
       final advice = advise(List.filled(14, 40));
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
@@ -114,15 +116,19 @@ class EffortCoachSlot extends ConsumerWidget {
     if (card == null) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(bottom: cardGap),
-      child: EffortCoachCardView(card: card),
+      child: EffortCoachCardView(
+        card: card,
+        onTap: () => context.go(AppPaths.effort),
+      ),
     );
   }
 }
 
 class EffortCoachCardView extends StatelessWidget {
-  const new({required this.card, super.key});
+  const new({required this.card, this.onTap, super.key});
 
   final EffortCoachCard card;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -133,6 +139,7 @@ class EffortCoachCardView extends StatelessWidget {
     final rule = card.advice.rule;
     return MetricCard(
       key: EffortCoachKeys.card,
+      onTap: onTap,
       padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

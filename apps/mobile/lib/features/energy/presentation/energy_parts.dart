@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
+import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/features/energy/domain/energy_day.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -31,3 +32,10 @@ String energyPartLabel(AppLocalizations l10n, EnergyPart part) =>
       EnergyPart.steps => l10n.energyPartSteps,
       EnergyPart.workouts => l10n.energyPartWorkouts,
     };
+
+String energyPartText(MetricFormat format, double value) {
+  final shown = energyPartShown(value);
+  final number = format.integer(shown);
+  if (shown == 0) return format.l10n.energyKcal(number);
+  return format.l10n.energyPartAbout(number);
+}

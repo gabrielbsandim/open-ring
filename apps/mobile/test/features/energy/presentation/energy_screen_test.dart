@@ -20,6 +20,7 @@ import 'package:open_ring/features/body/domain/hide_numbers_store.dart';
 import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/energy/application/energy_providers.dart';
 import 'package:open_ring/features/energy/domain/energy_day.dart';
+import 'package:open_ring/features/energy/presentation/energy_evidence_sheet.dart';
 import 'package:open_ring/features/energy/presentation/energy_parts.dart';
 import 'package:open_ring/features/energy/presentation/energy_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_through_day.dart';
@@ -391,6 +392,39 @@ void main() {
 
       expect(find.byKey(EnergyKeys.missing), findsOneWidget);
       expect(find.byKey(EnergyThroughKeys.card), findsNothing);
+    });
+  });
+
+  group('the evidence', () {
+    for (final part in EnergyPart.values) {
+      testWidgets('a tap on ${part.name} opens its sheet', (tester) async {
+        await _pump(tester, day: _full);
+        await _reveal(tester, find.byKey(EnergyKeys.part(part)));
+
+        await tester.tap(find.byKey(EnergyKeys.part(part)));
+        await tester.pumpAndSettle();
+
+        final sheet = tester.widget<EnergyEvidenceSheet>(
+          find.byType(EnergyEvidenceSheet),
+        );
+        expect(sheet.kind, energyEvidenceOf(part));
+        expect(sheet.day, _full);
+      });
+    }
+
+    testWidgets('a tap on the resting burn opens its sheet', (tester) async {
+      await _pump(tester, day: _full);
+      await _reveal(tester, find.byKey(EnergyKeys.restingRange));
+
+      await tester.tap(find.byKey(EnergyKeys.restingRange));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester
+            .widget<EnergyEvidenceSheet>(find.byType(EnergyEvidenceSheet))
+            .kind,
+        EnergyEvidence.resting,
+      );
     });
   });
 

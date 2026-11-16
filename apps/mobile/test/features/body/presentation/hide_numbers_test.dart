@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/app_navigation_bar.dart';
+import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/domain/hide_numbers_store.dart';
@@ -307,5 +308,41 @@ void main() {
 
     expect(choice.hidden, isFalse);
     expect(find.text('Numbers visible again.'), findsOneWidget);
+  });
+  group('the hide numbers choice', () {
+    Future<void> pump(WidgetTester tester, Set<ModuleId> modules) => pumpScaled(
+      tester,
+      screenHost(const BodyModuleScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: <Override>[
+        ...metricsOverrides(fullDataScenario),
+        moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
+        weighInStoreProvider.overrideWithValue(InMemoryWeighInStore()),
+        hideNumbersStoreProvider.overrideWithValue(InMemoryHideNumbersStore()),
+      ],
+    );
+
+    String detail(WidgetTester tester) {
+      final tile = tester.widget<SwitchListTile>(
+        find.byKey(BodyModuleKeys.hide),
+      );
+      return (tile.subtitle! as CaptionText).text;
+    }
+
+    testWidgets('names the energy estimate while Energy is on', (tester) async {
+      await pump(tester, {ModuleId.body, ModuleId.energy});
+      await reveal(tester, find.byKey(BodyModuleKeys.hide));
+
+      expect(detail(tester), endsWith('The energy estimate is hidden too.'));
+    });
+
+    testWidgets('does not name it while Energy is off', (tester) async {
+      await pump(tester, {ModuleId.body});
+      await reveal(tester, find.byKey(BodyModuleKeys.hide));
+
+      expect(detail(tester), endsWith('no weight value on any screen.'));
+    });
   });
 }

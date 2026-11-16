@@ -1620,5 +1620,12 @@
   "energyWeekSemantics": "最近 7 天的每日总量，以范围显示。",
   "energyWeekNoData": "这一天没有步数或训练记录。",
   "energyWeekUsual": "你平常的一天",
-  "energyWeekNote": "条形会重叠：大多数日子之间的差别小于估算的幅度。请逐日比较标记。公式对你估错的部分，每天错得差不多。"
+  "energyWeekNote": "条形会重叠：大多数日子之间的差别小于估算的幅度。请逐日比较标记。公式对你估错的部分，每天错得差不多。",
+  "energyFormulaIntro": "能量由三部分相加：由静息消耗得出的基础、你的步数和你的训练。每条规则和每个常数都在这个页面上。",
+  "energyFormulaMarginsTitle": "关于幅度",
+  "energyFormulaMargin1": "静息消耗按上下各 {resting}% 显示，全天按上下各 {day}% 显示，都四舍五入到最接近的 {step} 千卡。",
+  "energyFormulaMargin2": "全天的幅度更宽，因为步数和训练会在公式的误差之上再加上各自的误差。它的大小是我们的选择。",
+  "activityActiveEnergyRing": "活动能量（来自戒指）",
+  "todayActivityDetailRing": "{detail}（来自戒指）",
+  "bodyHideEnergy": "能量估算也会隐藏。"
 }

@@ -10,6 +10,7 @@ import 'package:open_ring/core/widgets/charts.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/core/widgets/text_scale.dart';
+import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/ring_sync_state.dart';
 import 'package:open_ring/features/ring/presentation/sync_labels.dart';
@@ -18,6 +19,7 @@ import 'package:open_ring/features/sleep/presentation/sleep_labels.dart';
 import 'package:open_ring/features/sleep/presentation/sleep_stage_summary.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/today/application/today_view.dart';
+import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class TodayKeys {
   static const syncChip = Key('today_sync_chip');
@@ -30,6 +32,7 @@ abstract final class TodayKeys {
   static const readiness = Key('today_readiness');
   static const sleep = Key('today_sleep');
   static const activity = Key('today_activity');
+  static const activityDetail = Key('today_activity_detail');
   static const heart = Key('today_heart');
   static const staleMarker = Key('today_stale_marker');
 }
@@ -293,6 +296,13 @@ class SleepSummaryCard extends StatelessWidget {
   }
 }
 
+// With Energy on there are two energy figures, so the ring's one is named.
+String _activityDetail(
+  AppLocalizations l10n,
+  String detail, {
+  required bool fromRing,
+}) => fromRing ? l10n.todayActivityDetailRing(detail) : detail;
+
 class ActivitySummaryCard extends ConsumerWidget {
   const new({required this.view, super.key});
 
@@ -332,13 +342,18 @@ class ActivitySummaryCard extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             CaptionText(
-              units.select(
-                l10n.todayActivityDetail,
-                l10n.todayActivityDetailMi,
-              )(
-                format.integer(activity.activeKilocalories),
-                units.distance(activity.distanceMeters),
+              _activityDetail(
+                l10n,
+                units.select(
+                  l10n.todayActivityDetail,
+                  l10n.todayActivityDetailMi,
+                )(
+                  format.integer(activity.activeKilocalories),
+                  units.distance(activity.distanceMeters),
+                ),
+                fromRing: ref.watch(energyGateProvider) == EnergyGate.on,
               ),
+              key: TodayKeys.activityDetail,
             ),
           ],
           if (view.freshness == SyncFreshness.stale) ...[

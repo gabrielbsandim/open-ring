@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
+import 'package:open_ring/core/widgets/metric_card.dart';
+import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/health_sync/domain/health_read_store.dart';
 import 'package:open_ring/features/health_sync/domain/health_writer.dart';
@@ -465,5 +467,28 @@ void main() {
 
       expect(inSleepCard(find.textContaining(RegExp('^REM '))), findsOneWidget);
     });
+  });
+  testWidgets('the ring energy is named while Energy is on', (tester) async {
+    await pumpScaled(
+      tester,
+      screenHost(const TodayScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: [
+        ...metricsOverrides(fullDataScenario),
+        energyGateProvider.overrideWithValue(EnergyGate.on),
+      ],
+    );
+    await tester.scrollUntilVisible(
+      find.byKey(TodayKeys.activityDetail),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    expect(
+      tester.widget<CaptionText>(find.byKey(TodayKeys.activityDetail)).text,
+      '87 kcal · 1.54 km (from the ring)',
+    );
   });
 }

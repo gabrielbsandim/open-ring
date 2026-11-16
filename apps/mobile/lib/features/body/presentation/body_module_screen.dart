@@ -108,7 +108,7 @@ class BodyModuleScreen extends ConsumerWidget {
               color: colors.textPrimary,
             ),
             title: Text(l10n.bodyHideTitle),
-            subtitle: CaptionText(l10n.bodyHideDetail),
+            subtitle: CaptionText(_hideDetail(l10n, ref)),
             activeThumbColor: colors.background,
             activeTrackColor: colors.activity,
             inactiveThumbColor: colors.textSecondary,
@@ -205,6 +205,13 @@ class BodyModuleScreen extends ConsumerWidget {
       return false;
     }
   }
+}
+
+// The energy estimate is named only for a person who has it turned on.
+String _hideDetail(AppLocalizations l10n, WidgetRef ref) {
+  final modules = ref.watch(enabledModulesProvider).value ?? const {};
+  if (!modules.contains(ModuleId.energy)) return l10n.bodyHideDetail;
+  return '${l10n.bodyHideDetail} ${l10n.bodyHideEnergy}';
 }
 
 class _DeleteDialog extends StatelessWidget {

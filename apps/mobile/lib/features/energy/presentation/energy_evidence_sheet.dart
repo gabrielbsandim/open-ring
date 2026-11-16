@@ -23,10 +23,9 @@ EnergyEvidence energyEvidenceOf(EnergyPart part) => switch (part) {
   EnergyPart.workouts => EnergyEvidence.workouts,
 };
 
-typedef _Copy = ({
+typedef EnergyEvidenceCopy = ({
   String title,
   String what,
-  String yours,
   String rule,
   String source,
   String ours,
@@ -49,7 +48,21 @@ String _workoutsText(MetricFormat format, double value) => value <= 0
     ? format.l10n.energyPartWorkoutsNone
     : energyPartText(format, value);
 
-_Copy _copy(MetricFormat format, EnergyEvidence kind, EnergyDayEstimate day) {
+String _yours(
+  MetricFormat format,
+  EnergyEvidence kind,
+  EnergyDayEstimate day,
+) => switch (kind) {
+  EnergyEvidence.resting => _restingText(format, day.resting),
+  EnergyEvidence.base => energyPartText(format, day.base),
+  EnergyEvidence.steps => energyPartText(format, day.steps),
+  EnergyEvidence.workouts => _workoutsText(format, day.workouts),
+};
+
+EnergyEvidenceCopy energyEvidenceCopy(
+  MetricFormat format,
+  EnergyEvidence kind,
+) {
   final l10n = format.l10n;
   String two(double value) => format.decimal(value, digits: 2);
   final factor = format.decimal(energyBaseFactor, digits: 1);
@@ -59,7 +72,6 @@ _Copy _copy(MetricFormat format, EnergyEvidence kind, EnergyDayEstimate day) {
     EnergyEvidence.resting => (
       title: l10n.energyRestingTitle,
       what: l10n.energyWhatResting,
-      yours: _restingText(format, day.resting),
       rule: l10n.energyRuleResting(
         two(mifflinPerKilogram),
         two(mifflinPerCentimeter),
@@ -76,7 +88,6 @@ _Copy _copy(MetricFormat format, EnergyEvidence kind, EnergyDayEstimate day) {
     EnergyEvidence.base => (
       title: l10n.energyPartBase,
       what: l10n.energyWhatBase,
-      yours: energyPartText(format, day.base),
       rule: l10n.energyRuleBase(factor),
       source: l10n.energySourceBase,
       ours: l10n.energyOursBase(factor),
@@ -85,7 +96,6 @@ _Copy _copy(MetricFormat format, EnergyEvidence kind, EnergyDayEstimate day) {
     EnergyEvidence.steps => (
       title: l10n.energyPartSteps,
       what: l10n.energyWhatSteps,
-      yours: energyPartText(format, day.steps),
       rule: l10n.energyRuleSteps(
         format.decimal(energyStepLengthFactor, digits: 3),
         cost,
@@ -97,7 +107,6 @@ _Copy _copy(MetricFormat format, EnergyEvidence kind, EnergyDayEstimate day) {
     EnergyEvidence.workouts => (
       title: l10n.energyPartWorkouts,
       what: l10n.energyWhatWorkouts,
-      yours: _workoutsText(format, day.workouts),
       rule: l10n.energyRuleWorkouts,
       source: l10n.energySourceWorkouts,
       ours: l10n.energyOursWorkouts,
@@ -130,7 +139,7 @@ class EnergyEvidenceSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final format = MetricFormat.of(context);
     final l10n = format.l10n;
-    final copy = _copy(format, kind, day);
+    final copy = energyEvidenceCopy(format, kind);
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height * 0.85,
@@ -151,24 +160,33 @@ class EnergyEvidenceSheet extends StatelessWidget {
                     ?.copyWith(fontWeight: FontWeight.w600),
               ),
             ),
-            _Section(title: l10n.overallSheetWhat, body: copy.what),
-            _Section(
+            EnergyEvidenceSection(
+              title: l10n.overallSheetWhat,
+              body: copy.what,
+            ),
+            EnergyEvidenceSection(
               key: EnergyEvidenceKeys.yours,
               title: l10n.overallSheetYours,
-              body: copy.yours,
+              body: _yours(format, kind, day),
             ),
-            _Section(
+            EnergyEvidenceSection(
               key: EnergyEvidenceKeys.rule,
               title: l10n.overallSheetRule,
               body: copy.rule,
             ),
-            _Section(title: l10n.overallSheetSource, body: copy.source),
-            _Section(
+            EnergyEvidenceSection(
+              title: l10n.overallSheetSource,
+              body: copy.source,
+            ),
+            EnergyEvidenceSection(
               key: EnergyEvidenceKeys.ours,
               title: l10n.overallSheetOurs,
               body: copy.ours,
             ),
-            _Section(title: l10n.overallSheetLimits, body: copy.limits),
+            EnergyEvidenceSection(
+              title: l10n.overallSheetLimits,
+              body: copy.limits,
+            ),
             const SizedBox(height: 16),
             CaptionText(l10n.energyFixedNote, key: EnergyEvidenceKeys.note),
           ],
@@ -178,7 +196,7 @@ class EnergyEvidenceSheet extends StatelessWidget {
   }
 }
 
-class _Section extends StatelessWidget {
+class EnergyEvidenceSection extends StatelessWidget {
   const new({required this.title, required this.body, super.key});
 
   final String title;

@@ -1544,5 +1544,16 @@
   "dayScoreFormulaOverall1": "総合スコアは 1 日ではなく、あなたの土台を見ます。毎週月曜までの {days} 日間の 6 つの要素です。データのない要素は計算から外れ、残りが換算されます。",
   "dayScoreFormulaOverall2": "100 点の内訳：持久力 {fitness}、安静時心拍数 {resting}、睡眠時間 {sleep}、睡眠の規則性 {regularity}、週の運動 {movement}、からだ {body}。総合スコア画面の各行から、ルールと出典を開けます。",
   "moduleOpenScoreAddsOverall": "総合スコア。直近 4 週間のあなたの土台で、毎週月曜に更新され、各要素のルールと出典、12 週間のグラフが付きます。",
-  "moduleOpenScoreUsesOverall": "総合スコアは、プロフィールの年齢・性別・身長、記録したランニングとウォーキング、そして体モジュールがオンのときはウエストと体重も読み取ります。"
+  "moduleOpenScoreUsesOverall": "総合スコアは、プロフィールの年齢・性別・身長、記録したランニングとウォーキング、そして体モジュールがオンのときはウエストと体重も読み取ります。",
+  "energyTitle": "エネルギー",
+  "energyRowSoFar": "ここまで · {time}",
+  "energyRowRange": "{low}〜{high}",
+  "energyRowUnit": "kcal（推定）",
+  "energyRowStarting": "1日はまだ始まったばかりです",
+  "energyRowSemantics": "今日ここまでのエネルギー、{low}〜{high}キロカロリー（推定）。",
+  "energyRowMissingAge": "年齢を入力すると推定値が表示されます",
+  "energyRowMissingHeight": "身長を入力すると推定値が表示されます",
+  "energyRowMissingWeight": "体重を入力すると推定値が表示されます",
+  "energyRowMissingSex": "女性か男性を選ぶと推定値が表示されます",
+  "energyRowMissingSeveral": "プロフィールを入力すると推定値が表示されます"
 }

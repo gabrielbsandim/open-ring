@@ -1047,7 +1047,7 @@ pairs are **our choice**.
 ## 18. Energy (daily estimate)
 
 `packages/metrics/lib/src/energy.dart`. Pure functions for the Energy module.
-No screen reads them yet. Every figure is an estimate for the average person
+Today reads them through the row described at the end of this section. Every figure is an estimate for the average person
 of a given size, never a measurement and never a target for eating.
 
 | Part | Rule | Basis |
@@ -1097,6 +1097,27 @@ source order of the workout list. The weight is the latest weigh-in when the
 Body module is on, else the profile weight. Without sex, birth year, height or
 weight the day has no number and names the missing fields; under 18 it has
 none either. Nothing is stored: the day is computed on every read.
+
+### On Today
+
+`apps/mobile/lib/features/energy/presentation/energy_row.dart`. With the
+Energy module on, Today shows one thin row under the Day Score: the day so far
+as a range in kcal, and the clock time it was computed at. The row is computed
+again when new data arrives and when the app comes back to the foreground, not
+on a timer, so the time on it says how old the number is. Today is the date of
+that instant, so a return after midnight starts the new day, and the age
+that hides the row uses the year of the same instant. While a new day loads
+the row keeps the last one with its own time, and a day that fails to load
+removes the row.
+
+While the low end of the range is under `energyRowFloor` (100 kcal, about the
+first hour after midnight for a person who has not moved) the row says the day is just starting and shows no
+range. With a profile field missing it names the field, or asks to complete
+the profile when more than one is missing, and a tap opens Settings; a person
+who chose not to state a sex is asked to choose Female or Male, because the
+equation has no third form. The row is absent for a person under 18, while
+the Body module hides the numbers, and until the modules, the profile and the
+hide choice have loaded (`energy_gate.dart`).
 
 ## References
 

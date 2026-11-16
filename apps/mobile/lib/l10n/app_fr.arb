@@ -1544,5 +1544,16 @@
   "dayScoreFormulaOverall1": "La Note globale lit votre base, pas un jour : six facteurs sur les {days} jours précédant chaque lundi. Un facteur sans données sort du calcul et le reste est remis à l'échelle.",
   "dayScoreFormulaOverall2": "Sur 100 points : condition physique {fitness}, FC au repos {resting}, durée du sommeil {sleep}, régularité du sommeil {regularity}, mouvement de la semaine {movement} et corps {body}. Chaque ligne de l'écran de la Note globale ouvre sa règle et sa source.",
   "moduleOpenScoreAddsOverall": "La Note globale, votre base sur les 4 dernières semaines, mise à jour chaque lundi, avec la règle et la source de chaque facteur et un graphique de 12 semaines.",
-  "moduleOpenScoreUsesOverall": "La Note globale lit aussi l'âge, le sexe et la taille de votre profil, les courses et marches que vous avez enregistrées et, avec le module Corps activé, votre tour de taille et votre poids."
+  "moduleOpenScoreUsesOverall": "La Note globale lit aussi l'âge, le sexe et la taille de votre profil, les courses et marches que vous avez enregistrées et, avec le module Corps activé, votre tour de taille et votre poids.",
+  "energyTitle": "Énergie",
+  "energyRowSoFar": "Jusqu'ici · {time}",
+  "energyRowRange": "{low} à {high}",
+  "energyRowUnit": "kcal, estimation",
+  "energyRowStarting": "La journée commence à peine",
+  "energyRowSemantics": "Énergie d'aujourd'hui jusqu'ici, de {low} à {high} kilocalories, estimation.",
+  "energyRowMissingAge": "Ajoutez votre âge pour voir une estimation",
+  "energyRowMissingHeight": "Ajoutez votre taille pour voir une estimation",
+  "energyRowMissingWeight": "Ajoutez votre poids pour voir une estimation",
+  "energyRowMissingSex": "Choisissez Femme ou Homme pour voir une estimation",
+  "energyRowMissingSeveral": "Complétez votre profil pour voir une estimation"
 }

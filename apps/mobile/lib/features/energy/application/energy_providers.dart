@@ -16,10 +16,16 @@ import 'package:open_ring/features/workout/domain/workout_history.dart';
 // stored on this date under another offset, so the read is wider than the day.
 const energySelectionPadding = Duration(days: 1);
 
+// The instant a day is computed at. New data moves it, and so does whoever
+// invalidates it, which is how a screen asks for the day at the clock of now.
+final energyAsOfProvider = Provider<DateTime>((ref) {
+  ref.watch(dataRevisionProvider);
+  return ref.read(clockProvider)();
+});
+
 final FutureProviderFamily<EnergyDay, LocalDate> energyDayProvider =
     FutureProvider.family<EnergyDay, LocalDate>((ref, day) async {
-      ref.watch(dataRevisionProvider);
-      final now = ref.watch(clockProvider)();
+      final now = ref.watch(energyAsOfProvider);
       final from = localMidnight(day, now.timeZoneOffset);
       final to = localMidnight(day.addDays(1), now.timeZoneOffset);
       final (profile, logged, slots, own, imported) = await (
@@ -61,9 +67,13 @@ final FutureProviderFamily<EnergyDay, LocalDate> energyDayProvider =
       );
     });
 
-final energyTodayProvider = FutureProvider<EnergyDay>(
-  (ref) => ref.watch(energyDayProvider(ref.watch(currentDateProvider)).future),
-);
+// Today is the date of the instant, so a resume after midnight moves the day
+// together with the clock.
+final energyTodayProvider = FutureProvider<EnergyDay>((ref) {
+  final asOf = ref.watch(energyAsOfProvider);
+  final today = LocalDate.fromInstant(asOf, asOf.timeZoneOffset);
+  return ref.watch(energyDayProvider(today).future);
+});
 
 EnergySex? _sexOf(Sex? sex) => switch (sex) {
   null => null,

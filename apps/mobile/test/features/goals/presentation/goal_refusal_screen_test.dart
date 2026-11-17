@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
+import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_refusal_screen.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
@@ -215,6 +216,19 @@ void main() {
       expect(find.textContaining(' cm'), findsNothing);
     });
 
+    testWidgets('103.5 lb back from kilograms is not read as 103.4 lb', (
+      tester,
+    ) async {
+      final setup = await setupPicker(
+        trendKg: ImperialUnits.kilograms(103.5),
+        units: UnitSystem.imperial,
+      );
+      await _open(tester, setup, IntakeBlock.bmiUnderFloor);
+
+      expect(find.textContaining('103.5 lb'), findsOneWidget);
+      expect(find.textContaining('103.4 lb'), findsNothing);
+    });
+
     testWidgets('hidden numbers show no digit except 18.5', (tester) async {
       final setup = await setupPicker(trendKg: 57.9, hidden: true);
       await _open(tester, setup, IntakeBlock.bmiUnderFloor);
@@ -283,6 +297,27 @@ void main() {
       expect(find.byKey(GoalRefusalKeys.primary), findsNothing);
       expect(find.text(l10n.goalsRefusalFoot), findsNothing);
     });
+  });
+
+  group('a block that no longer holds shows the picker', () {
+    final blocks = [
+      IntakeBlock.under18,
+      IntakeBlock.ageMissing,
+      IntakeBlock.heightMissing,
+      IntakeBlock.bmiUnderFloor,
+    ];
+    for (final block in blocks) {
+      testWidgets('${block.name} with an adult at 70 kg and 178 cm', (
+        tester,
+      ) async {
+        final setup = await setupPicker();
+        await _open(tester, setup, block);
+
+        expect(find.byKey(GoalRefusalKeys.primary), findsNothing);
+        expect(find.byKey(GoalPickKeys.continueButton), findsOneWidget);
+        expect(find.textContaining('BMI'), findsNothing);
+      });
+    }
   });
 
   group('10. the gate is off', () {

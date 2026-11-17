@@ -1868,9 +1868,11 @@ The refusal screen says the rule with the person's own numbers:
   from `shownBmi`, which never shows 18.5 for a BMI under it. With the numbers
   hidden only the 18.5 is shown.
 
-What it cannot say: the screen reads the block from its address and the
-numbers from the profile and the trend at that moment, so a profile fixed in
-another tab still shows the refusal until the picker is opened again.
+The refusal names its block in the address, and the Today tab keeps that
+address while the profile is edited in another tab. So the screen checks the
+block against the current profile and trend on every build: when it no longer
+holds, the picker shows in its place, on Lose fat, and the numbers it shows
+are always the current ones.
 
 ## References
 

@@ -10,8 +10,10 @@ import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/body/application/weight_summary.dart';
+import 'package:open_ring/features/goals/application/goal_intake_providers.dart';
 import 'package:open_ring/features/goals/application/goals_gate.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
+import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -32,7 +34,8 @@ typedef _Refusal = ({
   String secondaryPath,
 });
 
-// Rounding the slack away keeps 58.6 stored as 58.5999 from reading 58.5.
+// The slack absorbs binary noise only: 103.5 lb converted to kilograms and
+// back lands a hair under 103.5, which must not read 103.4.
 double _floorTenth(double value) => (value * 10 + 1e-9).floorToDouble() / 10;
 
 double _ceilTenth(double value) => (value * 10 - 1e-9).ceilToDouble() / 10;
@@ -45,10 +48,13 @@ class GoalRefusalScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final refusal = ref.watch(goalsEnabledProvider)
-        ? _refusal(context, ref, l10n)
-        : null;
-    if (refusal == null) {
+    final on = ref.watch(goalsEnabledProvider);
+    final refusal = on ? _refusal(context, ref, l10n) : null;
+    final facts = on ? ref.watch(intakeFactsProvider).value : null;
+    if (refusal != null && facts != null && !_holds(facts)) {
+      return const GoalPickScreen(initial: GoalKind.loseFat);
+    }
+    if (refusal == null || facts == null) {
       return AppPage(title: l10n.goalsPickGroup, children: const []);
     }
     return AppPage(
@@ -91,6 +97,14 @@ class GoalRefusalScreen extends ConsumerWidget {
       ],
     );
   }
+
+  // The tab keeps this page while the profile changes elsewhere, so the
+  // address alone may name a block that no longer holds.
+  bool _holds(IntakeFacts facts) =>
+      _shown(weightGoalBlock(facts)) == _shown(block);
+
+  static IntakeBlock? _shown(IntakeBlock? block) =>
+      block == IntakeBlock.heightMissing ? IntakeBlock.ageMissing : block;
 
   _Refusal? _refusal(
     BuildContext context,

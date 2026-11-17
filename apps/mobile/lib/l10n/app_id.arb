@@ -1882,7 +1882,7 @@
   "goalsRefusalSeeNoWeight": "Lihat target tanpa berat badan",
   "goalsRefusalSeeOthers": "Lihat target lainnya",
   "goalsUnder18Title": "Target berat badan menunggu usia 18",
-  "goalsUnder18Body1": "Menurut profilmu, tahun ini kamu berusia {age}. Selama tubuh masih tumbuh, aplikasi tidak membuat rencana untuk menurunkan, menaikkan, atau menjaga berat badan.",
+  "goalsUnder18Body1": "Menurut profilmu, tahun ini kamu genap berusia {age}. Selama tubuh masih tumbuh, aplikasi tidak membuat rencana untuk menurunkan, menaikkan, atau menjaga berat badan.",
   "goalsUnder18Body2": "Dua target tetap terbuka dan berjalan dengan cara yang sama: Jadi lebih bugar dan Tidur lebih baik.",
   "goalsUnder18Rule": "Tahun lahir tidak punya bulan, jadi target berat badan terbuka pada 1 Januari {year}, hari pertama kamu pasti berusia 18.",
   "goalsBmiTitle": "Dengan berat ini, aplikasi tidak membuat target penurunan",

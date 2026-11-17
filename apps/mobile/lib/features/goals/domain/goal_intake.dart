@@ -15,6 +15,7 @@ enum IntakeBlock {
 
 enum IntakeNext { screening, setup }
 
+/// The age is the youngest the birth year allows.
 typedef IntakeFacts = ({
   bool bodyOn,
   int? age,

@@ -9,6 +9,7 @@ import 'package:open_ring/features/goals/domain/goal_intake.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
+import 'package:open_ring/features/settings/domain/user_profile.dart';
 
 final softModeProvider = FutureProvider<bool?>((ref) async {
   ref.watch(dataRevisionProvider);
@@ -22,12 +23,18 @@ final intakeFactsProvider = FutureProvider<IntakeFacts>((ref) async {
   final summary = await ref.watch(weightSummaryProvider.future);
   return (
     bodyOn: modules.contains(ModuleId.body),
-    age: profile?.ageIn(today.year),
+    age: _youngestAge(profile, today.year),
     heightCm: profile?.heightCentimeters,
     trendKg: summary?.trend,
     softMode: await ref.watch(softModeProvider.future),
   );
 });
+
+// A birth year has no month: the refusal of minors takes the lowest age.
+int? _youngestAge(UserProfile? profile, int year) {
+  final age = profile?.ageIn(year);
+  return age == null ? null : age - 1;
+}
 
 final screeningControllerProvider = Provider<ScreeningController>(
   ScreeningController.new,

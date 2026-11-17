@@ -226,7 +226,7 @@ void main() {
 
       expect(facts, (
         bodyOn: true,
-        age: 34,
+        age: 33,
         heightCm: 181.0,
         trendKg: 78.0,
         softMode: true,
@@ -268,9 +268,20 @@ void main() {
       expect(facts.softMode, isNull);
     });
 
-    test('born in December 2008 reads 18 in 2026 and is not under18', () async {
+    test('born in 2008 reads 17 in 2026 and gives under18', () async {
       final setup = await setupGoals(
         profileOverride: _profile(const UserProfile(birthYear: 2008)),
+      );
+
+      final facts = await setup.container.read(intakeFactsProvider.future);
+
+      expect(facts.age, 17);
+      expect(weightGoalBlock(facts), IntakeBlock.under18);
+    });
+
+    test('born in 2007 reads 18 in 2026 and is not under18', () async {
+      final setup = await setupGoals(
+        profileOverride: _profile(const UserProfile(birthYear: 2007)),
       );
 
       final facts = await setup.container.read(intakeFactsProvider.future);
@@ -279,14 +290,14 @@ void main() {
       expect(weightGoalBlock(facts), isNot(IntakeBlock.under18));
     });
 
-    test('born in 2009 reads 17 and gives under18', () async {
+    test('born in 2009 reads 16 and gives under18', () async {
       final setup = await setupGoals(
         profileOverride: _profile(const UserProfile(birthYear: 2009)),
       );
 
       final facts = await setup.container.read(intakeFactsProvider.future);
 
-      expect(facts.age, 17);
+      expect(facts.age, 16);
       expect(weightGoalBlock(facts), IntakeBlock.under18);
     });
 

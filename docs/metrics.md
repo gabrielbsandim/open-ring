@@ -1455,7 +1455,8 @@ A weight goal is refused by the first of these that holds: the age is not
 known, the age is under 18, the height is not known, the person is pregnant
 or breastfeeding, the BMI of the trend weight is under 18.5 (exactly 18.5
 passes). Age comes from a birth year, so a person who turns 18 later in the
-year already counts as 18. Two or more "yes" answers to the five screening
+year already counts as 18 when the year count is passed in. The intake does
+not pass that count (see "Before a weight goal starts"). Two or more "yes" answers to the five screening
 questions turn the soft mode on.
 
 | Constant | Value | Basis |
@@ -1804,6 +1805,43 @@ What it cannot say:
   reads after that instant can be demo history, and its row or block is
   written on the real goal.
 
+### Before a weight goal starts
+
+`apps/mobile/lib/features/goals/domain/goal_intake.dart` and
+`application/goal_intake_providers.dart`. No screen calls them yet.
+
+`weightGoalBlock` says why a goal of losing fat is not offered, the first of
+these that holds: Body is off, the soft mode is on, the age is not known, the
+age is under 18, the height is not known, the BMI of the trend weight is
+under 18.5. The age it is given is the youngest the birth year allows, one
+less than the year count, so nobody of 17 passes and a person who turns 18
+during the year waits for the next one. The BMI is checked only when a trend exists, so a person with no
+weigh-in passes this step. The order differs from `weightGoalRefusal` in two
+ways: Body and the soft mode come first, and pregnancy is not asked here.
+
+`weightGoalNext` says what follows when nothing blocks: the five questions
+when they were never answered, the setup when the newest answer is a no. The
+questions are asked once. `newestSoftMode` reads the newest screening row
+that holds an answer to them, so a later row that only records pregnancy
+does not erase it.
+
+`ScreeningController.submit` takes exactly five answers and writes one row
+with the date and the result, true for two or more "yes". The five answers
+are never stored.
+
+What it cannot say:
+
+- Whether the answer is still true. A no is kept for good, and a yes ends
+  only when every Goals row is deleted.
+- Anything about health. The questions are an adapted wording that nobody
+  validated, and the result is a rule of the app, not a diagnosis.
+- The real age. The profile holds a birth year and no month, so a person who
+  already turned 18 this year is still refused.
+- That a refused person stays refused: the age moves with the calendar year
+  and the BMI with the trend, and each is read again when asked.
+- That one tap wrote one row. Two calls write two rows, both with the same
+  result.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical
@@ -1870,36 +1908,3 @@ What it cannot say:
   Medicine and Sleep Research Society. Sleep. 2015;38(6):843-844.
 - Protocol slot sizes: `docs/protocols/realsil-colmi.md`, from Gadgetbridge
   `YawellRingPacketHandler` (heart rate, HRV, stress and SpO2 logs).
-
-### Before a weight goal starts
-
-`apps/mobile/lib/features/goals/domain/goal_intake.dart` and
-`application/goal_intake_providers.dart`. No screen calls them yet.
-
-`weightGoalBlock` says why a goal of losing fat is not offered, the first of
-these that holds: Body is off, the soft mode is on, the age is not known, the
-age is under 18, the height is not known, the BMI of the trend weight is
-under 18.5. The BMI is checked only when a trend exists, so a person with no
-weigh-in passes this step. The order differs from `weightGoalRefusal` in two
-ways: Body and the soft mode come first, and pregnancy is not asked here.
-
-`weightGoalNext` says what follows when nothing blocks: the five questions
-when they were never answered, the setup when the newest answer is a no. The
-questions are asked once. `newestSoftMode` reads the newest screening row
-that holds an answer to them, so a later row that only records pregnancy
-does not erase it.
-
-`ScreeningController.submit` takes exactly five answers and writes one row
-with the date and the result, true for two or more "yes". The five answers
-are never stored.
-
-What it cannot say:
-
-- Whether the answer is still true. A no is kept for good, and a yes ends
-  only when every Goals row is deleted.
-- Anything about health. The questions are an adapted wording that nobody
-  validated, and the result is a rule of the app, not a diagnosis.
-- That a refused person stays refused: the age moves with the calendar year
-  and the BMI with the trend, and each is read again when asked.
-- That one tap wrote one row. Two calls write two rows, both with the same
-  result.

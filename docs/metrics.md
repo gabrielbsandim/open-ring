@@ -1603,8 +1603,8 @@ What it cannot say:
 A review reads the week that closed the day before its Monday.
 `closedWeekInputs` in `apps/mobile/lib/features/goals/domain/review_inputs.dart`
 builds the inputs from plain data and the weeks reviewed before, and
-`packages/metrics/lib/src/goal_baseline.dart` holds the baseline. Nothing
-calls them yet: gathering the data and writing the week is a later slice.
+`packages/metrics/lib/src/goal_baseline.dart` holds the baseline. Writing
+the review, below, says who calls them.
 
 The levers are counted over the closed Monday to Sunday with the rules of
 The week in progress, so no day is open or ahead. The week number is the
@@ -1640,8 +1640,8 @@ changed something else stops the count.
 The readiness of a review is seven values, one per day. `weekReadiness`
 takes them from a run of daily values that ends on a known day, for the seven
 days from a given day; a day outside the run is null, and a day with no
-Readiness stays null. Which seven days a review reads is decided by the
-slice that gathers the data.
+Readiness stays null. A review reads the closed Monday to Sunday, so two
+reviews never share a day.
 
 `closedWeekInputs` refuses, with an `ArgumentError`, a review day that is not
 a Monday and a readiness list that does not hold seven values.
@@ -1662,10 +1662,55 @@ What it cannot say:
   sleep lever can be entered from it.
 - A change accepted in the middle of a week counts the whole closed week
   against the new target.
-- The trend is the value at the last weigh-in, of any age, so the BMI can
-  rest on an old weight while the rate is still building.
+- The trend is the value at the last weigh-in on or before the closed
+  Sunday, up to 27 days old, so the BMI can rest on a weight of some weeks
+  while the rate is still building.
 - A week reviewed before a new block still counts as the previous week when
   it is exactly seven days old.
+
+### Writing the review
+
+`GoalReviewer` in
+`apps/mobile/lib/features/goals/application/goal_reviewer.dart` writes the
+review of the week that closed before the current Monday. Nothing calls it
+yet: what triggers it, and what a pause or an ending does to the goal, are a
+later slice.
+
+`reviewDueWeek` writes nothing and returns null when the module is off, when
+there is no goal or the goal is paused, when the Monday is still in the first
+week of the block, and when that Monday already has a row. Otherwise it reads
+the steps, the nights, the strength days and the effort points, builds the
+baseline over the days that end on the closed Sunday, and stores the inputs
+with the review they give. A source that fails stops the review and nothing
+is written. Only the last closed week is reviewed: a Monday that passed with
+the app closed gets no row, and the gap resets what is carried over.
+
+The weight is read only for a goal of losing fat with Body on, as it stood
+on the closed Sunday: the rate is fitted over the window that ends that day,
+and the trend is built again from the weigh-ins up to that day, so a later
+weigh-in moves neither. Two reviews are then always seven days
+apart, which is what "too fast twice in a row" compares. A trend whose last
+point is `weightRateWindowDays` or more days before that Sunday is no trend,
+so it gives no BMI. The rate a screen shows is as of today and can differ.
+
+The row is written once per Monday. `checkIn` adds the two check-in answers
+to it afterwards, once: the review runs again on the stored inputs with the
+answers, and the row takes the rule, the action and the change that come
+out. The amend is refused for a week that is not the newest of the goal, for
+a week already answered, for a week that already holds a check-in answer,
+and when both answers are empty. So a stored row always equals the review of
+its own inputs. Both calls bump the data revision when they write.
+
+`goalReviewProvider` gives the newest reviewed week with the review of its
+stored inputs.
+
+What it cannot say:
+
+- A week written before the ring synced its last day counts that day as
+  missed, and the row is not written again.
+- A proposal still waiting when the next Monday is written can no longer be
+  answered: only the newest week of a goal takes an answer.
+- A source that keeps failing stops every review, the protections included.
 
 ## References
 

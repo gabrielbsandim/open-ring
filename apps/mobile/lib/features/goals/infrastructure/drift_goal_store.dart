@@ -138,8 +138,9 @@ final class DriftGoalStore implements GoalStore {
   Future<bool> answer(int goalId, LocalDate monday, WeekAnswer answer) =>
       _db.transaction(() async {
         final goalRow = await _openRow(goalId);
-        final weekRow = await _weekRow(goalId, monday);
-        if (goalRow == null || weekRow == null) return false;
+        final weekRow = await _newestWeekRow(goalId);
+        if (goalRow == null || weekRow?.monday != monday.iso) return false;
+        if (weekRow == null) return false;
         final goal = _goal(goalRow);
         final week = _week(weekRow);
         final change = week?.change;
@@ -158,6 +159,39 @@ final class DriftGoalStore implements GoalStore {
           ),
         );
       });
+
+  @override
+  Future<Review?> amendWeek(
+    int goalId,
+    LocalDate monday, {
+    required CheckInEnergy? energy,
+    required bool? foodOrWeight,
+  }) => _db.transaction(() async {
+    if (await _openRow(goalId) == null) return null;
+    final newest = await _newestWeekRow(goalId);
+    if (newest == null || newest.monday != monday.iso) return null;
+    final week = _week(newest);
+    if (week == null) return null;
+    final amended = amendedWeek(
+      week,
+      energy: energy,
+      foodOrWeight: foodOrWeight,
+    );
+    if (amended == null) return null;
+    final change = amended.review.change;
+    await (_db.update(_db.goalWeeks)..where(
+          (row) => row.goalId.equals(goalId) & row.monday.equals(monday.iso),
+        ))
+        .write(
+          GoalWeeksCompanion(
+            inputs: Value(encodeReviewInputs(amended.week.inputs)),
+            rule: Value(amended.review.rule.name),
+            action: Value(amended.review.action.name),
+            change: Value(change == null ? null : encodeLeverChange(change)),
+          ),
+        );
+    return amended.review;
+  });
 
   @override
   Future<List<GoalWeek>> weeks(int goalId) async {
@@ -227,6 +261,13 @@ final class DriftGoalStore implements GoalStore {
       (_db.select(_db.goalWeeks)..where(
             (row) => row.goalId.equals(goalId) & row.monday.equals(monday.iso),
           ))
+          .getSingleOrNull();
+
+  Future<GoalWeekRow?> _newestWeekRow(int goalId) =>
+      (_db.select(_db.goalWeeks)
+            ..where((row) => row.goalId.equals(goalId))
+            ..orderBy([(row) => OrderingTerm.desc(row.monday)])
+            ..limit(1))
           .getSingleOrNull();
 
   Future<bool> _write(int goalId, GoalsCompanion values) async {

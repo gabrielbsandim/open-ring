@@ -35,6 +35,56 @@ typedef WeightReading = ({
   double? bmi,
 });
 
+typedef WeightSnapshot = ({WeightRate? rate, double? trendKg});
+
+/// The weight as it stood on [asOf], from the weigh-ins up to that day only.
+/// A trend whose last point is a whole rate window old is no trend.
+WeightSnapshot weightSnapshot({
+  required List<DailyValue> daily,
+  required LocalDate asOf,
+}) {
+  // The trend is seeded from its first days, so a later weigh-in would move
+  // it: it is built again from the days that had happened.
+  final past = [
+    for (final day in daily)
+      if (day.date.compareTo(asOf) <= 0) day,
+  ];
+  final point = weightTrend(past).lastOrNull;
+  final fresh =
+      point != null && asOf.daysSince(point.date) < weightRateWindowDays;
+  return (
+    rate: past.isEmpty ? null : weightRate(past, today: asOf),
+    trendKg: fresh ? point.value : null,
+  );
+}
+
+ReviewInputs withCheckIn(
+  ReviewInputs inputs, {
+  required CheckInEnergy? energy,
+  required bool? foodOrWeight,
+}) => ReviewInputs(
+  kind: inputs.kind,
+  week: inputs.week,
+  levers: inputs.levers,
+  adherencePrevious: inputs.adherencePrevious,
+  baseline: inputs.baseline,
+  effortRaisesInRow: inputs.effortRaisesInRow,
+  rate: inputs.rate,
+  targetPercent: inputs.targetPercent,
+  capPercent: inputs.capPercent,
+  previousPercentLow: inputs.previousPercentLow,
+  bmi: inputs.bmi,
+  pregnantOrBreastfeeding: inputs.pregnantOrBreastfeeding,
+  screeningPositive: inputs.screeningPositive,
+  bodyOn: inputs.bodyOn,
+  readiness: inputs.readiness,
+  recoveryPrevious: inputs.recoveryPrevious,
+  energy: energy,
+  energyPrevious: inputs.energyPrevious,
+  foodOrWeight: foodOrWeight,
+  foodOrWeightPrevious: inputs.foodOrWeightPrevious,
+);
+
 // Only the week reviewed seven days before counts as the previous one: after
 // a gap nothing is carried over.
 ReviewHistory reviewHistory(List<GoalWeek> weeks, {required LocalDate monday}) {

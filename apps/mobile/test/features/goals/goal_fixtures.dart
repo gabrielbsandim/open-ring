@@ -130,6 +130,33 @@ const f0 = ReviewInputs(
   foodOrWeightPrevious: null,
 );
 
+ReviewInputs f1With({
+  required CheckInEnergy? energy,
+  required CheckInEnergy? energyPrevious,
+  required bool? foodOrWeight,
+}) => ReviewInputs(
+  kind: f1.kind,
+  week: f1.week,
+  levers: f1.levers,
+  adherencePrevious: f1.adherencePrevious,
+  baseline: f1.baseline,
+  effortRaisesInRow: f1.effortRaisesInRow,
+  rate: f1.rate,
+  targetPercent: f1.targetPercent,
+  capPercent: f1.capPercent,
+  previousPercentLow: f1.previousPercentLow,
+  bmi: f1.bmi,
+  pregnantOrBreastfeeding: f1.pregnantOrBreastfeeding,
+  screeningPositive: f1.screeningPositive,
+  bodyOn: f1.bodyOn,
+  readiness: f1.readiness,
+  recoveryPrevious: f1.recoveryPrevious,
+  energy: energy,
+  energyPrevious: energyPrevious,
+  foodOrWeight: foodOrWeight,
+  foodOrWeightPrevious: f1.foodOrWeightPrevious,
+);
+
 ReviewInputs f1WithBmi(double bmi) => ReviewInputs(
   kind: f1.kind,
   week: f1.week,

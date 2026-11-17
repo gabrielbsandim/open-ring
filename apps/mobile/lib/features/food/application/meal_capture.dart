@@ -87,7 +87,9 @@ class MealCapture extends Notifier<CaptureState> {
       _bytes = result.outcome == SaveOutcome.noSpace ? bytes : null;
       return result;
     } on Object {
-      return const SaveResult(SaveOutcome.failed, TimeSource.returned);
+      // A new object per failure: the row opens one sheet per result.
+      // ignore: prefer_const_constructors
+      return SaveResult(SaveOutcome.failed, TimeSource.returned);
     }
   }
 

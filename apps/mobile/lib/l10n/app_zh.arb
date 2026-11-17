@@ -2327,7 +2327,7 @@
   "foodSavedNote": "已经保存。关闭也会保留。",
   "foodSavedReturned": "照片没有时间信息，因此使用照片从相机返回时的时间。",
   "foodRecovered": "照片已恢复。相机打开时 Android 关闭了应用。",
-  "foodLastTitle": "这是今天的最后一餐",
+  "foodLastTitle": "这是当天的最后一餐",
   "foodLastHint": "为进食窗口和比较结束这一天。",
   "foodDone": "完成",
   "foodNoSpaceTitle": "无法保存照片",

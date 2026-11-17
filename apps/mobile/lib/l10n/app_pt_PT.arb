@@ -2319,7 +2319,7 @@
   "foodSavedNote": "Já está guardada. Fechar também guarda.",
   "foodSavedReturned": "A foto não trazia a hora, por isso a refeição ficou com a hora em que voltou da câmara.",
   "foodRecovered": "Foto recuperada. O Android fechou a app enquanto a câmara estava aberta.",
-  "foodLastTitle": "Foi a última refeição de hoje",
+  "foodLastTitle": "Foi a última refeição do dia",
   "foodLastHint": "Fecha o dia para a janela e as comparações.",
   "foodDone": "Concluído",
   "foodNoSpaceTitle": "Não foi possível guardar a foto",

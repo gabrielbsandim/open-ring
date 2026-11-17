@@ -2327,7 +2327,7 @@
   "foodSavedNote": "保存済みです。閉じても残ります。",
   "foodSavedReturned": "写真に時刻がなかったため、カメラから戻った時刻で保存しました。",
   "foodRecovered": "写真を復元しました。カメラが開いている間に Android がアプリを閉じました。",
-  "foodLastTitle": "今日最後の食事",
+  "foodLastTitle": "その日最後の食事",
   "foodLastHint": "食事時間帯と比較のためにこの日を締めます。",
   "foodDone": "完了",
   "foodNoSpaceTitle": "写真を保存できませんでした",

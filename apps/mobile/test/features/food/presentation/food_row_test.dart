@@ -358,6 +358,27 @@ void main() {
         expect(find.byKey(FoodRowKeys.saving), findsNothing);
       });
     }
+
+    testWidgets('a camera that throws twice shows a SnackBar both times', (
+      tester,
+    ) async {
+      final meals = TestMealStore();
+      await _pumpRow(tester, meals, camera: ThrowingMealCamera());
+
+      for (var tap = 1; tap <= 2; tap++) {
+        await tester.tap(find.byKey(FoodRowKeys.camera));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 750));
+
+        expect(find.byType(SnackBar), findsOneWidget, reason: 'tap $tap');
+        tester
+            .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+            .hideCurrentSnackBar();
+        await tester.pumpAndSettle();
+        expect(find.byType(SnackBar), findsNothing, reason: 'tap $tap');
+      }
+      expect(meals.rows, isEmpty);
+    });
   });
 
   group('criterion 8: the last meal switch', () {
@@ -468,6 +489,47 @@ void main() {
 
       expect(meals.rows, hasLength(1));
       expect(find.byType(MealSavedSheet), findsOneWidget);
+    });
+
+    testWidgets('a remounted row opens the recovered sheet only once', (
+      tester,
+    ) async {
+      final mount = ValueNotifier(0);
+      addTearDown(mount.dispose);
+      final meals = TestMealStore();
+      final container = await _pump(
+        tester,
+        overrides: foodOverrides(
+          meals: meals,
+          camera: FakeMealCamera(lost: returnedPhoto),
+          clock: () => _lunch,
+        ),
+        host: screenHost(
+          Scaffold(
+            body: ValueListenableBuilder<int>(
+              valueListenable: mount,
+              builder: (_, generation, _) => SingleChildScrollView(
+                child: FoodRowSlot(key: ValueKey(generation)),
+              ),
+            ),
+          ),
+        ),
+      );
+      await container.read(mealRecoveryProvider.notifier).run();
+      await tester.pumpAndSettle();
+      expect(find.byType(MealSavedSheet), findsOneWidget);
+
+      mount.value++;
+      container.read(dataRevisionProvider.notifier).bump();
+      await tester.pumpAndSettle();
+      expect(find.byType(MealSavedSheet), findsOneWidget);
+
+      await _tapKey(tester, MealSavedSheetKeys.done);
+      mount.value++;
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MealSavedSheet), findsNothing);
+      expect(meals.rows, hasLength(1));
     });
 
     testWidgets('a recovery on a full disk opens the no space sheet', (

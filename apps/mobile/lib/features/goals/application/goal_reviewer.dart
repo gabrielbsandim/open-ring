@@ -163,8 +163,8 @@ class GoalReviewer extends Notifier<void> {
     return ReviewAnswerOutcome.stepGoalFailed;
   }
 
-  /// Puts [steps] in force as the profile step goal from today. False, with
-  /// the failure logged, when the profile could not be saved.
+  /// Raises the profile step goal to [steps] from today when [steps] is above
+  /// the goal in force. False, with the failure logged, when it could not be.
   Future<bool> retryStepGoal(int steps) async {
     if (await _answerable() == null) return false;
     try {

@@ -402,6 +402,23 @@ void main() {
     expect(find.byKey(GoalReviewScreenKeys.retry), findsNothing);
   });
 
+  for (final changes in const [
+    <StepGoalChange>[],
+    [(from: stepGoalBaselineDate, steps: 8000)],
+  ]) {
+    testWidgets('a goal lowered by hand later is no failed save, $changes', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        week: _week(answer: WeekAnswer.accepted),
+        changes: changes,
+      );
+      expect(find.byKey(GoalReviewScreenKeys.failed), findsNothing);
+      expect(find.byKey(GoalReviewScreenKeys.retry), findsNothing);
+    });
+  }
+
   testWidgets('a steps removal says nothing about the profile goal', (
     tester,
   ) async {

@@ -184,10 +184,12 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         workoutServiceStarted = true
     }
 
+    // An engine that never showed the workout, such as the sync worker's, must
+    // leave the main engine's alert alone when it detaches.
     private fun hideWorkout(app: Context) {
-        cancelWorkoutAlert(app)
         if (!workoutShown) return
         workoutShown = false
+        cancelWorkoutAlert(app)
         stopListeningScreenOn(app)
         WorkoutForegroundService.listener = null
         if (workoutServiceStarted) WorkoutForegroundService.stop()

@@ -73,13 +73,15 @@ class WorkoutForegroundService : Service() {
 
     private fun clearStale() {
         cancelWorkoutNotification(this)
+        cancelWorkoutAlert(this)
         active?.stopNow()
     }
 
-    // The workout ends with the task, so its notification goes with it.
+    // The workout ends with the task, so its notification and alert go with it.
     override fun onTaskRemoved(rootIntent: Intent?) {
         listener = null
         cancelWorkoutNotification(this)
+        cancelWorkoutAlert(this)
         stop()
     }
 

@@ -2004,6 +2004,22 @@ before it saves the profile, so a newest change row equal to the accepted
 target with the profile still under it marks a save that failed, and the
 screen offers the retry again when it is opened later.
 
+### The formula screen
+
+"How we calculate" (`GoalFormulaScreen`, `/today/goals/formula`) opens from
+the goal screen, with or without a goal. It prints every constant from the
+code, never a copy: the rate (`weightRateWindowDays`, `weightRateMinDays`
+over `weightRateMinSpanDays`, the band `goalBandLow` to `goalBandHigh` times
+the standard target), the target and the block (`goalStandardPercent`,
+`goalGentlePercent`, `lossCapPercent` by `goalCapBmiMid` and
+`goalCapBmiHigh`, `goalBlockWeeks`, `goalBlockMaxLossPercent`,
+`goalMaintenanceWeeks`), the levers with their steps, floors and ceilings,
+the eleven rules in the order of `ReviewRule` with the answer and the goals
+each applies to, the arrival, the protections, and what is sourced, our
+choice, not yet checked and what the module cannot say. The rule of the
+newest stored week is marked while Goals is on. Food levers are one sentence:
+they wait for a Food module.
+
 ### The goal picker
 
 The picker offers four rows: no goal, lose fat, get fitter, sleep better.

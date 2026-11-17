@@ -54,8 +54,8 @@ final class GoalBlock {
   final double anchorKg;
 }
 
-/// A block closes at the first Monday after its last day, or at a Monday
-/// whose trend has lost [goalBlockMaxLossPercent] of the anchor.
+/// A block closes at any Monday after its last day, or at a Monday whose
+/// trend has lost [goalBlockMaxLossPercent] of the anchor.
 bool blockCloses({
   required GoalBlock block,
   required LocalDate monday,

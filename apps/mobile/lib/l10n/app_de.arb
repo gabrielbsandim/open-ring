@@ -2161,7 +2161,7 @@
   "goalsFormulaRuleShrink": "{max} aktive Hebel und Treue unter {percent} %",
   "goalsFormulaRuleOnTrack": "Das Tempo ist im Plan",
   "goalsFormulaRuleSlow": "Tempo unter dem Band, Treue von {percent} % oder mehr und ein nächster Schritt existiert",
-  "goalsFormulaRuleOther": "Alles andere",
+  "goalsFormulaRuleOther": "Alles andere, und jede Woche Halten, die die ersten vier Regeln durchlassen",
   "goalsFormulaAnswerEnd": "Das Ziel endet",
   "goalsFormulaAnswerPauseDays": "{days} Tage Pause",
   "goalsFormulaAnswerPause": "Pause",

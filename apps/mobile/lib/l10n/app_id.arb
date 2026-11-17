@@ -2161,7 +2161,7 @@
   "goalsFormulaRuleShrink": "{max} tuas aktif dan kepatuhan di bawah {percent}%",
   "goalsFormulaRuleOnTrack": "Laju sesuai jalur",
   "goalsFormulaRuleSlow": "Laju di bawah rentang, kepatuhan {percent}% atau lebih, dan ada langkah berikutnya",
-  "goalsFormulaRuleOther": "Selain itu",
+  "goalsFormulaRuleOther": "Selain itu, dan setiap minggu menjaga yang lolos dari empat aturan pertama",
   "goalsFormulaAnswerEnd": "Target berakhir",
   "goalsFormulaAnswerPauseDays": "Jeda {days} hari",
   "goalsFormulaAnswerPause": "Jeda",

@@ -1749,8 +1749,8 @@ is ended only by the person.
 `reviewDueWeek` writes nothing and returns null when the module is off, when
 there is no goal or the goal is paused, when the goal has no lever yet, when
 the Monday is still in the first week of the block, and when that Monday
-already has a row. A block of losing fat closes at the first Monday after
-its last day, or at a Monday whose Sunday trend is 10 percent or more under
+already has a row. A block of losing fat closes at the first Monday reviewed
+after its last day, or at a Monday whose Sunday trend is 10 percent or more under
 the anchor of the block (`blockCloses`; a loss reached midweek waits for the
 Monday, and with Body off only the date closes it). The review then sets the
 goal in maintenance from that Monday for `goalMaintenanceWeeks`, through the

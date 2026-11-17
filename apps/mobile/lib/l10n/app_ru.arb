@@ -2161,7 +2161,7 @@
   "goalsFormulaRuleShrink": "{max} активных рычага и соблюдение ниже {percent}%",
   "goalsFormulaRuleOnTrack": "Темп в норме",
   "goalsFormulaRuleSlow": "Темп ниже полосы, соблюдение {percent}% или больше и есть следующий шаг",
-  "goalsFormulaRuleOther": "Всё остальное",
+  "goalsFormulaRuleOther": "Всё остальное, а также каждая неделя поддержания, прошедшая первые четыре правила",
   "goalsFormulaAnswerEnd": "Цель завершается",
   "goalsFormulaAnswerPauseDays": "Пауза на {days} дней",
   "goalsFormulaAnswerPause": "Пауза",

@@ -264,9 +264,11 @@ void main() {
     test(
       'a block that reaches the line midweek waits for the Monday',
       () async {
+        // The trend of today is under the line and the Sunday one is not, so
+        // reading today instead of the Sunday would close the block.
         final days = [
-          ..._flat(_day(2027, 1, 17), _anchorKg),
-          for (var d = 18; d <= 20; d++) (date: _day(2027, 1, d), value: 70.0),
+          ..._flat(_day(2027, 1, 17), _openKg),
+          for (var d = 18; d <= 20; d++) (date: _day(2027, 1, d), value: 60.0),
         ];
         final setup = await _reviewing(
           now: _at(2027, 1, 20),

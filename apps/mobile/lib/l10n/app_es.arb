@@ -2161,7 +2161,7 @@
   "goalsFormulaRuleShrink": "{max} palancas activas y adherencia bajo el {percent}%",
   "goalsFormulaRuleOnTrack": "El ritmo va en camino",
   "goalsFormulaRuleSlow": "Ritmo bajo la franja, adherencia del {percent}% o más y hay un siguiente paso",
-  "goalsFormulaRuleOther": "Cualquier otro caso",
+  "goalsFormulaRuleOther": "Cualquier otro caso, y cada semana de mantenimiento que pasa las cuatro primeras reglas",
   "goalsFormulaAnswerEnd": "La meta termina",
   "goalsFormulaAnswerPauseDays": "Pausa de {days} días",
   "goalsFormulaAnswerPause": "Pausa",

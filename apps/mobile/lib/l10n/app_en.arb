@@ -4485,7 +4485,7 @@
   "goalsFormulaRuleOnTrack": "The rate is on track",
   "goalsFormulaRuleSlow": "The rate below the band, adherence of {percent}% or more and a next step exists",
   "@goalsFormulaRuleSlow": {"placeholders": {"percent": {"type": "String"}}},
-  "goalsFormulaRuleOther": "Anything else",
+  "goalsFormulaRuleOther": "Anything else, and every keeping week the first four rules let through",
   "goalsFormulaAnswerEnd": "The goal ends",
   "goalsFormulaAnswerPauseDays": "Pause of {days} days",
   "@goalsFormulaAnswerPauseDays": {"placeholders": {"days": {"type": "String"}}},

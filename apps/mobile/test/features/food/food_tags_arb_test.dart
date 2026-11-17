@@ -64,6 +64,31 @@ const _oldSavedNote = <String, String>{
   'zh': '已经保存。关闭也会保留。',
 };
 
+// The F5a text of foodNoSpaceNote, false once a photoless meal has no tags.
+const _oldNoSpaceNote = <String, String>{
+  'en':
+      'Without a photo, the meal counts the same in the window and the '
+      'comparisons.',
+  'de':
+      'Ohne Foto zählt die Mahlzeit genauso im Essfenster und in den '
+      'Vergleichen.',
+  'es':
+      'Sin foto, la comida cuenta igual en la ventana y en las comparaciones.',
+  'fr':
+      'Sans photo, le repas compte de la même façon dans la fenêtre et les '
+      'comparaisons.',
+  'id': 'Tanpa foto, makanan tetap dihitung sama di jendela dan perbandingan.',
+  'it':
+      'Senza foto, il pasto conta allo stesso modo nella finestra e nei '
+      'confronti.',
+  'ja': '写真がなくても、食事時間帯と比較では同じように数えます。',
+  'pt': 'Sem foto, a refeição conta igual na janela e nas comparações.',
+  'pt_PT':
+      'Sem foto, a refeição conta da mesma forma na janela e nas comparações.',
+  'ru': 'Без фото приём пищи учитывается так же в окне и сравнениях.',
+  'zh': '没有照片，这餐在进食窗口和比较中同样计入。',
+};
+
 final _dashes = RegExp(
   '[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]',
 );
@@ -111,6 +136,29 @@ void main() {
       expect(
         _arb('en')['foodSavedNote'],
         'It is already saved. Tags are optional; closing keeps them too.',
+      );
+    });
+
+    for (final locale in _locales) {
+      test('$locale holds foodTagsFailed and the rewritten foodNoSpaceNote, '
+          'with no dash', () {
+        final arb = _arb(locale);
+        for (final key in ['foodTagsFailed', 'foodNoSpaceNote']) {
+          expect(arb[key], isA<String>(), reason: key);
+          expect((arb[key] as String).trim(), isNotEmpty, reason: key);
+          expect((arb[key] as String).contains(_dashes), isFalse, reason: key);
+        }
+        expect(arb['foodNoSpaceNote'], isNot(_oldNoSpaceNote[locale]));
+      });
+    }
+
+    test('English foodTagsFailed and foodNoSpaceNote', () {
+      final arb = _arb('en');
+      expect(arb['foodTagsFailed'], 'Could not save the tags');
+      expect(
+        arb['foodNoSpaceNote'],
+        'Without a photo, the meal keeps its time but has no tags yet, so the '
+        'comparisons skip that night.',
       );
     });
 

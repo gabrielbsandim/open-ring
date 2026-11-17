@@ -133,7 +133,7 @@ void main() {
       final (container, meal) = await saved();
       final before = revisionOf(container);
 
-      await captureOf(container).finish(MealEdit.of(meal));
+      expect(await captureOf(container).finish(MealEdit.of(meal)), isTrue);
 
       expect(meals.updates, 0);
       expect(revisionOf(container), before);
@@ -173,19 +173,23 @@ void main() {
   });
 
   group('review focus: a failed update', () {
-    test('a throwing update is swallowed, does not bump and settles', () async {
-      final (container, meal) = await saved();
-      final before = revisionOf(container);
-      meals.updateError = Exception('disk I/O error');
+    test(
+      'a throwing update returns false, does not bump and settles',
+      () async {
+        final (container, meal) = await saved();
+        final before = revisionOf(container);
+        meals.updateError = Exception('disk I/O error');
 
-      await captureOf(container)
-          .finish(MealEdit.of(meal).withKind(MealKind.main));
+        final written = await captureOf(container)
+            .finish(MealEdit.of(meal).withKind(MealKind.main));
 
-      expect(meals.updates, 1);
-      expect(revisionOf(container), before);
-      expect(meals.rows.single.kind, isNull);
-      expect(container.read(mealCaptureProvider).result, isNull);
-    });
+        expect(written, isFalse);
+        expect(meals.updates, 1);
+        expect(revisionOf(container), before);
+        expect(meals.rows.single.kind, isNull);
+        expect(container.read(mealCaptureProvider).result, isNull);
+      },
+    );
 
     test('an update that finds no row does not bump', () async {
       final (container, meal) = await saved();

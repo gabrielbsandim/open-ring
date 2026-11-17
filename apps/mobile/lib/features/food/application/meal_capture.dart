@@ -71,16 +71,17 @@ class MealCapture extends Notifier<CaptureState> {
   }
 
   /// Writes [edit] in one update when it changed the meal, then lets the
-  /// result go.
-  Future<void> finish([MealEdit? edit]) async {
+  /// result go. False only when that write was tried and failed.
+  Future<bool> finish([MealEdit? edit]) async {
     final meal = state.result?.meal;
-    final changed =
-        meal != null &&
-        edit != null &&
-        !edit.sameAs(meal) &&
-        await _write(meal, edit);
+    if (meal == null || edit == null || edit.sameAs(meal)) {
+      _settle();
+      return true;
+    }
+    final saved = await _write(meal, edit);
     _settle();
-    if (changed) _bump();
+    if (saved) _bump();
+    return saved;
   }
 
   Future<SaveResult?> _shoot() async {

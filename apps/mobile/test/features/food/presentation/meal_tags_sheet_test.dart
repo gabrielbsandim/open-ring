@@ -412,6 +412,45 @@ void main() {
     });
   });
 
+  group('review focus: a failed update', () {
+    testWidgets('a throwing update shows "Could not save the tags"', (
+      tester,
+    ) async {
+      final meals = TestMealStore();
+      final container = await _pumpRow(tester, meals);
+      await _tapCamera(tester);
+      final before = _revision(container);
+
+      await _tapKey(tester, MealSavedSheetKeys.kind(MealKind.main));
+      meals.updateError = Exception('disk I/O error');
+      await _done(tester);
+
+      expect(find.byType(MealSavedSheet), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byType(SnackBar),
+          matching: find.text('Could not save the tags'),
+        ),
+        findsOneWidget,
+      );
+      expect(meals.updates, 1);
+      expect(meals.rows.single.kind, isNull);
+      expect(_revision(container), before);
+    });
+
+    testWidgets('a written edit shows no message', (tester) async {
+      final meals = TestMealStore();
+      await _pumpRow(tester, meals);
+      await _tapCamera(tester);
+
+      await _tapKey(tester, MealSavedSheetKeys.kind(MealKind.main));
+      await _done(tester);
+
+      expect(find.byType(SnackBar), findsNothing);
+      expect(meals.rows.single.kind, MealKind.main);
+    });
+  });
+
   group('D5: a meal saved without a photo shows no tags', () {
     late TestMealStore meals;
 

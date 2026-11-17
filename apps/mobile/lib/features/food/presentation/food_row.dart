@@ -106,8 +106,10 @@ class _FoodRowState extends ConsumerState<_FoodRow> {
         edit: edit,
       ),
     );
-    await capture.finish(edit.value);
+    final saved = await capture.finish(edit.value);
     edit.dispose();
+    if (saved || !mounted) return;
+    _snack(MetricFormat.of(context).l10n.foodTagsFailed);
   }
 
   Future<void> _noSpace(MealCapture capture, Meal meal, LocalDate today) async {
@@ -122,12 +124,13 @@ class _FoodRowState extends ConsumerState<_FoodRow> {
   }
 
   Future<void> _failed(MealCapture capture) {
-    final l10n = MetricFormat.of(context).l10n;
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(SnackBar(content: Text(l10n.foodNoSpaceTitle)));
+    _snack(MetricFormat.of(context).l10n.foodNoSpaceTitle);
     return capture.finish();
   }
+
+  void _snack(String text) => ScaffoldMessenger.of(context)
+    ..clearSnackBars()
+    ..showSnackBar(SnackBar(content: Text(text)));
 
   Future<T?> _sheet<T>(Widget sheet) => showModalBottomSheet<T>(
     context: context,

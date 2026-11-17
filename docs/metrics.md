@@ -1562,13 +1562,40 @@ build rule proposes steps for weeks 2 to 4 of a weight goal.
 `packages/metrics/lib/src/goal_progress.dart` counts how far each lever of the
 active goal is in the calendar week of today, Monday to Sunday.
 `goalWeekProvider` in the app feeds it from the steps, the nights, the
-strength sessions and the effort points already on the phone, and reads only
-the sources a lever of the goal counts from. It answers with one of four
-states: the module is off, there is no goal, the goal is paused, or the week
-is running. A pause stays a pause after its last day until the reviewer
-starts the next block, which is the next pass for most goals and the first
-ready weight rate for losing fat; a pause with no last day stays until the
-person ends it. Maintenance counts like a block.
+strength sessions and the effort points already on the phone, and of those
+four reads only the ones a lever of the goal counts from. Beside them it
+reads the goal and its reviewed weeks, the enabled modules for a goal of
+losing fat, and the weight for the base phase of that goal. It answers with one of seven
+states: off, no goal, paused, hold, base, recovery and running. The first
+check that holds decides, in this order, with paused checked twice:
+
+1. Off: the module is off, and the goal store is not read.
+2. No goal.
+3. Paused, while the pause has no last day or has not passed it. The view
+   carries the last day and the rule of the review that paused the goal,
+   read from the row of the Monday the pause started on; a pause the person
+   set has no rule.
+4. Hold: a goal of losing fat with Body off, with or without levers. The
+   view shows no lever and no count. The weekly review still runs for a goal
+   that has levers: it writes its row, proposes no change while Body is off,
+   and can still pause or end the goal.
+5. Paused, and marked over: the last day has passed and the next block has not
+   started. For most goals that lasts until the next pass of the reviewer;
+   for losing fat it lasts until the weight rate is ready. A pause with no
+   last day stays until the person ends it.
+6. Base: the goal has no lever yet. For losing fat the view carries the
+   weight rate as of today, the one the first block waits for; other goals
+   never read the weight.
+7. Recovery: the newest row is the one of this Monday, it was reviewed in
+   the running block, and it asked for a recovery week. Nothing is stored
+   for it; the state is read from the row.
+
+Otherwise the week is running, with the review of this Monday while its
+proposal waits for an answer. Hold comes after a running pause so that a
+safety pause still shows its rule and its last day, and before a pause that
+is over because with Body off that goal never restarts. Paused, hold, base
+and recovery read none of the lever sources, so they neither wait on them
+nor fail with them. Maintenance counts like a block.
 
 Clock values are whole local minutes with the seconds dropped. A bedtime is
 the minutes after noon, so 23:30 is 690 and 00:05 is 725; a wake time is the
@@ -1599,6 +1626,14 @@ What it cannot say:
   awake in bed after the last sleep, the wake time is the end of that span,
   later than the last minute asleep.
 - A goal started midweek counts the days of that week before its start.
+- A recovery week shows only while its row is the one of this Monday. On
+  the next Monday, before the new review is written, the week reads as
+  running.
+- The rule of a pause is found by the date the pause started on. A person
+  who leaves a pause and sets one again on that same Monday gets the rule of
+  the review.
+- The base state does not say how many nights a sleep goal still lacks, and
+  a pause that is over does not say that losing fat waits for a weight rate.
 
 ### The inputs of a review
 

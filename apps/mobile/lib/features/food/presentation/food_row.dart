@@ -96,18 +96,20 @@ class _FoodRowState extends ConsumerState<_FoodRow> {
     required TimeSource time,
     required bool recovered,
   }) async {
-    final last = ValueNotifier(meal.last);
+    final edit = ValueNotifier(MealEdit.of(meal));
     await _sheet<void>(
       MealSavedSheet(
         meal: meal,
         time: time,
         recovered: recovered,
         today: today,
-        last: last,
+        edit: edit,
       ),
     );
-    await capture.finish(last: last.value);
-    last.dispose();
+    final saved = await capture.finish(edit.value);
+    edit.dispose();
+    if (saved || !mounted) return;
+    _snack(MetricFormat.of(context).l10n.foodTagsFailed);
   }
 
   Future<void> _noSpace(MealCapture capture, Meal meal, LocalDate today) async {
@@ -117,17 +119,18 @@ class _FoodRowState extends ConsumerState<_FoodRow> {
     await switch (choice) {
       NoSpaceChoice.retry => capture.retry(),
       NoSpaceChoice.discard => capture.discard(),
-      NoSpaceChoice.withoutPhoto || null => capture.finish(last: false),
+      NoSpaceChoice.withoutPhoto || null => capture.finish(),
     };
   }
 
   Future<void> _failed(MealCapture capture) {
-    final l10n = MetricFormat.of(context).l10n;
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(SnackBar(content: Text(l10n.foodNoSpaceTitle)));
-    return capture.finish(last: false);
+    _snack(MetricFormat.of(context).l10n.foodNoSpaceTitle);
+    return capture.finish();
   }
+
+  void _snack(String text) => ScaffoldMessenger.of(context)
+    ..clearSnackBars()
+    ..showSnackBar(SnackBar(content: Text(text)));
 
   Future<T?> _sheet<T>(Widget sheet) => showModalBottomSheet<T>(
     context: context,

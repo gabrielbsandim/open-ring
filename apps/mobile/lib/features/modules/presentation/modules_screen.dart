@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
@@ -54,7 +53,7 @@ Future<void> setModule(
         content: Text(module.turnedOn(l10n)),
         action: SnackBarAction(
           label: l10n.modulesView,
-          onPressed: () => router.go(AppTab.today.path),
+          onPressed: () => router.go(module.viewPath),
         ),
       ),
     );

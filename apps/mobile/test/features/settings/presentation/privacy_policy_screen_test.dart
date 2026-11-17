@@ -113,6 +113,8 @@ void main() {
       l.privacyStoresWeighInsWhy,
       l.privacyStoresDayTags,
       l.privacyStoresDayTagsWhy,
+      l.privacyStoresGoals,
+      l.privacyStoresGoalsWhy,
       l.privacyStoresSettings,
       l.privacyStoresSettingsWhy,
       l.privacyStoresSummary,
@@ -160,6 +162,53 @@ void main() {
     expect(policy, contains(row));
     expect(policy.indexOf(row), lessThan(policy.indexOf('## Permissions')));
     expect(policy, contains(l.privacyStoresRatingsWhy));
+  });
+
+  testWidgets('criterion 11: the privacy screen shows the Goals row', (
+    tester,
+  ) async {
+    await pumpScaled(
+      tester,
+      screenHost(const PrivacyPolicyScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: settingsOverrides(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+
+    await reveal(tester, find.text(l.privacyStoresGoals));
+
+    expect(find.text(l.privacyStoresGoals), findsOneWidget);
+    expect(find.text(l.privacyStoresGoalsWhy), findsOneWidget);
+  });
+
+  test('criterion 11: the policy document has the Goals row in the table', () {
+    final policy = _normalized(
+      File('../../docs/privacy-policy.md').readAsStringSync(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+    final row = '| ${l.privacyStoresGoals} |';
+
+    expect(policy, contains(row));
+    expect(policy.indexOf(row), lessThan(policy.indexOf('## Permissions')));
+    expect(policy, contains('${l.privacyStoresGoalsWhy} |'));
+  });
+
+  test('criterion 11: the Goals row names what the module stores', () {
+    final l = lookupAppLocalizations(const Locale('en'));
+    final row = '${l.privacyStoresGoals} ${l.privacyStoresGoalsWhy}'
+        .toLowerCase();
+
+    for (final word in [
+      'start',
+      'reference',
+      'check-in',
+      'pregnan',
+      'screening',
+    ]) {
+      expect(row, contains(word), reason: word);
+    }
   });
 
   testWidgets('criterion 10: the privacy screen names Effort in five rows', (

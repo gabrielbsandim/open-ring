@@ -22,8 +22,20 @@ final class IoPhotoStore implements PhotoStore {
     final root = await _root();
     await root.create(recursive: true);
     final temporary = File('${root.path}/$name.tmp');
-    await temporary.writeAsBytes(bytes, flush: true);
-    await temporary.rename('${root.path}/$name');
+    try {
+      await temporary.writeAsBytes(bytes, flush: true);
+      await temporary.rename('${root.path}/$name');
+    } on FileSystemException {
+      await _discard(temporary.path);
+      rethrow;
+    }
+  }
+
+  Future<void> _discard(String path) async {
+    final type = FileSystemEntity.typeSync(path, followLinks: false);
+    if (type == FileSystemEntityType.notFound) return;
+    final entity = type == FileSystemEntityType.link ? Link(path) : File(path);
+    await entity.delete();
   }
 
   @override

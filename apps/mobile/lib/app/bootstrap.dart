@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/background/background_sync_dispatcher.dart';
 import 'package:open_ring/app/theme/shared_preferences_theme_mode_store.dart';
@@ -21,8 +22,10 @@ import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/demo/infrastructure/demo_workout_store.dart';
 import 'package:open_ring/features/demo/infrastructure/drift_demo_data_store.dart';
 import 'package:open_ring/features/demo/infrastructure/shared_preferences_demo_mode_store.dart';
+import 'package:open_ring/features/food/application/meal_recovery.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/infrastructure/drift_meal_store.dart';
+import 'package:open_ring/features/food/infrastructure/image_picker_meal_camera.dart';
 import 'package:open_ring/features/food/infrastructure/io_photo_store.dart';
 import 'package:open_ring/features/goals/application/goal_review_trigger.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
@@ -174,6 +177,9 @@ Future<void> bootstrap() async {
         (ref) => DriftMealStore(ref.watch(appDatabaseProvider)),
       ),
       photoStoreProvider.overrideWithValue(IoPhotoStore.documents()),
+      mealCameraProvider.overrideWithValue(
+        ImagePickerMealCamera(ImagePicker()),
+      ),
       ringAlertPreferencesProvider.overrideWithValue(
         SharedPreferencesRingAlertPreferences(),
       ),
@@ -269,6 +275,7 @@ Future<void> bootstrap() async {
     unawaited(container.read(syncIntervalProvider.notifier).ensureScheduled());
   }
   unawaited(container.read(resumeSyncTriggerProvider).onForeground());
+  unawaited(container.read(mealRecoveryProvider.notifier).run());
   container
     ..listen(healthGrantRetryProvider, (_, _) {})
     ..listen(dayRollProvider, (_, _) {})

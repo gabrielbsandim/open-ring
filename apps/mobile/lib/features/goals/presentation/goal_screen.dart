@@ -498,7 +498,13 @@ class _PathCard extends ConsumerWidget {
       );
 
   void _open(BuildContext context, GoalEvidence kind, String yours) =>
-      unawaited(showGoalEvidence(context, kind: kind, yours: yours));
+      unawaited(
+        showGoalEvidence(
+          context,
+          copy: goalEvidenceCopy(MetricFormat.of(context), kind),
+          yours: yours,
+        ),
+      );
 }
 
 String _stateText(AppLocalizations l10n, GoalPath path) => switch (path.state) {

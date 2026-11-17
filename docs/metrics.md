@@ -2020,6 +2020,19 @@ choice, not yet checked and what the module cannot say. The rule of the
 newest stored week is marked while Goals is on. Food levers are one sentence:
 they wait for a Food module.
 
+### Lever and rule sheets
+
+On the goal screen each lever of "This week" opens its evidence sheet (on
+Today the card opens the goal screen instead): what it counts, the reader's
+target and count so far (or that the plan holds), the rule with its fit days,
+starting point, step and ceiling from the code, the source, our choice and
+the limits. The review screen's "Why this rule" opens the sheet of the rule
+the stored week answered with: its condition and answer, and what the rules
+read from the stored inputs (the week, the levers that fit, the rate with its
+target and cap and the trend BMI for a weight goal, the days of the last 7
+with a Readiness under `readinessFairFrom`). Hidden numbers leave the rate
+and the BMI out.
+
 ### The goal picker
 
 The picker offers four rows: no goal, lose fat, get fitter, sleep better.

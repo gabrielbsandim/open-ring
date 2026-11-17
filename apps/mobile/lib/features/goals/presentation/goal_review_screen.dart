@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,6 +20,7 @@ import 'package:open_ring/features/goals/application/goal_week_view.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/review_step_goal.dart';
 import 'package:open_ring/features/goals/presentation/goal_evidence_sheet.dart';
+import 'package:open_ring/features/goals/presentation/goal_sheets.dart';
 import 'package:open_ring/features/goals/presentation/goal_week_card.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -31,6 +34,7 @@ abstract final class GoalReviewScreenKeys {
   static const checkIn = Key('goal_review_check_in');
   static const send = Key('goal_review_send');
   static const decision = Key('goal_review_decision');
+  static const why = Key('goal_review_why');
   static const accept = Key('goal_review_accept');
   static const keep = Key('goal_review_keep');
   static const steps = Key('goal_review_steps');
@@ -234,6 +238,24 @@ class _GoalReviewScreenState extends ConsumerState<GoalReviewScreen> {
           BodyText(line),
           const SizedBox(height: 6),
           CaptionText(l10n.goalsReviewRule(week.rule.number)),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton(
+              key: GoalReviewScreenKeys.why,
+              onPressed: () => unawaited(
+                showGoalEvidence(
+                  context,
+                  copy: goalRuleCopy(format, week.rule),
+                  yours: goalRuleYours(
+                    format,
+                    week.inputs,
+                    hidden: ref.read(numbersHiddenProvider),
+                  ),
+                ),
+              ),
+              child: Text(l10n.goalsSheetRuleWhy),
+            ),
+          ),
           if (change != null && change.kind == LeverKind.steps)
             _steps(format, change, profileGoal),
           if (change == null) ...[

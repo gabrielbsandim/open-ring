@@ -2335,5 +2335,8 @@
   "foodRetry": "Повторить",
   "foodWithoutPhoto": "Сохранить без фото",
   "foodDiscard": "Удалить",
-  "foodNoSpaceNote": "Без фото приём пищи учитывается так же в окне и сравнениях."
+  "foodNoSpaceNote": "Без фото приём пищи учитывается так же в окне и сравнениях.",
+  "workoutNoticeSavedHeartRate": "Ср. пульс {bpm}",
+  "workoutNoticeFailedText": "Откройте приложение, чтобы попробовать снова. Если закрыть его, тренировка пропадёт.",
+  "workoutNoticeOpen": "Открыть"
 }

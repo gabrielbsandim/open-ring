@@ -8,6 +8,7 @@ final class MethodChannelWorkoutNotifier implements WorkoutNotifier {
   new([this._channel = const MethodChannel(RingNotificationsChannel.name)]);
 
   static const workoutLink = 'openring://widget/activity/live-workout';
+  static const endedTimeout = Duration(hours: 1);
 
   final MethodChannel _channel;
   late final _actions = StreamController<WorkoutNoticeAction>.broadcast(
@@ -54,6 +55,26 @@ final class MethodChannelWorkoutNotifier implements WorkoutNotifier {
   @override
   Future<void> clearAlert() => _channel.invokeMethod<void>(
     RingNotificationsChannel.clearWorkoutAlertMethod,
+  );
+
+  @override
+  Future<void> ended(WorkoutEndNotice notice) => _channel.invokeMethod<void>(
+    RingNotificationsChannel.showWorkoutEndedMethod,
+    {
+      'channelName': notice.channel,
+      'title': notice.title,
+      'text': notice.text,
+      'actionLabel': notice.action,
+      'link': notice.link,
+      'timeoutMs': endedTimeout.inMilliseconds,
+      'publicText': notice.publicText,
+      'failed': notice.failed,
+    },
+  );
+
+  @override
+  Future<void> clearEnded() => _channel.invokeMethod<void>(
+    RingNotificationsChannel.clearWorkoutEndedMethod,
   );
 
   Future<void> _onCall(MethodCall call) async {

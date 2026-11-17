@@ -2335,5 +2335,8 @@
   "foodRetry": "Erneut versuchen",
   "foodWithoutPhoto": "Ohne Foto speichern",
   "foodDiscard": "Verwerfen",
-  "foodNoSpaceNote": "Ohne Foto zählt die Mahlzeit genauso im Essfenster und in den Vergleichen."
+  "foodNoSpaceNote": "Ohne Foto zählt die Mahlzeit genauso im Essfenster und in den Vergleichen.",
+  "workoutNoticeSavedHeartRate": "Ø HF {bpm}",
+  "workoutNoticeFailedText": "Öffne die App, um es erneut zu versuchen. Wenn du sie schließt, geht das Training verloren.",
+  "workoutNoticeOpen": "Öffnen"
 }

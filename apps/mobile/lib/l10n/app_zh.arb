@@ -2335,5 +2335,8 @@
   "foodRetry": "重试",
   "foodWithoutPhoto": "不带照片保存",
   "foodDiscard": "舍弃",
-  "foodNoSpaceNote": "没有照片，这餐在进食窗口和比较中同样计入。"
+  "foodNoSpaceNote": "没有照片，这餐在进食窗口和比较中同样计入。",
+  "workoutNoticeSavedHeartRate": "平均心率 {bpm}",
+  "workoutNoticeFailedText": "打开应用重试。关闭应用会丢失这次训练。",
+  "workoutNoticeOpen": "打开"
 }

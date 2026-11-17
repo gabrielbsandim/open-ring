@@ -2335,5 +2335,8 @@
   "foodRetry": "Riprova",
   "foodWithoutPhoto": "Salva senza foto",
   "foodDiscard": "Scarta",
-  "foodNoSpaceNote": "Senza foto, il pasto conta allo stesso modo nella finestra e nei confronti."
+  "foodNoSpaceNote": "Senza foto, il pasto conta allo stesso modo nella finestra e nei confronti.",
+  "workoutNoticeSavedHeartRate": "FC media {bpm}",
+  "workoutNoticeFailedText": "Apri l'app per riprovare. Chiuderla fa perdere l'allenamento.",
+  "workoutNoticeOpen": "Apri"
 }

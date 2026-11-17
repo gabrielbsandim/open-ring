@@ -60,6 +60,12 @@ final class ThrowingAlertNotifier implements WorkoutNotifier {
     clearCalls++;
     throw const WorkoutNotifierFailure();
   }
+
+  @override
+  Future<void> ended(WorkoutEndNotice notice) async {}
+
+  @override
+  Future<void> clearEnded() async {}
 }
 
 void main() {

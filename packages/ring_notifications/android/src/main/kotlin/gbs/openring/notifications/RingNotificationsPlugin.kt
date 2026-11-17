@@ -33,10 +33,12 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
         channel = MethodChannel(binding.binaryMessenger, CHANNEL).also { it.setMethodCallHandler(this) }
+        dropOrphanedFailedWorkoutEnded(binding.applicationContext)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context?.let(::hideWorkout)
+        context?.let { dropOrphanedFailedWorkoutEnded(it, this) }
         channel?.setMethodCallHandler(null)
         channel = null
         context = null
@@ -79,6 +81,27 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 }
                 "clearWorkoutAlert" -> {
                     cancelWorkoutAlert(app)
+                    result.success(null)
+                }
+                "showWorkoutEnded" -> {
+                    showWorkoutEnded(
+                        app,
+                        this,
+                        WorkoutEnded(
+                            channelName = requireNotNull(call.argument<String>("channelName")),
+                            title = call.argument<String>("title"),
+                            text = call.argument<String>("text"),
+                            actionLabel = requireNotNull(call.argument<String>("actionLabel")),
+                            link = call.argument<String>("link"),
+                            timeoutMs = requireNotNull(call.argument<Number>("timeoutMs")).toLong(),
+                            publicText = call.argument<String>("publicText"),
+                            failed = call.argument<Boolean>("failed") ?: false,
+                        ),
+                    )
+                    result.success(null)
+                }
+                "clearWorkoutEnded" -> {
+                    cancelWorkoutEnded(app)
                     result.success(null)
                 }
                 else -> result.notImplemented()

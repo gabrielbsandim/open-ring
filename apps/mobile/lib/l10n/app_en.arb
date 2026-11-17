@@ -4713,5 +4713,9 @@
   "foodRetry": "Try again",
   "foodWithoutPhoto": "Save without photo",
   "foodDiscard": "Discard",
-  "foodNoSpaceNote": "Without a photo, the meal counts the same in the window and the comparisons."
+  "foodNoSpaceNote": "Without a photo, the meal counts the same in the window and the comparisons.",
+  "workoutNoticeSavedHeartRate": "Avg HR {bpm}",
+  "@workoutNoticeSavedHeartRate": {"placeholders": {"bpm": {"type": "int"}}},
+  "workoutNoticeFailedText": "Open the app to try again. Closing it loses the workout.",
+  "workoutNoticeOpen": "Open"
 }

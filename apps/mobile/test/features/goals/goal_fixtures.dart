@@ -1,5 +1,25 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/features/goals/domain/goal.dart';
+
+void expectSameGoal(Goal? actual, Goal expected) {
+  expect(actual, isNotNull);
+  final goal = actual!;
+  expect(goal.id, expected.id);
+  expect(goal.kind, expected.kind);
+  expect(goal.pace, expected.pace);
+  expect(goal.startedOn, expected.startedOn);
+  expect(goal.anchorKg, expected.anchorKg);
+  expect(goal.referenceKg, expected.referenceKg);
+  expect(goal.blockStartedOn, expected.blockStartedOn);
+  expect(goal.blockAnchorKg, expected.blockAnchorKg);
+  expect(goal.phase, expected.phase);
+  expect(goal.phaseSince, expected.phaseSince);
+  expect(goal.phaseUntil, expected.phaseUntil);
+  expectSameLevers(goal.levers, expected.levers);
+  expect(goal.endedOn, expected.endedOn);
+  expect(goal.endReason, expected.endReason);
+}
 
 void expectSameLevers(List<Lever> actual, List<Lever> expected) {
   expect(
@@ -177,5 +197,34 @@ ReviewInputs f1WithBmi(double bmi) => ReviewInputs(
   energy: f1.energy,
   energyPrevious: f1.energyPrevious,
   foodOrWeight: f1.foodOrWeight,
+  foodOrWeightPrevious: f1.foodOrWeightPrevious,
+);
+
+// Four of the seven values are under the fair band, which is rule 4.
+ReviewInputs f1Recovering({
+  required bool recoveryPrevious,
+  CheckInEnergy? energy = CheckInEnergy.good,
+  CheckInEnergy? energyPrevious = CheckInEnergy.normal,
+  bool? foodOrWeight = false,
+}) => ReviewInputs(
+  kind: f1.kind,
+  week: f1.week,
+  levers: f1.levers,
+  adherencePrevious: f1.adherencePrevious,
+  baseline: f1.baseline,
+  effortRaisesInRow: f1.effortRaisesInRow,
+  rate: f1.rate,
+  targetPercent: f1.targetPercent,
+  capPercent: f1.capPercent,
+  previousPercentLow: f1.previousPercentLow,
+  bmi: f1.bmi,
+  pregnantOrBreastfeeding: f1.pregnantOrBreastfeeding,
+  screeningPositive: f1.screeningPositive,
+  bodyOn: f1.bodyOn,
+  readiness: [52, 49, 58, 54, 61, 50, 66],
+  recoveryPrevious: recoveryPrevious,
+  energy: energy,
+  energyPrevious: energyPrevious,
+  foodOrWeight: foodOrWeight,
   foodOrWeightPrevious: f1.foodOrWeightPrevious,
 );

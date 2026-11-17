@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,6 +17,7 @@ import 'package:open_ring/features/goals/application/goal_reviewer.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_store.dart';
+import 'package:open_ring/features/goals/domain/review_inputs.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
@@ -31,6 +34,7 @@ import '../goal_fixtures.dart';
 const Set<ModuleId> _both = {ModuleId.goals, ModuleId.body};
 const _closedReadiness = [76, 72, 70, 68, 74, 71, 76];
 const _otherDayReadiness = 40;
+const int _bedAt2330 = 23 * 60 + 30;
 
 const _strength = Lever(kind: LeverKind.strengthDays, target: 2);
 const _sleep = Lever(kind: LeverKind.sleepWindow, target: 690);
@@ -120,7 +124,7 @@ List<DailyValue> _daily() => [
     (date: _day(11, 9).addDays(i), value: 80.0 - 0.05 * i),
 ];
 
-WeightSummary _weightSummary({int extraDays = 0}) {
+WeightSummary _weightSummary({int extraDays = 0, List<DailyValue>? days}) {
   final later = [
     for (var i = 1; i <= extraDays; i++)
       (date: _day(12, 6).addDays(i), value: 70.0),
@@ -133,7 +137,7 @@ WeightSummary _weightSummary({int extraDays = 0}) {
       kilograms: 78,
       source: WeighInSource.manual,
     ),
-    daily: [..._daily(), ...later],
+    daily: [...(days ?? _daily()), ...later],
     line: [
       (date: _day(12, 5), value: 78.1),
       (date: _day(12, 6), value: 78.0),
@@ -180,6 +184,38 @@ final class _UnreadableStore implements GoalStore {
       throw StateError('the store was read: ${invocation.memberName}');
 }
 
+final class _GatedStore implements GoalStore {
+  new(this.inner);
+
+  final InMemoryGoalStore inner;
+  final gate = Completer<void>();
+  bool reachedStartBlock = false;
+
+  @override
+  Future<Goal?> active() => inner.active();
+
+  @override
+  Future<bool> startBlock(
+    int goalId, {
+    required LocalDate on,
+    required double? anchorKg,
+    List<Lever>? levers,
+  }) async {
+    reachedStartBlock = true;
+    await gate.future;
+    return await inner.startBlock(
+      goalId,
+      on: on,
+      anchorKg: anchorKg,
+      levers: levers,
+    );
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw StateError('the store was read: ${invocation.memberName}');
+}
+
 final class _Setup {
   new(this.container, this.store);
 
@@ -200,6 +236,7 @@ Future<_Setup> _setup({
   InMemoryGoalStore? store,
   GoalStore? readStore,
   Override? stepsOverride,
+  Override? nightsOverride,
   Override? weightOverride,
   int extraWeighIns = 0,
 }) async {
@@ -218,7 +255,8 @@ Future<_Setup> _setup({
       ),
       stepsOverride ??
           activityDaysProvider.overrideWith((ref) async => _stepDays()),
-      sleepNightsProvider.overrideWith((ref) async => _nights()),
+      nightsOverride ??
+          sleepNightsProvider.overrideWith((ref) async => _nights()),
       effortSessionsProvider.overrideWith((ref) async => _sessions()),
       dailyIntensityProvider.overrideWith((ref) async => <DailyValue>[]),
       readinessTrendProvider.overrideWith(
@@ -278,7 +316,498 @@ Future<_Setup> _pausableSetup() async {
   return setup;
 }
 
+GoalWeekData _data() => GoalWeekData(
+  steps: {for (final day in _stepDays().values) day.date: day.steps},
+  nights: _nights(),
+  strengthDays: effortStrengthDays(_sessions()),
+);
+
+Lever _starting(GoalKind kind, LocalDate end) =>
+    startingLever(kind, leverBaseline(_data(), end: end))!;
+
+Override _weightOf(List<DailyValue> days) => weightSummaryProvider.overrideWith(
+  (ref) async => _weightSummary(days: days),
+);
+
+Override _noWeight() => weightSummaryProvider.overrideWith((ref) async => null);
+
+Override _throwingWeight() => weightSummaryProvider.overrideWith(
+  (ref) async => throw StateError('the weight was read'),
+);
+
+Override _nightsOf(Iterable<LocalDate> dates, {required int wake}) =>
+    sleepNightsProvider.overrideWith(
+      (ref) async => {
+        for (final date in dates)
+          date: _night(date, onset: _bedAt2330, wake: wake),
+      },
+    );
+
+Future<_Setup> _withoutLevers({
+  GoalKind kind = GoalKind.loseFat,
+  DateTime? now,
+  Set<ModuleId> modules = _both,
+  Override? stepsOverride,
+  Override? nightsOverride,
+  Override? weightOverride,
+}) => _setup(
+  now: now,
+  modules: modules,
+  draft: _draft(kind: kind, levers: const []),
+  stepsOverride: stepsOverride,
+  nightsOverride: nightsOverride,
+  weightOverride: weightOverride,
+);
+
+Future<_Setup> _pausedUntil(
+  LocalDate? until, {
+  GoalKind kind = GoalKind.getFitter,
+  DateTime? now,
+  int extraWeighIns = 0,
+}) async {
+  final setup = await _setup(
+    now: now,
+    draft: _draft(kind: kind),
+    extraWeighIns: extraWeighIns,
+  );
+  await setup.store.setPhase(
+    1,
+    GoalPhase.paused,
+    since: _day(12, 7),
+    until: until,
+  );
+  return setup;
+}
+
 void main() {
+  group('G5b2b1 case 7: a block start for lose fat with no levers', () {
+    final asOf = weightSnapshot(daily: _daily(), asOf: _day(12, 7));
+
+    test('the fixture weight has a ready rate and a trend', () {
+      expect(asOf.rate, isA<WeightRateReady>());
+      expect(asOf.trendKg, isNotNull);
+    });
+
+    test('is true', () async {
+      final setup = await _withoutLevers();
+
+      expect(await setup.reviewer.startDueBlock(), isTrue);
+    });
+
+    test('starts the block on the day', () async {
+      final setup = await _withoutLevers();
+
+      await setup.reviewer.startDueBlock();
+
+      final goal = (await setup.store.active())!;
+      expect(goal.phase, GoalPhase.block);
+      expect(goal.blockStartedOn, _day(12, 7));
+      expect(goal.phaseSince, _day(12, 7));
+      expect(goal.phaseUntil, isNull);
+    });
+
+    test('anchors the block on the weight trend of the day', () async {
+      final setup = await _withoutLevers();
+
+      await setup.reviewer.startDueBlock();
+
+      expect((await setup.store.active())!.blockAnchorKg, asOf.trendKg);
+    });
+
+    test('stores the starting lever read up to the day before', () async {
+      final setup = await _withoutLevers();
+
+      await setup.reviewer.startDueBlock();
+
+      final levers = (await setup.store.active())!.levers;
+      expectSameLevers(levers, [_starting(GoalKind.loseFat, _day(12, 6))]);
+      expect(levers.single.kind, LeverKind.strengthDays);
+    });
+
+    test('bumps the data revision once', () async {
+      final setup = await _withoutLevers();
+      final before = setup.revision;
+
+      await setup.reviewer.startDueBlock();
+
+      expect(setup.revision, before + 1);
+    });
+
+    test('a second call is false and does not bump', () async {
+      final setup = await _withoutLevers();
+      await setup.reviewer.startDueBlock();
+      final before = setup.revision;
+
+      final second = await setup.reviewer.startDueBlock();
+
+      expect(second, isFalse);
+      expect(setup.revision, before);
+    });
+  });
+
+  group('G5b2b1 case 8: a block start that does not happen', () {
+    Future<void> expectNothingStarted(_Setup setup, Goal before) async {
+      expect(await setup.reviewer.startDueBlock(), isFalse);
+      expectSameGoal(await setup.store.active(), before);
+      expect(setup.revision, 0);
+    }
+
+    test('five weigh-in days are not a ready rate', () async {
+      final setup = await _withoutLevers(
+        weightOverride: _weightOf(_daily().skip(23).toList()),
+      );
+
+      await expectNothingStarted(setup, (await setup.store.active())!);
+    });
+
+    test('no weight summary gives false', () async {
+      final setup = await _withoutLevers(weightOverride: _noWeight());
+
+      await expectNothingStarted(setup, (await setup.store.active())!);
+    });
+
+    test('Body off gives false and the weight is not read', () async {
+      final setup = await _withoutLevers(
+        modules: const {ModuleId.goals},
+        weightOverride: _throwingWeight(),
+      );
+
+      await expectNothingStarted(setup, (await setup.store.active())!);
+    });
+
+    test('a goal that has levers gives false', () async {
+      final setup = await _ready();
+
+      await expectNothingStarted(setup, (await setup.store.active())!);
+    });
+
+    test('Goals off gives false and the store is not read', () async {
+      final setup = await _setup(
+        modules: const {},
+        readStore: _UnreadableStore(),
+      );
+
+      expect(await setup.reviewer.startDueBlock(), isFalse);
+      expect(setup.revision, 0);
+    });
+
+    test('no goal gives false and no bump', () async {
+      final setup = await _setup();
+
+      expect(await setup.reviewer.startDueBlock(), isFalse);
+      expect(await setup.store.count(), 0);
+      expect(setup.revision, 0);
+    });
+  });
+
+  group('G5b2b1 case 9: get fitter with no levers', () {
+    Future<_Setup> started() async {
+      final setup = await _withoutLevers(
+        kind: GoalKind.getFitter,
+        weightOverride: _throwingWeight(),
+      );
+      await setup.reviewer.startDueBlock();
+      return setup;
+    }
+
+    test('is true and the weight is never read', () async {
+      final setup = await _withoutLevers(
+        kind: GoalKind.getFitter,
+        weightOverride: _throwingWeight(),
+      );
+
+      expect(await setup.reviewer.startDueBlock(), isTrue);
+    });
+
+    test('starts the block on the day with a null anchor', () async {
+      final setup = await started();
+
+      final goal = (await setup.store.active())!;
+      expect(goal.blockStartedOn, _day(12, 7));
+      expect(goal.blockAnchorKg, isNull);
+    });
+
+    test('stores the starting lever of the fixture data', () async {
+      final setup = await started();
+
+      expectSameLevers((await setup.store.active())!.levers, [
+        _starting(GoalKind.getFitter, _day(12, 6)),
+      ]);
+    });
+  });
+
+  group('G5b2b1 case 10: sleep better', () {
+    test('with no nights gives false and no bump', () async {
+      final setup = await _withoutLevers(
+        kind: GoalKind.sleepBetter,
+        nightsOverride: _nightsOf(const [], wake: 405),
+      );
+      final before = (await setup.store.active())!;
+
+      final started = await setup.reviewer.startDueBlock();
+
+      expect(started, isFalse);
+      expectSameGoal(await setup.store.active(), before);
+      expect(setup.revision, 0);
+    });
+
+    test('with seven nights starts on the median wake time', () async {
+      final setup = await _withoutLevers(
+        kind: GoalKind.sleepBetter,
+        nightsOverride: _nightsOf([
+          for (var d = 0; d < 7; d++) _day(11, 30).addDays(d),
+        ], wake: 405),
+      );
+
+      final started = await setup.reviewer.startDueBlock();
+
+      final levers = (await setup.store.active())!.levers;
+      expect(started, isTrue);
+      expect(
+        [for (final lever in levers) (lever.kind, lever.target)],
+        [(LeverKind.wakeTime, 405)],
+      );
+    });
+  });
+
+  group('G5b2b1 case 11: after a dated pause', () {
+    test('on the last day of the pause nothing starts', () async {
+      final setup = await _pausedUntil(_day(12, 20), now: _at(12, 20));
+      final before = (await setup.store.active())!;
+
+      final started = await setup.reviewer.startDueBlock();
+
+      expect(started, isFalse);
+      expectSameGoal(await setup.store.active(), before);
+      expect(setup.revision, 0);
+    });
+
+    test('the next day starts a block with no end', () async {
+      final setup = await _pausedUntil(_day(12, 20), now: _at(12, 21));
+
+      final started = await setup.reviewer.startDueBlock();
+
+      final goal = (await setup.store.active())!;
+      expect(started, isTrue);
+      expect(goal.phase, GoalPhase.block);
+      expect(goal.blockStartedOn, _day(12, 21));
+      expect(goal.phaseSince, _day(12, 21));
+      expect(goal.phaseUntil, isNull);
+      expect(goal.blockAnchorKg, isNull);
+    });
+
+    test('the next day keeps the levers', () async {
+      final setup = await _pausedUntil(_day(12, 20), now: _at(12, 21));
+
+      await setup.reviewer.startDueBlock();
+
+      expectSameLevers((await setup.store.active())!.levers, const [
+        _strength,
+        _sleep,
+        _steps,
+      ]);
+    });
+
+    test('the next day bumps the data revision once', () async {
+      final setup = await _pausedUntil(_day(12, 20), now: _at(12, 21));
+
+      await setup.reviewer.startDueBlock();
+
+      expect(setup.revision, 1);
+    });
+  });
+
+  group('G5b2b1 case 12: lose fat after a dated pause', () {
+    test('13 weigh-in days over 12 are still building', () async {
+      final setup = await _pausedUntil(
+        _day(12, 20),
+        kind: GoalKind.loseFat,
+        now: _at(12, 21),
+      );
+      final before = (await setup.store.active())!;
+
+      final started = await setup.reviewer.startDueBlock();
+
+      final snapshot = weightSnapshot(daily: _daily(), asOf: _day(12, 21));
+      expect(snapshot.rate, isA<WeightRateBuilding>());
+      expect(started, isFalse);
+      expectSameGoal(await setup.store.active(), before);
+      expect(setup.revision, 0);
+    });
+
+    test('15 more weigh-ins give a ready rate and the block starts', () async {
+      final setup = await _pausedUntil(
+        _day(12, 20),
+        kind: GoalKind.loseFat,
+        now: _at(12, 21),
+        extraWeighIns: 15,
+      );
+
+      final started = await setup.reviewer.startDueBlock();
+
+      final snapshot = weightSnapshot(
+        daily: _weightSummary(extraDays: 15).daily,
+        asOf: _day(12, 21),
+      );
+      final goal = (await setup.store.active())!;
+      expect(snapshot.rate, isA<WeightRateReady>());
+      expect(started, isTrue);
+      expect(goal.blockStartedOn, _day(12, 21));
+      expect(goal.blockAnchorKg, snapshot.trendKg);
+      expect(goal.blockAnchorKg, isNotNull);
+      expect(goal.phaseUntil, isNull);
+    });
+  });
+
+  group('G5b2b1 case 13: a pause with no end', () {
+    test('is never ended by the clock', () async {
+      final setup = await _pausedUntil(null, now: DateTime(2027, 3, 1, 8, 10));
+      final before = (await setup.store.active())!;
+
+      final started = await setup.reviewer.startDueBlock();
+
+      expect(started, isFalse);
+      expectSameGoal(await setup.store.active(), before);
+      expect(setup.revision, 0);
+    });
+  });
+
+  group('G5b2b1 sources that fail', () {
+    test('activity days that throw stop the block start', () async {
+      final setup = await _withoutLevers(
+        kind: GoalKind.getFitter,
+        stepsOverride: activityDaysProvider.overrideWith(
+          (ref) async => throw StateError('no activity'),
+        ),
+      );
+      final before = (await setup.store.active())!;
+
+      await expectLater(
+        setup.reviewer.startDueBlock(),
+        throwsA(isA<StateError>()),
+      );
+
+      expectSameGoal(await setup.store.active(), before);
+      expect(setup.revision, 0);
+    });
+
+    test('a weight summary that throws stops a lose fat start', () async {
+      final setup = await _withoutLevers(weightOverride: _throwingWeight());
+      final before = (await setup.store.active())!;
+
+      await expectLater(
+        setup.reviewer.startDueBlock(),
+        throwsA(isA<StateError>()),
+      );
+
+      expectSameGoal(await setup.store.active(), before);
+      expect(setup.revision, 0);
+    });
+
+    test('a container disposed while the block is written does not '
+        'throw', () async {
+      final inner = InMemoryGoalStore();
+      final gated = _GatedStore(inner);
+      final setup = await _setup(
+        draft: _draft(kind: GoalKind.getFitter, levers: const []),
+        store: inner,
+        readStore: gated,
+      );
+      final pending = setup.reviewer.startDueBlock();
+      await pumpEventQueue();
+      expect(gated.reachedStartBlock, isTrue);
+
+      setup.container.dispose();
+      gated.gate.complete();
+
+      await expectLater(pending, completes);
+      expect((await inner.active())!.blockStartedOn, _day(12, 7));
+    });
+  });
+
+  group('G5b2b1 case 14: no review while there are no levers', () {
+    test('the week is the fourth, which a goal with levers reviews', () {
+      expect(goalWeekNumber(start: _day(11, 16), today: _day(12, 7)), 4);
+    });
+
+    test('gives null, writes no row and does not bump', () async {
+      final setup = await _withoutLevers();
+
+      final review = await setup.reviewer.reviewDueWeek();
+
+      expect(review, isNull);
+      expect(await setup.weeks(), isEmpty);
+      expect(setup.revision, 0);
+    });
+  });
+
+  group('G5b2b1 case 15: a review that ends the goal', () {
+    Future<_Setup> pregnant() async {
+      final setup = await _ready();
+      await setup.store.addScreening(
+        const GoalScreening(
+          on: LocalDate(2026, 11, 16),
+          softMode: null,
+          pregnantOrBreastfeeding: true,
+        ),
+      );
+      return setup;
+    }
+
+    test('returns rule 1', () async {
+      final setup = await pregnant();
+
+      final review = await setup.reviewer.reviewDueWeek();
+
+      expect(review?.rule, ReviewRule.end);
+      expect(review?.action, ReviewAction.end);
+    });
+
+    test('ends the goal on the Monday as a protection', () async {
+      final setup = await pregnant();
+
+      await setup.reviewer.reviewDueWeek();
+
+      final goal = (await setup.store.goals()).single;
+      expect(goal.phase, GoalPhase.ended);
+      expect(goal.endedOn, _day(12, 7));
+      expect(goal.endReason, GoalEndReason.protection);
+    });
+
+    test('writes one row and bumps once', () async {
+      final setup = await pregnant();
+      final before = setup.revision;
+
+      await setup.reviewer.reviewDueWeek();
+
+      expect(await setup.weeks(), hasLength(1));
+      expect(setup.revision, before + 1);
+    });
+
+    test('reads the active goal as null after the bump', () async {
+      final setup = await pregnant();
+      setup.container.listen(activeGoalProvider, (_, _) {});
+      expect(await setup.container.read(activeGoalProvider.future), isNotNull);
+
+      await setup.reviewer.reviewDueWeek();
+
+      expect(await setup.container.read(activeGoalProvider.future), isNull);
+    });
+  });
+
+  group('G5b2b1 case 16: the check-in that pauses', () {
+    test('pauses the goal from the Monday with no end', () async {
+      final setup = await _pausableSetup();
+
+      await setup.reviewer.checkIn(_day(12, 7), energy: CheckInEnergy.low);
+
+      final goal = (await setup.store.active())!;
+      expect(goal.phase, GoalPhase.paused);
+      expect(goal.phaseSince, _day(12, 7));
+      expect(goal.phaseUntil, isNull);
+    });
+  });
+
   group('case 8: the review of the closed week', () {
     test('writes one row on the Monday', () async {
       final setup = await _ready();

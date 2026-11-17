@@ -23,23 +23,20 @@ const _holdReview = Review(
   adherence: 1,
 );
 
-void expectSameGoal(Goal? actual, Goal expected) {
-  expect(actual, isNotNull);
-  final goal = actual!;
-  expect(goal.id, expected.id);
-  expect(goal.kind, expected.kind);
-  expect(goal.pace, expected.pace);
-  expect(goal.startedOn, expected.startedOn);
-  expect(goal.anchorKg, expected.anchorKg);
-  expect(goal.referenceKg, expected.referenceKg);
-  expect(goal.blockStartedOn, expected.blockStartedOn);
-  expect(goal.blockAnchorKg, expected.blockAnchorKg);
-  expect(goal.phase, expected.phase);
-  expect(goal.phaseSince, expected.phaseSince);
-  expect(goal.phaseUntil, expected.phaseUntil);
-  expectSameLevers(goal.levers, expected.levers);
-  expect(goal.endedOn, expected.endedOn);
-  expect(goal.endReason, expected.endReason);
+const _noLeversDraft = GoalDraft(
+  kind: GoalKind.loseFat,
+  pace: GoalPace.standard,
+  startedOn: _start,
+  anchorKg: 78.4,
+  referenceKg: 74,
+  levers: [],
+);
+
+void expectPaused(Goal? goal, {required LocalDate since, LocalDate? until}) {
+  expect(goal, isNotNull);
+  expect(goal!.phase, GoalPhase.paused);
+  expect(goal.phaseSince, since);
+  expect(goal.phaseUntil, until);
 }
 
 void main() {
@@ -1087,6 +1084,308 @@ void main() {
             expect(week.inputs.energy, CheckInEnergy.normal);
           },
         );
+
+        group('G5b2b1 case 1: startBlock with levers', () {
+          const blockDay = LocalDate(2026, 11, 26);
+
+          test('starts the block on the day with the anchor', () async {
+            await store.start(_noLeversDraft);
+
+            final changed = await store.startBlock(
+              1,
+              on: blockDay,
+              anchorKg: 77.9,
+              levers: const [strengthLever],
+            );
+
+            final goal = (await store.active())!;
+            expect(changed, isTrue);
+            expect(goal.phase, GoalPhase.block);
+            expect(goal.blockStartedOn, blockDay);
+            expect(goal.phaseSince, blockDay);
+            expect(goal.phaseUntil, isNull);
+            expect(goal.blockAnchorKg, 77.9);
+          });
+
+          test('stores the levers it is given on a goal with none', () async {
+            await store.start(_noLeversDraft);
+
+            await store.startBlock(
+              1,
+              on: blockDay,
+              anchorKg: 77.9,
+              levers: const [strengthLever],
+            );
+
+            expectSameLevers((await store.active())!.levers, const [
+              strengthLever,
+            ]);
+          });
+
+          test('keeps the start and the anchor of the goal', () async {
+            await store.start(_noLeversDraft);
+
+            await store.startBlock(
+              1,
+              on: blockDay,
+              anchorKg: 77.9,
+              levers: const [strengthLever],
+            );
+
+            final goal = (await store.active())!;
+            expect(goal.startedOn, _start);
+            expect(goal.anchorKg, 78.4);
+          });
+
+          test('replaces the levers it is given over stored ones', () async {
+            await store.start(draftD);
+
+            await store.startBlock(
+              1,
+              on: blockDay,
+              anchorKg: 77.9,
+              levers: const [stepsLever],
+            );
+
+            expectSameLevers((await store.active())!.levers, const [
+              stepsLever,
+            ]);
+          });
+
+          test('null levers keep the stored ones', () async {
+            await store.start(draftD);
+
+            await store.startBlock(1, on: blockDay, anchorKg: 77.9);
+
+            expectSameLevers((await store.active())!.levers, const [
+              strengthLever,
+            ]);
+          });
+
+          test('an ended goal is refused and its levers stay', () async {
+            await store.start(draftD);
+            await store.end(1, on: _endDay, reason: GoalEndReason.person);
+
+            final changed = await store.startBlock(
+              1,
+              on: blockDay,
+              anchorKg: 77.9,
+              levers: const [stepsLever],
+            );
+
+            final goal = (await store.goals()).single;
+            expect(changed, isFalse);
+            expectSameLevers(goal.levers, const [strengthLever]);
+            expect(goal.phase, GoalPhase.ended);
+          });
+        });
+
+        group('G5b2b1 cases 2 to 5: addWeek applies a protection', () {
+          final checkInPause = f1With(
+            energy: CheckInEnergy.low,
+            energyPrevious: CheckInEnergy.low,
+            foodOrWeight: null,
+          );
+
+          test(
+            'case 2: rule 3 pauses the goal from Monday with no end',
+            () async {
+              await store.start(draftD);
+              final review = reviewWeek(checkInPause);
+
+              final written = await store.addWeek(
+                1,
+                monday: _firstMonday,
+                inputs: checkInPause,
+                review: review,
+              );
+
+              expect(review.rule, ReviewRule.pauseCheckIn);
+              expect(review.pauseDays, isNull);
+              expect(written, isTrue);
+              expectPaused(await store.active(), since: _firstMonday);
+            },
+          );
+
+          test('case 2: the pause leaves the block and the levers', () async {
+            await store.start(draftD);
+
+            await addRow(_firstMonday, checkInPause);
+
+            final goal = (await store.active())!;
+            expect(goal.blockStartedOn, _start);
+            expect(goal.blockAnchorKg, 78.4);
+            expectSameLevers(goal.levers, const [strengthLever]);
+          });
+
+          test('case 3: rule 4 twice in a row pauses for 14 days', () async {
+            await store.start(draftD);
+            final inputs = f1Recovering(recoveryPrevious: true);
+            final review = reviewWeek(inputs);
+
+            await addRow(_firstMonday, inputs);
+
+            expect(review.rule, ReviewRule.recoveryWeek);
+            expect(review.action, ReviewAction.pause);
+            expect(review.pauseDays, 14);
+            expectPaused(
+              await store.active(),
+              since: _firstMonday,
+              until: const LocalDate(2026, 12, 20),
+            );
+          });
+
+          test('case 3: a first recovery week leaves the goal as it '
+              'was', () async {
+            await store.start(draftD);
+            final before = (await store.active())!;
+            final inputs = f1Recovering(recoveryPrevious: false);
+            final review = reviewWeek(inputs);
+
+            await addRow(_firstMonday, inputs);
+
+            expect(review.rule, ReviewRule.recoveryWeek);
+            expect(review.action, ReviewAction.recoveryWeek);
+            expect(review.pauseDays, isNull);
+            expectSameGoal(await store.active(), before);
+            expect(await store.weeks(1), hasLength(1));
+          });
+
+          test('a week that asks for nothing leaves the goal as it '
+              'was', () async {
+            await store.start(draftD);
+            final before = (await store.active())!;
+
+            await addRow(_firstMonday, f1);
+
+            expectSameGoal(await store.active(), before);
+          });
+
+          test('case 4: rule 1 under the bmi floor ends the goal', () async {
+            await store.start(draftD);
+            final inputs = f1WithBmi(18);
+            final review = reviewWeek(inputs);
+
+            await addRow(_firstMonday, inputs);
+
+            final goal = (await store.goals()).single;
+            expect(review.rule, ReviewRule.end);
+            expect(review.action, ReviewAction.end);
+            expect(await store.active(), isNull);
+            expect(goal.phase, GoalPhase.ended);
+            expect(goal.endedOn, _firstMonday);
+            expect(goal.endReason, GoalEndReason.protection);
+          });
+
+          test('case 4: the ended goal keeps its week', () async {
+            await store.start(draftD);
+
+            await addRow(_firstMonday, f1WithBmi(18));
+
+            final weeks = await store.weeks(1);
+            expect(weeks, hasLength(1));
+            expect(weeks.single.rule, ReviewRule.end);
+          });
+
+          test('case 5: a refused addWeek leaves the goal as it '
+              'was', () async {
+            await store.start(draftD);
+            await addRow(_firstMonday, f1);
+            final before = (await store.active())!;
+
+            final written = await store.addWeek(
+              1,
+              monday: _firstMonday,
+              inputs: checkInPause,
+              review: reviewWeek(checkInPause),
+            );
+
+            expect(written, isFalse);
+            expectSameGoal(await store.active(), before);
+          });
+
+          test('case 5: a refused addWeek does not end a paused '
+              'goal', () async {
+            await store.start(draftD);
+            await addRow(_firstMonday, checkInPause);
+
+            final ending = f1WithBmi(18);
+            final written = await store.addWeek(
+              1,
+              monday: _firstMonday,
+              inputs: ending,
+              review: reviewWeek(ending),
+            );
+
+            expect(written, isFalse);
+            expectPaused(await store.active(), since: _firstMonday);
+          });
+        });
+
+        group('G5b2b1 case 6: amendWeek applies a protection', () {
+          test('rule 3 from the check-in pauses the goal', () async {
+            await startWithPausableWeeks();
+            expect((await store.active())!.phase, GoalPhase.block);
+
+            await store.amendWeek(
+              1,
+              _firstMonday,
+              energy: CheckInEnergy.low,
+              foodOrWeight: null,
+            );
+
+            expectPaused(await store.active(), since: _firstMonday);
+          });
+
+          test('a refused amend leaves the paused goal as it was', () async {
+            await startWithPausableWeeks();
+            await store.amendWeek(
+              1,
+              _firstMonday,
+              energy: CheckInEnergy.low,
+              foodOrWeight: null,
+            );
+            final paused = (await store.active())!;
+
+            final review = await store.amendWeek(
+              1,
+              _firstMonday,
+              energy: CheckInEnergy.good,
+              foodOrWeight: true,
+            );
+
+            expect(review, isNull);
+            expectSameGoal(await store.active(), paused);
+          });
+
+          test('a rule 4 pause amended into rule 3 loses its end', () async {
+            await store.start(draftD);
+            await addRow(
+              _firstMonday,
+              f1Recovering(
+                recoveryPrevious: true,
+                energy: null,
+                energyPrevious: CheckInEnergy.low,
+                foodOrWeight: null,
+              ),
+            );
+            expectPaused(
+              await store.active(),
+              since: _firstMonday,
+              until: const LocalDate(2026, 12, 20),
+            );
+
+            final review = await store.amendWeek(
+              1,
+              _firstMonday,
+              energy: CheckInEnergy.low,
+              foodOrWeight: null,
+            );
+
+            expect(review?.rule, ReviewRule.pauseCheckIn);
+            expectPaused(await store.active(), since: _firstMonday);
+          });
+        });
       });
     });
   }

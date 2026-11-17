@@ -9,4 +9,6 @@ abstract final class RingNotificationsChannel {
   static const workoutActionMethod = 'workoutAction';
   static const alertWorkoutMethod = 'alertWorkout';
   static const clearWorkoutAlertMethod = 'clearWorkoutAlert';
+  static const showWorkoutEndedMethod = 'showWorkoutEnded';
+  static const clearWorkoutEndedMethod = 'clearWorkoutEnded';
 }

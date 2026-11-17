@@ -19,6 +19,7 @@ private const val WORKOUT_CHANNEL_ID = "workout_live"
 private const val WORKOUT_NOTIFICATION_ID = 7302
 private const val ALERT_CHANNEL_ID = "workout_alerts"
 private const val ALERT_NOTIFICATION_ID = 7303
+private const val ENDED_NOTIFICATION_ID = 7304
 private const val ACTION_PREFIX = "gbs.openring.notifications.workout."
 
 internal data class WorkoutNotice(
@@ -263,13 +264,13 @@ private fun workoutAction(app: Context, action: String, label: String): Notifica
     return Notification.Action.Builder(null, label, pending).build()
 }
 
-private fun openWorkout(app: Context, link: String?): PendingIntent? {
+private fun openWorkout(app: Context, link: String?, requestCode: Int = WORKOUT_NOTIFICATION_ID): PendingIntent? {
     val launch = app.packageManager.getLaunchIntentForPackage(app.packageName) ?: return null
     launch.data = link?.let(Uri::parse)
     launch.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
     return PendingIntent.getActivity(
         app,
-        WORKOUT_NOTIFICATION_ID,
+        requestCode,
         launch,
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
@@ -301,4 +302,39 @@ internal fun showWorkoutAlert(app: Context, channelName: String, title: String?,
 internal fun cancelWorkoutAlert(app: Context) {
     val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     manager.cancel(ALERT_NOTIFICATION_ID)
+}
+
+// The saved or failed notice: neither ongoing nor owned by the service, so
+// hiding the workout or removing the task leaves it until it times out.
+internal fun showWorkoutEnded(
+    app: Context,
+    channelName: String,
+    title: String?,
+    text: String?,
+    actionLabel: String,
+    link: String?,
+    timeoutMs: Long,
+) {
+    val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    manager.createNotificationChannel(
+        NotificationChannel(WORKOUT_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_LOW),
+    )
+    val open = openWorkout(app, link, ENDED_NOTIFICATION_ID)
+    val notice = Notification.Builder(app, WORKOUT_CHANNEL_ID)
+        .setSmallIcon(smallIcon(app))
+        .setContentTitle(title)
+        .setContentText(text)
+        .setStyle(Notification.BigTextStyle().bigText(text))
+        .setCategory(Notification.CATEGORY_WORKOUT)
+        .setAutoCancel(true)
+        .setTimeoutAfter(timeoutMs)
+        .setContentIntent(open)
+        .addAction(Notification.Action.Builder(null, actionLabel, open).build())
+        .build()
+    manager.notify(ENDED_NOTIFICATION_ID, notice)
+}
+
+internal fun cancelWorkoutEnded(app: Context) {
+    val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    manager.cancel(ENDED_NOTIFICATION_ID)
 }

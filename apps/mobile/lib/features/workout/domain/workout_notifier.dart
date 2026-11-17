@@ -87,6 +87,36 @@ final class WorkoutAlert {
   int get hashCode => Object.hash(title, text, channel, reconnect);
 }
 
+/// The dismissible notice left once a workout ends, saved or not.
+@immutable
+final class WorkoutEndNotice {
+  const new({
+    required this.title,
+    required this.text,
+    required this.action,
+    required this.link,
+    this.channel = 'Workout',
+  });
+
+  final String title;
+  final String text;
+  final String action;
+  final String link;
+  final String channel;
+
+  @override
+  bool operator ==(Object other) =>
+      other is WorkoutEndNotice &&
+      other.title == title &&
+      other.text == text &&
+      other.action == action &&
+      other.link == link &&
+      other.channel == channel;
+
+  @override
+  int get hashCode => Object.hash(title, text, action, link, channel);
+}
+
 final class WorkoutNoticeLabels {
   const new({
     this.channel = 'Workout',
@@ -113,6 +143,12 @@ final class WorkoutNoticeLabels {
     this.ringLostAlertTitle = 'The ring stopped sending heart rate',
     this.ringLostAlertText =
         'The workout is still recording. Tap to reconnect.',
+    this.savedTitle = 'Workout saved',
+    this.savedHeartRate = _savedHeartRate,
+    this.failedTitle = 'The workout was not saved',
+    this.failedText = 'Nothing is lost yet. Open the app and try again.',
+    this.viewSummary = 'See workout summary',
+    this.open = 'Open',
   });
 
   final String channel;
@@ -138,7 +174,15 @@ final class WorkoutNoticeLabels {
   final String alertChannel;
   final String ringLostAlertTitle;
   final String ringLostAlertText;
+  final String savedTitle;
+  final String Function(int bpm) savedHeartRate;
+  final String failedTitle;
+  final String failedText;
+  final String viewSummary;
+  final String open;
 }
+
+String _savedHeartRate(int bpm) => 'Avg HR $bpm';
 
 String _confirmText(String time, String? distance) =>
     [time, ?distance, 'paused'].join(' · ');
@@ -164,6 +208,10 @@ abstract interface class WorkoutNotifier {
 
   Future<void> clearAlert();
 
+  Future<void> ended(WorkoutEndNotice notice);
+
+  Future<void> clearEnded();
+
   Stream<WorkoutNoticeAction> get actions;
 }
 
@@ -173,6 +221,8 @@ final class InMemoryWorkoutNotifier implements WorkoutNotifier {
   final List<WorkoutAlert> alerts = [];
   int hides = 0;
   int alertClears = 0;
+  final List<WorkoutEndNotice> endedNotices = [];
+  int endedClears = 0;
   bool failing = false;
 
   @override
@@ -202,6 +252,18 @@ final class InMemoryWorkoutNotifier implements WorkoutNotifier {
   Future<void> clearAlert() async {
     _failWhenAsked();
     alertClears++;
+  }
+
+  @override
+  Future<void> ended(WorkoutEndNotice notice) async {
+    _failWhenAsked();
+    endedNotices.add(notice);
+  }
+
+  @override
+  Future<void> clearEnded() async {
+    _failWhenAsked();
+    endedClears++;
   }
 
   void _failWhenAsked() {

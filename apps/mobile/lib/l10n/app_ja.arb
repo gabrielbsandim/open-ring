@@ -2335,5 +2335,8 @@
   "foodRetry": "再試行",
   "foodWithoutPhoto": "写真なしで保存",
   "foodDiscard": "破棄",
-  "foodNoSpaceNote": "写真がなくても、食事時間帯と比較では同じように数えます。"
+  "foodNoSpaceNote": "写真がなくても、食事時間帯と比較では同じように数えます。",
+  "workoutNoticeSavedHeartRate": "平均心拍数 {bpm}",
+  "workoutNoticeFailedText": "まだ何も失われていません。アプリを開いてもう一度試してください。",
+  "workoutNoticeOpen": "開く"
 }

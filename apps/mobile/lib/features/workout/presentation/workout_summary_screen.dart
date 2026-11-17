@@ -104,6 +104,12 @@ class _WorkoutSummaryScreenState extends ConsumerState<WorkoutSummaryScreen> {
   bool _deleted = false;
 
   @override
+  void initState() {
+    super.initState();
+    ref.read(workoutProvider.notifier).summaryOpened();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = MetricFormat.of(context).l10n;
     if (_deleted) {

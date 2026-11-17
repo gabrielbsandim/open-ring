@@ -2335,5 +2335,8 @@
   "foodRetry": "Coba lagi",
   "foodWithoutPhoto": "Simpan tanpa foto",
   "foodDiscard": "Buang",
-  "foodNoSpaceNote": "Tanpa foto, makanan tetap dihitung sama di jendela dan perbandingan."
+  "foodNoSpaceNote": "Tanpa foto, makanan tetap dihitung sama di jendela dan perbandingan.",
+  "workoutNoticeSavedHeartRate": "Rata-rata DJ {bpm}",
+  "workoutNoticeFailedText": "Belum ada yang hilang. Buka aplikasi dan coba lagi.",
+  "workoutNoticeOpen": "Buka"
 }

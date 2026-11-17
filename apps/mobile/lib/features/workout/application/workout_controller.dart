@@ -135,6 +135,7 @@ class WorkoutController extends Notifier<WorkoutState> {
     _shown = null;
     _confirming = false;
     _alerted = false;
+    _clearEnded();
     state = WorkoutState(snapshot: session.snapshotAt(_now()));
     _actions = ref.read(workoutNotifierProvider).actions.listen(_onAction);
     _showNotice(session);
@@ -212,6 +213,8 @@ class WorkoutController extends Notifier<WorkoutState> {
     await _save(session);
   }
 
+  void summaryOpened() => _clearEnded();
+
   void forgetSaved(int workoutId) {
     if (state.live || state.workoutId != workoutId) return;
     _session = null;
@@ -236,11 +239,29 @@ class WorkoutController extends Notifier<WorkoutState> {
       if (!ref.mounted || !identical(_session, session)) return;
       state = state.next(save: WorkoutSave.saved, workoutId: id);
       ref.read(dataRevisionProvider.notifier).bump();
+      _postEnded(id);
     } on Object {
       if (!ref.mounted || !identical(_session, session)) return;
       state = state.next(save: WorkoutSave.failed);
+      _postEnded(null);
     }
   }
+
+  void _postEnded(int? workoutId) {
+    final labels = _notice?.live;
+    final snapshot = state.snapshot;
+    if (labels == null || snapshot == null) return;
+    final notice = workoutEndNoticeOf(
+      snapshot,
+      labels,
+      ref.read(currentUnitSystemProvider),
+      workoutId: workoutId,
+    );
+    final notifier = _notifier;
+    unawaited(_quietly(_guarded(() => notifier.ended(notice))));
+  }
+
+  void _clearEnded() => unawaited(_quietly(_guarded(_notifier.clearEnded)));
 
   void _listenHeartRate(WorkoutSession session) {
     _lastBeat = _now();

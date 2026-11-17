@@ -2335,5 +2335,8 @@
   "foodRetry": "Tentar de novo",
   "foodWithoutPhoto": "Salvar sem foto",
   "foodDiscard": "Descartar",
-  "foodNoSpaceNote": "Sem foto, a refeição conta igual na janela e nas comparações."
+  "foodNoSpaceNote": "Sem foto, a refeição conta igual na janela e nas comparações.",
+  "workoutNoticeSavedHeartRate": "FC média {bpm}",
+  "workoutNoticeFailedText": "Nada se perdeu ainda. Abra o app e tente de novo.",
+  "workoutNoticeOpen": "Abrir"
 }

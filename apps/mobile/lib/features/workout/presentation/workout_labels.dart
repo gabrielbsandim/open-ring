@@ -227,6 +227,12 @@ LocationNotice workoutLocationNotice(AppLocalizations l10n) => LocationNotice(
     alertChannel: l10n.workoutAlertChannel,
     ringLostAlertTitle: l10n.workoutRingLostAlertTitle,
     ringLostAlertText: l10n.workoutRingLostAlertText,
+    savedTitle: l10n.workoutSavedTitle,
+    savedHeartRate: l10n.workoutNoticeSavedHeartRate,
+    failedTitle: l10n.workoutSaveFailedTitle,
+    failedText: l10n.workoutNoticeFailedText,
+    viewSummary: l10n.workoutViewSummary,
+    open: l10n.workoutNoticeOpen,
   ),
 );
 

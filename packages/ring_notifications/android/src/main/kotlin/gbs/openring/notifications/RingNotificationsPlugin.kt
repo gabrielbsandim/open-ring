@@ -81,6 +81,22 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                     cancelWorkoutAlert(app)
                     result.success(null)
                 }
+                "showWorkoutEnded" -> {
+                    showWorkoutEnded(
+                        app,
+                        requireNotNull(call.argument<String>("channelName")),
+                        call.argument<String>("title"),
+                        call.argument<String>("text"),
+                        requireNotNull(call.argument<String>("actionLabel")),
+                        call.argument<String>("link"),
+                        requireNotNull(call.argument<Number>("timeoutMs")).toLong(),
+                    )
+                    result.success(null)
+                }
+                "clearWorkoutEnded" -> {
+                    cancelWorkoutEnded(app)
+                    result.success(null)
+                }
                 else -> result.notImplemented()
             }
         } catch (error: Exception) {

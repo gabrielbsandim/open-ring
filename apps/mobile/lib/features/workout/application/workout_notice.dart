@@ -6,6 +6,39 @@ import 'package:open_ring/features/workout/domain/workout_session.dart';
 const _metersPerKilometer = 1000.0;
 const _fieldSeparator = ' · ';
 const _noHeartRate = '-- bpm';
+const workoutSummaryLink = 'openring://widget/activity/workout-summary';
+
+/// A null [workoutId] means the save failed.
+WorkoutEndNotice workoutEndNoticeOf(
+  WorkoutSnapshot snapshot,
+  WorkoutNoticeLabels labels,
+  UnitSystem units, {
+  int? workoutId,
+}) {
+  if (workoutId == null) {
+    return WorkoutEndNotice(
+      title: labels.failedTitle,
+      text: labels.failedText,
+      action: labels.open,
+      link: workoutSummaryLink,
+      channel: labels.channel,
+    );
+  }
+  final average = snapshot.averageHeartRate;
+  final text = [
+    ?labels.types[snapshot.type],
+    _clock(snapshot.elapsed),
+    ?_distance(snapshot, labels, units),
+    if (average != null) labels.savedHeartRate(average),
+  ].join(_fieldSeparator);
+  return WorkoutEndNotice(
+    title: labels.savedTitle,
+    text: text,
+    action: labels.viewSummary,
+    link: '$workoutSummaryLink/$workoutId',
+    channel: labels.channel,
+  );
+}
 
 WorkoutNotice workoutNoticeOf(
   WorkoutSnapshot snapshot,

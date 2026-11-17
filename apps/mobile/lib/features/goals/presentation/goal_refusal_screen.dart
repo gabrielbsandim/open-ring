@@ -62,10 +62,10 @@ class GoalRefusalScreen extends ConsumerWidget {
       );
     }
     final current = facts.value;
+    if (current == null) return empty;
     // A reload still holds the facts from before the change that caused it,
-    // such as the answer that opened the soft screen.
-    if (current == null || facts.isLoading) return empty;
-    if (!_holds(current)) {
+    // such as the answer that opened the soft screen, so only settled facts judge.
+    if (!facts.isLoading && !_holds(current)) {
       return const GoalPickScreen(initial: GoalKind.loseFat);
     }
     final refusal = _refusal(context, ref, l10n);

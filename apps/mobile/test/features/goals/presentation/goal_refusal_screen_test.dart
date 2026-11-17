@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/router/app_routes.dart';
+import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
 import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
@@ -188,6 +189,30 @@ void main() {
   });
 
   group('8. the BMI is under the floor', () {
+    testWidgets('a background reload keeps the page and its scroll position', (
+      tester,
+    ) async {
+      final setup = await setupPicker(trendKg: 57.9);
+      await _open(tester, setup, IntakeBlock.bmiUnderFloor, scale: 2);
+      await tester.scrollUntilVisible(
+        find.byKey(GoalRefusalKeys.secondary),
+        200,
+        maxScrolls: 200,
+      );
+      double offset() => tester
+          .state<ScrollableState>(find.byType(Scrollable).first)
+          .position
+          .pixels;
+      final before = offset();
+
+      setup.container.read(dataRevisionProvider.notifier).bump();
+      await tester.pump();
+
+      expect(find.byKey(GoalRefusalKeys.secondary), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(offset(), before);
+    });
+
     testWidgets('57.9 kg at 178 cm shows the trend, height, BMI and floor', (
       tester,
     ) async {

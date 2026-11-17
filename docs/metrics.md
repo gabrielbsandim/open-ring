@@ -1891,9 +1891,10 @@ block against the current profile and trend on every build: when it no longer
 holds, including when the value the refusal names was cleared, the picker
 shows in its place, on Lose fat, and the numbers it shows are always the
 current ones. A failed read shows the load error, never a blank page. While
-the facts are being read again it shows only the title, because until then
-they still predate the change, such as the answer that opened the soft
-screen, and would show the picker for a moment.
+the facts are being read again the screen keeps the refusal on show and
+waits to check the block, because until then the facts still predate the
+change, such as the answer that opened the soft screen, and would show the
+picker for a moment.
 
 ## References
 

@@ -1884,8 +1884,10 @@ mode answer, dated like the row that leaves soft mode. A yes starts nothing.
 What it cannot say:
 
 - That the block ends above the BMI floor. A pace that would carry the trend
-  under BMI 18.5 is not refused here; the weekly review ends the goal when
-  the trend gets there (rule 1).
+  under BMI 18.5 is not refused here. The weekly review ends the goal when the
+  trend gets there (rule 1), but only once the first block has started and
+  run two weeks with Body on: before that no review runs, and starting the
+  first block does not check the BMI again.
 - That the two writes happen together. The pregnancy row is written first,
   so a failed start can leave a row with a no and no goal, which changes
   nothing.

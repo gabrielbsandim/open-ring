@@ -16,9 +16,9 @@ bool? newestPregnancy(List<GoalScreening> newestFirst) => newestFirst
     .nonNulls
     .firstOrNull;
 
-/// The reference weights a loss goal may name, from the BMI floor for the
-/// height up to the trend, in steps of [goalReferenceStepKg]. Null when no
-/// step fits between them.
+/// The reference weights a loss goal may name: any weight from the BMI floor
+/// for the height up to the trend rounded down to [goalReferenceStepKg]. Null
+/// when that top is not above the floor.
 ReferenceBounds? referenceBounds({
   required double heightCm,
   required double trendKg,

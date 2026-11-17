@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
+import 'package:open_ring/features/demo/domain/demo_mode_store.dart';
 import 'package:open_ring/features/goals/application/goal_review_trigger.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_store.dart';
@@ -109,6 +111,16 @@ final class _SlowModuleStore implements ModuleStore {
       throw StateError('the module store was written');
 }
 
+final class _CountingSyncStore extends FakeSyncStore {
+  int ringReads = 0;
+
+  @override
+  Future<PairedRing?> pairedRing() {
+    ringReads++;
+    return super.pairedRing();
+  }
+}
+
 List<String> _capturedDebugPrint() {
   final original = debugPrint;
   final logs = <String>[];
@@ -129,6 +141,7 @@ Future<GoalSetup> _rig({
   InMemoryGoalStore? store,
   GoalStore? readStore,
   FakeSyncStore? sync,
+  DemoModeStore? demo,
 }) => setupGoals(
   now: now,
   clockOf: clockOf,
@@ -140,6 +153,7 @@ Future<GoalSetup> _rig({
   readStore: readStore,
   extraOverrides: [
     syncStoreProvider.overrideWithValue(sync ?? FakeSyncStore()),
+    if (demo != null) demoModeStoreProvider.overrideWithValue(demo),
   ],
 );
 
@@ -503,10 +517,12 @@ void main() {
       final gate = Completer<void>();
       final memory = InMemoryGoalStore();
       final spy = _SpyStore(memory, onActive: () => gate.future);
+      final sync = _CountingSyncStore();
       final setup = await _rig(
         now: goalAt(12, 8),
         store: memory,
         readStore: spy,
+        sync: sync,
       );
       _startTrigger(setup);
       await pumpEventQueue();
@@ -516,6 +532,78 @@ void main() {
       await _settle();
 
       expect(logs, isEmpty);
+      expect(sync.ringReads, 0);
+      expect(spy.weeksReads, 0);
+    });
+
+    test('a trigger turned off during the start stops the pass', () async {
+      final calls = _Calls();
+      calls.onStart = (_) async => calls.enabled = false;
+
+      await calls.trigger.run();
+
+      expect(calls.log, ['start']);
+      expect(calls.errors, isEmpty);
+    });
+
+    test(
+      'a trigger turned off while it asks stops before the review',
+      () async {
+        final calls = _Calls();
+        final trigger = GoalReviewTrigger(
+          enabled: () => calls.enabled,
+          startDueBlock: () async => false,
+          mayReview: () async {
+            calls.enabled = false;
+            return true;
+          },
+          reviewDueWeek: () async {
+            calls.reviews++;
+            return null;
+          },
+          onError: calls.errors.add,
+        );
+
+        await trigger.run();
+
+        expect(calls.reviews, 0);
+      },
+    );
+  });
+
+  group('demo mode', () {
+    test('no pass runs, and the goal store is not read', () async {
+      final logs = _capturedDebugPrint();
+      final setup = await _rig(
+        now: goalAt(12, 8),
+        readStore: UnreadableGoalStore(),
+        demo: InMemoryDemoModeStore(enabled: true),
+      );
+
+      _startTrigger(setup);
+      await _settle();
+      setup.container.read(dataRevisionProvider.notifier).bump();
+      await _settle();
+
+      expect(logs, isEmpty);
+      expect(await setup.weeks(), isEmpty);
+    });
+
+    test('the pass runs on the first bump after demo mode is left', () async {
+      final demo = InMemoryDemoModeStore(enabled: true);
+      final setup = await _rig(now: goalAt(12, 8), demo: demo);
+      _startTrigger(setup);
+      await _settle();
+      expect(await setup.weeks(), isEmpty);
+
+      demo.enabled = false;
+      setup.container
+        ..invalidate(demoModeProvider)
+        ..read(dataRevisionProvider.notifier).bump();
+      await _settle();
+
+      final weeks = await setup.weeks();
+      expect([for (final week in weeks) week.monday], [goalDay(12, 7)]);
     });
   });
 

@@ -1684,7 +1684,9 @@ calls `startDueBlock`, then `reviewDueWeek`. Only one pass runs at a time: a
 call that arrives during a pass asks for one more when it ends, so the bump
 of a write costs one extra pass that writes nothing. A step that fails is
 logged and the pass goes on, and the next pass tries it again. With Goals off
-nothing runs.
+nothing runs, and nothing runs in demo mode, whose sample history sits beside
+the real one and would be reviewed against the real goal. A pass stops before
+its next step when either changes while it runs.
 
 On a Monday the review waits for the ring: it runs only when the last sync
 is at or after the local midnight of that day, so the Sunday it reviews has
@@ -1763,6 +1765,7 @@ What it cannot say:
   on the Monday.
 - A process the system has suspended fires its midnight timer late; the
   check on return covers it.
+- A step already reading when demo mode is entered finishes on what it read.
 
 ## References
 

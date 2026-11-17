@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/goals/application/goal_reviewer.dart';
 import 'package:open_ring/features/goals/application/goals_gate.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
@@ -13,7 +14,12 @@ import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 /// when the app comes back to the foreground.
 final goalReviewTriggerProvider = Provider<GoalReviewTrigger>((ref) {
   final trigger = GoalReviewTrigger(
-    enabled: () => ref.mounted && ref.read(goalsEnabledProvider),
+    // Demo history sits in the same tables as the real one, so a pass in demo
+    // mode would review the real goal against demo data.
+    enabled: () =>
+        ref.mounted &&
+        !ref.read(demoModeProvider) &&
+        ref.read(goalsEnabledProvider),
     startDueBlock: () =>
         ref.read(goalReviewerProvider.notifier).startDueBlock(),
     reviewDueWeek: () =>
@@ -58,7 +64,8 @@ bool reviewMayRun({required DateTime now, required DateTime? lastSyncAt}) {
 }
 
 /// One pass starts a due block, then writes a due review. A call during a
-/// pass asks for one more pass instead of running beside it.
+/// pass asks for one more pass instead of running beside it, and a pass stops
+/// before its next step once the trigger is no longer enabled.
 final class GoalReviewTrigger {
   new({
     required this.enabled,
@@ -96,8 +103,9 @@ final class GoalReviewTrigger {
 
   Future<void> _pass() async {
     await _guarded(startDueBlock);
+    if (!enabled()) return;
     final may = await _guarded(mayReview) ?? false;
-    if (!may) return;
+    if (!may || !enabled()) return;
     await _guarded(reviewDueWeek);
   }
 

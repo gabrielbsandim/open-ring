@@ -2,6 +2,7 @@ import 'package:open_ring/app/theme/shared_preferences_theme_mode_store.dart';
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/features/body/infrastructure/shared_preferences_hide_numbers_store.dart';
 import 'package:open_ring/features/demo/infrastructure/shared_preferences_demo_mode_store.dart';
+import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/health_sync/infrastructure/shared_preferences_health_write_preferences.dart';
 import 'package:open_ring/features/modules/infrastructure/shared_preferences_module_store.dart';
 import 'package:open_ring/features/open_score/infrastructure/shared_preferences_celebration_store.dart';
@@ -15,7 +16,7 @@ import 'package:open_ring/features/workout/infrastructure/shared_preferences_wor
 import 'package:shared_preferences/shared_preferences.dart';
 
 final class DeviceLocalDataEraser implements LocalDataEraser {
-  new(this._db, [SharedPreferencesAsync? preferences])
+  new(this._db, this._photos, [SharedPreferencesAsync? preferences])
     : _preferences = preferences;
 
   static const Set<String> preferenceKeys = {
@@ -36,6 +37,7 @@ final class DeviceLocalDataEraser implements LocalDataEraser {
   };
 
   final AppDatabase _db;
+  final PhotoStore _photos;
   SharedPreferencesAsync? _preferences;
 
   SharedPreferencesAsync get _store =>
@@ -49,6 +51,9 @@ final class DeviceLocalDataEraser implements LocalDataEraser {
         await _db.delete(table).go();
       }
     });
+    // After the tables, so no row is left naming a deleted photo; a retry
+    // empties the folder whatever the tables hold.
+    await _photos.deleteAll();
     await _store.clear(allowList: preferenceKeys);
   }
 }

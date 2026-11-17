@@ -13,6 +13,7 @@ import 'generated/schema_v12.dart' as v12;
 import 'generated/schema_v13.dart' as v13;
 import 'generated/schema_v14.dart' as v14;
 import 'generated/schema_v15.dart' as v15;
+import 'generated/schema_v16.dart' as v16;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
@@ -583,4 +584,42 @@ void main() {
       },
     );
   });
+
+  test(
+    'v15 migrates to v16, keeps the goals and starts with no meals',
+    () async {
+      const goal = v15.GoalsData(
+        id: 1,
+        kind: 'loseFat',
+        startedOn: '2026-11-16',
+        blockStartedOn: '2026-11-16',
+        phase: 'block',
+        phaseSince: '2026-11-16',
+        levers: '{"v":1,"levers":[]}',
+      );
+
+      await verifier.testWithDataIntegrity(
+        oldVersion: 15,
+        newVersion: 16,
+        createOld: v15.DatabaseAtV15.new,
+        createNew: v16.DatabaseAtV16.new,
+        openTestedDatabase: AppDatabase.new,
+        createItems: (batch, oldDb) => batch.insert(oldDb.goals, goal),
+        validateItems: (newDb) async {
+          expect(await newDb.select(newDb.goals).get(), [
+            const v16.GoalsData(
+              id: 1,
+              kind: 'loseFat',
+              startedOn: '2026-11-16',
+              blockStartedOn: '2026-11-16',
+              phase: 'block',
+              phaseSince: '2026-11-16',
+              levers: '{"v":1,"levers":[]}',
+            ),
+          ]);
+          expect(await newDb.select(newDb.meals).get(), isEmpty);
+        },
+      );
+    },
+  );
 }

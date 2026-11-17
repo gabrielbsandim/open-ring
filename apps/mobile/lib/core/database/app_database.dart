@@ -5,6 +5,7 @@ import 'package:open_ring/core/database/tables/body_tables.dart';
 import 'package:open_ring/core/database/tables/goal_tables.dart';
 import 'package:open_ring/core/database/tables/health_tables.dart';
 import 'package:open_ring/core/database/tables/import_tables.dart';
+import 'package:open_ring/core/database/tables/meal_tables.dart';
 import 'package:open_ring/core/database/tables/open_score_tables.dart';
 import 'package:open_ring/core/database/tables/ring_tables.dart';
 import 'package:open_ring/core/database/tables/sample_tables.dart';
@@ -46,13 +47,14 @@ part 'app_database.g.dart';
     Goals,
     GoalWeeks,
     GoalScreenings,
+    Meals,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -120,6 +122,7 @@ class AppDatabase extends _$AppDatabase {
         await migrator.createTable(schema.goalWeeks);
         await migrator.createTable(schema.goalScreenings);
       },
+      from15To16: (migrator, schema) => migrator.createTable(schema.meals),
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );

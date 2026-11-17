@@ -299,7 +299,7 @@
   "permissionsBluetoothName": "Appareils à proximité (Bluetooth)",
   "permissionsBluetoothWhy": "Permet à l'app de trouver votre bague en Bluetooth et de lui parler. Sans cela, aucune donnée de la bague ne peut être lue.",
   "permissionsNotificationsName": "Notifications",
-  "permissionsNotificationsWhy": "Pour vous prévenir quand la batterie de la bague est faible ou qu'une synchronisation échoue.",
+  "permissionsNotificationsWhy": "Pour afficher votre séance en cours et indiquer si elle a été sauvegardée, vous prévenir si la bague décroche, et quand la batterie de la bague est faible ou qu'une synchronisation échoue.",
   "permissionsBackgroundName": "Exécution en arrière-plan",
   "permissionsBackgroundWhy": "Demande au téléphone de ne pas mettre l'app en pause pour économiser la batterie. Elle se synchronise ainsi toute seule chaque heure.",
   "permissionsLocationName": "Localisation",
@@ -2338,5 +2338,8 @@
   "foodNoSpaceNote": "Sans photo, le repas compte de la même façon dans la fenêtre et les comparaisons.",
   "workoutNoticeSavedHeartRate": "FC moy. {bpm}",
   "workoutNoticeFailedText": "Ouvrez l'app pour réessayer. La fermer fait perdre la séance.",
-  "workoutNoticeOpen": "Ouvrir"
+  "workoutNoticeOpen": "Ouvrir",
+  "workoutNotificationsOffTitle": "Notifications désactivées",
+  "workoutNotificationsOffBody": "La séance est quand même enregistrée, mais sa durée, la FC et les boutons ne s'affichent ni hors de l'app ni sur l'écran de verrouillage.",
+  "workoutNotificationsAllow": "Autoriser les notifications"
 }

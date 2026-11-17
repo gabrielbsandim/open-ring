@@ -299,7 +299,7 @@
   "permissionsBluetoothName": "付近のデバイス（Bluetooth）",
   "permissionsBluetoothWhy": "Bluetooth でリングを見つけて通信するために使います。許可しないとリングのデータを読み取れません。",
   "permissionsNotificationsName": "通知",
-  "permissionsNotificationsWhy": "リングの電池残量が少ないときや同期に失敗したときにお知らせします。",
+  "permissionsNotificationsWhy": "記録中のワークアウトと保存できたかを表示し、リングが切れたとき、リングの電池残量が少ないときや同期に失敗したときにお知らせします。",
   "permissionsBackgroundName": "バックグラウンド実行",
   "permissionsBackgroundWhy": "バッテリー節約のためにアプリを一時停止しないようスマートフォンに求めます。これにより 1 時間ごとに自動で同期します。",
   "permissionsLocationName": "位置情報",
@@ -2338,5 +2338,8 @@
   "foodNoSpaceNote": "写真がなくても、食事時間帯と比較では同じように数えます。",
   "workoutNoticeSavedHeartRate": "平均心拍数 {bpm}",
   "workoutNoticeFailedText": "アプリを開いてもう一度試してください。アプリを閉じるとワークアウトは失われます。",
-  "workoutNoticeOpen": "開く"
+  "workoutNoticeOpen": "開く",
+  "workoutNotificationsOffTitle": "通知がオフです",
+  "workoutNotificationsOffBody": "ワークアウトは記録されますが、時間、心拍数、ボタンはアプリの外やロック画面に表示されません。",
+  "workoutNotificationsAllow": "通知を許可"
 }

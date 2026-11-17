@@ -299,7 +299,7 @@
   "permissionsBluetoothName": "Geräte in der Nähe (Bluetooth)",
   "permissionsBluetoothWhy": "Damit findet die App deinen Ring über Bluetooth und spricht mit ihm. Ohne diese Berechtigung können keine Ringdaten gelesen werden.",
   "permissionsNotificationsName": "Benachrichtigungen",
-  "permissionsNotificationsWhy": "Um dir zu sagen, wenn der Akku des Rings schwach ist oder eine Synchronisierung fehlschlägt.",
+  "permissionsNotificationsWhy": "Um dein Training während der Aufzeichnung zu zeigen und ob es gespeichert wurde, dich zu warnen, wenn der Ring abbricht, und dir zu sagen, wenn der Akku des Rings schwach ist oder eine Synchronisierung fehlschlägt.",
   "permissionsBackgroundName": "Ausführung im Hintergrund",
   "permissionsBackgroundWhy": "Bittet dein Handy, die App nicht zum Akkusparen anzuhalten. So synchronisiert sie sich jede Stunde von selbst.",
   "permissionsLocationName": "Standort",
@@ -2338,5 +2338,8 @@
   "foodNoSpaceNote": "Ohne Foto zählt die Mahlzeit genauso im Essfenster und in den Vergleichen.",
   "workoutNoticeSavedHeartRate": "Ø HF {bpm}",
   "workoutNoticeFailedText": "Öffne die App, um es erneut zu versuchen. Wenn du sie schließt, geht das Training verloren.",
-  "workoutNoticeOpen": "Öffnen"
+  "workoutNoticeOpen": "Öffnen",
+  "workoutNotificationsOffTitle": "Benachrichtigungen aus",
+  "workoutNotificationsOffBody": "Das Training wird trotzdem aufgezeichnet, aber Zeit, Puls und Tasten erscheinen weder außerhalb der App noch auf dem Sperrbildschirm.",
+  "workoutNotificationsAllow": "Benachrichtigungen erlauben"
 }

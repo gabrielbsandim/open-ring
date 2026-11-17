@@ -1,6 +1,29 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/core/clock/clock.dart';
+import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/activity/application/activity_providers.dart';
+import 'package:open_ring/features/activity/domain/activity_history_reader.dart';
+import 'package:open_ring/features/body/application/weight_summary.dart';
+import 'package:open_ring/features/body/domain/weigh_in.dart';
+import 'package:open_ring/features/effort/application/effort_providers.dart';
+import 'package:open_ring/features/effort/domain/effort_day.dart';
+import 'package:open_ring/features/goals/application/goal_reviewer.dart';
+import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
+import 'package:open_ring/features/goals/domain/goal_store.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
+import 'package:open_ring/features/open_score/application/day_score_providers.dart';
+import 'package:open_ring/features/settings/application/user_profile_providers.dart';
+import 'package:open_ring/features/settings/domain/user_profile.dart';
+import 'package:open_ring/features/sleep/application/sleep_providers.dart';
+import 'package:open_ring/features/today/application/readiness_trend.dart';
+import 'package:open_ring/features/today/application/today_providers.dart';
+import 'package:open_ring/features/workout/domain/workout_type.dart';
 
 void expectSameGoal(Goal? actual, Goal expected) {
   expect(actual, isNotNull);
@@ -228,3 +251,217 @@ ReviewInputs f1Recovering({
   foodOrWeight: foodOrWeight,
   foodOrWeightPrevious: f1.foodOrWeightPrevious,
 );
+
+const Set<ModuleId> goalModules = {ModuleId.goals, ModuleId.body};
+const closedWeekReadiness = [76, 72, 70, 68, 74, 71, 76];
+const otherDayReadiness = 40;
+
+LocalDate goalDay(int month, int day) => LocalDate(2026, month, day);
+
+DateTime goalAt(int month, int day, [int hour = 8, int minute = 10]) =>
+    DateTime(2026, month, day, hour, minute);
+
+DateTime goalUtc(LocalDate date, int minuteOfDay) => DateTime.utc(
+  date.year,
+  date.month,
+  date.day,
+).add(Duration(minutes: minuteOfDay));
+
+SleepNight goalNight(LocalDate date, {required int onset, required int wake}) {
+  final onsetDate = onset >= 720 ? date.addDays(-1) : date;
+  return SleepNight([
+    SleepSpan(
+      start: goalUtc(onsetDate, onset),
+      end: goalUtc(date, wake),
+      phase: SleepPhase.light,
+      utcOffset: Duration.zero,
+    ),
+  ]);
+}
+
+DailyActivity goalActivity(LocalDate date, int steps) => DailyActivity(
+  date: date,
+  steps: steps,
+  activeKilocalories: 0,
+  distanceMeters: 0,
+);
+
+EffortSession goalSession(LocalDate date) => (
+  date: date,
+  start: goalUtc(date, 480),
+  end: goalUtc(date, 540),
+  elapsed: const Duration(hours: 1),
+  type: WorkoutType.strength,
+  points: IntensityMinutes.none,
+  load: const SessionLoad(
+    byHeartRate: null,
+    byRating: null,
+    byDefault: 150,
+    value: 150,
+    source: LoadSource.typeDefault,
+  ),
+  rating: null,
+  strength: true,
+);
+
+// The closed week is that of case 13 of the review inputs; the other days are
+// chosen so the baseline medians are 8000, 705, 405 and a usual 1 strength day.
+Map<LocalDate, DailyActivity> goalStepDays() => {
+  for (var d = 23; d <= 29; d++)
+    goalDay(11, d): goalActivity(goalDay(11, d), 7500),
+  for (final (date, steps) in [
+    (goalDay(11, 30), 9000),
+    (goalDay(12, 1), 9500),
+    (goalDay(12, 2), 10000),
+    (goalDay(12, 3), 9100),
+    (goalDay(12, 4), 12000),
+    (goalDay(12, 5), 8500),
+    (goalDay(12, 6), 8999),
+    (goalDay(12, 7), 20000),
+  ])
+    date: goalActivity(date, steps),
+};
+
+Map<LocalDate, SleepNight> goalNights() => {
+  for (var d = 23; d <= 29; d++)
+    goalDay(11, d): goalNight(goalDay(11, d), onset: 23 * 60 + 45, wake: 405),
+  for (var d = 1; d <= 7; d++)
+    goalDay(12, d): goalNight(goalDay(12, d), onset: 23 * 60 + 30, wake: 420),
+};
+
+List<EffortSession> goalSessions() => [
+  goalSession(goalDay(11, 20)),
+  goalSession(goalDay(11, 25)),
+  goalSession(goalDay(11, 30)),
+  goalSession(goalDay(12, 5)),
+];
+
+List<DailyValue> goalWeights() => [
+  for (var i = 0; i < 28; i++)
+    (date: goalDay(11, 9).addDays(i), value: 80.0 - 0.05 * i),
+];
+
+WeightSummary goalWeightSummary({int extraDays = 0, List<DailyValue>? days}) {
+  final later = [
+    for (var i = 1; i <= extraDays; i++)
+      (date: goalDay(12, 6).addDays(i), value: 70.0),
+  ];
+  return WeightSummary(
+    last: WeighIn(
+      id: 1,
+      at: DateTime.utc(2026, 12, 6, 7),
+      offsetMinutes: 0,
+      kilograms: 78,
+      source: WeighInSource.manual,
+    ),
+    daily: [...(days ?? goalWeights()), ...later],
+    line: [
+      (date: goalDay(12, 5), value: 78.1),
+      (date: goalDay(12, 6), value: 78.0),
+      ...later,
+    ],
+    rate: const WeightRateBuilding(daysMissing: 1, spanMissing: 1),
+    noise: 0.5,
+  );
+}
+
+ReadinessTrend goalReadiness(LocalDate today, LocalDate monday) {
+  final firstClosed = monday.addDays(-7);
+  return ReadinessTrend(
+    today: today,
+    values: [
+      for (var age = 13; age >= 0; age--)
+        goalReadinessOn(today.addDays(-age), firstClosed),
+    ],
+  );
+}
+
+int goalReadinessOn(LocalDate date, LocalDate firstClosed) {
+  final index = date.daysSince(firstClosed);
+  if (index < 0 || index > 6) return otherDayReadiness;
+  return closedWeekReadiness[index];
+}
+
+GoalDraft goalDraft({
+  GoalKind kind = GoalKind.loseFat,
+  LocalDate startedOn = const LocalDate(2026, 11, 16),
+  List<Lever> levers = const [strengthLever, sleepLever, stepsLever],
+}) => GoalDraft(
+  kind: kind,
+  pace: kind == GoalKind.loseFat ? GoalPace.standard : null,
+  startedOn: startedOn,
+  anchorKg: kind == GoalKind.loseFat ? 78 : null,
+  referenceKg: kind == GoalKind.loseFat ? 70 : null,
+  levers: levers,
+);
+
+final class UnreadableGoalStore implements GoalStore {
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw StateError('the store was read: ${invocation.memberName}');
+}
+
+final class GoalSetup {
+  new(this.container, this.store);
+
+  final ProviderContainer container;
+  final InMemoryGoalStore store;
+
+  GoalReviewer get reviewer => container.read(goalReviewerProvider.notifier);
+
+  int get revision => container.read(dataRevisionProvider);
+
+  Future<List<GoalWeek>> weeks() => store.weeks(1);
+}
+
+// clockOf replaces the fixed clock, extraOverrides adds providers a test needs
+// and settleModules false leaves the module store unread on return.
+Future<GoalSetup> setupGoals({
+  DateTime? now,
+  DateTime Function()? clockOf,
+  Set<ModuleId> modules = goalModules,
+  ModuleStore? moduleStore,
+  bool settleModules = true,
+  GoalDraft? draft,
+  InMemoryGoalStore? store,
+  GoalStore? readStore,
+  Override? stepsOverride,
+  Override? nightsOverride,
+  Override? weightOverride,
+  List<Override> extraOverrides = const [],
+  int extraWeighIns = 0,
+}) async {
+  final clock = now ?? goalAt(12, 7);
+  final today = LocalDate(clock.year, clock.month, clock.day);
+  final monday = mondayOf(today);
+  final memory = store ?? InMemoryGoalStore();
+  if (draft != null) await memory.start(draft);
+  final container = ProviderContainer.test(
+    overrides: [
+      clockProvider.overrideWithValue(clockOf ?? () => clock),
+      moduleStoreProvider.overrideWithValue(
+        moduleStore ?? InMemoryModuleStore(modules),
+      ),
+      goalStoreProvider.overrideWithValue(readStore ?? memory),
+      userProfileStoreProvider.overrideWithValue(
+        InMemoryUserProfileStore(const UserProfile(heightCentimeters: 178)),
+      ),
+      stepsOverride ??
+          activityDaysProvider.overrideWith((ref) async => goalStepDays()),
+      nightsOverride ??
+          sleepNightsProvider.overrideWith((ref) async => goalNights()),
+      effortSessionsProvider.overrideWith((ref) async => goalSessions()),
+      dailyIntensityProvider.overrideWith((ref) async => <DailyValue>[]),
+      readinessTrendProvider.overrideWith(
+        (ref) async => goalReadiness(today, monday),
+      ),
+      weightOverride ??
+          weightSummaryProvider.overrideWith(
+            (ref) async => goalWeightSummary(extraDays: extraWeighIns),
+          ),
+      ...extraOverrides,
+    ],
+  );
+  if (settleModules) await container.read(enabledModulesProvider.future);
+  return GoalSetup(container, memory);
+}

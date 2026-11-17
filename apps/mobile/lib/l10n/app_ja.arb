@@ -2054,7 +2054,7 @@
   "goalsWeekMarkMet": "達成した日",
   "goalsWeekMarkMissed": "達成しなかった日",
   "goalsWeekMarkOpen": "今日、未確定",
-  "goalsWeekNote": "達成しなかった日があっても何も減りません。プランは今日のスコアに含まれません。",
+  "goalsWeekNote": "達成しなかった日があっても何も減りません。プランが今日のスコアに関わるのは、受け入れた歩数目標だけです。",
   "goalsWeekCount": "{need}中{got}",
   "goalsWeekBaseTitle": "体重記録を集めています",
   "goalsWeekBaseCount": "{span}日間で{days}回中{count}回",

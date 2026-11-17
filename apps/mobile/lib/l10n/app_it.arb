@@ -2054,7 +2054,7 @@
   "goalsWeekMarkMet": "giorno riuscito",
   "goalsWeekMarkMissed": "giorno non riuscito",
   "goalsWeekMarkOpen": "oggi, aperto",
-  "goalsWeekNote": "Un giorno non riuscito non toglie nulla. Il piano non entra nel Voto del giorno.",
+  "goalsWeekNote": "Un giorno non riuscito non toglie nulla. Il piano tocca il Voto del giorno solo con un obiettivo di passi che accetti.",
   "goalsWeekCount": "{got} di {need}",
   "goalsWeekBaseTitle": "Raccolta delle pesate",
   "goalsWeekBaseCount": "{count} di {days} pesate in {span} giorni",

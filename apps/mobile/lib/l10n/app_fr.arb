@@ -2054,7 +2054,7 @@
   "goalsWeekMarkMet": "jour réussi",
   "goalsWeekMarkMissed": "jour manqué",
   "goalsWeekMarkOpen": "aujourd'hui, en cours",
-  "goalsWeekNote": "Un jour manqué n'enlève rien. Le plan ne compte pas dans la Note du jour.",
+  "goalsWeekNote": "Un jour manqué n'enlève rien. Le plan ne touche la Note du jour que par un objectif de pas que vous acceptez.",
   "goalsWeekCount": "{got} sur {need}",
   "goalsWeekBaseTitle": "Collecte des pesées",
   "goalsWeekBaseCount": "{count} pesées sur {days} en {span} jours",

@@ -2054,7 +2054,7 @@
   "goalsWeekMarkMet": "hari yang pas",
   "goalsWeekMarkMissed": "hari yang tidak pas",
   "goalsWeekMarkOpen": "hari ini, terbuka",
-  "goalsWeekNote": "Hari yang tidak pas tidak mengurangi apa pun. Rencana tidak masuk ke Nilai Hari.",
+  "goalsWeekNote": "Hari yang tidak pas tidak mengurangi apa pun. Rencana hanya menyentuh Nilai Hari lewat target langkah yang Anda terima.",
   "goalsWeekCount": "{got} dari {need}",
   "goalsWeekBaseTitle": "Mengumpulkan penimbangan",
   "goalsWeekBaseCount": "{count} dari {days} penimbangan dalam {span} hari",

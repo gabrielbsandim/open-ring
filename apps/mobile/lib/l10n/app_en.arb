@@ -4338,7 +4338,7 @@
   "goalsWeekMarkMet": "day that fit",
   "goalsWeekMarkMissed": "day that did not fit",
   "goalsWeekMarkOpen": "today, open",
-  "goalsWeekNote": "A day that did not fit takes nothing away. The plan is not part of the Day Score.",
+  "goalsWeekNote": "A day that did not fit takes nothing away. The plan reaches the Day Score only through a step goal you accept.",
   "goalsWeekCount": "{got} of {need}",
   "@goalsWeekCount": {"placeholders": {"got": {"type": "String"}, "need": {"type": "String"}}},
   "goalsWeekBaseTitle": "Collecting weigh-ins",

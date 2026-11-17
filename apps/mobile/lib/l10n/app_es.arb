@@ -2054,7 +2054,7 @@
   "goalsWeekMarkMet": "día que encajó",
   "goalsWeekMarkMissed": "día que no encajó",
   "goalsWeekMarkOpen": "hoy, abierto",
-  "goalsWeekNote": "Un día que no encajó no resta nada. El plan no forma parte de la Nota del Día.",
+  "goalsWeekNote": "Un día que no encajó no resta nada. El plan solo llega a la Nota del Día con una meta de pasos que aceptes.",
   "goalsWeekCount": "{got} de {need}",
   "goalsWeekBaseTitle": "Juntando pesajes",
   "goalsWeekBaseCount": "{count} de {days} pesajes en {span} días",

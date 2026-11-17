@@ -143,11 +143,21 @@ class GoalReviewer extends Notifier<void> {
     }
     _bump();
     if (choice == WeekAnswer.declined) return ReviewAnswerOutcome.kept;
-    final profile = await ref.read(userProfileProvider.future);
-    final steps = stepGoalAfterAccept(
-      change,
-      profileGoal: profile?.dailyStepGoal ?? defaultStepGoal,
-    );
+    final to = change.to;
+    if (change.kind != LeverKind.steps || to == null) {
+      return ReviewAnswerOutcome.accepted;
+    }
+    final int? steps;
+    try {
+      final profile = await ref.read(userProfileProvider.future);
+      steps = stepGoalAfterAccept(
+        change,
+        profileGoal: profile?.dailyStepGoal ?? defaultStepGoal,
+      );
+    } on Object catch (error) {
+      debugPrint('Goal step goal was not read: $error');
+      return ReviewAnswerOutcome.stepGoalFailed;
+    }
     if (steps == null) return ReviewAnswerOutcome.accepted;
     if (await retryStepGoal(steps)) return ReviewAnswerOutcome.accepted;
     return ReviewAnswerOutcome.stepGoalFailed;
@@ -157,9 +167,16 @@ class GoalReviewer extends Notifier<void> {
   /// the failure logged, when the profile could not be saved.
   Future<bool> retryStepGoal(int steps) async {
     if (await _answerable() == null) return false;
-    final held = await ref.read(userProfileProvider.future);
-    final profile = held ?? const UserProfile();
     try {
+      final held = await ref.read(userProfileProvider.future);
+      final profile = held ?? const UserProfile();
+      // A retry may come after the person set the goal again by hand, and the
+      // plan still never lowers it.
+      final raised = stepGoalAfterAccept(
+        LeverChange(kind: LeverKind.steps, from: null, to: steps),
+        profileGoal: profile.dailyStepGoal ?? defaultStepGoal,
+      );
+      if (raised == null) return true;
       await ref
           .read(userProfileProvider.notifier)
           .save(
@@ -169,7 +186,7 @@ class GoalReviewer extends Notifier<void> {
               heightCentimeters: profile.heightCentimeters,
               weightKilograms: profile.weightKilograms,
               maxHeartRate: profile.maxHeartRate,
-              dailyStepGoal: steps,
+              dailyStepGoal: raised,
             ),
           );
       return true;

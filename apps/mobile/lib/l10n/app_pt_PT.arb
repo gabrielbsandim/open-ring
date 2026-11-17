@@ -2046,7 +2046,7 @@
   "goalsWeekMarkMet": "dia que coube",
   "goalsWeekMarkMissed": "dia que não coube",
   "goalsWeekMarkOpen": "hoje, em aberto",
-  "goalsWeekNote": "Um dia que não coube não tira nada. O plano não entra na Nota do Dia.",
+  "goalsWeekNote": "Um dia que não coube não tira nada. O plano só chega à Nota do Dia através de uma meta de passos que aceitar.",
   "goalsWeekCount": "{got} de {need}",
   "goalsWeekBaseTitle": "A juntar pesagens",
   "goalsWeekBaseCount": "{count} de {days} pesagens em {span} dias",

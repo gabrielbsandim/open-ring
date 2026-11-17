@@ -2054,7 +2054,7 @@
   "goalsWeekMarkMet": "达成的一天",
   "goalsWeekMarkMissed": "未达成的一天",
   "goalsWeekMarkOpen": "今天，进行中",
-  "goalsWeekNote": "未达成的一天不会扣掉什么。计划不计入每日评分。",
+  "goalsWeekNote": "未达成的一天不会扣掉什么。计划只通过你接受的步数目标影响每日评分。",
   "goalsWeekCount": "{got}/{need}",
   "goalsWeekBaseTitle": "正在收集称重",
   "goalsWeekBaseCount": "{span} 天内 {count}/{days} 次称重",

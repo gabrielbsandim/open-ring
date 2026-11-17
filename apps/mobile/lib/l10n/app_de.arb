@@ -2054,7 +2054,7 @@
   "goalsWeekMarkMet": "Tag, der gepasst hat",
   "goalsWeekMarkMissed": "Tag, der nicht gepasst hat",
   "goalsWeekMarkOpen": "heute, offen",
-  "goalsWeekNote": "Ein Tag, der nicht gepasst hat, nimmt nichts weg. Der Plan zählt nicht zur Tagesnote.",
+  "goalsWeekNote": "Ein Tag, der nicht gepasst hat, nimmt nichts weg. Der Plan wirkt nur über ein Schrittziel, das du annimmst, auf die Tagesnote.",
   "goalsWeekCount": "{got} von {need}",
   "goalsWeekBaseTitle": "Wiegungen sammeln",
   "goalsWeekBaseCount": "{count} von {days} Wiegungen in {span} Tagen",

@@ -1767,7 +1767,8 @@ to it afterwards, once: the review runs again on the stored inputs with the
 answers, and the row takes the rule, the action and the change that come
 out. The amend is refused for a week that is not the newest of the goal, for
 a week already answered, for a week that already holds a check-in answer,
-and when both answers are empty. So a stored row always equals the review of
+and when both answers are empty; `checkIn` itself also refuses in demo mode
+and for a weight goal with Body off. So a stored row always equals the review of
 its own inputs. Both calls bump the data revision when they write.
 
 A review that protects changes the goal in the same write as its row, so
@@ -1960,7 +1961,8 @@ the name, the target in words, the count of the week against what it needs
 (5 of 7 days for a daily lever, the target for strength days and points),
 seven day marks for a daily lever (met, missed, open today, ahead), a dot per
 strength day and a bar for points. A day that did not fit takes nothing away,
-and the plan is not part of the Day Score. A bedtime target is minutes after
+and the plan reaches the Day Score only through a step goal the person
+accepts at a review. A bedtime target is minutes after
 noon and a wake target minutes after midnight, shown as a wall clock time.
 The base phase counts the weigh-ins toward the rate for lose fat, says how
 many of the 14 days they cover while the spread is short, and fills its bar
@@ -1968,8 +1970,9 @@ by whichever of the two is further from done; another kind names the days of
 data the plan waits for. A pause shows its end, or that it is
 over, and the levers as reminders with no count; a recovery week asks
 nothing; with Body off the card says the weight plan holds. Lever counts are
-not weights, so hidden numbers leave them shown. A review that waits for an
-answer shows as the running week until the review screen exists.
+not weights, so hidden numbers leave them shown. While the review of this
+Monday waits for an answer, the card says so with the levers that fit and
+opens the review screen in place of the week.
 
 ### The review screen
 
@@ -1994,8 +1997,12 @@ accepted steps change then sets the profile step goal, through the profile
 save that dates a step goal change today, only when the new target is above
 the profile goal in force: the steps lever starts from the 14 day median, so
 it can sit under a goal the person set, and the plan never lowers that goal.
-When the profile save fails the week stays accepted, the failure is logged
-and the screen offers a retry, which writes no second change row.
+When the profile read or save fails the week stays accepted, the failure is
+logged and the screen offers a retry, which writes no second change row and,
+like the answer, only raises the goal. The profile save dates its change row
+before it saves the profile, so a newest change row equal to the accepted
+target with the profile still under it marks a save that failed, and the
+screen offers the retry again when it is opened later.
 
 ### The goal picker
 

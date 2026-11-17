@@ -6,6 +6,8 @@ import 'package:open_ring/app/l10n/app_locales.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
+import 'package:open_ring/features/activity/application/step_goal_history_providers.dart';
+import 'package:open_ring/features/activity/domain/step_goal_history.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/body/domain/hide_numbers_store.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
@@ -153,13 +155,15 @@ Future<void> _pump(
   double scale = 1,
   Locale locale = const Locale('en'),
   Size size = const Size(400, 2400),
+  Brightness brightness = Brightness.light,
+  List<StepGoalChange> changes = const [],
 }) async {
   _held = week;
   await pumpScaled(
     tester,
     screenHost(const GoalReviewScreen()),
     textScaler: TextScaler.linear(scale),
-    brightness: Brightness.light,
+    brightness: brightness,
     locale: locale,
     size: size,
     overrides: [
@@ -171,6 +175,7 @@ Future<void> _pump(
         return GoalReviewView(week: held, review: reviewWeek(held.inputs));
       }),
       stepGoalProvider.overrideWithValue(stepGoal),
+      stepGoalChangesProvider.overrideWith((ref) async => changes),
       demoModeStoreProvider.overrideWithValue(
         InMemoryDemoModeStore(enabled: demo),
       ),
@@ -372,23 +377,68 @@ void main() {
     });
   });
 
-  for (final locale in const [Locale('en'), Locale('de')]) {
-    for (final scale in const [1.0, 1.3, 2.0]) {
-      testWidgets('lays out in $locale at ${scale}x', (tester) async {
-        await _pump(
+  testWidgets('a save that failed earlier offers the retry on reopen', (
+    tester,
+  ) async {
+    final reviewer = _Reviewer(ReviewAnswerOutcome.accepted);
+    await _pump(
+      tester,
+      week: _week(answer: WeekAnswer.accepted),
+      reviewer: reviewer,
+      changes: [(from: _monday, steps: 10000)],
+    );
+    expect(find.byKey(GoalReviewScreenKeys.failed), findsOneWidget);
+    await _tap(tester, GoalReviewScreenKeys.retry);
+    expect(reviewer.retries, [10000]);
+  });
+
+  testWidgets('a saved step goal offers no retry on reopen', (tester) async {
+    await _pump(
+      tester,
+      week: _week(answer: WeekAnswer.accepted),
+      stepGoal: 10000,
+      changes: [(from: _monday, steps: 10000)],
+    );
+    expect(find.byKey(GoalReviewScreenKeys.retry), findsNothing);
+  });
+
+  testWidgets('a steps removal says nothing about the profile goal', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      week: _week(
+        rule: ReviewRule.shrink,
+        action: ReviewAction.shrink,
+        change: const LeverChange(kind: LeverKind.steps, from: 9000, to: null),
+      ),
+    );
+    expect(find.byKey(GoalReviewScreenKeys.steps), findsNothing);
+    expect(_text(tester), contains('This lever leaves the plan for now.'));
+  });
+
+  for (final brightness in Brightness.values) {
+    for (final locale in const [Locale('en'), Locale('de')]) {
+      for (final scale in const [1.0, 1.3, 2.0]) {
+        testWidgets('lays out in $locale at ${scale}x, ${brightness.name}', (
           tester,
-          week: _week(),
-          scale: scale,
-          locale: locale,
-          size: phoneSize,
-        );
-        await tester.scrollUntilVisible(
-          find.byKey(GoalReviewScreenKeys.keep),
-          200,
-        );
-        await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull);
-      });
+        ) async {
+          await _pump(
+            tester,
+            week: _week(),
+            scale: scale,
+            locale: locale,
+            size: phoneSize,
+            brightness: brightness,
+          );
+          await tester.scrollUntilVisible(
+            find.byKey(GoalReviewScreenKeys.keep),
+            200,
+          );
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull);
+        });
+      }
     }
   }
 }

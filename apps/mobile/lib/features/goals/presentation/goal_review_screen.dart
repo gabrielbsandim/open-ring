@@ -9,6 +9,7 @@ import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
+import 'package:open_ring/features/activity/application/step_goal_history_providers.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/goals/application/goal_providers.dart';
@@ -281,6 +282,7 @@ class _GoalReviewScreenState extends ConsumerState<GoalReviewScreen> {
 
   Widget _steps(MetricFormat format, LeverChange change, int profileGoal) {
     final l10n = format.l10n;
+    if (change.to == null) return const SizedBox.shrink();
     final raised = stepGoalAfterAccept(change, profileGoal: profileGoal);
     if (raised == null) {
       return Padding(
@@ -314,7 +316,7 @@ class _GoalReviewScreenState extends ConsumerState<GoalReviewScreen> {
 
   Widget _answered(MetricFormat format, GoalWeek week, WeekAnswer answer) {
     final l10n = format.l10n;
-    final failed = _failedSteps;
+    final failed = _failedSteps ?? _unsaved(week, answer);
     return Column(
       key: GoalReviewScreenKeys.answered,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -353,6 +355,19 @@ class _GoalReviewScreenState extends ConsumerState<GoalReviewScreen> {
         ),
       ],
     );
+  }
+
+  // The profile save dates its change row before it saves the profile, so a
+  // row for the accepted target with the profile still under it is a save
+  // that failed, even after the screen was left.
+  int? _unsaved(GoalWeek week, WeekAnswer answer) {
+    final change = week.change;
+    final to = change?.to;
+    if (answer != WeekAnswer.accepted || to == null) return null;
+    if (change?.kind != LeverKind.steps) return null;
+    final newest = ref.watch(stepGoalChangesProvider).value?.lastOrNull;
+    if (newest == null || newest.steps != to) return null;
+    return ref.watch(stepGoalProvider) < to ? to : null;
   }
 
   Future<void> _answer(GoalWeek week, WeekAnswer choice) async {

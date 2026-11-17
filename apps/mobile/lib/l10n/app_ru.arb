@@ -2054,7 +2054,7 @@
   "goalsWeekMarkMet": "день засчитан",
   "goalsWeekMarkMissed": "день не засчитан",
   "goalsWeekMarkOpen": "сегодня, открыт",
-  "goalsWeekNote": "Незасчитанный день ничего не отнимает. План не входит в Оценку дня.",
+  "goalsWeekNote": "Незасчитанный день ничего не отнимает. План влияет на Оценку дня только через принятую вами цель по шагам.",
   "goalsWeekCount": "{got} из {need}",
   "goalsWeekBaseTitle": "Собираем взвешивания",
   "goalsWeekBaseCount": "{count} из {days} взвешиваний за {span} дней",

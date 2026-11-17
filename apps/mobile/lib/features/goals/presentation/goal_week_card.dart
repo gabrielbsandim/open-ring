@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -14,6 +15,8 @@ import 'package:open_ring/features/goals/application/goal_path_providers.dart';
 import 'package:open_ring/features/goals/application/goal_providers.dart';
 import 'package:open_ring/features/goals/application/goal_week_view.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
+import 'package:open_ring/features/goals/presentation/goal_evidence_sheet.dart';
+import 'package:open_ring/features/goals/presentation/goal_sheets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 const _minutesInDay = 1440;
@@ -83,7 +86,18 @@ class GoalWeekCard extends ConsumerWidget {
           const SizedBox(height: 4),
           BodyText(l10n.goalsWeekPausedBody),
           for (final lever in goal.levers)
-            _LeverRow(lever: lever, progress: null, format: format),
+            _LeverRow(
+              lever: lever,
+              progress: null,
+              format: format,
+              onTap: _leverSheet(
+                context,
+                format,
+                lever,
+                null,
+                onToday: onToday,
+              ),
+            ),
           const SizedBox(height: 10),
           CaptionText(l10n.goalsWeekPausedNote),
         ],
@@ -122,6 +136,13 @@ class GoalWeekCard extends ConsumerWidget {
                 lever: progress.lever,
                 progress: progress,
                 format: format,
+                onTap: _leverSheet(
+                  context,
+                  format,
+                  progress.lever,
+                  progress,
+                  onToday: onToday,
+                ),
               ),
             if (levers.any((progress) => progress.days != null)) ...[
               const SizedBox(height: 12),
@@ -347,14 +368,35 @@ IconData _icon(LeverKind kind) => switch (kind) {
   LeverKind.wakeTime => Icons.alarm,
 };
 
+// On Today the whole card opens the goal screen, so a lever opens its sheet
+// only on the goal screen.
+VoidCallback? _leverSheet(
+  BuildContext context,
+  MetricFormat format,
+  Lever lever,
+  LeverProgress? progress, {
+  required bool onToday,
+}) {
+  if (onToday) return null;
+  return () => unawaited(
+    showGoalEvidence(
+      context,
+      copy: goalLeverCopy(format, lever.kind),
+      yours: goalLeverYours(format, lever, progress),
+    ),
+  );
+}
+
 class _LeverRow extends StatelessWidget {
   const new({
     required this.lever,
     required this.progress,
     required this.format,
+    required this.onTap,
   });
 
   final Lever lever;
+  final VoidCallback? onTap;
 
   /// Null while the plan holds: the lever shows as a reminder, with no count.
   final LeverProgress? progress;
@@ -381,38 +423,45 @@ class _LeverRow extends StatelessWidget {
     return Padding(
       key: GoalWeekCardKeys.lever(lever.kind),
       padding: const EdgeInsets.only(top: 12),
-      child: MergeSemantics(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              _icon(lever.kind),
-              color: AppColors.of(context).textLabel,
-              size: 22,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    leverName(l10n, lever.kind),
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                  CaptionText(leverTarget(format, lever)),
-                  if (counted != null) ...[
-                    const SizedBox(height: 6),
-                    _Marks(progress: counted, need: need),
-                  ],
-                  if (below && count != null) ...[
-                    const SizedBox(height: 4),
-                    count,
-                  ],
-                ],
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: MergeSemantics(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                _icon(lever.kind),
+                color: AppColors.of(context).textLabel,
+                size: 22,
               ),
-            ),
-            if (!below && count != null) ...[const SizedBox(width: 12), count],
-          ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      leverName(l10n, lever.kind),
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                    CaptionText(leverTarget(format, lever)),
+                    if (counted != null) ...[
+                      const SizedBox(height: 6),
+                      _Marks(progress: counted, need: need),
+                    ],
+                    if (below && count != null) ...[
+                      const SizedBox(height: 4),
+                      count,
+                    ],
+                  ],
+                ),
+              ),
+              if (!below && count != null) ...[
+                const SizedBox(width: 12),
+                count,
+              ],
+            ],
+          ),
         ),
       ),
     );

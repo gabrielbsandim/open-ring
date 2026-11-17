@@ -149,10 +149,10 @@ String goalArrivalText(MetricFormat format, ArrivalRange arrival) {
   return format.l10n.goalsPathArrivalRange(from, format.monthYear(latest));
 }
 
-/// Opens the sheet of [kind] with the reader's own numbers in [yours].
+/// Opens a sheet of [copy] with the reader's own numbers in [yours].
 Future<void> showGoalEvidence(
   BuildContext context, {
-  required GoalEvidence kind,
+  required GoalEvidenceCopy copy,
   required String yours,
 }) => showModalBottomSheet<void>(
   context: context,
@@ -160,21 +160,19 @@ Future<void> showGoalEvidence(
   showDragHandle: true,
   backgroundColor: AppColors.of(context).surface,
   builder: (context) => SafeArea(
-    child: GoalEvidenceSheet(kind: kind, yours: yours),
+    child: GoalEvidenceSheet(copy: copy, yours: yours),
   ),
 );
 
 class GoalEvidenceSheet extends StatelessWidget {
-  const new({required this.kind, required this.yours, super.key});
+  const new({required this.copy, required this.yours, super.key});
 
-  final GoalEvidence kind;
+  final GoalEvidenceCopy copy;
   final String yours;
 
   @override
   Widget build(BuildContext context) {
-    final format = MetricFormat.of(context);
-    final l10n = format.l10n;
-    final copy = goalEvidenceCopy(format, kind);
+    final l10n = MetricFormat.of(context).l10n;
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height * 0.85,

@@ -9,6 +9,7 @@ import 'package:open_ring/features/goals/application/goal_providers.dart';
 import 'package:open_ring/features/goals/application/goal_week_view.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_path.dart';
+import 'package:open_ring/features/goals/presentation/goal_evidence_sheet.dart';
 import 'package:open_ring/features/goals/presentation/goal_week_card.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -93,6 +94,7 @@ Future<void> _pump(
   GoalPathView? path,
   double scale = 1,
   Locale locale = const Locale('en'),
+  bool onToday = true,
 }) async {
   final router = GoRouter(
     initialLocation: '/today',
@@ -102,7 +104,12 @@ Future<void> _pump(
         builder: (_, _) => Scaffold(
           body: ListView(
             padding: const EdgeInsets.all(16),
-            children: const [GoalWeekCardSlot()],
+            children: [
+              if (onToday)
+                const GoalWeekCardSlot()
+              else
+                const GoalWeekCard(onToday: false),
+            ],
           ),
         ),
         routes: [
@@ -160,6 +167,54 @@ void main() {
     expect(_count(tester, LeverKind.steps), '2 of 5');
     expect(_count(tester, LeverKind.effortPoints), '140 of 165');
     expect(text, contains('day that did not fit'));
+  });
+
+  testWidgets('on the goal screen a lever opens its sheet', (tester) async {
+    final goal = _goal();
+    await _pump(tester, week: _running(goal), onToday: false);
+    await tester.tap(find.byKey(GoalWeekCardKeys.lever(LeverKind.steps)));
+    await tester.pumpAndSettle();
+    expect(find.byKey(GoalEvidenceKeys.sheet), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.byKey(GoalEvidenceKeys.title)).data,
+      'Steps',
+    );
+    expect(
+      _text(tester),
+      contains(
+        'Target: 9,000 a day, on 5 of 7 days. This week so far: 2 of 5.',
+      ),
+    );
+  });
+
+  testWidgets('a paused lever opens its sheet with nothing counted', (
+    tester,
+  ) async {
+    final goal = _goal();
+    await _pump(
+      tester,
+      week: GoalWeekPaused(
+        goal: goal,
+        until: _monday.addDays(14),
+        rule: ReviewRule.pauseCheckIn,
+        over: false,
+      ),
+      onToday: false,
+    );
+    await tester.tap(find.byKey(GoalWeekCardKeys.lever(LeverKind.steps)));
+    await tester.pumpAndSettle();
+    expect(_text(tester), contains('The plan holds this week'));
+  });
+
+  testWidgets('on Today a lever opens the goal screen, not a sheet', (
+    tester,
+  ) async {
+    final goal = _goal();
+    await _pump(tester, week: _running(goal), path: _path(goal));
+    await tester.tap(find.byKey(GoalWeekCardKeys.lever(LeverKind.steps)));
+    await tester.pumpAndSettle();
+    expect(find.byKey(GoalEvidenceKeys.sheet), findsNothing);
+    expect(find.text(_goalStub), findsOneWidget);
   });
 
   testWidgets('another kind shows the week with no block length', (

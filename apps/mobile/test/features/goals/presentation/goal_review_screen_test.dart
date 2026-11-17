@@ -17,6 +17,7 @@ import 'package:open_ring/features/goals/application/goal_providers.dart';
 import 'package:open_ring/features/goals/application/goal_reviewer.dart';
 import 'package:open_ring/features/goals/application/goal_week_view.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
+import 'package:open_ring/features/goals/presentation/goal_evidence_sheet.dart';
 import 'package:open_ring/features/goals/presentation/goal_review_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_week_card.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -418,6 +419,25 @@ void main() {
       expect(find.byKey(GoalReviewScreenKeys.retry), findsNothing);
     });
   }
+
+  testWidgets('why this rule opens the rule sheet', (tester) async {
+    await _pump(tester, week: _week());
+    await _tap(tester, GoalReviewScreenKeys.why);
+    expect(find.byKey(GoalEvidenceKeys.sheet), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.byKey(GoalEvidenceKeys.title)).data,
+      'Rule 6 of 11',
+    );
+    expect(_text(tester), contains('Week of the plan:'));
+  });
+
+  testWidgets('the rule sheet leaves the rate out with numbers hidden', (
+    tester,
+  ) async {
+    await _pump(tester, week: _week(), hidden: true);
+    await _tap(tester, GoalReviewScreenKeys.why);
+    expect(_text(tester), isNot(contains('Rate:')));
+  });
 
   testWidgets('a steps removal says nothing about the profile goal', (
     tester,

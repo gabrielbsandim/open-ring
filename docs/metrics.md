@@ -1890,7 +1890,10 @@ address while the profile is edited in another tab. So the screen checks the
 block against the current profile and trend on every build: when it no longer
 holds, including when the value the refusal names was cleared, the picker
 shows in its place, on Lose fat, and the numbers it shows are always the
-current ones. A failed read shows the load error, never a blank page.
+current ones. A failed read shows the load error, never a blank page. While
+the facts are being read again it shows only the title, because until then
+they still predate the change, such as the answer that opened the soft
+screen, and would show the picker for a moment.
 
 ## References
 

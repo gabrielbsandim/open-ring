@@ -61,6 +61,7 @@ final class ProbeGoalStore implements GoalStore {
     this.activeError,
     this.screeningGate,
     this.screeningFailures = 0,
+    this.readAfterWriteGate,
   });
 
   final InMemoryGoalStore inner;
@@ -70,6 +71,8 @@ final class ProbeGoalStore implements GoalStore {
   final Error? activeError;
   final Completer<void>? screeningGate;
   int screeningFailures;
+  final Completer<void>? readAfterWriteGate;
+  var _wrote = false;
 
   @override
   Future<Goal?> active() async {
@@ -82,7 +85,10 @@ final class ProbeGoalStore implements GoalStore {
   Future<List<Goal>> goals() => inner.goals();
 
   @override
-  Future<List<GoalScreening>> screenings() => inner.screenings();
+  Future<List<GoalScreening>> screenings() async {
+    if (_wrote) await readAfterWriteGate?.future;
+    return await inner.screenings();
+  }
 
   @override
   Future<void> addScreening(GoalScreening screening) async {
@@ -92,6 +98,7 @@ final class ProbeGoalStore implements GoalStore {
       throw StateError('disk full');
     }
     await inner.addScreening(screening);
+    _wrote = true;
   }
 
   @override

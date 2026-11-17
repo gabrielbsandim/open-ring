@@ -31,7 +31,6 @@ Future<GoRouter> _open(
   brightness: brightness,
 );
 
-// The English of the new soft keys, which the generated getters lack yet.
 const _softTitle = 'The app goes on without a weight goal';
 const _softBody1 =
     'From your answers, the app will not build a weight goal. This is not a diagnosis.';
@@ -424,7 +423,7 @@ void main() {
     });
   });
 
-  group('a block that is not one of the three is an empty page', () {
+  group('a block with no refusal is an empty page', () {
     final blocks = [IntakeBlock.bodyOff];
     for (final block in blocks) {
       testWidgets('${block.name} shows no card and no buttons', (tester) async {

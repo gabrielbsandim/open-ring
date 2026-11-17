@@ -20,7 +20,6 @@ import '../../../helpers/layout_harness.dart';
 import '../goal_fixtures.dart';
 import '../goal_picker_harness.dart';
 
-// The English of the new keys, which the generated getters lack yet.
 const _title = 'Before you start';
 const _lead =
     'Five quick questions. Tracking weight helps many people and gets in the way for some. The answers only tell the app which group you are in.';
@@ -357,10 +356,41 @@ void main() {
       final router = await _open(tester, setup);
       await _answerAll(tester, _oneYes);
 
-      await tapKey(tester, GoalScreeningKeys.continueButton);
+      // The leaving screen stays on stage through the transition, after the
+      // new answer is read.
+      await tester.tap(find.byKey(GoalScreeningKeys.continueButton));
+      for (var frame = 0; frame < 4; frame++) {
+        await tester.pump(const Duration(milliseconds: 20));
+        expect(find.byType(GoalPickScreen, skipOffstage: false), findsNothing);
+      }
+      await tester.pumpAndSettle();
 
-      expect(find.byKey(GoalPickKeys.continueButton), findsNothing);
       expect(whereIs(router), '/today');
+    });
+
+    testWidgets('the soft screen does not show the picker while it reads', (
+      tester,
+    ) async {
+      final read = Completer<void>();
+      final setup = await setupPicker(
+        readStoreOf: (memory) =>
+            ProbeGoalStore(memory, readAfterWriteGate: read),
+      );
+      final router = await _open(tester, setup);
+      await _answerAll(tester, _twoYes);
+
+      await tester.tap(find.byKey(GoalScreeningKeys.continueButton));
+      for (var frame = 0; frame < 4; frame++) {
+        await tester.pump(const Duration(milliseconds: 20));
+        expect(find.byType(GoalPickScreen), findsNothing);
+      }
+      expect(whereIs(router), AppPaths.goalsRefusedFor(IntakeBlock.softMode));
+
+      read.complete();
+      await tester.pumpAndSettle();
+
+      expect(find.text(_softTitle), findsOneWidget);
+      expect(find.byType(GoalPickScreen), findsNothing);
     });
   });
 

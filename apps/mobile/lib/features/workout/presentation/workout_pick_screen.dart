@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
@@ -240,7 +239,7 @@ class _NotificationsCardState extends ConsumerState<_NotificationsCard> {
       return await ref
           .read(appPermissionsProvider)
           .request(AppPermission.notifications);
-    } on PlatformException {
+    } on Object {
       return null;
     }
   }

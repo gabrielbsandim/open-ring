@@ -41,13 +41,15 @@ FakeAppPermissions _permissions(
 );
 
 final class _BusyPermissions extends FakeAppPermissions {
-  new()
+  new(this.error)
     : super(statuses: {AppPermission.notifications: PermissionStatus.denied});
+
+  final Exception error;
 
   @override
   Future<PermissionStatus> request(AppPermission permission) async {
     requests.add(permission);
-    throw PlatformException(code: 'busy');
+    throw error;
   }
 }
 
@@ -204,8 +206,24 @@ void main() {
       expect(find.byKey(WorkoutPickKeys.start), findsOneWidget);
     });
 
+    testWidgets('a request that is not a platform error still frees Allow', (
+      tester,
+    ) async {
+      final permissions = _BusyPermissions(const FormatException('no request'));
+      await _pump(tester, permissions);
+
+      await _tap(tester, WorkoutPickKeys.notificationsAllow);
+
+      expect(tester.takeException(), isNull);
+      expect(_allowButton(tester).onPressed, isNotNull);
+      permissions.statuses[AppPermission.notifications] =
+          PermissionStatus.granted;
+      await _resume(tester);
+      expect(_card, findsNothing);
+    });
+
     testWidgets('a busy request keeps the card as it was', (tester) async {
-      final permissions = _BusyPermissions();
+      final permissions = _BusyPermissions(PlatformException(code: 'busy'));
       await _pump(tester, permissions);
 
       await _tap(tester, WorkoutPickKeys.notificationsAllow);

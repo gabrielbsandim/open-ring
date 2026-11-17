@@ -189,6 +189,11 @@ class _GoalPickScreenState extends ConsumerState<GoalPickScreen> {
         note: l10n.goalsPickNoteWeight,
         onPressed: () => context.go(AppPaths.goalsScreening),
       ),
+      PickWeight(next: IntakeNext.setup) => (
+        label: l10n.goalsPickContinue,
+        note: null,
+        onPressed: () => context.go(AppPaths.goalsSetup),
+      ),
       _ => closed,
     };
   }

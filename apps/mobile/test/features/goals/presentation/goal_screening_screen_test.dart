@@ -285,7 +285,7 @@ void main() {
   });
 
   group('7. one yes answer', () {
-    testWidgets('writes one row with soft mode false and opens Today', (
+    testWidgets('writes one row with soft mode false and opens the setup', (
       tester,
     ) async {
       final setup = await setupPicker();
@@ -298,8 +298,7 @@ void main() {
       expect(rows, hasLength(1));
       expect(rows.single.softMode, isFalse);
       expect(rows.single.pregnantOrBreastfeeding, isNull);
-      expect(whereIs(router), '/today');
-      expect(find.text(todayStub), findsOneWidget);
+      expect(whereIs(router), '/today/goals/setup');
       expect(await setup.store.goals(), isEmpty);
     });
   });
@@ -365,7 +364,7 @@ void main() {
       }
       await tester.pumpAndSettle();
 
-      expect(whereIs(router), '/today');
+      expect(whereIs(router), '/today/goals/setup');
     });
 
     testWidgets('the soft screen does not show the picker while it reads', (

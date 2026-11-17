@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_setup.dart';
+import 'package:open_ring/features/settings/domain/unit_system.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 
 import '../goal_fixtures.dart';
@@ -58,6 +59,71 @@ void main() {
 
     test('178 cm and a trend of 59.2 leave no room, so null', () {
       expect(referenceBounds(heightCm: 178, trendKg: 59.2), isNull);
+    });
+  });
+
+  group('7. shownReference', () {
+    const bounds = (minKg: 59.0, maxKg: 78.0);
+
+    test('metric keeps the bounds and steps by half a kilogram', () {
+      final shown = shownReference(bounds, UnitSystem.metric);
+
+      expect(shown.low, 59.0);
+      expect(shown.high, 78.0);
+      expect(shown.step, 0.5);
+    });
+
+    test('imperial rounds inward to 131 and 171 pounds, step 1', () {
+      final shown = shownReference(bounds, UnitSystem.imperial);
+
+      expect(shown.low, 131);
+      expect(shown.high, 171);
+      expect(shown.step, 1);
+    });
+
+    test('bounds that are whole pounds are kept, not rounded inward', () {
+      const whole = (
+        minKg: 100 * ImperialUnits.kilogramsPerPound,
+        maxKg: 200 * ImperialUnits.kilogramsPerPound,
+      );
+
+      final shown = shownReference(whole, UnitSystem.imperial);
+
+      expect(shown.low, 100);
+      expect(shown.high, 200);
+    });
+  });
+
+  group('7. referenceKgFor', () {
+    const bounds = (minKg: 59.0, maxKg: 78.0);
+
+    test('metric passes a value inside the bounds through', () {
+      expect(referenceKgFor(77, UnitSystem.metric, bounds), 77);
+    });
+
+    test('171 pounds is 77.5643 kilograms', () {
+      final kg = referenceKgFor(171, UnitSystem.imperial, bounds);
+
+      expect(kg, closeTo(77.5643, 1e-4));
+    });
+
+    test('131 pounds is inside the bounds', () {
+      final kg = referenceKgFor(131, UnitSystem.imperial, bounds);
+
+      expect(kg, closeTo(59.4206, 1e-4));
+    });
+
+    test('a pound value above the top clamps to the top', () {
+      expect(referenceKgFor(172, UnitSystem.imperial, bounds), 78.0);
+    });
+
+    test('a pound value under the floor clamps to the floor', () {
+      expect(referenceKgFor(130, UnitSystem.imperial, bounds), 59.0);
+    });
+
+    test('a metric value outside the bounds clamps on both sides', () {
+      expect(referenceKgFor(90, UnitSystem.metric, bounds), 78.0);
+      expect(referenceKgFor(50, UnitSystem.metric, bounds), 59.0);
     });
   });
 

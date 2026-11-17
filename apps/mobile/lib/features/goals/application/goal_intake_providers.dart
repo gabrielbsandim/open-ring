@@ -19,6 +19,20 @@ final softModeProvider = FutureProvider<bool?>((ref) async {
   return newestSoftMode(await ref.watch(goalStoreProvider).screenings());
 });
 
+final newestPregnancyProvider = FutureProvider<bool?>((ref) async {
+  ref.watch(dataRevisionProvider);
+  return newestPregnancy(await ref.watch(goalStoreProvider).screenings());
+});
+
+final asksPregnancyProvider = FutureProvider<bool>((ref) async {
+  ref.watch(dataRevisionProvider);
+  final profile = await ref.watch(userProfileProvider.future);
+  return asksPregnancy(
+    profile?.sex,
+    await ref.watch(goalStoreProvider).screenings(),
+  );
+});
+
 final intakeFactsProvider = FutureProvider<IntakeFacts>((ref) async {
   final today = ref.watch(currentDateProvider);
   final modules = await ref.watch(enabledModulesProvider.future);

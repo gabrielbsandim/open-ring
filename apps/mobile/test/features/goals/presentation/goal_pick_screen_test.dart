@@ -362,25 +362,34 @@ void main() {
       expect(find.text(l10n.goalsPickNoteWeight), findsOneWidget);
     });
 
-    testWidgets('3. a stored no: Continue is disabled and the note is gone', (
-      tester,
-    ) async {
-      final setup = await setupPicker();
-      await setup.store.addScreening(
-        GoalScreening(
-          on: goalDay(12, 1),
-          softMode: false,
-          pregnantOrBreastfeeding: null,
-        ),
-      );
-      await pumpGoals(tester, setup, at: _pick);
+    testWidgets(
+      '3. a stored no: Continue opens the setup and the note is gone',
+      (tester) async {
+        final setup = await setupPicker();
+        await setup.store.addScreening(
+          GoalScreening(
+            on: goalDay(12, 1),
+            softMode: false,
+            pregnantOrBreastfeeding: null,
+          ),
+        );
+        final router = await pumpGoals(tester, setup, at: _pick);
 
-      await tapKey(tester, GoalPickKeys.loseFat);
+        await tapKey(tester, GoalPickKeys.loseFat);
 
-      final l10n = l10nOf(tester, GoalPickScreen);
-      expect(buttonOf(tester, GoalPickKeys.continueButton).onPressed, isNull);
-      expect(find.text(l10n.goalsPickNoteWeight), findsNothing);
-    });
+        final l10n = l10nOf(tester, GoalPickScreen);
+        expect(
+          buttonOf(tester, GoalPickKeys.continueButton).onPressed,
+          isNotNull,
+        );
+        expect(find.text(l10n.goalsPickNoteWeight), findsNothing);
+
+        await tapKey(tester, GoalPickKeys.continueButton);
+
+        expect(whereIs(router), '/today/goals/setup');
+        expect(await setup.store.goals(), isEmpty);
+      },
+    );
   });
 
   group('the facts of the intake are not ready', () {

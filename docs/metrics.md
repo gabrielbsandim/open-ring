@@ -1864,7 +1864,8 @@ What it cannot say:
 ### Starting a weight goal
 
 `domain/goal_setup.dart` and `GoalSetupController.start` hold the rules of
-the setup; its screen comes in a later slice. A lose fat goal starts only
+the setup, and `GoalSetupScreen` (`/today/goals/setup`) is its screen. A lose
+fat goal starts only
 when the questions were answered with a no and nothing blocks it, with Goals
 on, outside demo mode and with a trend. It takes a pace, standard or gentle,
 and an optional reference weight, and starts with the trend as its anchor
@@ -1893,6 +1894,30 @@ What it cannot say:
   so a failed start can leave a row with a no and no goal, which changes
   nothing.
 
+### The setup screen
+
+The setup asks about pregnancy and breastfeeding first when `asksPregnancy`
+says so, and shows nothing else until the answer: no figure appears before
+it. A yes offers Continue, which stores the answer and opens the pregnancy
+refusal at `/today/goals/pregnancy`; that page shows only while the newest
+answer is a yes, so the way back is to choose Lose fat again and answer no.
+
+After a no, or when the question is not asked, the setup shows the pace
+(steady, the default, or gentle) with its share of the weight a week, the
+optional reference weight, the block in weeks with no dates, and one sentence
+on what the plan cannot see: the app does not see food. The reference weight
+starts off; Add puts it at the top of `referenceBounds` and a stepper moves
+it by 0.5 kg or by 1 lb. Pounds are rounded inward, and `referenceKgFor`
+clamps the kilograms back into the bounds, so a value chosen in pounds never
+lands outside them. The choice is kept in kilograms, so a unit or trend
+change while the page stays open keeps the weight, and the value shown is
+the one sent. With numbers hidden the reference card and every weight
+go, and no reference is sent, even one added before hiding. With no trend
+the setup asks for a weigh-in in Body first. In demo mode Start, and
+Continue after a yes, are disabled, so nothing is stored.
+The screen shows only while the setup is the next step and no goal is
+active; otherwise it shows the picker.
+
 ### The goal picker
 
 The picker offers four rows: no goal, lose fat, get fitter, sleep better.
@@ -1903,13 +1928,11 @@ start while one is in flight, or with a goal already active, writes nothing.
 Lose fat runs `weightGoalBlock`: with Body off the button opens the Body
 module instead, and the other five blocks, the soft mode among them, open the
 refusal screen. A lose fat goal that passes opens the five questions when
-they were never answered, and keeps Continue disabled after a no until the
-setup has a screen.
+they were never answered, and the setup after a no.
 
 The questions screen asks the five questions with a no and a yes each, and
 Continue saves them only when all five are answered. Two or more yes open the
-soft mode screen; fewer go back to Today with nothing started, until the
-setup exists. The third question names a loss of 6 kg, `goalScreeningLossKg`,
+soft mode screen; fewer open the setup. The third question names a loss of 6 kg, `goalScreeningLossKg`,
 in the person's unit (13 lb), and names no number when numbers are hidden.
 The screen shows only while the questions are still the next step, so a
 person who already answered, or is blocked, sees the picker. A failed save

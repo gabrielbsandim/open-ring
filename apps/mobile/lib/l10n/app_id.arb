@@ -2294,5 +2294,8 @@
   "moduleGoalsTurnOff": "Matikan Target",
   "goalsEndDeleteDataBody": "Tindakan terpisah, di layar modul. Data timbang milik Tubuh dan tetap ada.",
   "privacyStoresGoals": "Target: target yang Anda pilih dengan berat awal dan berat acuan, rencana mingguan dan tinjauannya, jawaban check-in Anda, serta hasil dan tanggal skrining dengan jawaban tentang kehamilan (opsional, modul Target)",
-  "privacyStoresGoalsWhy": "Untuk menyusun rencana mingguan, meninjaunya setiap Senin, dan menjaga perlindungannya; skrining menyimpan hasil keseluruhan, bukan setiap jawaban"
+  "privacyStoresGoalsWhy": "Untuk menyusun rencana mingguan, meninjaunya setiap Senin, dan menjaga perlindungannya; skrining menyimpan hasil keseluruhan, bukan setiap jawaban",
+  "goalsPathPaceKeeping": "Tidak ada saat menjaga",
+  "goalsPathRateDetailKeeping": "{percent}% per minggu, antara {low} dan {high}. Saat menjaga tidak ada laju target.",
+  "goalsSheetRateYoursKeeping": "Turun {amount} per minggu, dengan keyakinan 95% antara {low} dan {high}. Dibagi tren Anda ({trend}), itu {percent}% per minggu, antara {percentLow} dan {percentHigh}. Saat menjaga tidak ada laju target."
 }

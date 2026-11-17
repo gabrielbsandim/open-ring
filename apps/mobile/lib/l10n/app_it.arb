@@ -2294,5 +2294,8 @@
   "moduleGoalsTurnOff": "Spegni Obiettivi",
   "goalsEndDeleteDataBody": "Un’azione a parte, nella schermata del modulo. Le pesate sono di Corpo e restano.",
   "privacyStoresGoals": "Obiettivi: l’obiettivo scelto con il peso di partenza e di riferimento, il piano della settimana e le sue revisioni, le tue risposte al check-in, e il risultato e la data del questionario con la risposta sulla gravidanza (facoltativo, modulo Obiettivi)",
-  "privacyStoresGoalsWhy": "Per costruire il piano della settimana, rivederlo ogni lunedì e mantenere le sue protezioni; il questionario conserva il risultato complessivo, non ogni risposta"
+  "privacyStoresGoalsWhy": "Per costruire il piano della settimana, rivederlo ogni lunedì e mantenere le sue protezioni; il questionario conserva il risultato complessivo, non ogni risposta",
+  "goalsPathPaceKeeping": "Nessuno nel mantenimento",
+  "goalsPathRateDetailKeeping": "{percent}% a settimana, tra {low} e {high}. Il mantenimento non ha un ritmo obiettivo.",
+  "goalsSheetRateYoursKeeping": "{amount} in meno a settimana, con il 95% di confidenza tra {low} e {high}. Diviso per la tua tendenza ({trend}), fa {percent}% a settimana, tra {percentLow} e {percentHigh}. Il mantenimento non ha un ritmo obiettivo."
 }

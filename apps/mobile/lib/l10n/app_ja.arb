@@ -2294,5 +2294,8 @@
   "moduleGoalsTurnOff": "目標をオフにする",
   "goalsEndDeleteDataBody": "モジュール画面での別の操作です。体重の記録は「からだ」のもので、残ります。",
   "privacyStoresGoals": "目標：選んだ目標と開始時・基準の体重、週のプランとふりかえり、チェックインの回答、確認の結果と日付と妊娠についての回答（任意、目標モジュール）",
-  "privacyStoresGoalsWhy": "週のプランを作り、毎週月曜にふりかえり、保護のルールを守るため。確認は総合結果だけを保存し、一つひとつの回答は保存しません"
+  "privacyStoresGoalsWhy": "週のプランを作り、毎週月曜にふりかえり、保護のルールを守るため。確認は総合結果だけを保存し、一つひとつの回答は保存しません",
+  "goalsPathPaceKeeping": "維持中はなし",
+  "goalsPathRateDetailKeeping": "週{percent}%、{low}から{high}の間。維持中は目標ペースがありません。",
+  "goalsSheetRateYoursKeeping": "週{amount}減、95%の信頼度で{low}から{high}の間。傾向（{trend}）で割ると週{percent}%、{percentLow}から{percentHigh}の間。維持中は目標ペースがありません。"
 }

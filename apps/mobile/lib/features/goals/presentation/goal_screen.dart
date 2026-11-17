@@ -188,7 +188,8 @@ class GoalScreen extends ConsumerWidget {
         key: GoalScreenKeys.noWeight,
         child: BodyText(l10n.goalsScreenNoWeight),
       ),
-    if (goal.kind == GoalKind.loseFat) _PathCard(stage: stage),
+    if (goal.kind == GoalKind.loseFat)
+      _PathCard(stage: stage, maintenance: goal.phase == GoalPhase.maintenance),
     const SizedBox(height: cardGap),
     const GoalWeekCard(onToday: false),
   ];
@@ -235,9 +236,12 @@ class GoalScreen extends ConsumerWidget {
 }
 
 class _PathCard extends ConsumerWidget {
-  const new({required this.stage});
+  const new({required this.stage, required this.maintenance});
 
   final _Stage stage;
+
+  // Maintenance holds the weight, so it has no rate to aim at.
+  final bool maintenance;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -289,10 +293,16 @@ class _PathCard extends ConsumerWidget {
         value: rate == null
             ? l10n.bodyDirectionNone
             : weightDirection(l10n, rate),
-        detail: stage == _Stage.base ? null : _stateText(l10n, path),
+        detail: _hiddenDetail(l10n, path),
         onTap: () => _open(context, GoalEvidence.rate, l10n.bodyHiddenNote),
       ),
     ];
+  }
+
+  String? _hiddenDetail(AppLocalizations l10n, GoalPath path) {
+    if (stage == _Stage.base) return null;
+    if (!maintenance) return _stateText(l10n, path);
+    return path.overTheCap ? l10n.goalsPathStateCap : null;
   }
 
   List<Widget> _shown(
@@ -429,9 +439,11 @@ class _PathCard extends ConsumerWidget {
               ? _Tile(
                   key: GoalScreenKeys.reference,
                   label: l10n.goalsPathPace,
-                  value: l10n.goalsPathPaceValue(
-                    goalPercent(format, path.targetPercent),
-                  ),
+                  value: maintenance
+                      ? l10n.goalsPathPaceKeeping
+                      : l10n.goalsPathPaceValue(
+                          goalPercent(format, path.targetPercent),
+                        ),
                   onTap: () => _openRate(context, units, path),
                 )
               : _Tile(
@@ -466,10 +478,29 @@ class _PathCard extends ConsumerWidget {
           : l10n.goalsPathRateValue(goalRateAmount(units, rate.kg)),
       detail: rate == null
           ? l10n.goalsPathRateNeeds(weightRateMinDays, weightRateMinSpanDays)
-          : '${l10n.goalsPathRateDetail(goalPercent(format, rate.percent), goalPercent(format, rate.percentLow), goalPercent(format, rate.percentHigh), goalPercent(format, path.targetPercent))} '
-                '${_stateText(l10n, path)}',
+          : _rateDetail(l10n, format, path, rate),
       onTap: () => _openRate(context, units, path),
     );
+  }
+
+  // In maintenance only a loss over the cap is still worth a word.
+  String _rateDetail(
+    AppLocalizations l10n,
+    MetricFormat format,
+    GoalPath path,
+    LossRate rate,
+  ) {
+    final percent = goalPercent(format, rate.percent);
+    final low = goalPercent(format, rate.percentLow);
+    final high = goalPercent(format, rate.percentHigh);
+    if (!maintenance) {
+      final target = goalPercent(format, path.targetPercent);
+      return '${l10n.goalsPathRateDetail(percent, low, high, target)} '
+          '${_stateText(l10n, path)}';
+    }
+    final keeping = l10n.goalsPathRateDetailKeeping(percent, low, high);
+    if (!path.overTheCap) return keeping;
+    return '$keeping ${l10n.goalsPathStateCap}';
   }
 
   Widget _arrivalRow(BuildContext context, UnitFormat units, GoalPath path) {
@@ -517,7 +548,13 @@ class _PathCard extends ConsumerWidget {
       _open(
         context,
         GoalEvidence.rate,
-        goalEvidenceYours(units, GoalEvidence.rate, path, paused: _paused),
+        goalEvidenceYours(
+          units,
+          GoalEvidence.rate,
+          path,
+          paused: _paused,
+          maintenance: maintenance,
+        ),
       );
 
   void _open(BuildContext context, GoalEvidence kind, String yours) =>

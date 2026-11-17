@@ -2294,5 +2294,8 @@
   "moduleGoalsTurnOff": "Apagar Objetivos",
   "goalsEndDeleteDataBody": "Una acción aparte, en la pantalla del módulo. Los pesajes son de Cuerpo y se quedan.",
   "privacyStoresGoals": "Objetivos: el objetivo que eliges con su peso de inicio y de referencia, el plan semanal y sus revisiones, tus respuestas del check-in, y el resultado y la fecha de la evaluación con la respuesta sobre embarazo (opcional, módulo Objetivos)",
-  "privacyStoresGoalsWhy": "Para armar el plan semanal, revisarlo cada lunes y mantener sus protecciones; la evaluación guarda el resultado general, no cada respuesta"
+  "privacyStoresGoalsWhy": "Para armar el plan semanal, revisarlo cada lunes y mantener sus protecciones; la evaluación guarda el resultado general, no cada respuesta",
+  "goalsPathPaceKeeping": "Ninguno en mantenimiento",
+  "goalsPathRateDetailKeeping": "{percent}% por semana, entre {low} y {high}. El mantenimiento no tiene ritmo objetivo.",
+  "goalsSheetRateYoursKeeping": "{amount} menos por semana, con un 95% de confianza entre {low} y {high}. Dividido por tu tendencia ({trend}), es un {percent}% por semana, entre {percentLow} y {percentHigh}. El mantenimiento no tiene ritmo objetivo."
 }

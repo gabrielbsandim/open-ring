@@ -1940,7 +1940,10 @@ the week and no weight. With Body off a lose fat goal shows the hold and no
 weight. Otherwise a lose fat goal shows its path. In maintenance the line
 under the title gives the last day of maintenance in place of the week of the
 block, and once that day has passed, that a new block starts once there is a
-weight rate.
+weight rate. Maintenance has no rate target: the pace tile reads none, and the
+rate row and its sheet give the rate and its range without a target or an on
+track word, with numbers shown or hidden; only a loss over the cap is still
+named.
 
 The path is read on `goalPathDay`: the Sunday before this Monday, the day the
 review reads, or the block start when the block began later; in the base

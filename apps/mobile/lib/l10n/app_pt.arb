@@ -2294,5 +2294,8 @@
   "moduleGoalsTurnOff": "Desligar Metas",
   "goalsEndDeleteDataBody": "Ação separada, na tela do módulo. As pesagens são do Corpo e ficam.",
   "privacyStoresGoals": "Metas: a meta escolhida com o peso de início e o de referência, o plano da semana e as revisões, suas respostas do check-in, e o resultado e a data da triagem com a resposta sobre gravidez (opcional, módulo Metas)",
-  "privacyStoresGoalsWhy": "Para montar o plano da semana, revisá-lo toda segunda e manter as proteções; a triagem guarda o resultado geral, não cada resposta"
+  "privacyStoresGoalsWhy": "Para montar o plano da semana, revisá-lo toda segunda e manter as proteções; a triagem guarda o resultado geral, não cada resposta",
+  "goalsPathPaceKeeping": "Nenhum na manutenção",
+  "goalsPathRateDetailKeeping": "{percent}% por semana, entre {low} e {high}. A manutenção não tem alvo de ritmo.",
+  "goalsSheetRateYoursKeeping": "{amount} a menos por semana, com 95% de confiança entre {low} e {high}. Dividido pela sua tendência ({trend}), isso é {percent}% por semana, entre {percentLow} e {percentHigh}. A manutenção não tem alvo de ritmo."
 }

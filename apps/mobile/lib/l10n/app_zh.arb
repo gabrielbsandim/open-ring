@@ -2294,5 +2294,8 @@
   "moduleGoalsTurnOff": "关闭目标",
   "goalsEndDeleteDataBody": "单独的操作，在模块页面中。体重记录属于“身体”，会保留。",
   "privacyStoresGoals": "目标：你选择的目标及其起始体重和参考体重、每周计划及其回顾、你的签到回答，以及筛查的结果、日期和关于怀孕的回答（可选，目标模块）",
-  "privacyStoresGoalsWhy": "用于制定每周计划、每周一回顾并遵守其保护规则；筛查只保存总体结果，不保存每个回答"
+  "privacyStoresGoalsWhy": "用于制定每周计划、每周一回顾并遵守其保护规则；筛查只保存总体结果，不保存每个回答",
+  "goalsPathPaceKeeping": "维持期无",
+  "goalsPathRateDetailKeeping": "每周 {percent}%，在 {low} 到 {high} 之间。维持期没有目标速度。",
+  "goalsSheetRateYoursKeeping": "每周减少 {amount}，95% 置信区间为 {low} 到 {high}。除以你的趋势（{trend}），即每周 {percent}%，在 {percentLow} 到 {percentHigh} 之间。维持期没有目标速度。"
 }

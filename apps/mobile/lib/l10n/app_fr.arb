@@ -2294,5 +2294,8 @@
   "moduleGoalsTurnOff": "Désactiver Objectifs",
   "goalsEndDeleteDataBody": "Une action à part, sur l’écran du module. Les pesées appartiennent à Corps et restent.",
   "privacyStoresGoals": "Objectifs : l’objectif choisi avec son poids de départ et de référence, le plan de la semaine et ses bilans, vos réponses au point d’étape, et le résultat et la date du questionnaire avec la réponse sur la grossesse (facultatif, module Objectifs)",
-  "privacyStoresGoalsWhy": "Pour construire le plan de la semaine, le revoir chaque lundi et garder ses protections ; le questionnaire garde le résultat global, pas chaque réponse"
+  "privacyStoresGoalsWhy": "Pour construire le plan de la semaine, le revoir chaque lundi et garder ses protections ; le questionnaire garde le résultat global, pas chaque réponse",
+  "goalsPathPaceKeeping": "Aucun pendant le maintien",
+  "goalsPathRateDetailKeeping": "{percent} % par semaine, entre {low} et {high}. Le maintien n’a pas de rythme cible.",
+  "goalsSheetRateYoursKeeping": "{amount} de moins par semaine, avec 95 % de confiance entre {low} et {high}. Divisé par votre tendance ({trend}), cela fait {percent} % par semaine, entre {percentLow} et {percentHigh}. Le maintien n’a pas de rythme cible."
 }

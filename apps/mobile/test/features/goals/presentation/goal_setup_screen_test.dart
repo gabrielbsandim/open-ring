@@ -29,15 +29,13 @@ const _steady = 'Steady';
 const _blockTitle = 'The block';
 const _foodTitle = 'What this plan can do';
 const _referenceTitle = 'Reference weight, optional';
-const _noRoom =
-    'Your trend is too close to BMI 18.5 for a reference weight.';
+const _noRoom = 'Your trend is too close to BMI 18.5 for a reference weight.';
 const _weighFirst =
     'The plan starts from your weight trend, and there is none yet. Add a weigh-in in Body, then come back here.';
 const _start = 'Start the plan';
 const _demo = 'A goal cannot be started in demo mode.';
 const _failed = 'The goal could not be started. Try again.';
-const _active =
-    'You already have a goal. End it before you choose another.';
+const _active = 'You already have a goal. End it before you choose another.';
 const _continue = 'Continue';
 const _pregnancyTitle =
     'During pregnancy and breastfeeding, the app builds no weight goal';
@@ -165,7 +163,11 @@ void main() {
         stored: false,
         readStoreOf: _counting((_) {}, readGate: read),
       );
-      final router = await pumpSetup(tester, setup, at: AppPaths.goalsScreening);
+      final router = await pumpSetup(
+        tester,
+        setup,
+        at: AppPaths.goalsScreening,
+      );
       await _answerFive(tester, yes: false);
 
       await tester.tap(find.byKey(GoalScreeningKeys.continueButton));
@@ -303,7 +305,10 @@ void main() {
 
       expect(probe.screeningWrites, 1);
       final rows = await setup.store.screenings();
-      expect(rows.where((r) => r.pregnantOrBreastfeeding == true), hasLength(1));
+      expect(
+        rows.where((r) => r.pregnantOrBreastfeeding == true),
+        hasLength(1),
+      );
     });
   });
 
@@ -413,7 +418,10 @@ void main() {
     testWidgets('imperial: Add shows 171 and 171 lb stores 77.5643 kg', (
       tester,
     ) async {
-      final setup = await _ready(profile: maleProfile, units: UnitSystem.imperial);
+      final setup = await _ready(
+        profile: maleProfile,
+        units: UnitSystem.imperial,
+      );
       await pumpSetup(tester, setup);
 
       await tapKey(tester, GoalSetupKeys.referenceAdd);
@@ -429,7 +437,10 @@ void main() {
     testWidgets('imperial: the lower bound is 131 lb and lands inside', (
       tester,
     ) async {
-      final setup = await _ready(profile: maleProfile, units: UnitSystem.imperial);
+      final setup = await _ready(
+        profile: maleProfile,
+        units: UnitSystem.imperial,
+      );
       await pumpSetup(tester, setup);
       await tapKey(tester, GoalSetupKeys.referenceAdd);
 
@@ -653,9 +664,7 @@ void main() {
       expect(await setup.store.goals(), hasLength(1));
     });
 
-    testWidgets('a store answering null shows the active line', (
-      tester,
-    ) async {
+    testWidgets('a store answering null shows the active line', (tester) async {
       final setup = await _ready(
         profile: maleProfile,
         readStoreOf: _counting((_) {}, startsNull: true),
@@ -779,7 +788,10 @@ void main() {
       final setup = await _ready();
       await pumpSetup(tester, setup);
 
-      for (final key in [GoalSetupKeys.pregnancyNo, GoalSetupKeys.pregnancyYes]) {
+      for (final key in [
+        GoalSetupKeys.pregnancyNo,
+        GoalSetupKeys.pregnancyYes,
+      ]) {
         final flags = tester.getSemantics(find.byKey(key)).flagsCollection;
         expect(flags.isInMutuallyExclusiveGroup, isTrue);
         expect(flags.isChecked, CheckedState.isFalse);
@@ -810,7 +822,10 @@ void main() {
             );
 
             await expectNoLayoutOverflow(() async {
-              await tester.drag(find.byType(Scrollable).first, const Offset(0, -4000));
+              await tester.drag(
+                find.byType(Scrollable).first,
+                const Offset(0, -4000),
+              );
               await tester.pumpAndSettle();
             });
 
@@ -831,18 +846,9 @@ void main() {
           );
 
           await expectNoLayoutOverflow(() async {
-            await tester.scrollUntilVisible(
-              find.byKey(GoalSetupKeys.referenceAdd),
-              200,
-              maxScrolls: 200,
-            );
-            await tester.tap(find.byKey(GoalSetupKeys.referenceAdd));
+            await tapKey(tester, GoalSetupKeys.referenceAdd);
+            await tester.ensureVisible(find.byKey(GoalSetupKeys.start));
             await tester.pumpAndSettle();
-            await tester.scrollUntilVisible(
-              find.byKey(GoalSetupKeys.start),
-              200,
-              maxScrolls: 200,
-            );
           });
 
           for (final key in [
@@ -853,8 +859,14 @@ void main() {
           ]) {
             await tester.ensureVisible(find.byKey(key));
             await tester.pump();
-            expect(tester.getSize(find.byKey(key)).height, greaterThanOrEqualTo(48));
-            expect(tester.getSize(find.byKey(key)).width, greaterThanOrEqualTo(48));
+            expect(
+              tester.getSize(find.byKey(key)).height,
+              greaterThanOrEqualTo(48),
+            );
+            expect(
+              tester.getSize(find.byKey(key)).width,
+              greaterThanOrEqualTo(48),
+            );
           }
         });
       }

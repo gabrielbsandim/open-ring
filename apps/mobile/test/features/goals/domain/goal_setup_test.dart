@@ -98,7 +98,7 @@ void main() {
     const bounds = (minKg: 59.0, maxKg: 78.0);
 
     test('metric passes a value inside the bounds through', () {
-      expect(referenceKgFor(77.0, UnitSystem.metric, bounds), 77.0);
+      expect(referenceKgFor(77, UnitSystem.metric, bounds), 77);
     });
 
     test('171 pounds is 77.5643 kilograms', () {

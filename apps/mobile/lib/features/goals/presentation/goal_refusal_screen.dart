@@ -43,17 +43,20 @@ double _floorTenth(double value) => (value * 10 + 1e-9).floorToDouble() / 10;
 double _ceilTenth(double value) => (value * 10 - 1e-9).ceilToDouble() / 10;
 
 class GoalRefusalScreen extends ConsumerWidget {
-  const new({required this.block, super.key});
+  const new({required this.block, super.key}) : pregnancy = false;
+
+  const new pregnancy({super.key}) : block = null, pregnancy = true;
 
   final IntakeBlock? block;
+  final bool pregnancy;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final empty = AppPage(title: l10n.goalsPickGroup, children: const []);
-    if (!ref.watch(goalsEnabledProvider) || !_refusable.contains(block)) {
-      return empty;
-    }
+    if (!ref.watch(goalsEnabledProvider)) return empty;
+    if (pregnancy) return _pregnancyPage(context, ref, l10n, empty);
+    if (!_refusable.contains(block)) return empty;
     final facts = ref.watch(intakeFactsProvider);
     if (facts.hasError) {
       return AppPage(
@@ -70,6 +73,40 @@ class GoalRefusalScreen extends ConsumerWidget {
     }
     final refusal = _refusal(context, ref, l10n);
     if (refusal == null) return empty;
+    return _page(context, l10n, refusal);
+  }
+
+  Widget _pregnancyPage(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+    Widget empty,
+  ) {
+    final newest = ref.watch(newestPregnancyProvider);
+    if (newest.hasError) {
+      return AppPage(
+        title: l10n.goalsPickGroup,
+        children: [BodyText(l10n.metricLoadError)],
+      );
+    }
+    if (!newest.hasValue) return empty;
+    // Only a settled answer judges, as with the facts above.
+    if (!newest.isLoading && newest.value != true) {
+      return const GoalPickScreen(initial: GoalKind.loseFat);
+    }
+    return _page(context, l10n, (
+      title: l10n.goalsPregnancyTitle,
+      body: [l10n.goalsPregnancyBody1, l10n.goalsPregnancyBody2],
+      rule: l10n.goalsPregnancyRule,
+      facts: null,
+      primary: l10n.goalsRefusalSeeNoWeight,
+      primaryPath: AppPaths.goalsPickWith(GoalKind.getFitter),
+      secondary: l10n.goalsPickContinueNone,
+      secondaryPath: AppTab.today.path,
+    ));
+  }
+
+  Widget _page(BuildContext context, AppLocalizations l10n, _Refusal refusal) {
     return AppPage(
       title: refusal.title,
       children: [

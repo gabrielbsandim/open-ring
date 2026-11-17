@@ -174,7 +174,7 @@ class _GoalScreeningScreenState extends ConsumerState<GoalScreeningScreen> {
       context.go(
         soft
             ? AppPaths.goalsRefusedFor(IntakeBlock.softMode)
-            : AppTab.today.path,
+            : AppPaths.goalsSetup,
       );
     } on Object {
       if (!mounted) return;

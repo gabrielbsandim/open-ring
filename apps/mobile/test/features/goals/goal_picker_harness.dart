@@ -20,6 +20,7 @@ import 'package:open_ring/features/goals/domain/goal_store.dart';
 import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_refusal_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_screening_screen.dart';
+import 'package:open_ring/features/goals/presentation/goal_setup_screen.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
@@ -179,6 +180,14 @@ GoRouter goalsRouter(String initial) => GoRouter(
     GoRoute(
       path: AppPaths.goalsScreening,
       builder: (_, _) => const GoalScreeningScreen(),
+    ),
+    GoRoute(
+      path: AppPaths.goalsSetup,
+      builder: (_, _) => const GoalSetupScreen(),
+    ),
+    GoRoute(
+      path: AppPaths.goalsRefusedPregnancy,
+      builder: (_, _) => const GoalRefusalScreen.pregnancy(),
     ),
     GoRoute(
       path: '${AppPaths.goalsRefused}/:block',

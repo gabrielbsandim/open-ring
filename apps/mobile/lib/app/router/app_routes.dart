@@ -32,6 +32,8 @@ abstract final class AppPaths {
   static const goalsPick = '/today/goals/pick';
   static const goalsRefused = '/today/goals/refused';
   static const goalsScreening = '/today/goals/screening';
+  static const goalsSetup = '/today/goals/setup';
+  static const goalsRefusedPregnancy = '/today/goals/pregnancy';
 
   static String goalsPickWith(GoalKind? kind) =>
       kind == null ? goalsPick : '$goalsPick?goal=${kind.name}';

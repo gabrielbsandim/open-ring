@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/router/app_routes.dart';
-import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_refusal_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_setup_screen.dart';
@@ -139,7 +138,10 @@ void main() {
       await tester.pumpAndSettle();
 
       final rows = await setup.store.screenings();
-      expect(rows.where((r) => r.pregnantOrBreastfeeding == true), hasLength(2));
+      expect(
+        rows.where((r) => r.pregnantOrBreastfeeding == true),
+        hasLength(2),
+      );
       expect(await setup.store.goals(), isEmpty);
       expect(whereIs(router), AppPaths.goalsRefusedPregnancy);
     });

@@ -1388,19 +1388,29 @@ void main() {
 
           test('a week of an earlier block takes no check-in', () async {
             await store.start(draftD);
-            await addRow(_firstMonday, f1Recovering(recoveryPrevious: true));
+            await addRow(
+              _firstMonday,
+              f1Recovering(
+                recoveryPrevious: true,
+                energy: null,
+                energyPrevious: CheckInEnergy.low,
+                foodOrWeight: null,
+              ),
+            );
             await store.startBlock(
               1,
               on: const LocalDate(2026, 12, 21),
               anchorKg: null,
             );
             final before = (await store.weeks(1)).last;
+            expect(before.rule, ReviewRule.recoveryWeek);
+            expect(before.action, ReviewAction.pause);
 
             await expectUntouched(
               () => store.amendWeek(
                 1,
                 _firstMonday,
-                energy: CheckInEnergy.normal,
+                energy: CheckInEnergy.low,
                 foodOrWeight: null,
               ),
               before,

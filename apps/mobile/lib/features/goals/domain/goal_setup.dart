@@ -55,3 +55,14 @@ double referenceKgFor(double shown, UnitSystem system, ReferenceBounds bounds) {
   };
   return kg.clamp(bounds.minKg, bounds.maxKg);
 }
+
+/// The value the stepper shows for a weight kept in kilograms: on the step
+/// of the unit and inside the range, which is also the value sent.
+double shownValueFor(double kg, ShownReference shown, UnitSystem system) {
+  final inUnit = switch (system) {
+    UnitSystem.metric => kg,
+    UnitSystem.imperial => ImperialUnits.pounds(kg),
+  };
+  final onStep = (inUnit / shown.step).roundToDouble() * shown.step;
+  return onStep.clamp(shown.low, shown.high);
+}

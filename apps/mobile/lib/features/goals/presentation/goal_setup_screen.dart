@@ -50,7 +50,9 @@ class GoalSetupScreen extends ConsumerStatefulWidget {
 class _GoalSetupScreenState extends ConsumerState<GoalSetupScreen> {
   bool? _pregnant;
   GoalPace _pace = GoalPace.standard;
-  double? _shownReference;
+  // Kept in kilograms: the tab keeps this page while the unit or the trend
+  // changes elsewhere, and a number in the old unit would mean another weight.
+  double? _chosenKg;
   var _saving = false;
   var _failed = false;
   var _alreadyActive = false;
@@ -122,6 +124,7 @@ class _GoalSetupScreenState extends ConsumerState<GoalSetupScreen> {
   List<Widget> _content(AppLocalizations l10n, _Basis basis) {
     if (_alreadyActive) return [BodyText(l10n.goalsPickActive)];
     final pregnant = basis.asks ? _pregnant : false;
+    final demo = ref.watch(demoModeProvider);
     return [
       if (basis.asks) ...[_pregnancyCard(l10n), const SizedBox(height: 16)],
       ...switch (pregnant) {
@@ -129,8 +132,9 @@ class _GoalSetupScreenState extends ConsumerState<GoalSetupScreen> {
         true => [
           ActionButton(
             label: l10n.goalsPickContinue,
-            onPressed: _saving ? null : () => unawaited(_start(basis)),
+            onPressed: demo || _saving ? null : () => unawaited(_start(basis)),
           ),
+          ..._demoNote(l10n, demo: demo),
           ..._failure(l10n),
         ],
         false => _plan(l10n, basis),
@@ -217,13 +221,17 @@ class _GoalSetupScreenState extends ConsumerState<GoalSetupScreen> {
         label: l10n.goalsSetupStart,
         onPressed: demo || _saving ? null : () => unawaited(_start(basis)),
       ),
-      if (demo) ...[
-        const SizedBox(height: 8),
-        CaptionText(l10n.goalsSetupDemo, textAlign: TextAlign.center),
-      ],
+      ..._demoNote(l10n, demo: demo),
       ..._failure(l10n),
     ];
   }
+
+  List<Widget> _demoNote(AppLocalizations l10n, {required bool demo}) => [
+    if (demo) ...[
+      const SizedBox(height: 8),
+      CaptionText(l10n.goalsSetupDemo, textAlign: TextAlign.center),
+    ],
+  ];
 
   List<Widget> _failure(AppLocalizations l10n) => [
     if (_failed) ...[
@@ -322,21 +330,26 @@ class _GoalSetupScreenState extends ConsumerState<GoalSetupScreen> {
     ReferenceBounds? bounds,
   ) {
     if (bounds == null) return [BodyText(l10n.goalsSetupReferenceNoRoom)];
-    final shown = shownReference(bounds, units.system);
-    final value = _shownReference;
-    if (value == null) {
+    final system = units.system;
+    final shown = shownReference(bounds, system);
+    final kg = _chosenKg;
+    if (kg == null) {
       return [
         SecondaryButton(
           buttonKey: GoalSetupKeys.referenceAdd,
           label: l10n.goalsSetupReferenceAdd,
-          onPressed: () => setState(() => _shownReference = shown.high),
+          onPressed: () => setState(
+            () => _chosenKg = referenceKgFor(shown.high, system, bounds),
+          ),
         ),
       ];
     }
+    final value = shownValueFor(kg, shown, system);
     final theme = Theme.of(context);
     final step = _weight(units, shown.step);
     void move(double by) => setState(() {
-      _shownReference = (value + by).clamp(shown.low, shown.high);
+      final next = (value + by).clamp(shown.low, shown.high);
+      _chosenKg = referenceKgFor(next, system, bounds);
     });
     return [
       Row(
@@ -375,7 +388,7 @@ class _GoalSetupScreenState extends ConsumerState<GoalSetupScreen> {
       SecondaryButton(
         buttonKey: GoalSetupKeys.referenceRemove,
         label: l10n.goalsSetupReferenceRemove,
-        onPressed: () => setState(() => _shownReference = null),
+        onPressed: () => setState(() => _chosenKg = null),
       ),
     ];
   }
@@ -448,14 +461,16 @@ class _GoalSetupScreenState extends ConsumerState<GoalSetupScreen> {
   // Read at the tap: a reference picked before the numbers were hidden is
   // not sent once they are.
   double? _referenceKg(_Basis basis) {
-    final shown = _shownReference;
-    if (shown == null || ref.read(numbersHiddenProvider)) return null;
+    final kg = _chosenKg;
+    if (kg == null || ref.read(numbersHiddenProvider)) return null;
     final bounds = referenceBounds(
       heightCm: basis.heightCm,
       trendKg: basis.trendKg,
     );
     if (bounds == null) return null;
-    return referenceKgFor(shown, UnitFormat.of(context, ref).system, bounds);
+    final system = UnitFormat.of(context, ref).system;
+    final shown = shownValueFor(kg, shownReference(bounds, system), system);
+    return referenceKgFor(shown, system, bounds);
   }
 
   void _settle(SetupOutcome outcome) {

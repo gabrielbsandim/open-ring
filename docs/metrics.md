@@ -1909,9 +1909,12 @@ on what the plan cannot see: the app does not see food. The reference weight
 starts off; Add puts it at the top of `referenceBounds` and a stepper moves
 it by 0.5 kg or by 1 lb. Pounds are rounded inward, and `referenceKgFor`
 clamps the kilograms back into the bounds, so a value chosen in pounds never
-lands outside them. With numbers hidden the reference card and every weight
+lands outside them. The choice is kept in kilograms, so a unit or trend
+change while the page stays open keeps the weight, and the value shown is
+the one sent. With numbers hidden the reference card and every weight
 go, and no reference is sent, even one added before hiding. With no trend
-the setup asks for a weigh-in in Body first. Start is disabled in demo mode.
+the setup asks for a weigh-in in Body first. In demo mode Start, and
+Continue after a yes, are disabled, so nothing is stored.
 The screen shows only while the setup is the next step and no goal is
 active; otherwise it shows the picker.
 

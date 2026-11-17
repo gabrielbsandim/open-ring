@@ -13,6 +13,7 @@ import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_screening_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_setup_screen.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 
@@ -369,6 +370,27 @@ void main() {
   });
 
   group('7. the reference weight stepper', () {
+    testWidgets('a unit change keeps the weight, not the number', (
+      tester,
+    ) async {
+      final setup = await _ready(profile: maleProfile);
+      await pumpSetup(tester, setup);
+      await tapKey(tester, GoalSetupKeys.referenceAdd);
+      expect(_valueText(tester), contains('78.0'));
+
+      await setup.container
+          .read(unitSystemProvider.notifier)
+          .select(UnitSystem.imperial);
+      await tester.pumpAndSettle();
+      // 78.0 kg is 172 lb, above the top of 171 whole pounds under the trend.
+      expect(_valueText(tester), contains('171'));
+      expect(_enabled(tester, GoalSetupKeys.referenceDown), isTrue);
+
+      await tapKey(tester, GoalSetupKeys.start);
+      final goals = await setup.store.goals();
+      expect(goals.single.referenceKg, closeTo(171 * 0.45359237, 1e-4));
+    });
+
     testWidgets('metric: Add shows 78.0, bounds disable Up and Down', (
       tester,
     ) async {
@@ -590,6 +612,23 @@ void main() {
       expect(await setup.store.goals(), hasLength(1));
     });
 
+    testWidgets('the page leaving after Start never shows the picker', (
+      tester,
+    ) async {
+      final setup = await _ready(profile: maleProfile);
+      await pumpSetup(tester, setup);
+      await tester.ensureVisible(find.byKey(GoalSetupKeys.start));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(GoalSetupKeys.start));
+
+      for (var frame = 0; frame < 30; frame++) {
+        await tester.pump(const Duration(milliseconds: 20));
+        expect(find.byType(GoalPickScreen, skipOffstage: false), findsNothing);
+      }
+      await tester.pumpAndSettle();
+      expect(await setup.store.goals(), hasLength(1));
+    });
+
     testWidgets('the setup never shows the picker while it saves', (
       tester,
     ) async {
@@ -694,6 +733,27 @@ void main() {
 
       expect(await setup.store.goals(), isEmpty);
       expect(await setup.store.screenings(), hasLength(1));
+    });
+
+    testWidgets('a yes in demo mode disables Continue and writes nothing', (
+      tester,
+    ) async {
+      final setup = await _ready(profile: femaleProfile, demo: true);
+      await pumpSetup(tester, setup);
+      await tapKey(tester, GoalSetupKeys.pregnancyYes);
+
+      final continueButton = find.widgetWithText(FilledButton, _continue);
+      expect(continueButton, findsOneWidget);
+      expect(tester.widget<FilledButton>(continueButton).onPressed, isNull);
+      expect(find.text(_demo), findsOneWidget);
+      await tester.tap(continueButton, warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      expect(await setup.store.screenings(), hasLength(1));
+      expect(
+        find.text('The goal could not be started. Try again.'),
+        findsNothing,
+      );
     });
 
     testWidgets('outside demo the note is absent', (tester) async {

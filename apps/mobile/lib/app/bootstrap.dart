@@ -21,6 +21,9 @@ import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/demo/infrastructure/demo_workout_store.dart';
 import 'package:open_ring/features/demo/infrastructure/drift_demo_data_store.dart';
 import 'package:open_ring/features/demo/infrastructure/shared_preferences_demo_mode_store.dart';
+import 'package:open_ring/features/food/application/meal_store_providers.dart';
+import 'package:open_ring/features/food/infrastructure/drift_meal_store.dart';
+import 'package:open_ring/features/food/infrastructure/io_photo_store.dart';
 import 'package:open_ring/features/goals/application/goal_review_trigger.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/infrastructure/drift_goal_store.dart';
@@ -162,6 +165,10 @@ Future<void> bootstrap() async {
       goalStoreProvider.overrideWith(
         (ref) => DriftGoalStore(ref.watch(appDatabaseProvider)),
       ),
+      mealStoreProvider.overrideWith(
+        (ref) => DriftMealStore(ref.watch(appDatabaseProvider)),
+      ),
+      photoStoreProvider.overrideWithValue(IoPhotoStore.documents()),
       ringAlertPreferencesProvider.overrideWithValue(
         SharedPreferencesRingAlertPreferences(),
       ),
@@ -174,7 +181,10 @@ Future<void> bootstrap() async {
         (ref) => PlatformNotificationAccess(ref.watch(appPermissionsProvider)),
       ),
       localDataEraserProvider.overrideWith(
-        (ref) => DeviceLocalDataEraser(ref.watch(appDatabaseProvider)),
+        (ref) => DeviceLocalDataEraser(
+          ref.watch(appDatabaseProvider),
+          ref.watch(photoStoreProvider),
+        ),
       ),
       appDatabaseProvider.overrideWithValue(database),
       syncStoreProvider.overrideWith(

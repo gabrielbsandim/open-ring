@@ -12379,6 +12379,896 @@ class GoalScreeningsCompanion extends UpdateCompanion<GoalScreeningRow> {
   }
 }
 
+class $MealsTable extends Meals with TableInfo<$MealsTable, MealRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MealsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _atUtcMsMeta = const VerificationMeta(
+    'atUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> atUtcMs = GeneratedColumn<int>(
+    'at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _offsetMinutesMeta = const VerificationMeta(
+    'offsetMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> offsetMinutes = GeneratedColumn<int>(
+    'offset_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _proteinMeta = const VerificationMeta(
+    'protein',
+  );
+  @override
+  late final GeneratedColumn<bool> protein = GeneratedColumn<bool>(
+    'protein',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("protein" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _caffeineMeta = const VerificationMeta(
+    'caffeine',
+  );
+  @override
+  late final GeneratedColumn<bool> caffeine = GeneratedColumn<bool>(
+    'caffeine',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("caffeine" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _heavyMeta = const VerificationMeta('heavy');
+  @override
+  late final GeneratedColumn<bool> heavy = GeneratedColumn<bool>(
+    'heavy',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("heavy" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _friedMeta = const VerificationMeta('fried');
+  @override
+  late final GeneratedColumn<bool> fried = GeneratedColumn<bool>(
+    'fried',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("fried" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _sugarMeta = const VerificationMeta('sugar');
+  @override
+  late final GeneratedColumn<bool> sugar = GeneratedColumn<bool>(
+    'sugar',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sugar" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _vegMeta = const VerificationMeta('veg');
+  @override
+  late final GeneratedColumn<String> veg = GeneratedColumn<String>(
+    'veg',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _alcoholMeta = const VerificationMeta(
+    'alcohol',
+  );
+  @override
+  late final GeneratedColumn<String> alcohol = GeneratedColumn<String>(
+    'alcohol',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _processedMeta = const VerificationMeta(
+    'processed',
+  );
+  @override
+  late final GeneratedColumn<String> processed = GeneratedColumn<String>(
+    'processed',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _placeMeta = const VerificationMeta('place');
+  @override
+  late final GeneratedColumn<String> place = GeneratedColumn<String>(
+    'place',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastMealMeta = const VerificationMeta(
+    'lastMeal',
+  );
+  @override
+  late final GeneratedColumn<bool> lastMeal = GeneratedColumn<bool>(
+    'last_meal',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("last_meal" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _photoMeta = const VerificationMeta('photo');
+  @override
+  late final GeneratedColumn<String> photo = GeneratedColumn<String>(
+    'photo',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _createdAtUtcMsMeta = const VerificationMeta(
+    'createdAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> createdAtUtcMs = GeneratedColumn<int>(
+    'created_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    atUtcMs,
+    offsetMinutes,
+    kind,
+    protein,
+    caffeine,
+    heavy,
+    fried,
+    sugar,
+    veg,
+    alcohol,
+    processed,
+    place,
+    lastMeal,
+    photo,
+    createdAtUtcMs,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'meals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MealRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('at_utc_ms')) {
+      context.handle(
+        _atUtcMsMeta,
+        atUtcMs.isAcceptableOrUnknown(data['at_utc_ms']!, _atUtcMsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_atUtcMsMeta);
+    }
+    if (data.containsKey('offset_minutes')) {
+      context.handle(
+        _offsetMinutesMeta,
+        offsetMinutes.isAcceptableOrUnknown(
+          data['offset_minutes']!,
+          _offsetMinutesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_offsetMinutesMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    }
+    if (data.containsKey('protein')) {
+      context.handle(
+        _proteinMeta,
+        protein.isAcceptableOrUnknown(data['protein']!, _proteinMeta),
+      );
+    }
+    if (data.containsKey('caffeine')) {
+      context.handle(
+        _caffeineMeta,
+        caffeine.isAcceptableOrUnknown(data['caffeine']!, _caffeineMeta),
+      );
+    }
+    if (data.containsKey('heavy')) {
+      context.handle(
+        _heavyMeta,
+        heavy.isAcceptableOrUnknown(data['heavy']!, _heavyMeta),
+      );
+    }
+    if (data.containsKey('fried')) {
+      context.handle(
+        _friedMeta,
+        fried.isAcceptableOrUnknown(data['fried']!, _friedMeta),
+      );
+    }
+    if (data.containsKey('sugar')) {
+      context.handle(
+        _sugarMeta,
+        sugar.isAcceptableOrUnknown(data['sugar']!, _sugarMeta),
+      );
+    }
+    if (data.containsKey('veg')) {
+      context.handle(
+        _vegMeta,
+        veg.isAcceptableOrUnknown(data['veg']!, _vegMeta),
+      );
+    }
+    if (data.containsKey('alcohol')) {
+      context.handle(
+        _alcoholMeta,
+        alcohol.isAcceptableOrUnknown(data['alcohol']!, _alcoholMeta),
+      );
+    }
+    if (data.containsKey('processed')) {
+      context.handle(
+        _processedMeta,
+        processed.isAcceptableOrUnknown(data['processed']!, _processedMeta),
+      );
+    }
+    if (data.containsKey('place')) {
+      context.handle(
+        _placeMeta,
+        place.isAcceptableOrUnknown(data['place']!, _placeMeta),
+      );
+    }
+    if (data.containsKey('last_meal')) {
+      context.handle(
+        _lastMealMeta,
+        lastMeal.isAcceptableOrUnknown(data['last_meal']!, _lastMealMeta),
+      );
+    }
+    if (data.containsKey('photo')) {
+      context.handle(
+        _photoMeta,
+        photo.isAcceptableOrUnknown(data['photo']!, _photoMeta),
+      );
+    }
+    if (data.containsKey('created_at_utc_ms')) {
+      context.handle(
+        _createdAtUtcMsMeta,
+        createdAtUtcMs.isAcceptableOrUnknown(
+          data['created_at_utc_ms']!,
+          _createdAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtUtcMsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MealRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MealRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      atUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}at_utc_ms'],
+      )!,
+      offsetMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}offset_minutes'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      ),
+      protein: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}protein'],
+      )!,
+      caffeine: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}caffeine'],
+      )!,
+      heavy: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}heavy'],
+      )!,
+      fried: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}fried'],
+      )!,
+      sugar: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sugar'],
+      )!,
+      veg: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}veg'],
+      ),
+      alcohol: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}alcohol'],
+      ),
+      processed: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}processed'],
+      ),
+      place: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}place'],
+      ),
+      lastMeal: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}last_meal'],
+      )!,
+      photo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}photo'],
+      ),
+      createdAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at_utc_ms'],
+      )!,
+    );
+  }
+
+  @override
+  $MealsTable createAlias(String alias) {
+    return $MealsTable(attachedDatabase, alias);
+  }
+}
+
+class MealRow extends DataClass implements Insertable<MealRow> {
+  final int id;
+  final int atUtcMs;
+  final int offsetMinutes;
+  final String? kind;
+  final bool protein;
+  final bool caffeine;
+  final bool heavy;
+  final bool fried;
+  final bool sugar;
+  final String? veg;
+  final String? alcohol;
+  final String? processed;
+  final String? place;
+  final bool lastMeal;
+  final String? photo;
+  final int createdAtUtcMs;
+  const MealRow({
+    required this.id,
+    required this.atUtcMs,
+    required this.offsetMinutes,
+    this.kind,
+    required this.protein,
+    required this.caffeine,
+    required this.heavy,
+    required this.fried,
+    required this.sugar,
+    this.veg,
+    this.alcohol,
+    this.processed,
+    this.place,
+    required this.lastMeal,
+    this.photo,
+    required this.createdAtUtcMs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['at_utc_ms'] = Variable<int>(atUtcMs);
+    map['offset_minutes'] = Variable<int>(offsetMinutes);
+    if (!nullToAbsent || kind != null) {
+      map['kind'] = Variable<String>(kind);
+    }
+    map['protein'] = Variable<bool>(protein);
+    map['caffeine'] = Variable<bool>(caffeine);
+    map['heavy'] = Variable<bool>(heavy);
+    map['fried'] = Variable<bool>(fried);
+    map['sugar'] = Variable<bool>(sugar);
+    if (!nullToAbsent || veg != null) {
+      map['veg'] = Variable<String>(veg);
+    }
+    if (!nullToAbsent || alcohol != null) {
+      map['alcohol'] = Variable<String>(alcohol);
+    }
+    if (!nullToAbsent || processed != null) {
+      map['processed'] = Variable<String>(processed);
+    }
+    if (!nullToAbsent || place != null) {
+      map['place'] = Variable<String>(place);
+    }
+    map['last_meal'] = Variable<bool>(lastMeal);
+    if (!nullToAbsent || photo != null) {
+      map['photo'] = Variable<String>(photo);
+    }
+    map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs);
+    return map;
+  }
+
+  MealsCompanion toCompanion(bool nullToAbsent) {
+    return MealsCompanion(
+      id: Value(id),
+      atUtcMs: Value(atUtcMs),
+      offsetMinutes: Value(offsetMinutes),
+      kind: kind == null && nullToAbsent ? const Value.absent() : Value(kind),
+      protein: Value(protein),
+      caffeine: Value(caffeine),
+      heavy: Value(heavy),
+      fried: Value(fried),
+      sugar: Value(sugar),
+      veg: veg == null && nullToAbsent ? const Value.absent() : Value(veg),
+      alcohol: alcohol == null && nullToAbsent
+          ? const Value.absent()
+          : Value(alcohol),
+      processed: processed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(processed),
+      place: place == null && nullToAbsent
+          ? const Value.absent()
+          : Value(place),
+      lastMeal: Value(lastMeal),
+      photo: photo == null && nullToAbsent
+          ? const Value.absent()
+          : Value(photo),
+      createdAtUtcMs: Value(createdAtUtcMs),
+    );
+  }
+
+  factory MealRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MealRow(
+      id: serializer.fromJson<int>(json['id']),
+      atUtcMs: serializer.fromJson<int>(json['atUtcMs']),
+      offsetMinutes: serializer.fromJson<int>(json['offsetMinutes']),
+      kind: serializer.fromJson<String?>(json['kind']),
+      protein: serializer.fromJson<bool>(json['protein']),
+      caffeine: serializer.fromJson<bool>(json['caffeine']),
+      heavy: serializer.fromJson<bool>(json['heavy']),
+      fried: serializer.fromJson<bool>(json['fried']),
+      sugar: serializer.fromJson<bool>(json['sugar']),
+      veg: serializer.fromJson<String?>(json['veg']),
+      alcohol: serializer.fromJson<String?>(json['alcohol']),
+      processed: serializer.fromJson<String?>(json['processed']),
+      place: serializer.fromJson<String?>(json['place']),
+      lastMeal: serializer.fromJson<bool>(json['lastMeal']),
+      photo: serializer.fromJson<String?>(json['photo']),
+      createdAtUtcMs: serializer.fromJson<int>(json['createdAtUtcMs']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'atUtcMs': serializer.toJson<int>(atUtcMs),
+      'offsetMinutes': serializer.toJson<int>(offsetMinutes),
+      'kind': serializer.toJson<String?>(kind),
+      'protein': serializer.toJson<bool>(protein),
+      'caffeine': serializer.toJson<bool>(caffeine),
+      'heavy': serializer.toJson<bool>(heavy),
+      'fried': serializer.toJson<bool>(fried),
+      'sugar': serializer.toJson<bool>(sugar),
+      'veg': serializer.toJson<String?>(veg),
+      'alcohol': serializer.toJson<String?>(alcohol),
+      'processed': serializer.toJson<String?>(processed),
+      'place': serializer.toJson<String?>(place),
+      'lastMeal': serializer.toJson<bool>(lastMeal),
+      'photo': serializer.toJson<String?>(photo),
+      'createdAtUtcMs': serializer.toJson<int>(createdAtUtcMs),
+    };
+  }
+
+  MealRow copyWith({
+    int? id,
+    int? atUtcMs,
+    int? offsetMinutes,
+    Value<String?> kind = const Value.absent(),
+    bool? protein,
+    bool? caffeine,
+    bool? heavy,
+    bool? fried,
+    bool? sugar,
+    Value<String?> veg = const Value.absent(),
+    Value<String?> alcohol = const Value.absent(),
+    Value<String?> processed = const Value.absent(),
+    Value<String?> place = const Value.absent(),
+    bool? lastMeal,
+    Value<String?> photo = const Value.absent(),
+    int? createdAtUtcMs,
+  }) => MealRow(
+    id: id ?? this.id,
+    atUtcMs: atUtcMs ?? this.atUtcMs,
+    offsetMinutes: offsetMinutes ?? this.offsetMinutes,
+    kind: kind.present ? kind.value : this.kind,
+    protein: protein ?? this.protein,
+    caffeine: caffeine ?? this.caffeine,
+    heavy: heavy ?? this.heavy,
+    fried: fried ?? this.fried,
+    sugar: sugar ?? this.sugar,
+    veg: veg.present ? veg.value : this.veg,
+    alcohol: alcohol.present ? alcohol.value : this.alcohol,
+    processed: processed.present ? processed.value : this.processed,
+    place: place.present ? place.value : this.place,
+    lastMeal: lastMeal ?? this.lastMeal,
+    photo: photo.present ? photo.value : this.photo,
+    createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+  );
+  MealRow copyWithCompanion(MealsCompanion data) {
+    return MealRow(
+      id: data.id.present ? data.id.value : this.id,
+      atUtcMs: data.atUtcMs.present ? data.atUtcMs.value : this.atUtcMs,
+      offsetMinutes: data.offsetMinutes.present
+          ? data.offsetMinutes.value
+          : this.offsetMinutes,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      protein: data.protein.present ? data.protein.value : this.protein,
+      caffeine: data.caffeine.present ? data.caffeine.value : this.caffeine,
+      heavy: data.heavy.present ? data.heavy.value : this.heavy,
+      fried: data.fried.present ? data.fried.value : this.fried,
+      sugar: data.sugar.present ? data.sugar.value : this.sugar,
+      veg: data.veg.present ? data.veg.value : this.veg,
+      alcohol: data.alcohol.present ? data.alcohol.value : this.alcohol,
+      processed: data.processed.present ? data.processed.value : this.processed,
+      place: data.place.present ? data.place.value : this.place,
+      lastMeal: data.lastMeal.present ? data.lastMeal.value : this.lastMeal,
+      photo: data.photo.present ? data.photo.value : this.photo,
+      createdAtUtcMs: data.createdAtUtcMs.present
+          ? data.createdAtUtcMs.value
+          : this.createdAtUtcMs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MealRow(')
+          ..write('id: $id, ')
+          ..write('atUtcMs: $atUtcMs, ')
+          ..write('offsetMinutes: $offsetMinutes, ')
+          ..write('kind: $kind, ')
+          ..write('protein: $protein, ')
+          ..write('caffeine: $caffeine, ')
+          ..write('heavy: $heavy, ')
+          ..write('fried: $fried, ')
+          ..write('sugar: $sugar, ')
+          ..write('veg: $veg, ')
+          ..write('alcohol: $alcohol, ')
+          ..write('processed: $processed, ')
+          ..write('place: $place, ')
+          ..write('lastMeal: $lastMeal, ')
+          ..write('photo: $photo, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    atUtcMs,
+    offsetMinutes,
+    kind,
+    protein,
+    caffeine,
+    heavy,
+    fried,
+    sugar,
+    veg,
+    alcohol,
+    processed,
+    place,
+    lastMeal,
+    photo,
+    createdAtUtcMs,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MealRow &&
+          other.id == this.id &&
+          other.atUtcMs == this.atUtcMs &&
+          other.offsetMinutes == this.offsetMinutes &&
+          other.kind == this.kind &&
+          other.protein == this.protein &&
+          other.caffeine == this.caffeine &&
+          other.heavy == this.heavy &&
+          other.fried == this.fried &&
+          other.sugar == this.sugar &&
+          other.veg == this.veg &&
+          other.alcohol == this.alcohol &&
+          other.processed == this.processed &&
+          other.place == this.place &&
+          other.lastMeal == this.lastMeal &&
+          other.photo == this.photo &&
+          other.createdAtUtcMs == this.createdAtUtcMs);
+}
+
+class MealsCompanion extends UpdateCompanion<MealRow> {
+  final Value<int> id;
+  final Value<int> atUtcMs;
+  final Value<int> offsetMinutes;
+  final Value<String?> kind;
+  final Value<bool> protein;
+  final Value<bool> caffeine;
+  final Value<bool> heavy;
+  final Value<bool> fried;
+  final Value<bool> sugar;
+  final Value<String?> veg;
+  final Value<String?> alcohol;
+  final Value<String?> processed;
+  final Value<String?> place;
+  final Value<bool> lastMeal;
+  final Value<String?> photo;
+  final Value<int> createdAtUtcMs;
+  const MealsCompanion({
+    this.id = const Value.absent(),
+    this.atUtcMs = const Value.absent(),
+    this.offsetMinutes = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.protein = const Value.absent(),
+    this.caffeine = const Value.absent(),
+    this.heavy = const Value.absent(),
+    this.fried = const Value.absent(),
+    this.sugar = const Value.absent(),
+    this.veg = const Value.absent(),
+    this.alcohol = const Value.absent(),
+    this.processed = const Value.absent(),
+    this.place = const Value.absent(),
+    this.lastMeal = const Value.absent(),
+    this.photo = const Value.absent(),
+    this.createdAtUtcMs = const Value.absent(),
+  });
+  MealsCompanion.insert({
+    this.id = const Value.absent(),
+    required int atUtcMs,
+    required int offsetMinutes,
+    this.kind = const Value.absent(),
+    this.protein = const Value.absent(),
+    this.caffeine = const Value.absent(),
+    this.heavy = const Value.absent(),
+    this.fried = const Value.absent(),
+    this.sugar = const Value.absent(),
+    this.veg = const Value.absent(),
+    this.alcohol = const Value.absent(),
+    this.processed = const Value.absent(),
+    this.place = const Value.absent(),
+    this.lastMeal = const Value.absent(),
+    this.photo = const Value.absent(),
+    required int createdAtUtcMs,
+  }) : atUtcMs = Value(atUtcMs),
+       offsetMinutes = Value(offsetMinutes),
+       createdAtUtcMs = Value(createdAtUtcMs);
+  static Insertable<MealRow> custom({
+    Expression<int>? id,
+    Expression<int>? atUtcMs,
+    Expression<int>? offsetMinutes,
+    Expression<String>? kind,
+    Expression<bool>? protein,
+    Expression<bool>? caffeine,
+    Expression<bool>? heavy,
+    Expression<bool>? fried,
+    Expression<bool>? sugar,
+    Expression<String>? veg,
+    Expression<String>? alcohol,
+    Expression<String>? processed,
+    Expression<String>? place,
+    Expression<bool>? lastMeal,
+    Expression<String>? photo,
+    Expression<int>? createdAtUtcMs,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (atUtcMs != null) 'at_utc_ms': atUtcMs,
+      if (offsetMinutes != null) 'offset_minutes': offsetMinutes,
+      if (kind != null) 'kind': kind,
+      if (protein != null) 'protein': protein,
+      if (caffeine != null) 'caffeine': caffeine,
+      if (heavy != null) 'heavy': heavy,
+      if (fried != null) 'fried': fried,
+      if (sugar != null) 'sugar': sugar,
+      if (veg != null) 'veg': veg,
+      if (alcohol != null) 'alcohol': alcohol,
+      if (processed != null) 'processed': processed,
+      if (place != null) 'place': place,
+      if (lastMeal != null) 'last_meal': lastMeal,
+      if (photo != null) 'photo': photo,
+      if (createdAtUtcMs != null) 'created_at_utc_ms': createdAtUtcMs,
+    });
+  }
+
+  MealsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? atUtcMs,
+    Value<int>? offsetMinutes,
+    Value<String?>? kind,
+    Value<bool>? protein,
+    Value<bool>? caffeine,
+    Value<bool>? heavy,
+    Value<bool>? fried,
+    Value<bool>? sugar,
+    Value<String?>? veg,
+    Value<String?>? alcohol,
+    Value<String?>? processed,
+    Value<String?>? place,
+    Value<bool>? lastMeal,
+    Value<String?>? photo,
+    Value<int>? createdAtUtcMs,
+  }) {
+    return MealsCompanion(
+      id: id ?? this.id,
+      atUtcMs: atUtcMs ?? this.atUtcMs,
+      offsetMinutes: offsetMinutes ?? this.offsetMinutes,
+      kind: kind ?? this.kind,
+      protein: protein ?? this.protein,
+      caffeine: caffeine ?? this.caffeine,
+      heavy: heavy ?? this.heavy,
+      fried: fried ?? this.fried,
+      sugar: sugar ?? this.sugar,
+      veg: veg ?? this.veg,
+      alcohol: alcohol ?? this.alcohol,
+      processed: processed ?? this.processed,
+      place: place ?? this.place,
+      lastMeal: lastMeal ?? this.lastMeal,
+      photo: photo ?? this.photo,
+      createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (atUtcMs.present) {
+      map['at_utc_ms'] = Variable<int>(atUtcMs.value);
+    }
+    if (offsetMinutes.present) {
+      map['offset_minutes'] = Variable<int>(offsetMinutes.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (protein.present) {
+      map['protein'] = Variable<bool>(protein.value);
+    }
+    if (caffeine.present) {
+      map['caffeine'] = Variable<bool>(caffeine.value);
+    }
+    if (heavy.present) {
+      map['heavy'] = Variable<bool>(heavy.value);
+    }
+    if (fried.present) {
+      map['fried'] = Variable<bool>(fried.value);
+    }
+    if (sugar.present) {
+      map['sugar'] = Variable<bool>(sugar.value);
+    }
+    if (veg.present) {
+      map['veg'] = Variable<String>(veg.value);
+    }
+    if (alcohol.present) {
+      map['alcohol'] = Variable<String>(alcohol.value);
+    }
+    if (processed.present) {
+      map['processed'] = Variable<String>(processed.value);
+    }
+    if (place.present) {
+      map['place'] = Variable<String>(place.value);
+    }
+    if (lastMeal.present) {
+      map['last_meal'] = Variable<bool>(lastMeal.value);
+    }
+    if (photo.present) {
+      map['photo'] = Variable<String>(photo.value);
+    }
+    if (createdAtUtcMs.present) {
+      map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MealsCompanion(')
+          ..write('id: $id, ')
+          ..write('atUtcMs: $atUtcMs, ')
+          ..write('offsetMinutes: $offsetMinutes, ')
+          ..write('kind: $kind, ')
+          ..write('protein: $protein, ')
+          ..write('caffeine: $caffeine, ')
+          ..write('heavy: $heavy, ')
+          ..write('fried: $fried, ')
+          ..write('sugar: $sugar, ')
+          ..write('veg: $veg, ')
+          ..write('alcohol: $alcohol, ')
+          ..write('processed: $processed, ')
+          ..write('place: $place, ')
+          ..write('lastMeal: $lastMeal, ')
+          ..write('photo: $photo, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $RingDevicesTable ringDevices = $RingDevicesTable(this);
@@ -12422,6 +13312,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $GoalsTable goals = $GoalsTable(this);
   late final $GoalWeeksTable goalWeeks = $GoalWeeksTable(this);
   late final $GoalScreeningsTable goalScreenings = $GoalScreeningsTable(this);
+  late final $MealsTable meals = $MealsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -12455,6 +13346,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     goals,
     goalWeeks,
     goalScreenings,
+    meals,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

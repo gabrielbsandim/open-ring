@@ -2337,6 +2337,6 @@
   "foodDiscard": "Verwerfen",
   "foodNoSpaceNote": "Ohne Foto zählt die Mahlzeit genauso im Essfenster und in den Vergleichen.",
   "workoutNoticeSavedHeartRate": "Ø HF {bpm}",
-  "workoutNoticeFailedText": "Noch ist nichts verloren. Öffne die App und versuche es erneut.",
+  "workoutNoticeFailedText": "Öffne die App, um es erneut zu versuchen. Wenn du sie schließt, geht das Training verloren.",
   "workoutNoticeOpen": "Öffnen"
 }

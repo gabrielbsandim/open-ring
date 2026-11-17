@@ -2337,6 +2337,6 @@
   "foodDiscard": "Supprimer",
   "foodNoSpaceNote": "Sans photo, le repas compte de la même façon dans la fenêtre et les comparaisons.",
   "workoutNoticeSavedHeartRate": "FC moy. {bpm}",
-  "workoutNoticeFailedText": "Rien n'est encore perdu. Ouvrez l'app et réessayez.",
+  "workoutNoticeFailedText": "Ouvrez l'app pour réessayer. La fermer fait perdre la séance.",
   "workoutNoticeOpen": "Ouvrir"
 }

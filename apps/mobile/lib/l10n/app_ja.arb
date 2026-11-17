@@ -2337,6 +2337,6 @@
   "foodDiscard": "破棄",
   "foodNoSpaceNote": "写真がなくても、食事時間帯と比較では同じように数えます。",
   "workoutNoticeSavedHeartRate": "平均心拍数 {bpm}",
-  "workoutNoticeFailedText": "まだ何も失われていません。アプリを開いてもう一度試してください。",
+  "workoutNoticeFailedText": "アプリを開いてもう一度試してください。アプリを閉じるとワークアウトは失われます。",
   "workoutNoticeOpen": "開く"
 }

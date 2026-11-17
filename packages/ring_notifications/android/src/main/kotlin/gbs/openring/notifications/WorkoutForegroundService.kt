@@ -85,7 +85,6 @@ class WorkoutForegroundService : Service() {
         listener = null
         cancelWorkoutNotification(this)
         cancelWorkoutAlert(this)
-        cancelFailedWorkoutEnded(this)
         stop()
     }
 
@@ -308,8 +307,8 @@ internal fun cancelWorkoutAlert(app: Context) {
 }
 
 // The saved notice outlives hiding the workout, the task and the process
-// until it times out. The failed one says nothing is lost, which holds only
-// while the engine holding the unsaved workout lives, so it goes with it.
+// until its 1 hour timeout. The failed one goes at that timeout, when the
+// engine that posted it detaches, or when an engine in a new process attaches.
 private var failedOwner: Any? = null
 
 internal fun showWorkoutEnded(app: Context, owner: Any, ended: WorkoutEnded) {

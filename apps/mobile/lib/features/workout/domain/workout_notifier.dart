@@ -157,7 +157,8 @@ final class WorkoutNoticeLabels {
     this.savedTitle = 'Workout saved',
     this.savedHeartRate = _savedHeartRate,
     this.failedTitle = 'The workout was not saved',
-    this.failedText = 'Nothing is lost yet. Open the app and try again.',
+    this.failedText =
+        'Open the app to try again. Closing it loses the workout.',
     this.viewSummary = 'See workout summary',
     this.open = 'Open',
   });

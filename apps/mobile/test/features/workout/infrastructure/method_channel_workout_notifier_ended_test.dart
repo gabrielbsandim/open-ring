@@ -62,7 +62,7 @@ void main() {
       await MethodChannelWorkoutNotifier().ended(
         const WorkoutEndNotice(
           title: 'The workout was not saved',
-          text: 'Nothing is lost yet. Open the app and try again.',
+          text: 'Open the app to try again. Closing it loses the workout.',
           action: 'Open',
           link: 'openring://widget/activity/workout-summary',
           failed: true,
@@ -72,7 +72,7 @@ void main() {
       expect(calls.single.arguments, {
         'channelName': 'Workout',
         'title': 'The workout was not saved',
-        'text': 'Nothing is lost yet. Open the app and try again.',
+        'text': 'Open the app to try again. Closing it loses the workout.',
         'actionLabel': 'Open',
         'link': 'openring://widget/activity/workout-summary',
         'timeoutMs': 3600000,

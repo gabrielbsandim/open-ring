@@ -41,7 +41,7 @@ void main() {
       expect(pt.savedHeartRate(146), 'FC média 146');
       expect(
         pt.failedText,
-        'Nada se perdeu ainda. Abra o app e tente de novo.',
+        'Abra o app para tentar de novo. Fechar o app perde o treino.',
       );
       expect(pt.open, 'Abrir');
     });
@@ -51,7 +51,10 @@ void main() {
       expect(en.failedTitle, 'The workout was not saved');
       expect(en.viewSummary, enL10n.workoutViewSummary);
       expect(en.savedHeartRate(146), 'Avg HR 146');
-      expect(en.failedText, 'Nothing is lost yet. Open the app and try again.');
+      expect(
+        en.failedText,
+        'Open the app to try again. Closing it loses the workout.',
+      );
       expect(en.open, 'Open');
     });
   });

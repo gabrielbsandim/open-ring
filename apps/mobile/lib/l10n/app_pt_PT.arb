@@ -2329,6 +2329,6 @@
   "foodDiscard": "Descartar",
   "foodNoSpaceNote": "Sem foto, a refeição conta da mesma forma na janela e nas comparações.",
   "workoutNoticeSavedHeartRate": "FC média {bpm}",
-  "workoutNoticeFailedText": "Ainda não se perdeu nada. Abra a app e tente novamente.",
+  "workoutNoticeFailedText": "Abra a app para tentar novamente. Fechar a app perde o treino.",
   "workoutNoticeOpen": "Abrir"
 }

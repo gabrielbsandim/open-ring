@@ -179,4 +179,64 @@ void main() {
       await expectLater(insert, throwsA(anything));
     });
   });
+
+  group('G5b2b1: the phase and the week are one transaction', () {
+    const blockGoalWrites =
+        'CREATE TRIGGER no_goal_writes BEFORE UPDATE ON goals '
+        "BEGIN SELECT RAISE(ABORT, 'goal write refused'); END";
+    final pausing = f1With(
+      energy: CheckInEnergy.low,
+      energyPrevious: CheckInEnergy.low,
+      foodOrWeight: null,
+    );
+
+    test('a goal write that fails leaves no week from addWeek', () async {
+      await db.customStatement('DELETE FROM goal_weeks');
+      await db.customStatement(blockGoalWrites);
+
+      await expectLater(
+        store.addWeek(
+          1,
+          monday: _firstMonday,
+          inputs: pausing,
+          review: reviewWeek(pausing),
+        ),
+        throwsA(anything),
+      );
+
+      expect(await rowCount(db, 'goal_weeks'), 0);
+      expect((await store.active())!.phase, GoalPhase.block);
+    });
+
+    test('a goal write that fails leaves the week unamended', () async {
+      await db.customStatement('DELETE FROM goal_weeks');
+      final pending = f1With(
+        energy: null,
+        energyPrevious: CheckInEnergy.low,
+        foodOrWeight: null,
+      );
+      await store.addWeek(
+        1,
+        monday: _firstMonday,
+        inputs: pending,
+        review: reviewWeek(pending),
+      );
+      await db.customStatement(blockGoalWrites);
+
+      await expectLater(
+        store.amendWeek(
+          1,
+          _firstMonday,
+          energy: CheckInEnergy.low,
+          foodOrWeight: null,
+        ),
+        throwsA(anything),
+      );
+
+      final week = (await store.weeks(1)).single;
+      expect(week.inputs.energy, isNull);
+      expect(week.rule, isNot(ReviewRule.pauseCheckIn));
+      expect((await store.active())!.phase, GoalPhase.block);
+    });
+  });
 }

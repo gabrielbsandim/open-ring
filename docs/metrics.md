@@ -1672,13 +1672,24 @@ What it cannot say:
 
 `GoalReviewer` in
 `apps/mobile/lib/features/goals/application/goal_reviewer.dart` writes the
-review of the week that closed before the current Monday. Nothing calls it
-yet: what triggers it, and what a pause or an ending does to the goal, are a
-later slice.
+review of the week that closed before the current Monday, and starts the
+block a goal waits for. Nothing triggers it yet: what calls it, and when, is
+a later slice.
+
+`startDueBlock` starts a block today for a goal that waits for one: a goal
+with no lever yet, which is the base phase, or a goal whose pause had a last
+day that has passed. A goal of losing fat starts only with Body on and a
+ready weight rate, and the trend of today anchors the block; the other goals
+have no anchor and never read the weight. A goal with no lever gets its
+first from `startingLever` over the baseline that ends yesterday, and does
+not start while there is none, which is a sleep goal with fewer than seven
+nights. A goal that already has levers keeps them. A pause with no last day
+is ended only by the person.
 
 `reviewDueWeek` writes nothing and returns null when the module is off, when
-there is no goal or the goal is paused, when the Monday is still in the first
-week of the block, and when that Monday already has a row. Otherwise it reads
+there is no goal or the goal is paused, when the goal has no lever yet, when
+the Monday is still in the first week of the block, and when that Monday
+already has a row. Otherwise it reads
 the steps, the nights, the strength days and the effort points, builds the
 baseline over the days that end on the closed Sunday, and stores the inputs
 with the review they give. A source that fails stops the review and nothing
@@ -1701,6 +1712,17 @@ a week already answered, for a week that already holds a check-in answer,
 and when both answers are empty. So a stored row always equals the review of
 its own inputs. Both calls bump the data revision when they write.
 
+A review that protects changes the goal in the same write as its row, so
+the two never disagree. A pause runs from the Monday of the row for the days
+the review gives, or with no last day when it gives none. An ending closes
+the goal on that Monday as ended by a protection, and its weeks are kept. An
+amend that turns one pause into another replaces the last day as well. A
+recovery week stores nothing on the goal.
+
+A week reviewed before the running block started takes no check-in and no
+answer: after a pause the goal is in a new block, and an old row can neither
+pause it again nor change its levers.
+
 `goalReviewProvider` gives the newest reviewed week with the review of its
 stored inputs.
 
@@ -1711,6 +1733,12 @@ What it cannot say:
 - A proposal still waiting when the next Monday is written can no longer be
   answered: only the newest week of a goal takes an answer.
 - A source that keeps failing stops every review, the protections included.
+- A pause counts from the Monday of its row, not from the day the row was
+  written, so a review written late in the week pauses for fewer days.
+- A goal in the base phase is never reviewed, so no protection can end it
+  before its first block.
+- The day comes from a date read once when the app starts, so a process left
+  open past midnight starts a block on the earlier day.
 
 ## References
 

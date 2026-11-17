@@ -65,12 +65,17 @@ final class Goal {
   Goal inPhase(GoalPhase next, {required LocalDate since, LocalDate? until}) =>
       _with(phase: next, phaseSince: since, phaseUntil: until);
 
-  Goal inBlock({required LocalDate on, required double? anchorKg}) => _with(
+  Goal inBlock({
+    required LocalDate on,
+    required double? anchorKg,
+    List<Lever>? levers,
+  }) => _with(
     blockStartedOn: on,
     blockAnchorKg: anchorKg,
     phase: GoalPhase.block,
     phaseSince: on,
     phaseUntil: null,
+    levers: levers,
   );
 
   Goal endedBy(GoalEndReason reason, {required LocalDate on}) => _with(

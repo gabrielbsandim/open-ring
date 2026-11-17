@@ -82,6 +82,7 @@ final class DriftGoalStore implements GoalStore {
     int goalId, {
     required LocalDate on,
     required double? anchorKg,
+    List<Lever>? levers,
   }) => _write(
     goalId,
     GoalsCompanion(
@@ -90,6 +91,9 @@ final class DriftGoalStore implements GoalStore {
       phase: Value(GoalPhase.block.name),
       phaseSince: Value(on.iso),
       phaseUntil: const Value(null),
+      levers: levers == null
+          ? const Value.absent()
+          : Value(encodeLevers(levers)),
     ),
   );
 
@@ -127,9 +131,13 @@ final class DriftGoalStore implements GoalStore {
       change: Value(change == null ? null : encodeLeverChange(change)),
     );
     return await _db.transaction(() async {
-      if (await _openRow(goalId) == null) return false;
+      final goalRow = await _openRow(goalId);
+      if (goalRow == null) return false;
       if (await _weekRow(goalId, monday) != null) return false;
       await _db.into(_db.goalWeeks).insert(row);
+      final goal = _goal(goalRow);
+      if (goal == null) return true;
+      await _applyReview(goal, monday, review);
       return true;
     });
   }
@@ -145,7 +153,7 @@ final class DriftGoalStore implements GoalStore {
         final week = _week(weekRow);
         final change = week?.change;
         if (goal == null || week == null || change == null) return false;
-        if (week.answer != null) return false;
+        if (week.answer != null || beforeBlock(goal, monday)) return false;
         await (_db.update(_db.goalWeeks)..where(
               (row) =>
                   row.goalId.equals(goalId) & row.monday.equals(monday.iso),
@@ -167,7 +175,10 @@ final class DriftGoalStore implements GoalStore {
     required CheckInEnergy? energy,
     required bool? foodOrWeight,
   }) => _db.transaction(() async {
-    if (await _openRow(goalId) == null) return null;
+    final goalRow = await _openRow(goalId);
+    if (goalRow == null) return null;
+    final goal = _goal(goalRow);
+    if (goal == null || beforeBlock(goal, monday)) return null;
     final newest = await _newestWeekRow(goalId);
     if (newest == null || newest.monday != monday.iso) return null;
     final week = _week(newest);
@@ -190,6 +201,7 @@ final class DriftGoalStore implements GoalStore {
             change: Value(change == null ? null : encodeLeverChange(change)),
           ),
         );
+    await _applyReview(goal, monday, amended.review);
     return amended.review;
   });
 
@@ -269,6 +281,21 @@ final class DriftGoalStore implements GoalStore {
             ..orderBy([(row) => OrderingTerm.desc(row.monday)])
             ..limit(1))
           .getSingleOrNull();
+
+  Future<void> _applyReview(Goal goal, LocalDate monday, Review review) async {
+    final next = afterReview(goal, monday, review);
+    if (next == null) return;
+    await _write(
+      goal.id,
+      GoalsCompanion(
+        phase: Value(next.phase.name),
+        phaseSince: Value(next.phaseSince.iso),
+        phaseUntil: Value(next.phaseUntil?.iso),
+        endedOn: Value(next.endedOn?.iso),
+        endReason: Value(next.endReason?.name),
+      ),
+    );
+  }
 
   Future<bool> _write(int goalId, GoalsCompanion values) async {
     final changed = await (_db.update(

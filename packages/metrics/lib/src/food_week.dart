@@ -1,12 +1,38 @@
 import 'package:metrics/src/local_date.dart';
+import 'package:metrics/src/scoring.dart';
 
 /// Food day start (docs/metrics.md, Food): a meal before 05:00 local closes
 /// the evening before.
 const foodDayStartHour = 5;
 
-/// Plate pattern needs a closed week with this many complete days and mains.
+/// Slot starts in minutes after midnight; before the food day start is supper.
+const int mealSlotLunchMinute = 10 * 60 + 30;
+const int mealSlotAfternoonMinute = 15 * 60;
+const int mealSlotDinnerMinute = 18 * 60;
+const int mealSlotSupperMinute = 23 * 60;
+
+/// Plate pattern needs this many complete days and mains in the week it is
+/// given; the caller passes a closed Monday to Sunday week.
 const plateMinCompleteDays = 5;
 const plateMinMains = 10;
+
+/// Plate pattern points (docs/metrics.md section 21): weight, the input at
+/// which the point is 0 and the input at which it is full.
+const plateProteinWeight = 3.0;
+const plateProteinZero = 0.3;
+const plateProteinFull = 0.9;
+const plateVegWeight = 3.0;
+const plateVegZero = 0.2;
+const plateVegFull = 0.8;
+const plateProcessedWeight = 2.0;
+const plateProcessedZero = 0.4;
+const plateProcessedFull = 0.9;
+const plateSugarWeight = 1.0;
+const plateSugarZero = 4.0;
+const plateSugarFull = 0.0;
+const plateDrinksWeight = 1.0;
+const plateDrinksZero = 10.0;
+const plateDrinksFull = 2.0;
 
 /// Drinks a dose tag counts for in the Plate pattern.
 const plateDrinksOneToTwo = 1.5;
@@ -139,10 +165,10 @@ LocalDate foodDay(DateTime local) {
 MealSlot mealSlot(DateTime local) {
   final minutes = local.hour * 60 + local.minute;
   if (minutes < foodDayStartHour * 60) return MealSlot.supper;
-  if (minutes < 10 * 60 + 30) return MealSlot.breakfast;
-  if (minutes < 15 * 60) return MealSlot.lunch;
-  if (minutes < 18 * 60) return MealSlot.afternoonSnack;
-  if (minutes < 23 * 60) return MealSlot.dinner;
+  if (minutes < mealSlotLunchMinute) return MealSlot.breakfast;
+  if (minutes < mealSlotAfternoonMinute) return MealSlot.lunch;
+  if (minutes < mealSlotDinnerMinute) return MealSlot.afternoonSnack;
+  if (minutes < mealSlotSupperMinute) return MealSlot.dinner;
   return MealSlot.supper;
 }
 
@@ -203,11 +229,32 @@ PlateResult platePattern({
   final share = mains.length.toDouble();
   final perWeek = 7 / complete;
   final points = [
-    3 * _ramp(protein / share, 0.3, 0.9),
-    3 * _ramp(veg / share, 0.2, 0.8),
-    2 * _ramp(1 - processed / share, 0.4, 0.9),
-    _ramp(sugaryDays * perWeek, 4, 0),
-    _ramp(drinks * perWeek, 10, 2),
+    plateProteinWeight *
+        ramp(
+          protein / share,
+          zeroAt: plateProteinZero,
+          fullAt: plateProteinFull,
+        ),
+    plateVegWeight *
+        ramp(veg / share, zeroAt: plateVegZero, fullAt: plateVegFull),
+    plateProcessedWeight *
+        ramp(
+          1 - processed / share,
+          zeroAt: plateProcessedZero,
+          fullAt: plateProcessedFull,
+        ),
+    plateSugarWeight *
+        ramp(
+          sugaryDays * perWeek,
+          zeroAt: plateSugarZero,
+          fullAt: plateSugarFull,
+        ),
+    plateDrinksWeight *
+        ramp(
+          drinks * perWeek,
+          zeroAt: plateDrinksZero,
+          fullAt: plateDrinksFull,
+        ),
   ];
   final sum = points.fold<double>(0, (total, point) => total + point);
   return PlatePattern(
@@ -243,10 +290,6 @@ double _drinks(MealTags tags) => switch (tags.alcohol) {
   MealAlcohol.oneToTwo => plateDrinksOneToTwo,
   MealAlcohol.threeOrMore => plateDrinksThreeOrMore,
 };
-
-/// 0 at [zero], 1 at [full], linear between and clamped; [full] may be lower.
-double _ramp(double value, double zero, double full) =>
-    ((value - zero) / (full - zero)).clamp(0, 1).toDouble();
 
 double _minutes(Duration span) =>
     span.inMicroseconds / Duration.microsecondsPerMinute;

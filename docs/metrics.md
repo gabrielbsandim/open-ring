@@ -2160,13 +2160,13 @@ Code: `packages/metrics/lib/src/food_week.dart`. Pure functions; nothing here re
 
 **Food day.** A meal belongs to the food day of its local capture time, and the food day starts at 05:00 (`foodDayStartHour`), so a snack at 00:30 closes the evening before. The slot name comes from the same time: breakfast 05:00 to 10:29, lunch 10:30 to 14:59, afternoon snack 15:00 to 17:59, dinner 18:00 to 22:59, supper 23:00 to 04:59.
 
-**Tags.** A meal has an optional kind (main, snack, drink) and ten tag groups. On a meal with at least one tag or a kind, a yes or no tag left untapped reads as no. A meal with neither is untagged: it is still a record and opens the window, but it is never a main.
+**Tags.** A meal has ten optional tag groups, one of them the kind (main, snack, drink). On a meal with at least one tag or a kind, a yes or no tag left untapped reads as no. A meal with neither is untagged: it is still a record and opens the window, but it is never a main.
 
 **Complete day.** A food day is complete when one of its meals is marked as the last meal. Only complete days feed the window, the gap and the Plate pattern, and the count of complete days is always returned. A day with no photo is blank: nothing reminds, nothing counts a streak.
 
 **Eating window.** On a complete day, from the first to the last meal that opens the window. A drink with no sugar and no alcohol neither opens nor closes it, so a morning coffee does not set the window. The week reports the median over complete days, and the median of the time from the last window meal to the sleep onset of that food day (days with no onset leave only the gap median).
 
-**Plate pattern.** On the closed Monday to Sunday week, with at least 5 complete days (`plateMinCompleteDays`) and 10 mains (`plateMinMains`); short of that it is building. Five points, each a linear ramp clamped to 0 and 1, then the sum rounded to one decimal, 0 to 10:
+**Plate pattern.** On the closed Monday to Sunday week (the function scores the week it is given; the week screen passes the last closed one), with at least 5 complete days (`plateMinCompleteDays`) and 10 mains (`plateMinMains`); short of that it is building. Five points, each a linear ramp clamped to 0 and 1, then the sum rounded to one decimal, 0 to 10:
 
 | Point | Input | 0 at | full at | Weight |
 | :--- | :--- | :--- | :--- | :--- |

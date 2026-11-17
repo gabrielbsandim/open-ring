@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
 import 'package:open_ring/features/workout/application/workout_notice.dart';
+import 'package:open_ring/features/workout/domain/workout_notifier.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
 import 'package:open_ring/features/workout/presentation/workout_labels.dart';
@@ -166,6 +167,163 @@ void main() {
       );
 
       expect(notice.text, 'Gravando o tempo');
+    });
+  });
+
+  group('N3: the end question', () {
+    test('english labels ask with the paused time and distance', () {
+      final notice = workoutNoticeOf(
+        run(status: WorkoutStatus.paused),
+        testNotice,
+        UnitSystem.metric,
+        confirming: true,
+      );
+
+      expect(notice.title, 'End and save the workout?');
+      expect(notice.text, '23:41 · 3.92 km · paused');
+      expect(notice.confirming, isTrue);
+      expect(notice.running, isFalse);
+      expect(notice.elapsed, const Duration(seconds: 1421));
+    });
+
+    test('english default labels name the three new actions', () {
+      const labels = WorkoutNoticeLabels();
+
+      expect(labels.confirmTitle, 'End and save the workout?');
+      expect(
+        labels.confirmText('23:41', '3.92 km'),
+        '23:41 · 3.92 km · paused',
+      );
+      expect(labels.confirmText('23:41', null), '23:41 · paused');
+      expect(labels.save, 'Save');
+      expect(labels.keep, 'Continue');
+      expect(labels.reconnect, 'Reconnect');
+    });
+
+    test('pt asks Encerrar e salvar o treino? at 23:41 and 3,92 km', () {
+      final notice = workoutNoticeOf(
+        run(status: WorkoutStatus.paused),
+        pt,
+        UnitSystem.metric,
+        confirming: true,
+      );
+
+      expect(notice.title, 'Encerrar e salvar o treino?');
+      expect(notice.text, '23:41 · 3,92 km · pausado');
+    });
+
+    test('pt indoor question has no distance', () {
+      final notice = workoutNoticeOf(
+        run(
+          type: WorkoutType.strength,
+          status: WorkoutStatus.paused,
+          gps: false,
+          meters: null,
+          seconds: 3725,
+        ),
+        pt,
+        UnitSystem.metric,
+        confirming: true,
+      );
+
+      expect(notice.text, '1:02:05 · pausado');
+    });
+
+    test('pt labels carry Salvar, Continuar and Reconectar', () {
+      expect(pt.live.save, 'Salvar');
+      expect(pt.live.keep, 'Continuar');
+      expect(pt.live.reconnect, 'Reconectar');
+    });
+
+    test('without the question the notice is not confirming', () {
+      final notice = workoutNoticeOf(
+        run(status: WorkoutStatus.paused),
+        pt,
+        UnitSystem.metric,
+      );
+
+      expect(notice.confirming, isFalse);
+      expect(notice.title, 'Corrida · Pausado');
+    });
+  });
+
+  group('N3: the notice carries ring lost', () {
+    test('a ring lost run is flagged for Reconnect', () {
+      final notice = workoutNoticeOf(
+        run(),
+        pt,
+        UnitSystem.metric,
+        ringLost: true,
+      );
+
+      expect(notice.ringLost, isTrue);
+      expect(notice.confirming, isFalse);
+    });
+
+    test('a run with the ring is not flagged', () {
+      final notice = workoutNoticeOf(run(), pt, UnitSystem.metric);
+
+      expect(notice.ringLost, isFalse);
+    });
+  });
+
+  group('N3: confirming and ringLost take part in equality', () {
+    const base = WorkoutNotice(
+      title: 'Running',
+      text: '148 bpm',
+      elapsed: Duration(seconds: 5),
+      running: false,
+    );
+
+    test('both default to false', () {
+      expect(base.confirming, isFalse);
+      expect(base.ringLost, isFalse);
+    });
+
+    test('a notice that differs only in confirming is not equal', () {
+      const asking = WorkoutNotice(
+        title: 'Running',
+        text: '148 bpm',
+        elapsed: Duration(seconds: 5),
+        running: false,
+        confirming: true,
+      );
+
+      expect(asking, isNot(base));
+    });
+
+    test('a notice that differs only in ringLost is not equal', () {
+      const lost = WorkoutNotice(
+        title: 'Running',
+        text: '148 bpm',
+        elapsed: Duration(seconds: 5),
+        running: false,
+        ringLost: true,
+      );
+
+      expect(lost, isNot(base));
+    });
+
+    test('equal flags keep notices equal with equal hashes', () {
+      const a = WorkoutNotice(
+        title: 'Running',
+        text: '148 bpm',
+        elapsed: Duration(seconds: 5),
+        running: false,
+        confirming: true,
+        ringLost: true,
+      );
+      const b = WorkoutNotice(
+        title: 'Running',
+        text: '148 bpm',
+        elapsed: Duration(seconds: 5),
+        running: false,
+        confirming: true,
+        ringLost: true,
+      );
+
+      expect(a, b);
+      expect(a.hashCode, b.hashCode);
     });
   });
 }

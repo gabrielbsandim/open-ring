@@ -84,11 +84,14 @@ void main() {
     expect(notifier.hides, 0);
   });
 
-  test('the action enum has pause, resume and stop', () {
+  test('the action enum has pause, resume, stop, save, keep and reconnect', () {
     expect(WorkoutNoticeAction.values, [
       WorkoutNoticeAction.pause,
       WorkoutNoticeAction.resume,
       WorkoutNoticeAction.stop,
+      WorkoutNoticeAction.save,
+      WorkoutNoticeAction.keep,
+      WorkoutNoticeAction.reconnect,
     ]);
   });
 }

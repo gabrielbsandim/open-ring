@@ -82,6 +82,8 @@ class WorkoutController extends Notifier<WorkoutState> {
   StreamSubscription<WorkoutNoticeAction>? _actions;
   WorkoutNotice? _shown;
   DateTime? _shownAt;
+  bool _confirming = false;
+  bool _wasRunning = false;
   WorkoutNotifier? _showing;
   Future<void>? _heartRateStopping;
   Future<void>? _locationStopping;
@@ -122,6 +124,7 @@ class WorkoutController extends Notifier<WorkoutState> {
     _session = session;
     _notice = notice;
     _shown = null;
+    _confirming = false;
     state = WorkoutState(snapshot: session.snapshotAt(_now()));
     _actions = ref.read(workoutNotifierProvider).actions.listen(_onAction);
     _showNotice(session);
@@ -174,6 +177,7 @@ class WorkoutController extends Notifier<WorkoutState> {
   void resume() {
     final session = _session;
     if (session == null || session.status != WorkoutStatus.paused) return;
+    _confirming = false;
     session.resume(_now());
     _lastBeat = _now();
     _heartRate?.resume();
@@ -183,6 +187,7 @@ class WorkoutController extends Notifier<WorkoutState> {
   Future<void> finish() async {
     final session = _session;
     if (session == null || !state.live) return;
+    _confirming = false;
     session.finish(_now());
     _publish(session);
     await _stopStreams();
@@ -205,6 +210,7 @@ class WorkoutController extends Notifier<WorkoutState> {
   Future<void> discard() async {
     final session = _session;
     if (session == null || !state.live) return;
+    _confirming = false;
     session.discard(_now());
     _publish(session);
     await _stopStreams();
@@ -310,10 +316,39 @@ class WorkoutController extends Notifier<WorkoutState> {
   }
 
   void _onAction(WorkoutNoticeAction action) => switch (action) {
-    WorkoutNoticeAction.pause => pause(),
-    WorkoutNoticeAction.resume => resume(),
-    WorkoutNoticeAction.stop => unawaited(finish()),
+    WorkoutNoticeAction.pause when !_confirming => pause(),
+    WorkoutNoticeAction.resume when !_confirming => resume(),
+    WorkoutNoticeAction.pause || WorkoutNoticeAction.resume => null,
+    WorkoutNoticeAction.stop => _ask(),
+    WorkoutNoticeAction.save => _saveAsked(),
+    WorkoutNoticeAction.keep => _keep(),
+    WorkoutNoticeAction.reconnect => unawaited(reconnectHeartRate()),
   };
+
+  // End from the notification pauses and asks; Continue restores the state
+  // the workout had before End.
+  void _ask() {
+    final session = _session;
+    if (session == null || !state.live || _confirming) return;
+    _wasRunning = session.status == WorkoutStatus.running;
+    _confirming = true;
+    if (_wasRunning) return pause();
+    _publish(session);
+  }
+
+  void _saveAsked() {
+    if (!_confirming) return;
+    _confirming = false;
+    unawaited(finish());
+  }
+
+  void _keep() {
+    final session = _session;
+    if (session == null || !_confirming) return;
+    _confirming = false;
+    if (_wasRunning) return resume();
+    _publish(session);
+  }
 
   void _showNotice(WorkoutSession session) {
     final labels = _notice;
@@ -325,6 +360,7 @@ class WorkoutController extends Notifier<WorkoutState> {
       ref.read(currentUnitSystemProvider),
       ringLost: state.heartRateStalled,
       gpsLost: state.locationProblem != null,
+      confirming: _confirming,
     );
     if (notice == _shown || _tooSoon(notice)) return;
     _shown = notice;
@@ -335,12 +371,13 @@ class WorkoutController extends Notifier<WorkoutState> {
   }
 
   // The system chronometer keeps the time, so a running notice posts at most
-  // every noticeInterval; a pause or a resume posts at once.
+  // every noticeInterval; a pause, a resume or the end question posts at once.
   bool _tooSoon(WorkoutNotice notice) {
     final shown = _shown;
     final at = _shownAt;
     if (shown == null || at == null) return false;
     if (shown.running != notice.running) return false;
+    if (shown.confirming != notice.confirming) return false;
     return _now().difference(at) < noticeInterval;
   }
 

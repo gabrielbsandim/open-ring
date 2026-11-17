@@ -2303,5 +2303,11 @@
   "workoutNoticeTitlePaused": "{type} · 一時停止中",
   "workoutNoticePausedAt": "{time}で一時停止",
   "workoutNoticeRecording": "時間を記録中",
-  "workoutNoticeGpsLost": "GPS信号が途切れました"
+  "workoutNoticeGpsLost": "GPS信号が途切れました",
+  "workoutNoticeSave": "保存",
+  "workoutNoticeKeep": "続ける",
+  "workoutNoticeReconnect": "再接続",
+  "workoutNoticeConfirmTitle": "ワークアウトを終了して保存しますか?",
+  "workoutNoticeConfirmText": "{time} · {distance} · 一時停止中",
+  "workoutNoticeConfirmTextNoDistance": "{time} · 一時停止中"
 }

@@ -2303,5 +2303,11 @@
   "workoutNoticeTitlePaused": "{type} · Пауза",
   "workoutNoticePausedAt": "Пауза на {time}",
   "workoutNoticeRecording": "Записываем время",
-  "workoutNoticeGpsLost": "Сигнал GPS потерян"
+  "workoutNoticeGpsLost": "Сигнал GPS потерян",
+  "workoutNoticeSave": "Сохранить",
+  "workoutNoticeKeep": "Продолжить",
+  "workoutNoticeReconnect": "Переподключить",
+  "workoutNoticeConfirmTitle": "Завершить и сохранить тренировку?",
+  "workoutNoticeConfirmText": "{time} · {distance} · пауза",
+  "workoutNoticeConfirmTextNoDistance": "{time} · пауза"
 }

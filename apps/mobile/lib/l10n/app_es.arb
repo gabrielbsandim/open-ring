@@ -2303,5 +2303,11 @@
   "workoutNoticeTitlePaused": "{type} · En pausa",
   "workoutNoticePausedAt": "En pausa en {time}",
   "workoutNoticeRecording": "Registrando el tiempo",
-  "workoutNoticeGpsLost": "Señal de GPS perdida"
+  "workoutNoticeGpsLost": "Señal de GPS perdida",
+  "workoutNoticeSave": "Guardar",
+  "workoutNoticeKeep": "Continuar",
+  "workoutNoticeReconnect": "Reconectar",
+  "workoutNoticeConfirmTitle": "¿Terminar y guardar el entrenamiento?",
+  "workoutNoticeConfirmText": "{time} · {distance} · en pausa",
+  "workoutNoticeConfirmTextNoDistance": "{time} · en pausa"
 }

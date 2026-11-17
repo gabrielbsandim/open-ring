@@ -224,6 +224,9 @@ LocationNotice workoutLocationNotice(AppLocalizations l10n) => LocationNotice(
     confirmText: (time, distance) => distance == null
         ? l10n.workoutNoticeConfirmTextNoDistance(time)
         : l10n.workoutNoticeConfirmText(time, distance),
+    alertChannel: l10n.workoutAlertChannel,
+    ringLostAlertTitle: l10n.workoutRingLostAlertTitle,
+    ringLostAlertText: l10n.workoutRingLostAlertText,
   ),
 );
 

@@ -17,6 +17,8 @@ import android.os.SystemClock
 
 private const val WORKOUT_CHANNEL_ID = "workout_live"
 private const val WORKOUT_NOTIFICATION_ID = 7302
+private const val ALERT_CHANNEL_ID = "workout_alerts"
+private const val ALERT_NOTIFICATION_ID = 7303
 private const val ACTION_PREFIX = "gbs.openring.notifications.workout."
 
 internal data class WorkoutNotice(
@@ -71,13 +73,15 @@ class WorkoutForegroundService : Service() {
 
     private fun clearStale() {
         cancelWorkoutNotification(this)
+        cancelWorkoutAlert(this)
         active?.stopNow()
     }
 
-    // The workout ends with the task, so its notification goes with it.
+    // The workout ends with the task, so its notification and alert go with it.
     override fun onTaskRemoved(rootIntent: Intent?) {
         listener = null
         cancelWorkoutNotification(this)
+        cancelWorkoutAlert(this)
         stop()
     }
 
@@ -269,4 +273,32 @@ private fun openWorkout(app: Context, link: String?): PendingIntent? {
         launch,
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
+}
+
+// A heads up alert with one short vibration and no sound; tapping it
+// reconnects the ring, as its text says.
+internal fun showWorkoutAlert(app: Context, channelName: String, title: String?, text: String?, reconnectLabel: String) {
+    val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    val channel = NotificationChannel(ALERT_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_HIGH)
+    channel.setSound(null, null)
+    channel.enableVibration(true)
+    channel.vibrationPattern = longArrayOf(0, 400)
+    manager.createNotificationChannel(channel)
+    val reconnect = workoutAction(app, "reconnect", reconnectLabel)
+    val alert = Notification.Builder(app, ALERT_CHANNEL_ID)
+        .setSmallIcon(smallIcon(app))
+        .setContentTitle(title)
+        .setContentText(text)
+        .setCategory(Notification.CATEGORY_STATUS)
+        .setVisibility(Notification.VISIBILITY_PUBLIC)
+        .setAutoCancel(true)
+        .setContentIntent(reconnect.actionIntent)
+        .addAction(reconnect)
+        .build()
+    manager.notify(ALERT_NOTIFICATION_ID, alert)
+}
+
+internal fun cancelWorkoutAlert(app: Context) {
+    val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    manager.cancel(ALERT_NOTIFICATION_ID)
 }

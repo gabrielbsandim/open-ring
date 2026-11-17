@@ -42,6 +42,20 @@ final class MethodChannelWorkoutNotifier implements WorkoutNotifier {
   Future<void> hide() =>
       _channel.invokeMethod<void>(RingNotificationsChannel.hideWorkoutMethod);
 
+  @override
+  Future<void> alert(WorkoutAlert alert) =>
+      _channel.invokeMethod<void>(RingNotificationsChannel.alertWorkoutMethod, {
+        'channelName': alert.channel,
+        'title': alert.title,
+        'text': alert.text,
+        'reconnectLabel': alert.reconnect,
+      });
+
+  @override
+  Future<void> clearAlert() => _channel.invokeMethod<void>(
+    RingNotificationsChannel.clearWorkoutAlertMethod,
+  );
+
   Future<void> _onCall(MethodCall call) async {
     if (call.method != RingNotificationsChannel.workoutActionMethod) return;
     final action = WorkoutNoticeAction.values.asNameMap()[call.arguments];

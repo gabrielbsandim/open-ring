@@ -29,6 +29,12 @@ final class OrderedWorkoutNotifier implements WorkoutNotifier {
 
   @override
   Future<void> hide() async => log.add('hide');
+
+  @override
+  Future<void> alert(WorkoutAlert alert) async => log.add('alert');
+
+  @override
+  Future<void> clearAlert() async => log.add('clearAlert');
 }
 
 final class ThrowingWorkoutStore implements WorkoutStore {

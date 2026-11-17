@@ -958,7 +958,7 @@
   "privacyStoresWeighInsWhy": "Para mostrar a tendência do seu peso e, com o módulo Open Score ligado, pontuar as medidas do corpo; com o módulo Energia ativo, também a estimativa de energia do seu dia",
   "privacyStoresDayTags": "Marcas de dia: os dias que põe de parte como doente, viagem ou descanso (opcional, módulo Open Score)",
   "privacyStoresDayTagsWhy": "Para deixar esses dias fora das suas médias; com os módulos Open Score e Esforço ativos, um dia marcado como doente também faz o cartão do treinador indicar recuperação",
-  "privacyStoresSettings": "Definições: tema, unidades, intervalo de sincronização, escolhas de widgets, alertas do anel, que tipos vão para o Health Connect, modo de demonstração, que módulos estão ativos, a meta da semana, FC no ecrã de bloqueio",
+  "privacyStoresSettings": "Definições: tema, unidades, intervalo de sincronização, escolhas de widgets, alertas do anel, que tipos vão para o Health Connect, modo de demonstração, que módulos estão ativos, a meta da semana, FC no ecrã de bloqueio, o aviso de anel desligado no treino",
   "privacyStoresSettingsWhy": "Para lembrar as suas escolhas",
   "privacyStoresSummary": "Um pequeno resumo dos números de hoje",
   "privacyStoresSummaryWhy": "Para preencher os widgets do ecrã inicial",
@@ -2303,5 +2303,10 @@
   "workoutNoticeConfirmText": "{time} · {distance} · em pausa",
   "workoutNoticeConfirmTextNoDistance": "{time} · em pausa",
   "settingsLiveWorkout": "Treino ao vivo",
-  "settingsLockHeartRate": "FC no ecrã de bloqueio"
+  "settingsLockHeartRate": "FC no ecrã de bloqueio",
+  "settingsRingLostAlert": "Avisar quando o anel cair",
+  "settingsRingLostAlertDetail": "Vibra uma vez se a FC parar durante 30 s",
+  "workoutAlertChannel": "Avisos do treino",
+  "workoutRingLostAlertTitle": "O anel deixou de enviar a FC",
+  "workoutRingLostAlertText": "O treino continua a ser gravado. Toque para voltar a ligar."
 }

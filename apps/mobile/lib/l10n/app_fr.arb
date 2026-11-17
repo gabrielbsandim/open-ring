@@ -966,7 +966,7 @@
   "privacyStoresWeighInsWhy": "Pour afficher la tendance de votre poids et, avec le module Open Score activé, noter vos mesures corporelles ; avec le module Énergie activé, aussi l'estimation de l'énergie de votre journée",
   "privacyStoresDayTags": "Marques de jour : les jours que vous mettez de côté comme malade, voyage ou repos (facultatif, module Open Score)",
   "privacyStoresDayTagsWhy": "Pour laisser ces jours hors de vos moyennes ; avec les modules Open Score et Effort activés, un jour marqué malade fait aussi indiquer la récupération par la carte du coach",
-  "privacyStoresSettings": "Réglages : thème, unités, intervalle de synchronisation, choix des widgets, alertes de la bague, types envoyés à Health Connect, mode démo, modules activés, objectif de la semaine, FC sur l’écran de verrouillage",
+  "privacyStoresSettings": "Réglages : thème, unités, intervalle de synchronisation, choix des widgets, alertes de la bague, types envoyés à Health Connect, mode démo, modules activés, objectif de la semaine, FC sur l’écran de verrouillage, l’alerte de bague décrochée pendant la séance",
   "privacyStoresSettingsWhy": "Pour mémoriser vos choix",
   "privacyStoresSummary": "Un petit résumé des chiffres du jour",
   "privacyStoresSummaryWhy": "Pour remplir les widgets de l'écran d'accueil",
@@ -2311,5 +2311,10 @@
   "workoutNoticeConfirmText": "{time} · {distance} · en pause",
   "workoutNoticeConfirmTextNoDistance": "{time} · en pause",
   "settingsLiveWorkout": "Séance en direct",
-  "settingsLockHeartRate": "FC sur l’écran de verrouillage"
+  "settingsLockHeartRate": "FC sur l’écran de verrouillage",
+  "settingsRingLostAlert": "Prévenir si la bague décroche",
+  "settingsRingLostAlertDetail": "Vibre une fois si la FC s’arrête 30 s",
+  "workoutAlertChannel": "Alertes de séance",
+  "workoutRingLostAlertTitle": "La bague n’envoie plus la FC",
+  "workoutRingLostAlertText": "La séance est toujours enregistrée. Touchez pour reconnecter."
 }

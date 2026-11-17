@@ -67,6 +67,20 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                     hideWorkout(app)
                     result.success(null)
                 }
+                "alertWorkout" -> {
+                    showWorkoutAlert(
+                        app,
+                        requireNotNull(call.argument<String>("channelName")),
+                        call.argument<String>("title"),
+                        call.argument<String>("text"),
+                        call.argument<String>("reconnectLabel") ?: "Reconnect",
+                    )
+                    result.success(null)
+                }
+                "clearWorkoutAlert" -> {
+                    cancelWorkoutAlert(app)
+                    result.success(null)
+                }
                 else -> result.notImplemented()
             }
         } catch (error: Exception) {
@@ -170,9 +184,12 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         workoutServiceStarted = true
     }
 
+    // An engine that never showed the workout, such as the sync worker's, must
+    // leave the main engine's alert alone when it detaches.
     private fun hideWorkout(app: Context) {
         if (!workoutShown) return
         workoutShown = false
+        cancelWorkoutAlert(app)
         stopListeningScreenOn(app)
         WorkoutForegroundService.listener = null
         if (workoutServiceStarted) WorkoutForegroundService.stop()

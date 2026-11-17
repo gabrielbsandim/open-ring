@@ -92,7 +92,7 @@ jobs:
         run: |
           manifests=$(find build/app/intermediates -path '*merged_manifest*' -name AndroidManifest.xml)
           [ -n "$manifests" ] || { echo "No merged manifest found."; exit 1; }
-          if grep -nE 'android\.permission\.(CAMERA|READ_MEDIA_IMAGES|READ_MEDIA_VISUAL_USER_SELECTED|READ_EXTERNAL_STORAGE)"' $manifests; then
+          if grep -nE 'android\.permission\.(CAMERA|READ_MEDIA_IMAGES|READ_MEDIA_VISUAL_USER_SELECTED|READ_MEDIA_VIDEO|READ_MEDIA_AUDIO|ACCESS_MEDIA_LOCATION|READ_EXTERNAL_STORAGE|WRITE_EXTERNAL_STORAGE|MANAGE_EXTERNAL_STORAGE)"' $manifests; then
             echo "A forbidden permission is declared."
             exit 1
           fi

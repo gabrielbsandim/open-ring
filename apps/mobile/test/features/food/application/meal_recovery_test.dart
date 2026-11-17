@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,6 +38,36 @@ final class _StickyCamera implements MealCamera {
   }
 }
 
+/// Fails every save with errno 28 until [full] is cleared.
+final class _FullPhotoStore implements PhotoStore {
+  bool full = true;
+  final inner = InMemoryPhotoStore();
+
+  @override
+  Future<void> save(String name, Uint8List bytes) async {
+    if (full) {
+      throw const FileSystemException(
+        'Cannot write file',
+        'meal.jpg.tmp',
+        OSError('No space left on device', 28),
+      );
+    }
+    await inner.save(name, bytes);
+  }
+
+  @override
+  Future<Uint8List?> read(String name) => inner.read(name);
+
+  @override
+  Future<bool> delete(String name) => inner.delete(name);
+
+  @override
+  Future<int> deleteAll() => inner.deleteAll();
+
+  @override
+  Future<int> totalBytes() => inner.totalBytes();
+}
+
 void main() {
   late MealStore meals;
   late InMemoryPhotoStore photos;
@@ -46,12 +77,12 @@ void main() {
     photos = InMemoryPhotoStore();
   });
 
-  ProviderContainer containerWith(MealCamera camera) {
+  ProviderContainer containerWith(MealCamera camera, {PhotoStore? store}) {
     final container = ProviderContainer(
       overrides: [
         mealCameraProvider.overrideWithValue(camera),
         mealStoreProvider.overrideWithValue(meals),
-        photoStoreProvider.overrideWithValue(photos),
+        photoStoreProvider.overrideWithValue(store ?? photos),
       ],
     );
     addTearDown(container.dispose);
@@ -125,5 +156,59 @@ void main() {
         expect(await photos.totalBytes(), 0);
       },
     );
+  });
+
+  group('review fix 2: a recovered photo kept off its row by a full disk', () {
+    test('retry attaches it once there is space', () async {
+      final full = _FullPhotoStore();
+      final container = containerWith(_StickyCamera(_lost), store: full);
+      final recovery = container.read(mealRecoveryProvider.notifier);
+
+      await recovery.run();
+      expect(
+        container.read(mealRecoveryProvider)?.outcome,
+        SaveOutcome.noSpace,
+      );
+      expect(await photoNames(), [null]);
+
+      full.full = false;
+      await recovery.retry();
+
+      final result = container.read(mealRecoveryProvider);
+      expect(result?.outcome, SaveOutcome.saved);
+      final name = (await photoNames()).single;
+      expect(name, result!.meal!.photo);
+      expect(await full.inner.read(name!), stripExif(_lost));
+      expect(await meals.count(), 1);
+    });
+
+    test('a second retry after success writes nothing more', () async {
+      final full = _FullPhotoStore();
+      final container = containerWith(_StickyCamera(_lost), store: full);
+      final recovery = container.read(mealRecoveryProvider.notifier);
+      await recovery.run();
+      full.full = false;
+      await recovery.retry();
+
+      await recovery.retry();
+
+      expect(await full.inner.totalBytes(), stripExif(_lost).length);
+      expect(container.read(mealRecoveryProvider)?.outcome, SaveOutcome.saved);
+    });
+
+    test('retry while still full stays noSpace and keeps the row', () async {
+      final full = _FullPhotoStore();
+      final container = containerWith(_StickyCamera(_lost), store: full);
+      final recovery = container.read(mealRecoveryProvider.notifier);
+      await recovery.run();
+
+      await recovery.retry();
+
+      expect(
+        container.read(mealRecoveryProvider)?.outcome,
+        SaveOutcome.noSpace,
+      );
+      expect(await photoNames(), [null]);
+    });
   });
 }

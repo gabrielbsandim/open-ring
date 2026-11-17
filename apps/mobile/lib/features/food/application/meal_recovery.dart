@@ -11,10 +11,24 @@ final NotifierProvider<MealRecovery, SaveResult?> mealRecoveryProvider =
 class MealRecovery extends Notifier<SaveResult?> {
   Future<void>? _run;
 
+  // The platform hands a lost photo out once, so a full disk keeps it here.
+  Uint8List? _pending;
+
   @override
   SaveResult? build() => null;
 
   Future<void> run() => _run ??= _recover();
+
+  /// Attaches the photo a full disk kept off its row; a no op otherwise.
+  Future<void> retry() async {
+    final bytes = _pending;
+    final meal = state?.meal;
+    if (bytes == null || meal == null) return;
+    final result = await ref
+        .read(mealPhotoSaverProvider)
+        .retryPhoto(meal.id, bytes);
+    _keep(result, bytes);
+  }
 
   Future<void> _recover() async {
     final Uint8List? lost;
@@ -24,7 +38,11 @@ class MealRecovery extends Notifier<SaveResult?> {
       return;
     }
     if (lost == null) return;
-    final result = await ref.read(mealPhotoSaverProvider).save(lost);
+    _keep(await ref.read(mealPhotoSaverProvider).save(lost), lost);
+  }
+
+  void _keep(SaveResult result, Uint8List bytes) {
+    _pending = result.outcome == SaveOutcome.noSpace ? bytes : null;
     if (!ref.mounted) return;
     state = result;
   }

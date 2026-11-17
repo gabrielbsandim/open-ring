@@ -26,8 +26,10 @@ const _photoAge = Duration(days: 7);
 const _photoAhead = Duration(minutes: 2);
 const _enospc = 28;
 
-/// Writes the row first, so the meal time is kept even when the photo
-/// cannot be, and names the photo on it only once its file exists.
+/// Strips the photo, writes the row, saves the file, then names the photo on
+/// the row. A full disk (noSpace) keeps the row without a photo for
+/// [retryPhoto]; any other failure deletes the row, and a photo that is not a
+/// JPEG writes no row at all.
 final class MealPhotoSaver {
   new(
     this._meals,

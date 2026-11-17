@@ -35,6 +35,12 @@ final class OrderedWorkoutNotifier implements WorkoutNotifier {
 
   @override
   Future<void> clearAlert() async => log.add('clearAlert');
+
+  @override
+  Future<void> ended(WorkoutEndNotice notice) async => log.add('ended');
+
+  @override
+  Future<void> clearEnded() async => log.add('clearEnded');
 }
 
 final class ThrowingWorkoutStore implements WorkoutStore {
@@ -291,7 +297,10 @@ void main() {
       second();
       await pumpEventQueue();
 
-      expect(ordered.log.last, 'hide');
+      expect(ordered.log.sublist(ordered.log.indexOf('hide')), [
+        'hide',
+        'ended',
+      ]);
       expect(ordered.log.where((e) => e == 'hide'), hasLength(1));
     });
 
@@ -321,7 +330,10 @@ void main() {
       await controller.finish();
       await pumpEventQueue();
 
-      expect(ordered.log.last, 'hide');
+      expect(ordered.log.sublist(ordered.log.lastIndexOf('hide')), [
+        'hide',
+        'ended',
+      ]);
     });
   });
 
@@ -691,7 +703,10 @@ void main() {
       second();
       await pumpEventQueue();
 
-      expect(ordered.log.last, 'hide');
+      expect(ordered.log.sublist(ordered.log.indexOf('hide')), [
+        'hide',
+        'ended',
+      ]);
       expect(ordered.log.where((e) => e == 'hide'), hasLength(1));
     });
 

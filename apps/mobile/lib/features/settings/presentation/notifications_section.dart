@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/features/ring/application/ring_alert_providers.dart';
 import 'package:open_ring/features/ring/application/sync_alerts.dart';
@@ -19,6 +21,7 @@ class NotificationsSection extends ConsumerStatefulWidget {
   static const openSettingsKey = Key('settings_notifications_open');
   static const lockHeartRateKey = Key('settings_lock_heart_rate');
   static const ringLostAlertKey = Key('settings_ring_lost_alert');
+  static const howKey = Key('settings_workout_notification_how');
 
   static Key alertKey(RingAlert alert) => Key('settings_alert_${alert.name}');
 
@@ -121,6 +124,13 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
                     ? null
                     : _setRingLostAlert,
               ),
+            ),
+            SettingsTile(
+              key: NotificationsSection.howKey,
+              title: l10n.workoutHowTile,
+              detail: l10n.workoutHowTileDetail,
+              chevron: true,
+              onTap: () => context.go(AppPaths.settingsWorkoutNotification),
             ),
           ],
         ),

@@ -65,7 +65,7 @@ void main() {
       () async {
         final setup = await _setup();
 
-        final outcome = await _start(setup, referenceKg: 74.0);
+        final outcome = await _start(setup, referenceKg: 74);
 
         final goal = await setup.store.active();
         expect(outcome, SetupOutcome.started);
@@ -332,7 +332,7 @@ void main() {
       final setup = await _setup(draft: goalDraft());
       final before = await setup.store.active();
 
-      final outcome = await _start(setup, referenceKg: 74.0);
+      final outcome = await _start(setup, referenceKg: 74);
 
       expect(outcome, SetupOutcome.alreadyActive);
       expectSameGoal(await setup.store.active(), before!);

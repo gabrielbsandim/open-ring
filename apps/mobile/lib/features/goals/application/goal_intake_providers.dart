@@ -8,6 +8,7 @@ import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/application/goals_gate.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
+import 'package:open_ring/features/goals/domain/goal_setup.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
@@ -137,3 +138,93 @@ final class SoftModeController {
 // would still read as the newest answer over a row dated today.
 LocalDate _notBefore(LocalDate today, LocalDate? newest) =>
     newest != null && newest.compareTo(today) > 0 ? newest : today;
+
+final goalSetupControllerProvider = Provider<GoalSetupController>(
+  GoalSetupController.new,
+);
+
+final class GoalSetupController {
+  const new(this.ref);
+
+  final Ref ref;
+
+  /// Starts a lose fat goal from the setup, with the trend as its anchor and
+  /// no lever yet. A yes to pregnancy is stored and starts nothing.
+  Future<SetupOutcome> start({
+    required GoalPace pace,
+    required double? referenceKg,
+    required bool? pregnantOrBreastfeeding,
+  }) async {
+    // Demo history shares the tables, so a write in demo mode lands on the
+    // real goal.
+    if (!ref.read(goalsEnabledProvider) || ref.read(demoModeProvider)) {
+      return SetupOutcome.notAllowed;
+    }
+    final facts = await ref.read(intakeFactsProvider.future);
+    final trendKg = facts.trendKg;
+    final heightCm = facts.heightCm;
+    if (trendKg == null || heightCm == null || !_setsUp(facts)) {
+      return SetupOutcome.notAllowed;
+    }
+    final store = ref.read(goalStoreProvider);
+    if (await store.active() != null) return SetupOutcome.alreadyActive;
+    _checkReference(referenceKg, heightCm: heightCm, trendKg: trendKg);
+    final rows = await store.screenings();
+    final profile = await ref.read(userProfileProvider.future);
+    final asked = asksPregnancy(profile?.sex, rows);
+    if (asked && pregnantOrBreastfeeding == null) {
+      throw ArgumentError.notNull('pregnantOrBreastfeeding');
+    }
+    final today = ref.read(currentDateProvider);
+    var wrote = false;
+    try {
+      if (asked) {
+        await store.addScreening(
+          GoalScreening(
+            on: _notBefore(today, rows.firstOrNull?.on),
+            softMode: null,
+            pregnantOrBreastfeeding: pregnantOrBreastfeeding,
+          ),
+        );
+        wrote = true;
+      }
+      if (asked && pregnantOrBreastfeeding == true) {
+        return SetupOutcome.pregnancy;
+      }
+      final goal = await store.start(
+        GoalDraft(
+          kind: GoalKind.loseFat,
+          pace: pace,
+          startedOn: today,
+          anchorKg: trendKg,
+          referenceKg: referenceKg,
+          levers: const [],
+        ),
+      );
+      wrote = wrote || goal != null;
+      return goal == null ? SetupOutcome.alreadyActive : SetupOutcome.started;
+    } finally {
+      if (wrote && ref.mounted) ref.read(dataRevisionProvider.notifier).bump();
+    }
+  }
+
+  bool _setsUp(IntakeFacts facts) =>
+      switch (pickStep(GoalKind.loseFat, facts)) {
+        PickWeight(next: IntakeNext.setup) => true,
+        _ => false,
+      };
+
+  void _checkReference(
+    double? referenceKg, {
+    required double heightCm,
+    required double trendKg,
+  }) {
+    if (referenceKg == null) return;
+    final bounds = referenceBounds(heightCm: heightCm, trendKg: trendKg);
+    final fits =
+        bounds != null &&
+        referenceKg >= bounds.minKg &&
+        referenceKg <= bounds.maxKg;
+    if (!fits) throw ArgumentError.value(referenceKg, 'referenceKg');
+  }
+}

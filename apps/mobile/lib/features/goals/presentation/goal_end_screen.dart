@@ -27,6 +27,7 @@ abstract final class GoalEndKeys {
   static const retry = Key('goal_end_retry');
   static const notice = Key('goal_end_notice');
   static const failed = Key('goal_end_failed');
+  static const refused = Key('goal_end_refused');
 }
 
 class GoalEndScreen extends ConsumerStatefulWidget {
@@ -40,6 +41,7 @@ class _GoalEndScreenState extends ConsumerState<GoalEndScreen> {
   GoalEndReason? _asking;
   StepGoalRaise? _raise;
   var _busy = false;
+  var _refused = false;
   int? _failedBack;
 
   @override
@@ -68,6 +70,13 @@ class _GoalEndScreenState extends ConsumerState<GoalEndScreen> {
     return [
       BodyText(l10n.goalsEndLead(goalKindName(l10n, goal.kind))),
       const SizedBox(height: 12),
+      if (_refused) ...[
+        Semantics(
+          liveRegion: true,
+          child: CaptionText(l10n.goalsEndRefused, key: GoalEndKeys.refused),
+        ),
+        const SizedBox(height: 12),
+      ],
       if (asking == null)
         ..._choices(l10n, raise.value)
       else
@@ -209,6 +218,7 @@ class _GoalEndScreenState extends ConsumerState<GoalEndScreen> {
   void _ask(GoalEndReason reason, StepGoalRaise? raise) => setState(() {
     _asking = reason;
     _raise = raise;
+    _refused = false;
   });
 
   Future<void> _finish(GoalEndReason reason, {int? back}) async {
@@ -230,6 +240,7 @@ class _GoalEndScreenState extends ConsumerState<GoalEndScreen> {
         setState(() {
           _busy = false;
           _asking = null;
+          _refused = true;
         });
     }
   }

@@ -48,15 +48,7 @@ class GoalEnder extends Notifier<void> {
     if (!ref.read(goalsEnabledProvider) || ref.read(demoModeProvider)) {
       return GoalEndOutcome.refused;
     }
-    final store = ref.read(goalStoreProvider);
-    final goal = await store.active();
-    if (goal == null) return GoalEndOutcome.refused;
-    final ended = await store.end(
-      goal.id,
-      on: ref.read(currentDateProvider),
-      reason: reason,
-    );
-    if (!ended) return GoalEndOutcome.refused;
+    if (!await _endActive(reason)) return GoalEndOutcome.refused;
     _bump();
     if (stepGoalBack == null) return GoalEndOutcome.ended;
     if (await retryStepGoalBack(stepGoalBack)) return GoalEndOutcome.ended;
@@ -86,6 +78,23 @@ class GoalEnder extends Notifier<void> {
       return true;
     } on Object catch (error) {
       debugPrint('Goal step goal was not put back: $error');
+      return false;
+    }
+  }
+
+  /// False when no goal was ended, with a failed read or write logged.
+  Future<bool> _endActive(GoalEndReason reason) async {
+    try {
+      final store = ref.read(goalStoreProvider);
+      final goal = await store.active();
+      if (goal == null) return false;
+      return await store.end(
+        goal.id,
+        on: ref.read(currentDateProvider),
+        reason: reason,
+      );
+    } on Object catch (error) {
+      debugPrint('Goal was not ended: $error');
       return false;
     }
   }

@@ -4599,7 +4599,7 @@
   "goalsEndSwitchBody": "The current goal ends and stays in history. The new one starts from today’s numbers.",
   "goalsEndEnd": "End the goal",
   "goalsEndEndBody": "Back to no goal. The This week card leaves Today.",
-  "goalsEndNotice": "Your step goal is yours. The plan took it from {from} to {to}. When the goal ends the app asks once whether it stays or goes back. Day Scores already closed do not change.",
+  "goalsEndNotice": "Your step goal is yours. The plan raised it, and since the goal started it went from {from} to {to}. When the goal ends the app asks once whether it stays or goes back. Day Scores already closed do not change.",
   "@goalsEndNotice": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
   "goalsEndFoot": "Ending gives up nothing: what you did stays in your data. You can start another goal whenever you want.",
   "goalsEndConfirmEndTitle": "End the goal?",
@@ -4610,10 +4610,11 @@
   "@goalsEndKeep": {"placeholders": {"steps": {"type": "String"}}},
   "goalsEndBack": "Go back to {steps} steps",
   "@goalsEndBack": {"placeholders": {"steps": {"type": "String"}}},
-  "goalsEndRaisedNote": "The plan took the goal from {from} to {to}. Day Scores already closed do not change in either case.",
+  "goalsEndRaisedNote": "The plan raised your step goal: since the goal started it went from {from} to {to}. Day Scores already closed do not change in either case.",
   "@goalsEndRaisedNote": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
   "goalsEndCancel": "Cancel",
   "goalsEndFailed": "The goal ended, but your step goal could not go back to {steps}.",
   "@goalsEndFailed": {"placeholders": {"steps": {"type": "String"}}},
-  "goalsEndDone": "The goal ended. What you did stays in your data."
+  "goalsEndDone": "The goal ended. What you did stays in your data.",
+  "goalsEndRefused": "The goal did not end. Nothing changed."
 }

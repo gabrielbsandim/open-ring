@@ -2040,7 +2040,8 @@ choices end the goal with `GoalStore.end` dated today, with reason `person`
 or `switched`, and keep its weeks; switching then opens the picker, which
 starts a new goal the same day. A week still waiting for an answer stays
 unanswered. `GoalEnder.end` refuses in demo mode, with Goals off and with no
-active goal; a weight goal with Body off can still be ended.
+active goal, and when the store throws, which is logged and leaves the
+screen saying nothing changed; a weight goal with Body off can still be ended.
 
 When the plan raised the step goal, the confirmation asks once whether it
 stays or goes back. `planRaise` reads the goal in force the day before the

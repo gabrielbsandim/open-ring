@@ -2235,7 +2235,7 @@
   "goalsEndSwitchBody": "A meta atual termina e fica no histórico. A nova começa pelos seus números de hoje.",
   "goalsEndEnd": "Terminar a meta",
   "goalsEndEndBody": "Volta para \"sem meta\". O cartão Esta semana sai de Hoje.",
-  "goalsEndNotice": "A sua meta de passos é sua. O plano levou-a de {from} para {to}. Ao terminar, a app pergunta uma vez se fica ou volta. As Notas do Dia já fechadas não mudam.",
+  "goalsEndNotice": "A sua meta de passos é sua. O plano aumentou-a, e desde o início da meta passou de {from} para {to}. Ao terminar, a app pergunta uma vez se fica ou volta. As Notas do Dia já fechadas não mudam.",
   "goalsEndFoot": "Terminar não é desistir de nada: o que fez continua nos seus dados. Pode começar outra meta quando quiser.",
   "goalsEndConfirmEndTitle": "Terminar a meta?",
   "goalsEndConfirmSwitchTitle": "Trocar de meta?",
@@ -2243,8 +2243,9 @@
   "goalsEndConfirmAsk": "Uma última escolha, sobre a sua meta de passos:",
   "goalsEndKeep": "Manter {steps} passos",
   "goalsEndBack": "Voltar para {steps} passos",
-  "goalsEndRaisedNote": "O plano levou a meta de {from} para {to}. As Notas do Dia já fechadas não mudam em nenhum dos casos.",
+  "goalsEndRaisedNote": "O plano aumentou a sua meta de passos: desde o início da meta passou de {from} para {to}. As Notas do Dia já fechadas não mudam em nenhum dos casos.",
   "goalsEndCancel": "Cancelar",
   "goalsEndFailed": "A meta terminou, mas a meta de passos não conseguiu voltar para {steps}.",
-  "goalsEndDone": "A meta terminou. O que fez continua nos seus dados."
+  "goalsEndDone": "A meta terminou. O que fez continua nos seus dados.",
+  "goalsEndRefused": "A meta não terminou. Nada mudou."
 }

@@ -2243,7 +2243,7 @@
   "goalsEndSwitchBody": "当前目标结束并保留在历史中。新目标从你今天的数据开始。",
   "goalsEndEnd": "结束目标",
   "goalsEndEndBody": "回到“无目标”。“本周”卡片会从“今天”移除。",
-  "goalsEndNotice": "步数目标属于你。计划把它从 {from} 提高到 {to}。结束时应用会问一次是保留还是恢复。已结算的每日评分不会改变。",
+  "goalsEndNotice": "步数目标属于你。计划提高过它，自目标开始以来它从 {from} 变为 {to}。结束时应用会问一次是保留还是恢复。已结算的每日评分不会改变。",
   "goalsEndFoot": "结束并不是放弃：你做过的都留在数据里。随时可以开始新目标。",
   "goalsEndConfirmEndTitle": "结束目标？",
   "goalsEndConfirmSwitchTitle": "更换目标？",
@@ -2251,8 +2251,9 @@
   "goalsEndConfirmAsk": "最后一个选择，关于你的步数目标：",
   "goalsEndKeep": "保留 {steps} 步",
   "goalsEndBack": "恢复为 {steps} 步",
-  "goalsEndRaisedNote": "计划把目标从 {from} 提高到 {to}。无论哪种情况，已结算的每日评分都不会改变。",
+  "goalsEndRaisedNote": "计划提高过你的步数目标：自目标开始以来它从 {from} 变为 {to}。无论哪种情况，已结算的每日评分都不会改变。",
   "goalsEndCancel": "取消",
   "goalsEndFailed": "目标已结束，但步数目标未能恢复为 {steps}。",
-  "goalsEndDone": "目标已结束。你做过的都留在数据里。"
+  "goalsEndDone": "目标已结束。你做过的都留在数据里。",
+  "goalsEndRefused": "目标没有结束。没有任何变化。"
 }

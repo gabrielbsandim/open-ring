@@ -2243,7 +2243,7 @@
   "goalsEndSwitchBody": "今の目標は終わって履歴に残ります。新しい目標は今日の数値から始まります。",
   "goalsEndEnd": "目標を終える",
   "goalsEndEndBody": "「目標なし」に戻ります。「今週」のカードは「今日」から消えます。",
-  "goalsEndNotice": "歩数目標はあなたのものです。プランは{from}から{to}に上げました。終えるときに、そのままにするか戻すかを一度だけ聞きます。確定した今日のスコアは変わりません。",
+  "goalsEndNotice": "歩数目標はあなたのものです。プランが目標を上げ、目標の開始から{from}が{to}になりました。終えるときに、そのままにするか戻すかを一度だけ聞きます。確定した今日のスコアは変わりません。",
   "goalsEndFoot": "終えても何も失いません。やったことはデータに残ります。いつでも別の目標を始められます。",
   "goalsEndConfirmEndTitle": "目標を終えますか？",
   "goalsEndConfirmSwitchTitle": "目標を切り替えますか？",
@@ -2251,8 +2251,9 @@
   "goalsEndConfirmAsk": "最後に、歩数目標について選んでください。",
   "goalsEndKeep": "{steps}歩のままにする",
   "goalsEndBack": "{steps}歩に戻す",
-  "goalsEndRaisedNote": "プランは目標を{from}から{to}に上げました。どちらでも、確定した今日のスコアは変わりません。",
+  "goalsEndRaisedNote": "プランが歩数目標を上げ、目標の開始から{from}が{to}になりました。どちらでも、確定した今日のスコアは変わりません。",
   "goalsEndCancel": "キャンセル",
   "goalsEndFailed": "目標は終わりましたが、歩数目標を{steps}に戻せませんでした。",
-  "goalsEndDone": "目標を終えました。やったことはデータに残ります。"
+  "goalsEndDone": "目標を終えました。やったことはデータに残ります。",
+  "goalsEndRefused": "目標は終わっていません。何も変わっていません。"
 }

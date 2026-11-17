@@ -2243,7 +2243,7 @@
   "goalsEndSwitchBody": "Das aktuelle Ziel endet und bleibt im Verlauf. Das neue startet mit deinen heutigen Werten.",
   "goalsEndEnd": "Ziel beenden",
   "goalsEndEndBody": "Zurück zu „kein Ziel“. Die Karte Diese Woche verschwindet aus Heute.",
-  "goalsEndNotice": "Dein Schrittziel gehört dir. Der Plan hat es von {from} auf {to} gebracht. Beim Beenden fragt die App einmal, ob es bleibt oder zurückgeht. Bereits abgeschlossene Tagesnoten ändern sich nicht.",
+  "goalsEndNotice": "Dein Schrittziel gehört dir. Der Plan hat es erhöht, und seit Beginn des Ziels ging es von {from} auf {to}. Beim Beenden fragt die App einmal, ob es bleibt oder zurückgeht. Bereits abgeschlossene Tagesnoten ändern sich nicht.",
   "goalsEndFoot": "Beenden heißt nicht aufgeben: Was du getan hast, bleibt in deinen Daten. Du kannst jederzeit ein neues Ziel starten.",
   "goalsEndConfirmEndTitle": "Ziel beenden?",
   "goalsEndConfirmSwitchTitle": "Ziel wechseln?",
@@ -2251,8 +2251,9 @@
   "goalsEndConfirmAsk": "Eine letzte Wahl, zu deinem Schrittziel:",
   "goalsEndKeep": "{steps} Schritte behalten",
   "goalsEndBack": "Zurück auf {steps} Schritte",
-  "goalsEndRaisedNote": "Der Plan hat das Ziel von {from} auf {to} gebracht. Bereits abgeschlossene Tagesnoten ändern sich in keinem Fall.",
+  "goalsEndRaisedNote": "Der Plan hat dein Schrittziel erhöht: Seit Beginn des Ziels ging es von {from} auf {to}. Bereits abgeschlossene Tagesnoten ändern sich in keinem Fall.",
   "goalsEndCancel": "Abbrechen",
   "goalsEndFailed": "Das Ziel ist beendet, aber dein Schrittziel konnte nicht auf {steps} zurück.",
-  "goalsEndDone": "Das Ziel ist beendet. Was du getan hast, bleibt in deinen Daten."
+  "goalsEndDone": "Das Ziel ist beendet. Was du getan hast, bleibt in deinen Daten.",
+  "goalsEndRefused": "Das Ziel wurde nicht beendet. Nichts hat sich geändert."
 }

@@ -119,7 +119,10 @@ void main() {
     expect(find.byKey(GoalEndKeys.switchGoal), findsOneWidget);
     expect(find.byKey(GoalEndKeys.endGoal), findsOneWidget);
     expect(_text(tester), contains('Lose fat. Neither option deletes'));
-    expect(_text(tester), contains('The plan took it from 8,000 to 10,000.'));
+    expect(
+      _text(tester),
+      contains('since the goal started it went from 8,000 to 10,000'),
+    );
   });
 
   testWidgets('without a plan raise there is no step goal notice', (
@@ -209,6 +212,7 @@ void main() {
     await _tap(tester, GoalEndKeys.keep);
     expect(find.byKey(GoalEndKeys.switchGoal), findsOneWidget);
     expect(find.text(_goalStub), findsNothing);
+    expect(find.text('The goal did not end. Nothing changed.'), findsOneWidget);
   });
 
   testWidgets('Goals off shows nothing to choose', (tester) async {

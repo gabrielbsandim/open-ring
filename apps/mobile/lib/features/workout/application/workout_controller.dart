@@ -151,6 +151,7 @@ class WorkoutController extends Notifier<WorkoutState> {
     state = state.withHeartRateRestarted().next(
       snapshot: session.snapshotAt(_now()),
     );
+    _clearAlert();
     final stopping = [_heartRateStopping, _heartRate?.cancel()];
     _heartRate = null;
     _heartRateStopping = null;
@@ -297,7 +298,8 @@ class WorkoutController extends Notifier<WorkoutState> {
     _alertRingLost();
   }
 
-  // One alert per loss; it goes when the heart rate or a ring problem ends it.
+  // One alert per loss; it goes when the heart rate, a reconnect or a ring
+  // problem ends the loss.
   void _alertRingLost() {
     final labels = _notice?.live;
     if (labels == null) return;

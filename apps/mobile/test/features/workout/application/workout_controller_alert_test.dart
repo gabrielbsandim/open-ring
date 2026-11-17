@@ -246,6 +246,19 @@ void main() {
       expect(notifier.alerts, hasLength(1));
     });
 
+    test('a reconnect during the loss clears the alert once', () async {
+      final c = container();
+      await started(c);
+      await beat(140);
+      await silent(30);
+
+      await c.read(workoutProvider.notifier).reconnectHeartRate();
+      await beat(142);
+
+      expect(notifier.alertClears, 1);
+      expect(notifier.alerts, hasLength(1));
+    });
+
     test('a beat out of range does not clear it', () async {
       await started(container());
       await beat(140);

@@ -19,6 +19,7 @@ import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_path.dart';
 import 'package:open_ring/features/goals/presentation/goal_evidence_sheet.dart';
 import 'package:open_ring/features/goals/presentation/goal_path_chart.dart';
+import 'package:open_ring/features/goals/presentation/goal_week_card.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -145,7 +146,7 @@ class GoalScreen extends ConsumerWidget {
     required String? subtitle,
     required List<Widget> body,
   }) => AppPage(
-    title: _kindName(l10n, goal.kind),
+    title: goalKindName(l10n, goal.kind),
     subtitle: subtitle,
     children: [
       Column(
@@ -163,17 +164,16 @@ class GoalScreen extends ConsumerWidget {
     ],
   );
 
-  List<Widget> _body(AppLocalizations l10n, Goal goal, _Stage stage) {
-    if (goal.kind != GoalKind.loseFat) {
-      return [
-        MetricCard(
-          key: GoalScreenKeys.noWeight,
-          child: BodyText(l10n.goalsScreenNoWeight),
-        ),
-      ];
-    }
-    return [_PathCard(stage: stage)];
-  }
+  List<Widget> _body(AppLocalizations l10n, Goal goal, _Stage stage) => [
+    if (goal.kind != GoalKind.loseFat)
+      MetricCard(
+        key: GoalScreenKeys.noWeight,
+        child: BodyText(l10n.goalsScreenNoWeight),
+      ),
+    if (goal.kind == GoalKind.loseFat) _PathCard(stage: stage),
+    const SizedBox(height: cardGap),
+    const GoalWeekCard(onToday: false),
+  ];
 
   String _weekLine(WidgetRef ref, MetricFormat format, Goal goal, int week) {
     final l10n = format.l10n;
@@ -205,12 +205,6 @@ class GoalScreen extends ConsumerWidget {
     return l10n.goalsScreenPauseOver(format.date(until));
   }
 }
-
-String _kindName(AppLocalizations l10n, GoalKind kind) => switch (kind) {
-  GoalKind.loseFat => l10n.goalsPickLoseFat,
-  GoalKind.getFitter => l10n.goalsPickGetFitter,
-  GoalKind.sleepBetter => l10n.goalsPickSleepBetter,
-};
 
 class _PathCard extends ConsumerWidget {
   const new({required this.stage});

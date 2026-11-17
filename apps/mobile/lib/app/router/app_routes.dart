@@ -1,3 +1,6 @@
+import 'package:metrics/metrics.dart';
+import 'package:open_ring/features/goals/domain/goal_intake.dart';
+
 enum AppTab {
   today('/today'),
   sleep('/sleep'),
@@ -26,6 +29,14 @@ abstract final class AppPaths {
   static const dayScoreOverallWeeks = '/today/day-score/overall/weeks';
 
   static String dayScoreOn(String isoDate) => '$dayScore?day=$isoDate';
+  static const goalsPick = '/today/goals/pick';
+  static const goalsRefused = '/today/goals/refused';
+
+  static String goalsPickWith(GoalKind? kind) =>
+      kind == null ? goalsPick : '$goalsPick?goal=${kind.name}';
+
+  static String goalsRefusedFor(IntakeBlock block) =>
+      '$goalsRefused/${block.name}';
   static const sleepFormula = '/sleep/formula';
   static const privacy = '/privacy';
   static const settings = '/ring/settings';

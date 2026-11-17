@@ -9,6 +9,9 @@ import 'package:open_ring/features/effort/presentation/effort_formula_screen.dar
 import 'package:open_ring/features/effort/presentation/effort_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_formula_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_screen.dart';
+import 'package:open_ring/features/goals/domain/goal_intake.dart';
+import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
+import 'package:open_ring/features/goals/presentation/goal_refusal_screen.dart';
 import 'package:open_ring/features/heart/presentation/heart_screen.dart';
 import 'package:open_ring/features/heart/presentation/measure_screen.dart';
 import 'package:open_ring/features/modules/presentation/modules_offer_screen.dart';
@@ -138,6 +141,19 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
             builder: (_, _) => const EnergyFormulaScreen(),
           ),
         ],
+      ),
+      GoRoute(
+        path: 'goals/pick',
+        builder: (_, state) => GoalPickScreen(
+          initial: GoalKind.values
+              .asNameMap()[state.uri.queryParameters['goal']],
+        ),
+      ),
+      GoRoute(
+        path: 'goals/refused/:block',
+        builder: (_, state) => GoalRefusalScreen(
+          block: IntakeBlock.values.asNameMap()[state.pathParameters['block']],
+        ),
       ),
       GoRoute(
         path: 'day-score',

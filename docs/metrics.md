@@ -1765,7 +1765,9 @@ What it cannot say:
   on the Monday.
 - A process the system has suspended fires its midnight timer late; the
   check on return covers it.
-- A step already reading when demo mode is entered finishes on what it read.
+- A step already running when demo mode is entered is not stopped: what it
+  reads after that instant can be demo history, and its row or block is
+  written on the real goal.
 
 ## References
 

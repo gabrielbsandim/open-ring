@@ -1845,10 +1845,11 @@ them, so a later row that only records pregnancy does not erase it.
 with the date and the result, true for two or more "yes". The five answers
 are never stored.
 
-Only the person can leave soft mode, from a card that asks for a
-confirmation (`presentation/soft_mode_exit_card.dart`); the app never
-suggests it. The Goals module screen holds the card, above its data section. `SoftModeController.leave` writes one row with the
-result false, so the newest answer reads as a no: the next step is the setup
+Only the person can leave soft mode: from a card that asks for a
+confirmation (`presentation/soft_mode_exit_card.dart`), or by deleting the
+Goals data, which removes the yes; the app never suggests either. The Goals
+module screen holds the card, above its data section.
+`SoftModeController.leave` writes one row with the result false, so the newest answer reads as a no: the next step is the setup
 and the questions are not asked again. The earlier yes stays in the history.
 The row is dated today, or the date of the newest row when that is later (a
 clock moved back), because rows sort by date first. It writes nothing while

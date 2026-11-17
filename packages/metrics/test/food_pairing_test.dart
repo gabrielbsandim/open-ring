@@ -79,7 +79,14 @@ void main() {
         ..add(8, heavy: true, extra: [MealEntry(at: clock(8, 13 * 60))])
         ..add(9);
       expect(pairsOf(FoodLink.heavyDinner, book), [(1, 3)]);
-      expect(pairsOf(FoodLink.alcoholThreeOrMore, book), isEmpty);
+    });
+
+    test('an untagged night is not an alcohol free control', () {
+      final book = NightBook()
+        ..add(1, alcohol: MealAlcohol.threeOrMore)
+        ..add(2, extra: [MealEntry(at: clock(2, 13 * 60))])
+        ..add(3);
+      expect(pairsOf(FoodLink.alcoholThreeOrMore, book), [(1, 3)]);
     });
 
     test('a meal with only a kind is tagged, so its night still counts', () {

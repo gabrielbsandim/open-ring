@@ -2297,5 +2297,11 @@
   "privacyStoresGoalsWhy": "週のプランを作り、毎週月曜にふりかえり、保護のルールを守るため。確認は総合結果だけを保存し、一つひとつの回答は保存しません",
   "goalsPathPaceKeeping": "維持中はなし",
   "goalsPathRateDetailKeeping": "週{percent}%、{low}から{high}の間。維持中は目標ペースがありません。",
-  "goalsSheetRateYoursKeeping": "週{amount}減、95%の信頼度で{low}から{high}の間。傾向（{trend}）で割ると週{percent}%、{percentLow}から{percentHigh}の間。維持中は目標ペースがありません。"
+  "goalsSheetRateYoursKeeping": "週{amount}減、95%の信頼度で{low}から{high}の間。傾向（{trend}）で割ると週{percent}%、{percentLow}から{percentHigh}の間。維持中は目標ペースがありません。",
+  "workoutNoticeTitleZone": "{type} · ゾーン{zone}",
+  "workoutNoticeTitleRingLost": "{type} · リングが圏外",
+  "workoutNoticeTitlePaused": "{type} · 一時停止中",
+  "workoutNoticePausedAt": "{time}で一時停止",
+  "workoutNoticeRecording": "時間を記録中",
+  "workoutNoticeGpsLost": "GPS信号が途切れました"
 }

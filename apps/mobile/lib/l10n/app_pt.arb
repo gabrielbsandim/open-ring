@@ -2297,5 +2297,11 @@
   "privacyStoresGoalsWhy": "Para montar o plano da semana, revisá-lo toda segunda e manter as proteções; a triagem guarda o resultado geral, não cada resposta",
   "goalsPathPaceKeeping": "Nenhum na manutenção",
   "goalsPathRateDetailKeeping": "{percent}% por semana, entre {low} e {high}. A manutenção não tem alvo de ritmo.",
-  "goalsSheetRateYoursKeeping": "{amount} a menos por semana, com 95% de confiança entre {low} e {high}. Dividido pela sua tendência ({trend}), isso é {percent}% por semana, entre {percentLow} e {percentHigh}. A manutenção não tem alvo de ritmo."
+  "goalsSheetRateYoursKeeping": "{amount} a menos por semana, com 95% de confiança entre {low} e {high}. Dividido pela sua tendência ({trend}), isso é {percent}% por semana, entre {percentLow} e {percentHigh}. A manutenção não tem alvo de ritmo.",
+  "workoutNoticeTitleZone": "{type} · Zona {zone}",
+  "workoutNoticeTitleRingLost": "{type} · anel fora de alcance",
+  "workoutNoticeTitlePaused": "{type} · Pausado",
+  "workoutNoticePausedAt": "Pausado em {time}",
+  "workoutNoticeRecording": "Gravando o tempo",
+  "workoutNoticeGpsLost": "Sinal de GPS perdido"
 }

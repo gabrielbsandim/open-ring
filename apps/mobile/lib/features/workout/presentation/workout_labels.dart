@@ -51,8 +51,6 @@ extension WorkoutTypeLabels on WorkoutType {
     WorkoutType.other => Icons.more_horiz_rounded,
   };
 
-  bool get showsSpeed => this == WorkoutType.cycling;
-
   String recorded(AppLocalizations l10n) => switch (this) {
     WorkoutType.running ||
     WorkoutType.walking ||
@@ -210,6 +208,15 @@ LocationNotice workoutLocationNotice(AppLocalizations l10n) => LocationNotice(
     decimalSeparator: NumberFormat.decimalPattern(l10n.localeName)
         .symbols
         .DECIMAL_SEP,
+    types: {for (final type in WorkoutType.values) type: type.label(l10n)},
+    zoneTitle: l10n.workoutNoticeTitleZone,
+    ringLostTitle: l10n.workoutNoticeTitleRingLost,
+    pausedTitle: l10n.workoutNoticeTitlePaused,
+    pausedAt: l10n.workoutNoticePausedAt,
+    recording: l10n.workoutNoticeRecording,
+    gpsLost: l10n.workoutNoticeGpsLost,
+    speed: l10n.workoutUnitSpeed,
+    speedImperial: l10n.workoutUnitSpeedMph,
   ),
 );
 

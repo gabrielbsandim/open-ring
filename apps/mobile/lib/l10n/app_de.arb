@@ -2297,5 +2297,11 @@
   "privacyStoresGoalsWhy": "Um den Wochenplan aufzubauen, ihn jeden Montag zu prüfen und seine Schutzregeln zu halten; der Fragebogen behält das Gesamtergebnis, nicht jede Antwort",
   "goalsPathPaceKeeping": "Keins beim Halten",
   "goalsPathRateDetailKeeping": "{percent} % pro Woche, zwischen {low} und {high}. Beim Halten gibt es kein Zieltempo.",
-  "goalsSheetRateYoursKeeping": "{amount} weniger pro Woche, mit 95 % Sicherheit zwischen {low} und {high}. Geteilt durch deinen Trend ({trend}) sind das {percent} % pro Woche, zwischen {percentLow} und {percentHigh}. Beim Halten gibt es kein Zieltempo."
+  "goalsSheetRateYoursKeeping": "{amount} weniger pro Woche, mit 95 % Sicherheit zwischen {low} und {high}. Geteilt durch deinen Trend ({trend}) sind das {percent} % pro Woche, zwischen {percentLow} und {percentHigh}. Beim Halten gibt es kein Zieltempo.",
+  "workoutNoticeTitleZone": "{type} · Zone {zone}",
+  "workoutNoticeTitleRingLost": "{type} · Ring außer Reichweite",
+  "workoutNoticeTitlePaused": "{type} · Pausiert",
+  "workoutNoticePausedAt": "Pausiert bei {time}",
+  "workoutNoticeRecording": "Zeit wird aufgezeichnet",
+  "workoutNoticeGpsLost": "GPS-Signal verloren"
 }

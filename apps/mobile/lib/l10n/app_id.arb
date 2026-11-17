@@ -2297,5 +2297,11 @@
   "privacyStoresGoalsWhy": "Untuk menyusun rencana mingguan, meninjaunya setiap Senin, dan menjaga perlindungannya; skrining menyimpan hasil keseluruhan, bukan setiap jawaban",
   "goalsPathPaceKeeping": "Tidak ada saat menjaga",
   "goalsPathRateDetailKeeping": "{percent}% per minggu, antara {low} dan {high}. Saat menjaga tidak ada laju target.",
-  "goalsSheetRateYoursKeeping": "Turun {amount} per minggu, dengan keyakinan 95% antara {low} dan {high}. Dibagi tren Anda ({trend}), itu {percent}% per minggu, antara {percentLow} dan {percentHigh}. Saat menjaga tidak ada laju target."
+  "goalsSheetRateYoursKeeping": "Turun {amount} per minggu, dengan keyakinan 95% antara {low} dan {high}. Dibagi tren Anda ({trend}), itu {percent}% per minggu, antara {percentLow} dan {percentHigh}. Saat menjaga tidak ada laju target.",
+  "workoutNoticeTitleZone": "{type} · Zona {zone}",
+  "workoutNoticeTitleRingLost": "{type} · cincin di luar jangkauan",
+  "workoutNoticeTitlePaused": "{type} · Dijeda",
+  "workoutNoticePausedAt": "Dijeda di {time}",
+  "workoutNoticeRecording": "Merekam waktu",
+  "workoutNoticeGpsLost": "Sinyal GPS hilang"
 }

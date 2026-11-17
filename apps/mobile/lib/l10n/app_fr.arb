@@ -2297,5 +2297,11 @@
   "privacyStoresGoalsWhy": "Pour construire le plan de la semaine, le revoir chaque lundi et garder ses protections ; le questionnaire garde le résultat global, pas chaque réponse",
   "goalsPathPaceKeeping": "Aucun pendant le maintien",
   "goalsPathRateDetailKeeping": "{percent} % par semaine, entre {low} et {high}. Le maintien n’a pas de rythme cible.",
-  "goalsSheetRateYoursKeeping": "{amount} de moins par semaine, avec 95 % de confiance entre {low} et {high}. Divisé par votre tendance ({trend}), cela fait {percent} % par semaine, entre {percentLow} et {percentHigh}. Le maintien n’a pas de rythme cible."
+  "goalsSheetRateYoursKeeping": "{amount} de moins par semaine, avec 95 % de confiance entre {low} et {high}. Divisé par votre tendance ({trend}), cela fait {percent} % par semaine, entre {percentLow} et {percentHigh}. Le maintien n’a pas de rythme cible.",
+  "workoutNoticeTitleZone": "{type} · Zone {zone}",
+  "workoutNoticeTitleRingLost": "{type} · bague hors de portée",
+  "workoutNoticeTitlePaused": "{type} · En pause",
+  "workoutNoticePausedAt": "En pause à {time}",
+  "workoutNoticeRecording": "Enregistrement du temps",
+  "workoutNoticeGpsLost": "Signal GPS perdu"
 }

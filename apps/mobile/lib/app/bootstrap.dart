@@ -6,6 +6,7 @@ import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/background/background_sync_dispatcher.dart';
 import 'package:open_ring/app/theme/shared_preferences_theme_mode_store.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
+import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/database/app_database_provider.dart';
 import 'package:open_ring/core/database/open_app_database.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
@@ -20,6 +21,7 @@ import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/demo/infrastructure/demo_workout_store.dart';
 import 'package:open_ring/features/demo/infrastructure/drift_demo_data_store.dart';
 import 'package:open_ring/features/demo/infrastructure/shared_preferences_demo_mode_store.dart';
+import 'package:open_ring/features/goals/application/goal_review_trigger.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/infrastructure/drift_goal_store.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
@@ -247,7 +249,10 @@ Future<void> bootstrap() async {
     unawaited(container.read(syncIntervalProvider.notifier).ensureScheduled());
   }
   unawaited(container.read(resumeSyncTriggerProvider).onForeground());
-  container.listen(healthGrantRetryProvider, (_, _) {});
+  container
+    ..listen(healthGrantRetryProvider, (_, _) {})
+    ..listen(dayRollProvider, (_, _) {})
+    ..listen(goalReviewTriggerProvider, (_, _) {});
   startWidgetPush(container);
   runApp(
     UncontrolledProviderScope(container: container, child: const OpenRingApp()),

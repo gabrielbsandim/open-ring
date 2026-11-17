@@ -9,7 +9,6 @@ import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/goals/application/goal_review_trigger.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_store.dart';
-import 'package:open_ring/features/goals/domain/review_inputs.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';

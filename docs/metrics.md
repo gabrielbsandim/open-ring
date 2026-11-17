@@ -1565,8 +1565,10 @@ active goal is in the calendar week of today, Monday to Sunday.
 strength sessions and the effort points already on the phone, and reads only
 the sources a lever of the goal counts from. It answers with one of four
 states: the module is off, there is no goal, the goal is paused, or the week
-is running. A pause stays a pause after its last day, until something resumes
-the goal. Maintenance counts like a block.
+is running. A pause stays a pause after its last day until the reviewer
+starts the next block, which is the next pass for most goals and the first
+ready weight rate for losing fat; a pause with no last day stays until the
+person ends it. Maintenance counts like a block.
 
 Clock values are whole local minutes with the seconds dropped. A bedtime is
 the minutes after noon, so 23:30 is 690 and 00:05 is 725; a wake time is the
@@ -1673,8 +1675,26 @@ What it cannot say:
 `GoalReviewer` in
 `apps/mobile/lib/features/goals/application/goal_reviewer.dart` writes the
 review of the week that closed before the current Monday, and starts the
-block a goal waits for. Nothing triggers it yet: what calls it, and when, is
-a later slice.
+block a goal waits for.
+
+`goalReviewTriggerProvider`, kept alive from the app start, runs a pass when
+Goals turns on, on every change of the data revision, when the date changes
+and when the app comes back to the foreground. A pass checks the day, then
+calls `startDueBlock`, then `reviewDueWeek`. Only one pass runs at a time: a
+call that arrives during a pass asks for one more when it ends, so the bump
+of a write costs one extra pass that writes nothing. A step that fails is
+logged and the pass goes on, and the next pass tries it again. With Goals off
+nothing runs.
+
+On a Monday the review waits for the ring: it runs only when the last sync
+is at or after the local midnight of that day, so the Sunday it reviews has
+arrived. Without a ring, or without such a sync, it runs on the Tuesday. The
+other days never wait, and the block start never waits. The row is dated
+its Monday whichever day it is written.
+
+The date the app reads follows the day: `dayRollProvider` checks it on every
+return to the foreground and at each local midnight, and a changed day
+rebuilds every reader of `currentDateProvider` once.
 
 `startDueBlock` starts a block today for a goal that waits for one: a goal
 with no lever yet, which is the base phase, or a goal whose pause had a last
@@ -1737,8 +1757,12 @@ What it cannot say:
   written, so a review written late in the week pauses for fewer days.
 - A goal in the base phase is never reviewed, so no protection can end it
   before its first block.
-- The day comes from a date read once when the app starts, so a process left
-  open past midnight starts a block on the earlier day.
+- The time of the last sync is stored even when part of that sync failed,
+  so a Monday review can run on a Sunday that did not fully arrive.
+- A goal reviewed on the Tuesday for want of a ring sync shows nothing new
+  on the Monday.
+- A process the system has suspended fires its midnight timer late; the
+  check on return covers it.
 
 ## References
 

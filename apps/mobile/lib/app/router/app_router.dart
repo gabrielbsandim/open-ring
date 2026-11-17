@@ -12,6 +12,7 @@ import 'package:open_ring/features/energy/presentation/energy_screen.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
 import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_refusal_screen.dart';
+import 'package:open_ring/features/goals/presentation/goal_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_screening_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_setup_screen.dart';
 import 'package:open_ring/features/heart/presentation/heart_screen.dart';
@@ -144,6 +145,7 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
           ),
         ],
       ),
+      GoRoute(path: 'goals', builder: (_, _) => const GoalScreen()),
       GoRoute(
         path: 'goals/pick',
         builder: (_, state) => GoalPickScreen(

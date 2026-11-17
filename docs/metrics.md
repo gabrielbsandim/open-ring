@@ -1918,6 +1918,37 @@ Continue after a yes, are disabled, so nothing is stored.
 The screen shows only while the setup is the next step and no goal is
 active; otherwise it shows the picker.
 
+### The goal screen
+
+The goal screen, at `/today/goals`, follows `goalWeekProvider`. With the
+module off it says so in one line; with no goal it offers the picker and says
+that no goal is a state, not a pending step. Get fitter and sleep better show
+the week and no weight. With Body off a lose fat goal shows the hold and no
+weight. Otherwise a lose fat goal shows its path.
+
+The path is read on `goalPathDay`: the Sunday before this Monday, the day the
+review reads, or the block start when the block began later; in the base
+phase it is today, since the block waits for today's rate. So it holds still
+between reviews, and the trend of each day stays in Body. On that day
+`goalPath` takes the weight snapshot (`weightSnapshot`, built from the
+weigh-ins up to that day only) and gives the block from the block anchor and
+the pace, the loss rate and its state from `pathState` (above the cap is told
+apart from above the band), and the arrival from `arrivalRange` when a
+reference weight was chosen. The chart runs from a week before the block to
+its end: weigh-ins, the trend, the band of half to one and a half times the
+pace from the anchor, the pace itself and the reference, both dashed. Below
+it come the start, the trend and the reference (or the pace target without
+one), the rate in 28 days with its interval as a share of the trend, and the
+arrival as months. The arrival reads paused while the goal is paused, reached
+when the trend is at or under the reference, and no range otherwise when
+`arrivalRange` gives none. In the base phase the screen shows the anchor, the
+rate or "not yet", and the reference, with no chart and no arrival.
+
+Each number opens a sheet (rate, trend, arrival) with the rule, the reader's
+own numbers and what is our choice. With numbers hidden there is no chart, no
+weight, no share and no arrival: the rate row shows the direction from Body
+and the state word, and the sheets show the hidden note in place of numbers.
+
 ### The goal picker
 
 The picker offers four rows: no goal, lose fat, get fitter, sleep better.

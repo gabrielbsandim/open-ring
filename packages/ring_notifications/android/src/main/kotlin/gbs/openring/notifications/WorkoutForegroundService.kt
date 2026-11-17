@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.KeyguardManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -126,6 +127,7 @@ class WorkoutForegroundService : Service() {
 }
 
 private var posted: WorkoutNotice? = null
+private var postedAt = 0L
 private var held: WorkoutNotice? = null
 private var heldAt = 0L
 
@@ -142,17 +144,32 @@ internal fun showWorkoutNotification(app: Context, notice: WorkoutNotice) {
         return
     }
     held = null
-    posted = notice
-    val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    manager.notify(WORKOUT_NOTIFICATION_ID, workoutNotification(app, notice))
+    post(app, notice)
 }
 
 internal fun postHeldWorkoutNotice(app: Context) {
     val waiting = held ?: return
-    // The clock kept running while the notice waited.
-    val notice = waiting.copy(elapsedMs = waiting.elapsedMs + SystemClock.elapsedRealtime() - heldAt)
     held = null
+    post(app, advanced(waiting, heldAt))
+}
+
+// The screen turned off or the phone was unlocked: a notice that hides the
+// heart rate is posted again so the lock screen and the shade each get theirs.
+internal fun repostWorkoutNoticeForLock(app: Context) {
+    val last = posted ?: return
+    if (last.publicTitle == null || held != null) return
+    post(app, advanced(last, postedAt))
+}
+
+// The clock kept running while the notice waited.
+private fun advanced(notice: WorkoutNotice, since: Long): WorkoutNotice {
+    if (!notice.running) return notice
+    return notice.copy(elapsedMs = notice.elapsedMs + SystemClock.elapsedRealtime() - since)
+}
+
+private fun post(app: Context, notice: WorkoutNotice) {
     posted = notice
+    postedAt = SystemClock.elapsedRealtime()
     val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     manager.notify(WORKOUT_NOTIFICATION_ID, workoutNotification(app, notice))
 }
@@ -180,12 +197,21 @@ private fun workoutNotification(app: Context, notice: WorkoutNotice): Notificati
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .build()
     }
-    // The lock screen shows the public version, which has no heart rate.
-    val lockScreen = workoutBuilder(app, notice, publicTitle, publicText).build()
+    val lockScreen = workoutBuilder(app, notice, publicTitle, publicText)
+        .setVisibility(Notification.VISIBILITY_PUBLIC)
+    // A default lock screen shows a private notice in full, so while the phone
+    // is locked or dark the notice itself carries the text with no heart rate.
+    if (lockedOrDark(app)) return lockScreen.build()
     return workoutBuilder(app, notice, notice.title, notice.text)
         .setVisibility(Notification.VISIBILITY_PRIVATE)
-        .setPublicVersion(lockScreen)
+        .setPublicVersion(lockScreen.build())
         .build()
+}
+
+private fun lockedOrDark(app: Context): Boolean {
+    val power = app.getSystemService(Context.POWER_SERVICE) as PowerManager
+    val keyguard = app.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+    return !power.isInteractive || keyguard.isKeyguardLocked
 }
 
 private fun workoutBuilder(

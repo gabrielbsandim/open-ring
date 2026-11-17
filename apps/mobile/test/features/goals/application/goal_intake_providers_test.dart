@@ -217,9 +217,9 @@ void main() {
       await store.addScreening(_row(2, pregnant: true));
       final setup = await setupGoals(
         store: store,
-        extraOverrides: [
-          _profile(const UserProfile(birthYear: 1992, heightCentimeters: 181)),
-        ],
+        profileOverride: _profile(
+          const UserProfile(birthYear: 1992, heightCentimeters: 181),
+        ),
       );
 
       final facts = await setup.container.read(intakeFactsProvider.future);
@@ -252,7 +252,7 @@ void main() {
     });
 
     test('no profile gives a null age and a null height', () async {
-      final setup = await setupGoals(extraOverrides: [_profile(null)]);
+      final setup = await setupGoals(profileOverride: _profile(null));
 
       final facts = await setup.container.read(intakeFactsProvider.future);
 
@@ -270,7 +270,7 @@ void main() {
 
     test('born in December 2008 reads 18 in 2026 and is not under18', () async {
       final setup = await setupGoals(
-        extraOverrides: [_profile(const UserProfile(birthYear: 2008))],
+        profileOverride: _profile(const UserProfile(birthYear: 2008)),
       );
 
       final facts = await setup.container.read(intakeFactsProvider.future);
@@ -281,7 +281,7 @@ void main() {
 
     test('born in 2009 reads 17 and gives under18', () async {
       final setup = await setupGoals(
-        extraOverrides: [_profile(const UserProfile(birthYear: 2009))],
+        profileOverride: _profile(const UserProfile(birthYear: 2009)),
       );
 
       final facts = await setup.container.read(intakeFactsProvider.future);

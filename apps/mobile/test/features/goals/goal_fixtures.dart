@@ -428,6 +428,7 @@ Future<GoalSetup> setupGoals({
   Override? stepsOverride,
   Override? nightsOverride,
   Override? weightOverride,
+  Override? profileOverride,
   List<Override> extraOverrides = const [],
   int extraWeighIns = 0,
 }) async {
@@ -443,9 +444,10 @@ Future<GoalSetup> setupGoals({
         moduleStore ?? InMemoryModuleStore(modules),
       ),
       goalStoreProvider.overrideWithValue(readStore ?? memory),
-      userProfileStoreProvider.overrideWithValue(
-        InMemoryUserProfileStore(const UserProfile(heightCentimeters: 178)),
-      ),
+      profileOverride ??
+          userProfileStoreProvider.overrideWithValue(
+            InMemoryUserProfileStore(const UserProfile(heightCentimeters: 178)),
+          ),
       stepsOverride ??
           activityDaysProvider.overrideWith((ref) async => goalStepDays()),
       nightsOverride ??

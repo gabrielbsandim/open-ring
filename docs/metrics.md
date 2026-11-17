@@ -1870,3 +1870,36 @@ What it cannot say:
   Medicine and Sleep Research Society. Sleep. 2015;38(6):843-844.
 - Protocol slot sizes: `docs/protocols/realsil-colmi.md`, from Gadgetbridge
   `YawellRingPacketHandler` (heart rate, HRV, stress and SpO2 logs).
+
+### Before a weight goal starts
+
+`apps/mobile/lib/features/goals/domain/goal_intake.dart` and
+`application/goal_intake_providers.dart`. No screen calls them yet.
+
+`weightGoalBlock` says why a goal of losing fat is not offered, the first of
+these that holds: Body is off, the soft mode is on, the age is not known, the
+age is under 18, the height is not known, the BMI of the trend weight is
+under 18.5. The BMI is checked only when a trend exists, so a person with no
+weigh-in passes this step. The order differs from `weightGoalRefusal` in two
+ways: Body and the soft mode come first, and pregnancy is not asked here.
+
+`weightGoalNext` says what follows when nothing blocks: the five questions
+when they were never answered, the setup when the newest answer is a no. The
+questions are asked once. `newestSoftMode` reads the newest screening row
+that holds an answer to them, so a later row that only records pregnancy
+does not erase it.
+
+`ScreeningController.submit` takes exactly five answers and writes one row
+with the date and the result, true for two or more "yes". The five answers
+are never stored.
+
+What it cannot say:
+
+- Whether the answer is still true. A no is kept for good, and a yes ends
+  only when every Goals row is deleted.
+- Anything about health. The questions are an adapted wording that nobody
+  validated, and the result is a rule of the app, not a diagnosis.
+- That a refused person stays refused: the age moves with the calendar year
+  and the BMI with the trend, and each is read again when asked.
+- That one tap wrote one row. Two calls write two rows, both with the same
+  result.

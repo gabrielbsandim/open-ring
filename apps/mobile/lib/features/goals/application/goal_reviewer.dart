@@ -36,22 +36,13 @@ class GoalReviewer extends Notifier<void> {
     final monday = mondayOf(ref.read(currentDateProvider));
     final goal = await store.active();
     if (goal == null || goal.phase == GoalPhase.paused) return null;
+    if (goal.levers.isEmpty) return null;
     final week = goalWeekNumber(start: goal.blockStartedOn, today: monday);
     if (week < _firstReviewedWeek) return null;
     final weeks = await store.weeks(goal.id);
     if (weeks.any((week) => week.monday == monday)) return null;
     final sunday = monday.addDays(-1);
-    final data = GoalWeekData(
-      steps: {
-        for (final day in (await ref.read(activityDaysProvider.future)).values)
-          day.date: day.steps,
-      },
-      nights: await ref.read(sleepNightsProvider.future),
-      strengthDays: effortStrengthDays(
-        await ref.read(effortSessionsProvider.future),
-      ),
-      points: await ref.read(dailyIntensityProvider.future),
-    );
+    final data = await _weekData();
     final modules = await ref.read(enabledModulesProvider.future);
     final bodyOn = modules.contains(ModuleId.body);
     final profile = await ref.read(userProfileProvider.future);
@@ -107,6 +98,66 @@ class GoalReviewer extends Notifier<void> {
     _bump();
     return review;
   }
+
+  /// Starts the block a goal waits for: its first, once a starting lever
+  /// exists, or the next after a pause that has run out. Losing fat waits for
+  /// a ready weight rate, whose trend anchors the block.
+  Future<bool> startDueBlock() async {
+    if (!ref.read(goalsEnabledProvider)) return false;
+    final store = ref.read(goalStoreProvider);
+    final today = ref.read(currentDateProvider);
+    final goal = await store.active();
+    if (goal == null || !_waitsForBlock(goal, today)) return false;
+    final weighed = goal.kind == GoalKind.loseFat;
+    final anchor = weighed ? await _readyTrend(goal, today) : null;
+    if (weighed && anchor == null) return false;
+    final based = goal.levers.isEmpty;
+    final first = based
+        ? startingLever(
+            goal.kind,
+            leverBaseline(await _weekData(), end: today.addDays(-1)),
+          )
+        : null;
+    if (based && first == null) return false;
+    final started = await store.startBlock(
+      goal.id,
+      on: today,
+      anchorKg: anchor,
+      levers: first == null ? null : [first],
+    );
+    if (!started) return false;
+    _bump();
+    return true;
+  }
+
+  bool _waitsForBlock(Goal goal, LocalDate today) {
+    if (goal.phase != GoalPhase.paused) return goal.levers.isEmpty;
+    final until = goal.phaseUntil;
+    return until != null && until.compareTo(today) < 0;
+  }
+
+  Future<double?> _readyTrend(Goal goal, LocalDate today) async {
+    final modules = await ref.read(enabledModulesProvider.future);
+    final weight = await _weight(
+      goal,
+      today,
+      bodyOn: modules.contains(ModuleId.body),
+    );
+    if (weight.rate is! WeightRateReady) return null;
+    return weight.trendKg;
+  }
+
+  Future<GoalWeekData> _weekData() async => GoalWeekData(
+    steps: {
+      for (final day in (await ref.read(activityDaysProvider.future)).values)
+        day.date: day.steps,
+    },
+    nights: await ref.read(sleepNightsProvider.future),
+    strengthDays: effortStrengthDays(
+      await ref.read(effortSessionsProvider.future),
+    ),
+    points: await ref.read(dailyIntensityProvider.future),
+  );
 
   // The weight is read only for a weight goal with Body on, so another goal
   // never waits on, or fails with, weigh-ins it does not use.

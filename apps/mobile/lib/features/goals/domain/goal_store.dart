@@ -22,10 +22,13 @@ abstract interface class GoalStore {
     LocalDate? until,
   });
 
+  /// Starts a block on [on] and leaves any pause. Null [levers] keep the
+  /// stored ones.
   Future<bool> startBlock(
     int goalId, {
     required LocalDate on,
     required double? anchorKg,
+    List<Lever>? levers,
   });
 
   Future<bool> end(
@@ -37,7 +40,8 @@ abstract interface class GoalStore {
   /// Written once per Monday: false when the week exists, when [monday] is
   /// not a Monday, and when the goal is unknown or ended. Throws an
   /// [ArgumentError] for a Monday when [inputs] hold a number that is not
-  /// finite.
+  /// finite. A review that pauses or ends changes the goal in the same write,
+  /// as [afterReview] gives it.
   Future<bool> addWeek(
     int goalId, {
     required LocalDate monday,
@@ -48,6 +52,7 @@ abstract interface class GoalStore {
   /// Adds the check-in answers to the newest week of an active goal and
   /// stores the review they give. Null, with nothing written, when the week
   /// is answered or already holds a check-in, and when both answers are null.
+  /// A review that pauses or ends changes the goal in the same write.
   Future<Review?> amendWeek(
     int goalId,
     LocalDate monday, {
@@ -111,8 +116,11 @@ final class InMemoryGoalStore implements GoalStore {
     int goalId, {
     required LocalDate on,
     required double? anchorKg,
-  }) async =>
-      _change(goalId, (goal) => goal.inBlock(on: on, anchorKg: anchorKg));
+    List<Lever>? levers,
+  }) async => _change(
+    goalId,
+    (goal) => goal.inBlock(on: on, anchorKg: anchorKg, levers: levers),
+  );
 
   @override
   Future<bool> end(
@@ -130,7 +138,8 @@ final class InMemoryGoalStore implements GoalStore {
   }) async {
     if (mondayOf(monday) != monday) return false;
     encodeReviewInputs(inputs);
-    if (_activeWith(goalId) == null) return false;
+    final goal = _activeWith(goalId);
+    if (goal == null) return false;
     if (_weekIndex(goalId, monday) >= 0) return false;
     _weeks.add(
       GoalWeek(
@@ -143,6 +152,7 @@ final class InMemoryGoalStore implements GoalStore {
         answer: null,
       ),
     );
+    _goals[goalId] = afterReview(goal, monday, review) ?? goal;
     return true;
   }
 
@@ -169,8 +179,9 @@ final class InMemoryGoalStore implements GoalStore {
     required CheckInEnergy? energy,
     required bool? foodOrWeight,
   }) async {
+    final goal = _activeWith(goalId);
     final index = _weekIndex(goalId, monday);
-    if (_activeWith(goalId) == null || index < 0) return null;
+    if (goal == null || index < 0) return null;
     if ((await weeks(goalId)).last.monday != monday) return null;
     final amended = amendedWeek(
       _weeks[index],
@@ -179,6 +190,7 @@ final class InMemoryGoalStore implements GoalStore {
     );
     if (amended == null) return null;
     _weeks[index] = amended.week;
+    _goals[goalId] = afterReview(goal, monday, amended.review) ?? goal;
     return amended.review;
   }
 
@@ -234,6 +246,21 @@ final class InMemoryGoalStore implements GoalStore {
   int _weekIndex(int goalId, LocalDate monday) => _weeks.indexWhere(
     (week) => week.goalId == goalId && week.monday == monday,
   );
+}
+
+/// The goal after a review that acts without asking, null when it changes
+/// nothing. A pause runs from [monday], with no end when the review gives none.
+Goal? afterReview(Goal goal, LocalDate monday, Review review) {
+  final days = review.pauseDays;
+  return switch (review.action) {
+    ReviewAction.pause => goal.inPhase(
+      GoalPhase.paused,
+      since: monday,
+      until: days == null ? null : monday.addDays(days - 1),
+    ),
+    ReviewAction.end => goal.endedBy(GoalEndReason.protection, on: monday),
+    _ => null,
+  };
 }
 
 /// The week with its check-in and the review that follows, null when the

@@ -293,10 +293,16 @@ class _PathCard extends ConsumerWidget {
         value: rate == null
             ? l10n.bodyDirectionNone
             : weightDirection(l10n, rate),
-        detail: stage == _Stage.base ? null : _stateText(l10n, path),
+        detail: _hiddenDetail(l10n, path),
         onTap: () => _open(context, GoalEvidence.rate, l10n.bodyHiddenNote),
       ),
     ];
+  }
+
+  String? _hiddenDetail(AppLocalizations l10n, GoalPath path) {
+    if (stage == _Stage.base) return null;
+    if (!maintenance) return _stateText(l10n, path);
+    return path.overTheCap ? l10n.goalsPathStateCap : null;
   }
 
   List<Widget> _shown(

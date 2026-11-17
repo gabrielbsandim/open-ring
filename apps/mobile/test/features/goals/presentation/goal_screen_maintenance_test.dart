@@ -80,6 +80,7 @@ Future<void> _pump(
   WidgetTester tester, {
   required GoalWeekView week,
   double? reference = 74,
+  bool hidden = false,
   double scale = 1,
   Locale locale = const Locale('en'),
   Brightness brightness = Brightness.light,
@@ -107,7 +108,9 @@ Future<void> _pump(
       goalWeekProvider.overrideWith((ref) async => week),
       goalPathProvider.overrideWith((ref) async => _path(reference: reference)),
       currentDateProvider.overrideWithValue(_today),
-      hideNumbersStoreProvider.overrideWithValue(InMemoryHideNumbersStore()),
+      hideNumbersStoreProvider.overrideWithValue(
+        InMemoryHideNumbersStore(hidden: hidden),
+      ),
       unitSystemStoreProvider.overrideWithValue(
         InMemoryUnitSystemStore(UnitSystem.metric),
       ),
@@ -164,6 +167,21 @@ void main() {
       final text = _text(tester);
       expect(text, contains('Maintenance has no rate target.'));
       expect(text, isNot(contains('The target is')));
+    });
+
+    testWidgets('hidden numbers give no band word', (tester) async {
+      await _pump(tester, week: _keeping(over: false), hidden: true);
+
+      final l10n = _l10n(tester);
+      final text = _text(tester);
+      expect(find.byKey(GoalScreenKeys.hidden), findsOneWidget);
+      for (final word in [
+        l10n.goalsPathStateAbove,
+        l10n.goalsPathStateOnTrack,
+        l10n.goalsPathStateBelow,
+      ]) {
+        expect(text, isNot(contains(word)), reason: word);
+      }
     });
 
     testWidgets('a running block still reads its target', (tester) async {

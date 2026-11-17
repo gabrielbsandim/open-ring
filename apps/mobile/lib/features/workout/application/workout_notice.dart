@@ -13,21 +13,32 @@ WorkoutNotice workoutNoticeOf(
   UnitSystem units, {
   bool ringLost = false,
   bool gpsLost = false,
+  bool confirming = false,
 }) {
   final labels = notice.live;
   final running = snapshot.status == WorkoutStatus.running;
   final type = labels.types[snapshot.type];
   final distance = _distance(snapshot, labels, units);
+  final clock = _clock(snapshot.elapsed);
+  if (confirming) {
+    return WorkoutNotice(
+      title: labels.confirmTitle,
+      text: labels.confirmText(clock, distance),
+      elapsed: snapshot.elapsed,
+      running: false,
+      confirming: true,
+      ringLost: ringLost,
+      labels: labels,
+    );
+  }
   return WorkoutNotice(
     title: _title(snapshot, notice.title, type, labels, running, ringLost),
     text: running
         ? _fields(snapshot, labels, units, distance, ringLost, gpsLost)
-        : [
-            labels.pausedAt(_clock(snapshot.elapsed)),
-            ?distance,
-          ].join(_fieldSeparator),
+        : [labels.pausedAt(clock), ?distance].join(_fieldSeparator),
     elapsed: snapshot.elapsed,
     running: running,
+    ringLost: ringLost,
     labels: labels,
   );
 }

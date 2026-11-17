@@ -217,6 +217,13 @@ LocationNotice workoutLocationNotice(AppLocalizations l10n) => LocationNotice(
     gpsLost: l10n.workoutNoticeGpsLost,
     speed: l10n.workoutUnitSpeed,
     speedImperial: l10n.workoutUnitSpeedMph,
+    save: l10n.workoutNoticeSave,
+    keep: l10n.workoutNoticeKeep,
+    reconnect: l10n.workoutNoticeReconnect,
+    confirmTitle: l10n.workoutNoticeConfirmTitle,
+    confirmText: (time, distance) => distance == null
+        ? l10n.workoutNoticeConfirmTextNoDistance(time)
+        : l10n.workoutNoticeConfirmText(time, distance),
   ),
 );
 

@@ -28,6 +28,11 @@ final class MethodChannelWorkoutNotifier implements WorkoutNotifier {
         'pauseLabel': notice.labels.pause,
         'resumeLabel': notice.labels.resume,
         'stopLabel': notice.labels.stop,
+        'confirming': notice.confirming,
+        'ringLost': notice.ringLost,
+        'saveLabel': notice.labels.save,
+        'keepLabel': notice.labels.keep,
+        'reconnectLabel': notice.labels.reconnect,
         'link': workoutLink,
       });
 

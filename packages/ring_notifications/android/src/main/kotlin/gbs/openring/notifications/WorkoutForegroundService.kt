@@ -11,6 +11,7 @@ import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 
 private const val WORKOUT_CHANNEL_ID = "workout_live"
 private const val WORKOUT_NOTIFICATION_ID = 7302
@@ -26,6 +27,11 @@ internal data class WorkoutNotice(
     val resumeLabel: String,
     val stopLabel: String,
     val link: String?,
+    val confirming: Boolean = false,
+    val ringLost: Boolean = false,
+    val saveLabel: String = "Save",
+    val keepLabel: String = "Continue",
+    val reconnectLabel: String = "Reconnect",
 )
 
 // Keeps the process alive for a workout with no route, where no location
@@ -116,12 +122,41 @@ class WorkoutForegroundService : Service() {
     }
 }
 
+private var posted: WorkoutNotice? = null
+private var held: WorkoutNotice? = null
+
+// With the screen off a running notice that only changes numbers waits; the
+// last one waiting posts when the screen turns on (postHeldWorkoutNotice).
 internal fun showWorkoutNotification(app: Context, notice: WorkoutNotice) {
+    val power = app.getSystemService(Context.POWER_SERVICE) as PowerManager
+    val last = posted
+    val sameShape = last != null && last.running == notice.running &&
+        last.confirming == notice.confirming && last.ringLost == notice.ringLost
+    if (!power.isInteractive && notice.running && sameShape) {
+        held = notice
+        return
+    }
+    held = null
+    posted = notice
     val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     manager.notify(WORKOUT_NOTIFICATION_ID, workoutNotification(app, notice))
 }
 
+internal fun postHeldWorkoutNotice(app: Context) {
+    val notice = held ?: return
+    held = null
+    posted = notice
+    val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    manager.notify(WORKOUT_NOTIFICATION_ID, workoutNotification(app, notice))
+}
+
+internal fun forgetWorkoutNotice() {
+    posted = null
+    held = null
+}
+
 internal fun cancelWorkoutNotification(app: Context) {
+    forgetWorkoutNotice()
     val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     manager.cancel(WORKOUT_NOTIFICATION_ID)
 }
@@ -131,8 +166,7 @@ private fun workoutNotification(app: Context, notice: WorkoutNotice): Notificati
     manager.createNotificationChannel(
         NotificationChannel(WORKOUT_CHANNEL_ID, notice.channelName, NotificationManager.IMPORTANCE_LOW),
     )
-    val toggle = if (notice.running) "pause" to notice.pauseLabel else "resume" to notice.resumeLabel
-    return Notification.Builder(app, WORKOUT_CHANNEL_ID)
+    val builder = Notification.Builder(app, WORKOUT_CHANNEL_ID)
         .setSmallIcon(smallIcon(app))
         .setContentTitle(notice.title)
         .setContentText(notice.text)
@@ -144,9 +178,16 @@ private fun workoutNotification(app: Context, notice: WorkoutNotice): Notificati
         .setUsesChronometer(notice.running)
         .setWhen(System.currentTimeMillis() - notice.elapsedMs)
         .setContentIntent(openWorkout(app, notice.link))
-        .addAction(workoutAction(app, toggle.first, toggle.second))
-        .addAction(workoutAction(app, "stop", notice.stopLabel))
-        .build()
+    workoutActions(notice).forEach { (action, label) -> builder.addAction(workoutAction(app, action, label)) }
+    return builder.build()
+}
+
+// The end question offers only Save and Continue; a lost ring adds Reconnect.
+private fun workoutActions(notice: WorkoutNotice): List<Pair<String, String>> {
+    if (notice.confirming) return listOf("save" to notice.saveLabel, "keep" to notice.keepLabel)
+    val toggle = if (notice.running) "pause" to notice.pauseLabel else "resume" to notice.resumeLabel
+    val reconnect = if (notice.ringLost) listOf("reconnect" to notice.reconnectLabel) else emptyList()
+    return listOf(toggle, "stop" to notice.stopLabel) + reconnect
 }
 
 private fun workoutAction(app: Context, action: String, label: String): Notification.Action {

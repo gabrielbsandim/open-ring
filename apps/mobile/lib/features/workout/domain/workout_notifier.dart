@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
 
-enum WorkoutNoticeAction { pause, resume, stop }
+enum WorkoutNoticeAction { pause, resume, stop, save, keep, reconnect }
 
 @immutable
 final class WorkoutNotice {
@@ -12,6 +12,8 @@ final class WorkoutNotice {
     required this.text,
     required this.elapsed,
     required this.running,
+    this.confirming = false,
+    this.ringLost = false,
     this.labels = const WorkoutNoticeLabels(),
   });
 
@@ -19,6 +21,12 @@ final class WorkoutNotice {
   final String text;
   final Duration elapsed;
   final bool running;
+
+  /// The end question is showing: its actions are save and keep.
+  final bool confirming;
+
+  /// The ring went silent: a reconnect action is offered.
+  final bool ringLost;
   final WorkoutNoticeLabels labels;
 
   @override
@@ -27,10 +35,13 @@ final class WorkoutNotice {
       other.title == title &&
       other.text == text &&
       other.elapsed == elapsed &&
-      other.running == running;
+      other.running == running &&
+      other.confirming == confirming &&
+      other.ringLost == ringLost;
 
   @override
-  int get hashCode => Object.hash(title, text, elapsed, running);
+  int get hashCode =>
+      Object.hash(title, text, elapsed, running, confirming, ringLost);
 }
 
 final class WorkoutNoticeLabels {
@@ -50,6 +61,11 @@ final class WorkoutNoticeLabels {
     this.gpsLost = 'GPS signal lost',
     this.speed = 'km/h',
     this.speedImperial = 'mph',
+    this.save = 'Save',
+    this.keep = 'Continue',
+    this.reconnect = 'Reconnect',
+    this.confirmTitle = 'End and save the workout?',
+    this.confirmText = _confirmText,
   });
 
   final String channel;
@@ -67,7 +83,15 @@ final class WorkoutNoticeLabels {
   final String gpsLost;
   final String speed;
   final String speedImperial;
+  final String save;
+  final String keep;
+  final String reconnect;
+  final String confirmTitle;
+  final String Function(String time, String? distance) confirmText;
 }
+
+String _confirmText(String time, String? distance) =>
+    [time, ?distance, 'paused'].join(' · ');
 
 String _zoneTitle(String type, int zone) => '$type · Zone $zone';
 

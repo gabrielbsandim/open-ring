@@ -5,8 +5,10 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -26,6 +28,7 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private var syncServiceStarted = false
     private var workoutShown = false
     private var workoutServiceStarted = false
+    private var screenOn: BroadcastReceiver? = null
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
@@ -122,13 +125,34 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             resumeLabel = requireNotNull(call.argument<String>("resumeLabel")),
             stopLabel = requireNotNull(call.argument<String>("stopLabel")),
             link = call.argument<String>("link"),
+            confirming = call.argument<Boolean>("confirming") ?: false,
+            ringLost = call.argument<Boolean>("ringLost") ?: false,
+            saveLabel = call.argument<String>("saveLabel") ?: "Save",
+            keepLabel = call.argument<String>("keepLabel") ?: "Continue",
+            reconnectLabel = call.argument<String>("reconnectLabel") ?: "Reconnect",
         )
         // Only the engine that shows the workout hears its buttons, never the worker's.
         WorkoutForegroundService.listener = { action -> channel?.invokeMethod("workoutAction", action) }
         WorkoutForegroundService.pending = notice
         if (workoutShown) return showWorkoutNotification(app, notice)
         workoutShown = true
+        listenScreenOn(app)
         startWorkoutService(app, notice)
+    }
+
+    private fun listenScreenOn(app: Context) {
+        if (screenOn != null) return
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) = postHeldWorkoutNotice(app)
+        }
+        app.registerReceiver(receiver, IntentFilter(Intent.ACTION_SCREEN_ON))
+        screenOn = receiver
+    }
+
+    private fun stopListeningScreenOn(app: Context) {
+        val receiver = screenOn ?: return
+        screenOn = null
+        app.unregisterReceiver(receiver)
     }
 
     // From Android 14 a connectedDevice service needs the Bluetooth grant, so
@@ -143,6 +167,7 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private fun hideWorkout(app: Context) {
         if (!workoutShown) return
         workoutShown = false
+        stopListeningScreenOn(app)
         WorkoutForegroundService.listener = null
         if (workoutServiceStarted) WorkoutForegroundService.stop()
         workoutServiceStarted = false

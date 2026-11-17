@@ -2303,5 +2303,11 @@
   "workoutNoticeTitlePaused": "{type} · 已暂停",
   "workoutNoticePausedAt": "暂停于 {time}",
   "workoutNoticeRecording": "正在记录时间",
-  "workoutNoticeGpsLost": "GPS 信号丢失"
+  "workoutNoticeGpsLost": "GPS 信号丢失",
+  "workoutNoticeSave": "保存",
+  "workoutNoticeKeep": "继续",
+  "workoutNoticeReconnect": "重新连接",
+  "workoutNoticeConfirmTitle": "结束并保存训练?",
+  "workoutNoticeConfirmText": "{time} · {distance} · 已暂停",
+  "workoutNoticeConfirmTextNoDistance": "{time} · 已暂停"
 }

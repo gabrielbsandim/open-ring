@@ -2303,5 +2303,11 @@
   "workoutNoticeTitlePaused": "{type} · Dijeda",
   "workoutNoticePausedAt": "Dijeda di {time}",
   "workoutNoticeRecording": "Merekam waktu",
-  "workoutNoticeGpsLost": "Sinyal GPS hilang"
+  "workoutNoticeGpsLost": "Sinyal GPS hilang",
+  "workoutNoticeSave": "Simpan",
+  "workoutNoticeKeep": "Lanjutkan",
+  "workoutNoticeReconnect": "Sambungkan ulang",
+  "workoutNoticeConfirmTitle": "Akhiri dan simpan latihan?",
+  "workoutNoticeConfirmText": "{time} · {distance} · dijeda",
+  "workoutNoticeConfirmTextNoDistance": "{time} · dijeda"
 }

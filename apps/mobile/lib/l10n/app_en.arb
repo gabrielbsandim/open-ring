@@ -4676,5 +4676,13 @@
   "workoutNoticePausedAt": "Paused at {time}",
   "@workoutNoticePausedAt": {"placeholders": {"time": {"type": "String"}}},
   "workoutNoticeRecording": "Recording the time",
-  "workoutNoticeGpsLost": "GPS signal lost"
+  "workoutNoticeGpsLost": "GPS signal lost",
+  "workoutNoticeSave": "Save",
+  "workoutNoticeKeep": "Continue",
+  "workoutNoticeReconnect": "Reconnect",
+  "workoutNoticeConfirmTitle": "End and save the workout?",
+  "workoutNoticeConfirmText": "{time} · {distance} · paused",
+  "@workoutNoticeConfirmText": {"placeholders": {"time": {"type": "String"}, "distance": {"type": "String"}}},
+  "workoutNoticeConfirmTextNoDistance": "{time} · paused",
+  "@workoutNoticeConfirmTextNoDistance": {"placeholders": {"time": {"type": "String"}}}
 }

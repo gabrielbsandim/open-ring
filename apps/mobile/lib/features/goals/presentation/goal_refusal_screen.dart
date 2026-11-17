@@ -48,15 +48,24 @@ class GoalRefusalScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final on = ref.watch(goalsEnabledProvider);
-    final refusal = on ? _refusal(context, ref, l10n) : null;
-    final facts = on ? ref.watch(intakeFactsProvider).value : null;
-    if (refusal != null && facts != null && !_holds(facts)) {
+    final empty = AppPage(title: l10n.goalsPickGroup, children: const []);
+    if (!ref.watch(goalsEnabledProvider) || !_refusable.contains(block)) {
+      return empty;
+    }
+    final facts = ref.watch(intakeFactsProvider);
+    if (facts.hasError) {
+      return AppPage(
+        title: l10n.goalsPickGroup,
+        children: [BodyText(l10n.metricLoadError)],
+      );
+    }
+    final current = facts.value;
+    if (current == null) return empty;
+    if (!_holds(current)) {
       return const GoalPickScreen(initial: GoalKind.loseFat);
     }
-    if (refusal == null || facts == null) {
-      return AppPage(title: l10n.goalsPickGroup, children: const []);
-    }
+    final refusal = _refusal(context, ref, l10n);
+    if (refusal == null) return empty;
     return AppPage(
       title: refusal.title,
       children: [
@@ -102,6 +111,13 @@ class GoalRefusalScreen extends ConsumerWidget {
   // address alone may name a block that no longer holds.
   bool _holds(IntakeFacts facts) =>
       _shown(weightGoalBlock(facts)) == _shown(block);
+
+  static const Set<IntakeBlock?> _refusable = {
+    IntakeBlock.under18,
+    IntakeBlock.ageMissing,
+    IntakeBlock.heightMissing,
+    IntakeBlock.bmiUnderFloor,
+  };
 
   static IntakeBlock? _shown(IntakeBlock? block) =>
       block == IntakeBlock.heightMissing ? IntakeBlock.ageMissing : block;

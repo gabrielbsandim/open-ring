@@ -1871,8 +1871,9 @@ The refusal screen says the rule with the person's own numbers:
 The refusal names its block in the address, and the Today tab keeps that
 address while the profile is edited in another tab. So the screen checks the
 block against the current profile and trend on every build: when it no longer
-holds, the picker shows in its place, on Lose fat, and the numbers it shows
-are always the current ones.
+holds, including when the value the refusal names was cleared, the picker
+shows in its place, on Lose fat, and the numbers it shows are always the
+current ones. A failed read shows the load error, never a blank page.
 
 ## References
 

@@ -318,6 +318,31 @@ void main() {
         expect(find.textContaining('BMI'), findsNothing);
       });
     }
+
+    final cleared = <IntakeBlock, UserProfile>{
+      IntakeBlock.under18: const UserProfile(heightCentimeters: 178),
+      IntakeBlock.bmiUnderFloor: const UserProfile(birthYear: 1990),
+    };
+    for (final MapEntry(key: block, value: profile) in cleared.entries) {
+      testWidgets('${block.name} after the value it names was cleared', (
+        tester,
+      ) async {
+        final setup = await setupPicker(profile: profile, trendKg: 57.9);
+        await _open(tester, setup, block);
+
+        expect(find.byKey(GoalRefusalKeys.primary), findsNothing);
+        expect(find.byKey(GoalPickKeys.continueButton), findsOneWidget);
+      });
+    }
+
+    testWidgets('a failed read shows the load error', (tester) async {
+      final setup = await setupPicker(trendFails: true);
+      await _open(tester, setup, IntakeBlock.bmiUnderFloor);
+
+      final l10n = l10nOf(tester, GoalRefusalScreen);
+      expect(find.text(l10n.metricLoadError), findsOneWidget);
+      expect(find.byKey(GoalRefusalKeys.primary), findsNothing);
+    });
   });
 
   group('10. the gate is off', () {

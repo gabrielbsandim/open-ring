@@ -75,6 +75,8 @@ Future<GoRouter> _open(
 Future<void> _answer(WidgetTester tester, int i, {required bool yes}) async {
   final key = _option(i, yes: yes);
   await tester.scrollUntilVisible(find.byKey(key), 200, maxScrolls: 200);
+  await tester.ensureVisible(find.byKey(key));
+  await tester.pumpAndSettle();
   await tester.tap(find.byKey(key));
   await tester.pumpAndSettle();
 }
@@ -181,7 +183,6 @@ void main() {
 
     testWidgets('tapping the other option replaces the answer', (tester) async {
       final handle = tester.ensureSemantics();
-      addTearDown(handle.dispose);
       final setup = await setupPicker();
       await _open(tester, setup);
       expect(_checked(tester, 0, yes: true), CheckedState.isFalse);
@@ -195,6 +196,7 @@ void main() {
       expect(_checked(tester, 0, yes: true), CheckedState.isFalse);
       expect(_checked(tester, 0, yes: false), CheckedState.isTrue);
       expect(find.text(_answered(1)), findsOneWidget);
+      handle.dispose();
     });
 
     testWidgets('opening the screen writes nothing', (tester) async {
@@ -365,7 +367,6 @@ void main() {
   group('9. the store throws', () {
     testWidgets('keeps the screen and the answers and says so', (tester) async {
       final handle = tester.ensureSemantics();
-      addTearDown(handle.dispose);
       final setup = await setupPicker(
         readStoreOf: (memory) => ProbeGoalStore(memory, screeningFailures: 1),
       );
@@ -383,6 +384,7 @@ void main() {
       expect(_continueEnabled(tester), isTrue);
       expect(await setup.store.screenings(), isEmpty);
       expect(setup.revision, 0);
+      handle.dispose();
     });
 
     testWidgets('a retry writes one row and opens the soft screen', (
@@ -493,7 +495,6 @@ void main() {
       tester,
     ) async {
       final handle = tester.ensureSemantics();
-      addTearDown(handle.dispose);
       final setup = await setupPicker();
       await _open(tester, setup);
 
@@ -504,13 +505,13 @@ void main() {
           reason: 'Question $n of 5',
         );
       }
+      handle.dispose();
     });
 
     testWidgets('the options are in a mutually exclusive group', (
       tester,
     ) async {
       final handle = tester.ensureSemantics();
-      addTearDown(handle.dispose);
       final setup = await setupPicker();
       await _open(tester, setup);
 
@@ -523,11 +524,11 @@ void main() {
           expect(flags.isChecked, CheckedState.isFalse, reason: '$i $yes');
         }
       }
+      handle.dispose();
     });
 
     testWidgets('the title is a header', (tester) async {
       final handle = tester.ensureSemantics();
-      addTearDown(handle.dispose);
       final setup = await setupPicker();
       await _open(tester, setup);
 
@@ -535,6 +536,7 @@ void main() {
         tester.getSemantics(find.text(_title)).flagsCollection.isHeader,
         isTrue,
       );
+      handle.dispose();
     });
   });
 

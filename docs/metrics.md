@@ -2033,6 +2033,27 @@ target and cap and the trend BMI for a weight goal, the days of the last 7
 with a Readiness under `readinessFairFrom`). Hidden numbers leave the rate
 and the BMI out.
 
+### Ending or switching a goal
+
+The goal screen links to "End or switch" whenever a goal is active. Both
+choices end the goal with `GoalStore.end` dated today, with reason `person`
+or `switched`, and keep its weeks; switching then opens the picker, which
+starts a new goal the same day. A week still waiting for an answer stays
+unanswered. `GoalEnder.end` refuses in demo mode, with Goals off and with no
+active goal, and when the store throws, which is logged and leaves the
+screen saying nothing changed; a weight goal with Body off can still be ended.
+
+When the plan raised the step goal, the confirmation asks once whether it
+stays or goes back. `planRaise` reads the goal in force the day before the
+goal started (`stepGoalOn`) and offers the question only when today's
+profile goal is above it and an accepted steps week of this goal went above
+it, so a raise by hand alone is not offered back as the plan's. A raise by
+hand after a plan raise goes back with it. Going back saves the profile
+after the end, through the save that dates a step goal change today, so
+earlier days keep their goal. When that save fails the goal stays ended, the
+failure is logged and the screen offers a retry, which needs no active goal,
+writes no second change row and only lowers the goal.
+
 ### The goal picker
 
 The picker offers four rows: no goal, lose fat, get fitter, sleep better.

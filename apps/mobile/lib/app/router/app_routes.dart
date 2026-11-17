@@ -33,6 +33,7 @@ abstract final class AppPaths {
   static const goalsPick = '/today/goals/pick';
   static const goalsReview = '/today/goals/review';
   static const goalsFormula = '/today/goals/formula';
+  static const goalsEnd = '/today/goals/end';
   static const goalsRefused = '/today/goals/refused';
   static const goalsScreening = '/today/goals/screening';
   static const goalsSetup = '/today/goals/setup';

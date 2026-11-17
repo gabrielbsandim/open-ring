@@ -12,6 +12,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.os.SystemClock
 
 private const val WORKOUT_CHANNEL_ID = "workout_live"
 private const val WORKOUT_NOTIFICATION_ID = 7302
@@ -124,9 +125,10 @@ class WorkoutForegroundService : Service() {
 
 private var posted: WorkoutNotice? = null
 private var held: WorkoutNotice? = null
+private var heldAt = 0L
 
-// With the screen off a running notice that only changes numbers waits; the
-// last one waiting posts when the screen turns on (postHeldWorkoutNotice).
+// With the screen off a running notice waits unless it pauses, asks or loses the
+// ring; the last one waiting posts when the screen turns on.
 internal fun showWorkoutNotification(app: Context, notice: WorkoutNotice) {
     val power = app.getSystemService(Context.POWER_SERVICE) as PowerManager
     val last = posted
@@ -134,6 +136,7 @@ internal fun showWorkoutNotification(app: Context, notice: WorkoutNotice) {
         last.confirming == notice.confirming && last.ringLost == notice.ringLost
     if (!power.isInteractive && notice.running && sameShape) {
         held = notice
+        heldAt = SystemClock.elapsedRealtime()
         return
     }
     held = null
@@ -143,7 +146,9 @@ internal fun showWorkoutNotification(app: Context, notice: WorkoutNotice) {
 }
 
 internal fun postHeldWorkoutNotice(app: Context) {
-    val notice = held ?: return
+    val waiting = held ?: return
+    // The clock kept running while the notice waited.
+    val notice = waiting.copy(elapsedMs = waiting.elapsedMs + SystemClock.elapsedRealtime() - heldAt)
     held = null
     posted = notice
     val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

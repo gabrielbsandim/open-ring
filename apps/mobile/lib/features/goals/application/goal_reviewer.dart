@@ -58,8 +58,8 @@ class GoalReviewer extends Notifier<void> {
     final weight = await _weight(goal, sunday, bodyOn: bodyOn);
     final trend = await ref.read(readinessTrendProvider.future);
     final closing = _blockCloses(goal, monday, weight.trendKg);
-    // The phase goes first: a row written without it would stand for a
-    // Monday whose close was lost, and the close would wait a week.
+    // The phase goes first: a row written without it would lose this close,
+    // and only a later Monday that meets the close again would set it.
     if (closing && !await _startMaintenance(goal, monday)) return null;
     final inputs = closedWeekInputs(
       goal: goal,

@@ -40,6 +40,7 @@ final class GoalBlock {
     required this.blockKg,
     required this.end,
     required this.maintenanceEnd,
+    required this.anchorKg,
   });
 
   final LocalDate start;
@@ -48,6 +49,22 @@ final class GoalBlock {
   final double blockKg;
   final LocalDate end;
   final LocalDate maintenanceEnd;
+
+  /// The trend weight the block started from.
+  final double anchorKg;
+}
+
+/// A block closes at any Monday after its last day, or at a Monday whose
+/// trend has lost [goalBlockMaxLossPercent] of the anchor.
+bool blockCloses({
+  required GoalBlock block,
+  required LocalDate monday,
+  required double? trendKg,
+}) {
+  if (monday.compareTo(block.end) > 0) return true;
+  if (trendKg == null) return false;
+  final lost = block.anchorKg - trendKg;
+  return lost >= block.anchorKg * goalBlockMaxLossPercent / 100;
 }
 
 // A loss is positive here, the opposite sign of the weight slope.
@@ -117,6 +134,7 @@ GoalBlock goalBlock({
     blockKg: weeklyKg * weeks,
     end: end,
     maintenanceEnd: end.addDays(7 * goalMaintenanceWeeks),
+    anchorKg: startKg,
   );
 }
 

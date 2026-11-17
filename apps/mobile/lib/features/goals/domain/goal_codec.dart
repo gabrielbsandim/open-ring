@@ -39,6 +39,7 @@ String encodeReviewInputs(ReviewInputs inputs) => jsonEncode({
   'energyPrevious': inputs.energyPrevious?.name,
   'foodOrWeight': inputs.foodOrWeight,
   'foodOrWeightPrevious': inputs.foodOrWeightPrevious,
+  'maintenance': inputs.maintenance,
 });
 
 ReviewInputs? decodeReviewInputs(String json) => _decode(
@@ -73,6 +74,8 @@ ReviewInputs? decodeReviewInputs(String json) => _decode(
     ),
     foodOrWeight: _as<bool?>(_at(map, 'foodOrWeight')),
     foodOrWeightPrevious: _as<bool?>(_at(map, 'foodOrWeightPrevious')),
+    // Rows written before maintenance existed have no key.
+    maintenance: _as<bool?>(map['maintenance']) ?? false,
   ),
 );
 

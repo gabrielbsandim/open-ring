@@ -2161,7 +2161,7 @@
   "goalsFormulaRuleShrink": "{max} leviers actifs et adhésion sous {percent} %",
   "goalsFormulaRuleOnTrack": "Le rythme est sur la bonne voie",
   "goalsFormulaRuleSlow": "Rythme sous la plage, adhésion de {percent} % ou plus et une étape suivante existe",
-  "goalsFormulaRuleOther": "Tout autre cas",
+  "goalsFormulaRuleOther": "Tout autre cas, et chaque semaine de maintien que les quatre premières règles laissent passer",
   "goalsFormulaAnswerEnd": "L’objectif prend fin",
   "goalsFormulaAnswerPauseDays": "Pause de {days} jours",
   "goalsFormulaAnswerPause": "Pause",

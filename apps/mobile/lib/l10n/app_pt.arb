@@ -2161,7 +2161,7 @@
   "goalsFormulaRuleShrink": "{max} alavancas ativas e adesão abaixo de {percent}%",
   "goalsFormulaRuleOnTrack": "O ritmo está no caminho",
   "goalsFormulaRuleSlow": "Ritmo abaixo da faixa, adesão de {percent}% ou mais e existe próximo passo",
-  "goalsFormulaRuleOther": "Qualquer outro caso",
+  "goalsFormulaRuleOther": "Qualquer outro caso, e toda semana de manutenção que passa pelas quatro primeiras regras",
   "goalsFormulaAnswerEnd": "A meta termina",
   "goalsFormulaAnswerPauseDays": "Pausa de {days} dias",
   "goalsFormulaAnswerPause": "Pausa",

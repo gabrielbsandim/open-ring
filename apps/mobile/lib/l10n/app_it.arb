@@ -2161,7 +2161,7 @@
   "goalsFormulaRuleShrink": "{max} leve attive e aderenza sotto il {percent}%",
   "goalsFormulaRuleOnTrack": "Il ritmo è in linea",
   "goalsFormulaRuleSlow": "Ritmo sotto la fascia, aderenza del {percent}% o più ed esiste un passo successivo",
-  "goalsFormulaRuleOther": "Qualsiasi altro caso",
+  "goalsFormulaRuleOther": "Qualsiasi altro caso, e ogni settimana di mantenimento che passa le prime quattro regole",
   "goalsFormulaAnswerEnd": "L’obiettivo termina",
   "goalsFormulaAnswerPauseDays": "Pausa di {days} giorni",
   "goalsFormulaAnswerPause": "Pausa",

@@ -2161,7 +2161,7 @@
   "goalsFormulaRuleShrink": "レバーが{max}つ有効で達成率が{percent}%未満",
   "goalsFormulaRuleOnTrack": "ペースが順調",
   "goalsFormulaRuleSlow": "ペースが範囲を下回り、達成率{percent}%以上で次の一歩がある",
-  "goalsFormulaRuleOther": "それ以外",
+  "goalsFormulaRuleOther": "それ以外、および最初の4つのルールを通過した維持期間の週",
   "goalsFormulaAnswerEnd": "目標を終える",
   "goalsFormulaAnswerPauseDays": "{days}日間の休止",
   "goalsFormulaAnswerPause": "休止",

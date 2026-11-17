@@ -2161,7 +2161,7 @@
   "goalsFormulaRuleShrink": "{max} 个杠杆生效且执行率低于 {percent}%",
   "goalsFormulaRuleOnTrack": "速度在轨",
   "goalsFormulaRuleSlow": "速度低于区间、执行率 {percent}% 或以上且有下一步",
-  "goalsFormulaRuleOther": "其他情况",
+  "goalsFormulaRuleOther": "其他情况，以及通过前四条规则的每个保持周",
   "goalsFormulaAnswerEnd": "目标结束",
   "goalsFormulaAnswerPauseDays": "暂停 {days} 天",
   "goalsFormulaAnswerPause": "暂停",

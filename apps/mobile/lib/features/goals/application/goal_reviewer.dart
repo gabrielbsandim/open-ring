@@ -57,6 +57,10 @@ class GoalReviewer extends Notifier<void> {
     final profile = await ref.read(userProfileProvider.future);
     final weight = await _weight(goal, sunday, bodyOn: bodyOn);
     final trend = await ref.read(readinessTrendProvider.future);
+    final closing = _blockCloses(goal, monday, weight.trendKg);
+    // The phase goes first: a row written without it would lose this close,
+    // and only a later Monday that meets the close again would set it.
+    if (closing && !await _startMaintenance(goal, monday)) return null;
     final inputs = closedWeekInputs(
       goal: goal,
       monday: monday,
@@ -73,6 +77,7 @@ class GoalReviewer extends Notifier<void> {
         last: trend.today,
         from: monday.addDays(-_daysInWeek),
       ),
+      maintenance: closing || goal.phase == GoalPhase.maintenance,
     );
     final review = reviewWeek(inputs);
     final written = await store.addWeek(
@@ -243,10 +248,39 @@ class GoalReviewer extends Notifier<void> {
     return true;
   }
 
-  bool _waitsForBlock(Goal goal, LocalDate today) {
-    if (goal.phase != GoalPhase.paused) return goal.levers.isEmpty;
+  bool _waitsForBlock(Goal goal, LocalDate today) => switch (goal.phase) {
+    GoalPhase.paused || GoalPhase.maintenance => _over(goal, today),
+    GoalPhase.block || GoalPhase.ended => goal.levers.isEmpty,
+  };
+
+  bool _over(Goal goal, LocalDate today) {
     final until = goal.phaseUntil;
     return until != null && until.compareTo(today) < 0;
+  }
+
+  bool _blockCloses(Goal goal, LocalDate monday, double? trendKg) {
+    final anchor = goal.blockAnchorKg;
+    if (goal.phase != GoalPhase.block || anchor == null) return false;
+    if (goal.kind != GoalKind.loseFat) return false;
+    final block = goalBlock(
+      startKg: anchor,
+      percentPerWeek: goalPacePercent(goal.pace ?? GoalPace.standard),
+      start: goal.blockStartedOn,
+    );
+    return blockCloses(block: block, monday: monday, trendKg: trendKg);
+  }
+
+  Future<bool> _startMaintenance(Goal goal, LocalDate monday) async {
+    final started = await ref
+        .read(goalStoreProvider)
+        .setPhase(
+          goal.id,
+          GoalPhase.maintenance,
+          since: monday,
+          until: monday.addDays(7 * goalMaintenanceWeeks - 1),
+        );
+    if (started) _bump();
+    return started;
   }
 
   Future<double?> _readyTrend(Goal goal, LocalDate today) async {

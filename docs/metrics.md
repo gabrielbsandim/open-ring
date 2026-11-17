@@ -1861,6 +1861,38 @@ What it cannot say:
   result; the screen of the questions ignores a second tap while the first
   is saving.
 
+### Starting a weight goal
+
+`domain/goal_setup.dart` and `GoalSetupController.start` hold the rules of
+the setup; its screen comes in a later slice. A lose fat goal starts only
+when the questions were answered with a no and nothing blocks it, with Goals
+on, outside demo mode and with a trend. It takes a pace, standard or gentle,
+and an optional reference weight, and starts with the trend as its anchor
+and no lever: the first block picks the lever once the weight rate is ready.
+
+The reference weight lies between the BMI floor for the height,
+`referenceFloorKg`, and the trend rounded down to 0.5 kg; with no room
+between them the setup offers none. The controller checks only those bounds,
+not a step, because a weight chosen in pounds is not a whole number of half
+kilograms.
+
+`asksPregnancy` says whether the setup asks about pregnancy and
+breastfeeding: always, unless the profile says male, and again whenever the
+newest answer was a yes. The answer is stored as a screening row with no soft
+mode answer, dated like the row that leaves soft mode. A yes starts nothing.
+
+What it cannot say:
+
+- That the block ends above the BMI floor. A pace that would carry the trend
+  under BMI 18.5 is not refused here. The weekly review ends the goal when the
+  trend gets there (rule 1), but only at a review that has Body on and so a
+  trend. The first review runs on the first Monday at least 7 days after the
+  first block starts, the block starts only once the weight rate is ready, and
+  starting it does not check the BMI again.
+- That the two writes happen together. The pregnancy row is written first,
+  so a failed start can leave a row with a no and no goal, which changes
+  nothing.
+
 ### The goal picker
 
 The picker offers four rows: no goal, lose fat, get fitter, sleep better.

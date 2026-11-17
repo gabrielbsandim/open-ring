@@ -39,6 +39,7 @@ abstract final class GoalScreenKeys {
   static const hidden = Key('goal_screen_hidden');
   static const baseNote = Key('goal_screen_base_note');
   static const noWeight = Key('goal_screen_no_weight');
+  static const formula = Key('goal_screen_formula');
 }
 
 /// How far along the goal is, as the path card needs it.
@@ -137,6 +138,8 @@ class GoalScreen extends ConsumerWidget {
           ],
         ),
       ),
+      const SizedBox(height: 8),
+      _FormulaLink(l10n),
     ],
   );
 
@@ -159,6 +162,8 @@ class GoalScreen extends ConsumerWidget {
             const SizedBox(height: 4),
           ],
           CaptionText(l10n.goalsScreenFoot),
+          const SizedBox(height: 8),
+          _FormulaLink(l10n),
         ],
       ),
     ],
@@ -607,4 +612,21 @@ class _SheetRow extends StatelessWidget {
       ),
     );
   }
+}
+
+class _FormulaLink extends StatelessWidget {
+  const new(this.l10n);
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: AlignmentDirectional.centerStart,
+    child: TextButton.icon(
+      key: GoalScreenKeys.formula,
+      onPressed: () => unawaited(context.push(AppPaths.goalsFormula)),
+      icon: const Icon(Icons.receipt_long_outlined),
+      label: Text(l10n.formulaLink),
+    ),
+  );
 }

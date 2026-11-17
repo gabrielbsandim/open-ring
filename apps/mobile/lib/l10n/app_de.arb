@@ -2294,5 +2294,8 @@
   "moduleGoalsTurnOff": "Ziele ausschalten",
   "goalsEndDeleteDataBody": "Eine eigene Aktion, auf dem Modulbildschirm. Wiegungen gehören zu Körper und bleiben.",
   "privacyStoresGoals": "Ziele: das gewählte Ziel mit Start- und Referenzgewicht, der Wochenplan und seine Rückblicke, deine Antworten beim Check-in, und Ergebnis und Datum des Fragebogens mit der Antwort zur Schwangerschaft (optional, Modul Ziele)",
-  "privacyStoresGoalsWhy": "Um den Wochenplan aufzubauen, ihn jeden Montag zu prüfen und seine Schutzregeln zu halten; der Fragebogen behält das Gesamtergebnis, nicht jede Antwort"
+  "privacyStoresGoalsWhy": "Um den Wochenplan aufzubauen, ihn jeden Montag zu prüfen und seine Schutzregeln zu halten; der Fragebogen behält das Gesamtergebnis, nicht jede Antwort",
+  "goalsPathPaceKeeping": "Keins beim Halten",
+  "goalsPathRateDetailKeeping": "{percent} % pro Woche, zwischen {low} und {high}. Beim Halten gibt es kein Zieltempo.",
+  "goalsSheetRateYoursKeeping": "{amount} weniger pro Woche, mit 95 % Sicherheit zwischen {low} und {high}. Geteilt durch deinen Trend ({trend}) sind das {percent} % pro Woche, zwischen {percentLow} und {percentHigh}. Beim Halten gibt es kein Zieltempo."
 }

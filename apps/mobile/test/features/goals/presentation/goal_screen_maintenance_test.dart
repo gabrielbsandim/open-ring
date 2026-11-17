@@ -25,13 +25,13 @@ const _today = LocalDate(2027, 2, 24);
 const _until = LocalDate(2027, 3, 7);
 const _steps = Lever(kind: LeverKind.steps, target: 9000);
 
-Goal _goal({GoalPhase phase = GoalPhase.block}) => Goal(
+Goal _goal({GoalPhase phase = GoalPhase.block, double? reference = 74}) => Goal(
   id: 1,
   kind: GoalKind.loseFat,
   pace: GoalPace.standard,
   startedOn: _start,
   anchorKg: 78.4,
-  referenceKg: 74,
+  referenceKg: reference,
   blockStartedOn: _start,
   blockAnchorKg: 78.4,
   phase: phase,
@@ -51,8 +51,8 @@ GoalWeekView _keeping({required bool over}) => GoalWeekRunning(
   maintenance: GoalMaintenance(until: _until, over: over),
 );
 
-GoalPathView _path() {
-  final goal = _goal();
+GoalPathView _path({double? reference = 74}) {
+  final goal = _goal(reference: reference);
   final daily = [
     for (var d = 0; d <= 20; d += 2)
       (date: _start.addDays(d), value: 78.4 - d * 0.03),
@@ -79,6 +79,7 @@ GoalPathView _path() {
 Future<void> _pump(
   WidgetTester tester, {
   required GoalWeekView week,
+  double? reference = 74,
   double scale = 1,
   Locale locale = const Locale('en'),
   Brightness brightness = Brightness.light,
@@ -104,7 +105,7 @@ Future<void> _pump(
     locale: locale,
     overrides: [
       goalWeekProvider.overrideWith((ref) async => week),
-      goalPathProvider.overrideWith((ref) async => _path()),
+      goalPathProvider.overrideWith((ref) async => _path(reference: reference)),
       currentDateProvider.overrideWithValue(_today),
       hideNumbersStoreProvider.overrideWithValue(InMemoryHideNumbersStore()),
       unitSystemStoreProvider.overrideWithValue(
@@ -122,7 +123,59 @@ String _text(WidgetTester tester) => tester
 AppLocalizations _l10n(WidgetTester tester) =>
     AppLocalizations.of(tester.element(find.byType(GoalScreen)));
 
+GoalWeekView _running() => GoalWeekRunning(
+  goal: _goal(),
+  monday: const LocalDate(2027, 2, 22),
+  week: 15,
+  levers: const [],
+  review: null,
+);
+
 void main() {
+  group('no rate target in maintenance', () {
+    testWidgets('the rate row drops the target and says why', (tester) async {
+      await _pump(tester, week: _keeping(over: false));
+
+      final text = _text(tester);
+      expect(text, contains('Maintenance has no rate target.'));
+      expect(text, isNot(contains('Target:')));
+    });
+
+    testWidgets('the pace tile reads none without a reference', (tester) async {
+      await _pump(tester, week: _keeping(over: false), reference: null);
+
+      final tile = find.byKey(GoalScreenKeys.reference);
+      expect(
+        find.descendant(
+          of: tile,
+          matching: find.text(_l10n(tester).goalsPathPaceKeeping),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('the rate sheet names no target', (tester) async {
+      await _pump(tester, week: _keeping(over: false));
+      await tester.ensureVisible(find.byKey(GoalScreenKeys.rate));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(GoalScreenKeys.rate));
+      await tester.pumpAndSettle();
+
+      final text = _text(tester);
+      expect(text, contains('Maintenance has no rate target.'));
+      expect(text, isNot(contains('The target is')));
+    });
+
+    testWidgets('a running block still reads its target', (tester) async {
+      await _pump(tester, week: _running(), reference: null);
+
+      final text = _text(tester);
+      expect(text, contains('Target:'));
+      expect(text, isNot(contains('Maintenance has no rate target.')));
+      expect(text, isNot(contains(_l10n(tester).goalsPathPaceKeeping)));
+    });
+  });
+
   group('G11b2 criterion 7: the goal screen in maintenance', () {
     testWidgets('the subtitle is the keeping line', (tester) async {
       await _pump(tester, week: _keeping(over: false));

@@ -75,12 +75,23 @@ String goalEvidenceYours(
   GoalEvidence kind,
   GoalPath path, {
   required bool paused,
+  bool maintenance = false,
 }) {
   final format = units.format;
   final l10n = units.l10n;
   final rate = path.rate;
   final trend = path.trendKg;
   return switch (kind) {
+    GoalEvidence.rate when rate != null && trend != null && maintenance =>
+      l10n.goalsSheetRateYoursKeeping(
+        goalRateAmount(units, rate.kg),
+        goalRateAmount(units, rate.kgLow),
+        goalRateAmount(units, rate.kgHigh),
+        units.bodyWeight(trend),
+        goalPercent(format, rate.percent),
+        goalPercent(format, rate.percentLow),
+        goalPercent(format, rate.percentHigh),
+      ),
     GoalEvidence.rate when rate != null && trend != null =>
       l10n.goalsSheetRateYours(
         goalRateAmount(units, rate.kg),

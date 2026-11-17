@@ -4661,5 +4661,10 @@
   "moduleGoalsTurnOff": "Turn Goals off",
   "goalsEndDeleteDataBody": "A separate action, on the module screen. Weigh-ins belong to Body and stay.",
   "privacyStoresGoals": "Goals: the goal you choose with its start and reference weights, the weekly plan and its reviews, your check-in answers, and the screening result and date with the pregnancy answer (optional, Goals module)",
-  "privacyStoresGoalsWhy": "To build the weekly plan, review it each Monday and keep its safety checks; the screening keeps the overall result, not each answer"
+  "privacyStoresGoalsWhy": "To build the weekly plan, review it each Monday and keep its safety checks; the screening keeps the overall result, not each answer",
+  "goalsPathPaceKeeping": "None in maintenance",
+  "goalsPathRateDetailKeeping": "{percent}% a week, between {low} and {high}. Maintenance has no rate target.",
+  "@goalsPathRateDetailKeeping": {"placeholders": {"percent": {"type": "String"}, "low": {"type": "String"}, "high": {"type": "String"}}},
+  "goalsSheetRateYoursKeeping": "{amount} lost a week, with 95% confidence between {low} and {high}. Divided by your trend ({trend}), that is {percent}% a week, between {percentLow} and {percentHigh}. Maintenance has no rate target.",
+  "@goalsSheetRateYoursKeeping": {"placeholders": {"amount": {"type": "String"}, "low": {"type": "String"}, "high": {"type": "String"}, "trend": {"type": "String"}, "percent": {"type": "String"}, "percentLow": {"type": "String"}, "percentHigh": {"type": "String"}}}
 }

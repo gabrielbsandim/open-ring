@@ -32,6 +32,7 @@ abstract final class GoalWeekCardKeys {
   static const paused = Key('goal_week_card_paused');
   static const recovery = Key('goal_week_card_recovery');
   static const hold = Key('goal_week_card_hold');
+  static const maintenance = Key('goal_week_card_maintenance');
 
   static Key lever(LeverKind kind) => Key('goal_week_card_lever_${kind.name}');
   static Key count(LeverKind kind) => Key('goal_week_card_count_${kind.name}');
@@ -102,9 +103,11 @@ class GoalWeekCard extends ConsumerWidget {
           CaptionText(l10n.goalsWeekPausedNote),
         ],
       ),
-      GoalWeekRecovery() => (
+      GoalWeekRecovery(:final maintenance) => (
         tag: l10n.goalsWeekTagRecovery,
         children: [
+          if (maintenance != null)
+            ..._maintenanceLine(format, title, maintenance),
           Text(
             l10n.goalsWeekRecoveryTitle,
             key: GoalWeekCardKeys.recovery,
@@ -120,10 +123,20 @@ class GoalWeekCard extends ConsumerWidget {
         tag: l10n.goalsWeekTagReview,
         children: _review(context, format, review),
       ),
-      GoalWeekRunning(:final goal, :final monday, :final week, :final levers) =>
+      GoalWeekRunning(
+        :final goal,
+        :final monday,
+        :final week,
+        :final levers,
+        :final maintenance,
+      ) =>
         (
-          tag: _weekTag(ref, l10n, goal, week),
+          tag: maintenance == null
+              ? _weekTag(ref, l10n, goal, week)
+              : l10n.goalsWeekTagMaintenance,
           children: [
+            if (maintenance != null)
+              ..._maintenanceLine(format, title, maintenance),
             CaptionText(
               l10n.goalsWeekPlanOf(
                 goalKindName(l10n, goal.kind),
@@ -219,6 +232,22 @@ class GoalWeekCard extends ConsumerWidget {
       ),
       const SizedBox(height: 8),
       CaptionText(l10n.goalsWeekReviewNote),
+    ];
+  }
+
+  // The line leads, since the week count of a closed block says nothing.
+  List<Widget> _maintenanceLine(
+    MetricFormat format,
+    TextStyle? title,
+    GoalMaintenance maintenance,
+  ) {
+    final l10n = format.l10n;
+    final line = maintenance.over
+        ? l10n.goalsWeekMaintenanceOver
+        : l10n.goalsWeekKeepingUntil(format.monthDay(maintenance.until));
+    return [
+      Text(line, key: GoalWeekCardKeys.maintenance, style: title),
+      const SizedBox(height: 4),
     ];
   }
 

@@ -2255,5 +2255,15 @@
   "goalsEndCancel": "Annuler",
   "goalsEndFailed": "L’objectif est arrêté, mais l’objectif de pas n’a pas pu revenir à {steps}.",
   "goalsEndDone": "L’objectif est arrêté. Ce que vous avez fait reste dans vos données.",
-  "goalsEndRefused": "L’objectif n’a pas été arrêté. Rien n’a changé."
+  "goalsEndRefused": "L’objectif n’a pas été arrêté. Rien n’a changé.",
+  "goalsEndMaintain": "Passer au maintien maintenant",
+  "goalsEndMaintainBody": "Ferme le bloc plus tôt et commence les {weeks} semaines de maintien, avec les mêmes leviers.",
+  "goalsEndConfirmMaintainTitle": "Passer au maintien maintenant ?",
+  "goalsEndConfirmMaintainBody": "Le bloc se ferme aujourd’hui. Les leviers restent, aucun changement n’est proposé, et un nouveau bloc commence après le {date}.",
+  "goalsEndMaintainRefused": "L’objectif n’est pas passé au maintien. Rien n’a changé.",
+  "goalsWeekTagMaintenance": "maintien",
+  "goalsWeekKeepingUntil": "Maintien jusqu’au {date}",
+  "goalsWeekMaintenanceOver": "Le maintien est terminé",
+  "goalsScreenKeepingUntil": "Maintien jusqu’au {date}, puis un nouveau bloc",
+  "goalsScreenMaintenanceOver": "Le maintien s’est terminé le {date}. Un nouveau bloc commence dès qu’il y a un rythme de poids."
 }

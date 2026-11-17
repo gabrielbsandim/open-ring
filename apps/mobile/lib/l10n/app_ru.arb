@@ -2255,5 +2255,15 @@
   "goalsEndCancel": "Отмена",
   "goalsEndFailed": "Цель завершена, но цель по шагам не удалось вернуть к {steps}.",
   "goalsEndDone": "Цель завершена. Сделанное остаётся в ваших данных.",
-  "goalsEndRefused": "Цель не завершена. Ничего не изменилось."
+  "goalsEndRefused": "Цель не завершена. Ничего не изменилось.",
+  "goalsEndMaintain": "Перейти к поддержанию сейчас",
+  "goalsEndMaintainBody": "Закрывает блок досрочно и начинает {weeks} недели поддержания с теми же рычагами.",
+  "goalsEndConfirmMaintainTitle": "Перейти к поддержанию сейчас?",
+  "goalsEndConfirmMaintainBody": "Блок закрывается сегодня. Рычаги остаются, изменения не предлагаются, а новый блок начнётся после {date}.",
+  "goalsEndMaintainRefused": "Цель не перешла к поддержанию. Ничего не изменилось.",
+  "goalsWeekTagMaintenance": "поддержание",
+  "goalsWeekKeepingUntil": "Поддержание до {date}",
+  "goalsWeekMaintenanceOver": "Поддержание закончилось",
+  "goalsScreenKeepingUntil": "Поддержание до {date}, затем новый блок",
+  "goalsScreenMaintenanceOver": "Поддержание закончилось {date}. Новый блок начнётся, как только появится темп веса."
 }

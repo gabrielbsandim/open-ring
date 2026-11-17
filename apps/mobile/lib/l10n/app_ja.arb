@@ -2238,7 +2238,7 @@
   "goalsSheetRuleLimits": "ふりかえりは2つの質問以外に、何を食べたかもどう感じているかも見ていません。医学的な許可ではありません。",
   "goalsEndLink": "終える・切り替える",
   "goalsEndTitle": "終える・切り替える",
-  "goalsEndLead": "{goal}。どちらを選んでも、記録したものは消えません。",
+  "goalsEndLead": "{goal}。どれを選んでも、記録したものは消えません。",
   "goalsEndSwitch": "目標を切り替える",
   "goalsEndSwitchBody": "今の目標は終わって履歴に残ります。新しい目標は今日の数値から始まります。",
   "goalsEndEnd": "目標を終える",
@@ -2255,5 +2255,15 @@
   "goalsEndCancel": "キャンセル",
   "goalsEndFailed": "目標は終わりましたが、歩数目標を{steps}に戻せませんでした。",
   "goalsEndDone": "目標を終えました。やったことはデータに残ります。",
-  "goalsEndRefused": "目標は終わっていません。何も変わっていません。"
+  "goalsEndRefused": "目標は終わっていません。何も変わっていません。",
+  "goalsEndMaintain": "今すぐ維持に移る",
+  "goalsEndMaintainBody": "ブロックを早めに閉じ、同じレバーのまま{weeks}週間の維持を始めます。",
+  "goalsEndConfirmMaintainTitle": "今すぐ維持に移りますか？",
+  "goalsEndConfirmMaintainBody": "ブロックは今日閉じます。レバーはそのままで、変更は提案されず、{date}の後に新しいブロックが始まります。",
+  "goalsEndMaintainRefused": "目標は維持に移っていません。何も変わっていません。",
+  "goalsWeekTagMaintenance": "維持",
+  "goalsWeekKeepingUntil": "{date}まで維持",
+  "goalsWeekMaintenanceOver": "維持は終わりました",
+  "goalsScreenKeepingUntil": "{date}まで維持、その後に新しいブロック",
+  "goalsScreenMaintenanceOver": "維持は{date}に終わりました。体重のペースが出しだい新しいブロックが始まります。"
 }

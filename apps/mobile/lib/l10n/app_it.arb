@@ -2255,5 +2255,15 @@
   "goalsEndCancel": "Annulla",
   "goalsEndFailed": "L’obiettivo è chiuso, ma l’obiettivo di passi non è potuto tornare a {steps}.",
   "goalsEndDone": "L’obiettivo è chiuso. Ciò che hai fatto resta nei tuoi dati.",
-  "goalsEndRefused": "L’obiettivo non è stato chiuso. Non è cambiato nulla."
+  "goalsEndRefused": "L’obiettivo non è stato chiuso. Non è cambiato nulla.",
+  "goalsEndMaintain": "Passa al mantenimento ora",
+  "goalsEndMaintainBody": "Chiude il blocco prima del tempo e inizia le {weeks} settimane di mantenimento, con le stesse leve.",
+  "goalsEndConfirmMaintainTitle": "Passare al mantenimento ora?",
+  "goalsEndConfirmMaintainBody": "Il blocco si chiude oggi. Le leve restano, nessuna modifica viene proposta e un nuovo blocco inizia dopo il {date}.",
+  "goalsEndMaintainRefused": "L’obiettivo non è passato al mantenimento. Non è cambiato nulla.",
+  "goalsWeekTagMaintenance": "mantenimento",
+  "goalsWeekKeepingUntil": "Mantenimento fino al {date}",
+  "goalsWeekMaintenanceOver": "Il mantenimento è finito",
+  "goalsScreenKeepingUntil": "Mantenimento fino al {date}, poi un nuovo blocco",
+  "goalsScreenMaintenanceOver": "Il mantenimento è finito il {date}. Un nuovo blocco inizia appena c’è un ritmo del peso."
 }

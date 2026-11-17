@@ -26,7 +26,8 @@ final activeGoalProvider = FutureProvider<Goal?>((ref) async {
 });
 
 /// The first state that holds, in this order: off, no goal, a pause that is
-/// not over, hold, a pause that is over, base, recovery, running.
+/// not over, hold, a pause that is over, base, recovery, running. Recovery
+/// and running carry the maintenance weeks when the goal keeps.
 final goalWeekProvider = FutureProvider<GoalWeekView>((ref) async {
   if (!ref.watch(goalsEnabledProvider)) return const GoalWeekOff();
   // A write that changes only a week row leaves the goal equal, so the goal
@@ -51,8 +52,14 @@ final goalWeekProvider = FutureProvider<GoalWeekView>((ref) async {
   final monday = mondayOf(today);
   final week = goalWeekNumber(start: goal.blockStartedOn, today: today);
   final row = await _rowOfThisWeek(ref, goal, monday);
+  final maintenance = _maintenance(goal, today);
   if (row?.action == ReviewAction.recoveryWeek) {
-    return GoalWeekRecovery(goal: goal, monday: monday, week: week);
+    return GoalWeekRecovery(
+      goal: goal,
+      monday: monday,
+      week: week,
+      maintenance: maintenance,
+    );
   }
   final data = await _weekData(ref, {
     for (final lever in goal.levers) lever.kind,
@@ -65,9 +72,17 @@ final goalWeekProvider = FutureProvider<GoalWeekView>((ref) async {
       for (final lever in goal.levers)
         leverProgress(lever, data, monday: monday, today: today),
     ],
-    review: row != null && row.pending ? row : null,
+    // A proposal left from the block lapses: maintenance takes no answer.
+    review: row != null && row.pending && maintenance == null ? row : null,
+    maintenance: maintenance,
   );
 });
+
+GoalMaintenance? _maintenance(Goal goal, LocalDate today) {
+  final until = goal.phaseUntil;
+  if (goal.phase != GoalPhase.maintenance || until == null) return null;
+  return GoalMaintenance(until: until, over: until.compareTo(today) < 0);
+}
 
 // A review pauses from the Monday of its row, so that row names the rule; a
 // pause the person set has no such row.

@@ -118,7 +118,7 @@ void main() {
     await _pump(tester);
     expect(find.byKey(GoalEndKeys.switchGoal), findsOneWidget);
     expect(find.byKey(GoalEndKeys.endGoal), findsOneWidget);
-    expect(_text(tester), contains('Lose fat. Neither option deletes'));
+    expect(_text(tester), contains('Lose fat. None of these options deletes'));
     expect(
       _text(tester),
       contains('since the goal started it went from 8,000 to 10,000'),

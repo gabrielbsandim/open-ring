@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 
@@ -55,15 +56,42 @@ final class GoalWeekBase extends GoalWeekView {
   final WeightRate? rate;
 }
 
+/// The maintenance weeks after a block, as the running layout shows them.
+@immutable
+final class GoalMaintenance {
+  const new({required this.until, required this.over});
+
+  /// The last day of maintenance, inclusive.
+  final LocalDate until;
+
+  /// Whether the last day has passed and the next block has not started.
+  final bool over;
+
+  @override
+  bool operator ==(Object other) =>
+      other is GoalMaintenance && other.until == until && other.over == over;
+
+  @override
+  int get hashCode => Object.hash(until, over);
+}
+
 /// The review of this Monday asked for a recovery week.
 final class GoalWeekRecovery extends GoalWeekView {
-  const new({required this.goal, required this.monday, required this.week});
+  const new({
+    required this.goal,
+    required this.monday,
+    required this.week,
+    this.maintenance,
+  });
 
   final Goal goal;
   final LocalDate monday;
 
   /// The week of the block under way, from 1.
   final int week;
+
+  /// Set while the goal keeps after a block.
+  final GoalMaintenance? maintenance;
 }
 
 final class GoalWeekRunning extends GoalWeekView {
@@ -73,6 +101,7 @@ final class GoalWeekRunning extends GoalWeekView {
     required this.week,
     required this.levers,
     required this.review,
+    this.maintenance,
   });
 
   final Goal goal;
@@ -84,4 +113,19 @@ final class GoalWeekRunning extends GoalWeekView {
 
   /// The review of this Monday while its proposal waits for an answer.
   final GoalWeek? review;
+
+  /// Set while the goal keeps after a block.
+  final GoalMaintenance? maintenance;
+}
+
+/// Whether the end screen offers to move to maintenance now: only a running
+/// block of losing fat, the only goal that keeps after a block.
+bool canMaintainNow(GoalWeekView view) {
+  final goal = switch (view) {
+    GoalWeekRunning(:final goal, maintenance: null) => goal,
+    GoalWeekRecovery(:final goal, maintenance: null) => goal,
+    _ => null,
+  };
+  if (goal == null) return false;
+  return goal.kind == GoalKind.loseFat && goal.phase == GoalPhase.block;
 }

@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.KeyguardManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -33,6 +34,8 @@ internal data class WorkoutNotice(
     val saveLabel: String = "Save",
     val keepLabel: String = "Continue",
     val reconnectLabel: String = "Reconnect",
+    val publicTitle: String? = null,
+    val publicText: String? = null,
 )
 
 // Keeps the process alive for a workout with no route, where no location
@@ -79,7 +82,9 @@ class WorkoutForegroundService : Service() {
     }
 
     private fun promote() {
-        val notification = workoutNotification(this, requireNotNull(pending))
+        val notice = requireNotNull(pending)
+        val notification = workoutNotification(this, notice)
+        rememberPostedWorkoutNotice(notice)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             startForeground(WORKOUT_NOTIFICATION_ID, notification)
             return
@@ -124,6 +129,7 @@ class WorkoutForegroundService : Service() {
 }
 
 private var posted: WorkoutNotice? = null
+private var postedAt = 0L
 private var held: WorkoutNotice? = null
 private var heldAt = 0L
 
@@ -140,17 +146,35 @@ internal fun showWorkoutNotification(app: Context, notice: WorkoutNotice) {
         return
     }
     held = null
-    posted = notice
-    val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    manager.notify(WORKOUT_NOTIFICATION_ID, workoutNotification(app, notice))
+    post(app, notice)
 }
 
-internal fun postHeldWorkoutNotice(app: Context) {
-    val waiting = held ?: return
-    // The clock kept running while the notice waited.
-    val notice = waiting.copy(elapsedMs = waiting.elapsedMs + SystemClock.elapsedRealtime() - heldAt)
-    held = null
+// The screen turned on or off or the phone was unlocked: a waiting notice posts,
+// and one that hides the heart rate posts again for the lock screen or shade.
+internal fun refreshWorkoutNotice(app: Context) {
+    val waiting = held
+    if (waiting != null) {
+        held = null
+        return post(app, advanced(waiting, heldAt))
+    }
+    val last = posted ?: return
+    if (last.publicTitle == null) return
+    post(app, advanced(last, postedAt))
+}
+
+internal fun rememberPostedWorkoutNotice(notice: WorkoutNotice) {
     posted = notice
+    postedAt = SystemClock.elapsedRealtime()
+}
+
+// The clock kept running while the notice waited.
+private fun advanced(notice: WorkoutNotice, since: Long): WorkoutNotice {
+    if (!notice.running) return notice
+    return notice.copy(elapsedMs = notice.elapsedMs + SystemClock.elapsedRealtime() - since)
+}
+
+private fun post(app: Context, notice: WorkoutNotice) {
+    rememberPostedWorkoutNotice(notice)
     val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     manager.notify(WORKOUT_NOTIFICATION_ID, workoutNotification(app, notice))
 }
@@ -171,20 +195,49 @@ private fun workoutNotification(app: Context, notice: WorkoutNotice): Notificati
     manager.createNotificationChannel(
         NotificationChannel(WORKOUT_CHANNEL_ID, notice.channelName, NotificationManager.IMPORTANCE_LOW),
     )
+    val publicTitle = notice.publicTitle
+    val publicText = notice.publicText
+    if (publicTitle == null || publicText == null) {
+        return workoutBuilder(app, notice, notice.title, notice.text)
+            .setVisibility(Notification.VISIBILITY_PUBLIC)
+            .build()
+    }
+    val lockScreen = workoutBuilder(app, notice, publicTitle, publicText)
+        .setVisibility(Notification.VISIBILITY_PUBLIC)
+    // A default lock screen shows a private notice in full, so while the phone
+    // is locked or dark the notice itself carries the text with no heart rate.
+    if (lockedOrDark(app)) return lockScreen.build()
+    return workoutBuilder(app, notice, notice.title, notice.text)
+        .setVisibility(Notification.VISIBILITY_PRIVATE)
+        .setPublicVersion(lockScreen.build())
+        .build()
+}
+
+private fun lockedOrDark(app: Context): Boolean {
+    val power = app.getSystemService(Context.POWER_SERVICE) as PowerManager
+    val keyguard = app.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+    return !power.isInteractive || keyguard.isKeyguardLocked
+}
+
+private fun workoutBuilder(
+    app: Context,
+    notice: WorkoutNotice,
+    title: String?,
+    text: String?,
+): Notification.Builder {
     val builder = Notification.Builder(app, WORKOUT_CHANNEL_ID)
         .setSmallIcon(smallIcon(app))
-        .setContentTitle(notice.title)
-        .setContentText(notice.text)
+        .setContentTitle(title)
+        .setContentText(text)
         .setOngoing(true)
         .setOnlyAlertOnce(true)
         .setCategory(Notification.CATEGORY_WORKOUT)
-        .setVisibility(Notification.VISIBILITY_PUBLIC)
         .setShowWhen(notice.running)
         .setUsesChronometer(notice.running)
         .setWhen(System.currentTimeMillis() - notice.elapsedMs)
         .setContentIntent(openWorkout(app, notice.link))
     workoutActions(notice).forEach { (action, label) -> builder.addAction(workoutAction(app, action, label)) }
-    return builder.build()
+    return builder
 }
 
 // The end question offers only Save and Continue; a lost ring adds Reconnect.

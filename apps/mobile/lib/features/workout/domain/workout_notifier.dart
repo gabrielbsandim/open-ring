@@ -14,6 +14,8 @@ final class WorkoutNotice {
     required this.running,
     this.confirming = false,
     this.ringLost = false,
+    this.publicTitle,
+    this.publicText,
     this.labels = const WorkoutNoticeLabels(),
   });
 
@@ -27,6 +29,10 @@ final class WorkoutNotice {
 
   /// The ring went silent: a reconnect action is offered.
   final bool ringLost;
+
+  /// The lock screen version with no heart rate, null when it shows all.
+  final String? publicTitle;
+  final String? publicText;
   final WorkoutNoticeLabels labels;
 
   @override
@@ -37,11 +43,21 @@ final class WorkoutNotice {
       other.elapsed == elapsed &&
       other.running == running &&
       other.confirming == confirming &&
-      other.ringLost == ringLost;
+      other.ringLost == ringLost &&
+      other.publicTitle == publicTitle &&
+      other.publicText == publicText;
 
   @override
-  int get hashCode =>
-      Object.hash(title, text, elapsed, running, confirming, ringLost);
+  int get hashCode => Object.hash(
+    title,
+    text,
+    elapsed,
+    running,
+    confirming,
+    ringLost,
+    publicTitle,
+    publicText,
+  );
 }
 
 final class WorkoutNoticeLabels {

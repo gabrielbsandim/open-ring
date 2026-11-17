@@ -966,7 +966,7 @@
   "privacyStoresWeighInsWhy": "Чтобы показывать тенденцию вашего веса и, при включённом модуле Open Score, оценивать показатели тела; при включённом модуле «Энергия» также оценка энергии за день",
   "privacyStoresDayTags": "Отметки дней: дни, которые вы отметили как болезнь, поездку или отдых (необязательно, модуль Open Score)",
   "privacyStoresDayTagsWhy": "Чтобы не учитывать эти дни в ваших средних; при включённых модулях Open Score и «Усилие» день с отметкой «болезнь» также заставляет карточку тренера советовать восстановление",
-  "privacyStoresSettings": "Настройки: тема, единицы, интервал синхронизации, выбор виджетов, оповещения кольца, какие типы отправляются в Health Connect, демо-режим, какие модули включены, цель недели",
+  "privacyStoresSettings": "Настройки: тема, единицы, интервал синхронизации, выбор виджетов, оповещения кольца, какие типы отправляются в Health Connect, демо-режим, какие модули включены, цель недели, пульс на экране блокировки",
   "privacyStoresSettingsWhy": "Чтобы запомнить ваш выбор",
   "privacyStoresSummary": "Небольшая сводка сегодняшних показателей",
   "privacyStoresSummaryWhy": "Чтобы заполнять виджеты на главном экране",
@@ -2309,5 +2309,7 @@
   "workoutNoticeReconnect": "Переподключить",
   "workoutNoticeConfirmTitle": "Завершить и сохранить тренировку?",
   "workoutNoticeConfirmText": "{time} · {distance} · пауза",
-  "workoutNoticeConfirmTextNoDistance": "{time} · пауза"
+  "workoutNoticeConfirmTextNoDistance": "{time} · пауза",
+  "settingsLiveWorkout": "Тренировка сейчас",
+  "settingsLockHeartRate": "Пульс на экране блокировки"
 }

@@ -130,6 +130,8 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             saveLabel = call.argument<String>("saveLabel") ?: "Save",
             keepLabel = call.argument<String>("keepLabel") ?: "Continue",
             reconnectLabel = call.argument<String>("reconnectLabel") ?: "Reconnect",
+            publicTitle = call.argument<String>("publicTitle"),
+            publicText = call.argument<String>("publicText"),
         )
         // Only the engine that shows the workout hears its buttons, never the worker's.
         WorkoutForegroundService.listener = { action -> channel?.invokeMethod("workoutAction", action) }
@@ -143,9 +145,13 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private fun listenScreenOn(app: Context) {
         if (screenOn != null) return
         val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) = postHeldWorkoutNotice(app)
+            override fun onReceive(context: Context, intent: Intent) = refreshWorkoutNotice(app)
         }
-        app.registerReceiver(receiver, IntentFilter(Intent.ACTION_SCREEN_ON))
+        val filter = IntentFilter(Intent.ACTION_SCREEN_ON).apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_USER_PRESENT)
+        }
+        app.registerReceiver(receiver, filter)
         screenOn = receiver
     }
 

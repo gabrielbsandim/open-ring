@@ -11,6 +11,7 @@ import 'package:open_ring/features/ring/infrastructure/shared_preferences_sync_i
 import 'package:open_ring/features/settings/application/delete_all_data_controller.dart';
 import 'package:open_ring/features/settings/infrastructure/legacy_preferences.dart';
 import 'package:open_ring/features/settings/infrastructure/shared_preferences_unit_system_store.dart';
+import 'package:open_ring/features/workout/infrastructure/shared_preferences_workout_lock_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final class DeviceLocalDataEraser implements LocalDataEraser {
@@ -30,6 +31,7 @@ final class DeviceLocalDataEraser implements LocalDataEraser {
     SharedPreferencesHideNumbersStore.key,
     SharedPreferencesWeekGoalStore.key,
     SharedPreferencesCelebrationStore.key,
+    SharedPreferencesWorkoutLockPreferences.key,
     ...legacyPreferenceKeys,
   };
 

@@ -966,7 +966,7 @@
   "privacyStoresWeighInsWhy": "Um Ihren Gewichtstrend zu zeigen und, bei eingeschaltetem Modul Open Score, Ihre Körpermaße zu bewerten; bei eingeschaltetem Modul Energie auch die Schätzung der Energie deines Tages",
   "privacyStoresDayTags": "Tagesmarkierungen: die Tage, die Sie als krank, Reise oder Ruhe beiseitelegen (optional, Modul Open Score)",
   "privacyStoresDayTagsWhy": "Um diese Tage aus Ihren Durchschnitten herauszulassen; sind die Module Open Score und Effort eingeschaltet, lässt ein als krank markierter Tag die Coach-Karte außerdem Erholung anzeigen",
-  "privacyStoresSettings": "Einstellungen: Design, Einheiten, Sync-Intervall, Widget-Auswahl, Ring-Hinweise, welche Typen an Health Connect gehen, Demomodus, welche Module aktiv sind, das Wochenziel",
+  "privacyStoresSettings": "Einstellungen: Design, Einheiten, Sync-Intervall, Widget-Auswahl, Ring-Hinweise, welche Typen an Health Connect gehen, Demomodus, welche Module aktiv sind, das Wochenziel, Puls auf dem Sperrbildschirm",
   "privacyStoresSettingsWhy": "Um deine Auswahl zu merken",
   "privacyStoresSummary": "Eine kleine Zusammenfassung der heutigen Zahlen",
   "privacyStoresSummaryWhy": "Um die Widgets auf dem Startbildschirm zu füllen",
@@ -2309,5 +2309,7 @@
   "workoutNoticeReconnect": "Neu verbinden",
   "workoutNoticeConfirmTitle": "Training beenden und speichern?",
   "workoutNoticeConfirmText": "{time} · {distance} · pausiert",
-  "workoutNoticeConfirmTextNoDistance": "{time} · pausiert"
+  "workoutNoticeConfirmTextNoDistance": "{time} · pausiert",
+  "settingsLiveWorkout": "Live-Training",
+  "settingsLockHeartRate": "Puls auf dem Sperrbildschirm"
 }

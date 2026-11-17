@@ -14,6 +14,7 @@ WorkoutNotice workoutNoticeOf(
   bool ringLost = false,
   bool gpsLost = false,
   bool confirming = false,
+  bool hideHeartRate = false,
 }) {
   final labels = notice.live;
   final running = snapshot.status == WorkoutStatus.running;
@@ -21,24 +22,33 @@ WorkoutNotice workoutNoticeOf(
   final distance = _distance(snapshot, labels, units);
   final clock = _clock(snapshot.elapsed);
   if (confirming) {
+    final title = labels.confirmTitle;
+    final text = labels.confirmText(clock, distance);
     return WorkoutNotice(
-      title: labels.confirmTitle,
-      text: labels.confirmText(clock, distance),
+      title: title,
+      text: text,
       elapsed: snapshot.elapsed,
       running: false,
       confirming: true,
       ringLost: ringLost,
+      publicTitle: hideHeartRate ? title : null,
+      publicText: hideHeartRate ? text : null,
       labels: labels,
     );
   }
+  String titleOf({required bool zone}) =>
+      _title(snapshot, notice.title, type, labels, running, ringLost, zone);
+  String textOf({required bool heartRate}) => running
+      ? _fields(snapshot, labels, units, distance, ringLost, gpsLost, heartRate)
+      : [labels.pausedAt(clock), ?distance].join(_fieldSeparator);
   return WorkoutNotice(
-    title: _title(snapshot, notice.title, type, labels, running, ringLost),
-    text: running
-        ? _fields(snapshot, labels, units, distance, ringLost, gpsLost)
-        : [labels.pausedAt(clock), ?distance].join(_fieldSeparator),
+    title: titleOf(zone: true),
+    text: textOf(heartRate: true),
     elapsed: snapshot.elapsed,
     running: running,
     ringLost: ringLost,
+    publicTitle: hideHeartRate ? titleOf(zone: false) : null,
+    publicText: hideHeartRate ? textOf(heartRate: false) : null,
     labels: labels,
   );
 }
@@ -50,10 +60,12 @@ String _title(
   WorkoutNoticeLabels labels,
   bool running,
   bool ringLost,
+  bool showZone,
 ) {
   if (type == null) return fallback;
   if (!running) return labels.pausedTitle(type);
   if (ringLost) return labels.ringLostTitle(type);
+  if (!showZone) return type;
   final zone = snapshot.currentZone;
   if (zone == null || snapshot.currentHeartRate == null) return type;
   return labels.zoneTitle(type, zone);
@@ -66,10 +78,11 @@ String _fields(
   String? distance,
   bool ringLost,
   bool gpsLost,
+  bool showHeartRate,
 ) {
-  final heartRate = snapshot.currentHeartRate;
+  final heartRate = showHeartRate ? snapshot.currentHeartRate : null;
   final fields = [
-    if (ringLost) _noHeartRate,
+    if (ringLost && showHeartRate) _noHeartRate,
     if (!ringLost && heartRate != null) '$heartRate bpm',
     if (snapshot.gps && gpsLost) labels.gpsLost,
     if (!gpsLost) ?distance,

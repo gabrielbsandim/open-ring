@@ -966,7 +966,7 @@
   "privacyStoresWeighInsWhy": "Para mostrar a tendência do seu peso e, com o módulo Open Score ligado, pontuar as medidas do corpo; com o módulo Energia ativo, também a estimativa de energia do seu dia",
   "privacyStoresDayTags": "Marcas de dia: os dias que você separa como doente, viagem ou descanso (opcional, módulo Open Score)",
   "privacyStoresDayTagsWhy": "Para deixar esses dias fora das suas médias; com os módulos Open Score e Esforço ativos, um dia marcado como doente também faz o cartão do treinador indicar recuperação",
-  "privacyStoresSettings": "Configurações: tema, unidades, intervalo de sincronização, escolhas de widgets, alertas do anel, quais tipos vão para o Health Connect, modo demonstração, quais módulos estão ativos, a meta da semana",
+  "privacyStoresSettings": "Configurações: tema, unidades, intervalo de sincronização, escolhas de widgets, alertas do anel, quais tipos vão para o Health Connect, modo demonstração, quais módulos estão ativos, a meta da semana, FC na tela de bloqueio",
   "privacyStoresSettingsWhy": "Para lembrar suas escolhas",
   "privacyStoresSummary": "Um pequeno resumo dos números de hoje",
   "privacyStoresSummaryWhy": "Para preencher os widgets da tela inicial",
@@ -2309,5 +2309,7 @@
   "workoutNoticeReconnect": "Reconectar",
   "workoutNoticeConfirmTitle": "Encerrar e salvar o treino?",
   "workoutNoticeConfirmText": "{time} · {distance} · pausado",
-  "workoutNoticeConfirmTextNoDistance": "{time} · pausado"
+  "workoutNoticeConfirmTextNoDistance": "{time} · pausado",
+  "settingsLiveWorkout": "Treino ao vivo",
+  "settingsLockHeartRate": "FC na tela de bloqueio"
 }

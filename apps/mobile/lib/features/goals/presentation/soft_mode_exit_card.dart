@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/goals/application/goal_intake_providers.dart';
 import 'package:open_ring/features/goals/application/goals_gate.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -29,8 +30,10 @@ class _SoftModeExitCardState extends ConsumerState<SoftModeExitCard> {
 
   @override
   Widget build(BuildContext context) {
+    // Demo history shares the tables, and leaving writes nothing there.
     final on =
         ref.watch(goalsEnabledProvider) &&
+        !ref.watch(demoModeProvider) &&
         (ref.watch(softModeProvider).value ?? false);
     if (!on) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context);
@@ -86,9 +89,12 @@ class _SoftModeExitCardState extends ConsumerState<SoftModeExitCard> {
     Navigator.of(dialogContext).pop();
     setState(() => _failed = false);
     try {
-      await ref.read(softModeControllerProvider).leave();
+      final left = await ref.read(softModeControllerProvider).leave();
       if (!mounted) return;
-      setState(() => _leaving = false);
+      setState(() {
+        _leaving = false;
+        _failed = !left;
+      });
     } on Object {
       if (!mounted) return;
       setState(() {

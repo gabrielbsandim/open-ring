@@ -1923,7 +1923,7 @@
   "goalsSoftExitBody": "El modo suave está activado, así que la app no crea objetivos de peso.",
   "goalsSoftExitLeave": "Salir del modo suave",
   "goalsSoftExitConfirmTitle": "¿Salir del modo suave?",
-  "goalsSoftExitConfirmBody": "Los objetivos de peso vuelven a estar disponibles. Las cinco preguntas no se repiten, y la respuesta anterior queda en el historial.",
+  "goalsSoftExitConfirmBody": "El modo suave deja de bloquear los objetivos de peso. Las cinco preguntas no se repiten, y la respuesta anterior queda en el historial.",
   "goalsSoftExitConfirm": "Salir",
   "goalsSoftExitCancel": "Cancelar",
   "goalsSoftExitFailed": "No se pudo desactivar el modo suave. Inténtalo de nuevo."

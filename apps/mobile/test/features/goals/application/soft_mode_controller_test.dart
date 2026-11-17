@@ -118,6 +118,21 @@ void main() {
       expect(setup.revision, 0);
     });
 
+    test('a yes dated after today is still overtaken by the new row', () async {
+      final setup = await setupGoals();
+      await setup.store.addScreening(_row(8, softMode: true));
+
+      final left = await setup.container
+          .read(softModeControllerProvider)
+          .leave();
+
+      final rows = await setup.store.screenings();
+      expect(left, isTrue);
+      expect(rows, hasLength(2));
+      expect(rows.first.on, goalDay(12, 8));
+      expect(newestSoftMode(rows), isFalse);
+    });
+
     test('demo mode writes nothing and returns false', () async {
       final setup = await setupGoals(
         extraOverrides: [

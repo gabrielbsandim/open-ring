@@ -1923,7 +1923,7 @@
   "goalsSoftExitBody": "温和模式已开启，因此应用不会建立体重目标。",
   "goalsSoftExitLeave": "退出温和模式",
   "goalsSoftExitConfirmTitle": "要退出温和模式吗？",
-  "goalsSoftExitConfirmBody": "体重目标将重新可用。五个问题不会再次询问，之前的回答会保留在历史记录中。",
+  "goalsSoftExitConfirmBody": "温和模式将不再阻止体重目标。五个问题不会再次询问，之前的回答会保留在历史记录中。",
   "goalsSoftExitConfirm": "退出",
   "goalsSoftExitCancel": "取消",
   "goalsSoftExitFailed": "无法关闭温和模式。请重试。"

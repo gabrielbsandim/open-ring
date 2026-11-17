@@ -4171,7 +4171,7 @@
   "goalsSoftExitBody": "Soft mode is on, so the app builds no weight goal.",
   "goalsSoftExitLeave": "Leave soft mode",
   "goalsSoftExitConfirmTitle": "Leave soft mode?",
-  "goalsSoftExitConfirmBody": "Weight goals become available again. The five questions are not asked again, and the earlier answer stays in the history.",
+  "goalsSoftExitConfirmBody": "Soft mode stops holding weight goals back. The five questions are not asked again, and the earlier answer stays in the history.",
   "goalsSoftExitConfirm": "Leave",
   "goalsSoftExitCancel": "Cancel",
   "goalsSoftExitFailed": "Soft mode could not be turned off. Try again."

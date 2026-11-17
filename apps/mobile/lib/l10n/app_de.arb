@@ -1923,7 +1923,7 @@
   "goalsSoftExitBody": "Der sanfte Modus ist an, deshalb erstellt die App kein Gewichtsziel.",
   "goalsSoftExitLeave": "Sanften Modus verlassen",
   "goalsSoftExitConfirmTitle": "Sanften Modus verlassen?",
-  "goalsSoftExitConfirmBody": "Gewichtsziele sind wieder verfügbar. Die fünf Fragen werden nicht noch einmal gestellt, und die frühere Antwort bleibt im Verlauf.",
+  "goalsSoftExitConfirmBody": "Der sanfte Modus hält Gewichtsziele nicht mehr zurück. Die fünf Fragen werden nicht noch einmal gestellt, und die frühere Antwort bleibt im Verlauf.",
   "goalsSoftExitConfirm": "Verlassen",
   "goalsSoftExitCancel": "Abbrechen",
   "goalsSoftExitFailed": "Der sanfte Modus konnte nicht ausgeschaltet werden. Versuche es noch einmal."

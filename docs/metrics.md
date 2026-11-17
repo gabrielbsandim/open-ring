@@ -1833,14 +1833,19 @@ with the date and the result, true for two or more "yes". The five answers
 are never stored.
 
 Only the person can leave soft mode, from a card that asks for a
-confirmation (`presentation/soft_mode_exit_card.dart`, placed on the Goals
-module screen when the module opens); the app never suggests it.
-`SoftModeController.leave` writes one row with the date and the result false,
-so the newest answer reads as a no: the next step is the setup and the
-questions are not asked again. The earlier yes stays in the history. It
-writes nothing while Goals is off, in demo mode, or when the newest answer is
-not a yes. The card ignores a second tap while the first is saving, and a
-failed save keeps the card and says so.
+confirmation (`presentation/soft_mode_exit_card.dart`); the app never
+suggests it. No screen shows the card yet: the Goals module screen will hold
+it when the module opens. `SoftModeController.leave` writes one row with the
+result false, so the newest answer reads as a no: the next step is the setup
+and the questions are not asked again. The earlier yes stays in the history.
+The row is dated today, or the date of the newest row when that is later (a
+clock moved back), because rows sort by date first. It writes nothing while
+Goals is off, in demo mode, or when the newest answer is not a yes, and the
+card is hidden in demo mode. Leaving lifts only the soft mode: Body off, a
+missing age or height, an age under 18 or a BMI under the floor still hold,
+so the confirmation does not promise that weight goals open. The card
+ignores a second tap while the first is saving, and a save that fails or
+changes nothing keeps the card and says so.
 
 What it cannot say:
 
@@ -1881,8 +1886,8 @@ keeps the answers and says so.
 The soft mode screen says that the app builds no weight goal, that this is
 not a diagnosis and that help exists, and lists what changes: no weight goal,
 no pace or target, Get fitter and Sleep better still open. It shows only
-while the soft mode is the block; with Body off or no yes stored it shows the
-picker.
+while the soft mode is the block, that is while the newest answer is a yes
+and Body is on; otherwise it shows the picker.
 
 The refusal screen says the rule with the person's own numbers:
 

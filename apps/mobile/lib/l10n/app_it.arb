@@ -1923,7 +1923,7 @@
   "goalsSoftExitBody": "La modalità delicata è attiva, quindi l'app non crea obiettivi di peso.",
   "goalsSoftExitLeave": "Esci dalla modalità delicata",
   "goalsSoftExitConfirmTitle": "Uscire dalla modalità delicata?",
-  "goalsSoftExitConfirmBody": "Gli obiettivi di peso tornano disponibili. Le cinque domande non vengono riproposte, e la risposta precedente resta nella cronologia.",
+  "goalsSoftExitConfirmBody": "La modalità delicata smette di bloccare gli obiettivi di peso. Le cinque domande non vengono riproposte, e la risposta precedente resta nella cronologia.",
   "goalsSoftExitConfirm": "Esci",
   "goalsSoftExitCancel": "Annulla",
   "goalsSoftExitFailed": "Non è stato possibile disattivare la modalità delicata. Riprova."

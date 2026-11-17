@@ -118,10 +118,11 @@ final class SoftModeController {
       return false;
     }
     final store = ref.read(goalStoreProvider);
-    if (newestSoftMode(await store.screenings()) != true) return false;
+    final rows = await store.screenings();
+    if (newestSoftMode(rows) != true) return false;
     await store.addScreening(
       GoalScreening(
-        on: ref.read(currentDateProvider),
+        on: _notBefore(ref.read(currentDateProvider), rows.firstOrNull?.on),
         softMode: false,
         pregnantOrBreastfeeding: null,
       ),
@@ -131,3 +132,8 @@ final class SoftModeController {
     return true;
   }
 }
+
+// Rows sort by date first, so a yes dated after today (a clock moved back)
+// would still read as the newest answer over a row dated today.
+LocalDate _notBefore(LocalDate today, LocalDate? newest) =>
+    newest != null && newest.compareTo(today) > 0 ? newest : today;

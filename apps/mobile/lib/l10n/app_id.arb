@@ -1923,7 +1923,7 @@
   "goalsSoftExitBody": "Mode lembut sedang aktif, jadi aplikasi tidak membuat target berat badan.",
   "goalsSoftExitLeave": "Keluar dari mode lembut",
   "goalsSoftExitConfirmTitle": "Keluar dari mode lembut?",
-  "goalsSoftExitConfirmBody": "Target berat badan tersedia lagi. Lima pertanyaan tidak ditanyakan lagi, dan jawaban sebelumnya tetap ada di riwayat.",
+  "goalsSoftExitConfirmBody": "Mode lembut tidak lagi menahan target berat badan. Lima pertanyaan tidak ditanyakan lagi, dan jawaban sebelumnya tetap ada di riwayat.",
   "goalsSoftExitConfirm": "Keluar",
   "goalsSoftExitCancel": "Batal",
   "goalsSoftExitFailed": "Mode lembut tidak bisa dimatikan. Coba lagi."

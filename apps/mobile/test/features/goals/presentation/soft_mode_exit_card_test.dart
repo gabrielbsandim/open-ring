@@ -17,7 +17,7 @@ const _body = 'Soft mode is on, so the app builds no weight goal.';
 const _leave = 'Leave soft mode';
 const _confirmTitle = 'Leave soft mode?';
 const _confirmBody =
-    'Weight goals become available again. The five questions are not asked again, and the earlier answer stays in the history.';
+    'Soft mode stops holding weight goals back. The five questions are not asked again, and the earlier answer stays in the history.';
 const _confirm = 'Leave';
 const _cancel = 'Cancel';
 const _failed = 'Soft mode could not be turned off. Try again.';
@@ -33,12 +33,14 @@ Future<GoalSetup> _setup({
   Set<ModuleId> modules = goalModules,
   Completer<void>? gate,
   int failures = 0,
+  bool demo = false,
 }) async {
   final memory = InMemoryGoalStore();
   if (soft != null) await memory.addScreening(_row(1, softMode: soft));
   return await setupPicker(
     modules: modules,
     store: memory,
+    demo: demo,
     readStoreOf: (inner) =>
         ProbeGoalStore(inner, screeningGate: gate, screeningFailures: failures),
   );
@@ -75,6 +77,16 @@ Future<int> _rows(GoalSetup setup) async =>
 
 void main() {
   group('4. when the card shows', () {
+    testWidgets('demo mode hides the card, where leaving writes nothing', (
+      tester,
+    ) async {
+      final setup = await _setup(demo: true);
+      await _pump(tester, setup);
+
+      expect(find.text(_title), findsNothing);
+      expect(find.byKey(SoftModeExitKeys.leave), findsNothing);
+    });
+
     testWidgets('Goals on and a soft yes show title, body and the button', (
       tester,
     ) async {

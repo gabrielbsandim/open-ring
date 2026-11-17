@@ -30,6 +30,12 @@ class MealRecovery extends Notifier<SaveResult?> {
     _keep(result, bytes);
   }
 
+  /// Forgets the result once its sheet is closed, so it does not open again.
+  void clear() {
+    _pending = null;
+    state = null;
+  }
+
   Future<void> _recover() async {
     final Uint8List? lost;
     try {

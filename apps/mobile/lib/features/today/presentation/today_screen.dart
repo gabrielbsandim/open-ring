@@ -14,6 +14,7 @@ import 'package:open_ring/features/body/presentation/weight_card.dart';
 import 'package:open_ring/features/effort/presentation/effort_coach_card.dart';
 import 'package:open_ring/features/effort/presentation/effort_week_tile.dart';
 import 'package:open_ring/features/energy/presentation/energy_row.dart';
+import 'package:open_ring/features/food/presentation/food_row.dart';
 import 'package:open_ring/features/goals/presentation/goal_week_card.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/modules/presentation/modules_shortcut.dart';
@@ -105,6 +106,7 @@ class _TodayBody extends StatelessWidget {
             ),
             const GoalWeekCardSlot(padding: EdgeInsets.only(top: cardGap)),
             const EffortWeekTileSlot(padding: EdgeInsets.only(top: cardGap)),
+            const FoodRowSlot(padding: EdgeInsets.only(top: cardGap)),
             const WeightCardSlot(),
           ],
           SyncFreshness.unpaired => [
@@ -118,6 +120,7 @@ class _TodayBody extends StatelessWidget {
             ),
             const GoalWeekCardSlot(padding: EdgeInsets.only(top: cardGap)),
             const EffortWeekTileSlot(padding: EdgeInsets.only(top: cardGap)),
+            const FoodRowSlot(padding: EdgeInsets.only(top: cardGap)),
             const WeightCardSlot(),
           ],
           SyncFreshness.neverSynced => [
@@ -131,6 +134,7 @@ class _TodayBody extends StatelessWidget {
             ),
             const GoalWeekCardSlot(padding: EdgeInsets.only(top: cardGap)),
             const EffortWeekTileSlot(padding: EdgeInsets.only(top: cardGap)),
+            const FoodRowSlot(padding: EdgeInsets.only(top: cardGap)),
             const WeightCardSlot(),
           ],
           SyncFreshness.fresh || SyncFreshness.stale => [
@@ -142,6 +146,7 @@ class _TodayBody extends StatelessWidget {
             const GoalWeekCardSlot(),
             const EnergyRowSlot(),
             const EffortWeekTileSlot(),
+            const FoodRowSlot(),
             _ReadinessCard(
               readiness: view.readiness,
               staleSyncAt: freshness == SyncFreshness.stale

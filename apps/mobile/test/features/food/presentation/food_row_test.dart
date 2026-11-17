@@ -1,5 +1,3 @@
-import 'dart:ui' show AppLifecycleState;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
@@ -181,11 +179,18 @@ void main() {
       final meals = TestMealStore()
         ..seed(DateTime(2026, 11, 17, 21), kind: MealKind.main);
       await _pumpRow(tester, meals, clock: () => now);
-      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      // AppLifecycleListener asserts each step, so walk them as Android does.
+      tester.binding
+        ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.paused);
       await tester.pump();
 
       now = DateTime(2026, 11, 18, 5, 10);
-      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      tester.binding
+        ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pumpAndSettle();
 
       expect(_inRow(find.text('No meals today')), findsOneWidget);

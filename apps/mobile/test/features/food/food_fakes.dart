@@ -42,6 +42,9 @@ final class TestMealStore implements MealStore {
   /// How many times [update] was called.
   int updates = 0;
 
+  /// Thrown by [update] after it counts the call, when set.
+  Exception? updateError;
+
   List<Meal> get rows => List.unmodifiable(_rows);
 
   Meal seed(
@@ -86,6 +89,8 @@ final class TestMealStore implements MealStore {
   @override
   Future<bool> update(int id, MealDraft draft) async {
     updates++;
+    final error = updateError;
+    if (error != null) throw error;
     final index = _rows.indexWhere((meal) => meal.id == id);
     if (index < 0) return false;
     final old = _rows[index];

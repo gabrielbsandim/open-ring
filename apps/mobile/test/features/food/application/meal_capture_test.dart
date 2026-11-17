@@ -4,6 +4,7 @@ import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/food/application/meal_capture.dart';
 import 'package:open_ring/features/food/application/meal_photo_saver.dart';
 import 'package:open_ring/features/food/application/meal_recovery.dart';
+import 'package:open_ring/features/food/domain/meal.dart';
 import 'package:open_ring/features/food/domain/meal_camera.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
 
@@ -212,8 +213,9 @@ void main() {
       final container = await saved();
       final before = revisionOf(container);
       final photo = meals.rows.single.photo;
+      final meal = stateOf(container).result!.meal!;
 
-      await captureOf(container).finish(last: true);
+      await captureOf(container).finish(MealEdit.of(meal).withLast(true));
 
       final row = meals.rows.single;
       expect(row.last, isTrue);
@@ -226,8 +228,9 @@ void main() {
     test('untouched writes nothing and does not bump', () async {
       final container = await saved();
       final before = revisionOf(container);
+      final meal = stateOf(container).result!.meal!;
 
-      await captureOf(container).finish(last: false);
+      await captureOf(container).finish(MealEdit.of(meal));
 
       expect(meals.updates, 0);
       expect(meals.rows.single.last, isFalse);
@@ -268,7 +271,7 @@ void main() {
       final container = containerWith(FakeMealCamera(lost: returnedPhoto));
       await container.read(mealRecoveryProvider.notifier).run();
 
-      await captureOf(container).finish(last: false);
+      await captureOf(container).finish();
 
       expect(container.read(mealRecoveryProvider), isNull);
       expect(stateOf(container).recovered, isFalse);

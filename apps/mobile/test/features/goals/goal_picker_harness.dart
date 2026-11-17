@@ -12,6 +12,8 @@ import 'package:open_ring/features/body/application/hide_numbers_controller.dart
 import 'package:open_ring/features/body/application/weight_summary.dart';
 import 'package:open_ring/features/body/domain/hide_numbers_store.dart';
 import 'package:open_ring/features/body/domain/weigh_in.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
+import 'package:open_ring/features/demo/domain/demo_mode_store.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
 import 'package:open_ring/features/goals/domain/goal_store.dart';
@@ -126,6 +128,7 @@ Future<GoalSetup> setupPicker({
   GoalDraft? draft,
   InMemoryGoalStore? store,
   GoalStore Function(InMemoryGoalStore memory)? readStoreOf,
+  bool demo = false,
 }) {
   final memory = store ?? InMemoryGoalStore();
   return setupGoals(
@@ -145,6 +148,9 @@ Future<GoalSetup> setupPicker({
         hideStore ?? InMemoryHideNumbersStore(hidden: hidden),
       ),
       unitSystemStoreProvider.overrideWithValue(InMemoryUnitSystemStore(units)),
+      demoModeStoreProvider.overrideWithValue(
+        InMemoryDemoModeStore(enabled: demo),
+      ),
     ],
   );
 }

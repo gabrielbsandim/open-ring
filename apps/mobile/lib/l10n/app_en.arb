@@ -4166,5 +4166,13 @@
   "goalsSoftFactsTitle": "What changes in soft mode",
   "goalsSoftFact1": "No goal to lose, gain or keep weight.",
   "goalsSoftFact2": "No pace, no target and no estimated arrival.",
-  "goalsSoftFact3": "Get fitter and Sleep better stay available."
+  "goalsSoftFact3": "Get fitter and Sleep better stay available.",
+  "goalsSoftExitTitle": "Soft mode",
+  "goalsSoftExitBody": "Soft mode is on, so the app builds no weight goal.",
+  "goalsSoftExitLeave": "Leave soft mode",
+  "goalsSoftExitConfirmTitle": "Leave soft mode?",
+  "goalsSoftExitConfirmBody": "Soft mode stops holding weight goals back. The five questions are not asked again, and the earlier answer stays in the history.",
+  "goalsSoftExitConfirm": "Leave",
+  "goalsSoftExitCancel": "Cancel",
+  "goalsSoftExitFailed": "Soft mode could not be turned off. Try again."
 }

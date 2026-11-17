@@ -3,6 +3,7 @@ import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/body/application/weight_summary.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/application/goals_gate.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
@@ -98,3 +99,41 @@ final class ScreeningController {
     return result;
   }
 }
+
+final softModeControllerProvider = Provider<SoftModeController>(
+  SoftModeController.new,
+);
+
+final class SoftModeController {
+  const new(this.ref);
+
+  final Ref ref;
+
+  /// Turns soft mode off with a row whose result is false. False, writing
+  /// nothing, when Goals is off, in demo mode, or soft mode is not on.
+  Future<bool> leave() async {
+    // Demo history shares the tables, so a write in demo mode lands on the
+    // real screenings.
+    if (!ref.read(goalsEnabledProvider) || ref.read(demoModeProvider)) {
+      return false;
+    }
+    final store = ref.read(goalStoreProvider);
+    final rows = await store.screenings();
+    if (newestSoftMode(rows) != true) return false;
+    await store.addScreening(
+      GoalScreening(
+        on: _notBefore(ref.read(currentDateProvider), rows.firstOrNull?.on),
+        softMode: false,
+        pregnantOrBreastfeeding: null,
+      ),
+    );
+    if (!ref.mounted) return true;
+    ref.read(dataRevisionProvider.notifier).bump();
+    return true;
+  }
+}
+
+// Rows sort by date first, so a yes dated after today (a clock moved back)
+// would still read as the newest answer over a row dated today.
+LocalDate _notBefore(LocalDate today, LocalDate? newest) =>
+    newest != null && newest.compareTo(today) > 0 ? newest : today;

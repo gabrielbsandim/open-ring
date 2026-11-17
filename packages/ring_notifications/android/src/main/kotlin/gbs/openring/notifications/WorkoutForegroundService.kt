@@ -33,6 +33,8 @@ internal data class WorkoutNotice(
     val saveLabel: String = "Save",
     val keepLabel: String = "Continue",
     val reconnectLabel: String = "Reconnect",
+    val publicTitle: String? = null,
+    val publicText: String? = null,
 )
 
 // Keeps the process alive for a workout with no route, where no location
@@ -171,20 +173,40 @@ private fun workoutNotification(app: Context, notice: WorkoutNotice): Notificati
     manager.createNotificationChannel(
         NotificationChannel(WORKOUT_CHANNEL_ID, notice.channelName, NotificationManager.IMPORTANCE_LOW),
     )
+    val publicTitle = notice.publicTitle
+    val publicText = notice.publicText
+    if (publicTitle == null || publicText == null) {
+        return workoutBuilder(app, notice, notice.title, notice.text)
+            .setVisibility(Notification.VISIBILITY_PUBLIC)
+            .build()
+    }
+    // The lock screen shows the public version, which has no heart rate.
+    val lockScreen = workoutBuilder(app, notice, publicTitle, publicText).build()
+    return workoutBuilder(app, notice, notice.title, notice.text)
+        .setVisibility(Notification.VISIBILITY_PRIVATE)
+        .setPublicVersion(lockScreen)
+        .build()
+}
+
+private fun workoutBuilder(
+    app: Context,
+    notice: WorkoutNotice,
+    title: String?,
+    text: String?,
+): Notification.Builder {
     val builder = Notification.Builder(app, WORKOUT_CHANNEL_ID)
         .setSmallIcon(smallIcon(app))
-        .setContentTitle(notice.title)
-        .setContentText(notice.text)
+        .setContentTitle(title)
+        .setContentText(text)
         .setOngoing(true)
         .setOnlyAlertOnce(true)
         .setCategory(Notification.CATEGORY_WORKOUT)
-        .setVisibility(Notification.VISIBILITY_PUBLIC)
         .setShowWhen(notice.running)
         .setUsesChronometer(notice.running)
         .setWhen(System.currentTimeMillis() - notice.elapsedMs)
         .setContentIntent(openWorkout(app, notice.link))
     workoutActions(notice).forEach { (action, label) -> builder.addAction(workoutAction(app, action, label)) }
-    return builder.build()
+    return builder
 }
 
 // The end question offers only Save and Continue; a lost ring adds Reconnect.

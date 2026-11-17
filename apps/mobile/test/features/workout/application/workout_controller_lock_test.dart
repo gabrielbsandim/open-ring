@@ -7,7 +7,6 @@ import 'package:open_ring/features/settings/application/user_profile_providers.d
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/workout/application/workout_controller.dart';
 import 'package:open_ring/features/workout/application/workout_lock_providers.dart';
-import 'package:open_ring/features/workout/domain/location_source.dart';
 import 'package:open_ring/features/workout/domain/workout_lock_preferences.dart';
 import 'package:open_ring/features/workout/domain/workout_notifier.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';

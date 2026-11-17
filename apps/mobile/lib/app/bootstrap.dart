@@ -87,6 +87,7 @@ import 'package:open_ring/features/widgets/infrastructure/shared_preferences_tod
 import 'package:open_ring/features/workout/application/location_access_provider.dart';
 import 'package:open_ring/features/workout/application/workout_controller.dart';
 import 'package:open_ring/features/workout/application/workout_history_providers.dart';
+import 'package:open_ring/features/workout/application/workout_lock_providers.dart';
 import 'package:open_ring/features/workout/infrastructure/drift_imported_workout_reader.dart';
 import 'package:open_ring/features/workout/infrastructure/drift_workout_history_reader.dart';
 import 'package:open_ring/features/workout/infrastructure/drift_workout_rating_store.dart';
@@ -94,6 +95,7 @@ import 'package:open_ring/features/workout/infrastructure/drift_workout_store.da
 import 'package:open_ring/features/workout/infrastructure/geolocator_location_source.dart';
 import 'package:open_ring/features/workout/infrastructure/method_channel_workout_notifier.dart';
 import 'package:open_ring/features/workout/infrastructure/ring_live_heart_rate_source.dart';
+import 'package:open_ring/features/workout/infrastructure/shared_preferences_workout_lock_preferences.dart';
 
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -140,6 +142,9 @@ Future<void> bootstrap() async {
       moduleStoreProvider.overrideWithValue(SharedPreferencesModuleStore()),
       hideNumbersStoreProvider.overrideWithValue(
         SharedPreferencesHideNumbersStore(),
+      ),
+      workoutLockPreferencesProvider.overrideWithValue(
+        SharedPreferencesWorkoutLockPreferences(),
       ),
       weekGoalStoreProvider.overrideWithValue(SharedPreferencesWeekGoalStore()),
       celebrationStoreProvider.overrideWithValue(

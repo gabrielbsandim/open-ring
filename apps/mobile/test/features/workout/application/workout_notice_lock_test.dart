@@ -55,11 +55,12 @@ void main() {
         );
 
   group('1: no hiding keeps the public fields null', () {
-    final states = <String, WorkoutNotice Function(bool? hide)>{
-      'running': (hide) => notice(run(), hide: hide),
-      'paused': (hide) => notice(run(status: WorkoutStatus.paused), hide: hide),
-      'ring lost': (hide) => notice(run(), hide: hide, ringLost: true),
-      'confirming': (hide) => notice(
+    final states = <String, WorkoutNotice Function({bool? hide})>{
+      'running': ({hide}) => notice(run(), hide: hide),
+      'paused': ({hide}) =>
+          notice(run(status: WorkoutStatus.paused), hide: hide),
+      'ring lost': ({hide}) => notice(run(), hide: hide, ringLost: true),
+      'confirming': ({hide}) => notice(
         run(status: WorkoutStatus.paused),
         hide: hide,
         confirming: true,
@@ -68,14 +69,14 @@ void main() {
 
     for (final MapEntry(key: name, value: build) in states.entries) {
       test('$name, by default', () {
-        final result = build(null);
+        final result = build();
 
         expect(result.publicTitle, isNull);
         expect(result.publicText, isNull);
       });
 
       test('$name, with hideHeartRate false', () {
-        final result = build(false);
+        final result = build(hide: false);
 
         expect(result.publicTitle, isNull);
         expect(result.publicText, isNull);

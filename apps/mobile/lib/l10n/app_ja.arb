@@ -966,7 +966,7 @@
   "privacyStoresWeighInsWhy": "体重の傾向を表示するため。Open Score モジュールがオンのときは、からだの記録の採点にも使います。エネルギーモジュールがオンのときは、1日のエネルギーの推定にも使います",
   "privacyStoresDayTags": "日のタグ：体調不良、旅行、休養として除外した日（任意、Open Score モジュール）",
   "privacyStoresDayTagsWhy": "その日を平均から外すため。Open Score とエフォートの両方のモジュールがオンのときは、体調不良とした日はコーチカードが回復をすすめる判断にも使います",
-  "privacyStoresSettings": "設定: テーマ、単位、同期間隔、ウィジェットの選択、リングの通知、Health Connect に送る種類、デモモード、有効なモジュール、週の目標",
+  "privacyStoresSettings": "設定: テーマ、単位、同期間隔、ウィジェットの選択、リングの通知、Health Connect に送る種類、デモモード、有効なモジュール、週の目標、ロック画面の心拍数",
   "privacyStoresSettingsWhy": "選択内容を記憶するため",
   "privacyStoresSummary": "今日の数値の小さなまとめ",
   "privacyStoresSummaryWhy": "ホーム画面のウィジェットに表示するため",
@@ -2309,5 +2309,7 @@
   "workoutNoticeReconnect": "再接続",
   "workoutNoticeConfirmTitle": "ワークアウトを終了して保存しますか?",
   "workoutNoticeConfirmText": "{time} · {distance} · 一時停止中",
-  "workoutNoticeConfirmTextNoDistance": "{time} · 一時停止中"
+  "workoutNoticeConfirmTextNoDistance": "{time} · 一時停止中",
+  "settingsLiveWorkout": "ライブワークアウト",
+  "settingsLockHeartRate": "ロック画面に心拍数を表示"
 }

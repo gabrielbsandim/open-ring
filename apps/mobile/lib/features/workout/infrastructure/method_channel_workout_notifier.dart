@@ -33,6 +33,8 @@ final class MethodChannelWorkoutNotifier implements WorkoutNotifier {
         'saveLabel': notice.labels.save,
         'keepLabel': notice.labels.keep,
         'reconnectLabel': notice.labels.reconnect,
+        'publicTitle': notice.publicTitle,
+        'publicText': notice.publicText,
         'link': workoutLink,
       });
 

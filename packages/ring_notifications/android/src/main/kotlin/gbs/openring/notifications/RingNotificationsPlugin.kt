@@ -130,6 +130,8 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             saveLabel = call.argument<String>("saveLabel") ?: "Save",
             keepLabel = call.argument<String>("keepLabel") ?: "Continue",
             reconnectLabel = call.argument<String>("reconnectLabel") ?: "Reconnect",
+            publicTitle = call.argument<String>("publicTitle"),
+            publicText = call.argument<String>("publicText"),
         )
         // Only the engine that shows the workout hears its buttons, never the worker's.
         WorkoutForegroundService.listener = { action -> channel?.invokeMethod("workoutAction", action) }

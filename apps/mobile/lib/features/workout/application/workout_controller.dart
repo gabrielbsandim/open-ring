@@ -8,6 +8,7 @@ import 'package:open_ring/features/body/application/logged_weight.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
+import 'package:open_ring/features/workout/application/workout_lock_providers.dart';
 import 'package:open_ring/features/workout/application/workout_notice.dart';
 import 'package:open_ring/features/workout/application/workout_state.dart';
 import 'package:open_ring/features/workout/domain/live_heart_rate_source.dart';
@@ -113,6 +114,9 @@ class WorkoutController extends Notifier<WorkoutState> {
     if (_starting || state.live) return;
     _starting = true;
     final profile = await _profile();
+    await _quietly(
+      _guarded(() => ref.read(workoutLockHeartRateProvider.future)),
+    );
     _starting = false;
     if (!ref.mounted) return;
     final session = WorkoutSession(
@@ -361,6 +365,7 @@ class WorkoutController extends Notifier<WorkoutState> {
       ringLost: state.heartRateStalled,
       gpsLost: state.locationProblem != null,
       confirming: _confirming,
+      hideHeartRate: !(ref.read(workoutLockHeartRateProvider).value ?? true),
     );
     if (notice == _shown || _tooSoon(notice)) return;
     _shown = notice;

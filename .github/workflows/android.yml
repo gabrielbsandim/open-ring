@@ -86,6 +86,17 @@ jobs:
         if: steps.kind.outputs.shorebird == 'true'
         run: shorebird release android --artifact apk --flutter-version=3.47.7 --no-confirm
 
+      # The privacy policy promises no camera or photo library permission, and a
+      # plugin can add one through manifest merging.
+      - name: Check the merged manifest asks for no camera or media permission
+        run: |
+          manifests=$(find build/app/intermediates -path '*merged_manifest*' -name AndroidManifest.xml)
+          [ -n "$manifests" ] || { echo "No merged manifest found."; exit 1; }
+          if grep -nE 'android\.permission\.(CAMERA|READ_MEDIA_IMAGES|READ_MEDIA_VISUAL_USER_SELECTED|READ_EXTERNAL_STORAGE)"' $manifests; then
+            echo "A forbidden permission is declared."
+            exit 1
+          fi
+
       - name: Upload the build
         uses: actions/upload-artifact@v4
         with:

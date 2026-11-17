@@ -24,6 +24,7 @@ dependencies:
   health_connect_writer:
     path: ../../packages/health_connect_writer
   home_widget: ^0.10.0
+  image_picker: ^1.2.4
   intl: ^0.20.2
   meta: ^1.17.0
   metrics:

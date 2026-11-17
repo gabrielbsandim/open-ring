@@ -37,6 +37,16 @@ final class DriftMealStore implements MealStore {
   }
 
   @override
+  Future<bool> attachPhoto(int id, String name) async {
+    checkMealPhotoName(name);
+    final written =
+        await (_db.update(_db.meals)..where((row) => row.id.equals(id))).write(
+          MealsCompanion(photo: Value(name)),
+        );
+    return written > 0;
+  }
+
+  @override
   Future<Meal?> delete(int id) => _db.transaction(() async {
     final row = await (_db.select(
       _db.meals,

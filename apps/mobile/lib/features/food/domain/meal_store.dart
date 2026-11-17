@@ -9,6 +9,10 @@ abstract interface class MealStore {
   /// Writes the time, kind, tags and last flag; false when [id] is unknown.
   Future<bool> update(int id, MealDraft draft);
 
+  /// Names [name] as the photo of [id], whose file must already exist; false
+  /// when [id] is unknown, throws when another row holds [name].
+  Future<bool> attachPhoto(int id, String name);
+
   Future<Meal?> delete(int id);
 
   /// The meals whose food day is in [from, to], oldest wall clock first.

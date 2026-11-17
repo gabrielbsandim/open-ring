@@ -95,7 +95,7 @@ void main() {
         final out = stripExif(photoJpeg(exif: exifApp1(order: order)));
         final (rest, at, app1) = _cutOrientation(out, 6);
 
-        expect(app1, anyOf(_orientation6Ii, _orientation6Mm));
+        expect(app1, anyOf(equals(_orientation6Ii), equals(_orientation6Mm)));
         expect(
           rest,
           strippedPlain(),

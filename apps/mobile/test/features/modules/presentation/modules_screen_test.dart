@@ -12,6 +12,8 @@ import 'package:open_ring/features/body/domain/weigh_in_store.dart';
 import 'package:open_ring/features/body/presentation/body_module_screen.dart';
 import 'package:open_ring/features/effort/presentation/effort_module_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_module_screen.dart';
+import 'package:open_ring/features/goals/presentation/goal_screen.dart';
+import 'package:open_ring/features/goals/presentation/goals_module_screen.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
@@ -545,18 +547,18 @@ void main() {
     expect(find.byType(DayScoreFormulaScreen), findsOneWidget);
   });
 
-  testWidgets('criterion 1: the Modules screen lists four rows', (
+  testWidgets('criterion 1: the Modules screen lists five rows', (
     tester,
   ) async {
     await _pump(tester, modules: InMemoryModuleStore());
     await _openModules(tester);
 
-    expect(OfferedModule.values, hasLength(4));
+    expect(OfferedModule.values, hasLength(5));
     for (final module in OfferedModule.values) {
       await reveal(tester, find.byKey(ModulesKeys.row(module)));
       expect(find.byKey(ModulesKeys.row(module)), findsOneWidget);
     }
-    expect(find.byType(Switch), findsNWidgets(4));
+    expect(find.byType(Switch), findsNWidgets(5));
     expect(
       find.descendant(
         of: find.byKey(ModulesKeys.row(OfferedModule.effort)),
@@ -588,6 +590,84 @@ void main() {
 
     expect(await modules.read(), isEmpty);
     expect(_on(tester, toggle), isFalse);
+  });
+
+  testWidgets('criterion 1: the Goals row names Goals', (tester) async {
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openModules(tester);
+    final row = ModulesKeys.row(OfferedModule.goals);
+    await reveal(tester, find.byKey(row));
+
+    expect(find.byKey(row), findsOneWidget);
+    expect(
+      find.descendant(of: find.byKey(row), matching: find.text('Goals')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('criterion 1: the Goals switch stores ModuleId.goals', (
+    tester,
+  ) async {
+    final modules = InMemoryModuleStore();
+    await _pump(tester, modules: modules);
+    await _openModules(tester);
+    final toggle = ModulesKeys.toggle(OfferedModule.goals);
+    await reveal(tester, find.byKey(toggle));
+
+    expect(_on(tester, toggle), isFalse);
+    await _tap(tester, toggle);
+
+    expect(await modules.read(), {ModuleId.goals});
+    expect(_on(tester, toggle), isTrue);
+    await _tap(tester, toggle);
+
+    expect(await modules.read(), isEmpty);
+    expect(_on(tester, toggle), isFalse);
+  });
+
+  testWidgets('criterion 4: the Goals turned on View opens the goal', (
+    tester,
+  ) async {
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openModules(tester);
+    await _tap(tester, ModulesKeys.toggle(OfferedModule.goals));
+
+    await tester.tap(find.text('View'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(GoalScreen), findsOneWidget);
+    expect(find.byKey(GoalScreenKeys.noGoal), findsOneWidget);
+    expect(find.byType(TodayScreen), findsNothing);
+  });
+
+  testWidgets('criterion 3: the Goals row opens its module screen', (
+    tester,
+  ) async {
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openModules(tester);
+    await _tap(tester, ModulesKeys.row(OfferedModule.goals));
+
+    expect(find.byType(GoalsModuleScreen), findsOneWidget);
+  });
+
+  testWidgets('criterion 1: Settings counts Goals with five modules', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      modules: InMemoryModuleStore({
+        ModuleId.body,
+        ModuleId.openScore,
+        ModuleId.energy,
+        ModuleId.effort,
+        ModuleId.goals,
+      }),
+      profiles: InMemoryUserProfileStore(_aged(30)),
+    );
+    await _openSettings(tester);
+    await reveal(tester, find.byKey(SettingsScreen.modulesKey));
+
+    expect(find.text('On: 5'), findsOneWidget);
   });
 
   testWidgets('criterion 1: the Effort switch is enabled at 17', (

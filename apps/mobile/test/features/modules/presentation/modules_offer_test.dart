@@ -221,6 +221,80 @@ void main() {
       expect(find.text('Energy'), findsOneWidget);
     });
 
+    testWidgets('criterion 2: does not offer Goals, four modules in all', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        at: AppPaths.onboardingModules,
+        profile: InMemoryUserProfileStore(_aged(30)),
+      );
+
+      expect(
+        find.byKey(ModulesOfferKeys.module(OfferedModule.goals)),
+        findsNothing,
+      );
+      expect(find.byType(SwitchListTile), findsNWidgets(4));
+      expect(find.text('Goals'), findsNothing);
+    });
+
+    testWidgets('criterion 2: finishing with everything picked never turns '
+        'Goals on', (tester) async {
+      final store = await _pump(
+        tester,
+        at: AppPaths.onboardingModules,
+        profile: InMemoryUserProfileStore(_aged(30)),
+      );
+
+      for (final key in [
+        ModulesOfferKeys.body,
+        ModulesOfferKeys.openScore,
+        ModulesOfferKeys.energy,
+        ModulesOfferKeys.module(OfferedModule.effort),
+      ]) {
+        await tapAndSettle(tester, find.byKey(key));
+      }
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.done));
+
+      expect(await store.read(), {
+        ModuleId.body,
+        ModuleId.openScore,
+        ModuleId.energy,
+        ModuleId.effort,
+      });
+      expect(await store.read(), isNot(contains(ModuleId.goals)));
+    });
+
+    testWidgets('criterion 2: finishing keeps a stored Goals on', (
+      tester,
+    ) async {
+      final store = await _pump(
+        tester,
+        at: AppPaths.onboardingModules,
+        modules: InMemoryModuleStore({ModuleId.goals}),
+        profile: InMemoryUserProfileStore(_aged(30)),
+      );
+
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.body));
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.done));
+
+      expect(await store.read(), {ModuleId.body, ModuleId.goals});
+    });
+
+    testWidgets('criterion 2: a stored Goals does not count as a pick', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        at: AppPaths.onboardingModules,
+        modules: InMemoryModuleStore({ModuleId.goals}),
+        profile: InMemoryUserProfileStore(_aged(30)),
+      );
+
+      expect(find.text('Skip for now'), findsOneWidget);
+      expect(find.text('Continue with 1 module'), findsNothing);
+    });
+
     testWidgets('offers Energy with no profile', (tester) async {
       await _pump(tester, at: AppPaths.onboardingModules);
 

@@ -14,6 +14,7 @@ import 'package:open_ring/features/body/presentation/weight_card.dart';
 import 'package:open_ring/features/effort/presentation/effort_coach_card.dart';
 import 'package:open_ring/features/effort/presentation/effort_week_tile.dart';
 import 'package:open_ring/features/energy/presentation/energy_row.dart';
+import 'package:open_ring/features/goals/presentation/goal_week_card.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/modules/presentation/modules_shortcut.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_card.dart';
@@ -102,6 +103,7 @@ class _TodayBody extends StatelessWidget {
               actionKey: TodayKeys.pairAction,
               onAction: () => context.go(AppTab.ring.path),
             ),
+            const GoalWeekCardSlot(padding: EdgeInsets.only(top: cardGap)),
             const EffortWeekTileSlot(padding: EdgeInsets.only(top: cardGap)),
             const WeightCardSlot(),
           ],
@@ -114,6 +116,7 @@ class _TodayBody extends StatelessWidget {
               actionKey: TodayKeys.pairAction,
               onAction: () => context.go(AppTab.ring.path),
             ),
+            const GoalWeekCardSlot(padding: EdgeInsets.only(top: cardGap)),
             const EffortWeekTileSlot(padding: EdgeInsets.only(top: cardGap)),
             const WeightCardSlot(),
           ],
@@ -126,6 +129,7 @@ class _TodayBody extends StatelessWidget {
               actionKey: TodayKeys.pairAction,
               onAction: () => context.go(AppTab.ring.path),
             ),
+            const GoalWeekCardSlot(padding: EdgeInsets.only(top: cardGap)),
             const EffortWeekTileSlot(padding: EdgeInsets.only(top: cardGap)),
             const WeightCardSlot(),
           ],
@@ -135,6 +139,7 @@ class _TodayBody extends StatelessWidget {
               const SizedBox(height: cardGap),
             ],
             const DayScoreCardSlot(),
+            const GoalWeekCardSlot(),
             const EnergyRowSlot(),
             const EffortWeekTileSlot(),
             _ReadinessCard(

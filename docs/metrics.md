@@ -1949,6 +1949,26 @@ own numbers and what is our choice. With numbers hidden there is no chart, no
 weight, no share and no arrival: the rate row shows the direction from Body
 and the state word, and the sheets show the hidden note in place of numbers.
 
+### The week card
+
+"This week" (`GoalWeekCard`) sits on Today right under the Day Score, and
+before the Effort tile when no ring is synced; on the goal screen it sits
+under the path, or under the no weight card for the other kinds. It is absent
+with the module off or no goal. A running week shows the week (of the block
+length for lose fat), the dates from Monday to Sunday and one row per lever:
+the name, the target in words, the count of the week against what it needs
+(5 of 7 days for a daily lever, the target for strength days and points),
+seven day marks for a daily lever (met, missed, open today, ahead), a dot per
+strength day and a bar for points. A day that did not fit takes nothing away,
+and the plan is not part of the Day Score. A bedtime target is minutes after
+noon and a wake target minutes after midnight, shown as a wall clock time.
+The base phase counts the weigh-ins toward the rate for lose fat, or names
+the days of data the plan waits for. A pause shows its end, or that it is
+over, and the levers as reminders with no count; a recovery week asks
+nothing; with Body off the card says the weight plan holds. Lever counts are
+not weights, so hidden numbers leave them shown. A review that waits for an
+answer shows as the running week until the review screen exists.
+
 ### The goal picker
 
 The picker offers four rows: no goal, lose fat, get fitter, sleep better.

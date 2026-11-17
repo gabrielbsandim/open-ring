@@ -8,6 +8,11 @@ import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/effort/application/effort_providers.dart';
 import 'package:open_ring/features/effort/presentation/effort_week_tile.dart';
 import 'package:open_ring/features/energy/application/energy_gate.dart';
+import 'package:open_ring/features/goals/application/goal_path_providers.dart';
+import 'package:open_ring/features/goals/application/goal_providers.dart';
+import 'package:open_ring/features/goals/application/goal_week_view.dart';
+import 'package:open_ring/features/goals/domain/goal.dart';
+import 'package:open_ring/features/goals/presentation/goal_week_card.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/health_sync/domain/health_read_store.dart';
 import 'package:open_ring/features/health_sync/domain/health_writer.dart';
@@ -545,6 +550,75 @@ void main() {
         find.byKey(EffortWeekTileKeys.tile, skipOffstage: false),
         findsNothing,
       );
+    });
+  });
+
+  group('the goal card', () {
+    const start = LocalDate(2026, 11, 16);
+    const goal = Goal(
+      id: 1,
+      kind: GoalKind.getFitter,
+      pace: null,
+      startedOn: start,
+      anchorKg: null,
+      referenceKg: null,
+      blockStartedOn: start,
+      blockAnchorKg: null,
+      phase: GoalPhase.block,
+      phaseSince: start,
+      phaseUntil: null,
+      levers: [],
+      endedOn: null,
+      endReason: null,
+    );
+    List<Override> withGoal(MetricsScenario scenario) => [
+      ...metricsOverrides(scenario),
+      goalWeekProvider.overrideWith(
+        (ref) async => const GoalWeekRunning(
+          goal: goal,
+          monday: LocalDate(2026, 12, 7),
+          week: 4,
+          levers: [],
+          review: null,
+        ),
+      ),
+      goalPathProvider.overrideWith((ref) async => null),
+    ];
+
+    testWidgets('sits under the Day Score and above readiness', (tester) async {
+      await pumpScaled(
+        tester,
+        screenHost(const TodayScreen()),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.dark,
+        locale: const Locale('en'),
+        overrides: withGoal(fullDataScenario),
+      );
+      final card = tester.getTopLeft(find.byKey(GoalWeekCardKeys.card));
+      final readiness = tester.getTopLeft(find.byKey(TodayKeys.readiness));
+      expect(card.dy, lessThan(readiness.dy));
+    });
+
+    testWidgets('shows with no ring paired', (tester) async {
+      await pumpScaled(
+        tester,
+        screenHost(const TodayScreen()),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.dark,
+        locale: const Locale('en'),
+        overrides: withGoal(noDataScenario),
+      );
+      await reveal(tester, find.byKey(GoalWeekCardKeys.card));
+      expect(find.byKey(GoalWeekCardKeys.card), findsOneWidget);
+    });
+
+    testWidgets('is absent with Goals off', (tester) async {
+      await pumpMetrics(
+        tester,
+        screenHost(const TodayScreen()),
+        fullDataScenario,
+      );
+      expect(find.byKey(GoalWeekCardKeys.card), findsNothing);
     });
   });
 }

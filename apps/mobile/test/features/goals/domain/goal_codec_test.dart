@@ -28,6 +28,7 @@ const _inputKeys = {
   'energyPrevious',
   'foodOrWeight',
   'foodOrWeightPrevious',
+  'maintenance',
 };
 
 Map<String, Object?> _f1Map() =>
@@ -36,9 +37,76 @@ Map<String, Object?> _f1Map() =>
 ReviewInputs? _decodeMap(Map<String, Object?> map) =>
     decodeReviewInputs(jsonEncode(map));
 
+ReviewInputs _f1Maintaining() => ReviewInputs(
+  kind: f1.kind,
+  week: f1.week,
+  levers: f1.levers,
+  adherencePrevious: f1.adherencePrevious,
+  baseline: f1.baseline,
+  effortRaisesInRow: f1.effortRaisesInRow,
+  rate: f1.rate,
+  targetPercent: f1.targetPercent,
+  capPercent: f1.capPercent,
+  previousPercentLow: f1.previousPercentLow,
+  bmi: f1.bmi,
+  pregnantOrBreastfeeding: f1.pregnantOrBreastfeeding,
+  screeningPositive: f1.screeningPositive,
+  bodyOn: f1.bodyOn,
+  readiness: f1.readiness,
+  recoveryPrevious: f1.recoveryPrevious,
+  energy: f1.energy,
+  energyPrevious: f1.energyPrevious,
+  foodOrWeight: f1.foodOrWeight,
+  foodOrWeightPrevious: f1.foodOrWeightPrevious,
+  maintenance: true,
+);
+
 void main() {
   test('the codec version is 1', () {
     expect(goalCodecVersion, 1);
+  });
+
+  group('G11b1 criterion 7: the maintenance key', () {
+    test('a row stored before G11b1, with no maintenance key, decodes', () {
+      final map = _f1Map()..remove('maintenance');
+
+      final decoded = _decodeMap(map);
+
+      expect(decoded, isNotNull);
+      expect(decoded!.maintenance, isFalse);
+    });
+
+    test('a row with no maintenance key keeps every other field', () {
+      final map = _f1Map()..remove('maintenance');
+
+      expectSameInputs(_decodeMap(map)!, f1);
+    });
+
+    test('the default is false', () {
+      expect(f1.maintenance, isFalse);
+    });
+
+    test('a false maintenance is written under the key', () {
+      expect(_f1Map()['maintenance'], isFalse);
+    });
+
+    test('a true maintenance is written under the key', () {
+      final map = jsonDecode(
+        encodeReviewInputs(_f1Maintaining()),
+      ) as Map<String, Object?>;
+
+      expect(map['maintenance'], isTrue);
+    });
+
+    test('a true maintenance round trips', () {
+      final encoded = encodeReviewInputs(_f1Maintaining());
+
+      final decoded = decodeReviewInputs(encoded);
+
+      expect(decoded, isNotNull);
+      expect(decoded!.maintenance, isTrue);
+      expect(encodeReviewInputs(decoded), encoded);
+    });
   });
 
   group('criterion 1: inputs round trip', () {

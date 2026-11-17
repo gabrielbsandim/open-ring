@@ -10,6 +10,7 @@ import 'package:open_ring/features/effort/presentation/effort_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_formula_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_screen.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
+import 'package:open_ring/features/goals/presentation/goal_end_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_formula_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_refusal_screen.dart';
@@ -168,6 +169,7 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
         path: 'goals/formula',
         builder: (_, _) => const GoalFormulaScreen(),
       ),
+      GoRoute(path: 'goals/end', builder: (_, _) => const GoalEndScreen()),
       GoRoute(
         path: 'goals/pregnancy',
         builder: (_, _) => const GoalRefusalScreen.pregnancy(),

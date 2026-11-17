@@ -23,6 +23,7 @@ import '../../../helpers/layout_harness.dart';
 
 const _pickStub = 'pick stub';
 const _formulaStub = 'formula stub';
+const _endStub = 'end stub';
 const _today = LocalDate(2026, 12, 10);
 const _on = LocalDate(2026, 12, 6);
 
@@ -106,6 +107,10 @@ Future<GoRouter> _pump(
         path: AppPaths.goalsFormula,
         builder: (_, _) => const Scaffold(body: Text(_formulaStub)),
       ),
+      GoRoute(
+        path: AppPaths.goalsEnd,
+        builder: (_, _) => const Scaffold(body: Text(_endStub)),
+      ),
     ],
   );
   await pumpScaled(
@@ -162,6 +167,20 @@ void main() {
       expect(find.text(_formulaStub), findsOneWidget);
     });
   }
+
+  testWidgets('a running goal links to end or switch', (tester) async {
+    await _pump(tester, week: _running(_goal()), path: _view(_goal()));
+    await tester.ensureVisible(find.byKey(GoalScreenKeys.end));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(GoalScreenKeys.end));
+    await tester.pumpAndSettle();
+    expect(find.text(_endStub), findsOneWidget);
+  });
+
+  testWidgets('no goal has nothing to end', (tester) async {
+    await _pump(tester, week: const GoalWeekNoGoal());
+    expect(find.byKey(GoalScreenKeys.end), findsNothing);
+  });
 
   testWidgets('no goal offers the picker', (tester) async {
     await _pump(tester, week: const GoalWeekNoGoal());

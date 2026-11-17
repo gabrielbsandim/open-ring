@@ -40,6 +40,7 @@ abstract final class GoalScreenKeys {
   static const baseNote = Key('goal_screen_base_note');
   static const noWeight = Key('goal_screen_no_weight');
   static const formula = Key('goal_screen_formula');
+  static const end = Key('goal_screen_end');
 }
 
 /// How far along the goal is, as the path card needs it.
@@ -164,6 +165,7 @@ class GoalScreen extends ConsumerWidget {
           CaptionText(l10n.goalsScreenFoot),
           const SizedBox(height: 8),
           _FormulaLink(l10n),
+          _EndLink(l10n),
         ],
       ),
     ],
@@ -633,6 +635,23 @@ class _FormulaLink extends StatelessWidget {
       onPressed: () => unawaited(context.push(AppPaths.goalsFormula)),
       icon: const Icon(Icons.receipt_long_outlined),
       label: Text(l10n.formulaLink),
+    ),
+  );
+}
+
+class _EndLink extends StatelessWidget {
+  const new(this.l10n);
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: AlignmentDirectional.centerStart,
+    child: TextButton.icon(
+      key: GoalScreenKeys.end,
+      onPressed: () => unawaited(context.push(AppPaths.goalsEnd)),
+      icon: const Icon(Icons.flag_outlined),
+      label: Text(l10n.goalsEndLink),
     ),
   );
 }

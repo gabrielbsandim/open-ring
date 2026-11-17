@@ -8,7 +8,6 @@ import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/demo/domain/demo_mode_store.dart';
 import 'package:open_ring/features/goals/application/goal_ender.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
-import 'package:open_ring/features/goals/domain/goal_end.dart';
 import 'package:open_ring/features/goals/domain/goal_store.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
@@ -302,10 +301,7 @@ void main() {
         final rig = await _rig();
         final revision = rig.revision;
 
-        await expectLater(
-          () async => rig.ender.end(reason),
-          throwsArgumentError,
-        );
+        await expectLater(() => rig.ender.end(reason), throwsArgumentError);
 
         expect((await rig.store.active())?.id, 1);
         expect(rig.revision, revision);

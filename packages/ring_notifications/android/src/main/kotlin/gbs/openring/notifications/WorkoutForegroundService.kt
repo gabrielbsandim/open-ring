@@ -82,7 +82,9 @@ class WorkoutForegroundService : Service() {
     }
 
     private fun promote() {
-        val notification = workoutNotification(this, requireNotNull(pending))
+        val notice = requireNotNull(pending)
+        val notification = workoutNotification(this, notice)
+        rememberPostedWorkoutNotice(notice)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             startForeground(WORKOUT_NOTIFICATION_ID, notification)
             return
@@ -147,18 +149,22 @@ internal fun showWorkoutNotification(app: Context, notice: WorkoutNotice) {
     post(app, notice)
 }
 
-internal fun postHeldWorkoutNotice(app: Context) {
-    val waiting = held ?: return
-    held = null
-    post(app, advanced(waiting, heldAt))
+// The screen turned on or off or the phone was unlocked: a waiting notice posts,
+// and one that hides the heart rate posts again for the lock screen or shade.
+internal fun refreshWorkoutNotice(app: Context) {
+    val waiting = held
+    if (waiting != null) {
+        held = null
+        return post(app, advanced(waiting, heldAt))
+    }
+    val last = posted ?: return
+    if (last.publicTitle == null) return
+    post(app, advanced(last, postedAt))
 }
 
-// The screen turned off or the phone was unlocked: a notice that hides the
-// heart rate is posted again so the lock screen and the shade each get theirs.
-internal fun repostWorkoutNoticeForLock(app: Context) {
-    val last = posted ?: return
-    if (last.publicTitle == null || held != null) return
-    post(app, advanced(last, postedAt))
+internal fun rememberPostedWorkoutNotice(notice: WorkoutNotice) {
+    posted = notice
+    postedAt = SystemClock.elapsedRealtime()
 }
 
 // The clock kept running while the notice waited.
@@ -168,8 +174,7 @@ private fun advanced(notice: WorkoutNotice, since: Long): WorkoutNotice {
 }
 
 private fun post(app: Context, notice: WorkoutNotice) {
-    posted = notice
-    postedAt = SystemClock.elapsedRealtime()
+    rememberPostedWorkoutNotice(notice)
     val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     manager.notify(WORKOUT_NOTIFICATION_ID, workoutNotification(app, notice))
 }

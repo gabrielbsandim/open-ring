@@ -145,10 +145,7 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private fun listenScreenOn(app: Context) {
         if (screenOn != null) return
         val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                if (intent.action == Intent.ACTION_SCREEN_ON) return postHeldWorkoutNotice(app)
-                repostWorkoutNoticeForLock(app)
-            }
+            override fun onReceive(context: Context, intent: Intent) = refreshWorkoutNotice(app)
         }
         val filter = IntentFilter(Intent.ACTION_SCREEN_ON).apply {
             addAction(Intent.ACTION_SCREEN_OFF)

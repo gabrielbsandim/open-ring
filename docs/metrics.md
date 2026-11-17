@@ -1810,8 +1810,8 @@ What it cannot say:
 `apps/mobile/lib/features/goals/domain/goal_intake.dart` and
 `application/goal_intake_providers.dart`. The goal picker
 (`presentation/goal_pick_screen.dart`) and the refusal screen
-(`presentation/goal_refusal_screen.dart`) read them; the five questions have
-no screen yet.
+(`presentation/goal_refusal_screen.dart`) read them, and so does the screen of
+the five questions (`presentation/goal_screening_screen.dart`).
 
 `weightGoalBlock` says why a goal of losing fat is not offered, the first of
 these that holds: Body is off, the soft mode is on, the age is not known, the
@@ -1843,7 +1843,8 @@ What it cannot say:
 - That a refused person stays refused: the age moves with the calendar year
   and the BMI with the trend, and each is read again when asked.
 - That one tap wrote one row. Two calls write two rows, both with the same
-  result.
+  result; the screen of the questions ignores a second tap while the first
+  is saving.
 
 ### The goal picker
 
@@ -1853,9 +1854,25 @@ nothing. Get fitter and sleep better start at once with no lever, and the
 first block picks the lever (`GoalStartController.startWithoutWeight`); a second
 start while one is in flight, or with a goal already active, writes nothing.
 Lose fat runs `weightGoalBlock`: with Body off the button opens the Body
-module instead, a soft mode answer keeps Continue disabled, and the other
-four blocks open the refusal screen. A lose fat goal that passes keeps
-Continue disabled until the questions and the setup have screens.
+module instead, and the other five blocks, the soft mode among them, open the
+refusal screen. A lose fat goal that passes opens the five questions when
+they were never answered, and keeps Continue disabled after a no until the
+setup has a screen.
+
+The questions screen asks the five questions with a no and a yes each, and
+Continue saves them only when all five are answered. Two or more yes open the
+soft mode screen; fewer go back to Today with nothing started, until the
+setup exists. The third question names a loss of 6 kg, `goalScreeningLossKg`,
+in the person's unit (13 lb), and names no number when numbers are hidden.
+The screen shows only while the questions are still the next step, so a
+person who already answered, or is blocked, sees the picker. A failed save
+keeps the answers and says so.
+
+The soft mode screen says that the app builds no weight goal, that this is
+not a diagnosis and that help exists, and lists what changes: no weight goal,
+no pace or target, Get fitter and Sleep better still open. It shows only
+while the soft mode is the block; with Body off or no yes stored it shows the
+picker.
 
 The refusal screen says the rule with the person's own numbers:
 

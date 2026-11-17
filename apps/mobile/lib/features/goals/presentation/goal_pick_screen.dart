@@ -179,7 +179,6 @@ class _GoalPickScreenState extends ConsumerState<GoalPickScreen> {
     );
     if (facts == null) return closed;
     return switch (pickStep(choice, facts)) {
-      PickBlocked(block: IntakeBlock.softMode) => closed,
       PickBlocked(:final block) => (
         label: l10n.goalsPickContinue,
         note: null,
@@ -188,7 +187,7 @@ class _GoalPickScreenState extends ConsumerState<GoalPickScreen> {
       PickWeight(next: IntakeNext.screening) => (
         label: l10n.goalsPickContinue,
         note: l10n.goalsPickNoteWeight,
-        onPressed: null,
+        onPressed: () => context.go(AppPaths.goalsScreening),
       ),
       _ => closed,
     };

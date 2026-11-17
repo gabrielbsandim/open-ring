@@ -14,6 +14,7 @@ import 'package:open_ring/features/goals/application/goal_intake_providers.dart'
 import 'package:open_ring/features/goals/application/goals_gate.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
 import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
+import 'package:open_ring/features/modules/presentation/module_widgets.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -28,6 +29,7 @@ typedef _Refusal = ({
   String title,
   List<String> body,
   String? rule,
+  ({String title, List<String> items})? facts,
   String primary,
   String primaryPath,
   String secondary,
@@ -87,6 +89,14 @@ class GoalRefusalScreen extends ConsumerWidget {
                 ],
               ),
             ),
+            if (refusal.facts case final facts?) ...[
+              const SizedBox(height: 16),
+              ModuleFactsCard(
+                title: facts.title,
+                icon: Icons.checklist_rounded,
+                facts: facts.items,
+              ),
+            ],
             const SizedBox(height: 16),
             ActionButton(
               buttonKey: GoalRefusalKeys.primary,
@@ -113,6 +123,7 @@ class GoalRefusalScreen extends ConsumerWidget {
       _shown(weightGoalBlock(facts)) == _shown(block);
 
   static const Set<IntakeBlock?> _refusable = {
+    IntakeBlock.softMode,
     IntakeBlock.under18,
     IntakeBlock.ageMissing,
     IntakeBlock.heightMissing,
@@ -127,11 +138,26 @@ class GoalRefusalScreen extends ConsumerWidget {
     WidgetRef ref,
     AppLocalizations l10n,
   ) => switch (block) {
+    IntakeBlock.softMode => _soft(l10n),
     IntakeBlock.under18 => _under18(ref, l10n),
     IntakeBlock.ageMissing || IntakeBlock.heightMissing => _profile(l10n),
     IntakeBlock.bmiUnderFloor => _bmi(context, ref, l10n),
     _ => null,
   };
+
+  _Refusal _soft(AppLocalizations l10n) => (
+    title: l10n.goalsSoftTitle,
+    body: [l10n.goalsSoftBody1, l10n.goalsSoftBody2],
+    rule: l10n.goalsSoftRule,
+    facts: (
+      title: l10n.goalsSoftFactsTitle,
+      items: [l10n.goalsSoftFact1, l10n.goalsSoftFact2, l10n.goalsSoftFact3],
+    ),
+    primary: l10n.goalsRefusalSeeNoWeight,
+    primaryPath: AppPaths.goalsPickWith(GoalKind.getFitter),
+    secondary: l10n.goalsPickContinueNone,
+    secondaryPath: AppTab.today.path,
+  );
 
   _Refusal? _under18(WidgetRef ref, AppLocalizations l10n) {
     final profile = ref.watch(userProfileProvider).value;
@@ -142,6 +168,7 @@ class GoalRefusalScreen extends ConsumerWidget {
       title: l10n.goalsUnder18Title,
       body: [l10n.goalsUnder18Body1('$age'), l10n.goalsUnder18Body2],
       rule: l10n.goalsUnder18Rule('${weightGoalsOpenYear(birthYear)}'),
+      facts: null,
       primary: l10n.goalsRefusalSeeNoWeight,
       primaryPath: AppPaths.goalsPickWith(GoalKind.getFitter),
       secondary: l10n.goalsPickContinueNone,
@@ -153,6 +180,7 @@ class GoalRefusalScreen extends ConsumerWidget {
     title: l10n.goalsProfileTitle,
     body: [l10n.goalsProfileBody],
     rule: null,
+    facts: null,
     primary: l10n.goalsProfileOpen,
     primaryPath: AppPaths.settings,
     secondary: l10n.goalsRefusalSeeNoWeight,
@@ -171,6 +199,7 @@ class GoalRefusalScreen extends ConsumerWidget {
       title: l10n.goalsBmiTitle,
       body: [shown.body, l10n.goalsBmiBody2],
       rule: shown.rule,
+      facts: null,
       primary: l10n.goalsRefusalSeeOthers,
       primaryPath: AppPaths.goalsPickWith(GoalKind.getFitter),
       secondary: l10n.goalsPickContinueNone,

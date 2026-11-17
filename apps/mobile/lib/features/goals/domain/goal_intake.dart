@@ -3,6 +3,9 @@ import 'package:open_ring/features/goals/domain/goal.dart';
 
 const goalScreeningQuestions = 5;
 
+/// The loss the third question names, shown in the person's unit.
+const goalScreeningLossKg = 6.0;
+
 /// Why a weight goal is not offered, in the order the checks run.
 enum IntakeBlock {
   bodyOff,

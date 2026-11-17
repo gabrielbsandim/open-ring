@@ -12,6 +12,7 @@ import 'package:open_ring/features/energy/presentation/energy_screen.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
 import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_refusal_screen.dart';
+import 'package:open_ring/features/goals/presentation/goal_screening_screen.dart';
 import 'package:open_ring/features/heart/presentation/heart_screen.dart';
 import 'package:open_ring/features/heart/presentation/measure_screen.dart';
 import 'package:open_ring/features/modules/presentation/modules_offer_screen.dart';
@@ -148,6 +149,10 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
           initial: GoalKind.values
               .asNameMap()[state.uri.queryParameters['goal']],
         ),
+      ),
+      GoRoute(
+        path: 'goals/screening',
+        builder: (_, _) => const GoalScreeningScreen(),
       ),
       GoRoute(
         path: 'goals/refused/:block',

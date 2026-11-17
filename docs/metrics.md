@@ -1832,10 +1832,20 @@ does not erase it.
 with the date and the result, true for two or more "yes". The five answers
 are never stored.
 
+Only the person can leave soft mode, from a card that asks for a
+confirmation (`presentation/soft_mode_exit_card.dart`, placed on the Goals
+module screen when the module opens); the app never suggests it.
+`SoftModeController.leave` writes one row with the date and the result false,
+so the newest answer reads as a no: the next step is the setup and the
+questions are not asked again. The earlier yes stays in the history. It
+writes nothing while Goals is off, in demo mode, or when the newest answer is
+not a yes. The card ignores a second tap while the first is saving, and a
+failed save keeps the card and says so.
+
 What it cannot say:
 
-- Whether the answer is still true. A no is kept for good, and a yes ends
-  only when every Goals row is deleted.
+- Whether the answer is still true. A no is kept for good. A yes ends when
+  the person leaves soft mode, or when every Goals row is deleted.
 - Anything about health. The questions are an adapted wording that nobody
   validated, and the result is a rule of the app, not a diagnosis.
 - The real age. The profile holds a birth year and no month, so a person who

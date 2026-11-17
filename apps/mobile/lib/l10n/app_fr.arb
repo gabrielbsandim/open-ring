@@ -1918,5 +1918,13 @@
   "goalsSoftFactsTitle": "Ce qui change en mode doux",
   "goalsSoftFact1": "Aucun objectif pour perdre, prendre ou maintenir du poids.",
   "goalsSoftFact2": "Pas de rythme, pas de cible et pas d'arrivée estimée.",
-  "goalsSoftFact3": "Être en meilleure forme et Mieux dormir restent disponibles."
+  "goalsSoftFact3": "Être en meilleure forme et Mieux dormir restent disponibles.",
+  "goalsSoftExitTitle": "Mode doux",
+  "goalsSoftExitBody": "Le mode doux est activé, donc l'app ne construit pas d'objectif de poids.",
+  "goalsSoftExitLeave": "Quitter le mode doux",
+  "goalsSoftExitConfirmTitle": "Quitter le mode doux ?",
+  "goalsSoftExitConfirmBody": "Les objectifs de poids redeviennent disponibles. Les cinq questions ne sont pas reposées, et la réponse précédente reste dans l'historique.",
+  "goalsSoftExitConfirm": "Quitter",
+  "goalsSoftExitCancel": "Annuler",
+  "goalsSoftExitFailed": "Le mode doux n'a pas pu être désactivé. Réessayez."
 }

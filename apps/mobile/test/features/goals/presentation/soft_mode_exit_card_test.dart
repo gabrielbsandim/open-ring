@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
+import 'package:open_ring/features/goals/domain/goal_store.dart';
 import 'package:open_ring/features/goals/presentation/soft_mode_exit_card.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 
@@ -35,7 +36,7 @@ Future<GoalSetup> _setup({
 }) async {
   final memory = InMemoryGoalStore();
   if (soft != null) await memory.addScreening(_row(1, softMode: soft));
-  return setupPicker(
+  return await setupPicker(
     modules: modules,
     store: memory,
     readStoreOf: (inner) =>

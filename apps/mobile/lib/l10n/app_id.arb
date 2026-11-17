@@ -1918,5 +1918,13 @@
   "goalsSoftFactsTitle": "Yang berubah di mode lembut",
   "goalsSoftFact1": "Tidak ada target menurunkan, menaikkan, atau menjaga berat badan.",
   "goalsSoftFact2": "Tanpa laju, tanpa sasaran, dan tanpa perkiraan tiba.",
-  "goalsSoftFact3": "Jadi lebih bugar dan Tidur lebih baik tetap tersedia."
+  "goalsSoftFact3": "Jadi lebih bugar dan Tidur lebih baik tetap tersedia.",
+  "goalsSoftExitTitle": "Mode lembut",
+  "goalsSoftExitBody": "Mode lembut sedang aktif, jadi aplikasi tidak membuat target berat badan.",
+  "goalsSoftExitLeave": "Keluar dari mode lembut",
+  "goalsSoftExitConfirmTitle": "Keluar dari mode lembut?",
+  "goalsSoftExitConfirmBody": "Target berat badan tersedia lagi. Lima pertanyaan tidak ditanyakan lagi, dan jawaban sebelumnya tetap ada di riwayat.",
+  "goalsSoftExitConfirm": "Keluar",
+  "goalsSoftExitCancel": "Batal",
+  "goalsSoftExitFailed": "Mode lembut tidak bisa dimatikan. Coba lagi."
 }

@@ -1918,5 +1918,13 @@
   "goalsSoftFactsTitle": "Was sich im sanften Modus ändert",
   "goalsSoftFact1": "Kein Ziel, Gewicht zu verlieren, zuzunehmen oder zu halten.",
   "goalsSoftFact2": "Kein Tempo, kein Zielwert und keine geschätzte Ankunft.",
-  "goalsSoftFact3": "Fitter werden und Besser schlafen bleiben verfügbar."
+  "goalsSoftFact3": "Fitter werden und Besser schlafen bleiben verfügbar.",
+  "goalsSoftExitTitle": "Sanfter Modus",
+  "goalsSoftExitBody": "Der sanfte Modus ist an, deshalb erstellt die App kein Gewichtsziel.",
+  "goalsSoftExitLeave": "Sanften Modus verlassen",
+  "goalsSoftExitConfirmTitle": "Sanften Modus verlassen?",
+  "goalsSoftExitConfirmBody": "Gewichtsziele sind wieder verfügbar. Die fünf Fragen werden nicht noch einmal gestellt, und die frühere Antwort bleibt im Verlauf.",
+  "goalsSoftExitConfirm": "Verlassen",
+  "goalsSoftExitCancel": "Abbrechen",
+  "goalsSoftExitFailed": "Der sanfte Modus konnte nicht ausgeschaltet werden. Versuche es noch einmal."
 }

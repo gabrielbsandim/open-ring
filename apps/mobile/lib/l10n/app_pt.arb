@@ -1918,5 +1918,13 @@
   "goalsSoftFactsTitle": "O que muda no modo suave",
   "goalsSoftFact1": "Nenhuma meta de perder, ganhar ou manter peso.",
   "goalsSoftFact2": "Sem ritmo, sem alvo e sem chegada estimada.",
-  "goalsSoftFact3": "Ficar em forma e Dormir melhor continuam disponíveis."
+  "goalsSoftFact3": "Ficar em forma e Dormir melhor continuam disponíveis.",
+  "goalsSoftExitTitle": "Modo suave",
+  "goalsSoftExitBody": "O modo suave está ligado, então o app não monta meta de peso.",
+  "goalsSoftExitLeave": "Sair do modo suave",
+  "goalsSoftExitConfirmTitle": "Sair do modo suave?",
+  "goalsSoftExitConfirmBody": "As metas de peso voltam a ficar disponíveis. As cinco perguntas não são feitas de novo, e a resposta anterior fica no histórico.",
+  "goalsSoftExitConfirm": "Sair",
+  "goalsSoftExitCancel": "Cancelar",
+  "goalsSoftExitFailed": "Não foi possível desligar o modo suave. Tente de novo."
 }

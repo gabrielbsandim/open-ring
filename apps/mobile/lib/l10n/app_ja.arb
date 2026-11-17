@@ -1918,5 +1918,13 @@
   "goalsSoftFactsTitle": "やさしいモードで変わること",
   "goalsSoftFact1": "体重を減らす、増やす、維持する目標はありません。",
   "goalsSoftFact2": "ペースも目標値も到達予定もありません。",
-  "goalsSoftFact3": "「体力をつける」と「よく眠る」は引き続き使えます。"
+  "goalsSoftFact3": "「体力をつける」と「よく眠る」は引き続き使えます。",
+  "goalsSoftExitTitle": "やさしいモード",
+  "goalsSoftExitBody": "やさしいモードがオンのため、アプリは体重の目標を作りません。",
+  "goalsSoftExitLeave": "やさしいモードを終了",
+  "goalsSoftExitConfirmTitle": "やさしいモードを終了しますか？",
+  "goalsSoftExitConfirmBody": "体重の目標が再び使えるようになります。5つの質問はもう一度は聞かれず、以前の回答は履歴に残ります。",
+  "goalsSoftExitConfirm": "終了",
+  "goalsSoftExitCancel": "キャンセル",
+  "goalsSoftExitFailed": "やさしいモードをオフにできませんでした。もう一度お試しください。"
 }

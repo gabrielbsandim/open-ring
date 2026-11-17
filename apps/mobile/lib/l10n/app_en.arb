@@ -4593,7 +4593,7 @@
   "goalsSheetRuleLimits": "The review does not see what you eat nor how you feel, beyond the two questions. It is not medical clearance.",
   "goalsEndLink": "End or switch",
   "goalsEndTitle": "End or switch",
-  "goalsEndLead": "{goal}. Neither option deletes what was recorded.",
+  "goalsEndLead": "{goal}. None of these options deletes what was recorded.",
   "@goalsEndLead": {"placeholders": {"goal": {"type": "String"}}},
   "goalsEndSwitch": "Switch goal",
   "goalsEndSwitchBody": "The current goal ends and stays in history. The new one starts from today’s numbers.",

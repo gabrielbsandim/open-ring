@@ -2238,7 +2238,7 @@
   "goalsSheetRuleLimits": "ふりかえりは2つの質問以外に、何を食べたかもどう感じているかも見ていません。医学的な許可ではありません。",
   "goalsEndLink": "終える・切り替える",
   "goalsEndTitle": "終える・切り替える",
-  "goalsEndLead": "{goal}。どちらを選んでも、記録したものは消えません。",
+  "goalsEndLead": "{goal}。どれを選んでも、記録したものは消えません。",
   "goalsEndSwitch": "目標を切り替える",
   "goalsEndSwitchBody": "今の目標は終わって履歴に残ります。新しい目標は今日の数値から始まります。",
   "goalsEndEnd": "目標を終える",

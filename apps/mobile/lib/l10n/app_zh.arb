@@ -2238,7 +2238,7 @@
   "goalsSheetRuleLimits": "除了两个问题，回顾看不到你吃了什么，也不知道你的感受。它不是医疗许可。",
   "goalsEndLink": "结束或更换",
   "goalsEndTitle": "结束或更换",
-  "goalsEndLead": "{goal}。两个选项都不会删除已记录的内容。",
+  "goalsEndLead": "{goal}。所有选项都不会删除已记录的内容。",
   "goalsEndSwitch": "更换目标",
   "goalsEndSwitchBody": "当前目标结束并保留在历史中。新目标从你今天的数据开始。",
   "goalsEndEnd": "结束目标",

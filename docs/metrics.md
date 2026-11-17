@@ -1988,8 +1988,8 @@ keeps its levers and counts, the tag says maintenance in place of the week,
 and a first line gives the last day or says maintenance is over; a recovery
 week asks nothing; with Body off the card says the weight plan holds. Lever counts are
 not weights, so hidden numbers leave them shown. While the review of this
-Monday waits for an answer, the card says so with the levers that fit and
-opens the review screen in place of the week.
+Monday waits for an answer, outside maintenance, the card says so with the
+levers that fit and opens the review screen in place of the week.
 
 ### The review screen
 
@@ -2000,7 +2000,9 @@ in 28 days with its interval and the target (hidden with numbers hidden). The
 decision is the stored rule and change, never one recomputed. A protection
 (end, pause, recovery week), a hold and ease need no answer. A change (the
 next step, or a lever removed by the shrink rule) takes Accept or Keep, and
-the "This week" card says a review is waiting until it is answered.
+the "This week" card says a review is waiting until it is answered. A change
+still waiting when the goal moves to maintenance lapses: the card no longer
+offers it and the screen shows no Accept or Keep.
 
 Two optional questions, energy and food or weight, are offered while the week
 of this Monday has no answer and no check-in. Sent with the answer, or alone

@@ -119,7 +119,7 @@ final class GoalWeekRunning extends GoalWeekView {
 }
 
 /// Whether the end screen offers to move to maintenance now: only a running
-/// block of losing fat, which is the only goal with blocks.
+/// block of losing fat, the only goal that keeps after a block.
 bool canMaintainNow(GoalWeekView view) {
   final goal = switch (view) {
     GoalWeekRunning(:final goal, maintenance: null) => goal,

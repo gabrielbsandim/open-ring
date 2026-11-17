@@ -159,7 +159,10 @@ void main() {
     }
 
     test('Goals off', () async {
-      await expectRefused(await _rig(modules: {}, draft: goalDraft()));
+      // Body stays on, so only the Goals guard can refuse.
+      await expectRefused(
+        await _rig(modules: {ModuleId.body}, draft: goalDraft()),
+      );
     });
 
     test('demo mode', () async {
@@ -276,8 +279,9 @@ void main() {
       final before = (await setup.weeks()).single;
       expect(before.change, isNotNull);
 
-      await _maintainNow(setup);
+      expect(await _maintainNow(setup), isTrue);
 
+      expect((await _goal(setup)).phase, GoalPhase.maintenance);
       final row = (await setup.weeks()).single;
       expect(row.answer, isNull);
       expectSameLevers((await _goal(setup)).levers, const [

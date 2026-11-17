@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
@@ -8,7 +9,11 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
+import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/core/widgets/text_scale.dart';
+import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
+import 'package:open_ring/features/onboarding/domain/app_permissions.dart';
+import 'package:open_ring/features/settings/application/notification_providers.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/today/domain/ring_status_reader.dart';
 import 'package:open_ring/features/workout/application/location_access_provider.dart';
@@ -25,6 +30,11 @@ abstract final class WorkoutPickKeys {
   static const start = Key('workout_pick_start');
   static const gps = Key('workout_pick_gps');
   static const swimming = Key('workout_pick_swimming');
+  static const notifications = Key('workout_pick_notifications');
+  static const notificationsAllow = Key('workout_pick_notifications_allow');
+  static const notificationsSettings = Key(
+    'workout_pick_notifications_settings',
+  );
 
   static Key type(WorkoutType type) => Key('workout_pick_${type.name}');
 }
@@ -83,6 +93,7 @@ class _WorkoutPickScreenState extends ConsumerState<WorkoutPickScreen> {
           gps: _gpsOn,
           onGps: (value) => setState(() => _gps = value),
         ),
+        const _NotificationsCard(),
         const SizedBox(height: 24),
         AccentButton(
           key: WorkoutPickKeys.start,
@@ -134,6 +145,108 @@ class _WorkoutPickScreenState extends ConsumerState<WorkoutPickScreen> {
     if (!mounted) return;
     setState(() => _starting = false);
   }
+}
+
+class _NotificationsCard extends ConsumerStatefulWidget {
+  const new();
+
+  @override
+  ConsumerState<_NotificationsCard> createState() => _NotificationsCardState();
+}
+
+class _NotificationsCardState extends ConsumerState<_NotificationsCard> {
+  late final AppLifecycleListener _lifecycle;
+  PermissionStatus? _status;
+  bool _asking = false;
+  int _reads = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle = AppLifecycleListener(onResume: () => unawaited(_read()));
+    unawaited(_read());
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MetricFormat.of(context).l10n;
+    final colors = AppColors.of(context);
+    final action = switch (_status) {
+      PermissionStatus.denied => ActionButton(
+        key: WorkoutPickKeys.notificationsAllow,
+        label: l10n.workoutNotificationsAllow,
+        onPressed: _asking ? null : () => unawaited(_allow()),
+      ),
+      PermissionStatus.permanentlyDenied => SecondaryButton(
+        key: WorkoutPickKeys.notificationsSettings,
+        label: l10n.settingsNotificationsOpenSettings,
+        onPressed: _openSettings,
+      ),
+      _ => null,
+    };
+    if (action == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: NoticeCard(
+        key: WorkoutPickKeys.notifications,
+        icon: Icons.notifications_off_rounded,
+        accent: colors.stress,
+        title: l10n.workoutNotificationsOffTitle,
+        body: l10n.workoutNotificationsOffBody,
+        actions: [action],
+      ),
+    );
+  }
+
+  // The system dialog pauses and resumes the app itself, so while it is up
+  // the answer of request decides the card, not a status read racing it.
+  Future<void> _read() async {
+    if (_asking) return;
+    final read = ++_reads;
+    final status = await _check();
+    if (!mounted || read != _reads || status == null) return;
+    setState(() => _status = status);
+  }
+
+  Future<void> _allow() async {
+    _reads++;
+    setState(() => _asking = true);
+    final status = await _request();
+    if (!mounted) return;
+    setState(() {
+      _asking = false;
+      _status = status ?? _status;
+    });
+  }
+
+  Future<PermissionStatus?> _check() async {
+    try {
+      return await ref
+          .read(appPermissionsProvider)
+          .status(AppPermission.notifications);
+    } on Object {
+      return null;
+    }
+  }
+
+  Future<PermissionStatus?> _request() async {
+    try {
+      return await ref
+          .read(appPermissionsProvider)
+          .request(AppPermission.notifications);
+    } on PlatformException {
+      return null;
+    }
+  }
+
+  void _openSettings() =>
+      unawaited(ref.read(notificationAccessProvider).openSettings());
 }
 
 class _RingLine extends StatelessWidget {

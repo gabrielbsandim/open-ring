@@ -68,6 +68,37 @@ void main() {
     }
   });
 
+  group('the notifications reason names the workout notices', () {
+    const reasons = {
+      'en':
+          'To show your workout while it records and whether it was saved, '
+          'alert you if the ring drops, and tell you when the ring battery is '
+          'low or a sync fails.',
+      'pt':
+          'Para mostrar o treino em andamento e se ele foi salvo, avisar se o '
+          'anel cair e quando a bateria do anel estiver baixa ou uma '
+          'sincronização falhar.',
+    };
+    for (final MapEntry(key: locale, value: reason) in reasons.entries) {
+      testWidgets('in $locale', (tester) async {
+        await pumpScaled(
+          tester,
+          screenHost(const PermissionsScreen()),
+          textScaler: TextScaler.noScaling,
+          brightness: Brightness.light,
+          locale: Locale(locale),
+          overrides: [
+            ...bleOverrides(),
+            ...ringOverrides(),
+            ...onboardingOverrides(permissions: FakeAppPermissions()),
+          ],
+        );
+
+        expect(await shownTexts(tester), contains(reason));
+      });
+    }
+  });
+
   testWidgets('explains each permission before asking for it', (tester) async {
     final permissions = await _pump(tester);
 

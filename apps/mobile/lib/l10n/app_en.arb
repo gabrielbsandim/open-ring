@@ -903,7 +903,7 @@
   "permissionsBluetoothName": "Nearby devices (Bluetooth)",
   "permissionsBluetoothWhy": "Lets the app find your ring over Bluetooth and talk to it. Without it no ring data can be read.",
   "permissionsNotificationsName": "Notifications",
-  "permissionsNotificationsWhy": "To tell you when the ring battery is low or a sync fails.",
+  "permissionsNotificationsWhy": "To show your workout while it records and whether it was saved, alert you if the ring drops, and tell you when the ring battery is low or a sync fails.",
   "permissionsBackgroundName": "Background activity",
   "permissionsBackgroundWhy": "Asks your phone not to pause the app to save battery, so it syncs on its own every hour.",
   "permissionsLocationName": "Location",
@@ -4717,5 +4717,8 @@
   "workoutNoticeSavedHeartRate": "Avg HR {bpm}",
   "@workoutNoticeSavedHeartRate": {"placeholders": {"bpm": {"type": "int"}}},
   "workoutNoticeFailedText": "Open the app to try again. Closing it loses the workout.",
-  "workoutNoticeOpen": "Open"
+  "workoutNoticeOpen": "Open",
+  "workoutNotificationsOffTitle": "Notifications off",
+  "workoutNotificationsOffBody": "The workout still records, but its time, heart rate and buttons do not show outside the app or on the lock screen.",
+  "workoutNotificationsAllow": "Allow notifications"
 }

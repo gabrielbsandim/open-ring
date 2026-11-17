@@ -291,7 +291,7 @@
   "permissionsBluetoothName": "Dispositivos próximos",
   "permissionsBluetoothWhy": "Permite encontrar o anel por Bluetooth e comunicar com ele. Sem isso não é possível ler os dados do anel.",
   "permissionsNotificationsName": "Notificações",
-  "permissionsNotificationsWhy": "Para avisar quando a bateria do anel estiver fraca ou uma sincronização falhar.",
+  "permissionsNotificationsWhy": "Para mostrar o treino em curso e se foi guardado, avisar se o anel cair e quando a bateria do anel estiver fraca ou uma sincronização falhar.",
   "permissionsBackgroundName": "Execução em segundo plano",
   "permissionsBackgroundWhy": "Pede ao telemóvel para não pausar a aplicação para poupar bateria. Assim sincroniza sozinha de hora a hora.",
   "permissionsLocationName": "Localização",
@@ -2330,5 +2330,8 @@
   "foodNoSpaceNote": "Sem foto, a refeição conta da mesma forma na janela e nas comparações.",
   "workoutNoticeSavedHeartRate": "FC média {bpm}",
   "workoutNoticeFailedText": "Abra a app para tentar novamente. Fechar a app perde o treino.",
-  "workoutNoticeOpen": "Abrir"
+  "workoutNoticeOpen": "Abrir",
+  "workoutNotificationsOffTitle": "Notificações desligadas",
+  "workoutNotificationsOffBody": "O treino é gravado na mesma, mas o tempo, a FC e os botões não aparecem fora da app nem no ecrã de bloqueio.",
+  "workoutNotificationsAllow": "Permitir notificações"
 }

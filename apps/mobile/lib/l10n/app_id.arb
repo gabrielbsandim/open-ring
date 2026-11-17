@@ -299,7 +299,7 @@
   "permissionsBluetoothName": "Perangkat di sekitar (Bluetooth)",
   "permissionsBluetoothWhy": "Memungkinkan aplikasi menemukan cincinmu lewat Bluetooth dan berkomunikasi dengannya. Tanpa itu, data cincin tidak bisa dibaca.",
   "permissionsNotificationsName": "Notifikasi",
-  "permissionsNotificationsWhy": "Untuk memberi tahu saat baterai cincin lemah atau sinkronisasi gagal.",
+  "permissionsNotificationsWhy": "Untuk menampilkan latihan selama direkam dan apakah sudah disimpan, memberi tahu saat cincin terputus, dan saat baterai cincin lemah atau sinkronisasi gagal.",
   "permissionsBackgroundName": "Eksekusi latar belakang",
   "permissionsBackgroundWhy": "Meminta ponsel agar tidak menjeda aplikasi demi menghemat baterai. Jadi aplikasi menyinkronkan sendiri setiap jam.",
   "permissionsLocationName": "Lokasi",
@@ -2338,5 +2338,8 @@
   "foodNoSpaceNote": "Tanpa foto, makanan tetap dihitung sama di jendela dan perbandingan.",
   "workoutNoticeSavedHeartRate": "Rata-rata DJ {bpm}",
   "workoutNoticeFailedText": "Buka aplikasi untuk mencoba lagi. Menutupnya akan menghilangkan latihan ini.",
-  "workoutNoticeOpen": "Buka"
+  "workoutNoticeOpen": "Buka",
+  "workoutNotificationsOffTitle": "Notifikasi nonaktif",
+  "workoutNotificationsOffBody": "Latihan tetap direkam, tetapi waktu, detak jantung, dan tombolnya tidak tampil di luar aplikasi atau di layar kunci.",
+  "workoutNotificationsAllow": "Izinkan notifikasi"
 }

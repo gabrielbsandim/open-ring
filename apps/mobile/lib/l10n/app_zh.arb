@@ -299,7 +299,7 @@
   "permissionsBluetoothName": "附近的设备（蓝牙）",
   "permissionsBluetoothWhy": "让应用通过蓝牙找到你的戒指并与之通信。没有它，就无法读取戒指数据。",
   "permissionsNotificationsName": "通知",
-  "permissionsNotificationsWhy": "在戒指电量低或同步失败时提醒你。",
+  "permissionsNotificationsWhy": "在记录时显示你的运动及是否已保存，在戒指断开时提醒你，并在戒指电量低或同步失败时通知你。",
   "permissionsBackgroundName": "后台运行",
   "permissionsBackgroundWhy": "请求手机不要为省电而暂停应用，这样它会每小时自动同步。",
   "permissionsLocationName": "定位",
@@ -2338,5 +2338,8 @@
   "foodNoSpaceNote": "没有照片，这餐在进食窗口和比较中同样计入。",
   "workoutNoticeSavedHeartRate": "平均心率 {bpm}",
   "workoutNoticeFailedText": "打开应用重试。关闭应用会丢失这次训练。",
-  "workoutNoticeOpen": "打开"
+  "workoutNoticeOpen": "打开",
+  "workoutNotificationsOffTitle": "通知已关闭",
+  "workoutNotificationsOffBody": "运动仍会记录，但时间、心率和按钮不会显示在应用外或锁屏上。",
+  "workoutNotificationsAllow": "允许通知"
 }

@@ -299,7 +299,7 @@
   "permissionsBluetoothName": "Устройства поблизости (Bluetooth)",
   "permissionsBluetoothWhy": "Позволяет приложению найти кольцо по Bluetooth и общаться с ним. Без этого данные кольца прочитать нельзя.",
   "permissionsNotificationsName": "Уведомления",
-  "permissionsNotificationsWhy": "Чтобы сообщать, когда батарея кольца разряжается или синхронизация не удалась.",
+  "permissionsNotificationsWhy": "Чтобы показывать тренировку во время записи и сохранилась ли она, предупреждать о потере кольца и сообщать, когда батарея кольца разряжается или синхронизация не удалась.",
   "permissionsBackgroundName": "Работа в фоне",
   "permissionsBackgroundWhy": "Просит телефон не приостанавливать приложение ради экономии заряда. Так оно само синхронизируется каждый час.",
   "permissionsLocationName": "Местоположение",
@@ -2338,5 +2338,8 @@
   "foodNoSpaceNote": "Без фото приём пищи учитывается так же в окне и сравнениях.",
   "workoutNoticeSavedHeartRate": "Ср. пульс {bpm}",
   "workoutNoticeFailedText": "Откройте приложение, чтобы попробовать снова. Если закрыть его, тренировка пропадёт.",
-  "workoutNoticeOpen": "Открыть"
+  "workoutNoticeOpen": "Открыть",
+  "workoutNotificationsOffTitle": "Уведомления выключены",
+  "workoutNotificationsOffBody": "Тренировка всё равно записывается, но время, пульс и кнопки не видны вне приложения и на экране блокировки.",
+  "workoutNotificationsAllow": "Разрешить уведомления"
 }

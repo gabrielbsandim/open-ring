@@ -1971,6 +1971,32 @@ nothing; with Body off the card says the weight plan holds. Lever counts are
 not weights, so hidden numbers leave them shown. A review that waits for an
 answer shows as the running week until the review screen exists.
 
+### The review screen
+
+The review screen, at `/today/goals/review`, shows the newest reviewed week of
+the goal under way, from its stored row: the levers of the closed week with
+what each got against what it needs, how many fit, and for lose fat the rate
+in 28 days with its interval and the target (hidden with numbers hidden). The
+decision is the stored rule and change, never one recomputed. A protection
+(end, pause, recovery week), a hold and ease need no answer. A change (the
+next step, or a lever removed by the shrink rule) takes Accept or Keep, and
+the "This week" card says a review is waiting until it is answered.
+
+Two optional questions, energy and food or weight, are offered while the week
+of this Monday has no answer and no check-in. Sent with the answer, or alone
+for a week with no change, they go through `amendWeek` first; when they change
+the rule the screen shows the new review and nothing is answered.
+
+`GoalReviewer.answer` refuses in demo mode, with Goals off, and for a weight
+goal with Body off. The week answer is written first, since the store refuses
+a second answer and that refusal keeps a double tap from writing twice. An
+accepted steps change then sets the profile step goal, through the profile
+save that dates a step goal change today, only when the new target is above
+the profile goal in force: the steps lever starts from the 14 day median, so
+it can sit under a goal the person set, and the plan never lowers that goal.
+When the profile save fails the week stays accepted, the failure is logged
+and the screen offers a retry, which writes no second change row.
+
 ### The goal picker
 
 The picker offers four rows: no goal, lose fat, get fitter, sleep better.

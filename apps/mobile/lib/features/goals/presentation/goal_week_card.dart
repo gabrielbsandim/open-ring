@@ -8,6 +8,7 @@ import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
+import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/core/widgets/text_scale.dart';
 import 'package:open_ring/features/goals/application/goal_path_providers.dart';
 import 'package:open_ring/features/goals/application/goal_providers.dart';
@@ -21,6 +22,8 @@ const _noonMinute = 720;
 abstract final class GoalWeekCardKeys {
   static const card = Key('goal_week_card');
   static const open = Key('goal_week_card_open');
+  static const openReview = Key('goal_week_card_open_review');
+  static const review = Key('goal_week_card_review');
   static const base = Key('goal_week_card_base');
   static const span = Key('goal_week_card_span');
   static const paused = Key('goal_week_card_paused');
@@ -99,6 +102,10 @@ class GoalWeekCard extends ConsumerWidget {
           CaptionText(l10n.goalsWeekRecoveryNote),
         ],
       ),
+      GoalWeekRunning(:final review?) => (
+        tag: l10n.goalsWeekTagReview,
+        children: _review(context, format, review),
+      ),
       GoalWeekRunning(:final goal, :final monday, :final week, :final levers) =>
         (
           tag: _weekTag(ref, l10n, goal, week),
@@ -161,6 +168,37 @@ class GoalWeekCard extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  List<Widget> _review(
+    BuildContext context,
+    MetricFormat format,
+    GoalWeek review,
+  ) {
+    final l10n = format.l10n;
+    final levers = review.inputs.levers;
+    return [
+      Text(
+        l10n.goalsWeekReviewTitle,
+        key: GoalWeekCardKeys.review,
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      const SizedBox(height: 4),
+      BodyText(
+        l10n.goalsWeekReviewBody(
+          format.integer(levers.where(leverFits).length),
+          format.integer(levers.length),
+        ),
+      ),
+      const SizedBox(height: 12),
+      ActionButton(
+        buttonKey: GoalWeekCardKeys.openReview,
+        label: l10n.goalsWeekReviewOpen,
+        onPressed: () => context.go(AppPaths.goalsReview),
+      ),
+      const SizedBox(height: 8),
+      CaptionText(l10n.goalsWeekReviewNote),
+    ];
   }
 
   String _weekTag(WidgetRef ref, AppLocalizations l10n, Goal goal, int week) {
@@ -286,7 +324,17 @@ String _clock(MetricFormat format, int minutes) {
   );
 }
 
-int _need(Lever lever) => switch (lever.cadence) {
+/// One value of a lever in its own unit: a count, or a clock time.
+String leverValue(MetricFormat format, LeverKind kind, int value) =>
+    switch (kind) {
+      LeverKind.sleepWindow => _clock(format, value + _noonMinute),
+      LeverKind.wakeTime => _clock(format, value),
+      LeverKind.steps ||
+      LeverKind.effortPoints ||
+      LeverKind.strengthDays => format.integer(value),
+    };
+
+int leverNeed(Lever lever) => switch (lever.cadence) {
   LeverCadence.daily => goalDailyFitDays,
   LeverCadence.weekly => lever.target,
 };
@@ -317,7 +365,7 @@ class _LeverRow extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = format.l10n;
     final counted = progress;
-    final need = _need(lever);
+    final need = leverNeed(lever);
     final count = counted == null
         ? null
         : Text(

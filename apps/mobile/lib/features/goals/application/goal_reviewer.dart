@@ -1,24 +1,33 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
+import 'package:open_ring/features/activity/domain/activity_history_reader.dart';
 import 'package:open_ring/features/body/application/weight_summary.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/effort/application/effort_providers.dart';
 import 'package:open_ring/features/effort/domain/effort_day.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/application/goals_gate.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/review_inputs.dart';
+import 'package:open_ring/features/goals/domain/review_step_goal.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/day_score_providers.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
+import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/sleep/application/sleep_providers.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 
 const _daysInWeek = 7;
 const _firstReviewedWeek = 2;
+
+/// What answering a review did. [stepGoalFailed] keeps the answer: only the
+/// profile step goal is left to write, through [GoalReviewer.retryStepGoal].
+enum ReviewAnswerOutcome { accepted, kept, stepGoalFailed, changed, refused }
 
 final goalReviewerProvider = NotifierProvider<GoalReviewer, void>(
   GoalReviewer.new,
@@ -84,10 +93,9 @@ class GoalReviewer extends Notifier<void> {
     CheckInEnergy? energy,
     bool? foodOrWeight,
   }) async {
-    if (!ref.read(goalsEnabledProvider)) return null;
-    final store = ref.read(goalStoreProvider);
-    final goal = await store.active();
+    final goal = await _answerable();
     if (goal == null) return null;
+    final store = ref.read(goalStoreProvider);
     final review = await store.amendWeek(
       goal.id,
       monday,
@@ -98,6 +106,94 @@ class GoalReviewer extends Notifier<void> {
     _bump();
     return review;
   }
+
+  /// Answers the week of [monday], once. Check-in answers go first: when they
+  /// change the rule the person sees a new review, so nothing is answered.
+  /// The answer is written before the profile step goal, since its refusal is
+  /// what keeps a second accept from writing the goal twice.
+  Future<ReviewAnswerOutcome> answer(
+    LocalDate monday,
+    WeekAnswer choice, {
+    CheckInEnergy? energy,
+    bool? foodOrWeight,
+  }) async {
+    final goal = await _answerable();
+    if (goal == null) return ReviewAnswerOutcome.refused;
+    final store = ref.read(goalStoreProvider);
+    final week = (await store.weeks(goal.id))
+        .where((week) => week.monday == monday)
+        .lastOrNull;
+    if (week == null) return ReviewAnswerOutcome.refused;
+    if (energy != null || foodOrWeight != null) {
+      final review = await store.amendWeek(
+        goal.id,
+        monday,
+        energy: energy,
+        foodOrWeight: foodOrWeight,
+      );
+      if (review != null) _bump();
+      if (review != null && !_same(review, week)) {
+        return ReviewAnswerOutcome.changed;
+      }
+    }
+    final change = week.change;
+    if (change == null) return ReviewAnswerOutcome.refused;
+    if (!await store.answer(goal.id, monday, choice)) {
+      return ReviewAnswerOutcome.refused;
+    }
+    _bump();
+    if (choice == WeekAnswer.declined) return ReviewAnswerOutcome.kept;
+    final profile = await ref.read(userProfileProvider.future);
+    final steps = stepGoalAfterAccept(
+      change,
+      profileGoal: profile?.dailyStepGoal ?? defaultStepGoal,
+    );
+    if (steps == null) return ReviewAnswerOutcome.accepted;
+    if (await retryStepGoal(steps)) return ReviewAnswerOutcome.accepted;
+    return ReviewAnswerOutcome.stepGoalFailed;
+  }
+
+  /// Puts [steps] in force as the profile step goal from today. False, with
+  /// the failure logged, when the profile could not be saved.
+  Future<bool> retryStepGoal(int steps) async {
+    if (await _answerable() == null) return false;
+    final held = await ref.read(userProfileProvider.future);
+    final profile = held ?? const UserProfile();
+    try {
+      await ref
+          .read(userProfileProvider.notifier)
+          .save(
+            UserProfile(
+              birthYear: profile.birthYear,
+              sex: profile.sex,
+              heightCentimeters: profile.heightCentimeters,
+              weightKilograms: profile.weightKilograms,
+              maxHeartRate: profile.maxHeartRate,
+              dailyStepGoal: steps,
+            ),
+          );
+      return true;
+    } on Object catch (error) {
+      debugPrint('Goal step goal was not saved: $error');
+      return false;
+    }
+  }
+
+  // Demo history shares the tables, and a weight goal with Body off holds, so
+  // neither takes an answer.
+  Future<Goal?> _answerable() async {
+    if (!ref.read(goalsEnabledProvider) || ref.read(demoModeProvider)) {
+      return null;
+    }
+    final goal = await ref.read(goalStoreProvider).active();
+    if (goal == null) return null;
+    if (goal.kind != GoalKind.loseFat) return goal;
+    final modules = await ref.read(enabledModulesProvider.future);
+    return modules.contains(ModuleId.body) ? goal : null;
+  }
+
+  bool _same(Review review, GoalWeek week) =>
+      review.rule == week.rule && review.action == week.action;
 
   /// Starts the block a goal waits for: its first, once a starting lever
   /// exists, or the next after a pause that has run out. Losing fat waits for

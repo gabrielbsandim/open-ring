@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
@@ -15,7 +14,7 @@ import 'package:open_ring/features/settings/domain/user_profile.dart';
 
 import '../goal_fixtures.dart';
 
-final _monday = goalDay(12, 7);
+final LocalDate _monday = goalDay(12, 7);
 
 final class _Profiles implements UserProfileStore {
   new(this.profile);
@@ -145,7 +144,6 @@ Future<_Rig> _pausable() async {
   return rig;
 }
 
-const _stepsChange = LeverChange(kind: LeverKind.steps, from: 9000, to: 10000);
 const _strengthChange = LeverChange(
   kind: LeverKind.strengthDays,
   from: 2,
@@ -157,7 +155,10 @@ const _effortChange = LeverChange(
   to: 120,
 );
 
-final _baselineOf8000 = (from: stepGoalBaselineDate, steps: 8000);
+const ({LocalDate from, int steps}) _baselineOf8000 = (
+  from: stepGoalBaselineDate,
+  steps: 8000,
+);
 
 void main() {
   group('criterion 1: accept a steps change above the profile goal', () {

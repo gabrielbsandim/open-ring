@@ -27,7 +27,7 @@ void main() {
 
     test('gives null when equal to the profile goal', () {
       final goal = stepGoalAfterAccept(
-        _change(LeverKind.steps, to: 10000),
+        _change(LeverKind.steps),
         profileGoal: 10000,
       );
 

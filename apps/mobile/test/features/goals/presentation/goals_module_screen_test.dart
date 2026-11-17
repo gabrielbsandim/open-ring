@@ -32,6 +32,8 @@ import '../goals_data_harness.dart';
 
 const _tall = Size(360, 3200);
 const _todayStub = 'today stub';
+const _base = '/base';
+const _baseStub = 'base stub';
 
 class _World {
   new(this.setup, this.memory, this.spy);
@@ -76,10 +78,15 @@ Future<GoRouter> _pump(
   double scale = 1,
   Brightness brightness = Brightness.dark,
   Size size = _tall,
+  bool pushed = false,
 }) async {
   final router = GoRouter(
-    initialLocation: AppPaths.settingsModuleGoals,
+    initialLocation: pushed ? _base : AppPaths.settingsModuleGoals,
     routes: [
+      GoRoute(
+        path: _base,
+        builder: (_, _) => const Scaffold(body: Text(_baseStub)),
+      ),
       GoRoute(
         path: AppPaths.settingsModuleGoals,
         builder: (_, _) => const GoalsModuleScreen(),
@@ -111,6 +118,10 @@ Future<GoRouter> _pump(
     size: size,
     overrides: const [],
   );
+  if (pushed) {
+    unawaited(router.push(AppPaths.settingsModuleGoals));
+    await tester.pumpAndSettle();
+  }
   return router;
 }
 
@@ -667,6 +678,45 @@ void main() {
 
       expect(world.spy.clearCalls, 1);
       expect(await world.memory.count(), 0);
+    });
+
+    testWidgets('two taps on confirm keep the screen under the dialog', (
+      tester,
+    ) async {
+      final world = await _world();
+      await _pump(tester, world, pushed: true);
+      await _openDialog(tester);
+
+      await tester.tap(find.byKey(GoalsModuleKeys.deleteConfirm));
+      await tester.pump(const Duration(milliseconds: 1));
+      await tester.tap(
+        find.byKey(GoalsModuleKeys.deleteConfirm),
+        warnIfMissed: false,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(GoalsModuleScreen), findsOneWidget);
+      expect(find.text(_baseStub), findsNothing);
+      expect(world.spy.clearCalls, 1);
+    });
+
+    testWidgets('Delete is disabled while a clear runs', (tester) async {
+      final world = await _world();
+      final gate = Completer<void>();
+      world.spy.clearGate = gate;
+      await _pump(tester, world);
+      await _openDialog(tester);
+      await _confirm(tester);
+
+      final button = tester.widget<OutlinedButton>(
+        find.byKey(GoalsModuleKeys.delete),
+      );
+      expect(button.onPressed, isNull);
+      gate.complete();
+      await tester.pumpAndSettle();
+
+      expect(world.spy.clearCalls, 1);
+      expect(find.byKey(GoalsModuleKeys.delete), findsNothing);
     });
   });
 

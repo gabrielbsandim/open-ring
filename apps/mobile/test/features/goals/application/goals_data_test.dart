@@ -355,7 +355,72 @@ void main() {
           expect(text, isNot(contains('plural')), reason: '$goals $reviews');
         }
       });
+
+      test('$locale spells the reviews count', () {
+        final l10n = lookupAppLocalizations(locale);
+
+        for (final reviews in [3, 7, 21]) {
+          expect(
+            l10n.moduleGoalsDataCount(1, reviews),
+            contains('$reviews'),
+            reason: '$reviews',
+          );
+        }
+      });
     }
+
+    test('English says no reviews at zero', () {
+      expect(_en().moduleGoalsDataCount(1, 0), contains('no reviews'));
+    });
+
+    test('Russian reviews take the one, few and many forms', () {
+      final l10n = lookupAppLocalizations(const Locale('ru'));
+      String shape(int reviews) =>
+          l10n.moduleGoalsDataCount(1, reviews).replaceAll('$reviews', '#');
+
+      expect({shape(21), shape(3), shape(5)}, hasLength(3));
+    });
+
+    test('rows that do not decode add the unreadable sentence', () {
+      final l10n = _en();
+
+      final line = goalsDataLine(
+        l10n,
+        const GoalsDataCount(
+          goals: 0,
+          reviews: 0,
+          screenings: 0,
+          unreadable: 2,
+        ),
+      );
+
+      expect(line, l10n.moduleGoalsDataUnreadable);
+    });
+  });
+
+  group('rows that do not decode', () {
+    test('count, so the delete still shows', () async {
+      final db = memoryDatabase();
+      await db.customStatement(
+        'INSERT INTO goals (kind, started_on, block_started_on, phase, '
+        'phase_since, levers) '
+        "VALUES ('loseFat', '2026-11-16', '2026-11-16', 'block', "
+        "'2026-11-16', 'x')",
+      );
+      await db.customStatement(
+        "INSERT INTO goal_screenings (asked_on) VALUES ('not-a-date')",
+      );
+      final container = ProviderContainer.test(
+        overrides: [goalStoreProvider.overrideWithValue(DriftGoalStore(db))],
+      );
+
+      final count = await container.read(goalsDataCountProvider.future);
+
+      expect(count.goals, 0);
+      expect(count.screenings, 0);
+      expect(count.unreadable, 2);
+      expect(count.total, 2);
+    });
   });
 
   group('the ARB files', () {

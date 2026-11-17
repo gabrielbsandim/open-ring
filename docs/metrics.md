@@ -1837,9 +1837,9 @@ ways: Body and the soft mode come first, and pregnancy is not asked here.
 
 `weightGoalNext` says what follows when nothing blocks: the five questions
 when they were never answered, the setup when the newest answer is a no. The
-questions are asked once. `newestSoftMode` reads the newest screening row
-that holds an answer to them, so a later row that only records pregnancy
-does not erase it.
+questions are asked once, and again only after the Goals data is deleted.
+`newestSoftMode` reads the newest screening row that holds an answer to
+them, so a later row that only records pregnancy does not erase it.
 
 `ScreeningController.submit` takes exactly five answers and writes one row
 with the date and the result, true for two or more "yes". The five answers
@@ -2093,10 +2093,12 @@ the turned on message opens the goal screen. Switching off deletes nothing.
 and the screenings through `GoalStore.clear`, in one transaction, with Goals
 on or off and in demo mode, which seeds no Goals rows. Weigh-ins, the step
 goal changes and the profile step goal stay, so a step goal the plan raised
-stays raised. A store error is logged and the screen says nothing was
-deleted. The screen counts goals, reviewed weeks and screenings
-(`goalsDataCountProvider`, not gated on the module) and shows the button only
-when one is kept; a count that cannot be read shows the load error, not the
+stays raised. Deleting a screening that said yes ends soft mode, and the
+next weight goal asks the questions again. A store error is logged and the
+screen says nothing was deleted. The screen counts goals, reviewed weeks and screenings
+(`goalsDataCountProvider`, not gated on the module), adds the rows that no
+longer decode from the store's raw count with a sentence of their own, and
+shows the button only when one is kept; a count that cannot be read shows the load error, not the
 empty line. "Delete all data" empties the same three tables. The end screen
 links to the module screen and asks nothing itself.
 

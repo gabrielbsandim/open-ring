@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/core/records/data_revision.dart';
@@ -11,6 +13,7 @@ final class GoalsDataCount {
     required this.goals,
     required this.reviews,
     required this.screenings,
+    this.unreadable = 0,
   });
 
   final int goals;
@@ -19,17 +22,21 @@ final class GoalsDataCount {
   final int reviews;
   final int screenings;
 
-  int get total => goals + reviews + screenings;
+  /// Rows kept in the Goals tables that no longer decode.
+  final int unreadable;
+
+  int get total => goals + reviews + screenings + unreadable;
 
   @override
   bool operator ==(Object other) =>
       other is GoalsDataCount &&
       other.goals == goals &&
       other.reviews == reviews &&
-      other.screenings == screenings;
+      other.screenings == screenings &&
+      other.unreadable == unreadable;
 
   @override
-  int get hashCode => Object.hash(goals, reviews, screenings);
+  int get hashCode => Object.hash(goals, reviews, screenings, unreadable);
 }
 
 // Not gated on the module: data kept while Goals is off can still be deleted.
@@ -41,10 +48,15 @@ final goalsDataCountProvider = FutureProvider<GoalsDataCount>((ref) async {
   for (final goal in goals) {
     reviews += (await store.weeks(goal.id)).length;
   }
+  final screenings = (await store.screenings()).length;
+  // The reads skip rows that no longer decode, and those must still show
+  // the delete.
+  final decoded = goals.length + reviews + screenings;
   return GoalsDataCount(
     goals: goals.length,
     reviews: reviews,
-    screenings: (await store.screenings()).length,
+    screenings: screenings,
+    unreadable: max(0, await store.count() - decoded),
   );
 });
 
@@ -70,12 +82,13 @@ class GoalsDataEraser {
   }
 }
 
-/// The stored line of the module screen: the counts, then the screening
-/// sentence when one is kept, or the empty line.
+/// The stored line of the module screen: the counts, the screening sentence
+/// and the unreadable sentence, each when it applies, or the empty line.
 String goalsDataLine(AppLocalizations l10n, GoalsDataCount count) {
   if (count.total == 0) return l10n.moduleGoalsDataEmpty;
-  final screening = count.screenings > 0 ? l10n.moduleGoalsDataScreening : '';
-  if (count.goals == 0) return screening;
-  final counts = l10n.moduleGoalsDataCount(count.goals, count.reviews);
-  return [counts, screening].where((part) => part.isNotEmpty).join(' ');
+  return [
+    if (count.goals > 0) l10n.moduleGoalsDataCount(count.goals, count.reviews),
+    if (count.screenings > 0) l10n.moduleGoalsDataScreening,
+    if (count.unreadable > 0) l10n.moduleGoalsDataUnreadable,
+  ].join(' ');
 }

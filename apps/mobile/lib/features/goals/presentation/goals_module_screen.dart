@@ -30,11 +30,18 @@ abstract final class GoalsModuleKeys {
   static const toggle = Key('goals_module_toggle');
 }
 
-class GoalsModuleScreen extends ConsumerWidget {
+class GoalsModuleScreen extends ConsumerStatefulWidget {
   const new({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GoalsModuleScreen> createState() => _GoalsModuleScreenState();
+}
+
+class _GoalsModuleScreenState extends ConsumerState<GoalsModuleScreen> {
+  var _deleting = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = AppColors.of(context);
     final on =
@@ -114,7 +121,7 @@ class GoalsModuleScreen extends ConsumerWidget {
               foregroundColor: colors.heart,
               minimumSize: const Size.fromHeight(48),
             ),
-            onPressed: () => unawaited(_delete(context, ref)),
+            onPressed: _deleting ? null : () => unawaited(_delete()),
             child: Text(l10n.moduleGoalsDelete, textAlign: TextAlign.center),
           ),
         ],
@@ -151,15 +158,15 @@ class GoalsModuleScreen extends ConsumerWidget {
     return goalsDataLine(l10n, value);
   }
 
-  Future<void> _delete(BuildContext context, WidgetRef ref) async {
+  // Delete stays disabled until the clear returns, so a second tap cannot
+  // open a second dialog while the first delete runs.
+  Future<void> _delete() async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (_) => const _DeleteDialog(),
-    );
-    if (confirmed != true || !context.mounted) return;
-    final deleted = await ref.read(goalsDataEraserProvider).clear();
+    setState(() => _deleting = true);
+    final deleted = await _confirmAndClear();
+    if (mounted) setState(() => _deleting = false);
+    if (deleted == null) return;
     messenger
       ..clearSnackBars()
       ..showSnackBar(
@@ -170,24 +177,19 @@ class GoalsModuleScreen extends ConsumerWidget {
         ),
       );
   }
-}
 
-class _DeleteDialog extends StatefulWidget {
-  const new();
-
-  @override
-  State<_DeleteDialog> createState() => _DeleteDialogState();
-}
-
-class _DeleteDialogState extends State<_DeleteDialog> {
-  var _closed = false;
-
-  // A second tap before the dialog is gone would pop the screen under it.
-  void _close(bool confirmed) {
-    if (_closed) return;
-    _closed = true;
-    Navigator.of(context).pop(confirmed);
+  Future<bool?> _confirmAndClear() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => const _DeleteDialog(),
+    );
+    if (confirmed != true || !mounted) return null;
+    return await ref.read(goalsDataEraserProvider).clear();
   }
+}
+
+class _DeleteDialog extends StatelessWidget {
+  const new();
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +202,7 @@ class _DeleteDialogState extends State<_DeleteDialog> {
       actions: [
         TextButton(
           key: GoalsModuleKeys.deleteCancel,
-          onPressed: () => _close(false),
+          onPressed: () => Navigator.of(context).pop(false),
           child: Text(l10n.settingsDeleteCancel),
         ),
         FilledButton(
@@ -209,7 +211,7 @@ class _DeleteDialogState extends State<_DeleteDialog> {
             backgroundColor: colors.heart,
             foregroundColor: colors.onAccent,
           ),
-          onPressed: () => _close(true),
+          onPressed: () => Navigator.of(context).pop(true),
           child: Text(l10n.moduleGoalsDelete),
         ),
       ],

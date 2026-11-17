@@ -256,6 +256,7 @@ class WorkoutController extends Notifier<WorkoutState> {
       labels,
       ref.read(currentUnitSystemProvider),
       workoutId: workoutId,
+      hideHeartRate: !(ref.read(workoutLockHeartRateProvider).value ?? true),
     );
     final notifier = _notifier;
     unawaited(_quietly(_guarded(() => notifier.ended(notice))));

@@ -14,6 +14,7 @@ WorkoutEndNotice workoutEndNoticeOf(
   WorkoutNoticeLabels labels,
   UnitSystem units, {
   int? workoutId,
+  bool hideHeartRate = false,
 }) {
   if (workoutId == null) {
     return WorkoutEndNotice(
@@ -22,13 +23,17 @@ WorkoutEndNotice workoutEndNoticeOf(
       action: labels.open,
       link: workoutSummaryLink,
       channel: labels.channel,
+      failed: true,
     );
   }
   final average = snapshot.averageHeartRate;
-  final text = [
+  final fields = [
     ?labels.types[snapshot.type],
     _clock(snapshot.elapsed),
     ?_distance(snapshot, labels, units),
+  ];
+  final text = [
+    ...fields,
     if (average != null) labels.savedHeartRate(average),
   ].join(_fieldSeparator);
   return WorkoutEndNotice(
@@ -37,6 +42,7 @@ WorkoutEndNotice workoutEndNoticeOf(
     action: labels.viewSummary,
     link: '$workoutSummaryLink/$workoutId',
     channel: labels.channel,
+    publicText: hideHeartRate ? fields.join(_fieldSeparator) : null,
   );
 }
 

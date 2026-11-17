@@ -169,6 +169,8 @@ void main() {
       expect(notice.action, pt.open);
       expect(notice.link, endsWith('workout-summary'));
       expect(notice.link, _summaryLink);
+      expect(notice.failed, isTrue);
+      expect(notice.publicText, isNull);
     });
 
     test('both outcomes post on the live channel name', () {
@@ -189,6 +191,56 @@ void main() {
       final imperial = workoutEndNoticeOf(ended(), en, UnitSystem.imperial);
 
       expect(imperial, metric);
+    });
+  });
+
+  group('the lock screen heart rate setting', () {
+    test('shown leaves no lock screen text', () {
+      final notice = workoutEndNoticeOf(
+        ended(),
+        pt,
+        UnitSystem.metric,
+        workoutId: 42,
+      );
+
+      expect(notice.publicText, isNull);
+      expect(notice.failed, isFalse);
+    });
+
+    test('hidden gives the text with no heart rate', () {
+      final notice = workoutEndNoticeOf(
+        ended(),
+        pt,
+        UnitSystem.metric,
+        workoutId: 42,
+        hideHeartRate: true,
+      );
+
+      expect(notice.text, 'Corrida · 40:00 · 6,60 km · FC média 146');
+      expect(notice.publicText, 'Corrida · 40:00 · 6,60 km');
+    });
+
+    test('hidden with no average keeps the same text', () {
+      final notice = workoutEndNoticeOf(
+        ended(average: null),
+        pt,
+        UnitSystem.metric,
+        workoutId: 42,
+        hideHeartRate: true,
+      );
+
+      expect(notice.publicText, notice.text);
+    });
+
+    test('the failed notice has no heart rate to hide', () {
+      final notice = workoutEndNoticeOf(
+        ended(),
+        pt,
+        UnitSystem.metric,
+        hideHeartRate: true,
+      );
+
+      expect(notice.publicText, isNull);
     });
   });
 
@@ -243,6 +295,20 @@ void main() {
         action: 'See workout summary',
         link: '$_summaryLink/42',
         channel: 'Treino',
+      ),
+      'publicText': const WorkoutEndNotice(
+        title: 'Workout saved',
+        text: 'Running · 40:00',
+        action: 'See workout summary',
+        link: '$_summaryLink/42',
+        publicText: 'Running · 40:00',
+      ),
+      'failed': const WorkoutEndNotice(
+        title: 'Workout saved',
+        text: 'Running · 40:00',
+        action: 'See workout summary',
+        link: '$_summaryLink/42',
+        failed: true,
       ),
     };
 

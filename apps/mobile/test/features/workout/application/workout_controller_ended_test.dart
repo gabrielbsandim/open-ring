@@ -9,6 +9,7 @@ import 'package:open_ring/features/settings/application/user_profile_providers.d
 import 'package:open_ring/features/settings/domain/unit_system.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/workout/application/workout_controller.dart';
+import 'package:open_ring/features/workout/application/workout_lock_providers.dart';
 import 'package:open_ring/features/workout/application/workout_state.dart';
 import 'package:open_ring/features/workout/domain/location_source.dart';
 import 'package:open_ring/features/workout/domain/workout_notifier.dart';
@@ -232,6 +233,35 @@ void main() {
     });
   });
 
+  group('the lock screen heart rate setting reaches the notice', () {
+    test('off sends the text with no heart rate', () async {
+      final c = container();
+      final controller = await started(c, WorkoutType.other);
+      await c.read(workoutLockHeartRateProvider.notifier).set(show: false);
+      second(bpm: 140);
+      second(bpm: 140);
+
+      await controller.finish();
+      await pumpEventQueue();
+
+      final notice = notifier.endedNotices.single;
+      expect(notice.text, '0:02 · Avg HR 140');
+      expect(notice.publicText, '0:02');
+    });
+
+    test('on sends no lock screen text', () async {
+      final c = container();
+      final controller = await started(c, WorkoutType.other);
+      await c.read(workoutLockHeartRateProvider.notifier).set(show: true);
+      second(bpm: 140);
+
+      await controller.finish();
+      await pumpEventQueue();
+
+      expect(notifier.endedNotices.single.publicText, isNull);
+    });
+  });
+
   group('3: a store that throws posts the failed notice', () {
     test('one failed notice with Open and the summary link', () async {
       final c = container(withStore: _ThrowingStore());
@@ -248,6 +278,7 @@ void main() {
       expect(notice.action, labels.open);
       expect(notice.link, endsWith('workout-summary'));
       expect(notice.link, _summaryLink);
+      expect(notice.failed, isTrue);
     });
 
     test('the failed notice posts after the live notice is hidden', () async {

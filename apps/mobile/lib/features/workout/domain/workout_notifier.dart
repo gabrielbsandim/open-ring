@@ -96,6 +96,8 @@ final class WorkoutEndNotice {
     required this.action,
     required this.link,
     this.channel = 'Workout',
+    this.publicText,
+    this.failed = false,
   });
 
   final String title;
@@ -104,6 +106,12 @@ final class WorkoutEndNotice {
   final String link;
   final String channel;
 
+  /// The lock screen text with no heart rate, null when it shows all.
+  final String? publicText;
+
+  /// The save failed, so the workout lives only in this process.
+  final bool failed;
+
   @override
   bool operator ==(Object other) =>
       other is WorkoutEndNotice &&
@@ -111,10 +119,13 @@ final class WorkoutEndNotice {
       other.text == text &&
       other.action == action &&
       other.link == link &&
-      other.channel == channel;
+      other.channel == channel &&
+      other.publicText == publicText &&
+      other.failed == failed;
 
   @override
-  int get hashCode => Object.hash(title, text, action, link, channel);
+  int get hashCode =>
+      Object.hash(title, text, action, link, channel, publicText, failed);
 }
 
 final class WorkoutNoticeLabels {

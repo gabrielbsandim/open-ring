@@ -67,6 +67,8 @@ final class MethodChannelWorkoutNotifier implements WorkoutNotifier {
       'actionLabel': notice.action,
       'link': notice.link,
       'timeoutMs': endedTimeout.inMilliseconds,
+      'publicText': notice.publicText,
+      'failed': notice.failed,
     },
   );
 

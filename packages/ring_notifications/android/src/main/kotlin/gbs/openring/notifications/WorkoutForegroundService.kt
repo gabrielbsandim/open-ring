@@ -11,6 +11,7 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
 import android.os.SystemClock
@@ -21,6 +22,7 @@ private const val ALERT_CHANNEL_ID = "workout_alerts"
 private const val ALERT_NOTIFICATION_ID = 7303
 private const val ENDED_NOTIFICATION_ID = 7304
 private const val ACTION_PREFIX = "gbs.openring.notifications.workout."
+private const val EXTRA_FAILED = "gbs.openring.notifications.workout.failed"
 
 internal data class WorkoutNotice(
     val channelName: String,
@@ -83,6 +85,7 @@ class WorkoutForegroundService : Service() {
         listener = null
         cancelWorkoutNotification(this)
         cancelWorkoutAlert(this)
+        cancelFailedWorkoutEnded(this)
         stop()
     }
 
@@ -304,37 +307,67 @@ internal fun cancelWorkoutAlert(app: Context) {
     manager.cancel(ALERT_NOTIFICATION_ID)
 }
 
-// The saved or failed notice: neither ongoing nor owned by the service, so
-// hiding the workout or removing the task leaves it until it times out.
-internal fun showWorkoutEnded(
-    app: Context,
-    channelName: String,
-    title: String?,
-    text: String?,
-    actionLabel: String,
-    link: String?,
-    timeoutMs: Long,
-) {
+// The saved notice outlives hiding the workout, the task and the process
+// until it times out. The failed one says nothing is lost, which holds only
+// while the engine holding the unsaved workout lives, so it goes with it.
+private var failedOwner: Any? = null
+
+internal fun showWorkoutEnded(app: Context, owner: Any, ended: WorkoutEnded) {
     val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     manager.createNotificationChannel(
-        NotificationChannel(WORKOUT_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_LOW),
+        NotificationChannel(WORKOUT_CHANNEL_ID, ended.channelName, NotificationManager.IMPORTANCE_LOW),
     )
-    val open = openWorkout(app, link, ENDED_NOTIFICATION_ID)
+    failedOwner = if (ended.failed) owner else null
+    // A default lock screen shows a private notice in full and this one is not
+    // posted again when the screen changes, so a hidden heart rate shows nowhere.
+    val text = ended.publicText ?: ended.text
+    val open = openWorkout(app, ended.link, ENDED_NOTIFICATION_ID)
     val notice = Notification.Builder(app, WORKOUT_CHANNEL_ID)
         .setSmallIcon(smallIcon(app))
-        .setContentTitle(title)
+        .setContentTitle(ended.title)
         .setContentText(text)
         .setStyle(Notification.BigTextStyle().bigText(text))
         .setCategory(Notification.CATEGORY_WORKOUT)
+        .setVisibility(Notification.VISIBILITY_PUBLIC)
         .setAutoCancel(true)
-        .setTimeoutAfter(timeoutMs)
+        .setTimeoutAfter(ended.timeoutMs)
         .setContentIntent(open)
-        .addAction(Notification.Action.Builder(null, actionLabel, open).build())
+        .addAction(Notification.Action.Builder(null, ended.actionLabel, open).build())
+        .addExtras(Bundle().apply { putBoolean(EXTRA_FAILED, ended.failed) })
         .build()
     manager.notify(ENDED_NOTIFICATION_ID, notice)
 }
 
+internal data class WorkoutEnded(
+    val channelName: String,
+    val title: String?,
+    val text: String?,
+    val actionLabel: String,
+    val link: String?,
+    val timeoutMs: Long,
+    val publicText: String?,
+    val failed: Boolean,
+)
+
 internal fun cancelWorkoutEnded(app: Context) {
+    failedOwner = null
     val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     manager.cancel(ENDED_NOTIFICATION_ID)
+}
+
+// An engine attaching (leaving null) finds a failed notice no live engine owns
+// only when an earlier process posted it; a detaching engine takes its own.
+internal fun dropOrphanedFailedWorkoutEnded(app: Context, leaving: Any? = null) {
+    val owner = failedOwner
+    if (owner != null && owner !== leaving) return
+    cancelFailedWorkoutEnded(app)
+}
+
+private fun cancelFailedWorkoutEnded(app: Context) {
+    val manager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    val failed = manager.activeNotifications.any {
+        it.id == ENDED_NOTIFICATION_ID && it.notification.extras.getBoolean(EXTRA_FAILED)
+    }
+    if (!failed) return
+    cancelWorkoutEnded(app)
 }

@@ -53,6 +53,8 @@ void main() {
         'actionLabel': 'Ver resumo do treino',
         'link': 'openring://widget/activity/workout-summary/42',
         'timeoutMs': 3600000,
+        'publicText': null,
+        'failed': false,
       });
     });
 
@@ -63,6 +65,7 @@ void main() {
           text: 'Nothing is lost yet. Open the app and try again.',
           action: 'Open',
           link: 'openring://widget/activity/workout-summary',
+          failed: true,
         ),
       );
 
@@ -73,6 +76,32 @@ void main() {
         'actionLabel': 'Open',
         'link': 'openring://widget/activity/workout-summary',
         'timeoutMs': 3600000,
+        'publicText': null,
+        'failed': true,
+      });
+    });
+
+    test('a hidden heart rate sends the lock screen text', () async {
+      await MethodChannelWorkoutNotifier().ended(
+        const WorkoutEndNotice(
+          title: 'Treino salvo',
+          text: 'Corrida · 40:00 · 6,60 km · FC média 146',
+          action: 'Ver resumo do treino',
+          link: 'openring://widget/activity/workout-summary/42',
+          channel: 'Treino',
+          publicText: 'Corrida · 40:00 · 6,60 km',
+        ),
+      );
+
+      expect(calls.single.arguments, {
+        'channelName': 'Treino',
+        'title': 'Treino salvo',
+        'text': 'Corrida · 40:00 · 6,60 km · FC média 146',
+        'actionLabel': 'Ver resumo do treino',
+        'link': 'openring://widget/activity/workout-summary/42',
+        'timeoutMs': 3600000,
+        'publicText': 'Corrida · 40:00 · 6,60 km',
+        'failed': false,
       });
     });
 

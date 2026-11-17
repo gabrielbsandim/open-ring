@@ -13,8 +13,8 @@ abstract interface class GoalStore {
   /// read is ended as [GoalEndReason.unreadable] and does not count.
   Future<Goal?> start(GoalDraft draft);
 
-  /// False for [GoalPhase.ended], which only [end] sets, and for a goal that
-  /// is unknown or ended.
+  /// False for [GoalPhase.ended], which [end] or a review that ends sets, and
+  /// for a goal that is unknown or ended.
   Future<bool> setPhase(
     int goalId,
     GoalPhase phase, {
@@ -52,7 +52,8 @@ abstract interface class GoalStore {
   /// Adds the check-in answers to the newest week of an active goal and
   /// stores the review they give. Null, with nothing written, when the week
   /// is answered or already holds a check-in, and when both answers are null.
-  /// A review that pauses or ends changes the goal in the same write.
+  /// A week of an earlier block is refused too. A review that pauses or ends
+  /// changes the goal in the same write.
   Future<Review?> amendWeek(
     int goalId,
     LocalDate monday, {
@@ -60,8 +61,9 @@ abstract interface class GoalStore {
     required bool? foodOrWeight,
   });
 
-  /// False unless the week is the newest of an active goal and waits for an
-  /// answer. Accepting puts the proposed change in force.
+  /// False unless the week is the newest of an active goal, belongs to its
+  /// running block and waits for an answer. Accepting puts the proposed
+  /// change in force.
   Future<bool> answer(int goalId, LocalDate monday, WeekAnswer answer);
 
   /// The reviewed weeks of a goal, the oldest first.
@@ -161,6 +163,7 @@ final class InMemoryGoalStore implements GoalStore {
     final goal = _activeWith(goalId);
     final index = _weekIndex(goalId, monday);
     if (goal == null || index < 0) return false;
+    if (beforeBlock(goal, monday)) return false;
     if ((await weeks(goalId)).last.monday != monday) return false;
     final week = _weeks[index];
     final change = week.change;
@@ -182,6 +185,7 @@ final class InMemoryGoalStore implements GoalStore {
     final goal = _activeWith(goalId);
     final index = _weekIndex(goalId, monday);
     if (goal == null || index < 0) return null;
+    if (beforeBlock(goal, monday)) return null;
     if ((await weeks(goalId)).last.monday != monday) return null;
     final amended = amendedWeek(
       _weeks[index],
@@ -247,6 +251,11 @@ final class InMemoryGoalStore implements GoalStore {
     (week) => week.goalId == goalId && week.monday == monday,
   );
 }
+
+/// Whether the week of [monday] was reviewed in a block the goal has left: a
+/// new block takes no answer and no check-in from it.
+bool beforeBlock(Goal goal, LocalDate monday) =>
+    monday.compareTo(goal.blockStartedOn) < 0;
 
 /// The goal after a review that acts without asking, null when it changes
 /// nothing. A pause runs from [monday], with no end when the review gives none.

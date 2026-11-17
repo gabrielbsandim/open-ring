@@ -1385,6 +1385,69 @@ void main() {
             expect(review?.rule, ReviewRule.pauseCheckIn);
             expectPaused(await store.active(), since: _firstMonday);
           });
+
+          test('a week of an earlier block takes no check-in', () async {
+            await store.start(draftD);
+            await addRow(_firstMonday, f1Recovering(recoveryPrevious: true));
+            await store.startBlock(
+              1,
+              on: const LocalDate(2026, 12, 21),
+              anchorKg: null,
+            );
+            final before = (await store.weeks(1)).last;
+
+            await expectUntouched(
+              () => store.amendWeek(
+                1,
+                _firstMonday,
+                energy: CheckInEnergy.normal,
+                foodOrWeight: null,
+              ),
+              before,
+            );
+
+            final goal = await store.active();
+            expect(goal?.phase, GoalPhase.block);
+            expect(goal?.phaseSince, const LocalDate(2026, 12, 21));
+            expect(goal?.phaseUntil, isNull);
+          });
+
+          test('a week of an earlier block takes no answer', () async {
+            await startWithBuildWeek();
+            final levers = (await store.active())?.levers;
+            await store.startBlock(
+              1,
+              on: const LocalDate(2026, 12, 21),
+              anchorKg: null,
+            );
+
+            final answered = await store.answer(
+              1,
+              _firstMonday,
+              WeekAnswer.accepted,
+            );
+
+            expect(answered, isFalse);
+            expect((await store.weeks(1)).last.answer, isNull);
+            expect(
+              encodeLevers((await store.active())?.levers ?? const []),
+              encodeLevers(levers ?? const []),
+            );
+          });
+
+          test('a week on the first day of the block still amends', () async {
+            await startWithBuildWeek();
+            await store.startBlock(1, on: _firstMonday, anchorKg: null);
+
+            final review = await store.amendWeek(
+              1,
+              _firstMonday,
+              energy: CheckInEnergy.normal,
+              foodOrWeight: null,
+            );
+
+            expect(review?.rule, ReviewRule.build);
+          });
         });
       });
     });

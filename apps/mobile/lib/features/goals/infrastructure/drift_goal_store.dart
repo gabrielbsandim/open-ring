@@ -135,7 +135,9 @@ final class DriftGoalStore implements GoalStore {
       if (goalRow == null) return false;
       if (await _weekRow(goalId, monday) != null) return false;
       await _db.into(_db.goalWeeks).insert(row);
-      await _applyReview(goalRow, monday, review);
+      final goal = _goal(goalRow);
+      if (goal == null) return true;
+      await _applyReview(goal, monday, review);
       return true;
     });
   }
@@ -151,7 +153,7 @@ final class DriftGoalStore implements GoalStore {
         final week = _week(weekRow);
         final change = week?.change;
         if (goal == null || week == null || change == null) return false;
-        if (week.answer != null) return false;
+        if (week.answer != null || beforeBlock(goal, monday)) return false;
         await (_db.update(_db.goalWeeks)..where(
               (row) =>
                   row.goalId.equals(goalId) & row.monday.equals(monday.iso),
@@ -175,6 +177,8 @@ final class DriftGoalStore implements GoalStore {
   }) => _db.transaction(() async {
     final goalRow = await _openRow(goalId);
     if (goalRow == null) return null;
+    final goal = _goal(goalRow);
+    if (goal == null || beforeBlock(goal, monday)) return null;
     final newest = await _newestWeekRow(goalId);
     if (newest == null || newest.monday != monday.iso) return null;
     final week = _week(newest);
@@ -197,7 +201,7 @@ final class DriftGoalStore implements GoalStore {
             change: Value(change == null ? null : encodeLeverChange(change)),
           ),
         );
-    await _applyReview(goalRow, monday, amended.review);
+    await _applyReview(goal, monday, amended.review);
     return amended.review;
   });
 
@@ -278,17 +282,11 @@ final class DriftGoalStore implements GoalStore {
             ..limit(1))
           .getSingleOrNull();
 
-  Future<void> _applyReview(
-    GoalRow row,
-    LocalDate monday,
-    Review review,
-  ) async {
-    final goal = _goal(row);
-    if (goal == null) return;
+  Future<void> _applyReview(Goal goal, LocalDate monday, Review review) async {
     final next = afterReview(goal, monday, review);
     if (next == null) return;
     await _write(
-      row.id,
+      goal.id,
       GoalsCompanion(
         phase: Value(next.phase.name),
         phaseSince: Value(next.phaseSince.iso),

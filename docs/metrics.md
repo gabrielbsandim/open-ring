@@ -1719,6 +1719,10 @@ the goal on that Monday as ended by a protection, and its weeks are kept. An
 amend that turns one pause into another replaces the last day as well. A
 recovery week stores nothing on the goal.
 
+A week reviewed before the running block started takes no check-in and no
+answer: after a pause the goal is in a new block, and an old row can neither
+pause it again nor change its levers.
+
 `goalReviewProvider` gives the newest reviewed week with the review of its
 stored inputs.
 

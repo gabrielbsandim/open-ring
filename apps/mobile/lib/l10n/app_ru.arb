@@ -2069,5 +2069,6 @@
   "goalsLeverSleepTarget": "в постели до {time}, {days} ночей из 7",
   "goalsLeverStepsTarget": "{count} в день, {days} дней из 7",
   "goalsLeverPointsTarget": "{count} за неделю",
-  "goalsLeverWakeTarget": "подъём около {time}, {days} дней из 7"
+  "goalsLeverWakeTarget": "подъём около {time}, {days} дней из 7",
+  "goalsWeekBaseSpan": "Пока они охватывают {covered} из {span} дней."
 }

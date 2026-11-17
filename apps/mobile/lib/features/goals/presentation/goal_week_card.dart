@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,6 +22,7 @@ abstract final class GoalWeekCardKeys {
   static const card = Key('goal_week_card');
   static const open = Key('goal_week_card_open');
   static const base = Key('goal_week_card_base');
+  static const span = Key('goal_week_card_span');
   static const paused = Key('goal_week_card_paused');
   static const recovery = Key('goal_week_card_recovery');
   static const hold = Key('goal_week_card_hold');
@@ -192,11 +195,20 @@ class GoalWeekCard extends ConsumerWidget {
         ),
       ];
     }
-    final weighed = switch (rate) {
-      WeightRateBuilding(:final daysMissing) => weightRateMinDays - daysMissing,
-      WeightRateReady() => weightRateMinDays,
-      null => 0,
+    final (weighed, covered) = switch (rate) {
+      WeightRateBuilding(:final daysMissing, :final spanMissing) => (
+        weightRateMinDays - daysMissing,
+        weightRateMinSpanDays - spanMissing,
+      ),
+      WeightRateReady() => (weightRateMinDays, weightRateMinSpanDays),
+      null => (0, 0),
     };
+    // The rate needs both the count and the spread, so the bar shows the one
+    // further from done.
+    final share = math.min(
+      weighed / weightRateMinDays,
+      covered / weightRateMinSpanDays,
+    );
     return [
       Text(l10n.goalsWeekBaseTitle, style: title),
       const SizedBox(height: 4),
@@ -208,11 +220,14 @@ class GoalWeekCard extends ConsumerWidget {
         ),
         key: GoalWeekCardKeys.base,
       ),
+      if (weighed > 0 && covered < weightRateMinSpanDays)
+        CaptionText(
+          l10n.goalsWeekBaseSpan(covered, weightRateMinSpanDays),
+          key: GoalWeekCardKeys.span,
+        ),
       const SizedBox(height: 6),
       ExcludeSemantics(
-        child: LinearProgressIndicator(
-          value: (weighed / weightRateMinDays).clamp(0, 1).toDouble(),
-        ),
+        child: LinearProgressIndicator(value: share.clamp(0, 1).toDouble()),
       ),
       const SizedBox(height: 10),
       BodyText(

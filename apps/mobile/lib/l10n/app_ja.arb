@@ -2069,5 +2069,6 @@
   "goalsLeverSleepTarget": "{time}までに就寝、7夜中{days}夜",
   "goalsLeverStepsTarget": "1日{count}歩、7日中{days}日",
   "goalsLeverPointsTarget": "週に{count}",
-  "goalsLeverWakeTarget": "{time}ごろに起床、7日中{days}日"
+  "goalsLeverWakeTarget": "{time}ごろに起床、7日中{days}日",
+  "goalsWeekBaseSpan": "今のところ{span}日中{covered}日をカバーしています。"
 }

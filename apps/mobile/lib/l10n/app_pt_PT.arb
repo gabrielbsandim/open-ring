@@ -2061,5 +2061,6 @@
   "goalsLeverSleepTarget": "na cama até às {time}, em {days} de 7 noites",
   "goalsLeverStepsTarget": "{count} por dia, em {days} de 7 dias",
   "goalsLeverPointsTarget": "{count} na semana",
-  "goalsLeverWakeTarget": "de pé por volta das {time}, em {days} de 7 dias"
+  "goalsLeverWakeTarget": "de pé por volta das {time}, em {days} de 7 dias",
+  "goalsWeekBaseSpan": "Até agora cobrem {covered} dos {span} dias."
 }

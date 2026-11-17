@@ -209,6 +209,24 @@ void main() {
     expect(find.byKey(GoalWeekCardKeys.open), findsOneWidget);
   });
 
+  testWidgets('base phase says the spread is short with enough weigh-ins', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      week: GoalWeekBase(
+        goal: _goal(levers: const []),
+        rate: const WeightRateBuilding(daysMissing: 0, spanMissing: 4),
+      ),
+    );
+    expect(_text(tester), contains('8 of 8 weigh-ins in 14 days'));
+    expect(_text(tester), contains('They cover 10 of the 14 days so far.'));
+    final bar = tester.widget<LinearProgressIndicator>(
+      find.byType(LinearProgressIndicator),
+    );
+    expect(bar.value, closeTo(10 / 14, 1e-9));
+  });
+
   testWidgets('base phase of another kind waits for days of data', (
     tester,
   ) async {

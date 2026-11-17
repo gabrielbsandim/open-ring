@@ -4362,5 +4362,7 @@
   "goalsLeverPointsTarget": "{count} in the week",
   "@goalsLeverPointsTarget": {"placeholders": {"count": {"type": "String"}}},
   "goalsLeverWakeTarget": "up around {time}, on {days} of 7 days",
-  "@goalsLeverWakeTarget": {"placeholders": {"time": {"type": "String"}, "days": {"type": "String"}}}
+  "@goalsLeverWakeTarget": {"placeholders": {"time": {"type": "String"}, "days": {"type": "String"}}},
+  "goalsWeekBaseSpan": "They cover {covered} of the {span} days so far.",
+  "@goalsWeekBaseSpan": {"placeholders": {"covered": {"type": "int"}, "span": {"type": "int"}}}
 }

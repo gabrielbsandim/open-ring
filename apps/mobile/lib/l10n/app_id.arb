@@ -2069,5 +2069,6 @@
   "goalsLeverSleepTarget": "di ranjang sebelum {time}, pada {days} dari 7 malam",
   "goalsLeverStepsTarget": "{count} per hari, pada {days} dari 7 hari",
   "goalsLeverPointsTarget": "{count} dalam seminggu",
-  "goalsLeverWakeTarget": "bangun sekitar {time}, pada {days} dari 7 hari"
+  "goalsLeverWakeTarget": "bangun sekitar {time}, pada {days} dari 7 hari",
+  "goalsWeekBaseSpan": "Sejauh ini mencakup {covered} dari {span} hari."
 }

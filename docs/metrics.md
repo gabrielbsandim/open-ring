@@ -1962,8 +1962,10 @@ seven day marks for a daily lever (met, missed, open today, ahead), a dot per
 strength day and a bar for points. A day that did not fit takes nothing away,
 and the plan is not part of the Day Score. A bedtime target is minutes after
 noon and a wake target minutes after midnight, shown as a wall clock time.
-The base phase counts the weigh-ins toward the rate for lose fat, or names
-the days of data the plan waits for. A pause shows its end, or that it is
+The base phase counts the weigh-ins toward the rate for lose fat, says how
+many of the 14 days they cover while the spread is short, and fills its bar
+by whichever of the two is further from done; another kind names the days of
+data the plan waits for. A pause shows its end, or that it is
 over, and the levers as reminders with no count; a recovery week asks
 nothing; with Body off the card says the weight plan holds. Lever counts are
 not weights, so hidden numbers leave them shown. A review that waits for an

@@ -2069,5 +2069,6 @@
   "goalsLeverSleepTarget": "{time} 前上床，7 晚中 {days} 晚",
   "goalsLeverStepsTarget": "每天 {count} 步，7 天中 {days} 天",
   "goalsLeverPointsTarget": "每周 {count}",
-  "goalsLeverWakeTarget": "{time} 左右起床，7 天中 {days} 天"
+  "goalsLeverWakeTarget": "{time} 左右起床，7 天中 {days} 天",
+  "goalsWeekBaseSpan": "目前覆盖了 {span} 天中的 {covered} 天。"
 }

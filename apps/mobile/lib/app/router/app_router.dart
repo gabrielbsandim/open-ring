@@ -12,6 +12,7 @@ import 'package:open_ring/features/energy/presentation/energy_screen.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
 import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_refusal_screen.dart';
+import 'package:open_ring/features/goals/presentation/goal_review_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_screening_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_setup_screen.dart';
@@ -158,6 +159,10 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
         builder: (_, _) => const GoalScreeningScreen(),
       ),
       GoRoute(path: 'goals/setup', builder: (_, _) => const GoalSetupScreen()),
+      GoRoute(
+        path: 'goals/review',
+        builder: (_, _) => const GoalReviewScreen(),
+      ),
       GoRoute(
         path: 'goals/pregnancy',
         builder: (_, _) => const GoalRefusalScreen.pregnancy(),

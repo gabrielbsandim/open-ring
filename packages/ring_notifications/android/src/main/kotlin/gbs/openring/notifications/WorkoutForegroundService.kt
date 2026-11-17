@@ -127,8 +127,8 @@ private var posted: WorkoutNotice? = null
 private var held: WorkoutNotice? = null
 private var heldAt = 0L
 
-// With the screen off a running notice waits unless it pauses, asks or loses the
-// ring; the last one waiting posts when the screen turns on.
+// With the screen off a running notice waits unless its running, question or
+// ring state changed; the last one waiting posts when the screen turns on.
 internal fun showWorkoutNotification(app: Context, notice: WorkoutNotice) {
     val power = app.getSystemService(Context.POWER_SERVICE) as PowerManager
     val last = posted

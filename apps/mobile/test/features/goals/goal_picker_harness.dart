@@ -120,7 +120,7 @@ final class ProbeGoalStore implements GoalStore {
 Future<GoalSetup> setupPicker({
   Set<ModuleId> modules = goalModules,
   UserProfile? profile = okProfile,
-  double trendKg = 70,
+  double? trendKg = 70,
   bool trendFails = false,
   bool hidden = false,
   UnitSystem units = UnitSystem.metric,
@@ -141,7 +141,7 @@ Future<GoalSetup> setupPicker({
     ),
     weightOverride: weightSummaryProvider.overrideWith((ref) async {
       if (trendFails) throw StateError('weight');
-      return trendOf(trendKg);
+      return trendKg == null ? null : trendOf(trendKg);
     }),
     extraOverrides: [
       hideNumbersStoreProvider.overrideWithValue(

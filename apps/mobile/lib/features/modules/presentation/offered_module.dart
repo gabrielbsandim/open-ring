@@ -19,7 +19,8 @@ enum OfferedModule {
     Icons.local_fire_department_outlined,
     AppPaths.settingsModuleEnergy,
   ),
-  effort(ModuleId.effort, Icons.bolt_rounded, AppPaths.settingsModuleEffort);
+  effort(ModuleId.effort, Icons.bolt_rounded, AppPaths.settingsModuleEffort),
+  goals(ModuleId.goals, Icons.flag_outlined, AppPaths.settingsModuleGoals);
 
   new(this.id, this.icon, this.path);
 
@@ -32,6 +33,7 @@ enum OfferedModule {
     OfferedModule.openScore => l10n.moduleOpenScoreName,
     OfferedModule.energy => l10n.energyTitle,
     OfferedModule.effort => l10n.effortTitle,
+    OfferedModule.goals => l10n.moduleGoalsName,
   };
 
   String detail(AppLocalizations l10n) => switch (this) {
@@ -39,6 +41,7 @@ enum OfferedModule {
     OfferedModule.openScore => l10n.moduleOpenScoreDetail,
     OfferedModule.energy => l10n.moduleEnergyDetail,
     OfferedModule.effort => l10n.moduleEffortDetail,
+    OfferedModule.goals => l10n.moduleGoalsDetail,
   };
 
   String turnedOn(AppLocalizations l10n) => switch (this) {
@@ -46,5 +49,13 @@ enum OfferedModule {
     OfferedModule.openScore => l10n.moduleOpenScoreTurnedOn,
     OfferedModule.energy => l10n.moduleEnergyTurnedOn(l10n.tabToday),
     OfferedModule.effort => l10n.moduleEffortTurnedOn(l10n.tabToday),
+    OfferedModule.goals => l10n.moduleGoalsTurnedOn,
+  };
+
+  /// Where View goes after switching on: Goals shows nothing on Today until
+  /// a goal is chosen, so it opens the goal screen.
+  String get viewPath => switch (this) {
+    OfferedModule.goals => AppPaths.goals,
+    _ => AppTab.today.path,
   };
 }

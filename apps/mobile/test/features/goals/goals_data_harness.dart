@@ -12,7 +12,7 @@ final class SpyGoalStore implements GoalStore {
   new(this.inner);
 
   final InMemoryGoalStore inner;
-  Object? clearFailure;
+  Error? clearFailure;
   Completer<void>? clearGate;
   int clearCalls = 0;
 

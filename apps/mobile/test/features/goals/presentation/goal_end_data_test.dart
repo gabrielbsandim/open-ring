@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/l10n/app_locales.dart';
@@ -14,7 +13,6 @@ import 'package:open_ring/features/goals/domain/goal_store.dart';
 import 'package:open_ring/features/goals/presentation/goal_end_screen.dart';
 import 'package:open_ring/features/goals/presentation/goals_module_screen.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
-import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 

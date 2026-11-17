@@ -1847,8 +1847,7 @@ are never stored.
 
 Only the person can leave soft mode, from a card that asks for a
 confirmation (`presentation/soft_mode_exit_card.dart`); the app never
-suggests it. No screen shows the card yet: the Goals module screen will hold
-it when the module opens. `SoftModeController.leave` writes one row with the
+suggests it. The Goals module screen holds the card, above its data section. `SoftModeController.leave` writes one row with the
 result false, so the newest answer reads as a no: the next step is the setup
 and the questions are not asked again. The earlier yes stays in the history.
 The row is dated today, or the date of the newest row when that is later (a
@@ -2080,6 +2079,26 @@ after the end, through the save that dates a step goal change today, so
 earlier days keep their goal. When that save fails the goal stays ended, the
 failure is logged and the screen offers a retry, which needs no active goal,
 writes no second change row and only lowers the goal.
+
+### The Goals module
+
+Goals is the fifth row of Settings, Modules, and is not offered at
+onboarding, since Today shows nothing for it until a goal is chosen. Its
+screen at `/ring/settings/modules/goals` says what the module adds, stores
+and never does, links to the goal screen while it is on and to the formula
+screen, holds the soft mode card, and switches the module on or off; View on
+the turned on message opens the goal screen. Switching off deletes nothing.
+
+"Delete Goals data" (`GoalsDataEraser.clear`) empties the goals, their weeks
+and the screenings through `GoalStore.clear`, in one transaction, with Goals
+on or off and in demo mode, which seeds no Goals rows. Weigh-ins, the step
+goal changes and the profile step goal stay, so a step goal the plan raised
+stays raised. A store error is logged and the screen says nothing was
+deleted. The screen counts goals, reviewed weeks and screenings
+(`goalsDataCountProvider`, not gated on the module) and shows the button only
+when one is kept; a count that cannot be read shows the load error, not the
+empty line. "Delete all data" empties the same three tables. The end screen
+links to the module screen and asks nothing itself.
 
 ### The goal picker
 

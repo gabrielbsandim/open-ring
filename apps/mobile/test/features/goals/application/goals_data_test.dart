@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -378,7 +377,7 @@ void main() {
         ]) {
           expect(arb.containsKey(key), isTrue, reason: key);
         }
-        for (final MapEntry(key: key, value: value) in arb.entries) {
+        for (final MapEntry(:key, :value) in arb.entries) {
           if (!key.startsWith('moduleGoals') &&
               !key.startsWith('privacyStoresGoals')) {
             continue;

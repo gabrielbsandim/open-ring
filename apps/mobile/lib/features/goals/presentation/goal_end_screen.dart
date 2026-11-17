@@ -32,6 +32,7 @@ abstract final class GoalEndKeys {
   static const failed = Key('goal_end_failed');
   static const refused = Key('goal_end_refused');
   static const maintain = Key('goal_end_maintain');
+  static const deleteData = Key('goal_end_delete_data');
 }
 
 class GoalEndScreen extends ConsumerStatefulWidget {
@@ -158,6 +159,17 @@ class _GoalEndScreenState extends ConsumerState<GoalEndScreen> {
           ),
         ),
       ],
+      const SizedBox(height: 12),
+      // Deleting lives on the module screen, so this only leads there.
+      MetricCard(
+        child: _Tile(
+          key: GoalEndKeys.deleteData,
+          icon: Icons.delete_outline,
+          title: l10n.moduleGoalsDelete,
+          body: l10n.goalsEndDeleteDataBody,
+          onTap: () => unawaited(context.push(AppPaths.settingsModuleGoals)),
+        ),
+      ),
       const SizedBox(height: 12),
       CaptionText(l10n.goalsEndFoot),
     ];

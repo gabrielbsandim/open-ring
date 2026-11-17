@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -141,9 +140,6 @@ Future<void> _openDialog(WidgetTester tester) =>
 
 Future<void> _confirm(WidgetTester tester) =>
     _tap(tester, GoalsModuleKeys.deleteConfirm);
-
-Future<GoalsDataCount> _count(_World world) =>
-    world.container.read(goalsDataCountProvider.future);
 
 // A lazy list that lost rows above the viewport corrects its offset on the
 // next layout, so one jump may not land on the top.
@@ -626,6 +622,8 @@ void main() {
       expect(find.byKey(GoalsModuleKeys.delete), findsOneWidget);
       final line = _storedLine(tester);
       expect(line, isNot(_l10n(tester).moduleGoalsDataEmpty));
+      // The binding checks debugPrint before tear down runs.
+      debugPrint = original;
     });
 
     testWidgets('the failure message differs from the success message', (

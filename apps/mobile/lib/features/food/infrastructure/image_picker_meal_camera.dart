@@ -36,6 +36,9 @@ final class ImagePickerMealCamera implements MealCamera {
 
   @override
   Future<Uint8List?> takePhoto() async {
+    // No capture is in flight when a new one starts, so leftovers of an
+    // earlier failed recovery can go.
+    await _sweep();
     final file = await _picker.pickImage(
       source: ImageSource.camera,
       maxWidth: 1024,
@@ -52,9 +55,11 @@ final class ImagePickerMealCamera implements MealCamera {
     final response = await _picker.retrieveLostData();
     final file = response.file;
     if (file == null) return null;
-    final bytes = await _consume(file);
-    await _sweep();
-    return bytes;
+    try {
+      return await _consume(file);
+    } finally {
+      await _sweep();
+    }
   }
 
   // The picker copy still holds GPS, so it never outlives the read.
@@ -67,8 +72,8 @@ final class ImagePickerMealCamera implements MealCamera {
     }
   }
 
-  // A file that cannot be deleted now is swept at the next start, and the
-  // recovered photo must not be lost for it.
+  // A file that cannot be deleted now goes at the next recovery or capture,
+  // and the recovered photo must not be lost for it.
   Future<void> _sweep() async {
     try {
       await sweepPickerOriginals(await _cache());

@@ -119,6 +119,28 @@ void main() {
       expect(original.existsSync(), isFalse, reason: 'GPS outlives recovery');
     });
 
+    test('a recovered file that cannot be read still sweeps', () async {
+      final original = File('${dir.path}/${_uuid}7.jpg')
+        ..writeAsBytesSync([0xFF, 0xD8, 7, 0xFF, 0xD9]);
+      picker.lost = LostDataResponse(
+        file: XFile('${dir.path}/scaled_missing.jpg'),
+        type: RetrieveType.image,
+      );
+
+      await expectLater(camera.retrieveLost(), throwsA(isA<Exception>()));
+
+      expect(original.existsSync(), isFalse, reason: 'GPS outlives a failure');
+    });
+
+    test('a new capture first sweeps a leftover original', () async {
+      final original = File('${dir.path}/${_uuid}8.jpg')
+        ..writeAsBytesSync([0xFF, 0xD8, 7, 0xFF, 0xD9]);
+
+      await camera.takePhoto();
+
+      expect(original.existsSync(), isFalse);
+    });
+
     test('with nothing lost a kept original survives', () async {
       final original = File('${dir.path}/${_uuid}42.jpg')
         ..writeAsBytesSync([1]);

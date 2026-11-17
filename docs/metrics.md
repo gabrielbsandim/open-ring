@@ -1927,8 +1927,9 @@ the week and no weight. With Body off a lose fat goal shows the hold and no
 weight. Otherwise a lose fat goal shows its path.
 
 The path is read on `goalPathDay`: the Sunday before this Monday, the day the
-review reads, or the block start when the block began later. So it holds
-still between reviews, and the trend of each day stays in Body. On that day
+review reads, or the block start when the block began later; in the base
+phase it is today, since the block waits for today's rate. So it holds still
+between reviews, and the trend of each day stays in Body. On that day
 `goalPath` takes the weight snapshot (`weightSnapshot`, built from the
 weigh-ins up to that day only) and gives the block from the block anchor and
 the pace, the loss rate and its state from `pathState` (above the cap is told

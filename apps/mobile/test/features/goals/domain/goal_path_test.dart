@@ -7,6 +7,7 @@ Goal _goal({
   double? referenceKg = 74.0,
   LocalDate? blockStartedOn,
   GoalPace pace = GoalPace.standard,
+  List<Lever> levers = const [Lever(kind: LeverKind.steps, target: 9000)],
 }) {
   final start = blockStartedOn ?? const LocalDate(2026, 11, 16);
   return Goal(
@@ -21,7 +22,7 @@ Goal _goal({
     phase: GoalPhase.block,
     phaseSince: start,
     phaseUntil: null,
-    levers: const [],
+    levers: levers,
     endedOn: null,
     endReason: null,
   );
@@ -49,6 +50,13 @@ void main() {
         const LocalDate(2026, 12, 9),
       );
     });
+  });
+
+  test('goalPathDay is today in the base phase', () {
+    expect(
+      goalPathDay(_goal(levers: const []), const LocalDate(2026, 12, 10)),
+      const LocalDate(2026, 12, 10),
+    );
   });
 
   group('goalPath', () {

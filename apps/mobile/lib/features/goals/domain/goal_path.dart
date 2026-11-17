@@ -43,6 +43,9 @@ final class GoalPath {
 /// The day the path is read on. The review reads the week up to the Sunday
 /// before its Monday, so the path holds still between reviews.
 LocalDate goalPathDay(Goal goal, LocalDate today) {
+  // A goal with no lever waits for today's rate to start its block, so the
+  // base phase reads today.
+  if (goal.levers.isEmpty) return today;
   final sunday = mondayOf(today).addDays(-1);
   if (sunday.compareTo(goal.blockStartedOn) < 0) return goal.blockStartedOn;
   return sunday;

@@ -176,6 +176,19 @@ MealSlot mealSlot(DateTime local) {
 bool opensWindow(MealEntry meal) =>
     meal.kind != MealKind.drink || meal.tags.sugar || meal.tags.alcohol != null;
 
+/// From the last window meal at or before [onset] to it: a meal eaten after
+/// falling asleep is not the last meal before sleep.
+Duration? lastMealToSleep(List<MealEntry> meals, DateTime onset) {
+  DateTime? last;
+  for (final meal in meals) {
+    if (!opensWindow(meal) || meal.at.isAfter(onset)) continue;
+    if (last != null && !meal.at.isAfter(last)) continue;
+    last = meal.at;
+  }
+  if (last == null) return null;
+  return onset.difference(last);
+}
+
 FoodWeek foodWeek({
   required LocalDate monday,
   required List<MealEntry> meals,
@@ -193,7 +206,9 @@ FoodWeek foodWeek({
     windows.add(_minutes(opening.last.difference(opening.first)));
     final onset = sleepOnsets[day];
     if (onset == null) continue;
-    gaps.add(_minutes(onset.difference(opening.last)));
+    final gap = lastMealToSleep(dayMeals, onset);
+    if (gap == null) continue;
+    gaps.add(_minutes(gap));
   }
   return FoodWeek(
     completeDays: days.complete.length,

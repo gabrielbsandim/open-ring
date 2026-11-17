@@ -2164,7 +2164,7 @@ Code: `packages/metrics/lib/src/food_week.dart`. Pure functions; nothing here re
 
 **Complete day.** A food day is complete when one of its meals is marked as the last meal. Only complete days feed the window, the gap and the Plate pattern, and the count of complete days is always returned. A day with no photo is blank: nothing reminds, nothing counts a streak.
 
-**Eating window.** On a complete day, from the first to the last meal that opens the window. A drink with no sugar and no alcohol neither opens nor closes it, so a morning coffee does not set the window. The week reports the median over complete days, and the median of the time from the last window meal to the sleep onset of that food day (days with no onset leave only the gap median).
+**Eating window.** On a complete day, from the first to the last meal that opens the window. A drink with no sugar and no alcohol neither opens nor closes it, so a morning coffee does not set the window. The week reports the median over complete days, and the median of the time from the last window meal at or before the sleep onset of that food day to the onset (a meal eaten after falling asleep is not the last meal before sleep) (days with no onset leave only the gap median).
 
 **Plate pattern.** On the closed Monday to Sunday week (the function scores the week it is given; the week screen passes the last closed one), with at least 5 complete days (`plateMinCompleteDays`) and 10 mains (`plateMinMains`); short of that it is building. Five points, each a linear ramp clamped to 0 and 1, then the sum rounded to one decimal, 0 to 10:
 
@@ -2179,6 +2179,34 @@ Code: `packages/metrics/lib/src/food_week.dart`. Pure functions; nothing here re
 The week of 30 Nov to 6 Dec 2026 in the approved prototype: 6 of 7 complete days, 23 records, window 742.5 min, gap 177.5 min; 18 mains, protein 15, veg 13, processed 2, sugary days 2, drinks 4; points 2.67, 2.61, 1.96, 0.42, 0.67; Plate pattern 8.3. The number is shown with its five counts, with no band word and no colour, and it enters no score.
 
 Status: the ramps, the 05:00 start and the drink counts are our choice, carried from the approved prototype; no source sets them.
+
+## 22. Food comparisons (matched nights, meal time regularity)
+
+Code: `packages/metrics/lib/src/food_compare.dart`. Pure functions over meals and nights; nothing here reads a photo or the network.
+
+**Nights.** A night belongs to the food day it closes, so the meals of a food day (from 05:00, section 21) are matched with the sleep that starts that evening. A comparison looks at the 90 nights ending at the last night (`foodCompareNights`). Only a complete day (its last meal marked) can be exposed or a control, and a day with an untagged meal is neither, since an untagged meal leaves its alcohol and its other tags unknown. Nightly heart rate is `restingHeartRate`, nightly HRV is `nightlyHrv`, and onset is the sleep onset in minutes after midnight of the food day, so 00:30 is later than 23:50. Sleep stages never lead a comparison.
+
+**Links.** Five, each a night that is exposed, a control, or neither:
+
+| Link | Exposed | Control | Minimum pairs |
+| :--- | :--- | :--- | :--- |
+| Alcohol, 3 or more | a 3 or more tag on the food day | no alcohol | 10 |
+| Alcohol, 1 to 2 | a 1 to 2 tag and no 3 or more tag | no alcohol | 10 |
+| Last meal near sleep | last window meal under 2 h before onset | 3 h or more | 14 |
+| Caffeine after 14h | a caffeine tag at or after 14:00 of the food day | no such tag | 14 |
+| Heavy dinner | a heavy tag in the dinner or supper slot | no such tag | 14 |
+
+The three links that are not about alcohol use only nights with no alcohol, as exposed and as control. The late meal gap runs from the last window meal at or before onset, as in section 21. A night between 2 h and 3 h, or with no onset, is neither for the late meal link.
+
+**Matched pairs.** Exposed nights are taken oldest first; each takes the nearest free control at most 10 days away (`foodPairMaxDays`), the earlier one at equal distance, and a night is used once. A Friday or Saturday evening is a weekend night and pairs only with another one. A pair drops from an outcome when either night lacks it (no onset, no heart rate, HRV of 0), and stays in the others.
+
+**Numbers.** The mean of exposed minus control with its 99% interval, mean plus or minus `t99(n - 1)` times the SD over the square root of n. HRV is compared in logs and shown as a percent. Below the minimum pairs the link is collecting. It is a pattern when the interval excludes zero and the mean is at least the smallest meaningful difference (2 bpm, 5%, 15 min); otherwise there is no clear difference. `t99` is the two sided 99% Student t, found from the exact integer degrees of freedom distribution (Abramowitz and Stegun 26.7.3 and 26.7.4).
+
+The approved prototype's 90 nights: alcohol 3 or more, 12 pairs, heart rate +5.08 bpm (1.57 to 8.60) and HRV -19.5% (-25.2 to -13.4), both patterns; late last meal, 16 pairs, heart rate +4.19 bpm (1.59 to 6.78); caffeine after 14h, 16 pairs, onset -0.25 min (-13.56 to 13.06), no clear difference; heavy dinner 9 of 14 and alcohol 1 to 2 at 7 of 10 are collecting.
+
+**Meal time regularity.** Descriptive only, from meals alone: the SD of the first window meal time over the last 14 complete days, and how much later it comes on Saturday and Sunday than on weekdays (none when either side has no day). Under 10 complete days it is collecting. Prototype: SD 68.2 min, weekend 130.2 min later.
+
+Status: matched pairs, the 99% interval and the smallest meaningful differences are our choice, carried from the approved prototype; a pattern describes these nights and is never a cause.
 
 ## References
 

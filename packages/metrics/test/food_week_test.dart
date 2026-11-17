@@ -428,6 +428,17 @@ void main() {
       expect(result.gapMinutes, closeTo(60, tight));
     });
 
+    test('a meal after the sleep onset does not set the gap', () {
+      final day = [
+        meal(0, 480, MealKind.main),
+        meal(0, 1200, MealKind.main, last: true),
+        meal(0, 1440 + 270, MealKind.snack),
+      ];
+      final result = week(day, onsets: {monday: at(0, 1380)});
+      expect(result.windowMinutes, closeTo(1230, tight));
+      expect(result.gapMinutes, closeTo(180, tight));
+    });
+
     test('a meal at 00:30 after Sunday stays in the week', () {
       final late = [...prototypeWeek, meal(6, 1440 + 30, MealKind.snack)];
       expect(week(late).records, 24);

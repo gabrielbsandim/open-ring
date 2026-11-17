@@ -45,16 +45,16 @@ final class ImagePickerMealCamera implements MealCamera {
     return await _consume(file);
   }
 
-  // After process death the plugin returns a resized copy and keeps the full
-  // size original, GPS included, so every original left in the cache goes.
+  // After process death the plugin keeps the GPS original next to the copy it
+  // returns; with nothing lost yet a pending capture may still need its own.
   @override
   Future<Uint8List?> retrieveLost() async {
     final response = await _picker.retrieveLostData();
-    try {
-      return await _consume(response.file);
-    } finally {
-      await _sweep();
-    }
+    final file = response.file;
+    if (file == null) return null;
+    final bytes = await _consume(file);
+    await _sweep();
+    return bytes;
   }
 
   // The picker copy still holds GPS, so it never outlives the read.

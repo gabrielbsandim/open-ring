@@ -119,11 +119,26 @@ void main() {
       expect(original.existsSync(), isFalse, reason: 'GPS outlives recovery');
     });
 
-    test('with nothing lost it still deletes a kept original', () async {
+    test('with nothing lost a kept original survives', () async {
       final original = File('${dir.path}/${_uuid}42.jpg')
         ..writeAsBytesSync([1]);
 
       expect(await camera.retrieveLost(), isNull);
+      expect(original.existsSync(), isTrue);
+    });
+
+    test('a capture the plugin delivers late is still recovered', () async {
+      final original = File('${dir.path}/${_uuid}42.jpg')
+        ..writeAsBytesSync([0xFF, 0xD8, 5, 0xFF, 0xD9]);
+
+      expect(await camera.retrieveLost(), isNull);
+      picker.lost = LostDataResponse(
+        file: XFile(original.path),
+        type: RetrieveType.image,
+      );
+      final bytes = await camera.retrieveLost();
+
+      expect(bytes, Uint8List.fromList([0xFF, 0xD8, 5, 0xFF, 0xD9]));
       expect(original.existsSync(), isFalse);
     });
   });

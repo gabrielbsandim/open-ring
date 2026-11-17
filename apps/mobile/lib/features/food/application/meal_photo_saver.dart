@@ -27,9 +27,10 @@ const _photoAhead = Duration(minutes: 2);
 const _enospc = 28;
 
 /// Strips the photo, writes the row, saves the file, then names the photo on
-/// the row. A full disk (noSpace) keeps the row without a photo for
-/// [retryPhoto]; any other failure deletes the row, and a photo that is not a
-/// JPEG writes no row at all.
+/// the row; a photo that is not a JPEG writes no row at all. In [save] a full
+/// disk (noSpace) keeps the row without a photo for [retryPhoto], and any
+/// other failure tries to delete the row, leaving it photoless if that fails.
+/// [retryPhoto] never deletes the row: on any failure it stays without one.
 final class MealPhotoSaver {
   new(
     this._meals,

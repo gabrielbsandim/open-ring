@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/settings/infrastructure/device_local_data_eraser.dart';
 import 'package:open_ring/features/workout/application/workout_lock_providers.dart';
 import 'package:open_ring/features/workout/domain/workout_lock_preferences.dart';
@@ -76,7 +77,10 @@ void main() {
         show: false,
       );
 
-      await DeviceLocalDataEraser(memoryDatabase()).eraseAll();
+      await DeviceLocalDataEraser(
+        memoryDatabase(),
+        InMemoryPhotoStore(),
+      ).eraseAll();
 
       expect(
         await SharedPreferencesAsync().getKeys(),

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/core/database/app_database_provider.dart';
+import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
@@ -25,7 +26,7 @@ void main() {
     await db.customStatement(_insert);
     expect(await rowCount(db, 'day_tags'), 2);
 
-    await DeviceLocalDataEraser(db).eraseAll();
+    await DeviceLocalDataEraser(db, InMemoryPhotoStore()).eraseAll();
 
     expect(await rowCount(db, 'day_tags'), 0);
   });

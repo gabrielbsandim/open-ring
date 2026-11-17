@@ -31,6 +31,7 @@ abstract final class AppPaths {
   static String dayScoreOn(String isoDate) => '$dayScore?day=$isoDate';
   static const goalsPick = '/today/goals/pick';
   static const goalsRefused = '/today/goals/refused';
+  static const goalsScreening = '/today/goals/screening';
 
   static String goalsPickWith(GoalKind? kind) =>
       kind == null ? goalsPick : '$goalsPick?goal=${kind.name}';

@@ -70,11 +70,15 @@ class MealCapture extends Notifier<CaptureState> {
     if (removed) _bump();
   }
 
-  /// Writes the last meal switch when it changed, then lets the result go.
-  Future<void> finish({required bool last}) async {
+  /// Writes [edit] in one update when it changed the meal, then lets the
+  /// result go.
+  Future<void> finish([MealEdit? edit]) async {
     final meal = state.result?.meal;
     final changed =
-        meal != null && meal.last != last && await _write(meal, last);
+        meal != null &&
+        edit != null &&
+        !edit.sameAs(meal) &&
+        await _write(meal, edit);
     _settle();
     if (changed) _bump();
   }
@@ -114,16 +118,11 @@ class MealCapture extends Notifier<CaptureState> {
     }
   }
 
-  Future<bool> _write(Meal meal, bool last) async {
-    final draft = MealDraft(
-      at: meal.at,
-      offsetMinutes: meal.offsetMinutes,
-      kind: meal.kind,
-      tags: meal.tags,
-      last: last,
-    );
+  Future<bool> _write(Meal meal, MealEdit edit) async {
     try {
-      return await ref.read(mealStoreProvider).update(meal.id, draft);
+      return await ref
+          .read(mealStoreProvider)
+          .update(meal.id, edit.draftOf(meal));
     } on Object {
       return false;
     }

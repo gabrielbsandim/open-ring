@@ -13,6 +13,15 @@ abstract final class MealSavedSheetKeys {
   static const retry = Key('meal_no_space_retry');
   static const withoutPhoto = Key('meal_no_space_without_photo');
   static const discard = Key('meal_no_space_discard');
+
+  static Key kind(MealKind kind) => Key('meal_saved_kind_${kind.name}');
+  static Key flag(MealFlag flag) => Key('meal_saved_flag_${flag.name}');
+  static Key veg(MealVeg veg) => Key('meal_saved_veg_${veg.name}');
+  static Key alcohol(MealAlcohol alcohol) =>
+      Key('meal_saved_alcohol_${alcohol.name}');
+  static Key processed(MealProcessed processed) =>
+      Key('meal_saved_processed_${processed.name}');
+  static Key place(MealPlace place) => Key('meal_saved_place_${place.name}');
 }
 
 enum NoSpaceChoice { retry, withoutPhoto, discard }
@@ -24,15 +33,15 @@ String mealTime(MetricFormat format, Meal meal, LocalDate today) {
   return format.dayAndClock(at, Duration.zero);
 }
 
-/// What was saved, and the last meal switch. The caller writes [last]
-/// however the sheet is closed.
+/// What was saved, its kind and tags, and the last meal switch. The caller
+/// writes [edit] however the sheet is closed.
 class MealSavedSheet extends StatelessWidget {
   const new({
     required this.meal,
     required this.time,
     required this.recovered,
     required this.today,
-    required this.last,
+    required this.edit,
     super.key,
   });
 
@@ -40,7 +49,7 @@ class MealSavedSheet extends StatelessWidget {
   final TimeSource time;
   final bool recovered;
   final LocalDate today;
-  final ValueNotifier<bool> last;
+  final ValueNotifier<MealEdit> edit;
 
   @override
   Widget build(BuildContext context) {
@@ -61,14 +70,19 @@ class MealSavedSheet extends StatelessWidget {
         ],
         const SizedBox(height: 10),
         BodyText(l10n.foodSavedNote),
+        ValueListenableBuilder<MealEdit>(
+          valueListenable: edit,
+          builder: (context, value, _) =>
+              _Tags(value: value, onChanged: (next) => edit.value = next),
+        ),
         const SizedBox(height: 4),
-        ValueListenableBuilder<bool>(
-          valueListenable: last,
-          builder: (context, on, _) => SwitchListTile(
+        ValueListenableBuilder<MealEdit>(
+          valueListenable: edit,
+          builder: (context, value, _) => SwitchListTile(
             key: MealSavedSheetKeys.last,
             contentPadding: EdgeInsets.zero,
-            value: on,
-            onChanged: (value) => last.value = value,
+            value: value.last,
+            onChanged: (on) => edit.value = value.withLast(on),
             title: Text(l10n.foodLastTitle),
             subtitle: Text(l10n.foodLastHint),
           ),
@@ -124,6 +138,202 @@ class MealNoSpaceSheet extends StatelessWidget {
         CaptionText(l10n.foodNoSpaceNote),
       ],
     );
+  }
+}
+
+/// The kind and the nine tag groups, in the prototype's order, none chosen
+/// by default.
+class _Tags extends StatelessWidget {
+  const new({required this.value, required this.onChanged});
+
+  final MealEdit value;
+  final ValueChanged<MealEdit> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MetricFormat.of(context).l10n;
+    final colors = AppColors.of(context);
+    final edit = value;
+    Widget flag(MealFlag flag, String label, String text) => _Group(
+      label: label,
+      chips: [
+        _TagChip(
+          key: MealSavedSheetKeys.flag(flag),
+          text: text,
+          selected: edit.flag(flag),
+          filter: true,
+          onSelected: (on) => onChanged(edit.withFlag(flag, on)),
+        ),
+      ],
+    );
+    return ChipTheme(
+      data: ChipTheme.of(context).copyWith(
+        showCheckmark: false,
+        selectedColor: colors.textPrimary,
+        backgroundColor: colors.surfaceInner,
+        side: BorderSide(color: colors.strongBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _OneOf(
+            label: l10n.foodKindLabel,
+            values: MealKind.values,
+            selected: edit.kind,
+            keyOf: MealSavedSheetKeys.kind,
+            text: (kind) => switch (kind) {
+              MealKind.main => l10n.foodKindMain,
+              MealKind.snack => l10n.foodKindSnack,
+              MealKind.drink => l10n.foodKindDrink,
+            },
+            onChanged: (kind) => onChanged(edit.withKind(kind)),
+          ),
+          flag(MealFlag.protein, l10n.foodProteinLabel, l10n.foodProtein),
+          _OneOf(
+            label: l10n.foodVegLabel,
+            values: MealVeg.values,
+            selected: edit.tags.veg,
+            keyOf: MealSavedSheetKeys.veg,
+            text: (veg) => switch (veg) {
+              MealVeg.some => l10n.foodVegSome,
+              MealVeg.halfOrMore => l10n.foodVegHalf,
+            },
+            onChanged: (veg) => onChanged(edit.withVeg(veg)),
+          ),
+          _OneOf(
+            label: l10n.foodAlcoholLabel,
+            values: MealAlcohol.values,
+            selected: edit.tags.alcohol,
+            keyOf: MealSavedSheetKeys.alcohol,
+            text: (alcohol) => switch (alcohol) {
+              MealAlcohol.oneToTwo => l10n.foodAlcoholOneToTwo,
+              MealAlcohol.threeOrMore => l10n.foodAlcoholThreeOrMore,
+            },
+            onChanged: (alcohol) => onChanged(edit.withAlcohol(alcohol)),
+          ),
+          flag(MealFlag.caffeine, l10n.foodCaffeineLabel, l10n.foodCaffeine),
+          flag(MealFlag.heavy, l10n.foodHeavyLabel, l10n.foodHeavy),
+          flag(MealFlag.fried, l10n.foodFriedLabel, l10n.foodFried),
+          flag(MealFlag.sugar, l10n.foodSugarLabel, l10n.foodSugar),
+          _OneOf(
+            label: l10n.foodProcessedLabel,
+            values: MealProcessed.values,
+            selected: edit.tags.processed,
+            keyOf: MealSavedSheetKeys.processed,
+            text: (processed) => switch (processed) {
+              MealProcessed.mostly => l10n.foodProcessedMostly,
+              MealProcessed.unsure => l10n.foodProcessedUnsure,
+            },
+            onChanged: (processed) => onChanged(edit.withProcessed(processed)),
+          ),
+          _OneOf(
+            label: l10n.foodPlaceLabel,
+            values: MealPlace.values,
+            selected: edit.tags.place,
+            keyOf: MealSavedSheetKeys.place,
+            text: (place) => switch (place) {
+              MealPlace.home => l10n.foodPlaceHome,
+              MealPlace.restaurant => l10n.foodPlaceRestaurant,
+              MealPlace.packaged => l10n.foodPlacePackaged,
+            },
+            onChanged: (place) => onChanged(edit.withPlace(place)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A single choice group: tapping the chosen chip clears it.
+class _OneOf<T extends Enum> extends StatelessWidget {
+  const new({
+    required this.label,
+    required this.values,
+    required this.selected,
+    required this.keyOf,
+    required this.text,
+    required this.onChanged,
+  });
+
+  final String label;
+  final List<T> values;
+  final T? selected;
+  final Key Function(T value) keyOf;
+  final String Function(T value) text;
+  final ValueChanged<T?> onChanged;
+
+  @override
+  Widget build(BuildContext context) => _Group(
+    label: label,
+    chips: [
+      for (final value in values)
+        _TagChip(
+          key: keyOf(value),
+          text: text(value),
+          selected: value == selected,
+          onSelected: (on) => onChanged(on ? value : null),
+        ),
+    ],
+  );
+}
+
+class _Group extends StatelessWidget {
+  const new({required this.label, required this.chips});
+
+  final String label;
+  final List<Widget> chips;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    label: label,
+    child: Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ExcludeSemantics(child: CaptionText(label)),
+          const SizedBox(height: 6),
+          Wrap(spacing: 8, runSpacing: 8, children: chips),
+        ],
+      ),
+    ),
+  );
+}
+
+class _TagChip extends StatelessWidget {
+  const new({
+    required this.text,
+    required this.selected,
+    required this.onSelected,
+    this.filter = false,
+    super.key,
+  });
+
+  final String text;
+  final bool selected;
+  final ValueChanged<bool> onSelected;
+
+  /// A yes or no tag, rather than one choice of a group.
+  final bool filter;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final label = Text(
+      text,
+      style: TextStyle(
+        color: selected ? colors.background : colors.textPrimary,
+      ),
+    );
+    if (filter) {
+      return FilterChip(
+        label: label,
+        selected: selected,
+        onSelected: onSelected,
+      );
+    }
+    return ChoiceChip(label: label, selected: selected, onSelected: onSelected);
   }
 }
 

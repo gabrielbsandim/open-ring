@@ -96,18 +96,18 @@ class _FoodRowState extends ConsumerState<_FoodRow> {
     required TimeSource time,
     required bool recovered,
   }) async {
-    final last = ValueNotifier(meal.last);
+    final edit = ValueNotifier(MealEdit.of(meal));
     await _sheet<void>(
       MealSavedSheet(
         meal: meal,
         time: time,
         recovered: recovered,
         today: today,
-        last: last,
+        edit: edit,
       ),
     );
-    await capture.finish(last: last.value);
-    last.dispose();
+    await capture.finish(edit.value);
+    edit.dispose();
   }
 
   Future<void> _noSpace(MealCapture capture, Meal meal, LocalDate today) async {
@@ -117,7 +117,7 @@ class _FoodRowState extends ConsumerState<_FoodRow> {
     await switch (choice) {
       NoSpaceChoice.retry => capture.retry(),
       NoSpaceChoice.discard => capture.discard(),
-      NoSpaceChoice.withoutPhoto || null => capture.finish(last: false),
+      NoSpaceChoice.withoutPhoto || null => capture.finish(),
     };
   }
 
@@ -126,7 +126,7 @@ class _FoodRowState extends ConsumerState<_FoodRow> {
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(SnackBar(content: Text(l10n.foodNoSpaceTitle)));
-    return capture.finish(last: false);
+    return capture.finish();
   }
 
   Future<T?> _sheet<T>(Widget sheet) => showModalBottomSheet<T>(

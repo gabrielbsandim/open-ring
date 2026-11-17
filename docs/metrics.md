@@ -1562,8 +1562,10 @@ build rule proposes steps for weeks 2 to 4 of a weight goal.
 `packages/metrics/lib/src/goal_progress.dart` counts how far each lever of the
 active goal is in the calendar week of today, Monday to Sunday.
 `goalWeekProvider` in the app feeds it from the steps, the nights, the
-strength sessions and the effort points already on the phone, and reads only
-the sources a lever of the goal counts from. It answers with one of seven
+strength sessions and the effort points already on the phone, and of those
+four reads only the ones a lever of the goal counts from. Beside them it
+reads the goal and its reviewed weeks, the enabled modules for a goal of
+losing fat, and the weight for the base phase of that goal. It answers with one of seven
 states: off, no goal, paused, hold, base, recovery and running. The first
 check that holds decides, in this order, with paused checked twice:
 
@@ -1573,8 +1575,10 @@ check that holds decides, in this order, with paused checked twice:
    carries the last day and the rule of the review that paused the goal,
    read from the row of the Monday the pause started on; a pause the person
    set has no rule.
-4. Hold: a goal of losing fat with Body off, with or without levers. Nothing
-   is asked and nothing is counted.
+4. Hold: a goal of losing fat with Body off, with or without levers. The
+   view shows no lever and no count. The weekly review still runs for a goal
+   that has levers: it writes its row, proposes no change while Body is off,
+   and can still pause or end the goal.
 5. Paused, and marked over: the last day has passed and the next block has not
    started. For most goals that lasts until the next pass of the reviewer;
    for losing fat it lasts until the weight rate is ready. A pause with no

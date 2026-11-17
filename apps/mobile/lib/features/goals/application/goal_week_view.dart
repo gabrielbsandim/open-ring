@@ -36,7 +36,8 @@ final class GoalWeekPaused extends GoalWeekView {
   final bool over;
 }
 
-/// Losing fat with Body off: nothing is asked and nothing is counted.
+/// Losing fat with Body off: the view shows no lever and no count. The
+/// weekly review still runs and can still pause or end the goal.
 final class GoalWeekHold extends GoalWeekView {
   const new({required this.goal});
 

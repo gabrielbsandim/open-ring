@@ -46,3 +46,49 @@ IntakeNext weightGoalNext(IntakeFacts facts) =>
 /// The answer of the newest screening that asked the five questions.
 bool? newestSoftMode(List<GoalScreening> newestFirst) =>
     newestFirst.map((screening) => screening.softMode).nonNulls.firstOrNull;
+
+/// What Continue on the picker leads to for the chosen goal.
+sealed class PickStep {
+  const new();
+}
+
+final class PickNoGoal extends PickStep {
+  const new();
+}
+
+final class PickStart extends PickStep {
+  const new(this.kind);
+
+  final GoalKind kind;
+}
+
+final class PickBlocked extends PickStep {
+  const new(this.block);
+
+  final IntakeBlock block;
+}
+
+final class PickWeight extends PickStep {
+  const new(this.next);
+
+  final IntakeNext next;
+}
+
+PickStep pickStep(GoalKind? choice, IntakeFacts facts) {
+  if (choice == null) return const PickNoGoal();
+  if (choice != GoalKind.loseFat) return PickStart(choice);
+  final block = weightGoalBlock(facts);
+  if (block != null) return PickBlocked(block);
+  return PickWeight(weightGoalNext(facts));
+}
+
+/// The first year in which every birth date of [birthYear] is 18 or older.
+int weightGoalsOpenYear(int birthYear) => birthYear + goalMinAge + 1;
+
+// A BMI under the floor must never read as the floor once rounded.
+double shownBmi(double bmi) {
+  final tenths = (bmi * 10).round();
+  final floorTenths = (bmiFloor * 10).round();
+  if (bmi < bmiFloor && tenths >= floorTenths) return (floorTenths - 1) / 10;
+  return tenths / 10;
+}

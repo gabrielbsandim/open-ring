@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/router/app_routes.dart';
@@ -448,7 +447,7 @@ void main() {
 
   group('11. layout', () {
     final states = <String, Future<GoalSetup> Function()>{
-      'No goal selected': () => setupPicker(),
+      'No goal selected': setupPicker,
       'Body off': () => setupPicker(modules: _bodyOff),
       'an active goal': () => setupPicker(draft: draftD),
     };
@@ -479,6 +478,10 @@ void main() {
             at: AppPaths.goalsPickWith(GoalKind.loseFat),
             scale: scale,
             brightness: brightness,
+          );
+          await tester.scrollUntilVisible(
+            find.byKey(GoalPickKeys.continueButton),
+            200,
           );
 
           expect(find.byKey(GoalPickKeys.continueButton), findsOneWidget);

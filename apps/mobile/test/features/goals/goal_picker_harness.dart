@@ -51,7 +51,7 @@ WeightSummary trendOf(double kilograms) => WeightSummary(
 /// A store whose start can wait on [gate], come back null or throw, and whose
 /// active goal can fail to read. Everything else is not part of the picker.
 final class ProbeGoalStore implements GoalStore {
-  ProbeGoalStore(
+  new(
     this.inner, {
     this.gate,
     this.startsNull = false,
@@ -62,14 +62,14 @@ final class ProbeGoalStore implements GoalStore {
   final InMemoryGoalStore inner;
   final Completer<void>? gate;
   final bool startsNull;
-  final Object? startError;
-  final Object? activeError;
+  final Error? startError;
+  final Error? activeError;
 
   @override
   Future<Goal?> active() async {
     final error = activeError;
     if (error != null) throw error;
-    return inner.active();
+    return await inner.active();
   }
 
   @override
@@ -88,7 +88,7 @@ final class ProbeGoalStore implements GoalStore {
     final error = startError;
     if (error != null) throw error;
     if (startsNull) return null;
-    return inner.start(draft);
+    return await inner.start(draft);
   }
 
   @override

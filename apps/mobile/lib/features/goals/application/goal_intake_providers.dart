@@ -4,6 +4,7 @@ import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/body/application/weight_summary.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
+import 'package:open_ring/features/goals/application/goals_gate.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
@@ -34,6 +35,38 @@ final intakeFactsProvider = FutureProvider<IntakeFacts>((ref) async {
 int? _youngestAge(UserProfile? profile, int year) {
   final age = profile?.ageIn(year);
   return age == null ? null : age - 1;
+}
+
+final goalStartControllerProvider = Provider<GoalStartController>(
+  GoalStartController.new,
+);
+
+final class GoalStartController {
+  const new(this.ref);
+
+  final Ref ref;
+
+  /// Starts a goal that reads no weight, with no lever yet. Null when Goals is
+  /// off or a goal is already active.
+  Future<Goal?> startWithoutWeight(GoalKind kind) async {
+    if (kind == GoalKind.loseFat) throw ArgumentError.value(kind, 'kind');
+    if (!ref.read(goalsEnabledProvider)) return null;
+    final goal = await ref
+        .read(goalStoreProvider)
+        .start(
+          GoalDraft(
+            kind: kind,
+            pace: null,
+            startedOn: ref.read(currentDateProvider),
+            anchorKg: null,
+            referenceKg: null,
+            levers: const [],
+          ),
+        );
+    if (goal == null || !ref.mounted) return goal;
+    ref.read(dataRevisionProvider.notifier).bump();
+    return goal;
+  }
 }
 
 final screeningControllerProvider = Provider<ScreeningController>(

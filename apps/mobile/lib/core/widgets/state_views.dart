@@ -54,14 +54,23 @@ class EmptyStateCard extends StatelessWidget {
 }
 
 class ActionButton extends StatelessWidget {
-  const new({required this.label, required this.onPressed, super.key});
+  const new({
+    required this.label,
+    required this.onPressed,
+    this.buttonKey,
+    super.key,
+  });
 
   final String label;
   final VoidCallback? onPressed;
 
+  /// Lands on the button itself, so a test can read whether it is enabled.
+  final Key? buttonKey;
+
   @override
   Widget build(BuildContext context) {
     return FilledButton(
+      key: buttonKey,
       style: FilledButton.styleFrom(
         minimumSize: const Size(64, 48),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -77,6 +86,7 @@ class SecondaryButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.color,
+    this.buttonKey,
     super.key,
   });
 
@@ -84,10 +94,14 @@ class SecondaryButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Color? color;
 
+  /// Lands on the button itself, so a test can read whether it is enabled.
+  final Key? buttonKey;
+
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
     return OutlinedButton(
+      key: buttonKey,
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(64, 48),
         backgroundColor: colors.surfaceInner,

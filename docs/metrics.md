@@ -1808,7 +1808,10 @@ What it cannot say:
 ### Before a weight goal starts
 
 `apps/mobile/lib/features/goals/domain/goal_intake.dart` and
-`application/goal_intake_providers.dart`. No screen calls them yet.
+`application/goal_intake_providers.dart`. The goal picker
+(`presentation/goal_pick_screen.dart`) and the refusal screen
+(`presentation/goal_refusal_screen.dart`) read them; the five questions have
+no screen yet.
 
 `weightGoalBlock` says why a goal of losing fat is not offered, the first of
 these that holds: Body is off, the soft mode is on, the age is not known, the
@@ -1841,6 +1844,33 @@ What it cannot say:
   and the BMI with the trend, and each is read again when asked.
 - That one tap wrote one row. Two calls write two rows, both with the same
   result.
+
+### The goal picker
+
+The picker offers four rows: no goal, lose fat, get fitter, sleep better.
+`pickStep` says what Continue does with the row chosen. No goal writes
+nothing. Get fitter and sleep better start at once with no lever, and the
+first block picks the lever (`GoalStartController.startWithoutWeight`); a second
+start while one is in flight, or with a goal already active, writes nothing.
+Lose fat runs `weightGoalBlock`: with Body off the button opens the Body
+module instead, a soft mode answer keeps Continue disabled, and the other
+four blocks open the refusal screen. A lose fat goal that passes keeps
+Continue disabled until the questions and the setup have screens.
+
+The refusal screen says the rule with the person's own numbers:
+
+- Under 18: the age the profile shows this year and the year weight goals
+  open, `weightGoalsOpenYear`, the birth year plus 19, the first 1 January on
+  which every birth date of that year is 18.
+- Age or height missing: one state that sends to Settings.
+- BMI under the floor: the trend rounded down and the floor weight for the
+  height (BMI 18.5) rounded up, both to 0.1 in the display unit, and the BMI
+  from `shownBmi`, which never shows 18.5 for a BMI under it. With the numbers
+  hidden only the 18.5 is shown.
+
+What it cannot say: the screen reads the block from its address and the
+numbers from the profile and the trend at that moment, so a profile fixed in
+another tab still shows the refusal until the picker is opened again.
 
 ## References
 

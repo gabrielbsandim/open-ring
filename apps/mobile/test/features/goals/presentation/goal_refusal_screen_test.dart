@@ -63,10 +63,10 @@ void main() {
     ) async {
       final setup = await setupPicker(profile: _minor);
       final router = await _open(tester, setup, IntakeBlock.under18);
+      final l10n = l10nOf(tester, GoalRefusalScreen);
 
       await tapKey(tester, GoalRefusalKeys.primary);
 
-      final l10n = l10nOf(tester, GoalRefusalScreen);
       expect(l10n.goalsRefusalSeeNoWeight, isNotEmpty);
       expect(whereIs(router), AppPaths.goalsPickWith(GoalKind.getFitter));
     });
@@ -332,6 +332,10 @@ void main() {
               state.block,
               scale: scale,
               brightness: brightness,
+            );
+            await tester.scrollUntilVisible(
+              find.byKey(GoalRefusalKeys.primary),
+              200,
             );
 
             expect(find.byKey(GoalRefusalKeys.primary), findsOneWidget);

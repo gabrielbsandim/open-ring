@@ -29,6 +29,7 @@ abstract final class AppPaths {
   static const dayScoreOverallWeeks = '/today/day-score/overall/weeks';
 
   static String dayScoreOn(String isoDate) => '$dayScore?day=$isoDate';
+  static const goals = '/today/goals';
   static const goalsPick = '/today/goals/pick';
   static const goalsRefused = '/today/goals/refused';
   static const goalsScreening = '/today/goals/screening';

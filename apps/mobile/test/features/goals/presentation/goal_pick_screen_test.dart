@@ -302,7 +302,9 @@ void main() {
       });
     }
 
-    testWidgets('a stored soft mode disables Continue', (tester) async {
+    testWidgets('2. a stored soft yes opens the soft screen again', (
+      tester,
+    ) async {
       final setup = await setupPicker();
       await setup.store.addScreening(
         GoalScreening(
@@ -314,14 +316,19 @@ void main() {
       final router = await pumpGoals(tester, setup, at: _pick);
 
       await tapKey(tester, GoalPickKeys.loseFat);
+      expect(
+        buttonOf(tester, GoalPickKeys.continueButton).onPressed,
+        isNotNull,
+      );
+      await _continue(tester);
 
-      expect(buttonOf(tester, GoalPickKeys.continueButton).onPressed, isNull);
-      expect(whereIs(router), _pick);
+      expect(whereIs(router), AppPaths.goalsRefusedFor(IntakeBlock.softMode));
+      expect(await setup.store.goals(), isEmpty);
     });
   });
 
-  group('Lose fat that passes waits for the weight steps', () {
-    testWidgets('Continue is disabled and the five questions are announced', (
+  group('Lose fat that passes goes to the questions or the setup', () {
+    testWidgets('1. never asked: Continue is enabled and opens the questions', (
       tester,
     ) async {
       final setup = await setupPicker();
@@ -330,9 +337,17 @@ void main() {
       await tapKey(tester, GoalPickKeys.loseFat);
 
       final l10n = l10nOf(tester, GoalPickScreen);
-      expect(buttonOf(tester, GoalPickKeys.continueButton).onPressed, isNull);
+      expect(
+        buttonOf(tester, GoalPickKeys.continueButton).onPressed,
+        isNotNull,
+      );
       expect(find.text(l10n.goalsPickNoteWeight), findsOneWidget);
-      expect(whereIs(router), _pick);
+
+      await _continue(tester);
+
+      expect(whereIs(router), AppPaths.goalsScreening);
+      expect(whereIs(router), '/today/goals/screening');
+      expect(await setup.store.screenings(), isEmpty);
     });
 
     testWidgets('a birth year of 2007 passes the age check', (tester) async {
@@ -347,7 +362,9 @@ void main() {
       expect(find.text(l10n.goalsPickNoteWeight), findsOneWidget);
     });
 
-    testWidgets('with the questions answered the note is gone', (tester) async {
+    testWidgets('3. a stored no: Continue is disabled and the note is gone', (
+      tester,
+    ) async {
       final setup = await setupPicker();
       await setup.store.addScreening(
         GoalScreening(

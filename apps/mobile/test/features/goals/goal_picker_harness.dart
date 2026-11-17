@@ -17,6 +17,7 @@ import 'package:open_ring/features/goals/domain/goal_intake.dart';
 import 'package:open_ring/features/goals/domain/goal_store.dart';
 import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_refusal_screen.dart';
+import 'package:open_ring/features/goals/presentation/goal_screening_screen.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
@@ -49,7 +50,8 @@ WeightSummary trendOf(double kilograms) => WeightSummary(
 );
 
 /// A store whose start can wait on [gate], come back null or throw, and whose
-/// active goal can fail to read. Everything else is not part of the picker.
+/// active goal can fail to read. [screeningGate] holds the screening write and
+/// [screeningFailures] makes that many writes throw before one goes through.
 final class ProbeGoalStore implements GoalStore {
   new(
     this.inner, {
@@ -57,6 +59,8 @@ final class ProbeGoalStore implements GoalStore {
     this.startsNull = false,
     this.startError,
     this.activeError,
+    this.screeningGate,
+    this.screeningFailures = 0,
   });
 
   final InMemoryGoalStore inner;
@@ -64,6 +68,8 @@ final class ProbeGoalStore implements GoalStore {
   final bool startsNull;
   final Error? startError;
   final Error? activeError;
+  final Completer<void>? screeningGate;
+  int screeningFailures;
 
   @override
   Future<Goal?> active() async {
@@ -79,8 +85,14 @@ final class ProbeGoalStore implements GoalStore {
   Future<List<GoalScreening>> screenings() => inner.screenings();
 
   @override
-  Future<void> addScreening(GoalScreening screening) =>
-      inner.addScreening(screening);
+  Future<void> addScreening(GoalScreening screening) async {
+    await screeningGate?.future;
+    if (screeningFailures > 0) {
+      screeningFailures -= 1;
+      throw StateError('disk full');
+    }
+    await inner.addScreening(screening);
+  }
 
   @override
   Future<Goal?> start(GoalDraft draft) async {
@@ -103,6 +115,7 @@ Future<GoalSetup> setupPicker({
   bool trendFails = false,
   bool hidden = false,
   UnitSystem units = UnitSystem.metric,
+  HideNumbersStore? hideStore,
   GoalDraft? draft,
   InMemoryGoalStore? store,
   GoalStore Function(InMemoryGoalStore memory)? readStoreOf,
@@ -122,7 +135,7 @@ Future<GoalSetup> setupPicker({
     }),
     extraOverrides: [
       hideNumbersStoreProvider.overrideWithValue(
-        InMemoryHideNumbersStore(hidden: hidden),
+        hideStore ?? InMemoryHideNumbersStore(hidden: hidden),
       ),
       unitSystemStoreProvider.overrideWithValue(InMemoryUnitSystemStore(units)),
     ],
@@ -149,6 +162,10 @@ GoRouter goalsRouter(String initial) => GoRouter(
       builder: (_, state) => GoalPickScreen(
         initial: GoalKind.values.asNameMap()[state.uri.queryParameters['goal']],
       ),
+    ),
+    GoRoute(
+      path: AppPaths.goalsScreening,
+      builder: (_, _) => const GoalScreeningScreen(),
     ),
     GoRoute(
       path: '${AppPaths.goalsRefused}/:block',

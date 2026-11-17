@@ -2255,5 +2255,15 @@
   "goalsEndCancel": "Batal",
   "goalsEndFailed": "Target sudah berakhir, tetapi target langkah tidak bisa kembali ke {steps}.",
   "goalsEndDone": "Target berakhir. Yang Anda lakukan tetap ada di data.",
-  "goalsEndRefused": "Target tidak berakhir. Tidak ada yang berubah."
+  "goalsEndRefused": "Target tidak berakhir. Tidak ada yang berubah.",
+  "goalsEndMaintain": "Pindah ke menjaga sekarang",
+  "goalsEndMaintainBody": "Menutup blok lebih awal dan memulai {weeks} minggu menjaga, dengan tuas yang sama.",
+  "goalsEndConfirmMaintainTitle": "Pindah ke menjaga sekarang?",
+  "goalsEndConfirmMaintainBody": "Blok ditutup hari ini. Tuas tetap, tidak ada perubahan yang diusulkan, dan blok baru dimulai setelah {date}.",
+  "goalsEndMaintainRefused": "Target tidak pindah ke menjaga. Tidak ada yang berubah.",
+  "goalsWeekTagMaintenance": "menjaga",
+  "goalsWeekKeepingUntil": "Menjaga sampai {date}",
+  "goalsWeekMaintenanceOver": "Masa menjaga sudah selesai",
+  "goalsScreenKeepingUntil": "Menjaga sampai {date}, lalu blok baru",
+  "goalsScreenMaintenanceOver": "Masa menjaga berakhir pada {date}. Blok baru dimulai begitu ada laju berat."
 }

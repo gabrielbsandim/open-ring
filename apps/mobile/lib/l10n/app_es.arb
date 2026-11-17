@@ -2255,5 +2255,15 @@
   "goalsEndCancel": "Cancelar",
   "goalsEndFailed": "La meta terminó, pero tu meta de pasos no pudo volver a {steps}.",
   "goalsEndDone": "La meta terminó. Lo que hiciste sigue en tus datos.",
-  "goalsEndRefused": "La meta no terminó. Nada cambió."
+  "goalsEndRefused": "La meta no terminó. Nada cambió.",
+  "goalsEndMaintain": "Pasar a mantenimiento ahora",
+  "goalsEndMaintainBody": "Cierra el bloque antes de tiempo y empieza las {weeks} semanas de mantenimiento, con las mismas palancas.",
+  "goalsEndConfirmMaintainTitle": "¿Pasar a mantenimiento ahora?",
+  "goalsEndConfirmMaintainBody": "El bloque se cierra hoy. Las palancas siguen, no se propone ningún cambio y un nuevo bloque empieza después del {date}.",
+  "goalsEndMaintainRefused": "La meta no pasó a mantenimiento. Nada cambió.",
+  "goalsWeekTagMaintenance": "mantenimiento",
+  "goalsWeekKeepingUntil": "Mantenimiento hasta el {date}",
+  "goalsWeekMaintenanceOver": "El mantenimiento terminó",
+  "goalsScreenKeepingUntil": "Mantenimiento hasta el {date}, luego un nuevo bloque",
+  "goalsScreenMaintenanceOver": "El mantenimiento terminó el {date}. Un nuevo bloque empieza en cuanto haya un ritmo de peso."
 }

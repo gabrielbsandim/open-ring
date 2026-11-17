@@ -3,14 +3,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
+import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/goals/application/goal_ender.dart';
 import 'package:open_ring/features/goals/application/goal_providers.dart';
+import 'package:open_ring/features/goals/application/goal_week_view.dart';
 import 'package:open_ring/features/goals/application/goals_gate.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_end.dart';
@@ -28,6 +31,7 @@ abstract final class GoalEndKeys {
   static const notice = Key('goal_end_notice');
   static const failed = Key('goal_end_failed');
   static const refused = Key('goal_end_refused');
+  static const maintain = Key('goal_end_maintain');
 }
 
 class GoalEndScreen extends ConsumerStatefulWidget {
@@ -42,6 +46,8 @@ class _GoalEndScreenState extends ConsumerState<GoalEndScreen> {
   StepGoalRaise? _raise;
   var _busy = false;
   var _refused = false;
+  var _maintaining = false;
+  var _maintainRefused = false;
   int? _failedBack;
 
   @override
@@ -70,14 +76,21 @@ class _GoalEndScreenState extends ConsumerState<GoalEndScreen> {
     return [
       BodyText(l10n.goalsEndLead(goalKindName(l10n, goal.kind))),
       const SizedBox(height: 12),
-      if (_refused) ...[
+      if (_refused || _maintainRefused) ...[
         Semantics(
           liveRegion: true,
-          child: CaptionText(l10n.goalsEndRefused, key: GoalEndKeys.refused),
+          child: CaptionText(
+            _maintainRefused
+                ? l10n.goalsEndMaintainRefused
+                : l10n.goalsEndRefused,
+            key: GoalEndKeys.refused,
+          ),
         ),
         const SizedBox(height: 12),
       ],
-      if (asking == null)
+      if (_maintaining)
+        _confirmMaintain(l10n)
+      else if (asking == null)
         ..._choices(l10n, raise.value)
       else
         _confirm(l10n, asking),
@@ -86,6 +99,8 @@ class _GoalEndScreenState extends ConsumerState<GoalEndScreen> {
 
   List<Widget> _choices(AppLocalizations l10n, StepGoalRaise? raise) {
     final format = MetricFormat.of(context);
+    final week = ref.watch(goalWeekProvider).value;
+    final maintain = week != null && canMaintainNow(week);
     return [
       MetricCard(
         child: Column(
@@ -105,6 +120,20 @@ class _GoalEndScreenState extends ConsumerState<GoalEndScreen> {
               body: l10n.goalsEndEndBody,
               onTap: () => _ask(GoalEndReason.person, raise),
             ),
+            if (maintain)
+              _Tile(
+                key: GoalEndKeys.maintain,
+                icon: Icons.pause_circle_outline,
+                title: l10n.goalsEndMaintain,
+                body: l10n.goalsEndMaintainBody(
+                  format.integer(goalMaintenanceWeeks),
+                ),
+                onTap: () => setState(() {
+                  _maintaining = true;
+                  _refused = false;
+                  _maintainRefused = false;
+                }),
+              ),
           ],
         ),
       ),
@@ -197,6 +226,42 @@ class _GoalEndScreenState extends ConsumerState<GoalEndScreen> {
     );
   }
 
+  Widget _confirmMaintain(AppLocalizations l10n) {
+    final format = MetricFormat.of(context);
+    final today = ref.watch(currentDateProvider);
+    final until = today.addDays(7 * goalMaintenanceWeeks - 1);
+    return MetricCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            header: true,
+            child: Text(
+              l10n.goalsEndConfirmMaintainTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          const SizedBox(height: 6),
+          BodyText(l10n.goalsEndConfirmMaintainBody(format.date(until))),
+          const SizedBox(height: 14),
+          ActionButton(
+            buttonKey: GoalEndKeys.confirm,
+            label: l10n.goalsEndMaintain,
+            onPressed: _busy ? null : () => unawaited(_maintain()),
+          ),
+          const SizedBox(height: 4),
+          TextButton(
+            key: GoalEndKeys.cancel,
+            onPressed: _busy
+                ? null
+                : () => setState(() => _maintaining = false),
+            child: Text(l10n.goalsEndCancel),
+          ),
+        ],
+      ),
+    );
+  }
+
   List<Widget> _failed(AppLocalizations l10n, int steps) => [
     Semantics(
       liveRegion: true,
@@ -219,6 +284,7 @@ class _GoalEndScreenState extends ConsumerState<GoalEndScreen> {
     _asking = reason;
     _raise = raise;
     _refused = false;
+    _maintainRefused = false;
   });
 
   Future<void> _finish(GoalEndReason reason, {int? back}) async {
@@ -243,6 +309,22 @@ class _GoalEndScreenState extends ConsumerState<GoalEndScreen> {
           _refused = true;
         });
     }
+  }
+
+  Future<void> _maintain() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    final done = await ref.read(goalEnderProvider.notifier).maintainNow();
+    if (!mounted) return;
+    if (done) {
+      _leave(GoalEndReason.person);
+      return;
+    }
+    setState(() {
+      _busy = false;
+      _maintaining = false;
+      _maintainRefused = true;
+    });
   }
 
   Future<void> _retry(int steps) async {

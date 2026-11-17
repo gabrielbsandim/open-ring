@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
@@ -11,6 +12,8 @@ import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/application/goals_gate.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_end.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 
@@ -81,6 +84,43 @@ class GoalEnder extends Notifier<void> {
       return false;
     }
   }
+
+  /// Closes the running block of losing fat today and starts the maintenance
+  /// weeks. False, with nothing written, when no such block runs or the
+  /// write fails; the phase check is what keeps a second tap from writing.
+  Future<bool> maintainNow() async {
+    if (!ref.read(goalsEnabledProvider) || ref.read(demoModeProvider)) {
+      return false;
+    }
+    if (!await _startMaintenance()) return false;
+    _bump();
+    return true;
+  }
+
+  Future<bool> _startMaintenance() async {
+    try {
+      final store = ref.read(goalStoreProvider);
+      final goal = await store.active();
+      if (goal == null || !_maintainable(goal)) return false;
+      final modules = await ref.read(enabledModulesProvider.future);
+      if (!modules.contains(ModuleId.body)) return false;
+      final today = ref.read(currentDateProvider);
+      return await store.setPhase(
+        goal.id,
+        GoalPhase.maintenance,
+        since: today,
+        until: today.addDays(7 * goalMaintenanceWeeks - 1),
+      );
+    } on Object catch (error) {
+      debugPrint('Goal did not move to maintenance: $error');
+      return false;
+    }
+  }
+
+  bool _maintainable(Goal goal) =>
+      goal.kind == GoalKind.loseFat &&
+      goal.phase == GoalPhase.block &&
+      goal.levers.isNotEmpty;
 
   /// False when no goal was ended, with a failed read or write logged.
   Future<bool> _endActive(GoalEndReason reason) async {

@@ -14,7 +14,7 @@ import '../goal_fixtures.dart';
 
 final LocalDate _today = goalDay(12, 7);
 
-enum _Fault { none, writeThrows, writeFalse, readThrows }
+enum _Fault { writeThrows, writeFalse, readThrows }
 
 final class _Faulty implements GoalStore {
   new(this.inner, this.fault);

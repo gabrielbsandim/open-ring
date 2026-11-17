@@ -123,7 +123,10 @@ class GoalReviewer extends Notifier<void> {
     bool? foodOrWeight,
   }) async {
     final goal = await _answerable();
-    if (goal == null) return ReviewAnswerOutcome.refused;
+    // Maintenance proposes nothing, so a proposal left from the block lapses.
+    if (goal == null || goal.phase == GoalPhase.maintenance) {
+      return ReviewAnswerOutcome.refused;
+    }
     final store = ref.read(goalStoreProvider);
     final week = (await store.weeks(goal.id))
         .where((week) => week.monday == monday)

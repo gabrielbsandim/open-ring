@@ -6,6 +6,7 @@ class AppPage extends StatelessWidget {
     required this.title,
     required this.children,
     this.subtitle,
+    this.subtitleKey,
     this.titleTrailing,
     this.actions = const [],
     this.onRefresh,
@@ -14,6 +15,7 @@ class AppPage extends StatelessWidget {
 
   final String title;
   final String? subtitle;
+  final Key? subtitleKey;
   final Widget? titleTrailing;
   final List<Widget> children;
   final List<Widget> actions;
@@ -46,6 +48,7 @@ class AppPage extends StatelessWidget {
         if (caption != null)
           Text(
             caption,
+            key: subtitleKey,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: AppColors.of(context).textLabel,
             ),

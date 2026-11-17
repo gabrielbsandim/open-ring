@@ -41,6 +41,7 @@ abstract final class GoalScreenKeys {
   static const noWeight = Key('goal_screen_no_weight');
   static const formula = Key('goal_screen_formula');
   static const end = Key('goal_screen_end');
+  static const maintenance = Key('goal_screen_maintenance');
 }
 
 /// How far along the goal is, as the path card needs it.
@@ -91,22 +92,30 @@ class GoalScreen extends ConsumerWidget {
         subtitle: _pausedLine(format, goal, until: until, over: over),
         body: _body(l10n, goal, _Stage.paused),
       ),
-      GoalWeekRecovery(:final goal, :final week) => _goalPage(
-        l10n,
-        goal,
-        subtitle: _weekLine(ref, format, goal, week),
-        body: [
-          CaptionText(l10n.goalsScreenRecovery, key: GoalScreenKeys.recovery),
-          const SizedBox(height: 12),
-          ..._body(l10n, goal, _Stage.running),
-        ],
-      ),
-      GoalWeekRunning(:final goal, :final week) => _goalPage(
-        l10n,
-        goal,
-        subtitle: _weekLine(ref, format, goal, week),
-        body: _body(l10n, goal, _Stage.running),
-      ),
+      GoalWeekRecovery(:final goal, :final week, :final maintenance) =>
+        _goalPage(
+          l10n,
+          goal,
+          subtitle:
+              _maintenanceLine(format, maintenance) ??
+              _weekLine(ref, format, goal, week),
+          maintenance: maintenance != null,
+          body: [
+            CaptionText(l10n.goalsScreenRecovery, key: GoalScreenKeys.recovery),
+            const SizedBox(height: 12),
+            ..._body(l10n, goal, _Stage.running),
+          ],
+        ),
+      GoalWeekRunning(:final goal, :final week, :final maintenance) =>
+        _goalPage(
+          l10n,
+          goal,
+          subtitle:
+              _maintenanceLine(format, maintenance) ??
+              _weekLine(ref, format, goal, week),
+          maintenance: maintenance != null,
+          body: _body(l10n, goal, _Stage.running),
+        ),
     };
   }
 
@@ -149,9 +158,11 @@ class GoalScreen extends ConsumerWidget {
     Goal goal, {
     required String? subtitle,
     required List<Widget> body,
+    bool maintenance = false,
   }) => AppPage(
     title: goalKindName(l10n, goal.kind),
     subtitle: subtitle,
+    subtitleKey: maintenance ? GoalScreenKeys.maintenance : null,
     children: [
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -195,6 +206,16 @@ class GoalScreen extends ConsumerWidget {
       format.monthDay(block.end),
       goalMaintenanceWeeks,
     );
+  }
+
+  // A closed block has no week to count, so maintenance names its last day.
+  String? _maintenanceLine(MetricFormat format, GoalMaintenance? maintenance) {
+    if (maintenance == null) return null;
+    final until = format.date(maintenance.until);
+    if (maintenance.over) {
+      return format.l10n.goalsScreenMaintenanceOver(until);
+    }
+    return format.l10n.goalsScreenKeepingUntil(until);
   }
 
   String _pausedLine(

@@ -2255,5 +2255,15 @@
   "goalsEndCancel": "Abbrechen",
   "goalsEndFailed": "Das Ziel ist beendet, aber dein Schrittziel konnte nicht auf {steps} zurück.",
   "goalsEndDone": "Das Ziel ist beendet. Was du getan hast, bleibt in deinen Daten.",
-  "goalsEndRefused": "Das Ziel wurde nicht beendet. Nichts hat sich geändert."
+  "goalsEndRefused": "Das Ziel wurde nicht beendet. Nichts hat sich geändert.",
+  "goalsEndMaintain": "Jetzt zum Halten wechseln",
+  "goalsEndMaintainBody": "Schließt den Block früher und beginnt die {weeks} Wochen Halten, mit denselben Hebeln.",
+  "goalsEndConfirmMaintainTitle": "Jetzt zum Halten wechseln?",
+  "goalsEndConfirmMaintainBody": "Der Block schließt heute. Die Hebel bleiben, es wird keine Änderung vorgeschlagen, und ein neuer Block beginnt nach dem {date}.",
+  "goalsEndMaintainRefused": "Das Ziel ist nicht zum Halten gewechselt. Nichts hat sich geändert.",
+  "goalsWeekTagMaintenance": "Halten",
+  "goalsWeekKeepingUntil": "Halten bis {date}",
+  "goalsWeekMaintenanceOver": "Das Halten ist vorbei",
+  "goalsScreenKeepingUntil": "Halten bis {date}, danach ein neuer Block",
+  "goalsScreenMaintenanceOver": "Das Halten endete am {date}. Ein neuer Block beginnt, sobald es eine Gewichtsrate gibt."
 }

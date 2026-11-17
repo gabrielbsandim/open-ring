@@ -2255,5 +2255,15 @@
   "goalsEndCancel": "Cancelar",
   "goalsEndFailed": "A meta foi encerrada, mas a meta de passos não conseguiu voltar para {steps}.",
   "goalsEndDone": "A meta foi encerrada. O que você fez continua nos seus dados.",
-  "goalsEndRefused": "A meta não foi encerrada. Nada mudou."
+  "goalsEndRefused": "A meta não foi encerrada. Nada mudou.",
+  "goalsEndMaintain": "Passar a manter agora",
+  "goalsEndMaintainBody": "Fecha o bloco antes da hora e começa as {weeks} semanas de manutenção, com as mesmas alavancas.",
+  "goalsEndConfirmMaintainTitle": "Passar a manter agora?",
+  "goalsEndConfirmMaintainBody": "O bloco fecha hoje. As alavancas ficam, nenhuma mudança é proposta, e um novo bloco começa depois de {date}.",
+  "goalsEndMaintainRefused": "A meta não passou para a manutenção. Nada mudou.",
+  "goalsWeekTagMaintenance": "manutenção",
+  "goalsWeekKeepingUntil": "Em manutenção até {date}",
+  "goalsWeekMaintenanceOver": "A manutenção acabou",
+  "goalsScreenKeepingUntil": "Em manutenção até {date}, depois um novo bloco",
+  "goalsScreenMaintenanceOver": "A manutenção terminou em {date}. Um novo bloco começa assim que houver um ritmo de peso."
 }

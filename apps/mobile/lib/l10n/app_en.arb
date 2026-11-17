@@ -4616,5 +4616,20 @@
   "goalsEndFailed": "The goal ended, but your step goal could not go back to {steps}.",
   "@goalsEndFailed": {"placeholders": {"steps": {"type": "String"}}},
   "goalsEndDone": "The goal ended. What you did stays in your data.",
-  "goalsEndRefused": "The goal did not end. Nothing changed."
+  "goalsEndRefused": "The goal did not end. Nothing changed.",
+  "goalsEndMaintain": "Move to maintenance now",
+  "goalsEndMaintainBody": "Closes the block early and starts the {weeks} weeks of maintenance, with the same levers.",
+  "@goalsEndMaintainBody": {"placeholders": {"weeks": {"type": "String"}}},
+  "goalsEndConfirmMaintainTitle": "Move to maintenance now?",
+  "goalsEndConfirmMaintainBody": "The block closes today. The levers stay, no change is proposed, and a new block starts after {date}.",
+  "@goalsEndConfirmMaintainBody": {"placeholders": {"date": {"type": "String"}}},
+  "goalsEndMaintainRefused": "The goal did not move to maintenance. Nothing changed.",
+  "goalsWeekTagMaintenance": "maintenance",
+  "goalsWeekKeepingUntil": "Maintenance until {date}",
+  "@goalsWeekKeepingUntil": {"placeholders": {"date": {"type": "String"}}},
+  "goalsWeekMaintenanceOver": "Maintenance is over",
+  "goalsScreenKeepingUntil": "Maintenance until {date}, then a new block",
+  "@goalsScreenKeepingUntil": {"placeholders": {"date": {"type": "String"}}},
+  "goalsScreenMaintenanceOver": "Maintenance ended on {date}. A new block starts once there is a weight rate.",
+  "@goalsScreenMaintenanceOver": {"placeholders": {"date": {"type": "String"}}}
 }

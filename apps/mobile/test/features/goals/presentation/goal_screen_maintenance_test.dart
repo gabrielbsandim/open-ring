@@ -31,7 +31,7 @@ Goal _goal({GoalPhase phase = GoalPhase.block}) => Goal(
   pace: GoalPace.standard,
   startedOn: _start,
   anchorKg: 78.4,
-  referenceKg: 74.0,
+  referenceKg: 74,
   blockStartedOn: _start,
   blockAnchorKg: 78.4,
   phase: phase,
@@ -106,9 +106,7 @@ Future<void> _pump(
       goalWeekProvider.overrideWith((ref) async => week),
       goalPathProvider.overrideWith((ref) async => _path()),
       currentDateProvider.overrideWithValue(_today),
-      hideNumbersStoreProvider.overrideWithValue(
-        InMemoryHideNumbersStore(hidden: false),
-      ),
+      hideNumbersStoreProvider.overrideWithValue(InMemoryHideNumbersStore()),
       unitSystemStoreProvider.overrideWithValue(
         InMemoryUnitSystemStore(UnitSystem.metric),
       ),

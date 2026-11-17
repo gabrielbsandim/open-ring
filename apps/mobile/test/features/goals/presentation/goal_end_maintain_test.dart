@@ -57,7 +57,7 @@ class _Ender extends GoalEnder {
         1,
         goalDraft(),
       ).inPhase(GoalPhase.maintenance, since: _today, until: _until),
-      maintenance: GoalMaintenance(until: _until, over: false),
+      maintenance: const GoalMaintenance(until: _until, over: false),
     );
     ref.invalidate(goalWeekProvider);
     return true;
@@ -109,9 +109,7 @@ Future<void> _pump(
       goalWeekProvider.overrideWith((ref) async => _view),
       goalPathProvider.overrideWith((ref) async => null),
       currentDateProvider.overrideWithValue(_today),
-      hideNumbersStoreProvider.overrideWithValue(
-        InMemoryHideNumbersStore(hidden: false),
-      ),
+      hideNumbersStoreProvider.overrideWithValue(InMemoryHideNumbersStore()),
       unitSystemStoreProvider.overrideWithValue(
         InMemoryUnitSystemStore(UnitSystem.metric),
       ),
@@ -151,7 +149,7 @@ void main() {
         'a goal already in maintenance',
         _running(
           Goal.started(1, goalDraft()),
-          maintenance: GoalMaintenance(until: _until, over: false),
+          maintenance: const GoalMaintenance(until: _until, over: false),
         ),
       ),
       (

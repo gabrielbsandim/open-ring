@@ -25,7 +25,7 @@ Goal _goal({GoalPhase phase = GoalPhase.block}) => Goal(
   pace: GoalPace.standard,
   startedOn: _start,
   anchorKg: 78.4,
-  referenceKg: 74.0,
+  referenceKg: 74,
   blockStartedOn: _start,
   blockAnchorKg: 78.4,
   phase: phase,

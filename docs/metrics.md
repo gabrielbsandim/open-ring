@@ -1598,7 +1598,10 @@ proposal waits for an answer. Hold comes after a running pause so that a
 safety pause still shows its rule and its last day, and before a pause that
 is over because with Body off that goal never restarts. Paused, hold, base
 and recovery read none of the lever sources, so they neither wait on them
-nor fail with them. Maintenance counts like a block.
+nor fail with them. Maintenance counts like a block, and recovery and
+running carry it (`GoalMaintenance`: the last day, and whether it has passed)
+when the goal is in maintenance with a last day. A proposal left from the
+block is not shown in maintenance, since maintenance takes no answer.
 
 Clock values are whole local minutes with the seconds dropped. A bedtime is
 the minutes after noon, so 23:30 is 690 and 00:05 is 725; a wake time is the
@@ -1934,7 +1937,10 @@ The goal screen, at `/today/goals`, follows `goalWeekProvider`. With the
 module off it says so in one line; with no goal it offers the picker and says
 that no goal is a state, not a pending step. Get fitter and sleep better show
 the week and no weight. With Body off a lose fat goal shows the hold and no
-weight. Otherwise a lose fat goal shows its path.
+weight. Otherwise a lose fat goal shows its path. In maintenance the line
+under the title gives the last day of maintenance in place of the week of the
+block, and once that day has passed, that a new block starts once there is a
+weight rate.
 
 The path is read on `goalPathDay`: the Sunday before this Monday, the day the
 review reads, or the block start when the block began later; in the base
@@ -1977,8 +1983,10 @@ The base phase counts the weigh-ins toward the rate for lose fat, says how
 many of the 14 days they cover while the spread is short, and fills its bar
 by whichever of the two is further from done; another kind names the days of
 data the plan waits for. A pause shows its end, or that it is
-over, and the levers as reminders with no count; a recovery week asks
-nothing; with Body off the card says the weight plan holds. Lever counts are
+over, and the levers as reminders with no count; in maintenance the week
+keeps its levers and counts, the tag says maintenance in place of the week,
+and a first line gives the last day or says maintenance is over; a recovery
+week asks nothing; with Body off the card says the weight plan holds. Lever counts are
 not weights, so hidden numbers leave them shown. While the review of this
 Monday waits for an answer, the card says so with the levers that fit and
 opens the review screen in place of the week.
@@ -1999,8 +2007,8 @@ of this Monday has no answer and no check-in. Sent with the answer, or alone
 for a week with no change, they go through `amendWeek` first; when they change
 the rule the screen shows the new review and nothing is answered.
 
-`GoalReviewer.answer` refuses in demo mode, with Goals off, and for a weight
-goal with Body off. The week answer is written first, since the store refuses
+`GoalReviewer.answer` refuses in demo mode, with Goals off, for a weight
+goal with Body off, and in maintenance, before it writes anything. The week answer is written first, since the store refuses
 a second answer and that refusal keeps a double tap from writing twice. An
 accepted steps change then sets the profile step goal, through the profile
 save that dates a step goal change today, only when the new target is above
@@ -2051,6 +2059,14 @@ starts a new goal the same day. A week still waiting for an answer stays
 unanswered. `GoalEnder.end` refuses in demo mode, with Goals off and with no
 active goal, and when the store throws, which is logged and leaves the
 screen saying nothing changed; a weight goal with Body off can still be ended.
+
+A third choice, "Move to maintenance now", shows only for a running block of
+losing fat (`canMaintainNow`). After a confirm, `GoalEnder.maintainNow` sets
+the goal in maintenance from today through the day 27 days later, so the
+next block follows as after a block that closed on its own. It refuses in
+demo mode, with Goals off, with Body off, with no lever and for any phase but
+a block; a store error is logged and the screen says nothing changed. A week
+still waiting for an answer lapses unanswered, as with an end.
 
 When the plan raised the step goal, the confirmation asks once whether it
 stays or goes back. `planRaise` reads the goal in force the day before the

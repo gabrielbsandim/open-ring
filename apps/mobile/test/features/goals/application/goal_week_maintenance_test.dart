@@ -63,7 +63,7 @@ Future<void> _addProposal(GoalSetup setup, ReviewInputs inputs) async {
     1,
     monday: _monday,
     inputs: inputs,
-    review: Review(
+    review: const Review(
       rule: ReviewRule.build,
       action: ReviewAction.nextStep,
       adherence: 1,

@@ -2255,5 +2255,15 @@
   "goalsEndCancel": "取消",
   "goalsEndFailed": "目标已结束，但步数目标未能恢复为 {steps}。",
   "goalsEndDone": "目标已结束。你做过的都留在数据里。",
-  "goalsEndRefused": "目标没有结束。没有任何变化。"
+  "goalsEndRefused": "目标没有结束。没有任何变化。",
+  "goalsEndMaintain": "现在进入维持期",
+  "goalsEndMaintainBody": "提前结束本周期，开始 {weeks} 周的维持期，杠杆保持不变。",
+  "goalsEndConfirmMaintainTitle": "现在进入维持期？",
+  "goalsEndConfirmMaintainBody": "本周期今天结束。杠杆保留，不会提出任何更改，新的周期在 {date} 之后开始。",
+  "goalsEndMaintainRefused": "目标没有进入维持期。没有任何变化。",
+  "goalsWeekTagMaintenance": "维持期",
+  "goalsWeekKeepingUntil": "维持期至 {date}",
+  "goalsWeekMaintenanceOver": "维持期已结束",
+  "goalsScreenKeepingUntil": "维持期至 {date}，之后开始新的周期",
+  "goalsScreenMaintenanceOver": "维持期已于 {date} 结束。一旦有了体重速度，新的周期就会开始。"
 }

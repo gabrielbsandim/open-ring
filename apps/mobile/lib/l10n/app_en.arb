@@ -4666,5 +4666,15 @@
   "goalsPathRateDetailKeeping": "{percent}% a week, between {low} and {high}. Maintenance has no rate target.",
   "@goalsPathRateDetailKeeping": {"placeholders": {"percent": {"type": "String"}, "low": {"type": "String"}, "high": {"type": "String"}}},
   "goalsSheetRateYoursKeeping": "{amount} lost a week, with 95% confidence between {low} and {high}. Divided by your trend ({trend}), that is {percent}% a week, between {percentLow} and {percentHigh}. Maintenance has no rate target.",
-  "@goalsSheetRateYoursKeeping": {"placeholders": {"amount": {"type": "String"}, "low": {"type": "String"}, "high": {"type": "String"}, "trend": {"type": "String"}, "percent": {"type": "String"}, "percentLow": {"type": "String"}, "percentHigh": {"type": "String"}}}
+  "@goalsSheetRateYoursKeeping": {"placeholders": {"amount": {"type": "String"}, "low": {"type": "String"}, "high": {"type": "String"}, "trend": {"type": "String"}, "percent": {"type": "String"}, "percentLow": {"type": "String"}, "percentHigh": {"type": "String"}}},
+  "workoutNoticeTitleZone": "{type} · Zone {zone}",
+  "@workoutNoticeTitleZone": {"placeholders": {"type": {"type": "String"}, "zone": {"type": "int"}}},
+  "workoutNoticeTitleRingLost": "{type} · ring out of range",
+  "@workoutNoticeTitleRingLost": {"placeholders": {"type": {"type": "String"}}},
+  "workoutNoticeTitlePaused": "{type} · Paused",
+  "@workoutNoticeTitlePaused": {"placeholders": {"type": {"type": "String"}}},
+  "workoutNoticePausedAt": "Paused at {time}",
+  "@workoutNoticePausedAt": {"placeholders": {"time": {"type": "String"}}},
+  "workoutNoticeRecording": "Recording the time",
+  "workoutNoticeGpsLost": "GPS signal lost"
 }

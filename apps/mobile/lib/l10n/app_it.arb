@@ -2297,5 +2297,11 @@
   "privacyStoresGoalsWhy": "Per costruire il piano della settimana, rivederlo ogni lunedì e mantenere le sue protezioni; il questionario conserva il risultato complessivo, non ogni risposta",
   "goalsPathPaceKeeping": "Nessuno nel mantenimento",
   "goalsPathRateDetailKeeping": "{percent}% a settimana, tra {low} e {high}. Il mantenimento non ha un ritmo obiettivo.",
-  "goalsSheetRateYoursKeeping": "{amount} in meno a settimana, con il 95% di confidenza tra {low} e {high}. Diviso per la tua tendenza ({trend}), fa {percent}% a settimana, tra {percentLow} e {percentHigh}. Il mantenimento non ha un ritmo obiettivo."
+  "goalsSheetRateYoursKeeping": "{amount} in meno a settimana, con il 95% di confidenza tra {low} e {high}. Diviso per la tua tendenza ({trend}), fa {percent}% a settimana, tra {percentLow} e {percentHigh}. Il mantenimento non ha un ritmo obiettivo.",
+  "workoutNoticeTitleZone": "{type} · Zona {zone}",
+  "workoutNoticeTitleRingLost": "{type} · anello fuori portata",
+  "workoutNoticeTitlePaused": "{type} · In pausa",
+  "workoutNoticePausedAt": "In pausa a {time}",
+  "workoutNoticeRecording": "Registrazione del tempo",
+  "workoutNoticeGpsLost": "Segnale GPS perso"
 }

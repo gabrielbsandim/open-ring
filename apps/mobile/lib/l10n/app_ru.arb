@@ -2297,5 +2297,11 @@
   "privacyStoresGoalsWhy": "Чтобы составить план на неделю, проверять его каждый понедельник и соблюдать защитные правила; опрос хранит общий результат, а не каждый ответ",
   "goalsPathPaceKeeping": "Нет во время поддержания",
   "goalsPathRateDetailKeeping": "{percent}% в неделю, от {low} до {high}. Во время поддержания целевого темпа нет.",
-  "goalsSheetRateYoursKeeping": "Минус {amount} в неделю, с 95% уверенностью от {low} до {high}. Делённое на ваш тренд ({trend}), это {percent}% в неделю, от {percentLow} до {percentHigh}. Во время поддержания целевого темпа нет."
+  "goalsSheetRateYoursKeeping": "Минус {amount} в неделю, с 95% уверенностью от {low} до {high}. Делённое на ваш тренд ({trend}), это {percent}% в неделю, от {percentLow} до {percentHigh}. Во время поддержания целевого темпа нет.",
+  "workoutNoticeTitleZone": "{type} · Зона {zone}",
+  "workoutNoticeTitleRingLost": "{type} · кольцо вне зоны связи",
+  "workoutNoticeTitlePaused": "{type} · Пауза",
+  "workoutNoticePausedAt": "Пауза на {time}",
+  "workoutNoticeRecording": "Записываем время",
+  "workoutNoticeGpsLost": "Сигнал GPS потерян"
 }

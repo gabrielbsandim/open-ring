@@ -72,6 +72,8 @@ int? _ageMax(int? age) {
   return maxHeartRateForAge(age);
 }
 
+const noticeInterval = Duration(seconds: 2);
+
 class WorkoutController extends Notifier<WorkoutState> {
   WorkoutSession? _session;
   StreamSubscription<void>? _ticks;
@@ -79,6 +81,7 @@ class WorkoutController extends Notifier<WorkoutState> {
   StreamSubscription<LocationFix>? _location;
   StreamSubscription<WorkoutNoticeAction>? _actions;
   WorkoutNotice? _shown;
+  DateTime? _shownAt;
   WorkoutNotifier? _showing;
   Future<void>? _heartRateStopping;
   Future<void>? _locationStopping;
@@ -320,12 +323,25 @@ class WorkoutController extends Notifier<WorkoutState> {
       snapshot,
       labels,
       ref.read(currentUnitSystemProvider),
+      ringLost: state.heartRateStalled,
+      gpsLost: state.locationProblem != null,
     );
-    if (notice == _shown) return;
+    if (notice == _shown || _tooSoon(notice)) return;
     _shown = notice;
+    _shownAt = _now();
     final notifier = _notifier;
     _showing = notifier;
     unawaited(_quietly(_guarded(() => notifier.show(notice))));
+  }
+
+  // The system chronometer keeps the time, so a running notice posts at most
+  // every noticeInterval; a pause or a resume posts at once.
+  bool _tooSoon(WorkoutNotice notice) {
+    final shown = _shown;
+    final at = _shownAt;
+    if (shown == null || at == null) return false;
+    if (shown.running != notice.running) return false;
+    return _now().difference(at) < noticeInterval;
   }
 
   Future<void> _hideNotice() {

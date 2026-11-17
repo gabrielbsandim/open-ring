@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+import 'package:open_ring/features/workout/domain/workout_type.dart';
 
 enum WorkoutNoticeAction { pause, resume, stop }
 
@@ -40,6 +41,15 @@ final class WorkoutNoticeLabels {
     this.stop = 'End',
     this.paused = 'Paused',
     this.decimalSeparator = '.',
+    this.types = const {},
+    this.zoneTitle = _zoneTitle,
+    this.ringLostTitle = _ringLostTitle,
+    this.pausedTitle = _pausedTitle,
+    this.pausedAt = _pausedAt,
+    this.recording = 'Recording the time',
+    this.gpsLost = 'GPS signal lost',
+    this.speed = 'km/h',
+    this.speedImperial = 'mph',
   });
 
   final String channel;
@@ -48,7 +58,24 @@ final class WorkoutNoticeLabels {
   final String stop;
   final String paused;
   final String decimalSeparator;
+  final Map<WorkoutType, String> types;
+  final String Function(String type, int zone) zoneTitle;
+  final String Function(String type) ringLostTitle;
+  final String Function(String type) pausedTitle;
+  final String Function(String time) pausedAt;
+  final String recording;
+  final String gpsLost;
+  final String speed;
+  final String speedImperial;
 }
+
+String _zoneTitle(String type, int zone) => '$type · Zone $zone';
+
+String _ringLostTitle(String type) => '$type · ring out of range';
+
+String _pausedTitle(String type) => '$type · Paused';
+
+String _pausedAt(String time) => 'Paused at $time';
 
 final class WorkoutNotifierFailure implements Exception {
   const new();

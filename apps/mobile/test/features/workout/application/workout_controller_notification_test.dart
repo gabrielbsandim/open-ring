@@ -7,6 +7,7 @@ import 'package:open_ring/features/settings/application/user_profile_providers.d
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/workout/application/workout_controller.dart';
 import 'package:open_ring/features/workout/application/workout_state.dart';
+import 'package:open_ring/features/workout/domain/location_source.dart';
 import 'package:open_ring/features/workout/domain/workout_notifier.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_store.dart';
@@ -140,20 +141,21 @@ void main() {
   });
 
   group('2: ticks show only when the notice changes', () {
-    test(
-      'a tick that moves the elapsed second shows the new elapsed',
-      () async {
-        await started(container(), WorkoutType.other);
+    test('a running notice posts at most every 2 seconds', () async {
+      await started(container(), WorkoutType.other);
 
-        second(bpm: 120);
-        second(bpm: 120);
-        second(bpm: 120);
+      second(bpm: 120);
+      second(bpm: 120);
+      second(bpm: 120);
 
-        expect(notifier.shown, hasLength(4));
-        expect(notifier.shown.last.elapsed, const Duration(seconds: 3));
-        expect(notifier.shown[2].elapsed, const Duration(seconds: 2));
-      },
-    );
+      expect(notifier.shown, hasLength(2));
+      expect(notifier.shown.last.elapsed, const Duration(seconds: 2));
+
+      second(bpm: 120);
+
+      expect(notifier.shown, hasLength(3));
+      expect(notifier.shown.last.elapsed, const Duration(seconds: 4));
+    });
 
     test('a tick that changes only the text shows again', () async {
       await started(container(), WorkoutType.other);
@@ -168,17 +170,21 @@ void main() {
       expect(notifier.shown.last.text, isNot(contains('120')));
     });
 
-    test('a new heart rate inside the same second shows again', () async {
+    test('a new heart rate inside the interval waits for it', () async {
       await started(container(), WorkoutType.other);
       second(bpm: 120);
+      second(bpm: 120);
       final before = notifier.shown.length;
-      final elapsed = notifier.shown.last.elapsed;
 
       heartRate.emit(150);
       ticks.add(null);
+      second(bpm: 150);
+
+      expect(notifier.shown.length, before);
+
+      second(bpm: 150);
 
       expect(notifier.shown.length, before + 1);
-      expect(notifier.shown.last.elapsed, elapsed);
       expect(notifier.shown.last.text, contains('150'));
     });
 
@@ -218,7 +224,7 @@ void main() {
 
       controller.resume();
       expect(notifier.shown.last.running, isTrue);
-      expect(notifier.shown, hasLength(4));
+      expect(notifier.shown, hasLength(3));
     });
 
     test('ticks while paused keep running false', () async {
@@ -451,7 +457,7 @@ void main() {
       second();
 
       for (final notice in notifier.shown) {
-        expect(notice.text, isEmpty);
+        expect(notice.text, 'Recording the time');
       }
     });
 
@@ -470,6 +476,7 @@ void main() {
     test('the heart rate leaves the text when the snapshot has none', () async {
       final controller = await started(container(), WorkoutType.other);
       second(bpm: 147);
+      second(bpm: 147);
       expect(notifier.shown.last.text, contains('147'));
 
       controller.pause();
@@ -482,20 +489,52 @@ void main() {
       () async {
         final c = container();
         final controller = await started(c, WorkoutType.other);
-        for (var i = 0; i < 7; i++) {
+        for (var i = 0; i < 8; i++) {
           second(bpm: 130);
         }
         expect(
           notifier.shown.last.elapsed,
           c.read(workoutProvider).snapshot!.elapsed,
         );
-        expect(notifier.shown.last.elapsed, const Duration(seconds: 7));
+        expect(notifier.shown.last.elapsed, const Duration(seconds: 8));
 
         controller.pause();
         expect(notifier.shown.last.running, isFalse);
-        expect(notifier.shown.last.elapsed, const Duration(seconds: 7));
+        expect(notifier.shown.last.elapsed, const Duration(seconds: 8));
       },
     );
+  });
+
+  group('10: lost signals change the text', () {
+    test('a ring silent past the hold shows no heart rate', () async {
+      await started(container(), WorkoutType.other);
+      second(bpm: 140);
+      second(bpm: 140);
+      expect(notifier.shown.last.text, contains('140'));
+
+      for (var i = 0; i < 32; i++) {
+        second();
+      }
+
+      expect(notifier.shown.last.text, startsWith('-- bpm'));
+      expect(notifier.shown.last.text, isNot(contains('140')));
+    });
+
+    test('a GPS failure replaces distance and pace', () async {
+      await started(container(), WorkoutType.running);
+      location.emit(fixAt(Duration.zero, northMeters: 0));
+      for (var i = 0; i < 6; i++) {
+        second(bpm: 147, speed: 3);
+      }
+      expect(notifier.shown.last.text, contains(distanceOrPace));
+
+      location.fail(const LocationUnavailable(LocationProblem.failed));
+      second(bpm: 147);
+      second(bpm: 147);
+
+      expect(notifier.shown.last.text, contains('GPS signal lost'));
+      expect(notifier.shown.last.text, isNot(contains(distanceOrPace)));
+    });
   });
 
   group('9: a late tap does nothing', () {

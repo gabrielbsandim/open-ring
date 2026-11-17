@@ -2297,5 +2297,11 @@
   "privacyStoresGoalsWhy": "用于制定每周计划、每周一回顾并遵守其保护规则；筛查只保存总体结果，不保存每个回答",
   "goalsPathPaceKeeping": "维持期无",
   "goalsPathRateDetailKeeping": "每周 {percent}%，在 {low} 到 {high} 之间。维持期没有目标速度。",
-  "goalsSheetRateYoursKeeping": "每周减少 {amount}，95% 置信区间为 {low} 到 {high}。除以你的趋势（{trend}），即每周 {percent}%，在 {percentLow} 到 {percentHigh} 之间。维持期没有目标速度。"
+  "goalsSheetRateYoursKeeping": "每周减少 {amount}，95% 置信区间为 {low} 到 {high}。除以你的趋势（{trend}），即每周 {percent}%，在 {percentLow} 到 {percentHigh} 之间。维持期没有目标速度。",
+  "workoutNoticeTitleZone": "{type} · 区间 {zone}",
+  "workoutNoticeTitleRingLost": "{type} · 戒指超出范围",
+  "workoutNoticeTitlePaused": "{type} · 已暂停",
+  "workoutNoticePausedAt": "暂停于 {time}",
+  "workoutNoticeRecording": "正在记录时间",
+  "workoutNoticeGpsLost": "GPS 信号丢失"
 }

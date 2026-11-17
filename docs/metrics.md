@@ -2154,6 +2154,32 @@ waits to check the block, because until then the facts still predate the
 change, such as the answer that opened the soft screen, and would show the
 picker for a moment.
 
+## 21. Food (food day, eating window, Plate pattern)
+
+Code: `packages/metrics/lib/src/food_week.dart`. Pure functions; nothing here reads a photo or the network.
+
+**Food day.** A meal belongs to the food day of its local capture time, and the food day starts at 05:00 (`foodDayStartHour`), so a snack at 00:30 closes the evening before. The slot name comes from the same time: breakfast 05:00 to 10:29, lunch 10:30 to 14:59, afternoon snack 15:00 to 17:59, dinner 18:00 to 22:59, supper 23:00 to 04:59.
+
+**Tags.** A meal has ten optional tag groups, one of them the kind (main, snack, drink). On a meal with at least one tag or a kind, a yes or no tag left untapped reads as no. A meal with neither is untagged: it is still a record and opens the window, but it is never a main.
+
+**Complete day.** A food day is complete when one of its meals is marked as the last meal. Only complete days feed the window, the gap and the Plate pattern, and the count of complete days is always returned. A day with no photo is blank: nothing reminds, nothing counts a streak.
+
+**Eating window.** On a complete day, from the first to the last meal that opens the window. A drink with no sugar and no alcohol neither opens nor closes it, so a morning coffee does not set the window. The week reports the median over complete days, and the median of the time from the last window meal to the sleep onset of that food day (days with no onset leave only the gap median).
+
+**Plate pattern.** On the closed Monday to Sunday week (the function scores the week it is given; the week screen passes the last closed one), with at least 5 complete days (`plateMinCompleteDays`) and 10 mains (`plateMinMains`); short of that it is building. Five points, each a linear ramp clamped to 0 and 1, then the sum rounded to one decimal, 0 to 10:
+
+| Point | Input | 0 at | full at | Weight |
+| :--- | :--- | :--- | :--- | :--- |
+| Protein | share of mains tagged protein | 0.3 | 0.9 | 3 |
+| Veg | share of mains with any veg | 0.2 | 0.8 | 3 |
+| Processed | 1 minus the share of mains mostly ultra-processed | 0.4 | 0.9 | 2 |
+| Sugar | complete days with a sugary item, scaled to 7 days | 4 | 0 | 1 |
+| Drinks | drinks (1.5 for a 1 to 2 tag, 4 for 3 or more), scaled to 7 days | 10 | 2 | 1 |
+
+The week of 30 Nov to 6 Dec 2026 in the approved prototype: 6 of 7 complete days, 23 records, window 742.5 min, gap 177.5 min; 18 mains, protein 15, veg 13, processed 2, sugary days 2, drinks 4; points 2.67, 2.61, 1.96, 0.42, 0.67; Plate pattern 8.3. The number is shown with its five counts, with no band word and no colour, and it enters no score.
+
+Status: the ramps, the 05:00 start and the drink counts are our choice, carried from the approved prototype; no source sets them.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

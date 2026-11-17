@@ -266,13 +266,13 @@ final class _FoodNight {
   MealAlcohol? alcohol;
   bool caffeineLate = false;
   bool heavyDinner = false;
-  DateTime? lastOpening;
+  bool untagged = false;
+  final List<MealEntry> meals = [];
 
   Duration? get gapToSleep {
     final onset = night.sleepOnset;
-    final last = lastOpening;
-    if (onset == null || last == null) return null;
-    return onset.difference(last);
+    if (onset == null) return null;
+    return lastMealToSleep(meals, onset);
   }
 }
 
@@ -311,16 +311,15 @@ void _addMeal(_FoodNight day, MealEntry meal) {
   if (tags.heavy && (slot == MealSlot.dinner || slot == MealSlot.supper)) {
     day.heavyDinner = true;
   }
-  if (!opensWindow(meal)) return;
-  final last = day.lastOpening;
-  if (last != null && !meal.at.isAfter(last)) return;
-  day.lastOpening = meal.at;
+  if (!meal.tagged) day.untagged = true;
+  day.meals.add(meal);
 }
 
 // True for an exposed night, false for a control, null for neither. Every
-// link keeps alcohol nights out of its controls.
+// link keeps alcohol nights out of its controls, and an untagged meal leaves
+// its alcohol unknown (decision 5), so its night is neither.
 bool? _exposure(FoodLink link, _FoodNight day) {
-  if (!day.complete) return null;
+  if (!day.complete || day.untagged) return null;
   final alcohol = day.alcohol;
   return switch (link) {
     FoodLink.alcoholThreeOrMore => _alcoholExposure(

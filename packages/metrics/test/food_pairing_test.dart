@@ -70,6 +70,29 @@ void main() {
     });
   });
 
+  group('decision 5: an untagged meal leaves its night unknown', () {
+    test('a night with an untagged meal is neither exposed nor control', () {
+      final book = NightBook()
+        ..add(1, heavy: true)
+        ..add(2, extra: [MealEntry(at: clock(2, 13 * 60))])
+        ..add(3)
+        ..add(8, heavy: true, extra: [MealEntry(at: clock(8, 13 * 60))])
+        ..add(9);
+      expect(pairsOf(FoodLink.heavyDinner, book), [(1, 3)]);
+      expect(pairsOf(FoodLink.alcoholThreeOrMore, book), isEmpty);
+    });
+
+    test('a meal with only a kind is tagged, so its night still counts', () {
+      final book = NightBook()
+        ..add(1, heavy: true)
+        ..add(
+          2,
+          extra: [MealEntry(at: clock(2, 13 * 60), kind: MealKind.main)],
+        );
+      expect(pairsOf(FoodLink.heavyDinner, book), [(1, 2)]);
+    });
+  });
+
   group('FD5: a weekend night is a Friday or Saturday evening', () {
     test('a weekday night is never paired with a weekend night', () {
       expect(pairsOf(FoodLink.heavyDinner, nights([3], [4, 5])), isEmpty);
@@ -210,11 +233,26 @@ void main() {
       expect(pairsOf(FoodLink.lateLastMeal, book), isEmpty);
     });
 
-    test('an untagged meal after dinner is the last meal', () {
+    test('a snack with only its kind after dinner is the last meal', () {
       final book = NightBook()
-        ..add(1, extra: [MealEntry(at: clock(1, 23 * 60))])
+        ..add(
+          1,
+          extra: [MealEntry(at: clock(1, 23 * 60), kind: MealKind.snack)],
+        )
         ..add(2);
       expect(pairsOf(FoodLink.lateLastMeal, book), [(1, 2)]);
+    });
+
+    test('a meal after sleep onset is not the last meal before sleep', () {
+      final book = NightBook()
+        ..add(
+          1,
+          dinner: 20 * 60 + 30,
+          extra: [MealEntry(at: clock(1, 24 * 60 + 270), kind: MealKind.snack)],
+        )
+        ..add(2, dinner: 22 * 60 + 30)
+        ..add(3);
+      expect(pairsOf(FoodLink.lateLastMeal, book), [(2, 1)]);
     });
 
     test('a meal at 00:30 is the last meal of the night before', () {

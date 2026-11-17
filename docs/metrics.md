@@ -2164,7 +2164,7 @@ Code: `packages/metrics/lib/src/food_week.dart`. Pure functions; nothing here re
 
 **Complete day.** A food day is complete when one of its meals is marked as the last meal. Only complete days feed the window, the gap and the Plate pattern, and the count of complete days is always returned. A day with no photo is blank: nothing reminds, nothing counts a streak.
 
-**Eating window.** On a complete day, from the first to the last meal that opens the window. A drink with no sugar and no alcohol neither opens nor closes it, so a morning coffee does not set the window. The week reports the median over complete days, and the median of the time from the last window meal to the sleep onset of that food day (days with no onset leave only the gap median).
+**Eating window.** On a complete day, from the first to the last meal that opens the window. A drink with no sugar and no alcohol neither opens nor closes it, so a morning coffee does not set the window. The week reports the median over complete days, and the median of the time from the last window meal at or before the sleep onset of that food day to the onset (a meal eaten after falling asleep is not the last meal before sleep) (days with no onset leave only the gap median).
 
 **Plate pattern.** On the closed Monday to Sunday week (the function scores the week it is given; the week screen passes the last closed one), with at least 5 complete days (`plateMinCompleteDays`) and 10 mains (`plateMinMains`); short of that it is building. Five points, each a linear ramp clamped to 0 and 1, then the sum rounded to one decimal, 0 to 10:
 
@@ -2184,7 +2184,7 @@ Status: the ramps, the 05:00 start and the drink counts are our choice, carried 
 
 Code: `packages/metrics/lib/src/food_compare.dart`. Pure functions over meals and nights; nothing here reads a photo or the network.
 
-**Nights.** A night belongs to the food day it closes, so the meals of a food day (from 05:00, section 21) are matched with the sleep that starts that evening. A comparison looks at the 90 nights ending at the last night (`foodCompareNights`). Only a complete day (its last meal marked) can be exposed or a control. Nightly heart rate is `restingHeartRate`, nightly HRV is `nightlyHrv`, and onset is the sleep onset in minutes after midnight of the food day, so 00:30 is later than 23:50. Sleep stages never lead a comparison.
+**Nights.** A night belongs to the food day it closes, so the meals of a food day (from 05:00, section 21) are matched with the sleep that starts that evening. A comparison looks at the 90 nights ending at the last night (`foodCompareNights`). Only a complete day (its last meal marked) can be exposed or a control, and a day with an untagged meal is neither, since an untagged meal leaves its alcohol and its other tags unknown. Nightly heart rate is `restingHeartRate`, nightly HRV is `nightlyHrv`, and onset is the sleep onset in minutes after midnight of the food day, so 00:30 is later than 23:50. Sleep stages never lead a comparison.
 
 **Links.** Five, each a night that is exposed, a control, or neither:
 
@@ -2196,7 +2196,7 @@ Code: `packages/metrics/lib/src/food_compare.dart`. Pure functions over meals an
 | Caffeine after 14h | a caffeine tag at or after 14:00 of the food day | no such tag | 14 |
 | Heavy dinner | a heavy tag in the dinner or supper slot | no such tag | 14 |
 
-The three links that are not about alcohol use only nights with no alcohol, as exposed and as control. A night between 2 h and 3 h, or with no onset, is neither for the late meal link.
+The three links that are not about alcohol use only nights with no alcohol, as exposed and as control. The late meal gap runs from the last window meal at or before onset, as in section 21. A night between 2 h and 3 h, or with no onset, is neither for the late meal link.
 
 **Matched pairs.** Exposed nights are taken oldest first; each takes the nearest free control at most 10 days away (`foodPairMaxDays`), the earlier one at equal distance, and a night is used once. A Friday or Saturday evening is a weekend night and pairs only with another one. A pair drops from an outcome when either night lacks it (no onset, no heart rate, HRV of 0), and stays in the others.
 

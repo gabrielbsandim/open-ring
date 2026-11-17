@@ -8,6 +8,7 @@ import 'package:open_ring/features/body/application/logged_weight.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
+import 'package:open_ring/features/workout/application/workout_alert_providers.dart';
 import 'package:open_ring/features/workout/application/workout_lock_providers.dart';
 import 'package:open_ring/features/workout/application/workout_notice.dart';
 import 'package:open_ring/features/workout/application/workout_state.dart';
@@ -84,6 +85,7 @@ class WorkoutController extends Notifier<WorkoutState> {
   WorkoutNotice? _shown;
   DateTime? _shownAt;
   bool _confirming = false;
+  bool _alerted = false;
   bool _wasRunning = false;
   WorkoutNotifier? _showing;
   Future<void>? _heartRateStopping;
@@ -117,6 +119,9 @@ class WorkoutController extends Notifier<WorkoutState> {
     await _quietly(
       _guarded(() => ref.read(workoutLockHeartRateProvider.future)),
     );
+    await _quietly(
+      _guarded(() => ref.read(workoutRingLostAlertProvider.future)),
+    );
     _starting = false;
     if (!ref.mounted) return;
     final session = WorkoutSession(
@@ -129,6 +134,7 @@ class WorkoutController extends Notifier<WorkoutState> {
     _notice = notice;
     _shown = null;
     _confirming = false;
+    _alerted = false;
     state = WorkoutState(snapshot: session.snapshotAt(_now()));
     _actions = ref.read(workoutNotifierProvider).actions.listen(_onAction);
     _showNotice(session);
@@ -271,7 +277,9 @@ class WorkoutController extends Notifier<WorkoutState> {
     session.addHeartRate(bpm, now);
     if (bpm < minWorkoutHeartRate || bpm > maxWorkoutHeartRate) return;
     _lastBeat = now;
-    if (state.heartRateStalled) state = state.next(heartRateStalled: false);
+    if (!state.heartRateStalled) return;
+    state = state.next(heartRateStalled: false);
+    _clearAlert();
   }
 
   void _tick(WorkoutSession session) {
@@ -286,6 +294,29 @@ class WorkoutController extends Notifier<WorkoutState> {
     if (state.heartRateStalled) return;
     if (_now().difference(lastBeat) < heartRateLostAfter) return;
     state = state.next(heartRateStalled: true);
+    _alertRingLost();
+  }
+
+  // One alert per loss; it goes when the heart rate or a ring problem ends it.
+  void _alertRingLost() {
+    final labels = _notice?.live;
+    if (labels == null) return;
+    if (!(ref.read(workoutRingLostAlertProvider).value ?? true)) return;
+    _alerted = true;
+    final alert = WorkoutAlert(
+      title: labels.ringLostAlertTitle,
+      text: labels.ringLostAlertText,
+      channel: labels.alertChannel,
+      reconnect: labels.reconnect,
+    );
+    final notifier = _notifier;
+    unawaited(_quietly(_guarded(() => notifier.alert(alert))));
+  }
+
+  void _clearAlert() {
+    if (!_alerted) return;
+    _alerted = false;
+    unawaited(_quietly(_guarded(_notifier.clearAlert)));
   }
 
   void _onFix(WorkoutSession session, LocationFix fix) {
@@ -299,6 +330,7 @@ class WorkoutController extends Notifier<WorkoutState> {
         ? error.problem
         : HeartRateProblem.unreachable;
     state = state.next(heartRateProblem: problem, heartRateStalled: false);
+    _clearAlert();
     _heartRateStopping = _quietly(_heartRate?.cancel());
     _heartRate = null;
   }
@@ -386,7 +418,9 @@ class WorkoutController extends Notifier<WorkoutState> {
     return _now().difference(at) < noticeInterval;
   }
 
+  // Hiding the notice in Kotlin cancels the alert too.
   Future<void> _hideNotice() {
+    _alerted = false;
     _shown = null;
     _showing = null;
     return _quietly(_guarded(_notifier.hide));

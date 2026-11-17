@@ -67,6 +67,20 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                     hideWorkout(app)
                     result.success(null)
                 }
+                "alertWorkout" -> {
+                    showWorkoutAlert(
+                        app,
+                        requireNotNull(call.argument<String>("channelName")),
+                        call.argument<String>("title"),
+                        call.argument<String>("text"),
+                        call.argument<String>("reconnectLabel") ?: "Reconnect",
+                    )
+                    result.success(null)
+                }
+                "clearWorkoutAlert" -> {
+                    cancelWorkoutAlert(app)
+                    result.success(null)
+                }
                 else -> result.notImplemented()
             }
         } catch (error: Exception) {
@@ -171,6 +185,7 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     private fun hideWorkout(app: Context) {
+        cancelWorkoutAlert(app)
         if (!workoutShown) return
         workoutShown = false
         stopListeningScreenOn(app)

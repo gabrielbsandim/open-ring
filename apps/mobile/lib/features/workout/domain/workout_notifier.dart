@@ -60,6 +60,33 @@ final class WorkoutNotice {
   );
 }
 
+/// The heads up alert sent once when the ring stops sending heart rate.
+@immutable
+final class WorkoutAlert {
+  const new({
+    required this.title,
+    required this.text,
+    this.channel = 'Workout alerts',
+    this.reconnect = 'Reconnect',
+  });
+
+  final String title;
+  final String text;
+  final String channel;
+  final String reconnect;
+
+  @override
+  bool operator ==(Object other) =>
+      other is WorkoutAlert &&
+      other.title == title &&
+      other.text == text &&
+      other.channel == channel &&
+      other.reconnect == reconnect;
+
+  @override
+  int get hashCode => Object.hash(title, text, channel, reconnect);
+}
+
 final class WorkoutNoticeLabels {
   const new({
     this.channel = 'Workout',
@@ -82,6 +109,10 @@ final class WorkoutNoticeLabels {
     this.reconnect = 'Reconnect',
     this.confirmTitle = 'End and save the workout?',
     this.confirmText = _confirmText,
+    this.alertChannel = 'Workout alerts',
+    this.ringLostAlertTitle = 'The ring stopped sending heart rate',
+    this.ringLostAlertText =
+        'The workout is still recording. Tap to reconnect.',
   });
 
   final String channel;
@@ -104,6 +135,9 @@ final class WorkoutNoticeLabels {
   final String reconnect;
   final String confirmTitle;
   final String Function(String time, String? distance) confirmText;
+  final String alertChannel;
+  final String ringLostAlertTitle;
+  final String ringLostAlertText;
 }
 
 String _confirmText(String time, String? distance) =>
@@ -126,13 +160,19 @@ abstract interface class WorkoutNotifier {
 
   Future<void> hide();
 
+  Future<void> alert(WorkoutAlert alert);
+
+  Future<void> clearAlert();
+
   Stream<WorkoutNoticeAction> get actions;
 }
 
 final class InMemoryWorkoutNotifier implements WorkoutNotifier {
   final List<WorkoutNotice> shown = [];
   final _actions = StreamController<WorkoutNoticeAction>.broadcast(sync: true);
+  final List<WorkoutAlert> alerts = [];
   int hides = 0;
+  int alertClears = 0;
   bool failing = false;
 
   @override
@@ -150,6 +190,18 @@ final class InMemoryWorkoutNotifier implements WorkoutNotifier {
   Future<void> hide() async {
     _failWhenAsked();
     hides++;
+  }
+
+  @override
+  Future<void> alert(WorkoutAlert alert) async {
+    _failWhenAsked();
+    alerts.add(alert);
+  }
+
+  @override
+  Future<void> clearAlert() async {
+    _failWhenAsked();
+    alertClears++;
   }
 
   void _failWhenAsked() {

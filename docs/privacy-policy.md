@@ -36,7 +36,7 @@ on your phone.
 | Weigh-ins: weight and, if you add them, body fat and waist (optional, Body module) | You | To show your weight trend and, with the Open Score module on, to score your body measures; with the Energy module on, also the estimate of your day's energy |
 | Day tags: the days you set aside as sick, travel or rest (optional, Open Score module) | You | To leave those days out of your averages; with the Open Score and Effort modules both on, a sick day also makes the coach card say recover |
 | Goals: the goal you choose with its start and reference weights, the weekly plan and its reviews, your check-in answers, and the screening result and date with the pregnancy answer (optional, Goals module) | You | To build the weekly plan, review it each Monday and keep its safety checks; the screening keeps the overall result, not each answer |
-| Settings: theme, units, sync interval, widget choices, ring alerts, which types go to Health Connect, demo mode, which modules are on, the weekly goal, heart rate on the lock screen | You | To remember your choices |
+| Settings: theme, units, sync interval, widget choices, ring alerts, which types go to Health Connect, demo mode, which modules are on, the weekly goal, heart rate on the lock screen, the ring drop alert in a workout | You | To remember your choices |
 | A small summary of today's numbers | The app itself | To fill the home screen widgets |
 
 Scores such as readiness and sleep are computed on the phone from this data.

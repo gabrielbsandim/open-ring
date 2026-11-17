@@ -88,6 +88,7 @@ import 'package:open_ring/features/widgets/application/widget_providers.dart';
 import 'package:open_ring/features/widgets/infrastructure/home_widget_plugin_gateway.dart';
 import 'package:open_ring/features/widgets/infrastructure/shared_preferences_today_widget_config_store.dart';
 import 'package:open_ring/features/workout/application/location_access_provider.dart';
+import 'package:open_ring/features/workout/application/workout_alert_providers.dart';
 import 'package:open_ring/features/workout/application/workout_controller.dart';
 import 'package:open_ring/features/workout/application/workout_history_providers.dart';
 import 'package:open_ring/features/workout/application/workout_lock_providers.dart';
@@ -98,6 +99,7 @@ import 'package:open_ring/features/workout/infrastructure/drift_workout_store.da
 import 'package:open_ring/features/workout/infrastructure/geolocator_location_source.dart';
 import 'package:open_ring/features/workout/infrastructure/method_channel_workout_notifier.dart';
 import 'package:open_ring/features/workout/infrastructure/ring_live_heart_rate_source.dart';
+import 'package:open_ring/features/workout/infrastructure/shared_preferences_workout_alert_preferences.dart';
 import 'package:open_ring/features/workout/infrastructure/shared_preferences_workout_lock_preferences.dart';
 
 Future<void> bootstrap() async {
@@ -148,6 +150,9 @@ Future<void> bootstrap() async {
       ),
       workoutLockPreferencesProvider.overrideWithValue(
         SharedPreferencesWorkoutLockPreferences(),
+      ),
+      workoutAlertPreferencesProvider.overrideWithValue(
+        SharedPreferencesWorkoutAlertPreferences(),
       ),
       weekGoalStoreProvider.overrideWithValue(SharedPreferencesWeekGoalStore()),
       celebrationStoreProvider.overrideWithValue(

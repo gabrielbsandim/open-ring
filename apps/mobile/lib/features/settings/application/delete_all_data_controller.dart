@@ -14,6 +14,7 @@ import 'package:open_ring/features/ring/domain/sync_interval.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
+import 'package:open_ring/features/workout/application/workout_alert_providers.dart';
 import 'package:open_ring/features/workout/application/workout_lock_providers.dart';
 
 // Health Connect and HealthKit records are never touched: the port only owns
@@ -66,6 +67,7 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
       ..invalidate(modulesShortcutProvider)
       ..invalidate(hideNumbersProvider)
       ..invalidate(workoutLockHeartRateProvider)
+      ..invalidate(workoutRingLostAlertProvider)
       ..invalidate(weekGoalProvider)
       ..invalidate(celebrationClosedProvider)
       ..invalidate(userProfileProvider)

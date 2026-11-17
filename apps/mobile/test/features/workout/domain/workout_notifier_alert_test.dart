@@ -17,7 +17,11 @@ void main() {
       const same = WorkoutAlert(
         title: 'The ring stopped sending heart rate',
         text: 'The workout is still recording. Tap to reconnect.',
+        // Explicit defaults: equality must not depend on them being omitted.
+        // ignore: avoid_redundant_argument_values
         channel: 'Workout alerts',
+        // Same reason: the default spelled out.
+        // ignore: avoid_redundant_argument_values
         reconnect: 'Reconnect',
       );
 

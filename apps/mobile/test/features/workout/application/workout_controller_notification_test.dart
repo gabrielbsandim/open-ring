@@ -22,6 +22,8 @@ final class OrderedWorkoutNotifier implements WorkoutNotifier {
   @override
   Stream<WorkoutNoticeAction> get actions => _actions.stream;
 
+  void tap(WorkoutNoticeAction action) => _actions.add(action);
+
   @override
   Future<void> show(WorkoutNotice notice) async => log.add('show');
 
@@ -334,7 +336,7 @@ void main() {
       expect(notifier.shown.last.running, isTrue);
     });
 
-    test('stop finishes and saves the workout, it does not discard', () async {
+    test('N3: a stop tap on a running workout pauses and asks', () async {
       final c = container();
       await started(c, WorkoutType.running);
       second(bpm: 140, speed: 3);
@@ -344,25 +346,34 @@ void main() {
       await pumpEventQueue();
 
       final state = c.read(workoutProvider);
-      expect(state.status, WorkoutStatus.finished);
-      expect(state.save, WorkoutSave.saved);
-      expect(store.saved, hasLength(1));
-      expect(store.saved.single.elapsed, const Duration(seconds: 2));
-      expect(notifier.hides, 1);
+      expect(state.status, WorkoutStatus.paused);
+      expect(state.live, isTrue);
+      expect(store.saved, isEmpty);
+      expect(notifier.hides, 0);
+      final asking = notifier.shown.last;
+      expect(asking.confirming, isTrue);
+      expect(asking.title, 'End and save the workout?');
+      expect(asking.running, isFalse);
+      expect(asking.elapsed, const Duration(seconds: 2));
     });
 
-    test('stop while paused finishes too', () async {
-      final c = container();
-      final controller = await started(c, WorkoutType.other);
-      second(bpm: 140);
-      controller.pause();
+    test(
+      'N3: a stop tap while paused asks at once and saves nothing',
+      () async {
+        final c = container();
+        final controller = await started(c, WorkoutType.other);
+        second(bpm: 140);
+        controller.pause();
 
-      notifier.tap(WorkoutNoticeAction.stop);
-      await pumpEventQueue();
+        notifier.tap(WorkoutNoticeAction.stop);
+        await pumpEventQueue();
 
-      expect(c.read(workoutProvider).status, WorkoutStatus.finished);
-      expect(store.saved, hasLength(1));
-    });
+        expect(c.read(workoutProvider).status, WorkoutStatus.paused);
+        expect(store.saved, isEmpty);
+        expect(notifier.shown.last.confirming, isTrue);
+        expect(notifier.shown.last.title, 'End and save the workout?');
+      },
+    );
   });
 
   group('6: a failing notifier never stops the workout', () {
@@ -549,13 +560,17 @@ void main() {
       notifier
         ..tap(WorkoutNoticeAction.pause)
         ..tap(WorkoutNoticeAction.resume)
-        ..tap(WorkoutNoticeAction.stop);
+        ..tap(WorkoutNoticeAction.stop)
+        ..tap(WorkoutNoticeAction.save)
+        ..tap(WorkoutNoticeAction.keep)
+        ..tap(WorkoutNoticeAction.reconnect);
       await pumpEventQueue();
 
       expect(c.read(workoutProvider).status, WorkoutStatus.finished);
       expect(store.saved, hasLength(1));
       expect(notifier.shown, hasLength(shown));
       expect(notifier.hides, hides);
+      expect(heartRate.listens, 1);
     });
 
     test('after discard', () async {
@@ -566,7 +581,9 @@ void main() {
 
       notifier
         ..tap(WorkoutNoticeAction.resume)
-        ..tap(WorkoutNoticeAction.stop);
+        ..tap(WorkoutNoticeAction.stop)
+        ..tap(WorkoutNoticeAction.save)
+        ..tap(WorkoutNoticeAction.keep);
       await pumpEventQueue();
 
       expect(c.read(workoutProvider).status, WorkoutStatus.discarded);
@@ -576,11 +593,16 @@ void main() {
     test('before any workout started', () async {
       final c = container()..read(workoutProvider);
 
-      notifier.tap(WorkoutNoticeAction.stop);
+      notifier
+        ..tap(WorkoutNoticeAction.stop)
+        ..tap(WorkoutNoticeAction.save)
+        ..tap(WorkoutNoticeAction.keep)
+        ..tap(WorkoutNoticeAction.reconnect);
       await pumpEventQueue();
 
       expect(c.read(workoutProvider).status, WorkoutStatus.idle);
       expect(store.saved, isEmpty);
+      expect(heartRate.listens, 0);
     });
 
     test('after the container is disposed', () async {
@@ -588,10 +610,365 @@ void main() {
       await started(c, WorkoutType.other);
       c.dispose();
 
-      notifier.tap(WorkoutNoticeAction.stop);
+      notifier
+        ..tap(WorkoutNoticeAction.stop)
+        ..tap(WorkoutNoticeAction.save);
       await pumpEventQueue();
 
       expect(store.saved, isEmpty);
+    });
+  });
+
+  group('N3: save after the question', () {
+    test('a save tap saves exactly once and hides', () async {
+      final c = container();
+      await started(c, WorkoutType.running);
+      second(bpm: 140, speed: 3);
+      second(bpm: 141, speed: 3);
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+      for (var i = 0; i < 10; i++) {
+        second();
+      }
+
+      notifier.tap(WorkoutNoticeAction.save);
+      await pumpEventQueue();
+
+      final state = c.read(workoutProvider);
+      expect(state.status, WorkoutStatus.finished);
+      expect(state.save, WorkoutSave.saved);
+      expect(store.saved, hasLength(1));
+      expect(store.saved.single.elapsed, const Duration(seconds: 2));
+      expect(notifier.hides, 1);
+    });
+
+    test('a second save tap saves nothing', () async {
+      final c = container();
+      await started(c, WorkoutType.other);
+      second(bpm: 140);
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+
+      notifier.tap(WorkoutNoticeAction.save);
+      await pumpEventQueue();
+      notifier.tap(WorkoutNoticeAction.save);
+      await pumpEventQueue();
+
+      expect(store.saved, hasLength(1));
+      expect(notifier.hides, 1);
+    });
+
+    test('two save taps in the same turn save once', () async {
+      final c = container();
+      await started(c, WorkoutType.other);
+      second(bpm: 140);
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+
+      notifier
+        ..tap(WorkoutNoticeAction.save)
+        ..tap(WorkoutNoticeAction.save);
+      await pumpEventQueue();
+
+      expect(store.saved, hasLength(1));
+    });
+
+    test('nothing is shown after the last hide on a save tap', () async {
+      final ordered = OrderedWorkoutNotifier();
+      await started(container(withNotifier: ordered), WorkoutType.other);
+      second(bpm: 140);
+      ordered.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+
+      ordered.tap(WorkoutNoticeAction.save);
+      await pumpEventQueue();
+      second();
+      await pumpEventQueue();
+
+      expect(ordered.log.last, 'hide');
+      expect(ordered.log.where((e) => e == 'hide'), hasLength(1));
+    });
+
+    test('a store that throws on a save tap still hides', () async {
+      final c = container(withStore: ThrowingWorkoutStore());
+      await started(c, WorkoutType.other);
+      second(bpm: 140);
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+
+      notifier.tap(WorkoutNoticeAction.save);
+      await pumpEventQueue();
+
+      expect(c.read(workoutProvider).save, WorkoutSave.failed);
+      expect(notifier.hides, 1);
+    });
+
+    test('a failing notifier still asks and saves', () async {
+      notifier.failing = true;
+      final c = container();
+      await started(c, WorkoutType.other);
+      second(bpm: 140);
+
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+      expect(store.saved, isEmpty);
+      expect(c.read(workoutProvider).status, WorkoutStatus.paused);
+
+      notifier.tap(WorkoutNoticeAction.save);
+      await pumpEventQueue();
+
+      expect(c.read(workoutProvider).status, WorkoutStatus.finished);
+      expect(store.saved, hasLength(1));
+    });
+
+    test('a save tap with no question pending saves nothing', () async {
+      final c = container();
+      final controller = await started(c, WorkoutType.other);
+      second(bpm: 140);
+
+      notifier.tap(WorkoutNoticeAction.save);
+      await pumpEventQueue();
+      expect(c.read(workoutProvider).status, WorkoutStatus.running);
+
+      controller.pause();
+      notifier.tap(WorkoutNoticeAction.save);
+      await pumpEventQueue();
+
+      expect(c.read(workoutProvider).status, WorkoutStatus.paused);
+      expect(store.saved, isEmpty);
+      expect(notifier.hides, 0);
+    });
+  });
+
+  group('N3: keep returns to the state before End', () {
+    test('keep after End on a running workout resumes it', () async {
+      final c = container();
+      await started(c, WorkoutType.running);
+      second(bpm: 140, speed: 3);
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+
+      notifier.tap(WorkoutNoticeAction.keep);
+      await pumpEventQueue();
+
+      expect(c.read(workoutProvider).status, WorkoutStatus.running);
+      expect(notifier.shown.last.running, isTrue);
+      expect(notifier.shown.last.confirming, isFalse);
+      expect(store.saved, isEmpty);
+      expect(notifier.hides, 0);
+    });
+
+    test('keep after End on a paused workout leaves it paused', () async {
+      final c = container();
+      final controller = await started(c, WorkoutType.other);
+      second(bpm: 140);
+      controller.pause();
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+
+      notifier.tap(WorkoutNoticeAction.keep);
+      await pumpEventQueue();
+
+      expect(c.read(workoutProvider).status, WorkoutStatus.paused);
+      expect(notifier.shown.last.running, isFalse);
+      expect(notifier.shown.last.confirming, isFalse);
+      expect(notifier.shown.last.title, isNot('End and save the workout?'));
+      expect(store.saved, isEmpty);
+    });
+
+    test('a second stop tap does not forget the workout was running', () async {
+      final c = container();
+      await started(c, WorkoutType.other);
+      second(bpm: 140);
+
+      notifier
+        ..tap(WorkoutNoticeAction.stop)
+        ..tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+      expect(store.saved, isEmpty);
+
+      notifier.tap(WorkoutNoticeAction.keep);
+      await pumpEventQueue();
+
+      expect(c.read(workoutProvider).status, WorkoutStatus.running);
+    });
+
+    test('a keep tap with no question pending changes nothing', () async {
+      final c = container();
+      final controller = await started(c, WorkoutType.other);
+      second(bpm: 140);
+      controller.pause();
+      final shown = notifier.shown.length;
+
+      notifier.tap(WorkoutNoticeAction.keep);
+      await pumpEventQueue();
+
+      expect(c.read(workoutProvider).status, WorkoutStatus.paused);
+      expect(notifier.shown, hasLength(shown));
+    });
+
+    test('End can be asked again after keep', () async {
+      final c = container();
+      await started(c, WorkoutType.other);
+      second(bpm: 140);
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+      notifier.tap(WorkoutNoticeAction.keep);
+      await pumpEventQueue();
+      second(bpm: 140);
+
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+
+      expect(c.read(workoutProvider).status, WorkoutStatus.paused);
+      expect(notifier.shown.last.confirming, isTrue);
+      expect(store.saved, isEmpty);
+    });
+  });
+
+  group('N3: the question holds pause and resume', () {
+    test('pause and resume taps during the question change nothing', () async {
+      final c = container();
+      await started(c, WorkoutType.running);
+      second(bpm: 140, speed: 3);
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+      final shown = notifier.shown.length;
+
+      notifier
+        ..tap(WorkoutNoticeAction.resume)
+        ..tap(WorkoutNoticeAction.pause);
+      await pumpEventQueue();
+
+      expect(c.read(workoutProvider).status, WorkoutStatus.paused);
+      expect(notifier.shown, hasLength(shown));
+      expect(notifier.shown.last.confirming, isTrue);
+      expect(store.saved, isEmpty);
+
+      notifier.tap(WorkoutNoticeAction.keep);
+      await pumpEventQueue();
+
+      expect(c.read(workoutProvider).status, WorkoutStatus.running);
+    });
+
+    test('ticks during the question keep it on the notice', () async {
+      await started(container(), WorkoutType.other);
+      second(bpm: 140);
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+
+      second();
+      second();
+      second();
+
+      expect(notifier.shown.last.confirming, isTrue);
+    });
+
+    test('resume from the app clears the question', () async {
+      final c = container();
+      final controller = await started(c, WorkoutType.running);
+      second(bpm: 140, speed: 3);
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+
+      controller.resume();
+
+      expect(c.read(workoutProvider).status, WorkoutStatus.running);
+      expect(notifier.shown.last.confirming, isFalse);
+      expect(notifier.shown.last.running, isTrue);
+    });
+
+    test('a save tap after resume from the app saves nothing', () async {
+      final c = container();
+      final controller = await started(c, WorkoutType.other);
+      second(bpm: 140);
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+      controller.resume();
+
+      notifier.tap(WorkoutNoticeAction.save);
+      await pumpEventQueue();
+
+      expect(c.read(workoutProvider).status, WorkoutStatus.running);
+      expect(store.saved, isEmpty);
+    });
+
+    test('finish from the app during the question saves once', () async {
+      final c = container();
+      final controller = await started(c, WorkoutType.other);
+      second(bpm: 140);
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+
+      await controller.finish();
+      notifier.tap(WorkoutNoticeAction.save);
+      await pumpEventQueue();
+
+      expect(c.read(workoutProvider).status, WorkoutStatus.finished);
+      expect(store.saved, hasLength(1));
+      expect(notifier.hides, 1);
+    });
+
+    test('discard from the app during the question saves nothing', () async {
+      final c = container();
+      final controller = await started(c, WorkoutType.other);
+      second(bpm: 140);
+      notifier.tap(WorkoutNoticeAction.stop);
+      await pumpEventQueue();
+
+      await controller.discard();
+      notifier.tap(WorkoutNoticeAction.save);
+      await pumpEventQueue();
+
+      expect(c.read(workoutProvider).status, WorkoutStatus.discarded);
+      expect(store.saved, isEmpty);
+    });
+  });
+
+  group('N3: reconnect from the notice', () {
+    test('a lost ring flags the notice for Reconnect', () async {
+      await started(container(), WorkoutType.other);
+      second(bpm: 140);
+      second(bpm: 140);
+      expect(notifier.shown.last.ringLost, isFalse);
+
+      for (var i = 0; i < 32; i++) {
+        second();
+      }
+
+      expect(notifier.shown.last.ringLost, isTrue);
+    });
+
+    test('a reconnect tap restarts the heart rate stream', () async {
+      final c = container();
+      await started(c, WorkoutType.other);
+      second(bpm: 140);
+      for (var i = 0; i < 32; i++) {
+        second();
+      }
+      expect(c.read(workoutProvider).heartRateStalled, isTrue);
+      expect(heartRate.listens, 1);
+
+      notifier.tap(WorkoutNoticeAction.reconnect);
+      await pumpEventQueue();
+
+      expect(heartRate.cancels, 1);
+      expect(heartRate.listens, 2);
+      expect(heartRate.listening, isTrue);
+      expect(c.read(workoutProvider).heartRateStalled, isFalse);
+      expect(c.read(workoutProvider).status, WorkoutStatus.running);
+    });
+
+    test('two reconnect taps restart the stream once', () async {
+      await started(container(), WorkoutType.other);
+      second(bpm: 140);
+
+      notifier
+        ..tap(WorkoutNoticeAction.reconnect)
+        ..tap(WorkoutNoticeAction.reconnect);
+      await pumpEventQueue();
+
+      expect(heartRate.listens, 2);
     });
   });
 }

@@ -67,7 +67,7 @@ void main() {
     expect(
       _texts(tester, GoalFormulaKeys.rate),
       contains(
-        _l10n(tester).goalsFormulaRateBody('28', '8', '14', '0.25', '0.75'),
+        _l10n(tester).goalsFormulaRateBody('28', '8', '14', '0.5', '1.5'),
       ),
     );
   });
@@ -123,6 +123,13 @@ void main() {
     expect(
       _texts(tester, GoalFormulaKeys.rule(ReviewRule.recoveryWeek)),
       contains(_l10n(tester).goalsFormulaRuleRecovery('55', '4')),
+    );
+    expect(
+      _texts(tester, GoalFormulaKeys.rule(ReviewRule.recoveryWeek)),
+      contains(
+        '${_l10n(tester).goalsFormulaAnswerRecovery('14')} · '
+        '${_l10n(tester).goalsFormulaScopeAll}',
+      ),
     );
     expect(
       _texts(tester, GoalFormulaKeys.rule(ReviewRule.pauseFastLoss)),

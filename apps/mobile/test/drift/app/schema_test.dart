@@ -14,6 +14,7 @@ import 'generated/schema_v13.dart' as v13;
 import 'generated/schema_v14.dart' as v14;
 import 'generated/schema_v15.dart' as v15;
 import 'generated/schema_v16.dart' as v16;
+import 'generated/schema_v17.dart' as v17;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
@@ -622,4 +623,59 @@ void main() {
       );
     },
   );
+
+  test('the code schema is v17', () {
+    expect(memoryDatabase().schemaVersion, 17);
+  });
+
+  test('v16 migrates to v17, a finished workout keeps its end and has no '
+      'checkpoint', () async {
+    const workout = v16.WorkoutsData(
+      id: 1,
+      clientId: 'phone:1762758000000',
+      activityType: 'running',
+      startUtcMs: 1762758000000,
+      endUtcMs: 1762759800000,
+      offsetMinutes: -180,
+      elapsedMs: 1800000,
+      averageHeartRate: 148,
+      effortRating: 6,
+    );
+    const sample = v16.WorkoutHrSamplesData(
+      workoutId: 1,
+      atUtcMs: 1762758060000,
+      offsetMinutes: -180,
+      bpm: 142,
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 16,
+      newVersion: 17,
+      createOld: v16.DatabaseAtV16.new,
+      createNew: v17.DatabaseAtV17.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch
+        ..insert(oldDb.workouts, workout)
+        ..insert(oldDb.workoutHrSamples, sample),
+      validateItems: (newDb) async {
+        final rows = await newDb.select(newDb.workouts).get();
+        expect(rows, [
+          const v17.WorkoutsData(
+            id: 1,
+            clientId: 'phone:1762758000000',
+            activityType: 'running',
+            startUtcMs: 1762758000000,
+            endUtcMs: 1762759800000,
+            offsetMinutes: -180,
+            elapsedMs: 1800000,
+            averageHeartRate: 148,
+            effortRating: 6,
+          ),
+        ]);
+        expect(rows.single.endUtcMs, 1762759800000);
+        expect(rows.single.checkpointUtcMs, null);
+        expect(await newDb.select(newDb.workoutHrSamples).get(), hasLength(1));
+      },
+    );
+  });
 }

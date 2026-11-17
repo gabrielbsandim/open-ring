@@ -134,6 +134,15 @@ class FlakyWorkoutStore implements WorkoutStore {
 
   @override
   Future<bool> delete(int id) => _inner.delete(id);
+
+  @override
+  Future<void> checkpoint(
+    WorkoutSession session, {
+    required DateTime at,
+  }) async {}
+
+  @override
+  Future<void> dropCheckpoint(WorkoutSession session) async {}
 }
 
 class FakeLocationAccess implements LocationAccess {
@@ -172,6 +181,8 @@ class FakeLocationAccess implements LocationAccess {
 class RecordingWorkoutStore implements WorkoutStore {
   final saved = <FinishedWorkout>[];
   final deleted = <int>[];
+  final checkpoints = <DateTime>[];
+  int drops = 0;
 
   @override
   Future<int> save(FinishedWorkout workout, {required DateTime at}) async {
@@ -185,6 +196,15 @@ class RecordingWorkoutStore implements WorkoutStore {
     deleted.add(id);
     return true;
   }
+
+  @override
+  Future<void> checkpoint(
+    WorkoutSession session, {
+    required DateTime at,
+  }) async => checkpoints.add(at);
+
+  @override
+  Future<void> dropCheckpoint(WorkoutSession session) async => drops++;
 }
 
 class MemoryWorkoutHistory implements WorkoutStore, WorkoutHistoryReader {
@@ -230,6 +250,15 @@ class MemoryWorkoutHistory implements WorkoutStore, WorkoutHistoryReader {
     if (failDelete) throw StateError('disk full');
     return _saved.remove(id) != null;
   }
+
+  @override
+  Future<void> checkpoint(
+    WorkoutSession session, {
+    required DateTime at,
+  }) async {}
+
+  @override
+  Future<void> dropCheckpoint(WorkoutSession session) async {}
 
   @override
   Future<SavedWorkout?> byId(int id) async => _saved[id];

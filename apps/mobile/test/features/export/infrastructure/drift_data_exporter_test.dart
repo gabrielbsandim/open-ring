@@ -209,21 +209,23 @@ void main() {
       },
     );
 
-    test('a single kind is a plain CSV file', () async {
-      final result = await exporter.export(
-        _request(ExportFormat.csv, const [ExportKind.workouts]),
-      );
+    test(
+      'a single kind is a plain CSV file without the open workout',
+      () async {
+        final result = await exporter.export(
+          _request(ExportFormat.csv, const [ExportKind.workouts]),
+        );
 
-      final file = result.files.single;
-      expect(file.mimeType, ExportFile.csvMimeType);
-      expect(file.path, endsWith('openring-workouts-20261110-150000.csv'));
-      expect(
-        File(file.path).readAsStringSync(),
-        'start,end,client_id,device_id,activity_type,duration_s,distance_m,active_kcal,effort_rating\r\n'
-        '2026-10-25T10:00:00+01:00,2026-10-25T10:40:00+01:00,w-1,,running,2400,6012.3,,7\r\n'
-        '2026-10-25T19:00:00+01:00,,w-2,,running,,6012.3,,\r\n',
-      );
-    });
+        final file = result.files.single;
+        expect(file.mimeType, ExportFile.csvMimeType);
+        expect(file.path, endsWith('openring-workouts-20261110-150000.csv'));
+        expect(
+          File(file.path).readAsStringSync(),
+          'start,end,client_id,device_id,activity_type,duration_s,distance_m,active_kcal,effort_rating\r\n'
+          '2026-10-25T10:00:00+01:00,2026-10-25T10:40:00+01:00,w-1,,running,2400,6012.3,,7\r\n',
+        );
+      },
+    );
 
     test('weigh-ins keep their optional values empty', () async {
       for (final (hour, fat, waist) in [(7, 21.5, 84.0), (20, null, null)]) {
@@ -311,16 +313,16 @@ void main() {
         for (final w in json['workouts']! as List<Object?>)
           (w! as Map<String, Object?>)['client_id'],
       ],
-      ['w-1', 'w-2'],
+      ['w-1'],
     );
     final workouts = [
       for (final w in json['workouts']! as List<Object?>)
         w! as Map<String, Object?>,
     ];
-    expect(workouts.map((w) => w['effort_rating']), [7, null]);
+    expect(workouts.map((w) => w['effort_rating']), [7]);
     expect(workouts.first.keys.toList(), ExportKind.workouts.columns);
     expect(workouts.first.keys.last, 'effort_rating');
-    expect(result.recordCount, 10);
+    expect(result.recordCount, 9);
   });
 
   test('a failed export leaves no folder behind', () async {

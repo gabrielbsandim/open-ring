@@ -50,6 +50,15 @@ final class ThrowingWorkoutStore implements WorkoutStore {
 
   @override
   Future<bool> delete(int id) async => false;
+
+  @override
+  Future<void> checkpoint(
+    WorkoutSession session, {
+    required DateTime at,
+  }) async {}
+
+  @override
+  Future<void> dropCheckpoint(WorkoutSession session) async {}
 }
 
 void main() {

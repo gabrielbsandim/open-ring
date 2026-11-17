@@ -347,7 +347,7 @@ void main() {
         now: _at(2026, 12, 7),
         since: _day(2026, 12, 7),
       );
-      await _addRow(setup, _day(2026, 12, 7), _inputs(f1, energy: null));
+      await _addRow(setup, _day(2026, 12, 7), _inputs(f1));
       return setup;
     }
 

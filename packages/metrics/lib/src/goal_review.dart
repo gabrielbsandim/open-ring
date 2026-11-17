@@ -142,6 +142,7 @@ final class ReviewInputs {
     required this.energyPrevious,
     required this.foodOrWeight,
     required this.foodOrWeightPrevious,
+    this.maintenance = false,
   });
 
   final GoalKind kind;
@@ -164,6 +165,10 @@ final class ReviewInputs {
   final CheckInEnergy? energyPrevious;
   final bool? foodOrWeight;
   final bool? foodOrWeightPrevious;
+
+  /// The week falls in the maintenance weeks after a block: the protections
+  /// still apply and nothing else changes.
+  final bool maintenance;
 }
 
 final class Review {
@@ -333,6 +338,7 @@ Review reviewWeek(ReviewInputs inputs) {
       pauseDays: inputs.recoveryPrevious ? goalRecoveryPauseDays : null,
     );
   }
+  if (inputs.maintenance) return of(ReviewRule.holdOther, ReviewAction.hold);
   if (state == PathState.above) {
     return of(ReviewRule.ease, ReviewAction.ease);
   }

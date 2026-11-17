@@ -83,6 +83,7 @@ ReviewInputs withCheckIn(
   energyPrevious: inputs.energyPrevious,
   foodOrWeight: foodOrWeight,
   foodOrWeightPrevious: inputs.foodOrWeightPrevious,
+  maintenance: inputs.maintenance,
 );
 
 // Only the week reviewed seven days before counts as the previous one: after
@@ -162,6 +163,7 @@ ReviewInputs closedWeekInputs({
   required List<int?> readiness,
   CheckInEnergy? energy,
   bool? foodOrWeight,
+  bool maintenance = false,
 }) {
   if (mondayOf(monday) != monday) {
     throw ArgumentError.value(monday, 'monday', 'must be a Monday');
@@ -204,6 +206,7 @@ ReviewInputs closedWeekInputs({
     energyPrevious: history.energyPrevious,
     foodOrWeight: foodOrWeight,
     foodOrWeightPrevious: history.foodOrWeightPrevious,
+    maintenance: maintenance,
   );
 }
 

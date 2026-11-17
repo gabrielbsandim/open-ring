@@ -19,10 +19,7 @@ const LeverBaseline _baseline = LeverBaseline(
 );
 
 const List<LeverWeek> _levers = [
-  LeverWeek(
-    lever: Lever(kind: LeverKind.strengthDays, target: 2),
-    achieved: 2,
-  ),
+  LeverWeek(lever: Lever(kind: LeverKind.strengthDays, target: 2), achieved: 2),
   LeverWeek(
     lever: Lever(kind: LeverKind.sleepWindow, target: 690),
     achieved: 6,
@@ -82,10 +79,7 @@ void main() {
 
   group('G11b1 criterion 1: a block closes by date', () {
     test('the Monday equal to block.end does not close', () {
-      expect(
-        blockCloses(block: _block(), monday: _end, trendKg: 100),
-        isFalse,
-      );
+      expect(blockCloses(block: _block(), monday: _end, trendKg: 100), isFalse);
     });
 
     test('the Monday after block.end closes', () {

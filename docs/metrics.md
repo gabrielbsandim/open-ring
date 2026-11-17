@@ -1518,7 +1518,9 @@ two stays with them.
 
 The rules are read in this order and the first that holds is the answer.
 Rules 1 to 4 are protections and apply without asking; a rule that changes a
-lever is a proposal the person accepts or declines.
+lever is a proposal the person accepts or declines. A week in the maintenance
+weeks after a block (`ReviewInputs.maintenance`) still reads rules 1 to 4,
+and any other case answers `holdOther`: nothing changes while maintaining.
 
 | # | Rule | Goals | Holds when | Answer |
 | :--- | :--- | :--- | :--- | :--- |
@@ -1532,7 +1534,7 @@ lever is a proposal the person accepts or declines.
 | 8 | `shrink` | all | three levers active and adherence under 0.6 | one lever is removed |
 | 9 | `holdOnTrack` | lose fat | the path state is on track | hold |
 | 10 | `stepSlow` | lose fat | the path state is below, adherence of 0.8 or more and a next step exists | the next step |
-| 11 | `holdOther` | all | anything else | hold |
+| 11 | `holdOther` | all | anything else, and every week of maintenance after rules 1 to 4 | hold |
 
 A day with no Readiness and a question left unanswered count as neither low
 nor "yes". The week number is the week that starts on the review day, so the
@@ -1736,7 +1738,7 @@ rebuilds every reader of `currentDateProvider` once.
 
 `startDueBlock` starts a block today for a goal that waits for one: a goal
 with no lever yet, which is the base phase, or a goal whose pause had a last
-day that has passed. A goal of losing fat starts only with Body on and a
+day that has passed, or whose maintenance weeks have passed. A goal of losing fat starts only with Body on and a
 ready weight rate, and the trend of today anchors the block; the other goals
 have no anchor and never read the weight. A goal with no lever gets its
 first from `startingLever` over the baseline that ends yesterday, and does
@@ -1747,7 +1749,14 @@ is ended only by the person.
 `reviewDueWeek` writes nothing and returns null when the module is off, when
 there is no goal or the goal is paused, when the goal has no lever yet, when
 the Monday is still in the first week of the block, and when that Monday
-already has a row. Otherwise it reads
+already has a row. A block of losing fat closes at the first Monday after
+its last day, or at a Monday whose Sunday trend is 10 percent or more under
+the anchor of the block (`blockCloses`; a loss reached midweek waits for the
+Monday, and with Body off only the date closes it). The review then sets the
+goal in maintenance from that Monday for `goalMaintenanceWeeks`, through the
+Sunday 27 days later, before it writes the row, so a row never stands for a
+Monday whose close was lost. A pause during maintenance ends it, and the next
+block follows the pause. Otherwise it reads
 the steps, the nights, the strength days and the effort points, builds the
 baseline over the days that end on the closed Sunday, and stores the inputs
 with the review they give. A source that fails stops the review and nothing

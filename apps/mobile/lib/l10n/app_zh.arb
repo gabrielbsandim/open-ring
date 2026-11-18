@@ -2365,7 +2365,7 @@
   "foodPlacePackaged": "包装食品",
   "foodTagsFailed": "无法保存标签",
   "workoutNoticeSavedHeartRate": "平均心率 {bpm}",
-  "workoutNoticeFailedText": "打开应用重试。关闭应用会丢失这次训练。",
+  "workoutNoticeFailedText": "打开应用重试。如果关闭应用，下次打开时会保存到最后一分钟。",
   "workoutNoticeOpen": "打开",
   "workoutNotificationsOffTitle": "通知已关闭",
   "workoutNotificationsOffBody": "运动仍会记录，但时间、心率和按钮不会显示在应用外或锁屏上。",
@@ -2390,7 +2390,10 @@
   "workoutHowCadence": "时间每秒走动，由 Android 自己计时。屏幕亮着时，心率、距离和配速最快每 2 秒变化一次。屏幕熄灭时会等到屏幕亮起；暂停、结束提问或戒指断开不会等待。",
   "workoutHowEnd": "“结束”会暂停并询问。“保存”保存本次运动；“继续”恢复到之前的状态。只能在应用内放弃。",
   "workoutHowResult": "只保留保存结果，最长 1 小时。打开运动总结后即移除。",
-  "workoutHowClosed": "从最近使用的应用中关闭 OpenRing 会结束运动且不保存。",
+  "workoutHowClosed": "从最近使用的应用中关闭 OpenRing 会停止运动。下次打开应用时，会保存到最后一分钟。",
   "workoutHowScores": "没有评分，也没有卡路里。",
-  "workoutHowSound": "没有声音。若开启了“戒指断开时提醒”，心率读数中断 30 秒时会短振一次。"
+  "workoutHowSound": "没有声音。若开启了“戒指断开时提醒”，心率读数中断 30 秒时会短振一次。",
+  "workoutRecoveredTitle": "运动已保存至 {time}",
+  "workoutRecoveredBody": "运动期间 OpenRing 已停止。已保留 {elapsed}、{distance}。",
+  "workoutRecoveredBodyNoDistance": "运动期间 OpenRing 已停止。已保留 {elapsed}。"
 }

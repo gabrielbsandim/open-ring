@@ -1,6 +1,7 @@
 import 'package:open_ring/features/settings/domain/unit_system.dart';
 import 'package:open_ring/features/workout/domain/location_source.dart';
 import 'package:open_ring/features/workout/domain/workout_notifier.dart';
+import 'package:open_ring/features/workout/domain/workout_recovery.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 
 const _metersPerKilometer = 1000.0;
@@ -43,6 +44,27 @@ WorkoutEndNotice workoutEndNoticeOf(
     link: '$workoutSummaryLink/$workoutId',
     channel: labels.channel,
     publicText: hideHeartRate ? fields.join(_fieldSeparator) : null,
+  );
+}
+
+// The time is the row's own wall time, not the phone's offset now.
+WorkoutEndNotice workoutRecoveredNoticeOf(
+  RecoveredWorkout workout,
+  WorkoutNoticeLabels labels,
+  UnitSystem units, {
+  required DateTime now,
+}) {
+  final meters = workout.distanceMeters;
+  final offset = Duration(minutes: workout.offsetMinutes);
+  return WorkoutEndNotice(
+    title: labels.recoveredTitle(labels.clockOrDay(workout.end, offset, now)),
+    text: labels.recoveredText(
+      _clock(workout.elapsed),
+      meters == null ? null : _length(meters, labels, units),
+    ),
+    action: labels.viewSummary,
+    link: '$workoutSummaryLink/${workout.id}',
+    channel: labels.channel,
   );
 }
 
@@ -137,8 +159,11 @@ String? _distance(
   UnitSystem units,
 ) {
   if (!snapshot.gps) return null;
+  return _length(snapshot.distanceMeters ?? 0, labels, units);
+}
+
+String _length(double meters, WorkoutNoticeLabels labels, UnitSystem units) {
   final imperial = units == UnitSystem.imperial;
-  final meters = snapshot.distanceMeters ?? 0;
   final value = meters / _unitMeters(units);
   return '${_decimal(value, 2, labels)} ${imperial ? 'mi' : 'km'}';
 }

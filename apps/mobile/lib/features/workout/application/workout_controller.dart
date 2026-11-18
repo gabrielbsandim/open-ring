@@ -11,11 +11,13 @@ import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/workout/application/workout_alert_providers.dart';
 import 'package:open_ring/features/workout/application/workout_lock_providers.dart';
 import 'package:open_ring/features/workout/application/workout_notice.dart';
+import 'package:open_ring/features/workout/application/workout_recovery.dart';
 import 'package:open_ring/features/workout/application/workout_state.dart';
 import 'package:open_ring/features/workout/domain/live_heart_rate_source.dart';
 import 'package:open_ring/features/workout/domain/location_fix.dart';
 import 'package:open_ring/features/workout/domain/location_source.dart';
 import 'package:open_ring/features/workout/domain/workout_notifier.dart';
+import 'package:open_ring/features/workout/domain/workout_recovery.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_store.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
@@ -103,10 +105,12 @@ class WorkoutController extends Notifier<WorkoutState> {
 
   @override
   WorkoutState build() {
+    final live = ref.read(liveWorkoutRegistryProvider);
     ref.onDispose(() {
       unawaited(_stopStreams());
       final showing = _showing;
       if (showing != null) unawaited(_quietly(_guarded(showing.hide)));
+      _unmark(live, _session);
     });
     return const WorkoutState();
   }
@@ -134,6 +138,7 @@ class WorkoutController extends Notifier<WorkoutState> {
       heartRateHold: heartRateLostAfter,
     )..start(_now());
     _session = session;
+    ref.read(liveWorkoutRegistryProvider).markLive(session.startedAt!);
     _notice = notice;
     _shown = null;
     _confirming = false;
@@ -232,6 +237,7 @@ class WorkoutController extends Notifier<WorkoutState> {
     final session = _session;
     if (session == null || !state.live) return;
     final store = ref.read(workoutStoreProvider);
+    final live = ref.read(liveWorkoutRegistryProvider);
     _confirming = false;
     session.discard(_now());
     _publish(session);
@@ -239,13 +245,16 @@ class WorkoutController extends Notifier<WorkoutState> {
     await _hideNotice();
     await _quietly(_checkpointing);
     await _quietly(_guarded(() => store.dropCheckpoint(session)));
+    _unmark(live, session);
   }
 
   Future<void> _save(WorkoutSession session) async {
     state = state.next(save: WorkoutSave.saving);
     final workout = session.finished();
+    final live = ref.read(liveWorkoutRegistryProvider);
     try {
       final id = await ref.read(workoutStoreProvider).save(workout, at: _now());
+      _unmark(live, session);
       if (!ref.mounted || !identical(_session, session)) return;
       state = state.next(save: WorkoutSave.saved, workoutId: id);
       ref.read(dataRevisionProvider.notifier).bump();
@@ -477,6 +486,13 @@ class WorkoutController extends Notifier<WorkoutState> {
   }
 
   WorkoutNotifier get _notifier => ref.read(workoutNotifierProvider);
+
+  // A failed save keeps the mark, so recovery leaves a row the user can still
+  // save from this process.
+  static void _unmark(LiveWorkoutRegistry live, WorkoutSession? session) {
+    final start = session?.startedAt;
+    if (start != null) live.clear(start);
+  }
 
   // A notifier that throws before returning its future must not stop a workout.
   static Future<void> _guarded(Future<void> Function() call) async =>

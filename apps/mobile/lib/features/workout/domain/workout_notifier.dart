@@ -158,9 +158,13 @@ final class WorkoutNoticeLabels {
     this.savedHeartRate = _savedHeartRate,
     this.failedTitle = 'The workout was not saved',
     this.failedText =
-        'Open the app to try again. Closing it loses the workout.',
+        'Open the app to try again. If you close it, the workout is saved up '
+        'to its last minute the next time the app opens.',
     this.viewSummary = 'See workout summary',
     this.open = 'Open',
+    this.recoveredTitle = _recoveredTitle,
+    this.recoveredText = _recoveredText,
+    this.clockOrDay = _clockOrDay,
   });
 
   final String channel;
@@ -192,6 +196,25 @@ final class WorkoutNoticeLabels {
   final String failedText;
   final String viewSummary;
   final String open;
+  final String Function(String time) recoveredTitle;
+  final String Function(String elapsed, String? distance) recoveredText;
+
+  /// The wall time at the given offset; the localized one adds the day when it is
+  /// not the day of now.
+  final String Function(DateTime instant, Duration offset, DateTime now)
+  clockOrDay;
+}
+
+String _recoveredTitle(String time) => 'Workout saved until $time';
+
+String _recoveredText(String elapsed, String? distance) =>
+    'OpenRing stopped during the workout. '
+    '${[elapsed, ?distance].join(', ')} kept.';
+
+String _clockOrDay(DateTime instant, Duration offset, DateTime now) {
+  final wall = instant.toUtc().add(offset);
+  String two(int value) => value.toString().padLeft(2, '0');
+  return '${two(wall.hour)}:${two(wall.minute)}';
 }
 
 String _savedHeartRate(int bpm) => 'Avg HR $bpm';

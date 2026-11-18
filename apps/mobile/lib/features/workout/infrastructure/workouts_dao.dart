@@ -50,9 +50,8 @@ class WorkoutsDao extends DatabaseAccessor<AppDatabase>
     int? effortRating,
   }) => transaction(() async {
     final row = await _byStart(workout.start);
-    final open = row?.endUtcMs == null ? row?.id : null;
     return await _write(
-      open,
+      _takesOver(row) ? row?.id : null,
       _finished(workout, deviceId: deviceId, effortRating: effortRating),
       workout,
     );
@@ -65,6 +64,38 @@ class WorkoutsDao extends DatabaseAccessor<AppDatabase>
         ))
         .go();
   }
+
+  Future<List<DateTime>> openStarts() =>
+      (selectOnly(workouts)
+            ..addColumns([workouts.startUtcMs])
+            ..where(workouts.endUtcMs.isNull())
+            ..orderBy([OrderingTerm.asc(workouts.startUtcMs)]))
+          .map((row) => utcInstant(row.read(workouts.startUtcMs)!))
+          .get();
+
+  // Only a row with no end changes, so one another engine saved in the
+  // meantime keeps its end, its elapsed time and its outbox row.
+  Future<WorkoutRow?> closeOpen(DateTime start) async {
+    final closed =
+        await (update(workouts)..where(
+              (w) => w.clientId.equals(clientIdOf(start)) & w.endUtcMs.isNull(),
+            ))
+            .writeReturning(
+              WorkoutsCompanion.custom(
+                endUtcMs: coalesce([
+                  workouts.checkpointUtcMs,
+                  workouts.startUtcMs +
+                      coalesce([workouts.elapsedMs, const Constant(0)]),
+                ]),
+              ),
+            );
+    return closed.singleOrNull;
+  }
+
+  // Recovery keeps the checkpoint on the row it closes, so a live engine it
+  // took for dead can still save over that row; a saved row has none.
+  static bool _takesOver(WorkoutRow? row) =>
+      row != null && (row.endUtcMs == null || row.checkpointUtcMs != null);
 
   Future<WorkoutRow?> _byStart(DateTime start) => (select(
     workouts,

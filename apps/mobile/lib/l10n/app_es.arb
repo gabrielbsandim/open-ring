@@ -2365,7 +2365,7 @@
   "foodPlacePackaged": "Envasado",
   "foodTagsFailed": "No se pudieron guardar las etiquetas",
   "workoutNoticeSavedHeartRate": "FC media {bpm}",
-  "workoutNoticeFailedText": "Abre la app para intentarlo de nuevo. Si la cierras, se pierde el entrenamiento.",
+  "workoutNoticeFailedText": "Abre la app para intentarlo de nuevo. Si la cierras, el entrenamiento se guarda hasta su último minuto la próxima vez que se abra.",
   "workoutNoticeOpen": "Abrir",
   "workoutNotificationsOffTitle": "Notificaciones desactivadas",
   "workoutNotificationsOffBody": "El entrenamiento se sigue registrando, pero su tiempo, la FC y los botones no aparecen fuera de la app ni en la pantalla de bloqueo.",
@@ -2390,7 +2390,10 @@
   "workoutHowCadence": "El tiempo avanza cada segundo, lo lleva el propio Android. FC, distancia y ritmo cambian como mucho cada 2 s con la pantalla encendida. Con la pantalla apagada esperan a que se encienda; una pausa, la pregunta de terminar o el anillo perdido no esperan.",
   "workoutHowEnd": "Terminar pausa y pregunta. Guardar guarda el entrenamiento; Continuar vuelve a como estaba. Descartar solo dentro de la app.",
   "workoutHowResult": "Solo queda el resultado del guardado, hasta 1 hora. Abrir el resumen del entrenamiento lo quita.",
-  "workoutHowClosed": "Cerrar OpenRing desde las apps recientes termina el entrenamiento sin guardarlo.",
+  "workoutHowClosed": "Cerrar OpenRing desde las apps recientes detiene el entrenamiento. La próxima vez que se abra la app, se guarda hasta su último minuto.",
   "workoutHowScores": "Ninguna nota y ninguna caloría.",
-  "workoutHowSound": "Ningún sonido. Una vibración corta cuando las lecturas de FC se detienen 30 s, si Avisar si el anillo se desconecta está activado."
+  "workoutHowSound": "Ningún sonido. Una vibración corta cuando las lecturas de FC se detienen 30 s, si Avisar si el anillo se desconecta está activado.",
+  "workoutRecoveredTitle": "Entrenamiento guardado hasta las {time}",
+  "workoutRecoveredBody": "OpenRing se detuvo durante el entrenamiento. Se conservan {elapsed} y {distance}.",
+  "workoutRecoveredBodyNoDistance": "OpenRing se detuvo durante el entrenamiento. Se conservan {elapsed}."
 }

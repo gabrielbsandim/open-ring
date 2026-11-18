@@ -2365,7 +2365,7 @@
   "foodPlacePackaged": "Confezionato",
   "foodTagsFailed": "Impossibile salvare i tag",
   "workoutNoticeSavedHeartRate": "FC media {bpm}",
-  "workoutNoticeFailedText": "Apri l'app per riprovare. Chiuderla fa perdere l'allenamento.",
+  "workoutNoticeFailedText": "Apri l'app per riprovare. Se la chiudi, l'allenamento viene salvato fino all'ultimo minuto alla successiva apertura.",
   "workoutNoticeOpen": "Apri",
   "workoutNotificationsOffTitle": "Notifiche disattivate",
   "workoutNotificationsOffBody": "L'allenamento viene comunque registrato, ma tempo, FC e pulsanti non compaiono fuori dall'app né sulla schermata di blocco.",
@@ -2390,7 +2390,10 @@
   "workoutHowCadence": "Il tempo avanza ogni secondo, tenuto da Android stesso. FC, distanza e passo cambiano al massimo ogni 2 s a schermo acceso. A schermo spento aspettano che si riaccenda; una pausa, la domanda di fine o l'anello perso non aspettano.",
   "workoutHowEnd": "Termina mette in pausa e chiede. Salva registra l'allenamento; Continua torna a com'era. Si scarta solo nell'app.",
   "workoutHowResult": "Resta solo l'esito del salvataggio, fino a 1 ora. Aprire il riepilogo dell'allenamento lo rimuove.",
-  "workoutHowClosed": "Chiudere OpenRing dalle app recenti termina l'allenamento senza salvarlo.",
+  "workoutHowClosed": "Chiudere OpenRing dalle app recenti interrompe l'allenamento. Alla successiva apertura dell'app viene salvato fino al suo ultimo minuto.",
   "workoutHowScores": "Nessun voto e nessuna caloria.",
-  "workoutHowSound": "Nessun suono. Una breve vibrazione quando le letture della FC si fermano per 30 s, se Avvisa se l’anello si scollega è attivo."
+  "workoutHowSound": "Nessun suono. Una breve vibrazione quando le letture della FC si fermano per 30 s, se Avvisa se l’anello si scollega è attivo.",
+  "workoutRecoveredTitle": "Allenamento salvato fino alle {time}",
+  "workoutRecoveredBody": "OpenRing si è interrotto durante l'allenamento. Conservati {elapsed} e {distance}.",
+  "workoutRecoveredBodyNoDistance": "OpenRing si è interrotto durante l'allenamento. Conservati {elapsed}."
 }

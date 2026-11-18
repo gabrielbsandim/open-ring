@@ -45,7 +45,8 @@ const _english = {
       'Only the save result stays, for up to 1 hour. Opening the workout '
       'summary removes it.',
   'Closed':
-      'Closing OpenRing from recent apps ends the workout without saving it.',
+      'Closing OpenRing from recent apps stops the workout. The next time the '
+      'app opens, it is saved up to its last minute.',
   'Never': 'What it never does',
   'Scores': 'No scores and no calories.',
   'Sound':
@@ -90,7 +91,9 @@ const _portuguese = {
   'Result':
       'Fica só o resultado do salvamento, por até 1 hora. Abrir o resumo do '
       'treino o remove.',
-  'Closed': 'Fechar o OpenRing nos apps recentes encerra o treino sem salvar.',
+  'Closed':
+      'Fechar o OpenRing nos apps recentes interrompe o treino. Na próxima vez '
+      'que o app abrir, o treino é salvo até o último minuto.',
   'Never': 'O que nunca faz',
   'Scores': 'Nenhuma nota e nenhuma caloria.',
   'Sound':

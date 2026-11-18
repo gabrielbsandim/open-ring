@@ -2365,7 +2365,7 @@
   "foodPlacePackaged": "市販の包装品",
   "foodTagsFailed": "タグを保存できませんでした",
   "workoutNoticeSavedHeartRate": "平均心拍数 {bpm}",
-  "workoutNoticeFailedText": "アプリを開いてもう一度試してください。アプリを閉じるとワークアウトは失われます。",
+  "workoutNoticeFailedText": "アプリを開いてもう一度試してください。閉じた場合は、次にアプリを開いたときに直前の1分までが保存されます。",
   "workoutNoticeOpen": "開く",
   "workoutNotificationsOffTitle": "通知がオフです",
   "workoutNotificationsOffBody": "ワークアウトは記録されますが、時間、心拍数、ボタンはアプリの外やロック画面に表示されません。",
@@ -2390,7 +2390,10 @@
   "workoutHowCadence": "時間は Android 自身が数え、1 秒ごとに進みます。心拍数、距離、ペースは画面がオンのとき最短 2 秒ごとに変わります。画面がオフのときは画面がオンになるまで待ちますが、一時停止、終了の確認、リングの切断は待ちません。",
   "workoutHowEnd": "「終了」は一時停止して確認します。「保存」でワークアウトを保存し、「続ける」で元の状態に戻ります。破棄はアプリ内でのみできます。",
   "workoutHowResult": "残るのは保存結果だけで、最長 1 時間です。ワークアウトの概要を開くと消えます。",
-  "workoutHowClosed": "最近使ったアプリから OpenRing を閉じると、ワークアウトは保存されずに終了します。",
+  "workoutHowClosed": "最近使ったアプリから OpenRing を閉じると、ワークアウトは停止します。次にアプリを開いたときに、直前の1分までが保存されます。",
   "workoutHowScores": "スコアもカロリーも表示しません。",
-  "workoutHowSound": "音は鳴りません。「リングが切れたら通知」がオンなら、心拍数の測定値が 30 秒間途切れたときに短く 1 回振動します。"
+  "workoutHowSound": "音は鳴りません。「リングが切れたら通知」がオンなら、心拍数の測定値が 30 秒間途切れたときに短く 1 回振動します。",
+  "workoutRecoveredTitle": "{time}までのワークアウトを保存しました",
+  "workoutRecoveredBody": "ワークアウト中に OpenRing が停止しました。{elapsed}、{distance}を保存しました。",
+  "workoutRecoveredBodyNoDistance": "ワークアウト中に OpenRing が停止しました。{elapsed}を保存しました。"
 }

@@ -29,13 +29,12 @@ final class MetricFormat {
   String dayAndClock(DateTime instant, Duration utcOffset) =>
       DateFormat.MMMd(locale).add_Hm().format(_wall(instant, utcOffset));
 
-  String clockOrDay(DateTime instant, DateTime now) {
-    final offset = now.timeZoneOffset;
+  String clockOrDay(DateTime instant, DateTime now, {Duration? offset}) {
+    final at = offset ?? now.timeZoneOffset;
     final sameDay =
-        LocalDate.fromInstant(instant, offset) ==
-        LocalDate.fromInstant(now, offset);
-    if (sameDay) return clock(instant, offset);
-    return dayAndClock(instant, offset);
+        LocalDate.fromInstant(instant, at) == LocalDate.fromInstant(now, at);
+    if (sameDay) return clock(instant, at);
+    return dayAndClock(instant, at);
   }
 
   String date(LocalDate value) =>

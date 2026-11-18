@@ -2365,7 +2365,7 @@
   "foodPlacePackaged": "Embalado",
   "foodTagsFailed": "Não deu para salvar as marcas",
   "workoutNoticeSavedHeartRate": "FC média {bpm}",
-  "workoutNoticeFailedText": "Abra o app para tentar de novo. Fechar o app perde o treino.",
+  "workoutNoticeFailedText": "Abra o app para tentar de novo. Se fechar o app, o treino é salvo até o último minuto quando o app abrir de novo.",
   "workoutNoticeOpen": "Abrir",
   "workoutNotificationsOffTitle": "Notificações desligadas",
   "workoutNotificationsOffBody": "O treino grava normalmente, mas o tempo, a FC e os botões não aparecem fora do app nem na tela de bloqueio.",
@@ -2390,7 +2390,10 @@
   "workoutHowCadence": "O tempo anda a cada segundo, contado pelo próprio Android. FC, distância e ritmo mudam no máximo a cada 2 s com a tela acesa. Com a tela apagada, esperam até ela acender; uma pausa, a pergunta de encerrar ou o anel perdido não esperam.",
   "workoutHowEnd": "Encerrar pausa e pergunta. Salvar grava o treino; Continuar volta ao que era. Descartar só dentro do app.",
   "workoutHowResult": "Fica só o resultado do salvamento, por até 1 hora. Abrir o resumo do treino o remove.",
-  "workoutHowClosed": "Fechar o OpenRing nos apps recentes encerra o treino sem salvar.",
+  "workoutHowClosed": "Fechar o OpenRing nos apps recentes interrompe o treino. Na próxima vez que o app abrir, o treino é salvo até o último minuto.",
   "workoutHowScores": "Nenhuma nota e nenhuma caloria.",
-  "workoutHowSound": "Nenhum som. Uma vibração curta quando as leituras de FC param por 30 s, se Avisar quando o anel cair estiver ligado."
+  "workoutHowSound": "Nenhum som. Uma vibração curta quando as leituras de FC param por 30 s, se Avisar quando o anel cair estiver ligado.",
+  "workoutRecoveredTitle": "Treino salvo até {time}",
+  "workoutRecoveredBody": "O OpenRing parou durante o treino. {elapsed} e {distance} ficaram salvos.",
+  "workoutRecoveredBodyNoDistance": "O OpenRing parou durante o treino. {elapsed} ficaram salvos."
 }

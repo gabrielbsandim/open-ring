@@ -95,6 +95,8 @@ class WorkoutController extends Notifier<WorkoutState> {
   bool _starting = false;
   bool _restartingHeartRate = false;
   bool _restartingLocation = false;
+  Duration _checkpointed = Duration.zero;
+  Future<void>? _checkpointing;
 
   WorkoutSession? get session => _session;
 
@@ -135,6 +137,8 @@ class WorkoutController extends Notifier<WorkoutState> {
     _shown = null;
     _confirming = false;
     _alerted = false;
+    _checkpointed = Duration.zero;
+    _checkpointing = null;
     _clearEnded();
     state = WorkoutState(snapshot: session.snapshotAt(_now()));
     _actions = ref.read(workoutNotifierProvider).actions.listen(_onAction);
@@ -184,6 +188,7 @@ class WorkoutController extends Notifier<WorkoutState> {
     session.pause(_now());
     _heartRate?.pause();
     _publish(session);
+    _checkpoint(session);
   }
 
   void resume() {
@@ -204,6 +209,7 @@ class WorkoutController extends Notifier<WorkoutState> {
     _publish(session);
     await _stopStreams();
     await _hideNotice();
+    await _quietly(_checkpointing);
     await _save(session);
   }
 
@@ -224,11 +230,14 @@ class WorkoutController extends Notifier<WorkoutState> {
   Future<void> discard() async {
     final session = _session;
     if (session == null || !state.live) return;
+    final store = ref.read(workoutStoreProvider);
     _confirming = false;
     session.discard(_now());
     _publish(session);
     await _stopStreams();
     await _hideNotice();
+    await _quietly(_checkpointing);
+    await _quietly(_guarded(() => store.dropCheckpoint(session)));
   }
 
   Future<void> _save(WorkoutSession session) async {
@@ -308,6 +317,22 @@ class WorkoutController extends Notifier<WorkoutState> {
   void _tick(WorkoutSession session) {
     _checkHeartRate(session);
     _publish(session);
+    if (session.status != WorkoutStatus.running) return;
+    final due = _checkpointed + workoutCheckpointInterval;
+    if (session.elapsedAt(_now()) < due) return;
+    _checkpoint(session);
+  }
+
+  // A failed write is not retried until the next one is due; finish and
+  // discard wait for every write still in flight.
+  void _checkpoint(WorkoutSession session) {
+    if (!_current(session)) return;
+    final at = _now();
+    _checkpointed = session.elapsedAt(at);
+    final store = ref.read(workoutStoreProvider);
+    final previous = _checkpointing;
+    final write = _quietly(_guarded(() => store.checkpoint(session, at: at)));
+    _checkpointing = Future.wait([?previous, write]);
   }
 
   void _checkHeartRate(WorkoutSession session) {

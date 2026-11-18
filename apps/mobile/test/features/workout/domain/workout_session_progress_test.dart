@@ -56,9 +56,7 @@ void main() {
   });
 
   test('progress does not change the session', () {
-    final session = runFor(10);
-
-    session.progressAt(at(100));
+    final session = runFor(10)..progressAt(at(100));
 
     expect(session.status, WorkoutStatus.running);
     expect(session.endedAt, isNull);

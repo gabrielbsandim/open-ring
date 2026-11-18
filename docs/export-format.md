@@ -84,7 +84,7 @@ and are not exported, and a night stored with no stages has no row.
 | Column | Unit | Notes |
 | :--- | :--- | :--- |
 | `session_start` | timestamp | Start of the night the stage belongs to, with the session's own offset. Rows with the same value are one night. For sleep from other apps, rows with the same `record_id` are one night. |
-| `start`, `end` | timestamp | `end` is exclusive. For activity it is `start` plus the bucket length. A workout still running has an empty `end`; a workout from another app always has one. |
+| `start`, `end` | timestamp | `end` is exclusive. For activity it is `start` plus the bucket length. Every exported workout has an `end`: one still running, or left open when the app was closed, is not exported until it is saved. |
 | `stage` | text | One of `light`, `deep`, `rem`, `awake`. |
 | `duration_s` | seconds | `end - start`, whole seconds. Empty when `end` is empty. |
 | `bpm` | beats per minute | As logged by the ring. |

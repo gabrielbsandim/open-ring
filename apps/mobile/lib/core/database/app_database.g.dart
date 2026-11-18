@@ -4903,6 +4903,17 @@ class $WorkoutsTable extends Workouts
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _checkpointUtcMsMeta = const VerificationMeta(
+    'checkpointUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> checkpointUtcMs = GeneratedColumn<int>(
+    'checkpoint_utc_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4918,6 +4929,7 @@ class $WorkoutsTable extends Workouts
     averageHeartRate,
     maxHeartRate,
     effortRating,
+    checkpointUtcMs,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5038,6 +5050,15 @@ class $WorkoutsTable extends Workouts
         ),
       );
     }
+    if (data.containsKey('checkpoint_utc_ms')) {
+      context.handle(
+        _checkpointUtcMsMeta,
+        checkpointUtcMs.isAcceptableOrUnknown(
+          data['checkpoint_utc_ms']!,
+          _checkpointUtcMsMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -5099,6 +5120,10 @@ class $WorkoutsTable extends Workouts
         DriftSqlType.int,
         data['${effectivePrefix}effort_rating'],
       ),
+      checkpointUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}checkpoint_utc_ms'],
+      ),
     );
   }
 
@@ -5122,6 +5147,7 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
   final int? averageHeartRate;
   final int? maxHeartRate;
   final int? effortRating;
+  final int? checkpointUtcMs;
   const WorkoutRow({
     required this.id,
     required this.clientId,
@@ -5136,6 +5162,7 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
     this.averageHeartRate,
     this.maxHeartRate,
     this.effortRating,
+    this.checkpointUtcMs,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5168,6 +5195,9 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
     }
     if (!nullToAbsent || effortRating != null) {
       map['effort_rating'] = Variable<int>(effortRating);
+    }
+    if (!nullToAbsent || checkpointUtcMs != null) {
+      map['checkpoint_utc_ms'] = Variable<int>(checkpointUtcMs);
     }
     return map;
   }
@@ -5203,6 +5233,9 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
       effortRating: effortRating == null && nullToAbsent
           ? const Value.absent()
           : Value(effortRating),
+      checkpointUtcMs: checkpointUtcMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(checkpointUtcMs),
     );
   }
 
@@ -5227,6 +5260,7 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
       averageHeartRate: serializer.fromJson<int?>(json['averageHeartRate']),
       maxHeartRate: serializer.fromJson<int?>(json['maxHeartRate']),
       effortRating: serializer.fromJson<int?>(json['effortRating']),
+      checkpointUtcMs: serializer.fromJson<int?>(json['checkpointUtcMs']),
     );
   }
   @override
@@ -5246,6 +5280,7 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
       'averageHeartRate': serializer.toJson<int?>(averageHeartRate),
       'maxHeartRate': serializer.toJson<int?>(maxHeartRate),
       'effortRating': serializer.toJson<int?>(effortRating),
+      'checkpointUtcMs': serializer.toJson<int?>(checkpointUtcMs),
     };
   }
 
@@ -5263,6 +5298,7 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
     Value<int?> averageHeartRate = const Value.absent(),
     Value<int?> maxHeartRate = const Value.absent(),
     Value<int?> effortRating = const Value.absent(),
+    Value<int?> checkpointUtcMs = const Value.absent(),
   }) => WorkoutRow(
     id: id ?? this.id,
     clientId: clientId ?? this.clientId,
@@ -5283,6 +5319,9 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
         : this.averageHeartRate,
     maxHeartRate: maxHeartRate.present ? maxHeartRate.value : this.maxHeartRate,
     effortRating: effortRating.present ? effortRating.value : this.effortRating,
+    checkpointUtcMs: checkpointUtcMs.present
+        ? checkpointUtcMs.value
+        : this.checkpointUtcMs,
   );
   WorkoutRow copyWithCompanion(WorkoutsCompanion data) {
     return WorkoutRow(
@@ -5315,6 +5354,9 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
       effortRating: data.effortRating.present
           ? data.effortRating.value
           : this.effortRating,
+      checkpointUtcMs: data.checkpointUtcMs.present
+          ? data.checkpointUtcMs.value
+          : this.checkpointUtcMs,
     );
   }
 
@@ -5333,7 +5375,8 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
           ..write('elapsedMs: $elapsedMs, ')
           ..write('averageHeartRate: $averageHeartRate, ')
           ..write('maxHeartRate: $maxHeartRate, ')
-          ..write('effortRating: $effortRating')
+          ..write('effortRating: $effortRating, ')
+          ..write('checkpointUtcMs: $checkpointUtcMs')
           ..write(')'))
         .toString();
   }
@@ -5353,6 +5396,7 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
     averageHeartRate,
     maxHeartRate,
     effortRating,
+    checkpointUtcMs,
   );
   @override
   bool operator ==(Object other) =>
@@ -5370,7 +5414,8 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
           other.elapsedMs == this.elapsedMs &&
           other.averageHeartRate == this.averageHeartRate &&
           other.maxHeartRate == this.maxHeartRate &&
-          other.effortRating == this.effortRating);
+          other.effortRating == this.effortRating &&
+          other.checkpointUtcMs == this.checkpointUtcMs);
 }
 
 class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
@@ -5387,6 +5432,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
   final Value<int?> averageHeartRate;
   final Value<int?> maxHeartRate;
   final Value<int?> effortRating;
+  final Value<int?> checkpointUtcMs;
   const WorkoutsCompanion({
     this.id = const Value.absent(),
     this.clientId = const Value.absent(),
@@ -5401,6 +5447,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     this.averageHeartRate = const Value.absent(),
     this.maxHeartRate = const Value.absent(),
     this.effortRating = const Value.absent(),
+    this.checkpointUtcMs = const Value.absent(),
   });
   WorkoutsCompanion.insert({
     this.id = const Value.absent(),
@@ -5416,6 +5463,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     this.averageHeartRate = const Value.absent(),
     this.maxHeartRate = const Value.absent(),
     this.effortRating = const Value.absent(),
+    this.checkpointUtcMs = const Value.absent(),
   }) : clientId = Value(clientId),
        activityType = Value(activityType),
        startUtcMs = Value(startUtcMs),
@@ -5434,6 +5482,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     Expression<int>? averageHeartRate,
     Expression<int>? maxHeartRate,
     Expression<int>? effortRating,
+    Expression<int>? checkpointUtcMs,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -5449,6 +5498,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
       if (averageHeartRate != null) 'average_heart_rate': averageHeartRate,
       if (maxHeartRate != null) 'max_heart_rate': maxHeartRate,
       if (effortRating != null) 'effort_rating': effortRating,
+      if (checkpointUtcMs != null) 'checkpoint_utc_ms': checkpointUtcMs,
     });
   }
 
@@ -5466,6 +5516,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     Value<int?>? averageHeartRate,
     Value<int?>? maxHeartRate,
     Value<int?>? effortRating,
+    Value<int?>? checkpointUtcMs,
   }) {
     return WorkoutsCompanion(
       id: id ?? this.id,
@@ -5481,6 +5532,7 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
       averageHeartRate: averageHeartRate ?? this.averageHeartRate,
       maxHeartRate: maxHeartRate ?? this.maxHeartRate,
       effortRating: effortRating ?? this.effortRating,
+      checkpointUtcMs: checkpointUtcMs ?? this.checkpointUtcMs,
     );
   }
 
@@ -5526,6 +5578,9 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     if (effortRating.present) {
       map['effort_rating'] = Variable<int>(effortRating.value);
     }
+    if (checkpointUtcMs.present) {
+      map['checkpoint_utc_ms'] = Variable<int>(checkpointUtcMs.value);
+    }
     return map;
   }
 
@@ -5544,7 +5599,8 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
           ..write('elapsedMs: $elapsedMs, ')
           ..write('averageHeartRate: $averageHeartRate, ')
           ..write('maxHeartRate: $maxHeartRate, ')
-          ..write('effortRating: $effortRating')
+          ..write('effortRating: $effortRating, ')
+          ..write('checkpointUtcMs: $checkpointUtcMs')
           ..write(')'))
         .toString();
   }

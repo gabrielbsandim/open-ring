@@ -88,7 +88,7 @@ void main() {
     expect(recovered!.id, id);
     final row = await rowOf(db, id);
     expect(row.endUtcMs, isNotNull);
-    expect(row.checkpointUtcMs, isNull);
+    expect(row.checkpointUtcMs, isNotNull);
     expect(await rowCount(db, 'health_outbox'), 1);
     expect(notifier.endedNotices, hasLength(1));
     final notice = notifier.endedNotices.single;

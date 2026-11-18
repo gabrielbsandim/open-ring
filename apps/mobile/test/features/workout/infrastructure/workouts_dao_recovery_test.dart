@@ -29,23 +29,21 @@ void main() {
     expect(await dao.openStarts(), isEmpty);
   });
 
-  test(
-    'closeOpen ends the row at its checkpoint and keeps the elapsed time',
-    () async {
-      final id = await insertOpenRow(
-        db,
-        checkpoint: DateTime.utc(2026, 11, 10, 7, 31),
-      );
+  test('closeOpen ends the row at its checkpoint and keeps the elapsed time '
+      'and the checkpoint', () async {
+    final id = await insertOpenRow(
+      db,
+      checkpoint: DateTime.utc(2026, 11, 10, 7, 31),
+    );
 
-      final closed = await dao.closeOpen(openStart);
+    final closed = await dao.closeOpen(openStart);
 
-      expect(closed!.id, id);
-      final row = await rowOf(db, id);
-      expect(row.endUtcMs, DateTime.utc(2026, 11, 10, 7, 31).utcMs);
-      expect(row.checkpointUtcMs, isNull);
-      expect(row.elapsedMs, 21 * 60 * 1000);
-    },
-  );
+    expect(closed!.id, id);
+    final row = await rowOf(db, id);
+    expect(row.endUtcMs, DateTime.utc(2026, 11, 10, 7, 31).utcMs);
+    expect(row.checkpointUtcMs, DateTime.utc(2026, 11, 10, 7, 31).utcMs);
+    expect(row.elapsedMs, 21 * 60 * 1000);
+  });
 
   test(
     'closeOpen ends at start plus elapsed when the checkpoint is null',

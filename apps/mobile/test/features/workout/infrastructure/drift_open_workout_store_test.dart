@@ -32,7 +32,7 @@ void main() {
     final row = await rowOf(db, id);
     expect(row.endUtcMs, checkpointAt.utcMs);
     expect(row.elapsedMs, 21 * 60 * 1000);
-    expect(row.checkpointUtcMs, isNull);
+    expect(row.checkpointUtcMs, checkpointAt.utcMs);
     final outbox = await HealthOutboxDao(db).all();
     expect(outbox.map((r) => (r.kind, r.fromUtcMs, r.toUtcMs)), [
       (HealthRecordKind.workout, openStart.utcMs, checkpointAt.utcMs),

@@ -1,3 +1,4 @@
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/core/records/epoch.dart';
@@ -115,4 +116,44 @@ void main() {
     expect(await rowCount(db, 'workouts'), 1);
     expect(await rowCount(db, 'workout_hr_samples'), 91);
   });
+
+  test('a save takes over the row recovery closed under the same start, with '
+      'its own end and elapsed time', () async {
+    final session = started();
+    runUntil(session, from: 0, to: 60);
+    await dao.writeCheckpoint(session.progressAt(at(60)), at: at(60));
+    final open = await single();
+    await dao.closeOpen(workoutStart);
+    runUntil(session, from: 61, to: 90);
+    session.finish(at(90));
+
+    final id = await dao.closeOrInsert(session.finished());
+
+    final row = await single();
+    expect(id, open.id);
+    expect(row.id, open.id);
+    expect(row.endUtcMs, at(90).utcMs);
+    expect(row.elapsedMs, 90000);
+    expect(row.checkpointUtcMs, isNull);
+    expect(await rowCount(db, 'workouts'), 1);
+    expect(await rowCount(db, 'workout_hr_samples'), 91);
+  });
+
+  test(
+    'a saved row still fails closeOrInsert on the unique client id',
+    () async {
+      final session = started();
+      runUntil(session, from: 0, to: 10);
+      session.finish(at(10));
+      await dao.closeOrInsert(session.finished());
+      final saved = await single();
+
+      await expectLater(
+        dao.closeOrInsert(session.finished()),
+        throwsA(isA<SqliteException>()),
+      );
+
+      expect(await single(), saved);
+    },
+  );
 }

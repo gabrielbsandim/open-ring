@@ -50,9 +50,8 @@ class WorkoutsDao extends DatabaseAccessor<AppDatabase>
     int? effortRating,
   }) => transaction(() async {
     final row = await _byStart(workout.start);
-    final open = row?.endUtcMs == null ? row?.id : null;
     return await _write(
-      open,
+      _takesOver(row) ? row?.id : null,
       _finished(workout, deviceId: deviceId, effortRating: effortRating),
       workout,
     );
@@ -88,11 +87,15 @@ class WorkoutsDao extends DatabaseAccessor<AppDatabase>
                   workouts.startUtcMs +
                       coalesce([workouts.elapsedMs, const Constant(0)]),
                 ]),
-                checkpointUtcMs: const Constant(null),
               ),
             );
     return closed.singleOrNull;
   }
+
+  // Recovery keeps the checkpoint on the row it closes, so a live engine it
+  // took for dead can still save over that row; a saved row has none.
+  static bool _takesOver(WorkoutRow? row) =>
+      row != null && (row.endUtcMs == null || row.checkpointUtcMs != null);
 
   Future<WorkoutRow?> _byStart(DateTime start) => (select(
     workouts,

@@ -13,6 +13,7 @@ import 'package:open_ring/features/workout/domain/workout_notifier.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_store.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
+import 'package:open_ring/features/workout/infrastructure/drift_open_workout_store.dart';
 import 'package:open_ring/features/workout/infrastructure/drift_workout_store.dart';
 
 import '../../../helpers/database.dart';
@@ -312,4 +313,25 @@ void main() {
       expect(await rowCount(db, 'health_outbox'), 1);
     },
   );
+
+  test('a save after recovery closed the live row still ends saved, over '
+      'that row and with its own end', () async {
+    final c = container();
+    final controller = await started(c);
+    run(60);
+    await store.settle();
+    final open = await single();
+    await DriftOpenWorkoutStore(db).close(workoutStart, at: clock.now);
+    run(30);
+    await store.settle();
+
+    await controller.finish();
+
+    expect(c.read(workoutProvider).save, WorkoutSave.saved);
+    final row = await single();
+    expect(row.id, open.id);
+    expect(row.endUtcMs, at(90).utcMs);
+    expect(row.elapsedMs, 90000);
+    expect(row.checkpointUtcMs, isNull);
+  });
 }

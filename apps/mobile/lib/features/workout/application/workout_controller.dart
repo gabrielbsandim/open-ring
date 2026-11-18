@@ -95,7 +95,8 @@ class WorkoutController extends Notifier<WorkoutState> {
   bool _starting = false;
   bool _restartingHeartRate = false;
   bool _restartingLocation = false;
-  Duration _checkpointed = Duration.zero;
+  // Counted in ticks, not wall clock time, so a clock change cannot stall it.
+  int _ticksSinceCheckpoint = 0;
   Future<void>? _checkpointing;
 
   WorkoutSession? get session => _session;
@@ -137,7 +138,7 @@ class WorkoutController extends Notifier<WorkoutState> {
     _shown = null;
     _confirming = false;
     _alerted = false;
-    _checkpointed = Duration.zero;
+    _ticksSinceCheckpoint = 0;
     _checkpointing = null;
     _clearEnded();
     state = WorkoutState(snapshot: session.snapshotAt(_now()));
@@ -318,8 +319,8 @@ class WorkoutController extends Notifier<WorkoutState> {
     _checkHeartRate(session);
     _publish(session);
     if (session.status != WorkoutStatus.running) return;
-    final due = _checkpointed + workoutCheckpointInterval;
-    if (session.elapsedAt(_now()) < due) return;
+    _ticksSinceCheckpoint++;
+    if (workoutTick * _ticksSinceCheckpoint < workoutCheckpointInterval) return;
     _checkpoint(session);
   }
 
@@ -328,7 +329,7 @@ class WorkoutController extends Notifier<WorkoutState> {
   void _checkpoint(WorkoutSession session) {
     if (!_current(session)) return;
     final at = _now();
-    _checkpointed = session.elapsedAt(at);
+    _ticksSinceCheckpoint = 0;
     final store = ref.read(workoutStoreProvider);
     final previous = _checkpointing;
     final write = _quietly(_guarded(() => store.checkpoint(session, at: at)));

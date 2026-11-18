@@ -257,6 +257,22 @@ void main() {
     expect(await rowCount(db, 'health_outbox'), 0);
   });
 
+  test('a clock set back 30 min keeps the one minute cadence', () async {
+    await started(container());
+    run(60);
+    await store.settle();
+    expect(store.checkpoints, 1);
+
+    clock.advance(const Duration(minutes: -30));
+    run(59);
+    await store.settle();
+    expect(store.checkpoints, 1);
+    run(1);
+    await store.settle();
+    expect(store.checkpoints, 2);
+    expect(await rowCount(db, 'workouts'), 1);
+  });
+
   test('finish waits for a checkpoint still in flight before saving', () async {
     final c = container();
     final controller = await started(c);

@@ -11,6 +11,7 @@ import 'package:open_ring/features/settings/presentation/data_sources_screen.dar
 import 'package:open_ring/features/settings/presentation/settings_screen.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_config_screen.dart';
 import 'package:open_ring/features/widgets/presentation/widgets_screen.dart';
+import 'package:open_ring/features/workout/presentation/workout_notification_how_screen.dart';
 
 GoRoute settingsRoute() => GoRoute(
   path: 'settings',
@@ -19,6 +20,10 @@ GoRoute settingsRoute() => GoRoute(
     GoRoute(path: 'health', builder: (_, _) => const HealthStatusScreen()),
     GoRoute(path: 'export', builder: (_, _) => const ExportScreen()),
     GoRoute(path: 'sources', builder: (_, _) => const DataSourcesScreen()),
+    GoRoute(
+      path: 'workout-notification',
+      builder: (_, _) => const WorkoutNotificationHowScreen(),
+    ),
     GoRoute(
       path: 'modules',
       builder: (_, _) => const ModulesScreen(),

@@ -58,6 +58,7 @@ import 'package:open_ring/features/widgets/application/widget_providers.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_config_screen.dart';
 import 'package:open_ring/features/widgets/presentation/widgets_screen.dart';
+import 'package:open_ring/features/workout/presentation/workout_notification_how_screen.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 import '../helpers/ble_fakes.dart';
@@ -450,6 +451,10 @@ final _cases = <String, _Case>{
   ),
   'Export': const _Case(ExportScreen(), _settings),
   'Privacy policy': const _Case(PrivacyPolicyScreen(), _settings),
+  'Workout notification': const _Case(
+    WorkoutNotificationHowScreen(),
+    _settings,
+  ),
   'Widgets without a ring': _Case(
     const WidgetsScreen(),
     () => _widgets(scenario: noDataScenario),

@@ -2385,12 +2385,12 @@
   "workoutHowPaused": "Pausiert: die angehaltene Zeit und die Distanz, mit Fortsetzen und Beenden.",
   "workoutHowLock": "Sperrbildschirm: alles, außer Puls auf dem Sperrbildschirm ist aus; dann ohne Puls und ohne Zone.",
   "workoutHowTime": "Zeit: vom Handy ab dem Start gezählt, ohne die Pausen.",
-  "workoutHowHeartRate": "Puls: vom Ring. Kommen bei laufendem Training 30 s lang keine Werte, steht dort -- bpm, der Titel meldet den Ring außer Reichweite und Neu verbinden erscheint.",
+  "workoutHowHeartRate": "Puls: vom Ring. Kommen bei laufendem Training 30 s lang keine Werte, während die Verbindung offen bleibt, steht dort -- bpm, der Titel meldet den Ring außer Reichweite und Neu verbinden erscheint.",
   "workoutHowGps": "Distanz und Pace: das GPS des Handys. Die aktuelle Pace nutzt die letzten 30 s in Bewegung. Fällt GPS aus, steht GPS-Signal verloren an ihrer Stelle.",
   "workoutHowCadence": "Die Zeit läuft jede Sekunde weiter, von Android selbst gezählt. Puls, Distanz und Pace ändern sich bei eingeschaltetem Bildschirm höchstens alle 2 s. Bei ausgeschaltetem Bildschirm warten sie, bis er angeht; eine Pause, die Frage zum Beenden oder ein verlorener Ring warten nicht.",
   "workoutHowEnd": "Beenden pausiert und fragt nach. Speichern sichert das Training; Weiter stellt den Zustand davor wieder her. Verwerfen geht nur in der App.",
   "workoutHowResult": "Nur das Ergebnis des Speicherns bleibt, bis zu 1 Stunde. Das Öffnen der Trainingsübersicht entfernt es.",
   "workoutHowClosed": "Wird OpenRing in den letzten Apps geschlossen, endet das Training ohne Speichern.",
   "workoutHowScores": "Keine Noten und keine Kalorien.",
-  "workoutHowSound": "Kein Ton. Eine kurze Vibration, wenn der Ring abbricht, sofern „Warnen, wenn der Ring abbricht“ an ist."
+  "workoutHowSound": "Kein Ton. Eine kurze Vibration, wenn 30 s lang keine Pulswerte kommen, sofern „Warnen, wenn der Ring abbricht“ an ist."
 }

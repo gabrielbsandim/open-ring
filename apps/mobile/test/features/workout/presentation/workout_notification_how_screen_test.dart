@@ -24,9 +24,9 @@ const _english = {
   'Sources': 'Where each number comes from',
   'Time': 'Time: counted by the phone from the start, without the pauses.',
   'HeartRate':
-      'Heart rate: from the ring. If readings stop for 30 s while running, it '
-      'shows -- bpm, the title says the ring is out of range and Reconnect '
-      'appears.',
+      'Heart rate: from the ring. If readings stop for 30 s while running and '
+      'the connection stays open, it shows -- bpm, the title says the ring is '
+      'out of range and Reconnect appears.',
   'Gps':
       "Distance and pace: the phone's GPS. Current pace uses the last 30 s of "
       'movement. If GPS fails, GPS signal lost takes their place.',
@@ -49,8 +49,8 @@ const _english = {
   'Never': 'What it never does',
   'Scores': 'No scores and no calories.',
   'Sound':
-      'No sound. One short vibration when the ring drops, if Alert when the '
-      'ring drops is on.',
+      'No sound. One short vibration when heart rate readings stop for 30 s, '
+      'if Alert when the ring drops is on.',
 };
 
 const _portuguese = {
@@ -70,9 +70,9 @@ const _portuguese = {
   'Sources': 'De onde vem cada número',
   'Time': 'Tempo: o celular conta desde o início, sem as pausas.',
   'HeartRate':
-      'FC: vem do anel. Se as leituras param por 30 s com o treino rodando, '
-      'aparece -- bpm, o título diz que o anel está fora de alcance e surge '
-      'Reconectar.',
+      'FC: vem do anel. Se as leituras param por 30 s com o treino rodando e '
+      'a conexão continua aberta, aparece -- bpm, o título diz que o anel '
+      'está fora de alcance e surge Reconectar.',
   'Gps':
       'Distância e ritmo: o GPS do celular. O ritmo atual usa os últimos 30 s '
       'em movimento. Se o GPS falha, Sinal de GPS perdido fica no lugar.',
@@ -94,8 +94,8 @@ const _portuguese = {
   'Never': 'O que nunca faz',
   'Scores': 'Nenhuma nota e nenhuma caloria.',
   'Sound':
-      'Nenhum som. Uma vibração curta quando o anel cai, se Avisar quando o '
-      'anel cair estiver ligado.',
+      'Nenhum som. Uma vibração curta quando as leituras de FC param por 30 s, '
+      'se Avisar quando o anel cair estiver ligado.',
 };
 
 Future<void> _pump(

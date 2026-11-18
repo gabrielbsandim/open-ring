@@ -2385,12 +2385,12 @@
   "workoutHowPaused": "In pausa: il tempo fermo e la distanza, con Riprendi e Termina.",
   "workoutHowLock": "Schermata di blocco: tutto, a meno che FC sulla schermata di blocco sia disattivata; allora niente FC e niente zona.",
   "workoutHowTime": "Tempo: lo conta il telefono dall'inizio, senza le pause.",
-  "workoutHowHeartRate": "FC: viene dall'anello. Se le letture si fermano per 30 s ad allenamento in corso, compare -- bpm, il titolo dice che l'anello è fuori portata e appare Riconnetti.",
+  "workoutHowHeartRate": "FC: viene dall'anello. Se le letture si fermano per 30 s ad allenamento in corso e la connessione resta aperta, compare -- bpm, il titolo dice che l'anello è fuori portata e appare Riconnetti.",
   "workoutHowGps": "Distanza e passo: il GPS del telefono. Il passo attuale usa gli ultimi 30 s in movimento. Se il GPS non funziona, al loro posto c'è Segnale GPS perso.",
   "workoutHowCadence": "Il tempo avanza ogni secondo, tenuto da Android stesso. FC, distanza e passo cambiano al massimo ogni 2 s a schermo acceso. A schermo spento aspettano che si riaccenda; una pausa, la domanda di fine o l'anello perso non aspettano.",
   "workoutHowEnd": "Termina mette in pausa e chiede. Salva registra l'allenamento; Continua torna a com'era. Si scarta solo nell'app.",
   "workoutHowResult": "Resta solo l'esito del salvataggio, fino a 1 ora. Aprire il riepilogo dell'allenamento lo rimuove.",
   "workoutHowClosed": "Chiudere OpenRing dalle app recenti termina l'allenamento senza salvarlo.",
   "workoutHowScores": "Nessun voto e nessuna caloria.",
-  "workoutHowSound": "Nessun suono. Una breve vibrazione quando l'anello si scollega, se Avvisa se l’anello si scollega è attivo."
+  "workoutHowSound": "Nessun suono. Una breve vibrazione quando le letture della FC si fermano per 30 s, se Avvisa se l’anello si scollega è attivo."
 }

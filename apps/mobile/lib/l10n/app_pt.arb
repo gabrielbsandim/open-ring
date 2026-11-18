@@ -2385,12 +2385,12 @@
   "workoutHowPaused": "Pausado: o tempo parado e a distância, com Retomar e Encerrar.",
   "workoutHowLock": "Tela de bloqueio: tudo, a menos que FC na tela de bloqueio esteja desligada; aí sem FC e sem zona.",
   "workoutHowTime": "Tempo: o celular conta desde o início, sem as pausas.",
-  "workoutHowHeartRate": "FC: vem do anel. Se as leituras param por 30 s com o treino rodando, aparece -- bpm, o título diz que o anel está fora de alcance e surge Reconectar.",
+  "workoutHowHeartRate": "FC: vem do anel. Se as leituras param por 30 s com o treino rodando e a conexão continua aberta, aparece -- bpm, o título diz que o anel está fora de alcance e surge Reconectar.",
   "workoutHowGps": "Distância e ritmo: o GPS do celular. O ritmo atual usa os últimos 30 s em movimento. Se o GPS falha, Sinal de GPS perdido fica no lugar.",
   "workoutHowCadence": "O tempo anda a cada segundo, contado pelo próprio Android. FC, distância e ritmo mudam no máximo a cada 2 s com a tela acesa. Com a tela apagada, esperam até ela acender; uma pausa, a pergunta de encerrar ou o anel perdido não esperam.",
   "workoutHowEnd": "Encerrar pausa e pergunta. Salvar grava o treino; Continuar volta ao que era. Descartar só dentro do app.",
   "workoutHowResult": "Fica só o resultado do salvamento, por até 1 hora. Abrir o resumo do treino o remove.",
   "workoutHowClosed": "Fechar o OpenRing nos apps recentes encerra o treino sem salvar.",
   "workoutHowScores": "Nenhuma nota e nenhuma caloria.",
-  "workoutHowSound": "Nenhum som. Uma vibração curta quando o anel cai, se Avisar quando o anel cair estiver ligado."
+  "workoutHowSound": "Nenhum som. Uma vibração curta quando as leituras de FC param por 30 s, se Avisar quando o anel cair estiver ligado."
 }

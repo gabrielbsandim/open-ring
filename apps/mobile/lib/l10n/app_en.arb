@@ -4764,12 +4764,12 @@
   "workoutHowPaused": "Paused: the stopped time and the distance, with Resume and End.",
   "workoutHowLock": "Lock screen: everything, unless Heart rate on the lock screen is off; then no heart rate and no zone.",
   "workoutHowTime": "Time: counted by the phone from the start, without the pauses.",
-  "workoutHowHeartRate": "Heart rate: from the ring. If readings stop for 30 s while running, it shows -- bpm, the title says the ring is out of range and Reconnect appears.",
+  "workoutHowHeartRate": "Heart rate: from the ring. If readings stop for 30 s while running and the connection stays open, it shows -- bpm, the title says the ring is out of range and Reconnect appears.",
   "workoutHowGps": "Distance and pace: the phone's GPS. Current pace uses the last 30 s of movement. If GPS fails, GPS signal lost takes their place.",
   "workoutHowCadence": "The time moves every second, kept by Android. Heart rate, distance and pace change at most every 2 s with the screen on. With the screen off they wait until it turns on; a pause, the end question or a lost ring do not wait.",
   "workoutHowEnd": "End pauses and asks. Save keeps the workout; Continue goes back to how it was. Discarding is only in the app.",
   "workoutHowResult": "Only the save result stays, for up to 1 hour. Opening the workout summary removes it.",
   "workoutHowClosed": "Closing OpenRing from recent apps ends the workout without saving it.",
   "workoutHowScores": "No scores and no calories.",
-  "workoutHowSound": "No sound. One short vibration when the ring drops, if Alert when the ring drops is on."
+  "workoutHowSound": "No sound. One short vibration when heart rate readings stop for 30 s, if Alert when the ring drops is on."
 }

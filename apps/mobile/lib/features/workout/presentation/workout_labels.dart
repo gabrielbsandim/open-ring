@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
@@ -233,8 +236,30 @@ LocationNotice workoutLocationNotice(AppLocalizations l10n) => LocationNotice(
     failedText: l10n.workoutNoticeFailedText,
     viewSummary: l10n.workoutViewSummary,
     open: l10n.workoutNoticeOpen,
+    recoveredTitle: l10n.workoutRecoveredTitle,
+    recoveredText: (elapsed, distance) => distance == null
+        ? l10n.workoutRecoveredBodyNoDistance(elapsed)
+        : l10n.workoutRecoveredBody(elapsed, distance),
+    clockOrDay: (instant, offset, now) =>
+        _clockOrDay(MetricFormat(l10n, l10n.localeName), instant, offset, now),
   ),
 );
+
+// Recovery posts at launch, before MaterialApp has loaded the date symbols;
+// with them loaded this does nothing.
+String _clockOrDay(
+  MetricFormat format,
+  DateTime instant,
+  Duration offset,
+  DateTime now,
+) {
+  unawaited(initializeDateFormatting());
+  final day = LocalDate.fromInstant(instant, offset);
+  if (day == LocalDate.fromInstant(now, offset)) {
+    return format.clock(instant, offset);
+  }
+  return format.dayAndClock(instant, offset);
+}
 
 enum GpsQuality {
   good,

@@ -63,7 +63,7 @@ void main() {
 
   Future<RecoveredWorkout?> recover(ProviderContainer c) async {
     await c.read(workoutRecoveryProvider.notifier).run();
-    return c.read(workoutRecoveryProvider);
+    return c.read<RecoveredWorkout?>(workoutRecoveryProvider);
   }
 
   test('the in memory registry marks, reports and clears a start', () {

@@ -66,6 +66,34 @@ class WorkoutsDao extends DatabaseAccessor<AppDatabase>
         .go();
   }
 
+  Future<List<DateTime>> openStarts() =>
+      (selectOnly(workouts)
+            ..addColumns([workouts.startUtcMs])
+            ..where(workouts.endUtcMs.isNull())
+            ..orderBy([OrderingTerm.asc(workouts.startUtcMs)]))
+          .map((row) => utcInstant(row.read(workouts.startUtcMs)!))
+          .get();
+
+  // Only a row with no end changes, so one another engine saved in the
+  // meantime keeps its end, its elapsed time and its outbox row.
+  Future<WorkoutRow?> closeOpen(DateTime start) async {
+    final closed =
+        await (update(workouts)..where(
+              (w) => w.clientId.equals(clientIdOf(start)) & w.endUtcMs.isNull(),
+            ))
+            .writeReturning(
+              WorkoutsCompanion.custom(
+                endUtcMs: coalesce([
+                  workouts.checkpointUtcMs,
+                  workouts.startUtcMs +
+                      coalesce([workouts.elapsedMs, const Constant(0)]),
+                ]),
+                checkpointUtcMs: const Constant(null),
+              ),
+            );
+    return closed.singleOrNull;
+  }
+
   Future<WorkoutRow?> _byStart(DateTime start) => (select(
     workouts,
   )..where((w) => w.clientId.equals(clientIdOf(start)))).getSingleOrNull();

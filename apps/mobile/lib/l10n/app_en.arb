@@ -4744,7 +4744,7 @@
   "foodTagsFailed": "Could not save the tags",
   "workoutNoticeSavedHeartRate": "Avg HR {bpm}",
   "@workoutNoticeSavedHeartRate": {"placeholders": {"bpm": {"type": "int"}}},
-  "workoutNoticeFailedText": "Open the app to try again. Closing it loses the workout.",
+  "workoutNoticeFailedText": "Open the app to try again. If you close it, the workout is saved up to its last minute the next time the app opens.",
   "workoutNoticeOpen": "Open",
   "workoutNotificationsOffTitle": "Notifications off",
   "workoutNotificationsOffBody": "The workout still records, but its time, heart rate and buttons do not show outside the app or on the lock screen.",
@@ -4769,7 +4769,13 @@
   "workoutHowCadence": "The time moves every second, kept by Android. Heart rate, distance and pace change at most every 2 s with the screen on. With the screen off they wait until it turns on; a pause, the end question or a lost ring do not wait.",
   "workoutHowEnd": "End pauses and asks. Save keeps the workout; Continue goes back to how it was. Discarding is only in the app.",
   "workoutHowResult": "Only the save result stays, for up to 1 hour. Opening the workout summary removes it.",
-  "workoutHowClosed": "Closing OpenRing from recent apps ends the workout without saving it.",
+  "workoutHowClosed": "Closing OpenRing from recent apps stops the workout. The next time the app opens, it is saved up to its last minute.",
   "workoutHowScores": "No scores and no calories.",
-  "workoutHowSound": "No sound. One short vibration when heart rate readings stop for 30 s, if Alert when the ring drops is on."
+  "workoutHowSound": "No sound. One short vibration when heart rate readings stop for 30 s, if Alert when the ring drops is on.",
+  "workoutRecoveredTitle": "Workout saved until {time}",
+  "@workoutRecoveredTitle": {"placeholders": {"time": {"type": "String"}}},
+  "workoutRecoveredBody": "Closing the app stopped it. {elapsed}, {distance} kept.",
+  "@workoutRecoveredBody": {"placeholders": {"elapsed": {"type": "String"}, "distance": {"type": "String"}}},
+  "workoutRecoveredBodyNoDistance": "Closing the app stopped it. {elapsed} kept.",
+  "@workoutRecoveredBodyNoDistance": {"placeholders": {"elapsed": {"type": "String"}}}
 }

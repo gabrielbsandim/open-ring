@@ -2357,7 +2357,7 @@
   "foodPlacePackaged": "Embalado",
   "foodTagsFailed": "Não foi possível guardar as etiquetas",
   "workoutNoticeSavedHeartRate": "FC média {bpm}",
-  "workoutNoticeFailedText": "Abra a app para tentar novamente. Fechar a app perde o treino.",
+  "workoutNoticeFailedText": "Abra a app para tentar novamente. Se fechar a app, o treino é guardado até ao último minuto quando a app abrir novamente.",
   "workoutNoticeOpen": "Abrir",
   "workoutNotificationsOffTitle": "Notificações desligadas",
   "workoutNotificationsOffBody": "O treino é gravado na mesma, mas o tempo, a FC e os botões não aparecem fora da app nem no ecrã de bloqueio.",
@@ -2382,7 +2382,10 @@
   "workoutHowCadence": "O tempo avança a cada segundo, contado pelo próprio Android. FC, distância e ritmo mudam no máximo a cada 2 s com o ecrã ligado. Com o ecrã desligado, esperam até ele ligar; uma pausa, a pergunta de terminar ou o anel perdido não esperam.",
   "workoutHowEnd": "Terminar pausa e pergunta. Guardar grava o treino; Continuar volta ao estado anterior. Descartar só dentro da app.",
   "workoutHowResult": "Fica só o resultado da gravação, durante até 1 hora. Abrir o resumo do treino remove-o.",
-  "workoutHowClosed": "Fechar o OpenRing nas apps recentes termina o treino sem o guardar.",
+  "workoutHowClosed": "Fechar o OpenRing nas apps recentes interrompe o treino. Da próxima vez que a app abrir, o treino é guardado até ao último minuto.",
   "workoutHowScores": "Nenhuma nota e nenhuma caloria.",
-  "workoutHowSound": "Nenhum som. Uma vibração curta quando as leituras de FC param durante 30 s, se Avisar quando o anel cair estiver ligado."
+  "workoutHowSound": "Nenhum som. Uma vibração curta quando as leituras de FC param durante 30 s, se Avisar quando o anel cair estiver ligado.",
+  "workoutRecoveredTitle": "Treino guardado até {time}",
+  "workoutRecoveredBody": "Fechar a app parou o treino. {elapsed} e {distance} ficaram guardados.",
+  "workoutRecoveredBodyNoDistance": "Fechar a app parou o treino. {elapsed} ficaram guardados."
 }

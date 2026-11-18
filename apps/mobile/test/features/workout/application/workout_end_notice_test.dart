@@ -41,7 +41,8 @@ void main() {
       expect(pt.savedHeartRate(146), 'FC média 146');
       expect(
         pt.failedText,
-        'Abra o app para tentar de novo. Fechar o app perde o treino.',
+        'Abra o app para tentar de novo. Se fechar o app, o treino é salvo até '
+        'o último minuto quando o app abrir de novo.',
       );
       expect(pt.open, 'Abrir');
     });
@@ -53,7 +54,8 @@ void main() {
       expect(en.savedHeartRate(146), 'Avg HR 146');
       expect(
         en.failedText,
-        'Open the app to try again. Closing it loses the workout.',
+        'Open the app to try again. If you close it, the workout is saved up '
+        'to its last minute the next time the app opens.',
       );
       expect(en.open, 'Open');
     });

@@ -2365,7 +2365,7 @@
   "foodPlacePackaged": "Kemasan",
   "foodTagsFailed": "Tanda tidak bisa disimpan",
   "workoutNoticeSavedHeartRate": "Rata-rata DJ {bpm}",
-  "workoutNoticeFailedText": "Buka aplikasi untuk mencoba lagi. Menutupnya akan menghilangkan latihan ini.",
+  "workoutNoticeFailedText": "Buka aplikasi untuk mencoba lagi. Jika ditutup, latihan disimpan hingga menit terakhirnya saat aplikasi dibuka lagi.",
   "workoutNoticeOpen": "Buka",
   "workoutNotificationsOffTitle": "Notifikasi nonaktif",
   "workoutNotificationsOffBody": "Latihan tetap direkam, tetapi waktu, detak jantung, dan tombolnya tidak tampil di luar aplikasi atau di layar kunci.",
@@ -2390,7 +2390,10 @@
   "workoutHowCadence": "Waktu berjalan setiap detik, dihitung oleh Android sendiri. Detak jantung, jarak, dan pace berubah paling cepat setiap 2 dtk saat layar menyala. Saat layar mati, semuanya menunggu sampai layar menyala; jeda, pertanyaan mengakhiri, atau cincin yang hilang tidak menunggu.",
   "workoutHowEnd": "Selesai menjeda dan bertanya. Simpan menyimpan latihan; Lanjutkan kembali ke keadaan sebelumnya. Membuang latihan hanya bisa di aplikasi.",
   "workoutHowResult": "Hanya hasil penyimpanan yang tersisa, hingga 1 jam. Membuka ringkasan latihan akan menghapusnya.",
-  "workoutHowClosed": "Menutup OpenRing dari aplikasi terbaru mengakhiri latihan tanpa menyimpannya.",
+  "workoutHowClosed": "Menutup OpenRing dari aplikasi terbaru menghentikan latihan. Saat aplikasi dibuka lagi, latihan disimpan hingga menit terakhirnya.",
   "workoutHowScores": "Tanpa skor dan tanpa kalori.",
-  "workoutHowSound": "Tanpa suara. Satu getaran singkat saat data detak jantung berhenti 30 dtk, jika Beri tahu saat cincin terputus aktif."
+  "workoutHowSound": "Tanpa suara. Satu getaran singkat saat data detak jantung berhenti 30 dtk, jika Beri tahu saat cincin terputus aktif.",
+  "workoutRecoveredTitle": "Latihan tersimpan hingga {time}",
+  "workoutRecoveredBody": "Menutup aplikasi menghentikan latihan. {elapsed}, {distance} tetap tersimpan.",
+  "workoutRecoveredBodyNoDistance": "Menutup aplikasi menghentikan latihan. {elapsed} tetap tersimpan."
 }

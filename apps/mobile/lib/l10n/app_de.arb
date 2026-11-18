@@ -2365,7 +2365,7 @@
   "foodPlacePackaged": "Abgepackt",
   "foodTagsFailed": "Die Markierungen konnten nicht gespeichert werden",
   "workoutNoticeSavedHeartRate": "Ø HF {bpm}",
-  "workoutNoticeFailedText": "Öffne die App, um es erneut zu versuchen. Wenn du sie schließt, geht das Training verloren.",
+  "workoutNoticeFailedText": "Öffne die App, um es erneut zu versuchen. Schließt du sie, wird das Training beim nächsten Öffnen bis zur letzten Minute gespeichert.",
   "workoutNoticeOpen": "Öffnen",
   "workoutNotificationsOffTitle": "Benachrichtigungen aus",
   "workoutNotificationsOffBody": "Das Training wird trotzdem aufgezeichnet, aber Zeit, Puls und Tasten erscheinen weder außerhalb der App noch auf dem Sperrbildschirm.",
@@ -2390,7 +2390,10 @@
   "workoutHowCadence": "Die Zeit läuft jede Sekunde weiter, von Android selbst gezählt. Puls, Distanz und Pace ändern sich bei eingeschaltetem Bildschirm höchstens alle 2 s. Bei ausgeschaltetem Bildschirm warten sie, bis er angeht; eine Pause, die Frage zum Beenden oder ein verlorener Ring warten nicht.",
   "workoutHowEnd": "Beenden pausiert und fragt nach. Speichern sichert das Training; Weiter stellt den Zustand davor wieder her. Verwerfen geht nur in der App.",
   "workoutHowResult": "Nur das Ergebnis des Speicherns bleibt, bis zu 1 Stunde. Das Öffnen der Trainingsübersicht entfernt es.",
-  "workoutHowClosed": "Wird OpenRing in den letzten Apps geschlossen, endet das Training ohne Speichern.",
+  "workoutHowClosed": "Wird OpenRing in den letzten Apps geschlossen, endet das Training. Beim nächsten Öffnen der App wird es bis zur letzten Minute gespeichert.",
   "workoutHowScores": "Keine Noten und keine Kalorien.",
-  "workoutHowSound": "Kein Ton. Eine kurze Vibration, wenn 30 s lang keine Pulswerte kommen, sofern „Warnen, wenn der Ring abbricht“ an ist."
+  "workoutHowSound": "Kein Ton. Eine kurze Vibration, wenn 30 s lang keine Pulswerte kommen, sofern „Warnen, wenn der Ring abbricht“ an ist.",
+  "workoutRecoveredTitle": "Training gespeichert bis {time}",
+  "workoutRecoveredBody": "Das Schließen der App hat das Training beendet. {elapsed} und {distance} bleiben erhalten.",
+  "workoutRecoveredBodyNoDistance": "Das Schließen der App hat das Training beendet. {elapsed} bleiben erhalten."
 }

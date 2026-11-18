@@ -2365,7 +2365,7 @@
   "foodPlacePackaged": "Emballé",
   "foodTagsFailed": "Impossible d’enregistrer les étiquettes",
   "workoutNoticeSavedHeartRate": "FC moy. {bpm}",
-  "workoutNoticeFailedText": "Ouvrez l'app pour réessayer. La fermer fait perdre la séance.",
+  "workoutNoticeFailedText": "Ouvrez l'app pour réessayer. Si vous la fermez, la séance est enregistrée jusqu'à sa dernière minute à la prochaine ouverture.",
   "workoutNoticeOpen": "Ouvrir",
   "workoutNotificationsOffTitle": "Notifications désactivées",
   "workoutNotificationsOffBody": "La séance est quand même enregistrée, mais sa durée, la FC et les boutons ne s'affichent ni hors de l'app ni sur l'écran de verrouillage.",
@@ -2390,7 +2390,10 @@
   "workoutHowCadence": "Le temps avance chaque seconde, tenu par Android lui-même. La FC, la distance et l’allure changent au plus toutes les 2 s écran allumé. Écran éteint, elles attendent qu’il se rallume ; une pause, la question de fin ou une bague perdue n’attendent pas.",
   "workoutHowEnd": "Terminer met en pause et demande. Enregistrer garde la séance ; Continuer revient à l’état d’avant. L’abandon se fait seulement dans l’app.",
   "workoutHowResult": "Seul le résultat de l’enregistrement reste, jusqu’à 1 heure. Ouvrir le résumé de la séance le retire.",
-  "workoutHowClosed": "Fermer OpenRing depuis les applis récentes termine la séance sans l’enregistrer.",
+  "workoutHowClosed": "Fermer OpenRing depuis les applis récentes arrête la séance. À la prochaine ouverture de l'app, elle est enregistrée jusqu'à sa dernière minute.",
   "workoutHowScores": "Aucune note et aucune calorie.",
-  "workoutHowSound": "Aucun son. Une courte vibration quand les mesures de FC s’arrêtent 30 s, si Prévenir si la bague décroche est activé."
+  "workoutHowSound": "Aucun son. Une courte vibration quand les mesures de FC s’arrêtent 30 s, si Prévenir si la bague décroche est activé.",
+  "workoutRecoveredTitle": "Séance enregistrée jusqu'à {time}",
+  "workoutRecoveredBody": "La fermeture de l'app a arrêté la séance. Conservé : {elapsed}, {distance}.",
+  "workoutRecoveredBodyNoDistance": "La fermeture de l'app a arrêté la séance. Conservé : {elapsed}."
 }

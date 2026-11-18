@@ -24,9 +24,9 @@ void main() {
   });
 
   test('clear removes the name', () {
-    registry.markLive(openStart);
-
-    registry.clear(openStart);
+    registry
+      ..markLive(openStart)
+      ..clear(openStart);
 
     expect(IsolateNameServer.lookupPortByName(nameOf()), isNull);
     expect(registry.isLive(openStart), isFalse);

@@ -10,8 +10,8 @@ import 'package:open_ring/l10n/generated/app_localizations.dart';
 // The en copy the 11 ARBs must carry, as placeholders {time} {elapsed}
 // {distance}: the title, the body, and the body with no distance.
 const enTitle = 'Workout saved until 07:31';
-const enBody = 'Closing the app stopped it. 21:00, 3.00 km kept.';
-const enBodyNoDistance = 'Closing the app stopped it. 21:00 kept.';
+const enBody = 'OpenRing stopped during the workout. 21:00, 3.00 km kept.';
+const enBodyNoDistance = 'OpenRing stopped during the workout. 21:00 kept.';
 
 final end = DateTime.utc(2026, 11, 10, 7, 31);
 final sameDay = DateTime.utc(2026, 11, 10, 12);
@@ -96,7 +96,10 @@ void main() {
       now: sameDay,
     );
 
-    expect(notice.text, 'Closing the app stopped it. 21:00, 1.86 mi kept.');
+    expect(
+      notice.text,
+      'OpenRing stopped during the workout. 21:00, 1.86 mi kept.',
+    );
   });
 
   test('the time is shown in the offset stored on the row', () {

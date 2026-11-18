@@ -2394,6 +2394,6 @@
   "workoutHowScores": "スコアもカロリーも表示しません。",
   "workoutHowSound": "音は鳴りません。「リングが切れたら通知」がオンなら、心拍数の測定値が 30 秒間途切れたときに短く 1 回振動します。",
   "workoutRecoveredTitle": "{time}までのワークアウトを保存しました",
-  "workoutRecoveredBody": "アプリを閉じたため停止しました。{elapsed}、{distance}を保存しました。",
-  "workoutRecoveredBodyNoDistance": "アプリを閉じたため停止しました。{elapsed}を保存しました。"
+  "workoutRecoveredBody": "ワークアウト中に OpenRing が停止しました。{elapsed}、{distance}を保存しました。",
+  "workoutRecoveredBodyNoDistance": "ワークアウト中に OpenRing が停止しました。{elapsed}を保存しました。"
 }

@@ -2386,6 +2386,6 @@
   "workoutHowScores": "Nenhuma nota e nenhuma caloria.",
   "workoutHowSound": "Nenhum som. Uma vibração curta quando as leituras de FC param durante 30 s, se Avisar quando o anel cair estiver ligado.",
   "workoutRecoveredTitle": "Treino guardado até {time}",
-  "workoutRecoveredBody": "Fechar a app parou o treino. {elapsed} e {distance} ficaram guardados.",
-  "workoutRecoveredBodyNoDistance": "Fechar a app parou o treino. {elapsed} ficaram guardados."
+  "workoutRecoveredBody": "O OpenRing parou durante o treino. {elapsed} e {distance} ficaram guardados.",
+  "workoutRecoveredBodyNoDistance": "O OpenRing parou durante o treino. {elapsed} ficaram guardados."
 }

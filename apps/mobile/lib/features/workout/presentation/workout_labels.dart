@@ -240,26 +240,17 @@ LocationNotice workoutLocationNotice(AppLocalizations l10n) => LocationNotice(
     recoveredText: (elapsed, distance) => distance == null
         ? l10n.workoutRecoveredBodyNoDistance(elapsed)
         : l10n.workoutRecoveredBody(elapsed, distance),
-    clockOrDay: (instant, offset, now) =>
-        _clockOrDay(MetricFormat(l10n, l10n.localeName), instant, offset, now),
+    clockOrDay: (instant, offset, now) {
+      // Recovery posts at launch, before MaterialApp has loaded the date
+      // symbols; with them loaded this does nothing.
+      unawaited(initializeDateFormatting());
+      return MetricFormat(
+        l10n,
+        l10n.localeName,
+      ).clockOrDay(instant, now, offset: offset);
+    },
   ),
 );
-
-// Recovery posts at launch, before MaterialApp has loaded the date symbols;
-// with them loaded this does nothing.
-String _clockOrDay(
-  MetricFormat format,
-  DateTime instant,
-  Duration offset,
-  DateTime now,
-) {
-  unawaited(initializeDateFormatting());
-  final day = LocalDate.fromInstant(instant, offset);
-  if (day == LocalDate.fromInstant(now, offset)) {
-    return format.clock(instant, offset);
-  }
-  return format.dayAndClock(instant, offset);
-}
 
 enum GpsQuality {
   good,

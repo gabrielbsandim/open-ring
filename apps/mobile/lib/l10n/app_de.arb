@@ -2394,6 +2394,6 @@
   "workoutHowScores": "Keine Noten und keine Kalorien.",
   "workoutHowSound": "Kein Ton. Eine kurze Vibration, wenn 30 s lang keine Pulswerte kommen, sofern „Warnen, wenn der Ring abbricht“ an ist.",
   "workoutRecoveredTitle": "Training gespeichert bis {time}",
-  "workoutRecoveredBody": "Das Schließen der App hat das Training beendet. {elapsed} und {distance} bleiben erhalten.",
-  "workoutRecoveredBodyNoDistance": "Das Schließen der App hat das Training beendet. {elapsed} bleiben erhalten."
+  "workoutRecoveredBody": "OpenRing wurde während des Trainings beendet. {elapsed} und {distance} bleiben erhalten.",
+  "workoutRecoveredBodyNoDistance": "OpenRing wurde während des Trainings beendet. {elapsed} bleiben erhalten."
 }

@@ -2394,6 +2394,6 @@
   "workoutHowScores": "Ninguna nota y ninguna caloría.",
   "workoutHowSound": "Ningún sonido. Una vibración corta cuando las lecturas de FC se detienen 30 s, si Avisar si el anillo se desconecta está activado.",
   "workoutRecoveredTitle": "Entrenamiento guardado hasta las {time}",
-  "workoutRecoveredBody": "Cerrar la app detuvo el entrenamiento. Se conservan {elapsed} y {distance}.",
-  "workoutRecoveredBodyNoDistance": "Cerrar la app detuvo el entrenamiento. Se conservan {elapsed}."
+  "workoutRecoveredBody": "OpenRing se detuvo durante el entrenamiento. Se conservan {elapsed} y {distance}.",
+  "workoutRecoveredBodyNoDistance": "OpenRing se detuvo durante el entrenamiento. Se conservan {elapsed}."
 }

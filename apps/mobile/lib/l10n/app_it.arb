@@ -2394,6 +2394,6 @@
   "workoutHowScores": "Nessun voto e nessuna caloria.",
   "workoutHowSound": "Nessun suono. Una breve vibrazione quando le letture della FC si fermano per 30 s, se Avvisa se l’anello si scollega è attivo.",
   "workoutRecoveredTitle": "Allenamento salvato fino alle {time}",
-  "workoutRecoveredBody": "Chiudere l'app ha interrotto l'allenamento. Conservati {elapsed} e {distance}.",
-  "workoutRecoveredBodyNoDistance": "Chiudere l'app ha interrotto l'allenamento. Conservati {elapsed}."
+  "workoutRecoveredBody": "OpenRing si è interrotto durante l'allenamento. Conservati {elapsed} e {distance}.",
+  "workoutRecoveredBodyNoDistance": "OpenRing si è interrotto durante l'allenamento. Conservati {elapsed}."
 }

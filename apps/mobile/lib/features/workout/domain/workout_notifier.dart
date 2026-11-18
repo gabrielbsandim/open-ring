@@ -208,7 +208,8 @@ final class WorkoutNoticeLabels {
 String _recoveredTitle(String time) => 'Workout saved until $time';
 
 String _recoveredText(String elapsed, String? distance) =>
-    'Closing the app stopped it. ${[elapsed, ?distance].join(', ')} kept.';
+    'OpenRing stopped during the workout. '
+    '${[elapsed, ?distance].join(', ')} kept.';
 
 String _clockOrDay(DateTime instant, Duration offset, DateTime now) {
   final wall = instant.toUtc().add(offset);

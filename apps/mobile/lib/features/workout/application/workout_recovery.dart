@@ -38,7 +38,7 @@ class WorkoutRecovery extends Notifier<RecoveredWorkout?> {
     final now = ref.read(clockProvider)();
     RecoveredWorkout? newest;
     for (final start in await store.openStarts()) {
-      if (live.isLive(start)) continue;
+      if (await live.isLive(start)) continue;
       newest = await store.close(start, at: now) ?? newest;
     }
     if (newest == null || !ref.mounted) return;

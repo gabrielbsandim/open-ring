@@ -2394,6 +2394,6 @@
   "workoutHowScores": "Aucune note et aucune calorie.",
   "workoutHowSound": "Aucun son. Une courte vibration quand les mesures de FC s’arrêtent 30 s, si Prévenir si la bague décroche est activé.",
   "workoutRecoveredTitle": "Séance enregistrée jusqu'à {time}",
-  "workoutRecoveredBody": "La fermeture de l'app a arrêté la séance. Conservé : {elapsed}, {distance}.",
-  "workoutRecoveredBodyNoDistance": "La fermeture de l'app a arrêté la séance. Conservé : {elapsed}."
+  "workoutRecoveredBody": "OpenRing s'est arrêté pendant la séance. Conservé : {elapsed}, {distance}.",
+  "workoutRecoveredBodyNoDistance": "OpenRing s'est arrêté pendant la séance. Conservé : {elapsed}."
 }

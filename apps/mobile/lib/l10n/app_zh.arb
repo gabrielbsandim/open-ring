@@ -2394,6 +2394,6 @@
   "workoutHowScores": "没有评分，也没有卡路里。",
   "workoutHowSound": "没有声音。若开启了“戒指断开时提醒”，心率读数中断 30 秒时会短振一次。",
   "workoutRecoveredTitle": "运动已保存至 {time}",
-  "workoutRecoveredBody": "关闭应用使运动停止。已保留 {elapsed}、{distance}。",
-  "workoutRecoveredBodyNoDistance": "关闭应用使运动停止。已保留 {elapsed}。"
+  "workoutRecoveredBody": "运动期间 OpenRing 已停止。已保留 {elapsed}、{distance}。",
+  "workoutRecoveredBodyNoDistance": "运动期间 OpenRing 已停止。已保留 {elapsed}。"
 }

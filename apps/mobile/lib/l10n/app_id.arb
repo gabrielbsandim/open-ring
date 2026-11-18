@@ -2394,6 +2394,6 @@
   "workoutHowScores": "Tanpa skor dan tanpa kalori.",
   "workoutHowSound": "Tanpa suara. Satu getaran singkat saat data detak jantung berhenti 30 dtk, jika Beri tahu saat cincin terputus aktif.",
   "workoutRecoveredTitle": "Latihan tersimpan hingga {time}",
-  "workoutRecoveredBody": "Menutup aplikasi menghentikan latihan. {elapsed}, {distance} tetap tersimpan.",
-  "workoutRecoveredBodyNoDistance": "Menutup aplikasi menghentikan latihan. {elapsed} tetap tersimpan."
+  "workoutRecoveredBody": "OpenRing berhenti selama latihan. {elapsed}, {distance} tetap tersimpan.",
+  "workoutRecoveredBodyNoDistance": "OpenRing berhenti selama latihan. {elapsed} tetap tersimpan."
 }

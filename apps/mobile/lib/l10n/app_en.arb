@@ -4774,8 +4774,8 @@
   "workoutHowSound": "No sound. One short vibration when heart rate readings stop for 30 s, if Alert when the ring drops is on.",
   "workoutRecoveredTitle": "Workout saved until {time}",
   "@workoutRecoveredTitle": {"placeholders": {"time": {"type": "String"}}},
-  "workoutRecoveredBody": "Closing the app stopped it. {elapsed}, {distance} kept.",
+  "workoutRecoveredBody": "OpenRing stopped during the workout. {elapsed}, {distance} kept.",
   "@workoutRecoveredBody": {"placeholders": {"elapsed": {"type": "String"}, "distance": {"type": "String"}}},
-  "workoutRecoveredBodyNoDistance": "Closing the app stopped it. {elapsed} kept.",
+  "workoutRecoveredBodyNoDistance": "OpenRing stopped during the workout. {elapsed} kept.",
   "@workoutRecoveredBodyNoDistance": {"placeholders": {"elapsed": {"type": "String"}}}
 }

@@ -2394,6 +2394,6 @@
   "workoutHowScores": "Никаких оценок и никаких калорий.",
   "workoutHowSound": "Без звука. Одна короткая вибрация, когда данные пульса не приходят 30 с, если включено «Предупреждать о потере кольца».",
   "workoutRecoveredTitle": "Тренировка сохранена до {time}",
-  "workoutRecoveredBody": "Закрытие приложения остановило тренировку. Сохранено: {elapsed}, {distance}.",
-  "workoutRecoveredBodyNoDistance": "Закрытие приложения остановило тренировку. Сохранено: {elapsed}."
+  "workoutRecoveredBody": "OpenRing остановился во время тренировки. Сохранено: {elapsed}, {distance}.",
+  "workoutRecoveredBodyNoDistance": "OpenRing остановился во время тренировки. Сохранено: {elapsed}."
 }

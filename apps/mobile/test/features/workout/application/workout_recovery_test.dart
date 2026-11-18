@@ -1,4 +1,6 @@
-import 'package:flutter/widgets.dart';
+import 'dart:isolate';
+import 'dart:ui';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/core/clock/clock.dart';
@@ -15,6 +17,7 @@ import 'package:open_ring/features/workout/application/workout_recovery.dart';
 import 'package:open_ring/features/workout/domain/workout_notifier.dart';
 import 'package:open_ring/features/workout/domain/workout_recovery.dart';
 import 'package:open_ring/features/workout/infrastructure/drift_open_workout_store.dart';
+import 'package:open_ring/features/workout/infrastructure/isolate_live_workout_registry.dart';
 import 'package:open_ring/features/workout/presentation/workout_labels.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -41,12 +44,13 @@ void main() {
   ProviderContainer container({
     UnitSystem units = UnitSystem.metric,
     bool demo = false,
+    LiveWorkoutRegistry? live,
   }) {
     final container = ProviderContainer(
       overrides: [
         clockProvider.overrideWithValue(() => launchAt),
         openWorkoutStoreProvider.overrideWithValue(DriftOpenWorkoutStore(db)),
-        liveWorkoutRegistryProvider.overrideWithValue(registry),
+        liveWorkoutRegistryProvider.overrideWithValue(live ?? registry),
         workoutNotifierProvider.overrideWithValue(notifier),
         workoutRecoveryLabelsProvider.overrideWithValue(enLabels),
         unitSystemStoreProvider.overrideWithValue(
@@ -66,13 +70,13 @@ void main() {
     return c.read<RecoveredWorkout?>(workoutRecoveryProvider);
   }
 
-  test('the in memory registry marks, reports and clears a start', () {
-    expect(registry.isLive(openStart), isFalse);
+  test('the in memory registry marks, reports and clears a start', () async {
+    expect(await registry.isLive(openStart), isFalse);
     registry.markLive(openStart);
-    expect(registry.isLive(openStart), isTrue);
-    expect(registry.isLive(openStartAfter(1)), isFalse);
+    expect(await registry.isLive(openStart), isTrue);
+    expect(await registry.isLive(openStartAfter(1)), isFalse);
     registry.clear(openStart);
-    expect(registry.isLive(openStart), isFalse);
+    expect(await registry.isLive(openStart), isFalse);
   });
 
   test('criterion 1: an open row is closed, queued once and announced with '
@@ -135,6 +139,37 @@ void main() {
     expect(recovered!.id, deadId);
     expect(notifier.endedNotices.single.link, '$workoutSummaryLink/$deadId');
     expect(await rowCount(db, 'health_outbox'), 1);
+  });
+
+  test('a process wide mark whose isolate died does not keep the row '
+      'open', () async {
+    final id = await insertOpenRow(db);
+    final dead = ReceivePort();
+    IsolateNameServer.registerPortWithName(
+      dead.sendPort,
+      'openring.workout.live.${openStart.millisecondsSinceEpoch}',
+    );
+    dead.close();
+    final live = IsolateLiveWorkoutRegistry();
+    addTearDown(() => live.clear(openStart));
+
+    final recovered = await recover(container(live: live));
+
+    expect(recovered!.id, id);
+    expect((await rowOf(db, id)).endUtcMs, isNotNull);
+    expect(notifier.endedNotices, hasLength(1));
+  });
+
+  test('a process wide mark that answers keeps the row open', () async {
+    final id = await insertOpenRow(db);
+    final live = IsolateLiveWorkoutRegistry()..markLive(openStart);
+    addTearDown(() => live.clear(openStart));
+
+    final recovered = await recover(container(live: live));
+
+    expect(recovered, isNull);
+    expect((await rowOf(db, id)).endUtcMs, isNull);
+    expect(notifier.endedNotices, isEmpty);
   });
 
   test('criterion 4: a finished row is untouched and gets no notice', () async {

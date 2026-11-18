@@ -37,7 +37,7 @@ abstract interface class LiveWorkoutRegistry {
 
   void clear(DateTime start);
 
-  bool isLive(DateTime start);
+  Future<bool> isLive(DateTime start);
 }
 
 final class InMemoryLiveWorkoutRegistry implements LiveWorkoutRegistry {
@@ -50,5 +50,6 @@ final class InMemoryLiveWorkoutRegistry implements LiveWorkoutRegistry {
   void clear(DateTime start) => _live.remove(start.millisecondsSinceEpoch);
 
   @override
-  bool isLive(DateTime start) => _live.contains(start.millisecondsSinceEpoch);
+  Future<bool> isLive(DateTime start) async =>
+      _live.contains(start.millisecondsSinceEpoch);
 }

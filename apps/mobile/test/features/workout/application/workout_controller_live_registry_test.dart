@@ -35,11 +35,11 @@ void main() {
     'criterion 8: the start is marked live while the workout runs',
     () async {
       final c = container(WorkoutRig());
-      expect(registry.isLive(workoutStart), isFalse);
+      expect(await registry.isLive(workoutStart), isFalse);
 
       await started(c);
 
-      expect(registry.isLive(workoutStart), isTrue);
+      expect(await registry.isLive(workoutStart), isTrue);
     },
   );
 
@@ -52,7 +52,7 @@ void main() {
     await controller.finish();
 
     expect(c.read(workoutProvider).save, WorkoutSave.saved);
-    expect(registry.isLive(workoutStart), isFalse);
+    expect(await registry.isLive(workoutStart), isFalse);
   });
 
   test('criterion 8: the mark is cleared after a discard', () async {
@@ -63,7 +63,7 @@ void main() {
 
     await controller.discard();
 
-    expect(registry.isLive(workoutStart), isFalse);
+    expect(await registry.isLive(workoutStart), isFalse);
   });
 
   test('criterion 8: the mark stays after a failed save', () async {
@@ -75,7 +75,7 @@ void main() {
     await controller.finish();
 
     expect(c.read(workoutProvider).save, WorkoutSave.failed);
-    expect(registry.isLive(workoutStart), isTrue);
+    expect(await registry.isLive(workoutStart), isTrue);
   });
 
   test(
@@ -90,7 +90,7 @@ void main() {
       await controller.saveAgain();
 
       expect(c.read(workoutProvider).save, WorkoutSave.saved);
-      expect(registry.isLive(workoutStart), isFalse);
+      expect(await registry.isLive(workoutStart), isFalse);
     },
   );
 
@@ -98,10 +98,10 @@ void main() {
     final rig = WorkoutRig();
     final c = container(rig);
     await started(c);
-    expect(registry.isLive(workoutStart), isTrue);
+    expect(await registry.isLive(workoutStart), isTrue);
 
     c.dispose();
 
-    expect(registry.isLive(workoutStart), isFalse);
+    expect(await registry.isLive(workoutStart), isFalse);
   });
 }

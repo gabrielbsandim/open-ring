@@ -192,6 +192,7 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
           (select(table)
                 ..where(
                   (w) =>
+                      w.endUtcMs.isNotNull() &
                       _inRange(w.startUtcMs, range) &
                       _afterId(w.startUtcMs, w.id, cursor),
                 )

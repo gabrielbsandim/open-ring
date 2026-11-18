@@ -64,6 +64,15 @@ final class _FailingHistory implements WorkoutStore, WorkoutHistoryReader {
 
   @override
   Future<bool> delete(int id) async => throw _readFailure;
+
+  @override
+  Future<void> checkpoint(
+    WorkoutSession session, {
+    required DateTime at,
+  }) async {}
+
+  @override
+  Future<void> dropCheckpoint(WorkoutSession session) async {}
 }
 
 final class _Imported implements ImportedWorkoutReader {

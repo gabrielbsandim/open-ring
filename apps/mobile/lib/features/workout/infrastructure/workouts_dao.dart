@@ -20,23 +20,91 @@ class WorkoutsDao extends DatabaseAccessor<AppDatabase>
     FinishedWorkout workout, {
     String? deviceId,
     int? effortRating,
-  }) async {
-    final id = await into(workouts).insert(
+  }) => _write(
+    null,
+    _finished(workout, deviceId: deviceId, effortRating: effortRating),
+    workout,
+  );
+
+  // A row whose end is set is saved, so a checkpoint that lost the race with
+  // save leaves it alone.
+  Future<void> writeCheckpoint(
+    FinishedWorkout workout, {
+    required DateTime at,
+    String? deviceId,
+  }) => transaction(() async {
+    final row = await _byStart(workout.start);
+    if (row?.endUtcMs != null) return;
+    final columns = _columns(
+      workout,
+      deviceId: deviceId,
+    ).copyWith(checkpointUtcMs: Value(at.utcMs));
+    await _write(row?.id, columns, workout);
+  });
+
+  // A saved row with the same start fails on the unique client id, as it did
+  // before checkpoints.
+  Future<int> closeOrInsert(
+    FinishedWorkout workout, {
+    String? deviceId,
+    int? effortRating,
+  }) => transaction(() async {
+    final row = await _byStart(workout.start);
+    final open = row?.endUtcMs == null ? row?.id : null;
+    return await _write(
+      open,
+      _finished(workout, deviceId: deviceId, effortRating: effortRating),
+      workout,
+    );
+  });
+
+  Future<void> deleteOpen(DateTime? start) async {
+    if (start == null) return;
+    await (delete(workouts)..where(
+          (w) => w.clientId.equals(clientIdOf(start)) & w.endUtcMs.isNull(),
+        ))
+        .go();
+  }
+
+  Future<WorkoutRow?> _byStart(DateTime start) => (select(
+    workouts,
+  )..where((w) => w.clientId.equals(clientIdOf(start)))).getSingleOrNull();
+
+  WorkoutsCompanion _columns(FinishedWorkout workout, {String? deviceId}) =>
       WorkoutsCompanion.insert(
         clientId: clientIdOf(workout.start),
         activityType: workout.type.activityType,
         deviceId: Value(deviceId),
         startUtcMs: workout.start.utcMs,
-        endUtcMs: Value(workout.end.utcMs),
         offsetMinutes: workout.start.offsetMinutes,
         distanceMeters: Value(workout.distanceMeters),
         activeKilocalories: Value(workout.activeKilocalories),
         elapsedMs: Value(workout.elapsed.inMilliseconds),
         averageHeartRate: Value(workout.averageHeartRate),
         maxHeartRate: Value(workout.maxHeartRate),
-        effortRating: Value(effortRating),
-      ),
-    );
+      );
+
+  WorkoutsCompanion _finished(
+    FinishedWorkout workout, {
+    String? deviceId,
+    int? effortRating,
+  }) => _columns(workout, deviceId: deviceId).copyWith(
+    endUtcMs: Value(workout.end.utcMs),
+    effortRating: Value(effortRating),
+    checkpointUtcMs: const Value(null),
+  );
+
+  // Children are keyed by their instant, so writing the whole session again
+  // appends only what is new.
+  Future<int> _write(
+    int? existing,
+    WorkoutsCompanion columns,
+    FinishedWorkout workout,
+  ) async {
+    final id = switch (existing) {
+      null => await into(workouts).insert(columns),
+      final id => await _update(id, columns),
+    };
     await batch((batch) {
       batch
         ..insertAll(workoutHrSamples, [
@@ -72,6 +140,11 @@ class WorkoutsDao extends DatabaseAccessor<AppDatabase>
     return id;
   }
 
+  Future<int> _update(int id, WorkoutsCompanion columns) async {
+    await (update(workouts)..where((w) => w.id.equals(id))).write(columns);
+    return id;
+  }
+
   Future<List<WorkoutRow>> newestFinished({required int limit}) =>
       (select(workouts)
             ..where((w) => w.endUtcMs.isNotNull())
@@ -89,6 +162,7 @@ class WorkoutsDao extends DatabaseAccessor<AppDatabase>
       (select(workouts)
             ..where(
               (w) =>
+                  w.endUtcMs.isNotNull() &
                   w.endUtcMs.isBiggerThanValue(fromUtcMs) &
                   w.startUtcMs.isSmallerThanValue(toUtcMs),
             )

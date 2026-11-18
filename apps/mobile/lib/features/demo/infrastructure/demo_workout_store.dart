@@ -14,10 +14,24 @@ final class DemoWorkoutStore implements WorkoutStore {
 
   @override
   Future<int> save(FinishedWorkout workout, {required DateTime at}) =>
-      _workouts.insertFinished(workout, deviceId: demoDeviceId);
+      _workouts.closeOrInsert(workout, deviceId: demoDeviceId);
 
   @override
   Future<bool> delete(int id) => _workouts.deleteById(id);
+
+  @override
+  Future<void> checkpoint(WorkoutSession session, {required DateTime at}) {
+    final progress = session.progressAt(at);
+    return _workouts.writeCheckpoint(
+      progress,
+      at: progress.end,
+      deviceId: demoDeviceId,
+    );
+  }
+
+  @override
+  Future<void> dropCheckpoint(WorkoutSession session) =>
+      _workouts.deleteOpen(session.startedAt);
 }
 
 final class NoRingHeartRateSource implements LiveHeartRateSource {

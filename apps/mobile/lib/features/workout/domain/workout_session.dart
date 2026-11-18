@@ -287,10 +287,13 @@ final class WorkoutSession {
 
   int? get maxHeartRate => _maxHeartRate;
 
-  double? activeKilocaloriesAt(DateTime now) {
+  double? activeKilocaloriesAt(DateTime now) =>
+      _kilocaloriesFor(elapsedAt(now));
+
+  double? _kilocaloriesFor(Duration elapsed) {
     final weight = profile.weightKilograms;
     if (weight == null) return null;
-    final hours = elapsedAt(now).inMicroseconds / Duration.microsecondsPerHour;
+    final hours = elapsed.inMicroseconds / Duration.microsecondsPerHour;
     return (type.met - 1) * weight * hours;
   }
 
@@ -325,20 +328,40 @@ final class WorkoutSession {
     if (_status != WorkoutStatus.finished || start == null || end == null) {
       throw StateError('The workout is ${_status.name}, not finished');
     }
-    return FinishedWorkout(
-      type: type,
-      start: start,
-      end: end,
-      elapsed: elapsedAt(end),
-      distanceMeters: gps ? _distance : null,
-      activeKilocalories: activeKilocaloriesAt(end),
-      averageHeartRate: averageHeartRate,
-      maxHeartRate: _maxHeartRate,
-      heartRate: _heartRate,
-      route: route,
-      pauses: _pauses,
-    );
+    return _until(start, end, elapsedAt(end));
   }
+
+  // A clock that stepped back must not end the progress before its last
+  // sample; the session itself is left as it was.
+  FinishedWorkout progressAt(DateTime at) {
+    final start = _start;
+    if (start == null) throw StateError('The workout has not started');
+    final end = _end ?? _pausedAt ?? _notBeforeData(at);
+    final elapsed = end.difference(start) - _paused;
+    return _until(start, end, elapsed.isNegative ? Duration.zero : elapsed);
+  }
+
+  FinishedWorkout _until(DateTime start, DateTime end, Duration elapsed) =>
+      FinishedWorkout(
+        type: type,
+        start: start,
+        end: end,
+        elapsed: elapsed,
+        distanceMeters: gps ? _distance : null,
+        activeKilocalories: _kilocaloriesFor(elapsed),
+        averageHeartRate: averageHeartRate,
+        maxHeartRate: _maxHeartRate,
+        heartRate: _heartRate,
+        route: route,
+        pauses: _pauses,
+      );
+
+  DateTime _notBeforeData(DateTime at) => [
+    ?_lastEvent,
+    if (_heartRate.isNotEmpty) _heartRate.last.at,
+    for (final segment in _segments)
+      if (segment.isNotEmpty) segment.last.point.at,
+  ].fold(at, (latest, t) => t.isAfter(latest) ? t : latest);
 
   void _stop(DateTime at, WorkoutStatus status) {
     final end = _notBeforeLast(at);

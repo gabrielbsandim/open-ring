@@ -303,8 +303,6 @@ void main() {
       const day = LocalDate(2026, 11, 30);
       final night = _nightOn(
         day,
-        bedHour: 23,
-        bedMinute: 0,
         latencyMinutes: 15,
         wakeHour: 6,
         wakeMinute: 45,
@@ -356,7 +354,6 @@ void main() {
         friday,
         bedHour: 0,
         bedMinute: 20,
-        wakeHour: 7,
         wakeMinute: 30,
         offset: _minusThreeHours,
       );
@@ -414,11 +411,7 @@ void main() {
           utcOffset: Duration.zero,
         ),
       ]);
-      final lastKept = _nightOn(
-        const LocalDate(2026, 12, 12),
-        bedHour: 23,
-        bedMinute: 30,
-      );
+      final lastKept = _nightOn(const LocalDate(2026, 12, 12), bedMinute: 30);
       final tonight = _nightOn(_sunday);
 
       final collected = collectFoodNights(
@@ -494,7 +487,6 @@ void main() {
     test('with Open Score off, tagged days stay and a throwing '
         'dayTagStoreProvider is never read', () async {
       final container = await _container(
-        modules: const {ModuleId.food},
         sleep: _MutableSleepReader(fourNights()),
         tags: const _ThrowingDayTagStore(),
       );
@@ -531,7 +523,6 @@ void main() {
         ..._nightOn(_sunday).spans,
       ]);
       final container = await _container(
-        modules: const {ModuleId.food},
         sleep: outOfWindow,
         heart: const _ThrowingHeartReader(),
       );
@@ -554,9 +545,7 @@ void main() {
       );
       final latestAtMinusThree = _nightOn(
         const LocalDate(2026, 12, 12),
-        bedHour: 23,
         bedMinute: 40,
-        wakeHour: 7,
         wakeMinute: 10,
         offset: _minusThreeHours,
       );
@@ -575,7 +564,6 @@ void main() {
         spans: {'com.example.health': latestAtMinusThree.spans},
       );
       final container = await _container(
-        modules: const {ModuleId.food},
         sleep: _MutableSleepReader(oldestAtPlusTen.spans),
         imported: imported,
         heart: heart,
@@ -604,10 +592,7 @@ void main() {
 
     test('bumping dataRevisionProvider re-reads the nights', () async {
       final sleep = _MutableSleepReader();
-      final container = await _container(
-        modules: const {ModuleId.food},
-        sleep: sleep,
-      );
+      final container = await _container(sleep: sleep);
       expect(await container.read(foodNightsProvider.future), isEmpty);
 
       sleep.spans.addAll(_nightOn(const LocalDate(2026, 12, 10)).spans);
@@ -636,14 +621,11 @@ void main() {
         final controlDay = pair.isEven ? weekSunday.addDays(-5) : weekSunday;
         final exposedNight = _nightOn(
           exposedDay,
-          bedHour: 23,
-          bedMinute: 0,
           latencyMinutes: 30,
           offset: _minusThreeHours,
         );
         final controlNight = _nightOn(
           controlDay,
-          bedHour: 23,
           bedMinute: 30,
           offset: _minusThreeHours,
         );
@@ -679,7 +661,6 @@ void main() {
       }
 
       final container = await _container(
-        modules: const {ModuleId.food},
         sleep: _MutableSleepReader(spans),
         heart: _SpyHeartReader(heartRateSamples: heartRate),
       );

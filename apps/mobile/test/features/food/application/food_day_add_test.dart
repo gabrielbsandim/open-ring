@@ -1,12 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/food/application/food_day.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
 import 'package:open_ring/features/food/domain/meal_camera.dart';
 import 'package:open_ring/features/food/domain/meal_store.dart';
+import 'package:open_ring/features/food/domain/photo_store.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
 
 import '../food_fakes.dart';
 
@@ -79,12 +84,13 @@ void main() {
     }) {
       final c = ProviderContainer(
         overrides: [
-          ...foodOverrides(
-            meals: TestMealStore(),
-            camera: FakeMealCamera(),
-            clock: clock,
+          moduleStoreProvider.overrideWithValue(
+            InMemoryModuleStore(const {ModuleId.food}),
           ),
+          clockProvider.overrideWithValue(clock),
           mealStoreProvider.overrideWithValue(meals),
+          photoStoreProvider.overrideWithValue(InMemoryPhotoStore()),
+          mealCameraProvider.overrideWithValue(FakeMealCamera()),
         ],
       );
       addTearDown(c.dispose);

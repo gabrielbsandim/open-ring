@@ -2400,7 +2400,7 @@
   "foodDayNext": "Nächster Tag",
   "foodDayToday": "Heute",
   "foodDayEmptyTitle": "Keine Mahlzeit an diesem Tag",
-  "foodDayEmptyBody": "Mach beim Essen in Heute ein Foto. Die Uhrzeit kommt aus dem Foto selbst, und Merkmale sind freiwillig.",
+  "foodDayEmptyBody": "Tippe beim Essen auf Foto. Die Uhrzeit kommt aus dem Foto selbst, und Merkmale sind freiwillig.",
   "foodDayBlankNote": "Ein Tag ohne Foto bleibt leer. Er zählt nirgendwo als null.",
   "foodWindowTitle": "Essfenster",
   "foodWindowOpen": "Offen seit {time}, bisher {duration}",
@@ -2413,5 +2413,9 @@
   "foodSlotDinner": "Abendessen",
   "foodSlotSupper": "Spätmahlzeit",
   "foodNoPhoto": "Kein Foto",
-  "foodPhotoMissing": "Foto nicht gefunden"
+  "foodPhotoMissing": "Foto nicht gefunden",
+  "foodAddPhoto": "Foto",
+  "foodAddWithoutPhoto": "Ohne Foto",
+  "foodAddFutureError": "Die Uhrzeit der Mahlzeit darf nicht in der Zukunft liegen",
+  "foodAddFailed": "Die Mahlzeit konnte nicht gespeichert werden"
 }

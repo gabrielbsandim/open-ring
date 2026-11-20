@@ -23,14 +23,27 @@ import 'package:open_ring/features/food/presentation/food_row.dart';
 import 'package:open_ring/features/food/presentation/meal_capture_presenter.dart';
 import 'package:open_ring/features/food/presentation/meal_saved_sheet.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 import '../../../helpers/layout_harness.dart';
 import '../food_fakes.dart';
-import '../jpeg_fixture.dart';
 
 final _now = DateTime(2026, 11, 17, 21);
+
+List<Override> _customStoreOverrides(
+  MealStore meals, {
+  required DateTime Function() clock,
+}) => [
+  moduleStoreProvider.overrideWithValue(
+    InMemoryModuleStore(const {ModuleId.food}),
+  ),
+  clockProvider.overrideWithValue(clock),
+  mealStoreProvider.overrideWithValue(meals),
+  photoStoreProvider.overrideWithValue(InMemoryPhotoStore()),
+  mealCameraProvider.overrideWithValue(FakeMealCamera()),
+];
 
 final class _ThrowingAddMealStore implements MealStore {
   final TestMealStore _inner = TestMealStore();
@@ -296,9 +309,9 @@ void main() {
       );
 
       expect(hosts.claim(first, todayHost), isFalse);
-      hosts.detach(missingHost);
 
       hosts
+        ..detach(missingHost)
         ..attach(todayHost)
         ..attach(foodDayHost);
       expect(hosts.claim(first, todayHost), isFalse);
@@ -569,10 +582,7 @@ void main() {
             camera: FakeMealCamera(),
             clock: () => _now,
           ),
-          mealTimePickerProvider.overrideWithValue((
-            BuildContext _,
-            TimeOfDay initial,
-          ) async {
+          mealTimePickerProvider.overrideWithValue((_, initial) async {
             recorded.add(initial);
             return null;
           }),
@@ -688,11 +698,10 @@ void main() {
         meals,
         overrides: [
           ...foodOverrides(
-            meals: TestMealStore(),
+            meals: meals,
             camera: FakeMealCamera(),
             clock: () => _now,
           ),
-          mealStoreProvider.overrideWithValue(meals),
           mealTimePickerProvider.overrideWithValue(
             (_, _) async => const TimeOfDay(hour: 12, minute: 30),
           ),
@@ -732,11 +741,10 @@ void main() {
         meals,
         overrides: [
           ...foodOverrides(
-            meals: TestMealStore(),
+            meals: meals,
             camera: FakeMealCamera(),
             clock: () => _now,
           ),
-          mealStoreProvider.overrideWithValue(meals),
           mealTimePickerProvider.overrideWithValue(
             (_, _) async => const TimeOfDay(hour: 12, minute: 30),
           ),
@@ -807,12 +815,7 @@ void main() {
           tester,
           TestMealStore(),
           overrides: [
-            ...foodOverrides(
-              meals: TestMealStore(),
-              camera: FakeMealCamera(),
-              clock: () => _now,
-            ),
-            mealStoreProvider.overrideWithValue(meals),
+            ..._customStoreOverrides(meals, clock: () => _now),
             mealTimePickerProvider.overrideWithValue(
               (_, _) async => const TimeOfDay(hour: 12, minute: 30),
             ),
@@ -900,12 +903,7 @@ void main() {
         brightness: Brightness.dark,
         locale: const Locale('en'),
         overrides: [
-          ...foodOverrides(
-            meals: TestMealStore(),
-            camera: FakeMealCamera(),
-            clock: () => _now,
-          ),
-          mealStoreProvider.overrideWithValue(meals),
+          ..._customStoreOverrides(meals, clock: () => _now),
           mealTimePickerProvider.overrideWithValue(
             (_, _) async => const TimeOfDay(hour: 12, minute: 30),
           ),
@@ -954,12 +952,7 @@ void main() {
         brightness: Brightness.dark,
         locale: const Locale('en'),
         overrides: [
-          ...foodOverrides(
-            meals: TestMealStore(),
-            camera: FakeMealCamera(),
-            clock: () => _now,
-          ),
-          mealStoreProvider.overrideWithValue(meals),
+          ..._customStoreOverrides(meals, clock: () => _now),
           mealTimePickerProvider.overrideWithValue(
             (_, _) async => const TimeOfDay(hour: 12, minute: 30),
           ),

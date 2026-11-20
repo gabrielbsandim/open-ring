@@ -2400,7 +2400,7 @@
   "foodDayNext": "Следующий день",
   "foodDayToday": "Сегодня",
   "foodDayEmptyTitle": "В этот день приёмов пищи нет",
-  "foodDayEmptyBody": "Сделайте фото на вкладке «Сегодня» во время еды. Время берётся из самого фото, а метки необязательны.",
+  "foodDayEmptyBody": "Нажмите «Фото» во время еды. Время берётся из самого фото, а метки необязательны.",
   "foodDayBlankNote": "День без фото остаётся пустым. Он нигде не считается нулём.",
   "foodWindowTitle": "Окно питания",
   "foodWindowOpen": "Открыто с {time}, пока {duration}",
@@ -2413,5 +2413,9 @@
   "foodSlotDinner": "Ужин",
   "foodSlotSupper": "Поздний перекус",
   "foodNoPhoto": "Без фото",
-  "foodPhotoMissing": "Фото не найдено"
+  "foodPhotoMissing": "Фото не найдено",
+  "foodAddPhoto": "Фото",
+  "foodAddWithoutPhoto": "Без фото",
+  "foodAddFutureError": "Время приёма пищи не может быть в будущем",
+  "foodAddFailed": "Не удалось сохранить приём пищи"
 }

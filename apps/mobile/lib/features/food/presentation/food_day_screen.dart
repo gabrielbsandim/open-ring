@@ -8,74 +8,113 @@ import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
+import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/food/application/food_day.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
+import 'package:open_ring/features/food/application/meal_capture.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
+import 'package:open_ring/features/food/presentation/meal_capture_presenter.dart';
 import 'package:open_ring/features/food/presentation/meal_saved_sheet.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
+
+typedef MealTimePicker = Future<TimeOfDay?> Function(
+  BuildContext context,
+  TimeOfDay initial,
+);
+
+final Provider<MealTimePicker> mealTimePickerProvider =
+    Provider<MealTimePicker>(
+      (ref) =>
+          (context, initial) =>
+              showTimePicker(context: context, initialTime: initial),
+    );
 
 abstract final class FoodDayKeys {
   static const previous = Key('food_day_previous');
   static const next = Key('food_day_next');
   static const window = Key('food_day_window');
   static const empty = Key('food_day_empty');
+  static const addPhoto = Key('food_day_add_photo');
+  static const addWithoutPhoto = Key('food_day_add_without_photo');
 
   static Key meal(int id) => Key('food_day_meal_$id');
   static Key noPhoto(int id) => Key('food_day_no_photo_$id');
   static Key missingPhoto(int id) => Key('food_day_missing_photo_$id');
 }
 
-class FoodDayScreen extends ConsumerStatefulWidget {
+class FoodDayScreen extends ConsumerWidget {
   const new({this.day, super.key});
 
   final LocalDate? day;
 
   @override
-  ConsumerState<FoodDayScreen> createState() => _FoodDayScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final format = MetricFormat.of(context);
+    final on = ref.watch(foodEnabledProvider);
+    return AppPage(
+      title: format.l10n.foodTitle,
+      children: on ? [_FoodDayBody(day: day)] : const [],
+    );
+  }
 }
 
-class _FoodDayScreenState extends ConsumerState<FoodDayScreen> {
+class _FoodDayBody extends ConsumerStatefulWidget {
+  const new({this.day});
+
+  final LocalDate? day;
+
+  @override
+  ConsumerState<_FoodDayBody> createState() => _FoodDayBodyState();
+}
+
+class _FoodDayBodyState extends ConsumerState<_FoodDayBody> {
   late LocalDate? _picked = widget.day;
   late final AppLifecycleListener _lifecycle;
+  late final MealCaptureHosts _hosts;
+  bool _adding = false;
 
   @override
   void initState() {
     super.initState();
+    _hosts = ref.read(mealCaptureHostsProvider)..attach(this);
     _lifecycle = AppLifecycleListener(
       onResume: () => ref.invalidate(currentFoodDayProvider),
     );
+    ref.listenManual(mealCaptureProvider, _onCapture, fireImmediately: true);
   }
 
   @override
-  void didUpdateWidget(FoodDayScreen oldWidget) {
+  void didUpdateWidget(_FoodDayBody oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.day != oldWidget.day) _picked = widget.day;
   }
 
   @override
   void dispose() {
+    _hosts.detach(this);
     _lifecycle.dispose();
     super.dispose();
+  }
+
+  void _onCapture(CaptureState? previous, CaptureState next) {
+    final result = next.result;
+    if (next.saving || result == null) return;
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => unawaited(
+        presentMealCapture(
+          context: context,
+          ref: ref,
+          hostToken: this,
+          result: result,
+          recovered: next.recovered,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final format = MetricFormat.of(context);
-    final on = ref.watch(foodEnabledProvider);
-    return AppPage(
-      title: format.l10n.foodTitle,
-      children: on
-          ? [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: _content(format),
-              ),
-            ]
-          : const [],
-    );
-  }
-
-  List<Widget> _content(MetricFormat format) {
     final today = ref.watch(currentFoodDayProvider);
     final picked = _picked;
     final date = picked != null && picked.compareTo(today) <= 0
@@ -83,21 +122,32 @@ class _FoodDayScreenState extends ConsumerState<FoodDayScreen> {
         : today;
     final isToday = date == today;
     final meals = ref.watch(foodDayMealsProvider(date));
-    return [
-      _DayHeader(
-        date: date,
-        isToday: isToday,
-        onPrevious: () => setState(() => _picked = date.addDays(-1)),
-        onNext: isToday
-            ? null
-            : () => setState(() {
-                final next = date.addDays(1);
-                _picked = next == today ? null : next;
-              }),
-      ),
-      const SizedBox(height: cardGap),
-      ..._body(meals, format, date: date, today: today),
-    ];
+    final saving = ref.watch(mealCaptureProvider.select((s) => s.saving));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _DayHeader(
+          date: date,
+          isToday: isToday,
+          onPrevious: () => setState(() => _picked = date.addDays(-1)),
+          onNext: isToday
+              ? null
+              : () => setState(() {
+                  final next = date.addDays(1);
+                  _picked = next == today ? null : next;
+                }),
+        ),
+        const SizedBox(height: cardGap),
+        ..._body(
+          meals,
+          format,
+          date: date,
+          today: today,
+          isToday: isToday,
+          saving: saving,
+        ),
+      ],
+    );
   }
 
   List<Widget> _body(
@@ -105,9 +155,18 @@ class _FoodDayScreenState extends ConsumerState<FoodDayScreen> {
     MetricFormat format, {
     required LocalDate date,
     required LocalDate today,
+    required bool isToday,
+    required bool saving,
   }) {
     if (meals.hasValue) {
-      return _meals(meals.requireValue, format, date: date, today: today);
+      return _meals(
+        meals.requireValue,
+        format,
+        date: date,
+        today: today,
+        isToday: isToday,
+        saving: saving,
+      );
     }
     if (meals.hasError) return [BodyText(format.l10n.metricLoadError)];
     return const [SizedBox(height: 96)];
@@ -118,8 +177,20 @@ class _FoodDayScreenState extends ConsumerState<FoodDayScreen> {
     MetricFormat format, {
     required LocalDate date,
     required LocalDate today,
+    required bool isToday,
+    required bool saving,
   }) {
-    if (meals.isEmpty) return const [_EmptyDay()];
+    final addRow = _AddRow(
+      isToday: isToday,
+      saving: saving,
+      adding: _adding,
+      onPhoto: () =>
+          unawaited(ref.read(mealCaptureProvider.notifier).capture()),
+      onWithoutPhoto: () => unawaited(_addWithoutPhoto(date, today: today)),
+    );
+    if (meals.isEmpty) {
+      return [const _EmptyDay(), const SizedBox(height: cardGap), addRow];
+    }
     final now = ref.watch(clockProvider)().toLocal();
     final window = dayWindow(meals, day: date, now: now);
     return [
@@ -127,6 +198,8 @@ class _FoodDayScreenState extends ConsumerState<FoodDayScreen> {
         _WindowCard(window: window),
         const SizedBox(height: cardGap),
       ],
+      addRow,
+      const SizedBox(height: cardGap),
       for (final meal in meals) ...[
         _MealCard(
           meal: meal,
@@ -136,6 +209,42 @@ class _FoodDayScreenState extends ConsumerState<FoodDayScreen> {
       ],
       CaptionText(format.l10n.foodDayCompleteNote),
     ];
+  }
+
+  Future<void> _addWithoutPhoto(
+    LocalDate date, {
+    required LocalDate today,
+  }) async {
+    if (_adding) return;
+    setState(() => _adding = true);
+    final picker = ref.read(mealTimePickerProvider);
+    final editor = ref.read(mealEditorProvider);
+    final now = ref.read(clockProvider)().toLocal();
+    final initial = date == today
+        ? TimeOfDay.fromDateTime(now)
+        : const TimeOfDay(hour: 12, minute: 0);
+    final picked = await picker(context, initial);
+    if (!mounted) return;
+    if (picked == null) {
+      setState(() => _adding = false);
+      return;
+    }
+    final result = await editor.addWithoutPhoto(
+      date,
+      hour: picked.hour,
+      minute: picked.minute,
+    );
+    if (!mounted) return;
+    setState(() => _adding = false);
+    final l10n = MetricFormat.of(context).l10n;
+    switch (result) {
+      case AddMealSaved(:final meal):
+        await _edit(meal, today: today);
+      case AddMealFuture():
+        _snack(l10n.foodAddFutureError);
+      case AddMealFailed():
+        _snack(l10n.foodAddFailed);
+    }
   }
 
   Future<void> _edit(Meal meal, {required LocalDate today}) async {
@@ -154,11 +263,44 @@ class _FoodDayScreenState extends ConsumerState<FoodDayScreen> {
     edit.dispose();
     final saved = await editor.save(meal, next);
     if (saved || !mounted) return;
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(
-        SnackBar(content: Text(MetricFormat.of(context).l10n.foodTagsFailed)),
-      );
+    _snack(MetricFormat.of(context).l10n.foodTagsFailed);
+  }
+
+  void _snack(String text) => ScaffoldMessenger.of(context)
+    ..clearSnackBars()
+    ..showSnackBar(SnackBar(content: Text(text)));
+}
+
+class _AddRow extends StatelessWidget {
+  const new({
+    required this.isToday,
+    required this.saving,
+    required this.adding,
+    required this.onPhoto,
+    required this.onWithoutPhoto,
+  });
+
+  final bool isToday;
+  final bool saving;
+  final bool adding;
+  final VoidCallback onPhoto;
+  final VoidCallback onWithoutPhoto;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MetricFormat.of(context).l10n;
+    final withoutPhoto = SecondaryButton(
+      buttonKey: FoodDayKeys.addWithoutPhoto,
+      label: l10n.foodAddWithoutPhoto,
+      onPressed: adding ? null : onWithoutPhoto,
+    );
+    if (!isToday) return withoutPhoto;
+    final photo = ActionButton(
+      buttonKey: FoodDayKeys.addPhoto,
+      label: saving ? l10n.foodRowSaving : l10n.foodAddPhoto,
+      onPressed: saving ? null : onPhoto,
+    );
+    return AdaptiveColumns(first: photo, second: withoutPhoto);
   }
 }
 

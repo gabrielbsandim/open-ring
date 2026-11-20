@@ -84,6 +84,35 @@ DayWindow? dayWindow(
   return DayWindow(from: from, to: to, open: true);
 }
 
+/// Maps ([hour], [minute]) on food [day] to local calendar time: hours before
+/// [foodDayStartHour] belong to the following calendar morning.
+DateTime mealTimeOnFoodDay(
+  LocalDate day, {
+  required int hour,
+  required int minute,
+}) {
+  final calendar = hour < foodDayStartHour ? day.addDays(1) : day;
+  return DateTime(calendar.year, calendar.month, calendar.day, hour, minute);
+}
+
+sealed class AddMealResult {
+  const new();
+}
+
+final class AddMealSaved extends AddMealResult {
+  const new(this.meal);
+
+  final Meal meal;
+}
+
+final class AddMealFuture extends AddMealResult {
+  const new();
+}
+
+final class AddMealFailed extends AddMealResult {
+  const new();
+}
+
 final mealEditorProvider = Provider<MealEditor>(MealEditor.new);
 
 final class MealEditor {
@@ -101,6 +130,31 @@ final class MealEditor {
       return saved;
     } on Object {
       return false;
+    }
+  }
+
+  Future<AddMealResult> addWithoutPhoto(
+    LocalDate day, {
+    required int hour,
+    required int minute,
+  }) async {
+    final now = _ref.read(clockProvider)().toLocal();
+    final at = mealTimeOnFoodDay(day, hour: hour, minute: minute);
+    if (at.isAfter(now)) return const AddMealFuture();
+    try {
+      final meal = await _ref
+          .read(mealStoreProvider)
+          .add(
+            MealDraft(
+              at: at.toUtc(),
+              offsetMinutes: at.timeZoneOffset.inMinutes,
+            ),
+            now: now.toUtc(),
+          );
+      _ref.read(dataRevisionProvider.notifier).bump();
+      return AddMealSaved(meal);
+    } on Object {
+      return const AddMealFailed();
     }
   }
 }

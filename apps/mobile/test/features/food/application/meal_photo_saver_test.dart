@@ -450,4 +450,180 @@ void main() {
       expect(await photos.totalBytes(), 0);
     });
   });
+
+  group('resolveExifTime', () {
+    test('returns null for null without calling offsetAt', () {
+      var calls = 0;
+
+      final resolved = resolveExifTime(
+        null,
+        offsetAt: (_) {
+          calls++;
+          return -180;
+        },
+      );
+
+      expect(resolved, isNull);
+      expect(calls, 0);
+    });
+
+    test('uses explicit offsetMinutes without calling offsetAt', () {
+      var calls = 0;
+      final wall = DateTime.utc(2026, 12, 10, 19, 32, 5);
+
+      final resolved = resolveExifTime(
+        ExifTime(wallClock: wall, offsetMinutes: -180),
+        offsetAt: (_) {
+          calls++;
+          return -120;
+        },
+      );
+
+      expect(resolved, (
+        at: DateTime.utc(2026, 12, 10, 22, 32, 5),
+        offset: -180,
+      ));
+      expect(calls, 0);
+    });
+
+    test('uses two-pass offsetAt when offsetMinutes is null', () {
+      // Transition at 2026-12-08 02:00Z from -180 to -120.
+      // Pass 1 asks offsetAt(23:30Z) -> -180 -> candidate 02:30Z.
+      // Pass 2 asks offsetAt(02:30Z) -> -120 -> final instant 01:30Z.
+      final seen = <DateTime>[];
+      int offsetAt(DateTime at) {
+        seen.add(at);
+        return at.isBefore(DateTime.utc(2026, 12, 8, 2)) ? -180 : -120;
+      }
+
+      final wall = DateTime.utc(2026, 12, 7, 23, 30);
+      final resolved = resolveExifTime(
+        ExifTime(wallClock: wall),
+        offsetAt: offsetAt,
+      );
+
+      expect(seen, [
+        DateTime.utc(2026, 12, 7, 23, 30),
+        DateTime.utc(2026, 12, 8, 2, 30),
+      ]);
+      expect(resolved, (at: DateTime.utc(2026, 12, 8, 1, 30), offset: -120));
+    });
+  });
+
+  group('savePrepared', () {
+    final now = _instant.add(const Duration(minutes: 20));
+
+    test(
+      'writes stripped JPEG with exact old at (> 7 days) and offsetMinutes',
+      () async {
+        final stripped = stripExif(_photo);
+        final oldAt = now.subtract(const Duration(days: 30));
+
+        final result = await saverAt(now)
+            .savePrepared(stripped, at: oldAt, offsetMinutes: -180);
+
+        expect(result.outcome, SaveOutcome.saved);
+        expect(result.time, TimeSource.photo);
+        final meal = result.meal!;
+        expect(meal.at, oldAt);
+        expect(meal.offsetMinutes, -180);
+        expect(meal.createdAt, now);
+        expect(isMealPhotoName(meal.photo!), isTrue);
+        expect(await photos.read(meal.photo!), stripped);
+        expect(await meals.count(), 1);
+      },
+    );
+
+    test(
+      'writes stripped JPEG older than 365 days with exact at and source',
+      () async {
+        final stripped = stripExif(_photo);
+        final ancientAt = now.subtract(const Duration(days: 400));
+
+        final result = await saverAt(now).savePrepared(
+          stripped,
+          at: ancientAt,
+          offsetMinutes: 60,
+          source: TimeSource.returned,
+        );
+
+        expect(result.outcome, SaveOutcome.saved);
+        expect(result.time, TimeSource.returned);
+        expect(result.meal!.at, ancientAt);
+        expect(result.meal!.offsetMinutes, 60);
+        expect(await photos.read(result.meal!.photo!), stripped);
+      },
+    );
+
+    test(
+      'keepRowOnNoSpace false deletes partial file and meal row on ENOSPC',
+      () async {
+        final full = _FailingPhotoStore(_noSpace);
+        final stripped = stripExif(_photo);
+
+        final result = await saverAt(now, store: full).savePrepared(
+          stripped,
+          at: _instant,
+          offsetMinutes: -180,
+          source: TimeSource.returned,
+          keepRowOnNoSpace: false,
+        );
+
+        expect(result.outcome, SaveOutcome.noSpace);
+        expect(result.time, TimeSource.returned);
+        expect(result.meal, isNull);
+        expect(await meals.count(), 0);
+        expect(await full.inner.totalBytes(), 0);
+      },
+    );
+
+    test('keepRowOnNoSpace true keeps photoless row on ENOSPC', () async {
+      final full = _FailingPhotoStore(_noSpace);
+      final stripped = stripExif(_photo);
+
+      final result = await saverAt(
+        now,
+        store: full,
+      ).savePrepared(stripped, at: _instant, offsetMinutes: -180);
+
+      expect(result.outcome, SaveOutcome.noSpace);
+      expect(result.time, TimeSource.photo);
+      expect(result.meal, isNotNull);
+      expect(result.meal!.photo, isNull);
+      expect(await meals.count(), 1);
+      expect((await rows()).single.photo, isNull);
+      expect(await full.inner.totalBytes(), 0);
+    });
+
+    final notJpeg = <String, List<int>>{
+      'PNG': pngBytes,
+      'HEIC': heicBytes,
+      'empty': const [],
+    };
+    for (final MapEntry(key: name, value: bytes) in notJpeg.entries) {
+      test('rejects $name input with failed and writes 0 rows/files', () async {
+        final result = await saverAt(now).savePrepared(
+          Uint8List.fromList(bytes),
+          at: _instant,
+          offsetMinutes: -180,
+        );
+
+        expect(result.outcome, SaveOutcome.failed);
+        expect(result.meal, isNull);
+        expect(await meals.count(), 0);
+        expect(await photos.totalBytes(), 0);
+      });
+    }
+
+    test('row write error returns failed and writes no file', () async {
+      final result = await saverAt(
+        now,
+        mealStore: _BrokenMealStore(),
+      ).savePrepared(stripExif(_photo), at: _instant, offsetMinutes: -180);
+
+      expect(result.outcome, SaveOutcome.failed);
+      expect(result.meal, isNull);
+      expect(await photos.totalBytes(), 0);
+    });
+  });
 }

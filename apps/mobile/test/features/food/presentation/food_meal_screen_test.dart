@@ -709,6 +709,81 @@ void main() {
         isFalse,
       );
     });
+
+    testWidgets('time edit after tag save before byId reloads preserves tag '
+        'edits', (tester) async {
+      final inner = TestMealStore();
+      final meal = inner.seed(DateTime(2026, 11, 17, 12, 30));
+      final gated = _GatedMealStore(inner, gateUpdates: true);
+
+      await _pumpMealScreen(
+        tester,
+        mealId: meal.id,
+        meals: gated,
+        picker: (_, _) async => const TimeOfDay(hour: 13, minute: 30),
+      );
+
+      await tester.ensureVisible(
+        find.byKey(MealSavedSheetKeys.flag(MealFlag.protein)),
+      );
+      await tester.tap(find.byKey(MealSavedSheetKeys.flag(MealFlag.protein)));
+      await tester.pump();
+      expect(gated.updateGates, hasLength(1));
+
+      gated.byIdGate = Completer<void>();
+      gated.updateGates[0].complete();
+      await tester.pump();
+      await tester.pump();
+
+      await tester.ensureVisible(find.byKey(FoodMealKeys.timeTile));
+      await tester.tap(find.byKey(FoodMealKeys.timeTile));
+      await tester.pump();
+      await tester.pump();
+      expect(gated.updateGates, hasLength(2));
+
+      gated.updateGates[1].complete();
+      gated.byIdGate!.complete();
+      await tester.pumpAndSettle();
+
+      expect(inner.rows.single.entry.at, DateTime.utc(2026, 11, 17, 13, 30));
+      expect(inner.rows.single.tags.protein, isTrue);
+    });
+
+    testWidgets('tag edit after time edit before byId reloads preserves new '
+        'time', (tester) async {
+      final inner = TestMealStore();
+      final meal = inner.seed(DateTime(2026, 11, 17, 12, 30));
+      final gated = _GatedMealStore(inner, gateUpdates: true);
+
+      await _pumpMealScreen(
+        tester,
+        mealId: meal.id,
+        meals: gated,
+        picker: (_, _) async => const TimeOfDay(hour: 13, minute: 30),
+      );
+
+      await tester.ensureVisible(find.byKey(FoodMealKeys.timeTile));
+      await tester.tap(find.byKey(FoodMealKeys.timeTile));
+      await tester.pump();
+      expect(gated.updateGates, hasLength(1));
+
+      gated.byIdGate = Completer<void>();
+      gated.updateGates[0].complete();
+      await tester.pump();
+      await tester.pump();
+
+      await tester.ensureVisible(find.byKey(FoodMealKeys.lastMeal));
+      await tester.tap(find.byKey(FoodMealKeys.lastMeal));
+      await tester.pump();
+      expect(gated.updateGates, hasLength(2));
+
+      gated.updateGates[1].complete();
+      gated.byIdGate!.complete();
+      await tester.pumpAndSettle();
+
+      expect(inner.rows.single.entry.at, DateTime.utc(2026, 11, 17, 13, 30));
+      expect(inner.rows.single.last, isTrue);
+    });
   });
 
   group('kcal refusal tile and sheet', () {

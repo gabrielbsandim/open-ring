@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
@@ -13,7 +14,6 @@ import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
 import 'package:open_ring/features/food/presentation/food_day_screen.dart';
 import 'package:open_ring/features/food/presentation/meal_saved_sheet.dart';
-import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class FoodMealKeys {
   static const photo = Key('food_meal_photo');
@@ -33,6 +33,17 @@ abstract final class FoodMealKeys {
 
 const _radius = BorderRadius.all(Radius.circular(14));
 
+Meal _copyMeal(Meal m, {DateTime? at, int? offset, MealEdit? edit}) => Meal(
+  id: m.id,
+  at: at ?? m.at,
+  offsetMinutes: offset ?? m.offsetMinutes,
+  kind: edit == null ? m.kind : edit.kind,
+  tags: edit == null ? m.tags : edit.tags,
+  last: edit == null ? m.last : edit.last,
+  photo: m.photo,
+  createdAt: m.createdAt,
+);
+
 class FoodMealScreen extends ConsumerWidget {
   const new({required this.mealId, super.key});
 
@@ -45,33 +56,30 @@ class FoodMealScreen extends ConsumerWidget {
       return AppPage(title: l10n.foodTitle, children: const []);
     }
     final id = mealId;
-    if (id == null) return _notFound(context, l10n);
-    final meal = ref.watch(mealByIdProvider(id));
-    if (meal.hasValue) {
+    final meal = id == null ? null : ref.watch(mealByIdProvider(id));
+    if (meal != null && meal.hasValue && !meal.hasError) {
       final loaded = meal.requireValue;
-      return loaded == null
-          ? _notFound(context, l10n)
-          : _MealBody(meal: loaded);
+      if (loaded != null) return _MealBody(meal: loaded);
     }
-    if (meal.hasError) return _notFound(context, l10n);
+    if (meal != null && meal.isLoading) {
+      return AppPage(
+        title: l10n.foodTitle,
+        children: const [Center(child: CircularProgressIndicator())],
+      );
+    }
     return AppPage(
       title: l10n.foodTitle,
-      children: const [Center(child: CircularProgressIndicator())],
+      children: [
+        EmptyStateCard(
+          key: FoodMealKeys.notFound,
+          icon: Icons.restaurant_outlined,
+          accent: AppColors.of(context).textLabel,
+          message: l10n.foodMealNotFound,
+        ),
+      ],
     );
   }
 }
-
-Widget _notFound(BuildContext context, AppLocalizations l10n) => AppPage(
-  title: l10n.foodTitle,
-  children: [
-    EmptyStateCard(
-      key: FoodMealKeys.notFound,
-      icon: Icons.restaurant_outlined,
-      accent: AppColors.of(context).textLabel,
-      message: l10n.foodMealNotFound,
-    ),
-  ],
-);
 
 Future<T?> _showSheet<T>(BuildContext context, Widget child) =>
     showModalBottomSheet<T>(
@@ -131,17 +139,7 @@ class _MealBodyState extends ConsumerState<_MealBody> {
         _snack(MetricFormat.of(context).l10n.foodTagsFailed);
         break;
       }
-      final current = widget.meal;
-      _persisted = Meal(
-        id: current.id,
-        at: current.at,
-        offsetMinutes: current.offsetMinutes,
-        kind: target.kind,
-        tags: target.tags,
-        last: target.last,
-        photo: current.photo,
-        createdAt: current.createdAt,
-      );
+      _persisted = _copyMeal(_persisted, edit: target);
     }
     _savingTags = false;
   }
@@ -151,7 +149,7 @@ class _MealBodyState extends ConsumerState<_MealBody> {
     setState(() => _changingTime = true);
     final picker = ref.read(mealTimePickerProvider);
     final editor = ref.read(mealEditorProvider);
-    final wall = widget.meal.entry.at;
+    final wall = _persisted.entry.at;
     final picked = await picker(
       context,
       TimeOfDay(hour: wall.hour, minute: wall.minute),
@@ -161,27 +159,35 @@ class _MealBodyState extends ConsumerState<_MealBody> {
       setState(() => _changingTime = false);
       return;
     }
+    final base = _persisted;
     final result = await editor.setTime(
-      widget.meal,
+      base,
       hour: picked.hour,
       minute: picked.minute,
     );
     if (!mounted) return;
+    final baseWall = base.entry.at;
+    if (result is EditTimeSaved &&
+        (baseWall.hour != picked.hour || baseWall.minute != picked.minute)) {
+      final at = mealTimeOnFoodDay(
+        foodDay(baseWall),
+        hour: picked.hour,
+        minute: picked.minute,
+      );
+      _persisted = _copyMeal(
+        base,
+        at: at.toUtc(),
+        offset: at.timeZoneOffset.inMinutes,
+      );
+    }
     setState(() => _changingTime = false);
     final l10n = MetricFormat.of(context).l10n;
-    switch (result) {
-      case EditTimeSaved():
-        return;
-      case EditTimeFuture():
-        _snack(l10n.foodAddFutureError);
-      case EditTimeFailed():
-        _snack(l10n.foodMealTimeFailed);
-    }
+    if (result is EditTimeFuture) _snack(l10n.foodAddFutureError);
+    if (result is EditTimeFailed) _snack(l10n.foodMealTimeFailed);
   }
 
   Future<void> _confirmDelete() async {
     if (_deleting) return;
-    final meal = widget.meal;
     final editor = ref.read(mealEditorProvider);
     var confirmed = false;
     final go = await _showSheet<bool>(
@@ -196,7 +202,7 @@ class _MealBodyState extends ConsumerState<_MealBody> {
     );
     if (!mounted || go != true || _deleting) return;
     setState(() => _deleting = true);
-    final deleted = await editor.delete(meal.id);
+    final deleted = await editor.delete(_persisted.id);
     if (!mounted) return;
     if (!deleted) {
       setState(() => _deleting = false);
@@ -216,7 +222,7 @@ class _MealBodyState extends ConsumerState<_MealBody> {
     final format = MetricFormat.of(context);
     final l10n = format.l10n;
     final colors = AppColors.of(context);
-    final meal = widget.meal;
+    final meal = _persisted;
     final locked = _deleting || _changingTime;
     return AppPage(
       title: mealSlotLabel(l10n, meal),
@@ -318,7 +324,7 @@ class _MealBodyState extends ConsumerState<_MealBody> {
     if (photo.isLoading && !photo.hasValue) {
       return AspectRatio(
         aspectRatio: 4 / 3,
-        child: DecoratedBox(
+        child: Container(
           decoration: BoxDecoration(
             color: AppColors.of(context).surfaceInner,
             borderRadius: _radius,
@@ -413,15 +419,13 @@ Widget _kcalSheet(BuildContext context) {
     const SizedBox(height: 10),
     BodyText(l10n.foodMealKcalNoCount),
     const SizedBox(height: 12),
-    DecoratedBox(
+    Container(
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.of(context).surfaceInner,
         borderRadius: _radius,
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: BodyText(l10n.foodMealKcalInstead),
-      ),
+      child: BodyText(l10n.foodMealKcalInstead),
     ),
     const SizedBox(height: 16),
     ActionButton(

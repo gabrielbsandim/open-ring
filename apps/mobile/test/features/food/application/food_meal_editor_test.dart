@@ -43,7 +43,7 @@ final class _SpyPhotoStore implements PhotoStore {
     if (throwOnDelete) {
       throw FileSystemException('cannot delete photo', name);
     }
-    return inner.delete(name);
+    return await inner.delete(name);
   }
 
   @override
@@ -59,34 +59,37 @@ void main() {
 
     setUp(() => store = DriftMealStore(memoryDatabase()));
 
-    test('returns full Meal for existing row and null when missing or deleted', () async {
-      final createdAt = DateTime.utc(2026, 11, 17, 12, 30);
-      final at = DateTime.utc(2026, 11, 17, 15, 30);
-      final added = await store.add(
-        MealDraft(
-          at: at,
-          offsetMinutes: -180,
-          kind: MealKind.main,
-          tags: const MealTags(
-            protein: true,
-            veg: MealVeg.halfOrMore,
-            place: MealPlace.home,
+    test(
+      'returns full Meal for existing row and null when missing or deleted',
+      () async {
+        final createdAt = DateTime.utc(2026, 11, 17, 12, 30);
+        final at = DateTime.utc(2026, 11, 17, 15, 30);
+        final added = await store.add(
+          MealDraft(
+            at: at,
+            offsetMinutes: -180,
+            kind: MealKind.main,
+            tags: const MealTags(
+              protein: true,
+              veg: MealVeg.halfOrMore,
+              place: MealPlace.home,
+            ),
+            last: true,
           ),
-          last: true,
-        ),
-        now: createdAt,
-        photo: 'meal_1.jpg',
-      );
+          now: createdAt,
+          photo: 'meal_1.jpg',
+        );
 
-      final found = await store.byId(added.id);
-      expect(found, added);
-      expect(await store.byId(added.id + 99), isNull);
-      expect(await store.byId(0), isNull);
-      expect(await store.byId(-1), isNull);
+        final found = await store.byId(added.id);
+        expect(found, added);
+        expect(await store.byId(added.id + 99), isNull);
+        expect(await store.byId(0), isNull);
+        expect(await store.byId(-1), isNull);
 
-      await store.delete(added.id);
-      expect(await store.byId(added.id), isNull);
-    });
+        await store.delete(added.id);
+        expect(await store.byId(added.id), isNull);
+      },
+    );
   });
 
   group('criterion 2: mealByIdProvider', () {
@@ -146,12 +149,12 @@ void main() {
       final sub = c.listen(mealByIdProvider(meal.id), (_, _) {});
 
       expect(await c.read(mealByIdProvider(meal.id).future), meal);
-      expect(c.exists(mealByIdProvider(meal.id)), isTrue);
+      expect(c.read(mealByIdProvider(meal.id).exists), isTrue);
 
       sub.close();
       await c.pump();
 
-      expect(c.exists(mealByIdProvider(meal.id)), isFalse);
+      expect(c.read(mealByIdProvider(meal.id).exists), isFalse);
     });
   });
 
@@ -190,50 +193,52 @@ void main() {
         EditTimeFuture(),
         EditTimeFailed(),
       ];
-      expect([for (final r in results) describeResult(r)], [
-        'saved',
-        'future',
-        'failed',
-      ]);
+      expect(
+        [for (final r in results) describeResult(r)],
+        ['saved', 'future', 'failed'],
+      );
     });
 
-    test('valid time updates at and offsetMinutes, preserves kind/tags/last/'
-        'photo, bumps revision once, and returns EditTimeSaved', () async {
-      final meal = await meals.add(
-        MealDraft(
-          at: DateTime(2026, 11, 17, 12, 30).toUtc(),
-          offsetMinutes: localOffset(DateTime(2026, 11, 17, 12, 30)),
-          kind: MealKind.main,
-          tags: const MealTags(protein: true, veg: MealVeg.some),
-          last: true,
-        ),
-        now: _now.toUtc(),
-        photo: 'meal_1.jpg',
-      );
-      final c = container();
-      final before = c.read(dataRevisionProvider);
-      final expectedLocal = mealTimeOnFoodDay(
-        foodDay(meal.entry.at),
-        hour: 14,
-        minute: 15,
-      );
+    test(
+      'valid time updates at and offsetMinutes, preserves '
+      'kind/tags/last/photo, bumps revision once, and returns EditTimeSaved',
+      () async {
+        final meal = await meals.add(
+          MealDraft(
+            at: DateTime(2026, 11, 17, 12, 30).toUtc(),
+            offsetMinutes: localOffset(DateTime(2026, 11, 17, 12, 30)),
+            kind: MealKind.main,
+            tags: const MealTags(protein: true, veg: MealVeg.some),
+            last: true,
+          ),
+          now: _now.toUtc(),
+          photo: 'meal_1.jpg',
+        );
+        final c = container();
+        final before = c.read(dataRevisionProvider);
+        final expectedLocal = mealTimeOnFoodDay(
+          foodDay(meal.entry.at),
+          hour: 14,
+          minute: 15,
+        );
 
-      final result = await c
-          .read(mealEditorProvider)
-          .setTime(meal, hour: 14, minute: 15);
+        final result = await c
+            .read(mealEditorProvider)
+            .setTime(meal, hour: 14, minute: 15);
 
-      expect(result, isA<EditTimeSaved>());
-      expect(meals.updates, 1);
-      expect(c.read(dataRevisionProvider), before + 1);
-      final updated = meals.rows.single;
-      expect(updated.at, expectedLocal.toUtc());
-      expect(updated.offsetMinutes, expectedLocal.timeZoneOffset.inMinutes);
-      expect(updated.kind, MealKind.main);
-      expect(updated.tags.protein, isTrue);
-      expect(updated.tags.veg, MealVeg.some);
-      expect(updated.last, isTrue);
-      expect(updated.photo, 'meal_1.jpg');
-    });
+        expect(result, isA<EditTimeSaved>());
+        expect(meals.updates, 1);
+        expect(c.read(dataRevisionProvider), before + 1);
+        final updated = meals.rows.single;
+        expect(updated.at, expectedLocal.toUtc());
+        expect(updated.offsetMinutes, expectedLocal.timeZoneOffset.inMinutes);
+        expect(updated.kind, MealKind.main);
+        expect(updated.tags.protein, isTrue);
+        expect(updated.tags.veg, MealVeg.some);
+        expect(updated.last, isTrue);
+        expect(updated.photo, 'meal_1.jpg');
+      },
+    );
 
     test('unchanged hour and minute returns EditTimeSaved with 0 updates and '
         '0 revision bumps', () async {
@@ -297,7 +302,10 @@ void main() {
       expect(savedResult, isA<EditTimeSaved>());
       expect(meals.updates, 1);
       expect(c2.read(dataRevisionProvider), before2 + 1);
-      expect(foodDay(meals.rows.single.entry.at), const LocalDate(2026, 11, 17));
+      expect(
+        foodDay(meals.rows.single.entry.at),
+        const LocalDate(2026, 11, 17),
+      );
       expect(meals.rows.single.entry.at, DateTime.utc(2026, 11, 18, 0, 30));
     });
 

@@ -75,7 +75,7 @@ final class _SpyPhotoStore implements PhotoStore {
     if (store != null && id != null) {
       rowGoneBeforePhotoDelete.add(await store.byId(id) == null);
     }
-    return inner.delete(name);
+    return await inner.delete(name);
   }
 
   @override
@@ -86,7 +86,7 @@ final class _SpyPhotoStore implements PhotoStore {
 }
 
 final class _GatedMealStore implements MealStore {
-  _GatedMealStore(this.inner, {this.gateUpdates = false, this.deleteGate});
+  new(this.inner, {this.gateUpdates = false, this.deleteGate});
 
   final TestMealStore inner;
   final bool gateUpdates;
@@ -104,7 +104,7 @@ final class _GatedMealStore implements MealStore {
       updateGates.add(gate);
       await gate.future;
     }
-    return inner.update(id, draft);
+    return await inner.update(id, draft);
   }
 
   @override
@@ -117,7 +117,7 @@ final class _GatedMealStore implements MealStore {
   Future<Meal?> delete(int id) async {
     final gate = deleteGate;
     if (gate != null) await gate.future;
-    return inner.delete(id);
+    return await inner.delete(id);
   }
 
   @override
@@ -265,10 +265,16 @@ void main() {
       );
 
       final kindChip = tester.widget<ChoiceChip>(
-        find.byKey(MealSavedSheetKeys.kind(MealKind.main)),
+        find.descendant(
+          of: find.byKey(MealSavedSheetKeys.kind(MealKind.main)),
+          matching: find.byType(ChoiceChip),
+        ),
       );
       final flagChip = tester.widget<FilterChip>(
-        find.byKey(MealSavedSheetKeys.flag(MealFlag.protein)),
+        find.descendant(
+          of: find.byKey(MealSavedSheetKeys.flag(MealFlag.protein)),
+          matching: find.byType(FilterChip),
+        ),
       );
       expect(kindChip.onSelected, isNull);
       expect(flagChip.onSelected, isNull);
@@ -557,7 +563,10 @@ void main() {
       expect(
         tester
             .widget<ChoiceChip>(
-              find.byKey(MealSavedSheetKeys.kind(MealKind.main)),
+              find.descendant(
+                of: find.byKey(MealSavedSheetKeys.kind(MealKind.main)),
+                matching: find.byType(ChoiceChip),
+              ),
             )
             .selected,
         isFalse,
@@ -596,11 +605,25 @@ void main() {
         for (final text in tester.widgetList<Text>(find.byType(Text)))
           text.data ?? '',
       ];
+      final sheetTexts = [
+        for (final text in tester.widgetList<Text>(
+          find.descendant(
+            of: find.byKey(FoodMealKeys.kcalSheet),
+            matching: find.byType(Text),
+          ),
+        ))
+          text.data ?? '',
+      ];
       expect(
         renderedTexts.any((t) => t.toLowerCase().contains('kcal')),
         isFalse,
       );
-      expect(renderedTexts.where((t) => RegExp(r'\d').hasMatch(t)), ['12:30']);
+      expect(sheetTexts.where((t) => RegExp(r'\d').hasMatch(t)), isEmpty);
+      expect(renderedTexts.where((t) => RegExp(r'\d').hasMatch(t)), [
+        '12:30',
+        l10n.foodAlcoholOneToTwo,
+        l10n.foodAlcoholThreeOrMore,
+      ]);
 
       await _tapKey(tester, FoodMealKeys.kcalClose);
       expect(find.byKey(FoodMealKeys.kcalSheet), findsNothing);

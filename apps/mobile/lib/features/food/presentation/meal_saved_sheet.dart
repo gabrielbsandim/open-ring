@@ -97,8 +97,10 @@ class MealSavedSheet extends StatelessWidget {
         ],
         ValueListenableBuilder<MealEdit>(
           valueListenable: edit,
-          builder: (context, value, _) =>
-              _Tags(value: value, onChanged: (next) => edit.value = next),
+          builder: (context, value, _) => MealTagsEditor(
+            value: value,
+            onChanged: (next) => edit.value = next,
+          ),
         ),
         const SizedBox(height: 4),
         ValueListenableBuilder<MealEdit>(
@@ -168,17 +170,20 @@ class MealNoSpaceSheet extends StatelessWidget {
 
 /// The kind and the nine tag groups, in the prototype's order, none chosen
 /// by default.
-class _Tags extends StatelessWidget {
-  const new({required this.value, required this.onChanged});
+class MealTagsEditor extends StatelessWidget {
+  const new({required this.value, required this.onChanged, super.key});
 
   final MealEdit value;
-  final ValueChanged<MealEdit> onChanged;
+  final ValueChanged<MealEdit>? onChanged;
 
   @override
   Widget build(BuildContext context) {
     final l10n = MetricFormat.of(context).l10n;
     final colors = AppColors.of(context);
     final edit = value;
+    final onChanged = this.onChanged;
+    ValueChanged<T?>? maybe<T extends Enum>(MealEdit Function(T?) apply) =>
+        onChanged == null ? null : (picked) => onChanged(apply(picked));
     Widget flag(MealFlag flag, String label, String text) => _Group(
       label: label,
       chips: [
@@ -187,7 +192,9 @@ class _Tags extends StatelessWidget {
           text: text,
           selected: edit.flag(flag),
           filter: true,
-          onSelected: (on) => onChanged(edit.withFlag(flag, on)),
+          onSelected: onChanged == null
+              ? null
+              : (on) => onChanged(edit.withFlag(flag, on)),
         ),
       ],
     );
@@ -211,7 +218,7 @@ class _Tags extends StatelessWidget {
               MealKind.snack => l10n.foodKindSnack,
               MealKind.drink => l10n.foodKindDrink,
             },
-            onChanged: (kind) => onChanged(edit.withKind(kind)),
+            onChanged: maybe(edit.withKind),
           ),
           flag(MealFlag.protein, l10n.foodProteinLabel, l10n.foodProtein),
           _OneOf(
@@ -223,7 +230,7 @@ class _Tags extends StatelessWidget {
               MealVeg.some => l10n.foodVegSome,
               MealVeg.halfOrMore => l10n.foodVegHalf,
             },
-            onChanged: (veg) => onChanged(edit.withVeg(veg)),
+            onChanged: maybe(edit.withVeg),
           ),
           _OneOf(
             label: l10n.foodAlcoholLabel,
@@ -234,7 +241,7 @@ class _Tags extends StatelessWidget {
               MealAlcohol.oneToTwo => l10n.foodAlcoholOneToTwo,
               MealAlcohol.threeOrMore => l10n.foodAlcoholThreeOrMore,
             },
-            onChanged: (alcohol) => onChanged(edit.withAlcohol(alcohol)),
+            onChanged: maybe(edit.withAlcohol),
           ),
           flag(MealFlag.caffeine, l10n.foodCaffeineLabel, l10n.foodCaffeine),
           flag(MealFlag.heavy, l10n.foodHeavyLabel, l10n.foodHeavy),
@@ -249,7 +256,7 @@ class _Tags extends StatelessWidget {
               MealProcessed.mostly => l10n.foodProcessedMostly,
               MealProcessed.unsure => l10n.foodProcessedUnsure,
             },
-            onChanged: (processed) => onChanged(edit.withProcessed(processed)),
+            onChanged: maybe(edit.withProcessed),
           ),
           _OneOf(
             label: l10n.foodPlaceLabel,
@@ -261,7 +268,7 @@ class _Tags extends StatelessWidget {
               MealPlace.restaurant => l10n.foodPlaceRestaurant,
               MealPlace.packaged => l10n.foodPlacePackaged,
             },
-            onChanged: (place) => onChanged(edit.withPlace(place)),
+            onChanged: maybe(edit.withPlace),
           ),
         ],
       ),
@@ -285,21 +292,26 @@ class _OneOf<T extends Enum> extends StatelessWidget {
   final T? selected;
   final Key Function(T value) keyOf;
   final String Function(T value) text;
-  final ValueChanged<T?> onChanged;
+  final ValueChanged<T?>? onChanged;
 
   @override
-  Widget build(BuildContext context) => _Group(
-    label: label,
-    chips: [
-      for (final value in values)
-        _TagChip(
-          key: keyOf(value),
-          text: text(value),
-          selected: value == selected,
-          onSelected: (on) => onChanged(on ? value : null),
-        ),
-    ],
-  );
+  Widget build(BuildContext context) {
+    final onChanged = this.onChanged;
+    return _Group(
+      label: label,
+      chips: [
+        for (final value in values)
+          _TagChip(
+            key: keyOf(value),
+            text: text(value),
+            selected: value == selected,
+            onSelected: onChanged == null
+                ? null
+                : (on) => onChanged(on ? value : null),
+          ),
+      ],
+    );
+  }
 }
 
 class _Group extends StatelessWidget {
@@ -337,7 +349,7 @@ class _TagChip extends StatelessWidget {
 
   final String text;
   final bool selected;
-  final ValueChanged<bool> onSelected;
+  final ValueChanged<bool>? onSelected;
 
   /// A yes or no tag, rather than one choice of a group.
   final bool filter;

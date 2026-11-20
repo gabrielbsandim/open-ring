@@ -13,6 +13,8 @@ abstract interface class MealStore {
   /// when [id] is unknown, throws when another row holds [name].
   Future<bool> attachPhoto(int id, String name);
 
+  Future<Meal?> byId(int id);
+
   Future<Meal?> delete(int id);
 
   /// The meals whose food day is in [from, to], oldest wall clock first.

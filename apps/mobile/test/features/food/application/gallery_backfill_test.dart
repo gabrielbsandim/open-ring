@@ -899,6 +899,8 @@ void main() {
         await saving;
 
         expect(gatedStore.saves, 1);
+        expect(meals.rows, hasLength(1));
+        expect(revisionOf(container), 1);
         expect(stateOf(container).phase, GalleryImportPhase.idle);
         expect(stateOf(container).items, isEmpty);
       },
@@ -958,6 +960,8 @@ void main() {
         await saving;
 
         expect(gatedStore.saves, 1);
+        expect(meals.rows, hasLength(1));
+        expect(revisionOf(container), 1);
         expect(stateOf(container).phase, isNot(GalleryImportPhase.done));
       },
     );

@@ -200,7 +200,8 @@ class GalleryBackfill extends Notifier<GalleryImportState> {
     );
   }
 
-  /// Commits every ready item atomically; stops cleanly on a full disk.
+  /// Saves each ready item cleanly without orphans or photoless rows; stops on
+  /// a full disk.
   Future<void> saveReady() async {
     if (state.phase != GalleryImportPhase.review) return;
     if (!ref.read(foodEnabledProvider)) return;
@@ -225,7 +226,10 @@ class GalleryBackfill extends Notifier<GalleryImportState> {
     var noSpace = false;
     var failed = false;
     for (final item in ready) {
-      if (!_active(gen)) return;
+      if (!_active(gen)) {
+        _bumpIfSaved(saved, revision.bump);
+        return;
+      }
       final source = item.timeFromPhoto
           ? TimeSource.photo
           : TimeSource.returned;
@@ -236,11 +240,12 @@ class GalleryBackfill extends Notifier<GalleryImportState> {
         source: source,
         keepRowOnNoSpace: false,
       );
-      if (!_active(gen)) return;
-      if (result.outcome == SaveOutcome.saved) {
-        saved++;
-        continue;
+      if (result.outcome == SaveOutcome.saved) saved++;
+      if (!_active(gen)) {
+        _bumpIfSaved(saved, revision.bump);
+        return;
       }
+      if (result.outcome == SaveOutcome.saved) continue;
       if (result.outcome == SaveOutcome.noSpace) {
         noSpace = true;
         break;
@@ -255,6 +260,10 @@ class GalleryBackfill extends Notifier<GalleryImportState> {
       noSpace: noSpace,
       saveFailed: failed,
     );
+  }
+
+  void _bumpIfSaved(int saved, VoidCallback bump) {
+    if (ref.mounted && saved > 0) bump();
   }
 
   void reset() {

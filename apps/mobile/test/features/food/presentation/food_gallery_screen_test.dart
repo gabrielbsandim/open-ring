@@ -20,7 +20,6 @@ import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/food/presentation/food_day_screen.dart';
 import 'package:open_ring/features/food/presentation/food_gallery_screen.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
-import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -415,8 +414,9 @@ void main() {
       expect(_snackText(l10n.foodGalleryPickFailed), findsOneWidget);
       expect(find.byKey(FoodGalleryKeys.pickAgain), findsOneWidget);
 
-      gallery.error = null;
-      gallery.photos = [photoTakenAt(DateTime(2026, 11, 17, 12, 30))];
+      gallery
+        ..error = null
+        ..photos = [photoTakenAt(DateTime(2026, 11, 17, 12, 30))];
       await _tapKey(tester, FoodGalleryKeys.pickAgain);
 
       expect(gallery.calls, 2);

@@ -10,6 +10,7 @@ import 'package:open_ring/features/effort/presentation/effort_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_formula_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_screen.dart';
 import 'package:open_ring/features/food/presentation/food_day_screen.dart';
+import 'package:open_ring/features/food/presentation/food_gallery_screen.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
 import 'package:open_ring/features/goals/presentation/goal_end_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_formula_screen.dart';
@@ -149,7 +150,18 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
           ),
         ],
       ),
-      GoRoute(path: 'food', builder: (_, _) => const FoodDayScreen()),
+      GoRoute(
+        path: 'food',
+        builder: (_, _) => const FoodDayScreen(),
+        routes: [
+          GoRoute(
+            path: 'gallery',
+            builder: (_, state) => FoodGalleryScreen(
+              initialDay: LocalDate.tryParse(state.uri.queryParameters['day']),
+            ),
+          ),
+        ],
+      ),
       GoRoute(path: 'goals', builder: (_, _) => const GoalScreen()),
       GoRoute(
         path: 'goals/pick',

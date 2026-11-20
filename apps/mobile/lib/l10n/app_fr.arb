@@ -2458,5 +2458,22 @@
   "foodMealDeleteConfirm": "Supprimer",
   "foodMealDeleteFailed": "Impossible de supprimer le repas",
   "foodMealNotFound": "Repas introuvable",
-  "foodMealFoot": "Aucune étiquette n’est bonne ou mauvaise, et rien de ce repas n’entre dans un score."
+  "foodMealFoot": "Aucune étiquette n’est bonne ou mauvaise, et rien de ce repas n’entre dans un score.",
+  "foodTabDay": "Jour",
+  "foodTabWeek": "Semaine",
+  "foodWeekLast": "La semaine dernière",
+  "foodWeekCompleteLegend": "jour complet",
+  "foodWeekIncompleteLegend": "dernier repas non marqué",
+  "foodWeekSummary": "{complete} jours complets sur 7 · {records, plural, =1{1 entrée} other{{records} entrées}}",
+  "foodWeekEmpty": "Aucun repas enregistré la semaine dernière.",
+  "foodWeekThumbLabel": "{day}, {slot} à {time}",
+  "foodWeekSoftTitle": "Mode doux",
+  "foodWeekSoftBody": "Avec le mode doux d’Objectifs activé, Alimentation affiche uniquement votre journal, vos horaires et vos comparaisons. L’Équilibre de l’assiette reste désactivé.",
+  "foodPlateTitle": "Équilibre de l’assiette",
+  "foodPlateTag": "semaine",
+  "foodPlateSummary": "{score} sur 10, sur {mains} repas principaux en {days} jours",
+  "foodPlateCounts": "Protéines dans {protein} · légumes ou fruits dans {veg} · presque tout transformé dans {processed} · boisson sucrée sur {sugaryDays} jours · {drinks}",
+  "foodPlateDrinks": "{count} verres",
+  "foodPlateBuilding": "Nécessite {neededDays} jours complets et {neededMains} repas principaux. {completeDays} jours sur {neededDays} et {mains} repas principaux sur {neededMains} jusqu’ici.",
+  "foodPlateNote": "Compte uniquement ce que vous avez coché. Il ignore les portions et n’est pas un score de santé."
 }

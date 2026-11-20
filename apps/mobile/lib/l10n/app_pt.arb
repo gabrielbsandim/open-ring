@@ -2458,5 +2458,22 @@
   "foodMealDeleteConfirm": "Excluir",
   "foodMealDeleteFailed": "Não deu para excluir a refeição",
   "foodMealNotFound": "Refeição não encontrada",
-  "foodMealFoot": "Nenhuma marca é boa ou ruim, e nada desta refeição entra em pontuação."
+  "foodMealFoot": "Nenhuma marca é boa ou ruim, e nada desta refeição entra em pontuação.",
+  "foodTabDay": "Dia",
+  "foodTabWeek": "Semana",
+  "foodWeekLast": "Semana passada",
+  "foodWeekCompleteLegend": "dia completo",
+  "foodWeekIncompleteLegend": "última refeição sem marca",
+  "foodWeekSummary": "{complete} de 7 dias completos · {records, plural, =1{1 registro} other{{records} registros}}",
+  "foodWeekEmpty": "Nenhuma refeição registrada na semana passada.",
+  "foodWeekThumbLabel": "{day}, {slot} às {time}",
+  "foodWeekSoftTitle": "Modo suave",
+  "foodWeekSoftBody": "Com o modo suave de Metas ativo, Alimentação mostra só seu diário, horários e comparações. O Padrão do prato fica desligado.",
+  "foodPlateTitle": "Padrão do prato",
+  "foodPlateTag": "semana",
+  "foodPlateSummary": "{score} de 10, em {mains} refeições principais em {days} dias",
+  "foodPlateCounts": "Proteína em {protein} · legumes ou fruta em {veg} · quase tudo processado em {processed} · bebida açucarada em {sugaryDays} dias · {drinks}",
+  "foodPlateDrinks": "{count} doses",
+  "foodPlateBuilding": "Precisa de {neededDays} dias completos e {neededMains} refeições principais. Até agora, {completeDays} de {neededDays} dias e {mains} de {neededMains} refeições principais.",
+  "foodPlateNote": "Conta só o que você marcou. Não sabe tamanhos de porção e não é nota de saúde."
 }

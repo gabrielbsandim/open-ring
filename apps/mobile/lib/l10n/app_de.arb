@@ -2458,5 +2458,22 @@
   "foodMealDeleteConfirm": "Löschen",
   "foodMealDeleteFailed": "Die Mahlzeit konnte nicht gelöscht werden",
   "foodMealNotFound": "Mahlzeit nicht gefunden",
-  "foodMealFoot": "Keine Markierung ist gut oder schlecht, und nichts aus dieser Mahlzeit fließt in einen Score ein."
+  "foodMealFoot": "Keine Markierung ist gut oder schlecht, und nichts aus dieser Mahlzeit fließt in einen Score ein.",
+  "foodTabDay": "Tag",
+  "foodTabWeek": "Woche",
+  "foodWeekLast": "Letzte Woche",
+  "foodWeekCompleteLegend": "vollständiger Tag",
+  "foodWeekIncompleteLegend": "letzte Mahlzeit nicht markiert",
+  "foodWeekSummary": "{complete} von 7 vollständigen Tagen · {records, plural, =1{1 Eintrag} other{{records} Einträge}}",
+  "foodWeekEmpty": "Letzte Woche keine Mahlzeiten erfasst.",
+  "foodWeekThumbLabel": "{day}, {slot} um {time}",
+  "foodWeekSoftTitle": "Sanfter Modus",
+  "foodWeekSoftBody": "Bei aktiviertem sanftem Modus in Ziele zeigt Ernährung nur dein Tagebuch, Zeiten und Vergleiche. Das Tellermuster bleibt aus.",
+  "foodPlateTitle": "Tellermuster",
+  "foodPlateTag": "Woche",
+  "foodPlateSummary": "{score} von 10, aus {mains} Hauptmahlzeiten in {days} Tagen",
+  "foodPlateCounts": "Eiweiß in {protein} · Gemüse oder Obst in {veg} · überwiegend verarbeitet in {processed} · zuckerhaltiges Getränk an {sugaryDays} Tagen · {drinks}",
+  "foodPlateDrinks": "{count} Drinks",
+  "foodPlateBuilding": "Braucht {neededDays} vollständige Tage und {neededMains} Hauptmahlzeiten. Bisher {completeDays} von {neededDays} Tagen und {mains} von {neededMains} Hauptmahlzeiten.",
+  "foodPlateNote": "Zählt nur, was du markiert hast. Kennt keine Portionen und ist kein Gesundheitswert."
 }

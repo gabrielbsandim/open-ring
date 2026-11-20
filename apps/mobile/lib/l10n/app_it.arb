@@ -2458,5 +2458,22 @@
   "foodMealDeleteConfirm": "Elimina",
   "foodMealDeleteFailed": "Impossibile eliminare il pasto",
   "foodMealNotFound": "Pasto non trovato",
-  "foodMealFoot": "Nessuna etichetta è buona o cattiva, e nulla di questo pasto entra in un punteggio."
+  "foodMealFoot": "Nessuna etichetta è buona o cattiva, e nulla di questo pasto entra in un punteggio.",
+  "foodTabDay": "Giorno",
+  "foodTabWeek": "Settimana",
+  "foodWeekLast": "La scorsa settimana",
+  "foodWeekCompleteLegend": "giorno completo",
+  "foodWeekIncompleteLegend": "ultimo pasto non segnato",
+  "foodWeekSummary": "{complete} giorni completi su 7 · {records, plural, =1{1 voce} other{{records} voci}}",
+  "foodWeekEmpty": "Nessun pasto registrato la scorsa settimana.",
+  "foodWeekThumbLabel": "{day}, {slot} alle {time}",
+  "foodWeekSoftTitle": "Modalità delicata",
+  "foodWeekSoftBody": "Con la modalità delicata di Obiettivi attiva, Alimentazione mostra solo il diario, gli orari e i confronti. Lo Schema del piatto resta disattivato.",
+  "foodPlateTitle": "Schema del piatto",
+  "foodPlateTag": "settimana",
+  "foodPlateSummary": "{score} su 10, da {mains} pasti principali in {days} giorni",
+  "foodPlateCounts": "Proteine in {protein} · verdura o frutta in {veg} · quasi tutto lavorato in {processed} · bevanda zuccherata in {sugaryDays} giorni · {drinks}",
+  "foodPlateDrinks": "{count} bicchieri",
+  "foodPlateBuilding": "Richiede {neededDays} giorni completi e {neededMains} pasti principali. Finora {completeDays} giorni su {neededDays} e {mains} pasti principali su {neededMains}.",
+  "foodPlateNote": "Conta solo ciò che hai segnato. Non conosce le porzioni e non è un punteggio di salute."
 }

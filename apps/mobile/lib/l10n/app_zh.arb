@@ -2458,5 +2458,22 @@
   "foodMealDeleteConfirm": "删除",
   "foodMealDeleteFailed": "无法删除这顿饭",
   "foodMealNotFound": "未找到这顿饭",
-  "foodMealFoot": "任何标签都不分好坏，这顿饭的任何内容都不会计入评分。"
+  "foodMealFoot": "任何标签都不分好坏，这顿饭的任何内容都不会计入评分。",
+  "foodTabDay": "日",
+  "foodTabWeek": "周",
+  "foodWeekLast": "上周",
+  "foodWeekCompleteLegend": "完整的一天",
+  "foodWeekIncompleteLegend": "未标记最后一餐",
+  "foodWeekSummary": "7天中完整{complete}天 · {records, plural, other{{records}条记录}}",
+  "foodWeekEmpty": "上周没有记录任何饮食。",
+  "foodWeekThumbLabel": "{day} {time} {slot}",
+  "foodWeekSoftTitle": "温和模式",
+  "foodWeekSoftBody": "开启“目标”的温和模式后，饮食只显示你的饮食日记、时间安排和对比。餐盘模式保持关闭。",
+  "foodPlateTitle": "餐盘模式",
+  "foodPlateTag": "本周",
+  "foodPlateSummary": "{score} / 10，来自 {days} 天内的 {mains} 顿正餐",
+  "foodPlateCounts": "含蛋白质 {protein} · 含蔬果 {veg} · 几乎全为加工食品 {processed} · 含糖饮品 {sugaryDays} 天 · {drinks}",
+  "foodPlateDrinks": "酒精 {count} 杯",
+  "foodPlateBuilding": "需要 {neededDays} 个完整天和 {neededMains} 顿正餐。目前已记录 {completeDays}/{neededDays} 天和 {mains}/{neededMains} 顿正餐。",
+  "foodPlateNote": "仅统计你标记的内容，不了解份量，也不是健康评分。"
 }

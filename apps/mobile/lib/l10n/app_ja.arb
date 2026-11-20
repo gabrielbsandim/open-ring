@@ -2458,5 +2458,22 @@
   "foodMealDeleteConfirm": "削除",
   "foodMealDeleteFailed": "食事を削除できませんでした",
   "foodMealNotFound": "食事が見つかりません",
-  "foodMealFoot": "どのタグにも良い悪いはなく、この食事の内容がスコアに入ることはありません。"
+  "foodMealFoot": "どのタグにも良い悪いはなく、この食事の内容がスコアに入ることはありません。",
+  "foodTabDay": "日",
+  "foodTabWeek": "週",
+  "foodWeekLast": "先週",
+  "foodWeekCompleteLegend": "完了した日",
+  "foodWeekIncompleteLegend": "最後の食事が未マーク",
+  "foodWeekSummary": "7日中{complete}日が完了 · {records, plural, other{{records}件の記録}}",
+  "foodWeekEmpty": "先週の食事記録はありません。",
+  "foodWeekThumbLabel": "{day} {time}の{slot}",
+  "foodWeekSoftTitle": "やさしいモード",
+  "foodWeekSoftBody": "目標のやさしいモードがオンのときは、記録・時間帯・比較だけを表示します。プレートパターンは表示されません。",
+  "foodPlateTitle": "プレートパターン",
+  "foodPlateTag": "週",
+  "foodPlateSummary": "10点中{score}点（{days}日間の食事{mains}回から）",
+  "foodPlateCounts": "タンパク質 {protein}回 · 野菜または果物 {veg}回 · ほぼ加工食品 {processed}回 · 砂糖入り飲料 {sugaryDays}日 · {drinks}",
+  "foodPlateDrinks": "アルコール {count}杯",
+  "foodPlateBuilding": "完了した日{neededDays}日と食事{neededMains}回が必要です。これまで{completeDays}/{neededDays}日、食事{mains}/{neededMains}回です。",
+  "foodPlateNote": "マークした項目だけを数えています。量までは分からず、健康スコアでもありません。"
 }

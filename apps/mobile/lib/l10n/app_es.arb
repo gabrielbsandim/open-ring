@@ -2458,5 +2458,22 @@
   "foodMealDeleteConfirm": "Eliminar",
   "foodMealDeleteFailed": "No se pudo eliminar la comida",
   "foodMealNotFound": "Comida no encontrada",
-  "foodMealFoot": "Ninguna etiqueta es buena ni mala, y nada de esta comida entra en una puntuación."
+  "foodMealFoot": "Ninguna etiqueta es buena ni mala, y nada de esta comida entra en una puntuación.",
+  "foodTabDay": "Día",
+  "foodTabWeek": "Semana",
+  "foodWeekLast": "La semana pasada",
+  "foodWeekCompleteLegend": "día completo",
+  "foodWeekIncompleteLegend": "última comida sin marcar",
+  "foodWeekSummary": "{complete} de 7 días completos · {records, plural, =1{1 registro} other{{records} registros}}",
+  "foodWeekEmpty": "Sin comidas registradas la semana pasada.",
+  "foodWeekThumbLabel": "{day}, {slot} a las {time}",
+  "foodWeekSoftTitle": "Modo suave",
+  "foodWeekSoftBody": "Con el modo suave de Objetivos activo, Alimentación muestra solo tu diario, horarios y comparaciones. El Patrón del plato permanece desactivado.",
+  "foodPlateTitle": "Patrón del plato",
+  "foodPlateTag": "semana",
+  "foodPlateSummary": "{score} de 10, a partir de {mains} comidas principales en {days} días",
+  "foodPlateCounts": "Proteína en {protein} · verdura o fruta en {veg} · casi todo procesado en {processed} · bebida con azúcar en {sugaryDays} días · {drinks}",
+  "foodPlateDrinks": "{count} copas",
+  "foodPlateBuilding": "Necesita {neededDays} días completos y {neededMains} comidas principales. {completeDays} de {neededDays} días y {mains} de {neededMains} comidas principales hasta ahora.",
+  "foodPlateNote": "Cuenta lo que marcaste. No conoce las porciones ni es una nota de salud."
 }

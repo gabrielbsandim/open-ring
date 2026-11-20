@@ -13,6 +13,8 @@ import 'package:open_ring/features/food/application/food_day.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/application/food_week.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
+import 'package:open_ring/features/food/presentation/food_timing_chart.dart';
+import 'package:open_ring/features/food/presentation/food_week_evidence_sheet.dart';
 import 'package:open_ring/features/food/presentation/meal_saved_sheet.dart';
 
 enum FoodSection { day, week }
@@ -25,6 +27,10 @@ abstract final class FoodWeekKeys {
   static const tabWeek = Key('food_tab_week');
   static const contactSheet = Key('food_week_contact_sheet');
   static const empty = Key('food_week_empty');
+  static const timingCard = Key('food_week_timing_card');
+  static const timingChart = Key('food_week_timing_chart');
+  static const windowRow = Key('food_week_window_row');
+  static const gapRow = Key('food_week_gap_row');
   static const plateCard = Key('food_week_plate_card');
   static const softModeCard = Key('food_week_soft_mode_card');
 
@@ -145,6 +151,8 @@ class _FoodWeekBodyState extends ConsumerState<_FoodWeekBody> {
       final t = Theme.of(context).textTheme;
       return [
         _contactSheet(view, f, t, c),
+        const SizedBox(height: cardGap),
+        _timingCard(context, view, f, t, c),
         const SizedBox(height: cardGap),
         if (view.softMode)
           _card(FoodWeekKeys.softModeCard, [
@@ -357,6 +365,136 @@ Widget _legend(String label, bool complete, AppColors c) => Row(
     Flexible(child: CaptionText(label)),
   ],
 );
+
+Widget _timingCard(
+  BuildContext context,
+  FoodWeekView view,
+  MetricFormat f,
+  TextTheme t,
+  AppColors c,
+) {
+  final l = f.l10n;
+  return _card(FoodWeekKeys.timingCard, [
+    _header(
+      AccentTitle(title: l.foodTimingTitle, accent: c.activity),
+      l.foodTimingCompleteDays(view.stats.completeDays),
+    ),
+    const SizedBox(height: 12),
+    FoodTimingChart(
+      key: FoodWeekKeys.timingChart,
+      days: view.days,
+      completeDays: view.stats.completeDays,
+    ),
+    const SizedBox(height: 10),
+    Wrap(
+      spacing: 12,
+      runSpacing: 4,
+      children: [
+        _timingLegend(12, 6, 3, c.activity, l.foodTimingLegendWindow),
+        _timingLegend(3, 12, 2, c.sleep, l.foodTimingLegendSleep),
+      ],
+    ),
+    const SizedBox(height: 12),
+    _timingRow(context, FoodWeekEvidence.window, view),
+    _timingRow(context, FoodWeekEvidence.gap, view),
+  ]);
+}
+
+Widget _timingLegend(double w, double h, double r, Color color, String label) =>
+    Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.all(Radius.circular(r)),
+          ),
+          child: SizedBox(width: w, height: h),
+        ),
+        const SizedBox(width: 6),
+        Flexible(child: CaptionText(label)),
+      ],
+    );
+
+Widget _timingRow(
+  BuildContext context,
+  FoodWeekEvidence kind,
+  FoodWeekView view,
+) {
+  final f = MetricFormat.of(context);
+  final l = f.l10n;
+  final c = AppColors.of(context);
+  final t = Theme.of(context).textTheme;
+  final win = kind == FoodWeekEvidence.window;
+  final m = win ? view.stats.windowMinutes : view.stats.gapMinutes;
+  final value = m == null
+      ? l.metricNoReading
+      : f.duration(Duration(minutes: m.round()));
+  final onTap = m == null
+      ? null
+      : () => unawaited(showFoodWeekEvidence(context, kind: kind, view: view));
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Divider(height: 1, color: c.surfaceBorder),
+      InkWell(
+        key: win ? FoodWeekKeys.windowRow : FoodWeekKeys.gapRow,
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 2,
+                        children: [
+                          Text(
+                            win ? l.foodWindowTitle : l.foodWeekGapTitle,
+                            style: t.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            value,
+                            style: numberStyle(
+                              t.bodyMedium,
+                              color: onTap == null
+                                  ? c.textLabel
+                                  : c.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      CaptionText(win ? l.foodWeekWindowSub : l.foodWeekGapSub),
+                    ],
+                  ),
+                ),
+                if (onTap != null) ...[
+                  const SizedBox(width: 6),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 20,
+                    color: c.textLabel,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
+}
 
 Widget _plateCard(PlateResult plate, MetricFormat f, TextTheme t, AppColors c) {
   final l = f.l10n;

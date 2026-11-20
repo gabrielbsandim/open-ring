@@ -19,6 +19,8 @@ import 'package:open_ring/features/food/domain/meal_store.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/food/presentation/food_day_screen.dart';
 import 'package:open_ring/features/food/presentation/food_meal_screen.dart';
+import 'package:open_ring/features/food/presentation/food_timing_chart.dart';
+import 'package:open_ring/features/food/presentation/food_week_evidence_sheet.dart';
 import 'package:open_ring/features/food/presentation/food_week_screen.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
@@ -103,6 +105,7 @@ List<Override> _weekOverrides({
   required MealStore meals,
   PhotoStore? photos,
   GoalStore? goals,
+  List<FoodNight> nights = const [],
   DateTime Function()? clock,
   bool foodOn = true,
 }) => [
@@ -113,7 +116,7 @@ List<Override> _weekOverrides({
   mealStoreProvider.overrideWithValue(meals),
   photoStoreProvider.overrideWithValue(photos ?? InMemoryPhotoStore()),
   mealCameraProvider.overrideWithValue(FakeMealCamera()),
-  foodNightsProvider.overrideWith((ref) async => const []),
+  foodNightsProvider.overrideWith((ref) async => nights),
   goalStoreProvider.overrideWithValue(goals ?? InMemoryGoalStore()),
 ];
 
@@ -122,6 +125,7 @@ Future<ProviderContainer> _pumpWeekScreen(
   MealStore? meals,
   PhotoStore? photos,
   GoalStore? goals,
+  List<FoodNight> nights = const [],
   List<Override>? overrides,
 }) async {
   await pumpScaled(
@@ -137,6 +141,7 @@ Future<ProviderContainer> _pumpWeekScreen(
           meals: meals ?? TestMealStore(),
           photos: photos,
           goals: goals,
+          nights: nights,
         ),
   );
   return ProviderScope.containerOf(tester.element(find.byType(FoodWeekScreen)));
@@ -820,6 +825,7 @@ void main() {
         {FoodSection.week},
       );
       expect(find.byKey(FoodWeekKeys.contactSheet), findsNothing);
+      expect(find.byKey(FoodWeekKeys.timingCard), findsNothing);
       expect(find.byKey(FoodWeekKeys.plateCard), findsNothing);
       expect(tester.takeException(), isNull);
     });
@@ -838,6 +844,7 @@ void main() {
 
       expect(find.text(l10n.metricLoadError), findsOneWidget);
       expect(find.byKey(FoodWeekKeys.tabs), findsOneWidget);
+      expect(find.byKey(FoodWeekKeys.timingCard), findsNothing);
       expect(find.byKey(FoodWeekKeys.plateCard), findsNothing);
       expect(find.byKey(FoodWeekKeys.softModeCard), findsNothing);
       expect(tester.takeException(), isNull);
@@ -852,6 +859,7 @@ void main() {
       final container = await _pumpWeekScreen(tester, meals: meals);
 
       expect(find.byKey(FoodWeekKeys.contactSheet), findsOneWidget);
+      expect(find.byKey(FoodWeekKeys.timingCard), findsOneWidget);
       expect(find.byKey(FoodWeekKeys.plateCard), findsOneWidget);
       expect(find.text(l10n.foodWeekSummary(0, 1)), findsOneWidget);
 
@@ -863,6 +871,7 @@ void main() {
       await tester.pump();
 
       expect(find.byKey(FoodWeekKeys.contactSheet), findsOneWidget);
+      expect(find.byKey(FoodWeekKeys.timingCard), findsOneWidget);
       expect(find.byKey(FoodWeekKeys.plateCard), findsOneWidget);
 
       reloadGate.complete();
@@ -870,5 +879,223 @@ void main() {
 
       expect(find.text(l10n.foodWeekSummary(1, 2)), findsOneWidget);
     });
+  });
+
+  group('timing card and evidence sheets', () {
+    testWidgets('renders timing card between contact sheet and plate card, '
+        'stays visible in soft mode, and opens Window/Gap sheets', (
+      tester,
+    ) async {
+      final l10n = lookupAppLocalizations(const Locale('en'));
+      final meals = TestMealStore()
+        ..seed(DateTime(2026, 11, 9, 8))
+        ..seed(DateTime(2026, 11, 9, 19), last: true)
+        ..seed(DateTime(2026, 11, 10, 9))
+        ..seed(DateTime(2026, 11, 10, 21), last: true);
+      final nights = [
+        FoodNight(day: _monday, sleepOnset: DateTime.utc(2026, 11, 9, 23)),
+        FoodNight(
+          day: _monday.addDays(1),
+          sleepOnset: DateTime.utc(2026, 11, 10, 23),
+        ),
+      ];
+
+      await _pumpWeekScreen(tester, meals: meals, nights: nights);
+
+      expect(find.byKey(FoodWeekKeys.timingCard), findsOneWidget);
+      expect(find.byKey(FoodWeekKeys.timingChart), findsOneWidget);
+      expect(find.text(l10n.foodTimingTitle), findsOneWidget);
+      expect(find.text(l10n.foodTimingCompleteDays(2)), findsOneWidget);
+      expect(find.text('11 h 30 min'), findsOneWidget);
+      expect(find.text('3 h'), findsOneWidget);
+
+      final contactY = tester
+          .getTopLeft(find.byKey(FoodWeekKeys.contactSheet))
+          .dy;
+      final timingY = tester.getTopLeft(find.byKey(FoodWeekKeys.timingCard)).dy;
+      final plateY = tester.getTopLeft(find.byKey(FoodWeekKeys.plateCard)).dy;
+      expect(timingY, greaterThan(contactY));
+      expect(plateY, greaterThan(timingY));
+
+      await tester.tap(find.byKey(FoodWeekKeys.windowRow));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(FoodWeekEvidenceKeys.sheet), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(FoodWeekEvidenceKeys.title)).data,
+        l10n.foodWindowTitle,
+      );
+      expect(
+        tester.widget<Text>(find.byKey(FoodWeekEvidenceKeys.value)).data,
+        '11 h 30 min',
+      );
+
+      await tester.ensureVisible(find.byKey(FoodWeekEvidenceKeys.close));
+      await tester.tap(find.byKey(FoodWeekEvidenceKeys.close));
+      await tester.pumpAndSettle();
+      expect(find.byKey(FoodWeekEvidenceKeys.sheet), findsNothing);
+
+      await tester.tap(find.byKey(FoodWeekKeys.gapRow));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(FoodWeekEvidenceKeys.sheet), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(FoodWeekEvidenceKeys.title)).data,
+        l10n.foodWeekGapTitle,
+      );
+      expect(
+        tester.widget<Text>(find.byKey(FoodWeekEvidenceKeys.value)).data,
+        '3 h',
+      );
+    });
+
+    testWidgets('stays visible between contact sheet and soft mode card', (
+      tester,
+    ) async {
+      final meals = TestMealStore()
+        ..seed(DateTime(2026, 11, 9, 12), last: true);
+      final goals = InMemoryGoalStore();
+      await goals.addScreening(
+        const GoalScreening(
+          on: LocalDate(2026, 11, 1),
+          softMode: true,
+          pregnantOrBreastfeeding: null,
+        ),
+      );
+
+      await _pumpWeekScreen(tester, meals: meals, goals: goals);
+
+      expect(find.byKey(FoodWeekKeys.timingCard), findsOneWidget);
+      expect(find.byKey(FoodWeekKeys.softModeCard), findsOneWidget);
+      final timingY = tester.getTopLeft(find.byKey(FoodWeekKeys.timingCard)).dy;
+      final softY = tester.getTopLeft(find.byKey(FoodWeekKeys.softModeCard)).dy;
+      expect(softY, greaterThan(timingY));
+    });
+
+    testWidgets('plain-drink-only day keeps thumbnail, shows metricNoReading '
+        'for window and gap, and disables evidence taps', (tester) async {
+      final l10n = lookupAppLocalizations(const Locale('en'));
+      final drink = TestMealStore();
+      final drinkMeal = drink.seed(
+        DateTime(2026, 11, 9, 9),
+        kind: MealKind.drink,
+        last: true,
+      );
+      final drinkId = drinkMeal.id;
+      final nights = [
+        FoodNight(day: _monday, sleepOnset: DateTime.utc(2026, 11, 9, 23)),
+      ];
+
+      await _pumpWeekScreen(tester, meals: drink, nights: nights);
+
+      expect(find.byKey(FoodWeekKeys.thumb(drinkId)), findsOneWidget);
+      expect(find.byType(FoodTimingChart), findsOneWidget);
+      expect(find.text(l10n.metricNoReading), findsNWidgets(2));
+      expect(
+        find.descendant(
+          of: find.byKey(FoodWeekKeys.windowRow),
+          matching: find.byIcon(Icons.chevron_right_rounded),
+        ),
+        findsNothing,
+      );
+
+      await tester.tap(find.byKey(FoodWeekKeys.windowRow));
+      await tester.pumpAndSettle();
+      expect(find.byKey(FoodWeekEvidenceKeys.sheet), findsNothing);
+    });
+
+    testWidgets('all meals after sleepOnset leave window interactive and drop '
+        'gap with no sheet', (tester) async {
+      final l10n = lookupAppLocalizations(const Locale('en'));
+      final lateMeal = TestMealStore()
+        ..seed(DateTime(2026, 11, 15, 23, 45))
+        ..seed(DateTime(2026, 11, 16, 0, 30), kind: MealKind.snack, last: true);
+      final nights = [
+        FoodNight(day: _sunday, sleepOnset: DateTime.utc(2026, 11, 15, 23, 30)),
+      ];
+
+      await _pumpWeekScreen(tester, meals: lateMeal, nights: nights);
+
+      expect(find.text('45 min'), findsOneWidget);
+      expect(find.text(l10n.metricNoReading), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(FoodWeekKeys.gapRow),
+          matching: find.byIcon(Icons.chevron_right_rounded),
+        ),
+        findsNothing,
+      );
+
+      await tester.tap(find.byKey(FoodWeekKeys.gapRow));
+      await tester.pumpAndSettle();
+      expect(find.byKey(FoodWeekEvidenceKeys.sheet), findsNothing);
+
+      await tester.tap(find.byKey(FoodWeekKeys.windowRow));
+      await tester.pumpAndSettle();
+      expect(find.byKey(FoodWeekEvidenceKeys.sheet), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(FoodWeekEvidenceKeys.title)).data,
+        l10n.foodWindowTitle,
+      );
+    });
+
+    testWidgets('mixed post-onset day computes gapCount < windowCount across '
+        'sheets', (tester) async {
+      final l10n = lookupAppLocalizations(const Locale('en'));
+      final mixed = TestMealStore()
+        ..seed(DateTime(2026, 11, 9, 8))
+        ..seed(DateTime(2026, 11, 9, 19), last: true)
+        ..seed(DateTime(2026, 11, 15, 23, 45), last: true);
+      final mixedNights = [
+        FoodNight(day: _monday, sleepOnset: DateTime.utc(2026, 11, 9, 23)),
+        FoodNight(day: _sunday, sleepOnset: DateTime.utc(2026, 11, 15, 23, 30)),
+      ];
+
+      await _pumpWeekScreen(tester, meals: mixed, nights: mixedNights);
+
+      expect(find.text('5 h 30 min'), findsOneWidget);
+      expect(find.text('4 h'), findsOneWidget);
+
+      await tester.tap(find.byKey(FoodWeekKeys.windowRow));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(l10n.foodSheetDaysYours(2, '0 min, 11 h', '5 h 30 min')),
+        findsOneWidget,
+      );
+
+      await tester.ensureVisible(find.byKey(FoodWeekEvidenceKeys.close));
+      await tester.tap(find.byKey(FoodWeekEvidenceKeys.close));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(FoodWeekKeys.gapRow));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(l10n.foodSheetDaysYours(1, '4 h', '4 h')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets(
+      'missing sleepOnset leaves window interactive and gap disabled',
+      (tester) async {
+        final l10n = lookupAppLocalizations(const Locale('en'));
+        final wornOff = TestMealStore()
+          ..seed(DateTime(2026, 11, 9, 8))
+          ..seed(DateTime(2026, 11, 9, 18), last: true);
+
+        await _pumpWeekScreen(tester, meals: wornOff);
+
+        expect(find.text('10 h'), findsOneWidget);
+        expect(find.text(l10n.metricNoReading), findsOneWidget);
+
+        await tester.tap(find.byKey(FoodWeekKeys.gapRow));
+        await tester.pumpAndSettle();
+        expect(find.byKey(FoodWeekEvidenceKeys.sheet), findsNothing);
+
+        await tester.tap(find.byKey(FoodWeekKeys.windowRow));
+        await tester.pumpAndSettle();
+        expect(find.byKey(FoodWeekEvidenceKeys.sheet), findsOneWidget);
+      },
+    );
   });
 }

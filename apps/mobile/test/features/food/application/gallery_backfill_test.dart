@@ -6,8 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/food/application/gallery_backfill.dart';
+import 'package:open_ring/features/food/application/meal_photo_saver.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/domain/exif.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
@@ -17,6 +19,7 @@ import 'package:open_ring/features/food/domain/meal_store.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
 
 import '../food_fakes.dart';
 import '../jpeg_fixture.dart';
@@ -189,16 +192,35 @@ void main() {
     DateTime Function()? clock,
     bool foodOn = true,
   }) async {
+    final effectiveClock = clock ?? () => nowUtc;
+    final effectivePhotos = photoStore ?? photos;
     final container = ProviderContainer(
       overrides: [
-        ...foodOverrides(
-          meals: meals,
-          camera: FakeMealCamera(),
-          clock: clock ?? () => nowUtc,
-          photos: photoStore ?? photos,
-          foodOn: foodOn,
-        ),
-        if (mealStore != null) mealStoreProvider.overrideWithValue(mealStore),
+        if (mealStore == null)
+          ...foodOverrides(
+            meals: meals,
+            camera: FakeMealCamera(),
+            clock: effectiveClock,
+            photos: effectivePhotos,
+            foodOn: foodOn,
+          )
+        else ...[
+          moduleStoreProvider.overrideWithValue(
+            InMemoryModuleStore({if (foodOn) ModuleId.food}),
+          ),
+          clockProvider.overrideWithValue(effectiveClock),
+          mealStoreProvider.overrideWithValue(mealStore),
+          photoStoreProvider.overrideWithValue(effectivePhotos),
+          mealCameraProvider.overrideWithValue(FakeMealCamera()),
+          mealPhotoSaverProvider.overrideWith(
+            (ref) => MealPhotoSaver(
+              ref.watch(mealStoreProvider),
+              ref.watch(photoStoreProvider),
+              now: effectiveClock,
+              offsetAt: localOffset,
+            ),
+          ),
+        ],
         mealGalleryProvider.overrideWithValue(gallery),
       ],
     );
@@ -252,12 +274,8 @@ void main() {
         var galleryRead = false;
         final container = ProviderContainer(
           overrides: [
-            ...foodOverrides(
-              meals: meals,
-              camera: FakeMealCamera(),
-              clock: () => nowUtc,
-              foodOn: false,
-            ),
+            moduleStoreProvider.overrideWithValue(InMemoryModuleStore()),
+            clockProvider.overrideWithValue(() => nowUtc),
             ...reads.overrides(),
             mealGalleryProvider.overrideWith((ref) {
               galleryRead = true;
@@ -285,11 +303,10 @@ void main() {
         var galleryRead = false;
         final container = ProviderContainer(
           overrides: [
-            ...foodOverrides(
-              meals: meals,
-              camera: FakeMealCamera(),
-              clock: () => nowUtc,
+            moduleStoreProvider.overrideWithValue(
+              InMemoryModuleStore(const {ModuleId.food}),
             ),
+            clockProvider.overrideWithValue(() => nowUtc),
             ...reads.overrides(),
             mealGalleryProvider.overrideWith((ref) {
               galleryRead = true;
@@ -324,7 +341,7 @@ void main() {
     });
 
     test('empty pick leaves phase idle with pickFailed false', () async {
-      final gallery = FakeMealGallery(photos: const []);
+      final gallery = FakeMealGallery();
       final container = await containerWith(gallery: gallery);
 
       await backfillOf(container).pick();
@@ -490,15 +507,16 @@ void main() {
       final over365 = _jpegUtc(
         nowUtc.subtract(const Duration(days: 365, seconds: 1)),
       );
-      final container = await containerWith(
-        gallery: FakeMealGallery(photos: [exact365, over365]),
-      );
+      final gallery = FakeMealGallery(photos: [exact365]);
+      final container = await containerWith(gallery: gallery);
 
       await backfillOf(container).pick();
+      expect(stateOf(container).items.single.status, GalleryItemStatus.ready);
 
-      final items = stateOf(container).items;
-      expect(items[0].status, GalleryItemStatus.ready);
-      expect(items[1].status, GalleryItemStatus.tooOld);
+      backfillOf(container).reset();
+      gallery.photos = [over365];
+      await backfillOf(container).pick();
+      expect(stateOf(container).items.single.status, GalleryItemStatus.tooOld);
     });
   });
 

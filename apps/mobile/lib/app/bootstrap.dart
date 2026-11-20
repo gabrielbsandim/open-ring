@@ -26,6 +26,7 @@ import 'package:open_ring/features/food/application/meal_recovery.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/infrastructure/drift_meal_store.dart';
 import 'package:open_ring/features/food/infrastructure/image_picker_meal_camera.dart';
+import 'package:open_ring/features/food/infrastructure/image_picker_meal_gallery.dart';
 import 'package:open_ring/features/food/infrastructure/io_photo_store.dart';
 import 'package:open_ring/features/goals/application/goal_review_trigger.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
@@ -112,6 +113,7 @@ import 'package:open_ring/features/workout/presentation/workout_labels.dart';
 
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
+  configureAndroidPhotoPicker();
   await FlutterBluePlusTransport.enableStateRestoration();
   await clearLegacyPreferences();
   final themeModeStore = await SharedPreferencesThemeModeStore.open();
@@ -184,6 +186,9 @@ Future<void> bootstrap() async {
       photoStoreProvider.overrideWithValue(IoPhotoStore.documents()),
       mealCameraProvider.overrideWithValue(
         ImagePickerMealCamera(ImagePicker()),
+      ),
+      mealGalleryProvider.overrideWithValue(
+        ImagePickerMealGallery(ImagePicker()),
       ),
       ringAlertPreferencesProvider.overrideWithValue(
         SharedPreferencesRingAlertPreferences(),

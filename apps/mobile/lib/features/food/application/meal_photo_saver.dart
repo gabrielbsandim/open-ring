@@ -53,6 +53,42 @@ final class MealPhotoSaver {
     final (draft, source) = _draftFor(bytes, now);
     final stripped = _strip(bytes);
     if (stripped == null) return SaveResult(SaveOutcome.failed, source);
+    return await _insertAndAttach(
+      stripped,
+      draft,
+      now,
+      source,
+      keepRowOnNoSpace: true,
+    );
+  }
+
+  /// Writes pre-stripped JPEG bytes with an explicit capture instant.
+  Future<SaveResult> savePrepared(
+    Uint8List strippedBytes, {
+    required DateTime at,
+    required int offsetMinutes,
+    TimeSource source = TimeSource.photo,
+    bool keepRowOnNoSpace = true,
+  }) async {
+    if (!_hasJpegHeader(strippedBytes)) {
+      return SaveResult(SaveOutcome.failed, source);
+    }
+    return await _insertAndAttach(
+      strippedBytes,
+      MealDraft(at: at.toUtc(), offsetMinutes: offsetMinutes),
+      _now().toUtc(),
+      source,
+      keepRowOnNoSpace: keepRowOnNoSpace,
+    );
+  }
+
+  Future<SaveResult> _insertAndAttach(
+    Uint8List stripped,
+    MealDraft draft,
+    DateTime now,
+    TimeSource source, {
+    required bool keepRowOnNoSpace,
+  }) async {
     final Meal meal;
     try {
       meal = await _meals.add(draft, now: now);
@@ -60,8 +96,14 @@ final class MealPhotoSaver {
       return SaveResult(SaveOutcome.failed, source);
     }
     final result = await _attach(meal, stripped, source);
-    if (result.outcome != SaveOutcome.failed) return result;
+    if (result.outcome == SaveOutcome.saved) return result;
+    if (result.outcome == SaveOutcome.noSpace && keepRowOnNoSpace) {
+      return result;
+    }
     await _forget(meal.id);
+    if (result.outcome == SaveOutcome.noSpace) {
+      return SaveResult(SaveOutcome.noSpace, source);
+    }
     return result;
   }
 
@@ -111,14 +153,8 @@ final class MealPhotoSaver {
     return (draft, TimeSource.photo);
   }
 
-  ({DateTime at, int offset})? _instantOf(ExifTime? time) {
-    if (time == null) return null;
-    final wall = time.wallClock;
-    // The device offset is asked twice: first near the instant, then at it.
-    final offset =
-        time.offsetMinutes ?? _offsetAt(_shift(wall, _offsetAt(wall)));
-    return (at: _shift(wall, offset), offset: offset);
-  }
+  ({DateTime at, int offset})? _instantOf(ExifTime? time) =>
+      resolveExifTime(time, offsetAt: _offsetAt);
 
   String _nameFor(DateTime at) {
     final suffix = _random.nextInt(1 << 32).toRadixString(16).padLeft(8, '0');
@@ -154,6 +190,23 @@ final class MealPhotoSaver {
     }
   }
 }
+
+/// Resolves [time] to its UTC instant and offset, asking [offsetAt] twice
+/// across wall clock boundaries when the EXIF carries no explicit offset.
+({DateTime at, int offset})? resolveExifTime(
+  ExifTime? time, {
+  int Function(DateTime)? offsetAt,
+}) {
+  if (time == null) return null;
+  final resolve = offsetAt ?? _deviceOffset;
+  final wall = time.wallClock;
+  // The device offset is asked twice: first near the instant, then at it.
+  final offset = time.offsetMinutes ?? resolve(_shift(wall, resolve(wall)));
+  return (at: _shift(wall, offset), offset: offset);
+}
+
+bool _hasJpegHeader(Uint8List bytes) =>
+    bytes.length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xD8;
 
 Uint8List? _strip(Uint8List bytes) {
   try {

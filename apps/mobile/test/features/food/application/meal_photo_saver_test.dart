@@ -101,6 +101,9 @@ final class _BrokenMealStore implements MealStore {
       throw StateError('database is locked');
 
   @override
+  Future<Meal?> byId(int id) => throw StateError('database is locked');
+
+  @override
   Future<Meal?> delete(int id) => throw StateError('database is locked');
 
   @override

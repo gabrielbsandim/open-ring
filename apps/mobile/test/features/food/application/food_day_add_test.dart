@@ -40,6 +40,9 @@ final class _ThrowingAddMealStore implements MealStore {
   Future<int> count() => _inner.count();
 
   @override
+  Future<Meal?> byId(int id) => _inner.byId(id);
+
+  @override
   Future<Meal?> delete(int id) => _inner.delete(id);
 
   @override

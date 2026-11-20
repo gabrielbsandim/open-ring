@@ -45,6 +45,12 @@ final class TestMealStore implements MealStore {
   /// Thrown by [update] after it counts the call, when set.
   Exception? updateError;
 
+  /// How many times [delete] was called.
+  int deletes = 0;
+
+  /// Thrown by [delete] after it counts the call, when set.
+  Exception? deleteError;
+
   List<Meal> get rows => List.unmodifiable(_rows);
 
   Meal seed(
@@ -129,7 +135,17 @@ final class TestMealStore implements MealStore {
   }
 
   @override
+  Future<Meal?> byId(int id) async {
+    final index = _rows.indexWhere((meal) => meal.id == id);
+    if (index < 0) return null;
+    return _rows[index];
+  }
+
+  @override
   Future<Meal?> delete(int id) async {
+    deletes++;
+    final error = deleteError;
+    if (error != null) throw error;
     final index = _rows.indexWhere((meal) => meal.id == id);
     if (index < 0) return null;
     return _rows.removeAt(index);

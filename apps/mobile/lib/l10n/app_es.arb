@@ -2400,8 +2400,8 @@
   "foodDayNext": "Día siguiente",
   "foodDayToday": "Hoy",
   "foodDayEmptyTitle": "Ninguna comida en este día",
-  "foodDayEmptyBody": "Toma una foto en Hoy a la hora de comer. La hora viene de la propia foto y las marcas son opcionales.",
-  "foodDayBlankNote": "Un día sin foto queda en blanco. No cuenta como cero en ningún lugar.",
+  "foodDayEmptyBody": "Toca Foto al comer o Sin foto para elegir la hora. Las marcas son opcionales.",
+  "foodDayBlankNote": "Un día sin comidas queda en blanco. Nunca cuenta como cero en ningún sitio.",
   "foodWindowTitle": "Ventana de alimentación",
   "foodWindowOpen": "Abierta desde las {time}, {duration} hasta ahora",
   "foodWindowSpan": "{from} a {to}, {duration}",
@@ -2413,5 +2413,10 @@
   "foodSlotDinner": "Cena",
   "foodSlotSupper": "Cena tardía",
   "foodNoPhoto": "Sin foto",
-  "foodPhotoMissing": "Foto no encontrada"
+  "foodPhotoMissing": "Foto no encontrada",
+  "foodAddPhoto": "Foto",
+  "foodAddWithoutPhoto": "Sin foto",
+  "foodAddFutureError": "La hora de la comida no puede estar en el futuro",
+  "foodAddFailed": "No se pudo guardar la comida",
+  "foodDayEmptyPastBody": "Toca Sin foto para añadir una comida con su hora. Las marcas son opcionales."
 }

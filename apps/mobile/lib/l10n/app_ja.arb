@@ -2400,8 +2400,8 @@
   "foodDayNext": "翌日",
   "foodDayToday": "今日",
   "foodDayEmptyTitle": "この日の食事はありません",
-  "foodDayEmptyBody": "食事のときに「今日」で写真を撮ってください。時刻は写真から読み取られ、タグは任意です。",
-  "foodDayBlankNote": "写真のない日は空白のままです。どこでもゼロとして数えられることはありません。",
+  "foodDayEmptyBody": "食事のときに「写真」をタップするか、「写真なし」で時刻を選んでください。タグは任意です。",
+  "foodDayBlankNote": "食事のない日は空欄のままです。どこでもゼロとして数えません。",
   "foodWindowTitle": "食事時間帯",
   "foodWindowOpen": "{time} から開始、ここまで {duration}",
   "foodWindowSpan": "{from} から {to}、{duration}",
@@ -2413,5 +2413,10 @@
   "foodSlotDinner": "夕食",
   "foodSlotSupper": "夜食",
   "foodNoPhoto": "写真なし",
-  "foodPhotoMissing": "写真が見つかりません"
+  "foodPhotoMissing": "写真が見つかりません",
+  "foodAddPhoto": "写真",
+  "foodAddWithoutPhoto": "写真なし",
+  "foodAddFutureError": "食事の時刻を未来にすることはできません",
+  "foodAddFailed": "食事を保存できませんでした",
+  "foodDayEmptyPastBody": "時刻を指定して食事を追加するには「写真なし」をタップしてください。タグは任意です。"
 }

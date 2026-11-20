@@ -4782,8 +4782,8 @@
   "foodDayNext": "Next day",
   "foodDayToday": "Today",
   "foodDayEmptyTitle": "No meals on this day",
-  "foodDayEmptyBody": "Take a photo on Today when you eat. The time comes from the photo itself, and tags are optional.",
-  "foodDayBlankNote": "A day without a photo stays blank. It never counts as zero anywhere.",
+  "foodDayEmptyBody": "Tap Photo when you eat, or Without photo to pick a time. Tags are optional.",
+  "foodDayBlankNote": "A day with no meals stays blank. It never counts as zero anywhere.",
   "foodWindowTitle": "Eating window",
   "foodWindowOpen": "Open since {time}, {duration} so far",
   "@foodWindowOpen": {"placeholders": {"time": {"type": "String"}, "duration": {"type": "String"}}},
@@ -4797,5 +4797,10 @@
   "foodSlotDinner": "Dinner",
   "foodSlotSupper": "Late snack",
   "foodNoPhoto": "No photo",
-  "foodPhotoMissing": "Photo not found"
+  "foodPhotoMissing": "Photo not found",
+  "foodAddPhoto": "Photo",
+  "foodAddWithoutPhoto": "Without photo",
+  "foodAddFutureError": "The meal time cannot be in the future",
+  "foodAddFailed": "Could not save the meal",
+  "foodDayEmptyPastBody": "Tap Without photo to add a meal by time. Tags are optional."
 }

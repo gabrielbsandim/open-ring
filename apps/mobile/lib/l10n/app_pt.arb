@@ -2400,8 +2400,8 @@
   "foodDayNext": "Próximo dia",
   "foodDayToday": "Hoje",
   "foodDayEmptyTitle": "Nenhuma refeição neste dia",
-  "foodDayEmptyBody": "Tire uma foto em Hoje na hora de comer. A hora vem da própria foto, e as marcas são opcionais.",
-  "foodDayBlankNote": "Um dia sem foto fica em branco. Ele não conta como zero em lugar nenhum.",
+  "foodDayEmptyBody": "Toque em Foto na hora de comer, ou em Sem foto para escolher a hora. As marcas são opcionais.",
+  "foodDayBlankNote": "Um dia sem refeições fica em branco. Nunca conta como zero em nenhum lugar.",
   "foodWindowTitle": "Janela de alimentação",
   "foodWindowOpen": "Aberta desde {time}, {duration} até agora",
   "foodWindowSpan": "{from} a {to}, {duration}",
@@ -2413,5 +2413,10 @@
   "foodSlotDinner": "Jantar",
   "foodSlotSupper": "Ceia",
   "foodNoPhoto": "Sem foto",
-  "foodPhotoMissing": "Foto não encontrada"
+  "foodPhotoMissing": "Foto não encontrada",
+  "foodAddPhoto": "Foto",
+  "foodAddWithoutPhoto": "Sem foto",
+  "foodAddFutureError": "A hora da refeição não pode estar no futuro",
+  "foodAddFailed": "Não deu para salvar a refeição",
+  "foodDayEmptyPastBody": "Toque em Sem foto para registrar uma refeição pela hora. As marcas são opcionais."
 }

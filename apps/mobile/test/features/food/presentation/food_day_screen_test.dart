@@ -18,6 +18,7 @@ import 'package:open_ring/features/food/domain/meal.dart';
 import 'package:open_ring/features/food/domain/meal_camera.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/food/presentation/food_day_screen.dart';
+import 'package:open_ring/features/food/presentation/food_meal_screen.dart';
 import 'package:open_ring/features/food/presentation/food_row.dart';
 import 'package:open_ring/features/food/presentation/meal_saved_sheet.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
@@ -84,9 +85,6 @@ Future<ProviderContainer> _pumpScreen(
 
 Finder _inMeal(int id, Finder matching) =>
     find.descendant(of: find.byKey(FoodDayKeys.meal(id)), matching: matching);
-
-Finder _inSheet(Finder matching) =>
-    find.descendant(of: find.byType(MealSavedSheet), matching: matching);
 
 Future<void> _tapKey(WidgetTester tester, Key key) async {
   await tester.ensureVisible(find.byKey(key));
@@ -422,72 +420,70 @@ void main() {
     });
   });
 
-  group('criterion 6 & review focus 4: editing a photoless meal', () {
-    final dismissals = <String, Future<void> Function(WidgetTester)>{
-      'Done': (tester) => _tapKey(tester, MealSavedSheetKeys.done),
-      'back navigation': _back,
-    };
-
-    for (final MapEntry(key: how, value: close) in dismissals.entries) {
-      testWidgets('tapping meal opens edit sheet without saved notes, and '
-          'closing via $how after selecting Main and Protein performs 1 '
-          'update, bumps revision by 1, and shows the new tags', (
+  group('criterion 6 & 7: tapping a meal opens FoodMealScreen', () {
+    testWidgets('tapping FoodDayKeys.meal(id) pushes /today/food/meal/:id '
+        'inside GoRouter and edits reflect on FoodDayScreen on pop', (
+      tester,
+    ) async {
+      final l10n = lookupAppLocalizations(const Locale('en'));
+      final meals = TestMealStore();
+      final meal = meals.seed(DateTime(2026, 11, 17, 12, 30));
+      final container = await pumpOnboardingApp(
         tester,
-      ) async {
-        final l10n = lookupAppLocalizations(const Locale('en'));
-        final meals = TestMealStore();
-        final meal = meals.seed(DateTime(2026, 11, 17, 12, 30));
-        final container = await _pumpScreen(tester, meals);
-        final before = container.read(dataRevisionProvider);
-        expect(_inMeal(meal.id, find.text('no tags')), findsOneWidget);
+        at: AppPaths.food,
+        store: InMemoryOnboardingStore(completed: true),
+        overrides: [
+          ...bleOverrides(),
+          ...ringOverrides(),
+          ...onboardingOverrides(),
+          ...foodOverrides(
+            meals: meals,
+            camera: FakeMealCamera(),
+            clock: () => _now,
+          ),
+        ],
+      );
+      final before = container.read(dataRevisionProvider);
+      expect(_inMeal(meal.id, find.text('no tags')), findsOneWidget);
 
-        await _tapKey(tester, FoodDayKeys.meal(meal.id));
+      await _tapKey(tester, FoodDayKeys.meal(meal.id));
 
-        expect(find.byType(MealSavedSheet), findsOneWidget);
-        expect(_inSheet(find.text(l10n.foodSlotLunch)), findsOneWidget);
-        expect(_inSheet(find.text('12:30')), findsOneWidget);
-        expect(_inSheet(find.text(l10n.foodSavedTitle)), findsNothing);
-        expect(_inSheet(find.text(l10n.foodSavedNote)), findsNothing);
-        expect(_inSheet(find.text(l10n.foodSavedReturned)), findsNothing);
-        expect(_inSheet(find.text(l10n.foodRecovered)), findsNothing);
+      expect(
+        container.read(appRouterProvider).state.uri.path,
+        AppPaths.foodMealOf(meal.id),
+      );
+      expect(find.byType(FoodMealScreen), findsOneWidget);
+      expect(find.byType(MealSavedSheet), findsNothing);
 
-        await _tapKey(tester, MealSavedSheetKeys.kind(MealKind.main));
-        await _tapKey(tester, MealSavedSheetKeys.flag(MealFlag.protein));
-        await close(tester);
+      await _tapKey(tester, MealSavedSheetKeys.kind(MealKind.main));
+      await _tapKey(tester, MealSavedSheetKeys.flag(MealFlag.protein));
+      await _back(tester);
 
-        expect(find.byType(MealSavedSheet), findsNothing);
-        expect(meals.updates, 1);
-        expect(container.read(dataRevisionProvider), before + 1);
-        expect(meals.rows.single.kind, MealKind.main);
-        expect(meals.rows.single.tags.protein, isTrue);
-        expect(meals.rows.single.photo, isNull);
-        expect(_inMeal(meal.id, find.text('no tags')), findsNothing);
-        expect(
-          _inMeal(meal.id, find.textContaining(l10n.foodProtein)),
-          findsOneWidget,
-        );
-      });
+      expect(find.byType(FoodMealScreen), findsNothing);
+      expect(find.byType(FoodDayScreen), findsOneWidget);
+      expect(container.read(appRouterProvider).state.uri.path, AppPaths.food);
+      expect(meals.rows.single.kind, MealKind.main);
+      expect(meals.rows.single.tags.protein, isTrue);
+      expect(container.read(dataRevisionProvider), greaterThan(before));
+      expect(_inMeal(meal.id, find.text('no tags')), findsNothing);
+      expect(
+        _inMeal(meal.id, find.textContaining(l10n.foodProtein)),
+        findsOneWidget,
+      );
+    });
 
-      testWidgets('closing via $how without changing any tag performs 0 '
-          'updates and 0 revision bumps', (tester) async {
-        final meals = TestMealStore();
-        final meal = meals.seed(
-          DateTime(2026, 11, 17, 12, 30),
-          kind: MealKind.main,
-          tags: const MealTags(protein: true),
-        );
-        final container = await _pumpScreen(tester, meals);
-        final before = container.read(dataRevisionProvider);
+    testWidgets('tapping FoodDayKeys.meal(id) standalone without GoRouter '
+        'throws no GoError', (tester) async {
+      final meals = TestMealStore();
+      final meal = meals.seed(DateTime(2026, 11, 17, 12, 30));
+      await _pumpScreen(tester, meals);
 
-        await _tapKey(tester, FoodDayKeys.meal(meal.id));
-        expect(find.byType(MealSavedSheet), findsOneWidget);
-        await close(tester);
+      await _tapKey(tester, FoodDayKeys.meal(meal.id));
 
-        expect(find.byType(MealSavedSheet), findsNothing);
-        expect(meals.updates, 0);
-        expect(container.read(dataRevisionProvider), before);
-      });
-    }
+      expect(tester.takeException(), isNull);
+      expect(find.byType(FoodDayScreen), findsOneWidget);
+      expect(find.byType(FoodMealScreen), findsNothing);
+    });
 
     testWidgets('MealSavedSheet.edit named constructor leaves time null and '
         'renders the slot title', (tester) async {
@@ -518,93 +514,6 @@ void main() {
 
       expect(find.text(l10n.foodSlotLunch), findsOneWidget);
       expect(find.text(l10n.foodSavedTitle), findsNothing);
-    });
-
-    testWidgets('unmounting FoodDayScreen while the edit sheet is open still '
-        'saves the edit on close without throwing StateError', (tester) async {
-      final meals = TestMealStore();
-      final meal = meals.seed(DateTime(2026, 11, 17, 12, 30));
-      final show = ValueNotifier(true);
-      addTearDown(show.dispose);
-      await pumpScaled(
-        tester,
-        screenHost(
-          ValueListenableBuilder<bool>(
-            valueListenable: show,
-            builder: (_, visible, _) => visible
-                ? const FoodDayScreen()
-                : const Scaffold(body: SizedBox.shrink()),
-          ),
-        ),
-        textScaler: TextScaler.noScaling,
-        brightness: Brightness.dark,
-        locale: const Locale('en'),
-        overrides: foodOverrides(
-          meals: meals,
-          camera: FakeMealCamera(),
-          clock: () => _now,
-        ),
-      );
-
-      await _tapKey(tester, FoodDayKeys.meal(meal.id));
-      await _tapKey(tester, MealSavedSheetKeys.kind(MealKind.main));
-      show.value = false;
-      await tester.pump();
-      await _tapKey(tester, MealSavedSheetKeys.done);
-
-      expect(tester.takeException(), isNull);
-      expect(meals.updates, 1);
-      expect(meals.rows.single.kind, MealKind.main);
-    });
-  });
-
-  group('criterion 7: failed update on edit close', () {
-    testWidgets('when MealStore.update throws updateError, shows SnackBar '
-        '"Could not save the tags" and does not bump revision', (tester) async {
-      final meals = TestMealStore();
-      final meal = meals.seed(DateTime(2026, 11, 17, 12, 30));
-      final container = await _pumpScreen(tester, meals);
-      final before = container.read(dataRevisionProvider);
-
-      await _tapKey(tester, FoodDayKeys.meal(meal.id));
-      await _tapKey(tester, MealSavedSheetKeys.kind(MealKind.main));
-      meals.updateError = Exception('disk I/O error');
-      await _tapKey(tester, MealSavedSheetKeys.done);
-
-      expect(find.byType(MealSavedSheet), findsNothing);
-      expect(
-        find.descendant(
-          of: find.byType(SnackBar),
-          matching: find.text('Could not save the tags'),
-        ),
-        findsOneWidget,
-      );
-      expect(meals.updates, 1);
-      expect(container.read(dataRevisionProvider), before);
-    });
-
-    testWidgets('when MealStore.update returns false, shows SnackBar '
-        '"Could not save the tags" and does not bump revision', (tester) async {
-      final meals = TestMealStore();
-      final meal = meals.seed(DateTime(2026, 11, 17, 12, 30));
-      final container = await _pumpScreen(tester, meals);
-      final before = container.read(dataRevisionProvider);
-
-      await _tapKey(tester, FoodDayKeys.meal(meal.id));
-      await _tapKey(tester, MealSavedSheetKeys.kind(MealKind.main));
-      await meals.delete(meal.id);
-      await _tapKey(tester, MealSavedSheetKeys.done);
-
-      expect(find.byType(MealSavedSheet), findsNothing);
-      expect(
-        find.descendant(
-          of: find.byType(SnackBar),
-          matching: find.text('Could not save the tags'),
-        ),
-        findsOneWidget,
-      );
-      expect(meals.updates, 1);
-      expect(container.read(dataRevisionProvider), before);
     });
   });
 

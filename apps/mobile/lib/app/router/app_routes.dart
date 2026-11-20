@@ -22,6 +22,9 @@ abstract final class AppPaths {
   static const energy = '/today/energy';
   static const energyFormula = '/today/energy/formula';
   static const food = '/today/food';
+  static const foodGallery = '/today/food/gallery';
+
+  static String foodGalleryOn(LocalDate day) => '$foodGallery?day=${day.iso}';
   static const dayScore = '/today/day-score';
   static const dayScoreFormula = '/today/day-score/formula';
   static const dayScoreHistory = '/today/day-score/history';

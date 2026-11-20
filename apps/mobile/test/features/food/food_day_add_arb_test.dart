@@ -160,12 +160,13 @@ void main() {
       expect(en['foodAddFailed'], 'Could not save the meal');
       expect(
         en['foodDayEmptyBody'],
-        'Tap Photo when you eat, or Without photo to pick a time. Tags are '
-        'optional.',
+        'Tap Photo when you eat, or use From gallery or Without photo to add '
+        'a meal. Tags are optional.',
       );
       expect(
         en['foodDayEmptyPastBody'],
-        'Tap Without photo to add a meal by time. Tags are optional.',
+        'Tap From gallery or Without photo to add a meal from this day. Tags '
+        'are optional.',
       );
       expect(
         en['foodDayBlankNote'],

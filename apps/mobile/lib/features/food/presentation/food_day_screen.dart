@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
@@ -35,6 +37,7 @@ abstract final class FoodDayKeys {
   static const window = Key('food_day_window');
   static const empty = Key('food_day_empty');
   static const addPhoto = Key('food_day_add_photo');
+  static const addFromGallery = Key('food_day_add_gallery');
   static const addWithoutPhoto = Key('food_day_add_without_photo');
 
   static Key meal(int id) => Key('food_day_meal_$id');
@@ -186,6 +189,8 @@ class _FoodDayBodyState extends ConsumerState<_FoodDayBody> {
       adding: _adding,
       onPhoto: () =>
           unawaited(ref.read(mealCaptureProvider.notifier).capture()),
+      onFromGallery: () =>
+          unawaited(context.push(AppPaths.foodGalleryOn(date))),
       onWithoutPhoto: () => unawaited(_addWithoutPhoto(date, today: today)),
     );
     if (meals.isEmpty) {
@@ -281,6 +286,7 @@ class _AddRow extends StatelessWidget {
     required this.saving,
     required this.adding,
     required this.onPhoto,
+    required this.onFromGallery,
     required this.onWithoutPhoto,
   });
 
@@ -288,23 +294,33 @@ class _AddRow extends StatelessWidget {
   final bool saving;
   final bool adding;
   final VoidCallback onPhoto;
+  final VoidCallback onFromGallery;
   final VoidCallback onWithoutPhoto;
 
   @override
   Widget build(BuildContext context) {
     final l10n = MetricFormat.of(context).l10n;
+    final fromGallery = SecondaryButton(
+      buttonKey: FoodDayKeys.addFromGallery,
+      label: l10n.foodGalleryTitle,
+      onPressed: onFromGallery,
+    );
     final withoutPhoto = SecondaryButton(
       buttonKey: FoodDayKeys.addWithoutPhoto,
       label: l10n.foodAddWithoutPhoto,
       onPressed: adding ? null : onWithoutPhoto,
     );
-    if (!isToday) return withoutPhoto;
+    final secondary = AdaptiveColumns(first: fromGallery, second: withoutPhoto);
+    if (!isToday) return secondary;
     final photo = ActionButton(
       buttonKey: FoodDayKeys.addPhoto,
       label: saving ? l10n.foodRowSaving : l10n.foodAddPhoto,
       onPressed: saving ? null : onPhoto,
     );
-    return AdaptiveColumns(first: photo, second: withoutPhoto);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [photo, const SizedBox(height: 8), secondary],
+    );
   }
 }
 

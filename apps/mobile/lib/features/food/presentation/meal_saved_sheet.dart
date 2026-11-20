@@ -6,6 +6,7 @@ import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/food/application/meal_photo_saver.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
+import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class MealSavedSheetKeys {
   static const last = Key('meal_saved_last');
@@ -33,6 +34,19 @@ String mealTime(MetricFormat format, Meal meal, LocalDate today) {
   return format.dayAndClock(at, Duration.zero);
 }
 
+/// The slot name of [meal] from its wall clock, or Drink when it is tagged as
+/// a drink.
+String mealSlotLabel(AppLocalizations l10n, Meal meal) {
+  if (meal.kind == MealKind.drink) return l10n.foodKindDrink;
+  return switch (mealSlot(meal.entry.at)) {
+    MealSlot.breakfast => l10n.foodSlotBreakfast,
+    MealSlot.lunch => l10n.foodSlotLunch,
+    MealSlot.afternoonSnack => l10n.foodSlotAfternoonSnack,
+    MealSlot.dinner => l10n.foodSlotDinner,
+    MealSlot.supper => l10n.foodSlotSupper,
+  };
+}
+
 /// What was saved, its kind and tags, and the last meal switch. The caller
 /// writes [edit] however the sheet is closed.
 class MealSavedSheet extends StatelessWidget {
@@ -45,8 +59,16 @@ class MealSavedSheet extends StatelessWidget {
     super.key,
   });
 
+  const new edit({
+    required this.meal,
+    required this.today,
+    required this.edit,
+    super.key,
+  }) : time = null,
+       recovered = false;
+
   final Meal meal;
-  final TimeSource time;
+  final TimeSource? time;
   final bool recovered;
   final LocalDate today;
   final ValueNotifier<MealEdit> edit;
@@ -55,21 +77,24 @@ class MealSavedSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final format = MetricFormat.of(context);
     final l10n = format.l10n;
+    final saved = time != null;
     return _SheetBody(
       children: [
-        if (recovered) ...[
+        if (saved && recovered) ...[
           _Note(text: l10n.foodRecovered),
           const SizedBox(height: 12),
         ],
-        _Title(l10n.foodSavedTitle),
+        _Title(saved ? l10n.foodSavedTitle : mealSlotLabel(l10n, meal)),
         const SizedBox(height: 2),
         CaptionText(mealTime(format, meal, today)),
         if (time == TimeSource.returned) ...[
           const SizedBox(height: 6),
           CaptionText(l10n.foodSavedReturned),
         ],
-        const SizedBox(height: 10),
-        BodyText(l10n.foodSavedNote),
+        if (saved) ...[
+          const SizedBox(height: 10),
+          BodyText(l10n.foodSavedNote),
+        ],
         ValueListenableBuilder<MealEdit>(
           valueListenable: edit,
           builder: (context, value, _) =>

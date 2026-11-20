@@ -8,6 +8,8 @@ import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/domain/meal_camera.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/food/presentation/food_day_screen.dart';
+import 'package:open_ring/features/food/presentation/food_timing_chart.dart';
+import 'package:open_ring/features/food/presentation/food_week_evidence_sheet.dart';
 import 'package:open_ring/features/food/presentation/food_week_screen.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
@@ -74,12 +76,27 @@ Future<(TestMealStore, PhotoStore)> _populatedClosedWeek() async {
   return (meals, photos);
 }
 
+List<FoodNight> _populatedNights() => [
+  for (var i = 0; i < 6; i++)
+    FoodNight(
+      day: _monday.addDays(i),
+      sleepOnset: DateTime.utc(
+        _monday.addDays(i).year,
+        _monday.addDays(i).month,
+        _monday.addDays(i).day,
+        23,
+        15 + i * 5,
+      ),
+    ),
+];
+
 Future<void> _pumpWeek(
   WidgetTester tester,
   LayoutCase c, {
   required TestMealStore meals,
   required PhotoStore photos,
   GoalStore? goals,
+  List<FoodNight> nights = const [],
 }) => pumpScaled(
   tester,
   screenHost(const FoodWeekScreen()),
@@ -94,7 +111,7 @@ Future<void> _pumpWeek(
     mealStoreProvider.overrideWithValue(meals),
     photoStoreProvider.overrideWithValue(photos),
     mealCameraProvider.overrideWithValue(FakeMealCamera()),
-    foodNightsProvider.overrideWith((ref) async => const []),
+    foodNightsProvider.overrideWith((ref) async => nights),
     goalStoreProvider.overrideWithValue(goals ?? InMemoryGoalStore()),
   ],
 );
@@ -124,7 +141,13 @@ void main() {
         final l10n = lookupAppLocalizations(c.locale);
         final (meals, photos) = await _populatedClosedWeek();
 
-        await _pumpWeek(tester, c, meals: meals, photos: photos);
+        await _pumpWeek(
+          tester,
+          c,
+          meals: meals,
+          photos: photos,
+          nights: _populatedNights(),
+        );
 
         final format = MetricFormat.of(
           tester.element(find.byType(FoodWeekScreen)),
@@ -136,6 +159,11 @@ void main() {
 
         expect(find.byKey(FoodWeekKeys.tabs), findsOneWidget);
         expect(find.byKey(FoodWeekKeys.contactSheet), findsOneWidget);
+        expect(find.byKey(FoodWeekKeys.timingCard), findsOneWidget);
+        expect(find.byKey(FoodWeekKeys.timingChart), findsOneWidget);
+        expect(find.byKey(FoodTimingChartKeys.axis), findsOneWidget);
+        expect(find.byKey(FoodWeekKeys.windowRow), findsOneWidget);
+        expect(find.byKey(FoodWeekKeys.gapRow), findsOneWidget);
         expect(find.text(rangeText), findsOneWidget);
         expect(find.text(l10n.foodWeekLast), findsOneWidget);
         for (var i = 0; i < 7; i++) {
@@ -146,6 +174,34 @@ void main() {
         }
         expect(find.byKey(FoodWeekKeys.emptyDay(_sunday)), findsOneWidget);
         expect(find.byKey(FoodWeekKeys.plateCard), findsOneWidget);
+
+        await expectNoLayoutOverflow(() async {
+          await tester.scrollUntilVisible(
+            find.byKey(FoodWeekKeys.windowRow),
+            120,
+            scrollable: find.byType(Scrollable).first,
+          );
+          await tester.pumpAndSettle();
+        });
+
+        await tester.tap(find.byKey(FoodWeekKeys.windowRow));
+        await tester.pumpAndSettle();
+        expect(find.byKey(FoodWeekEvidenceKeys.sheet), findsOneWidget);
+
+        await expectNoLayoutOverflow(() async {
+          await tester.scrollUntilVisible(
+            find.byKey(FoodWeekEvidenceKeys.close),
+            120,
+            scrollable: find.descendant(
+              of: find.byKey(FoodWeekEvidenceKeys.sheet),
+              matching: find.byType(Scrollable),
+            ),
+          );
+          await tester.pumpAndSettle();
+        });
+
+        await tester.tap(find.byKey(FoodWeekEvidenceKeys.close));
+        await tester.pumpAndSettle();
 
         await expectNoLayoutOverflow(() async {
           await tester.scrollUntilVisible(
@@ -172,10 +228,46 @@ void main() {
           ),
         );
 
-        await _pumpWeek(tester, c, meals: meals, photos: photos, goals: goals);
+        await _pumpWeek(
+          tester,
+          c,
+          meals: meals,
+          photos: photos,
+          goals: goals,
+          nights: _populatedNights(),
+        );
 
+        expect(find.byKey(FoodWeekKeys.timingCard), findsOneWidget);
         expect(find.byKey(FoodWeekKeys.plateCard), findsNothing);
         expect(find.byKey(FoodWeekKeys.softModeCard), findsOneWidget);
+
+        await expectNoLayoutOverflow(() async {
+          await tester.scrollUntilVisible(
+            find.byKey(FoodWeekKeys.gapRow),
+            120,
+            scrollable: find.byType(Scrollable).first,
+          );
+          await tester.pumpAndSettle();
+        });
+
+        await tester.tap(find.byKey(FoodWeekKeys.gapRow));
+        await tester.pumpAndSettle();
+        expect(find.byKey(FoodWeekEvidenceKeys.sheet), findsOneWidget);
+
+        await expectNoLayoutOverflow(() async {
+          await tester.scrollUntilVisible(
+            find.byKey(FoodWeekEvidenceKeys.close),
+            120,
+            scrollable: find.descendant(
+              of: find.byKey(FoodWeekEvidenceKeys.sheet),
+              matching: find.byType(Scrollable),
+            ),
+          );
+          await tester.pumpAndSettle();
+        });
+
+        await tester.tap(find.byKey(FoodWeekEvidenceKeys.close));
+        await tester.pumpAndSettle();
 
         await expectNoLayoutOverflow(() async {
           await tester.scrollUntilVisible(

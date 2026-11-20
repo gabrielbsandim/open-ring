@@ -92,6 +92,7 @@ class _MealBody extends ConsumerStatefulWidget {
 }
 
 class _MealBodyState extends ConsumerState<_MealBody> {
+  late Meal _persisted = widget.meal;
   late MealEdit _edit = MealEdit.of(widget.meal);
   bool _savingTags = false;
   bool _dirtyTags = false;
@@ -103,12 +104,13 @@ class _MealBodyState extends ConsumerState<_MealBody> {
   void didUpdateWidget(_MealBody oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!_savingTags && !_dirtyTags && widget.meal != oldWidget.meal) {
+      _persisted = widget.meal;
       _edit = MealEdit.of(widget.meal);
     }
   }
 
   void _onEditChanged(MealEdit next) {
-    if (_deleting) return;
+    if (_deleting || _changingTime) return;
     setState(() => _edit = next);
     _dirtyTags = true;
     if (_savingTags) return;
@@ -118,27 +120,27 @@ class _MealBodyState extends ConsumerState<_MealBody> {
   Future<void> _flushEdits() async {
     _savingTags = true;
     final editor = ref.read(mealEditorProvider);
-    var base = widget.meal;
     while (mounted && _dirtyTags && !_deleting) {
       _dirtyTags = false;
       final target = _edit;
-      final saved = await editor.save(base, target);
+      final saved = await editor.save(_persisted, target);
       if (!mounted) return;
       if (!saved) {
         _dirtyTags = false;
-        setState(() => _edit = MealEdit.of(base));
+        setState(() => _edit = MealEdit.of(_persisted));
         _snack(MetricFormat.of(context).l10n.foodTagsFailed);
         break;
       }
-      base = Meal(
-        id: base.id,
-        at: base.at,
-        offsetMinutes: base.offsetMinutes,
+      final current = widget.meal;
+      _persisted = Meal(
+        id: current.id,
+        at: current.at,
+        offsetMinutes: current.offsetMinutes,
         kind: target.kind,
         tags: target.tags,
         last: target.last,
-        photo: base.photo,
-        createdAt: base.createdAt,
+        photo: current.photo,
+        createdAt: current.createdAt,
       );
     }
     _savingTags = false;
@@ -146,27 +148,26 @@ class _MealBodyState extends ConsumerState<_MealBody> {
 
   Future<void> _pickTime() async {
     if (_deleting || _changingTime || _savingTags) return;
-    _changingTime = true;
-    final meal = widget.meal;
+    setState(() => _changingTime = true);
     final picker = ref.read(mealTimePickerProvider);
     final editor = ref.read(mealEditorProvider);
-    final wall = meal.entry.at;
+    final wall = widget.meal.entry.at;
     final picked = await picker(
       context,
       TimeOfDay(hour: wall.hour, minute: wall.minute),
     );
     if (!mounted) return;
     if (picked == null) {
-      _changingTime = false;
+      setState(() => _changingTime = false);
       return;
     }
     final result = await editor.setTime(
-      meal,
+      widget.meal,
       hour: picked.hour,
       minute: picked.minute,
     );
     if (!mounted) return;
-    _changingTime = false;
+    setState(() => _changingTime = false);
     final l10n = MetricFormat.of(context).l10n;
     switch (result) {
       case EditTimeSaved():
@@ -216,6 +217,7 @@ class _MealBodyState extends ConsumerState<_MealBody> {
     final l10n = format.l10n;
     final colors = AppColors.of(context);
     final meal = widget.meal;
+    final locked = _deleting || _changingTime;
     return AppPage(
       title: mealSlotLabel(l10n, meal),
       children: [
@@ -228,7 +230,7 @@ class _MealBodyState extends ConsumerState<_MealBody> {
             Icons.schedule_outlined,
             format.clock(meal.entry.at, Duration.zero),
             l10n.foodMealTimeHint,
-            _deleting ? null : () => unawaited(_pickTime()),
+            locked ? null : () => unawaited(_pickTime()),
           ),
         ),
         const SizedBox(height: cardGap),
@@ -247,7 +249,7 @@ class _MealBodyState extends ConsumerState<_MealBody> {
               CaptionText(l10n.foodMealTagsHint),
               MealTagsEditor(
                 value: _edit,
-                onChanged: _deleting ? null : _onEditChanged,
+                onChanged: locked ? null : _onEditChanged,
               ),
             ],
           ),
@@ -261,7 +263,7 @@ class _MealBodyState extends ConsumerState<_MealBody> {
                 key: FoodMealKeys.lastMeal,
                 contentPadding: EdgeInsets.zero,
                 value: _edit.last,
-                onChanged: _deleting
+                onChanged: locked
                     ? null
                     : (on) => _onEditChanged(_edit.withLast(on)),
                 title: Text(l10n.foodLastTitle),
@@ -283,7 +285,7 @@ class _MealBodyState extends ConsumerState<_MealBody> {
                 Icons.delete_outline_rounded,
                 l10n.foodMealDeleteTile,
                 l10n.foodMealDeleteTileHint,
-                _deleting ? null : () => unawaited(_confirmDelete()),
+                locked ? null : () => unawaited(_confirmDelete()),
                 colors.heart,
               ),
             ],

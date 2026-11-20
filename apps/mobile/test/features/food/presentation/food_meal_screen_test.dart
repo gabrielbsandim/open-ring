@@ -91,6 +91,7 @@ final class _GatedMealStore implements MealStore {
   final TestMealStore inner;
   final bool gateUpdates;
   final Completer<void>? deleteGate;
+  Completer<void>? byIdGate;
   final List<Completer<void>> updateGates = [];
 
   @override
@@ -111,7 +112,11 @@ final class _GatedMealStore implements MealStore {
   Future<bool> attachPhoto(int id, String name) => inner.attachPhoto(id, name);
 
   @override
-  Future<Meal?> byId(int id) => inner.byId(id);
+  Future<Meal?> byId(int id) async {
+    final gate = byIdGate;
+    if (gate != null && !gate.isCompleted) await gate.future;
+    return await inner.byId(id);
+  }
 
   @override
   Future<Meal?> delete(int id) async {
@@ -532,12 +537,16 @@ void main() {
       await tester.tap(find.byKey(FoodMealKeys.lastMeal));
       await tester.pump();
 
+      expect(gated.updateGates, hasLength(1));
+
       var completed = 0;
       while (completed < gated.updateGates.length) {
         gated.updateGates[completed++].complete();
         await tester.pumpAndSettle();
       }
 
+      expect(gated.updateGates, hasLength(2));
+      expect(inner.updates, 2);
       expect(inner.rows.single.kind, MealKind.main);
       expect(inner.rows.single.tags.protein, isTrue);
       expect(inner.rows.single.last, isTrue);
@@ -558,6 +567,7 @@ void main() {
       meals.updateError = Exception('write failed');
       await _tapKey(tester, MealSavedSheetKeys.kind(MealKind.main));
 
+      expect(meals.updates, 1);
       expect(_snackText(l10n.foodTagsFailed), findsOneWidget);
       expect(container.read(dataRevisionProvider), before);
       expect(
@@ -572,12 +582,130 @@ void main() {
         isFalse,
       );
 
+      ScaffoldMessenger.of(tester.element(find.byType(FoodMealScreen)))
+          .clearSnackBars();
+      await tester.pumpAndSettle();
+      expect(_snackText(l10n.foodTagsFailed), findsNothing);
+
       await _tapKey(tester, FoodMealKeys.lastMeal);
 
+      expect(meals.updates, 2);
       expect(_snackText(l10n.foodTagsFailed), findsOneWidget);
       expect(container.read(dataRevisionProvider), before);
       expect(
         tester.widget<SwitchListTile>(find.byKey(FoodMealKeys.lastMeal)).value,
+        isFalse,
+      );
+    });
+
+    testWidgets('locks tag and last edits while changing time and uses latest '
+        'meal after picker resolves', (tester) async {
+      final meals = TestMealStore();
+      final meal = meals.seed(DateTime(2026, 11, 17, 12, 30));
+      final pickerGate = Completer<TimeOfDay?>();
+
+      final container = await _pumpMealScreen(
+        tester,
+        mealId: meal.id,
+        meals: meals,
+        picker: (_, _) => pickerGate.future,
+      );
+
+      await tester.ensureVisible(find.byKey(FoodMealKeys.timeTile));
+      await tester.tap(find.byKey(FoodMealKeys.timeTile));
+      await tester.pump();
+
+      expect(
+        tester
+            .widget<ChoiceChip>(
+              find.descendant(
+                of: find.byKey(MealSavedSheetKeys.kind(MealKind.main)),
+                matching: find.byType(ChoiceChip),
+              ),
+            )
+            .onSelected,
+        isNull,
+      );
+      expect(
+        tester
+            .widget<SwitchListTile>(find.byKey(FoodMealKeys.lastMeal))
+            .onChanged,
+        isNull,
+      );
+
+      await tester.tap(find.byKey(MealSavedSheetKeys.kind(MealKind.main)));
+      await tester.pump();
+      expect(meals.updates, 0);
+
+      await meals.update(
+        meal.id,
+        MealDraft(
+          at: meal.at,
+          offsetMinutes: meal.offsetMinutes,
+          kind: MealKind.snack,
+          tags: const MealTags(protein: true),
+          last: true,
+        ),
+      );
+      container.read(dataRevisionProvider.notifier).bump();
+      await tester.pumpAndSettle();
+
+      pickerGate.complete(const TimeOfDay(hour: 13, minute: 15));
+      await tester.pumpAndSettle();
+
+      expect(meals.rows.single.entry.at, DateTime.utc(2026, 11, 17, 13, 15));
+      expect(meals.rows.single.kind, MealKind.snack);
+      expect(meals.rows.single.tags.protein, isTrue);
+      expect(meals.rows.single.last, isTrue);
+    });
+
+    testWidgets('reverts to last persisted state when queued save fails after '
+        'earlier save succeeds before byId reloads', (tester) async {
+      final inner = TestMealStore();
+      final meal = inner.seed(DateTime(2026, 11, 17, 12, 30));
+      final gated = _GatedMealStore(inner, gateUpdates: true);
+
+      await _pumpMealScreen(tester, mealId: meal.id, meals: gated);
+
+      await tester.ensureVisible(find.byKey(FoodMealKeys.lastMeal));
+      await tester.tap(find.byKey(FoodMealKeys.lastMeal));
+      await tester.pump();
+      expect(gated.updateGates, hasLength(1));
+
+      gated.byIdGate = Completer<void>();
+      gated.updateGates[0].complete();
+      await tester.pump();
+      await tester.pump();
+
+      inner.updateError = Exception('save 2 failed');
+      await tester.ensureVisible(
+        find.byKey(MealSavedSheetKeys.kind(MealKind.main)),
+      );
+      await tester.tap(find.byKey(MealSavedSheetKeys.kind(MealKind.main)));
+      await tester.pump();
+      expect(gated.updateGates, hasLength(2));
+
+      gated.byIdGate!.complete();
+      await tester.pump();
+      await tester.pump();
+
+      gated.updateGates[1].complete();
+      await tester.pumpAndSettle();
+
+      expect(_snackText(l10n.foodTagsFailed), findsOneWidget);
+      expect(
+        tester.widget<SwitchListTile>(find.byKey(FoodMealKeys.lastMeal)).value,
+        isTrue,
+      );
+      expect(
+        tester
+            .widget<ChoiceChip>(
+              find.descendant(
+                of: find.byKey(MealSavedSheetKeys.kind(MealKind.main)),
+                matching: find.byType(ChoiceChip),
+              ),
+            )
+            .selected,
         isFalse,
       );
     });

@@ -1,0 +1,106 @@
+import 'dart:async';
+import 'dart:typed_data';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
+import 'package:metrics/metrics.dart';
+import 'package:open_ring/core/clock/clock.dart';
+import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/food/application/meal_store_providers.dart';
+import 'package:open_ring/features/food/domain/meal.dart';
+
+/// The food day of now, which turns at 05:00 local time.
+final currentFoodDayProvider = Provider<LocalDate>((ref) {
+  final now = ref.watch(clockProvider)().toLocal();
+  final today = foodDay(now);
+  final next = today.addDays(1);
+  final wait = DateTime(
+    next.year,
+    next.month,
+    next.day,
+    foodDayStartHour,
+  ).difference(now);
+  final roll = Timer(
+    wait.isNegative ? Duration.zero : wait,
+    ref.invalidateSelf,
+  );
+  ref.onDispose(roll.cancel);
+  return today;
+});
+
+final FutureProviderFamily<List<Meal>, LocalDate> foodDayMealsProvider =
+    FutureProvider.family<List<Meal>, LocalDate>((ref, day) {
+      ref.watch(dataRevisionProvider);
+      return ref.watch(mealStoreProvider).between(day, day);
+    });
+
+/// Reads a photo file by bare name, returning null when the file is missing or
+/// cannot be read so a broken photo never hides its meal row.
+final FutureProviderFamily<Uint8List?, String> mealPhotoProvider =
+    FutureProvider.autoDispose.family<Uint8List?, String>((ref, name) async {
+      try {
+        return await ref.watch(photoStoreProvider).read(name);
+      } on Object {
+        return null;
+      }
+    });
+
+final class DayWindow {
+  const new({required this.from, required this.to, required this.open});
+
+  /// Wall clock of the first meal that opens the eating window.
+  final DateTime from;
+
+  /// Wall clock of the last window meal, or of now while today's window is
+  /// open.
+  final DateTime to;
+  final bool open;
+}
+
+DayWindow? dayWindow(
+  List<Meal> meals, {
+  required LocalDate day,
+  required DateTime now,
+}) {
+  final opening = [
+    for (final meal in meals)
+      if (opensWindow(meal.entry)) meal.entry.at,
+  ]..sort();
+  if (opening.isEmpty) return null;
+  final from = opening.first;
+  final open = !meals.any((meal) => meal.last) && day == foodDay(now);
+  if (!open) return DayWindow(from: from, to: opening.last, open: false);
+  final wallNow = DateTime.utc(
+    now.year,
+    now.month,
+    now.day,
+    now.hour,
+    now.minute,
+    now.second,
+    now.millisecond,
+    now.microsecond,
+  );
+  final to = wallNow.isBefore(from) ? from : wallNow;
+  return DayWindow(from: from, to: to, open: true);
+}
+
+final mealEditorProvider = Provider<MealEditor>(MealEditor.new);
+
+final class MealEditor {
+  const new(this._ref);
+
+  final Ref _ref;
+
+  Future<bool> save(Meal meal, MealEdit edit) async {
+    if (edit.sameAs(meal)) return true;
+    try {
+      final saved = await _ref
+          .read(mealStoreProvider)
+          .update(meal.id, edit.draftOf(meal));
+      if (saved) _ref.read(dataRevisionProvider.notifier).bump();
+      return saved;
+    } on Object {
+      return false;
+    }
+  }
+}

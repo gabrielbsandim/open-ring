@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
@@ -149,6 +151,7 @@ class _FoodRowState extends ConsumerState<_FoodRow> {
     final note = _note(format, saving: capture.saving, meals: meals);
     return MetricCard(
       key: FoodRowKeys.row,
+      onTap: capture.saving ? null : () => context.go(AppPaths.food),
       padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
       child: Row(
         children: [

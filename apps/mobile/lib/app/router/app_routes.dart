@@ -23,8 +23,10 @@ abstract final class AppPaths {
   static const energyFormula = '/today/energy/formula';
   static const food = '/today/food';
   static const foodGallery = '/today/food/gallery';
+  static const foodMeal = '/today/food/meal';
 
   static String foodGalleryOn(LocalDate day) => '$foodGallery?day=${day.iso}';
+  static String foodMealOf(int id) => '$foodMeal/$id';
   static const dayScore = '/today/day-score';
   static const dayScoreFormula = '/today/day-score/formula';
   static const dayScoreHistory = '/today/day-score/history';

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/features/food/domain/meal.dart';
 import 'package:open_ring/features/food/domain/meal_camera.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/food/presentation/food_day_screen.dart';
@@ -130,13 +131,25 @@ void main() {
             place: MealPlace.restaurant,
           ),
         );
-        await _pumpDay(tester, c, meals: meals);
+        final edit = ValueNotifier(MealEdit.of(meal));
+        addTearDown(edit.dispose);
+        await pumpScaled(
+          tester,
+          screenHost(
+            Scaffold(
+              body: MealSavedSheet.edit(
+                meal: meal,
+                today: foodDay(_now),
+                edit: edit,
+              ),
+            ),
+          ),
+          textScaler: c.textScaler,
+          brightness: c.brightness,
+          locale: c.locale,
+        );
 
         await expectNoLayoutOverflow(() async {
-          await tester.ensureVisible(find.byKey(FoodDayKeys.meal(meal.id)));
-          await tester.pumpAndSettle();
-          await tester.tap(find.byKey(FoodDayKeys.meal(meal.id)));
-          await tester.pumpAndSettle();
           final sheetScrollable = find
               .descendant(
                 of: find.byType(MealSavedSheet),

@@ -34,6 +34,13 @@ final FutureProviderFamily<List<Meal>, LocalDate> foodDayMealsProvider =
       return ref.watch(mealStoreProvider).between(day, day);
     });
 
+final FutureProviderFamily<Meal?, int> mealByIdProvider = FutureProvider
+    .autoDispose
+    .family<Meal?, int>((ref, id) {
+      ref.watch(dataRevisionProvider);
+      return ref.watch(mealStoreProvider).byId(id);
+    });
+
 /// Reads a photo file by bare name, returning null when the file is missing or
 /// cannot be read so a broken photo never hides its meal row.
 final FutureProviderFamily<Uint8List?, String> mealPhotoProvider =
@@ -113,6 +120,22 @@ final class AddMealFailed extends AddMealResult {
   const new();
 }
 
+sealed class EditTimeResult {
+  const new();
+}
+
+final class EditTimeSaved extends EditTimeResult {
+  const new();
+}
+
+final class EditTimeFuture extends EditTimeResult {
+  const new();
+}
+
+final class EditTimeFailed extends EditTimeResult {
+  const new();
+}
+
 final mealEditorProvider = Provider<MealEditor>(MealEditor.new);
 
 final class MealEditor {
@@ -131,6 +154,58 @@ final class MealEditor {
     } on Object {
       return false;
     }
+  }
+
+  Future<EditTimeResult> setTime(
+    Meal meal, {
+    required int hour,
+    required int minute,
+  }) async {
+    final current = meal.entry.at;
+    if (current.hour == hour && current.minute == minute) {
+      return const EditTimeSaved();
+    }
+    final now = _ref.read(clockProvider)().toLocal();
+    final at = mealTimeOnFoodDay(foodDay(current), hour: hour, minute: minute);
+    if (at.isAfter(now)) return const EditTimeFuture();
+    try {
+      final saved = await _ref
+          .read(mealStoreProvider)
+          .update(
+            meal.id,
+            MealDraft(
+              at: at.toUtc(),
+              offsetMinutes: at.timeZoneOffset.inMinutes,
+              kind: meal.kind,
+              tags: meal.tags,
+              last: meal.last,
+            ),
+          );
+      if (!saved) return const EditTimeFailed();
+      _ref.read(dataRevisionProvider.notifier).bump();
+      return const EditTimeSaved();
+    } on Object {
+      return const EditTimeFailed();
+    }
+  }
+
+  Future<bool> delete(int id) async {
+    final Meal? removed;
+    try {
+      removed = await _ref.read(mealStoreProvider).delete(id);
+    } on Object {
+      return false;
+    }
+    if (removed == null) return false;
+    if (removed.photo case final name?) {
+      try {
+        await _ref.read(photoStoreProvider).delete(name);
+      } on Object {
+        // Row is already gone; an orphaned photo cannot return to the UI.
+      }
+    }
+    _ref.read(dataRevisionProvider.notifier).bump();
+    return true;
   }
 
   Future<AddMealResult> addWithoutPhoto(

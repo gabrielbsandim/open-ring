@@ -47,6 +47,14 @@ final class DriftMealStore implements MealStore {
   }
 
   @override
+  Future<Meal?> byId(int id) async {
+    final row = await (_db.select(
+      _db.meals,
+    )..where((row) => row.id.equals(id))).getSingleOrNull();
+    return row == null ? null : _meal(row);
+  }
+
+  @override
   Future<Meal?> delete(int id) => _db.transaction(() async {
     final row = await (_db.select(
       _db.meals,

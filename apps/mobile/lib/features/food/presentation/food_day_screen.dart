@@ -212,7 +212,11 @@ class _FoodDayBodyState extends ConsumerState<_FoodDayBody> {
       for (final meal in meals) ...[
         _MealCard(
           meal: meal,
-          onTap: () => unawaited(_edit(meal, today: today)),
+          onTap: () {
+            final router = GoRouter.maybeOf(context);
+            if (router == null) return;
+            unawaited(router.push(AppPaths.foodMealOf(meal.id)));
+          },
         ),
         const SizedBox(height: cardGap),
       ],

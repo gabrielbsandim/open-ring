@@ -363,7 +363,13 @@ void main() {
 
       await _pumpScreen(tester, meals, photos: photos);
 
-      expect(_inMeal(withPhoto.id, find.byType(Image)), findsOneWidget);
+      final image = tester.widget<Image>(
+        _inMeal(withPhoto.id, find.byType(Image)),
+      );
+      expect(
+        image.image,
+        isA<ResizeImage>().having((r) => r.width, 'cacheWidth', 96),
+      );
       expect(find.byKey(FoodDayKeys.noPhoto(withPhoto.id)), findsNothing);
       expect(find.byKey(FoodDayKeys.missingPhoto(withPhoto.id)), findsNothing);
 
@@ -391,6 +397,24 @@ void main() {
       await meals.attachPhoto(meal.id, 'broken.jpg');
 
       await _pumpScreen(tester, meals, photos: const _ThrowingPhotoStore());
+
+      expect(find.byKey(FoodDayKeys.meal(meal.id)), findsOneWidget);
+      expect(find.byKey(FoodDayKeys.missingPhoto(meal.id)), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('corrupt photo bytes trigger Image.errorBuilder and show '
+        'FoodDayKeys.missingPhoto(id) while keeping the meal row', (
+      tester,
+    ) async {
+      final meals = TestMealStore();
+      final photos = InMemoryPhotoStore();
+      await photos.save('corrupt.jpg', Uint8List.fromList(const [0, 1, 2, 3]));
+      final meal = meals.seed(DateTime(2026, 11, 17, 12, 30));
+      await meals.attachPhoto(meal.id, 'corrupt.jpg');
+
+      await _pumpScreen(tester, meals, photos: photos);
+      await tester.pumpAndSettle();
 
       expect(find.byKey(FoodDayKeys.meal(meal.id)), findsOneWidget);
       expect(find.byKey(FoodDayKeys.missingPhoto(meal.id)), findsOneWidget);
@@ -494,6 +518,43 @@ void main() {
 
       expect(find.text(l10n.foodSlotLunch), findsOneWidget);
       expect(find.text(l10n.foodSavedTitle), findsNothing);
+    });
+
+    testWidgets('unmounting FoodDayScreen while the edit sheet is open still '
+        'saves the edit on close without throwing StateError', (tester) async {
+      final meals = TestMealStore();
+      final meal = meals.seed(DateTime(2026, 11, 17, 12, 30));
+      final show = ValueNotifier(true);
+      addTearDown(show.dispose);
+      await pumpScaled(
+        tester,
+        screenHost(
+          ValueListenableBuilder<bool>(
+            valueListenable: show,
+            builder: (_, visible, _) => visible
+                ? const FoodDayScreen()
+                : const Scaffold(body: SizedBox.shrink()),
+          ),
+        ),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.dark,
+        locale: const Locale('en'),
+        overrides: foodOverrides(
+          meals: meals,
+          camera: FakeMealCamera(),
+          clock: () => _now,
+        ),
+      );
+
+      await _tapKey(tester, FoodDayKeys.meal(meal.id));
+      await _tapKey(tester, MealSavedSheetKeys.kind(MealKind.main));
+      show.value = false;
+      await tester.pump();
+      await _tapKey(tester, MealSavedSheetKeys.done);
+
+      expect(tester.takeException(), isNull);
+      expect(meals.updates, 1);
+      expect(meals.rows.single.kind, MealKind.main);
     });
   });
 

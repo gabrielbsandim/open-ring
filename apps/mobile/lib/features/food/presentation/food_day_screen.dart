@@ -139,6 +139,7 @@ class _FoodDayScreenState extends ConsumerState<FoodDayScreen> {
   }
 
   Future<void> _edit(Meal meal, {required LocalDate today}) async {
+    final editor = ref.read(mealEditorProvider);
     final edit = ValueNotifier(MealEdit.of(meal));
     await showModalBottomSheet<void>(
       context: context,
@@ -149,8 +150,9 @@ class _FoodDayScreenState extends ConsumerState<FoodDayScreen> {
         child: MealSavedSheet.edit(meal: meal, today: today, edit: edit),
       ),
     );
-    final saved = await ref.read(mealEditorProvider).save(meal, edit.value);
+    final next = edit.value;
     edit.dispose();
+    final saved = await editor.save(meal, next);
     if (saved || !mounted) return;
     ScaffoldMessenger.of(context)
       ..clearSnackBars()

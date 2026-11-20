@@ -121,10 +121,12 @@ class _FoodWeekBodyState extends ConsumerState<_FoodWeekBody> {
     setState(() {});
   }
 
-  void _openMeal(int id) {
+  void _push(String path) {
     final router = GoRouter.maybeOf(context);
-    if (router != null) unawaited(router.push(AppPaths.foodMealOf(id)));
+    if (router != null) unawaited(router.push(path));
   }
+
+  void _openMeal(int id) => _push(AppPaths.foodMealOf(id));
 
   @override
   Widget build(BuildContext context) {
@@ -161,7 +163,7 @@ class _FoodWeekBodyState extends ConsumerState<_FoodWeekBody> {
             BodyText(f.l10n.foodWeekSoftBody),
           ])
         else
-          _plateCard(view.plate, f, t, c),
+          _plateCard(view.plate, f, t, c, () => _push(AppPaths.foodPlate)),
       ];
     }
     if (week.hasError) return [BodyText(f.l10n.metricLoadError)];
@@ -328,20 +330,31 @@ Widget _glyph(IconData d, Key k, AppColors c) =>
 
 Widget _fit(Widget child) => FittedBox(fit: BoxFit.scaleDown, child: child);
 
-Widget _card(Key key, List<Widget> children) => MetricCard(
-  key: key,
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: children,
-  ),
-);
+Widget _card(Key key, List<Widget> children, {VoidCallback? onTap}) =>
+    MetricCard(
+      key: key,
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
+      ),
+    );
 
-Widget _header(Widget leading, String tag) => Wrap(
+Widget _header(Widget leading, String tag, {Widget? trailing}) => Wrap(
   alignment: WrapAlignment.spaceBetween,
   crossAxisAlignment: WrapCrossAlignment.center,
   spacing: 8,
   runSpacing: 4,
-  children: [leading, CaptionText(tag)],
+  children: [
+    leading,
+    Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(child: CaptionText(tag)),
+        ?trailing,
+      ],
+    ),
+  ],
 );
 
 Widget _dot(bool complete, AppColors c, {Key? key}) => SizedBox(
@@ -496,7 +509,13 @@ Widget _timingRow(
   );
 }
 
-Widget _plateCard(PlateResult plate, MetricFormat f, TextTheme t, AppColors c) {
+Widget _plateCard(
+  PlateResult plate,
+  MetricFormat f,
+  TextTheme t,
+  AppColors c,
+  VoidCallback onTap,
+) {
   final l = f.l10n;
   final rows = switch (plate) {
     final PlatePattern p => [
@@ -534,12 +553,13 @@ Widget _plateCard(PlateResult plate, MetricFormat f, TextTheme t, AppColors c) {
     _header(
       AccentTitle(title: l.foodPlateTitle, accent: c.activity),
       l.foodPlateTag,
+      trailing: Icon(Icons.chevron_right_rounded, size: 18, color: c.textLabel),
     ),
     const SizedBox(height: 10),
     ...rows,
     const SizedBox(height: 8),
     CaptionText(l.foodPlateNote),
-  ]);
+  ], onTap: onTap);
 }
 
 class _DashedBoxPainter extends CustomPainter {

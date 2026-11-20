@@ -2400,8 +2400,8 @@
   "foodDayNext": "Jour suivant",
   "foodDayToday": "Aujourd’hui",
   "foodDayEmptyTitle": "Aucun repas ce jour",
-  "foodDayEmptyBody": "Touchez Photo au moment de manger. L’heure vient de la photo, et les repères sont facultatifs.",
-  "foodDayBlankNote": "Un jour sans photo reste vide. Il ne compte comme zéro nulle part.",
+  "foodDayEmptyBody": "Touchez Photo au moment de manger, ou Sans photo pour choisir l’heure. Les repères sont facultatifs.",
+  "foodDayBlankNote": "Une journée sans repas reste vide. Elle ne compte jamais pour zéro nulle part.",
   "foodWindowTitle": "Fenêtre d’alimentation",
   "foodWindowOpen": "Ouverte depuis {time}, {duration} jusqu’ici",
   "foodWindowSpan": "{from} à {to}, {duration}",
@@ -2417,5 +2417,6 @@
   "foodAddPhoto": "Photo",
   "foodAddWithoutPhoto": "Sans photo",
   "foodAddFutureError": "L’heure du repas ne peut pas être dans le futur",
-  "foodAddFailed": "Impossible d’enregistrer le repas"
+  "foodAddFailed": "Impossible d’enregistrer le repas",
+  "foodDayEmptyPastBody": "Touchez Sans photo pour ajouter un repas avec son heure. Les repères sont facultatifs."
 }

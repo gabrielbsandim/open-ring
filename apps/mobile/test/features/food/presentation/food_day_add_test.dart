@@ -278,6 +278,25 @@ void main() {
       expect(find.byKey(FoodDayKeys.addPhoto), findsOneWidget);
       expect(find.byKey(FoodDayKeys.addWithoutPhoto), findsOneWidget);
     });
+
+    testWidgets('empty today shows foodDayEmptyBody and empty yesterday shows '
+        'foodDayEmptyPastBody with updated blank note', (tester) async {
+      final l10n = lookupAppLocalizations(const Locale('en'));
+
+      await _pumpScreen(tester, TestMealStore());
+
+      expect(find.byKey(FoodDayKeys.empty), findsOneWidget);
+      expect(find.text(l10n.foodDayEmptyBody), findsOneWidget);
+      expect(find.text(l10n.foodDayEmptyPastBody), findsNothing);
+      expect(find.text(l10n.foodDayBlankNote), findsOneWidget);
+
+      await _tapKey(tester, FoodDayKeys.previous);
+
+      expect(find.byKey(FoodDayKeys.empty), findsOneWidget);
+      expect(find.text(l10n.foodDayEmptyPastBody), findsOneWidget);
+      expect(find.text(l10n.foodDayEmptyBody), findsNothing);
+      expect(find.text(l10n.foodDayBlankNote), findsOneWidget);
+    });
   });
 
   group('criterion 4: MealCaptureHosts & presentMealCapture', () {

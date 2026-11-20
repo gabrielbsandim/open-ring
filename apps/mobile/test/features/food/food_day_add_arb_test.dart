@@ -22,9 +22,41 @@ const _newKeys = [
   'foodAddWithoutPhoto',
   'foodAddFutureError',
   'foodAddFailed',
+  'foodDayEmptyPastBody',
 ];
 
-const List<String> _checkedKeys = [..._newKeys, 'foodDayEmptyBody'];
+const List<String> _checkedKeys = [
+  ..._newKeys,
+  'foodDayEmptyBody',
+  'foodDayBlankNote',
+];
+
+const _oldBlankNote = <String, String>{
+  'en': 'A day without a photo stays blank. It never counts as zero anywhere.',
+  'de': 'Ein Tag ohne Foto bleibt leer. Er z\u00e4hlt nirgendwo als null.',
+  'es': 'Un d\u00eda sin foto queda en blanco. No cuenta como cero en ning\u00fan lugar.',
+  'fr':
+      'Un jour sans photo reste vide. Il ne compte comme z\u00e9ro nulle part.',
+  'id':
+      'Hari tanpa foto tetap kosong dan tidak pernah dihitung sebagai nol di '
+      'mana pun.',
+  'it': 'Un giorno senza foto resta vuoto. Non conta mai come zero da nessuna parte.',
+  'ja':
+      '\u5199\u771f\u306e\u306a\u3044\u65e5\u306f\u7a7a\u767d\u306e\u307e\u307e'
+      '\u3067\u3059\u3002\u3069\u3053\u3067\u3082\u30bc\u30ed\u3068\u3057\u3066'
+      '\u6570\u3048\u3089\u308c\u308b\u3053\u3068\u306f\u3042\u308a\u307e\u305b'
+      '\u3093\u3002',
+  'pt': 'Um dia sem foto fica em branco. Ele n\u00e3o conta como zero em lugar nenhum.',
+  'pt_PT': 'Um dia sem foto fica em branco. N\u00e3o conta como zero em lado nenhum.',
+  'ru':
+      '\u0414\u0435\u043d\u044c \u0431\u0435\u0437 \u0444\u043e\u0442\u043e '
+      '\u043e\u0441\u0442\u0430\u0451\u0442\u0441\u044f '
+      '\u043f\u0443\u0441\u0442\u044b\u043c. \u041e\u043d '
+      '\u043d\u0438\u0433\u0434\u0435 \u043d\u0435 '
+      '\u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044f '
+      '\u043d\u0443\u043b\u0451\u043c.',
+  'zh': '\u6ca1\u6709\u7167\u7247\u7684\u4e00\u5929\u4fdd\u6301\u7a7a\u767d\uff0c\u5728\u4efb\u4f55\u5730\u65b9\u90fd\u4e0d\u4f1a\u8ba1\u4e3a\u96f6\u3002',
+};
 
 const _oldEmptyBody = <String, String>{
   'en':
@@ -87,14 +119,14 @@ List<String> _missing(Map<String, dynamic> arb) => [
 ];
 
 void main() {
-  group('criterion 7: food add ARB keys and updated foodDayEmptyBody', () {
+  group('criterion 7: food add ARB keys and updated empty-day copy', () {
     for (final locale in _locales) {
-      test('$locale holds the 4 new add keys and foodDayEmptyBody, each '
-          'non-empty', () {
+      test('$locale holds the 5 new keys, foodDayEmptyBody, and '
+          'foodDayBlankNote, each non-empty', () {
         expect(_missing(_arb(locale)), isEmpty);
       });
 
-      test('$locale has no en dash, em dash, or placeholders in the 5 '
+      test('$locale has no en dash, em dash, or placeholders in the 7 '
           'checked keys', () {
         final arb = _arb(locale);
         expect(_missing(arb), isEmpty);
@@ -110,10 +142,12 @@ void main() {
         expect(withPlaceholders, isEmpty);
       });
 
-      test('$locale updated foodDayEmptyBody away from the F6a wording', () {
+      test('$locale updated foodDayEmptyBody and foodDayBlankNote away from '
+          'the F6a wording', () {
         final arb = _arb(locale);
         expect(_missing(arb), isEmpty);
         expect(arb['foodDayEmptyBody'], isNot(_oldEmptyBody[locale]));
+        expect(arb['foodDayBlankNote'], isNot(_oldBlankNote[locale]));
       });
     }
 
@@ -126,8 +160,16 @@ void main() {
       expect(en['foodAddFailed'], 'Could not save the meal');
       expect(
         en['foodDayEmptyBody'],
-        'Tap Photo when you eat. The time comes from the photo itself, and '
-        'tags are optional.',
+        'Tap Photo when you eat, or Without photo to pick a time. Tags are '
+        'optional.',
+      );
+      expect(
+        en['foodDayEmptyPastBody'],
+        'Tap Without photo to add a meal by time. Tags are optional.',
+      );
+      expect(
+        en['foodDayBlankNote'],
+        'A day with no meals stays blank. It never counts as zero anywhere.',
       );
     });
   });

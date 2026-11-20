@@ -2400,8 +2400,8 @@
   "foodDayNext": "Hari berikutnya",
   "foodDayToday": "Hari ini",
   "foodDayEmptyTitle": "Tidak ada makanan pada hari ini",
-  "foodDayEmptyBody": "Ketuk Foto saat makan. Waktu diambil dari foto itu sendiri, dan penanda bersifat opsional.",
-  "foodDayBlankNote": "Hari tanpa foto tetap kosong dan tidak pernah dihitung sebagai nol di mana pun.",
+  "foodDayEmptyBody": "Ketuk Foto saat makan, atau Tanpa foto untuk memilih waktu. Penanda bersifat opsional.",
+  "foodDayBlankNote": "Hari tanpa makanan tetap kosong. Tidak pernah dihitung nol di mana pun.",
   "foodWindowTitle": "Jendela makan",
   "foodWindowOpen": "Terbuka sejak {time}, {duration} sejauh ini",
   "foodWindowSpan": "{from} sampai {to}, {duration}",
@@ -2417,5 +2417,6 @@
   "foodAddPhoto": "Foto",
   "foodAddWithoutPhoto": "Tanpa foto",
   "foodAddFutureError": "Waktu makanan tidak boleh di masa depan",
-  "foodAddFailed": "Tidak dapat menyimpan makanan"
+  "foodAddFailed": "Tidak dapat menyimpan makanan",
+  "foodDayEmptyPastBody": "Ketuk Tanpa foto untuk menambahkan makanan berdasarkan waktu. Penanda bersifat opsional."
 }

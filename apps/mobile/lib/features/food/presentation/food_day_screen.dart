@@ -189,7 +189,11 @@ class _FoodDayBodyState extends ConsumerState<_FoodDayBody> {
       onWithoutPhoto: () => unawaited(_addWithoutPhoto(date, today: today)),
     );
     if (meals.isEmpty) {
-      return [const _EmptyDay(), const SizedBox(height: cardGap), addRow];
+      return [
+        _EmptyDay(isToday: isToday),
+        const SizedBox(height: cardGap),
+        addRow,
+      ];
     }
     final now = ref.watch(clockProvider)().toLocal();
     final window = dayWindow(meals, day: date, now: now);
@@ -396,11 +400,14 @@ class _WindowCard extends StatelessWidget {
 }
 
 class _EmptyDay extends StatelessWidget {
-  const new();
+  const new({required this.isToday});
+
+  final bool isToday;
 
   @override
   Widget build(BuildContext context) {
     final l10n = MetricFormat.of(context).l10n;
+    final body = isToday ? l10n.foodDayEmptyBody : l10n.foodDayEmptyPastBody;
     return MetricCard(
       key: FoodDayKeys.empty,
       child: Column(
@@ -415,7 +422,7 @@ class _EmptyDay extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          BodyText(l10n.foodDayEmptyBody),
+          BodyText(body),
           const SizedBox(height: 10),
           CaptionText(l10n.foodDayBlankNote),
         ],

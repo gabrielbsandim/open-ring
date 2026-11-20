@@ -2400,8 +2400,8 @@
   "foodDayNext": "Giorno successivo",
   "foodDayToday": "Oggi",
   "foodDayEmptyTitle": "Nessun pasto in questo giorno",
-  "foodDayEmptyBody": "Tocca Foto quando mangi. L’ora viene dalla foto stessa e i contrassegni sono facoltativi.",
-  "foodDayBlankNote": "Un giorno senza foto resta vuoto. Non conta mai come zero da nessuna parte.",
+  "foodDayEmptyBody": "Tocca Foto quando mangi o Senza foto per scegliere l’ora. I contrassegni sono facoltativi.",
+  "foodDayBlankNote": "Un giorno senza pasti resta vuoto. Non conta mai come zero da nessuna parte.",
   "foodWindowTitle": "Finestra alimentare",
   "foodWindowOpen": "Aperta dalle {time}, {duration} finora",
   "foodWindowSpan": "{from} alle {to}, {duration}",
@@ -2417,5 +2417,6 @@
   "foodAddPhoto": "Foto",
   "foodAddWithoutPhoto": "Senza foto",
   "foodAddFutureError": "L’ora del pasto non può essere nel futuro",
-  "foodAddFailed": "Impossibile salvare il pasto"
+  "foodAddFailed": "Impossibile salvare il pasto",
+  "foodDayEmptyPastBody": "Tocca Senza foto per aggiungere un pasto con l’ora. I contrassegni sono facoltativi."
 }

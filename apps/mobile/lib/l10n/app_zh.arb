@@ -2400,8 +2400,8 @@
   "foodDayNext": "后一天",
   "foodDayToday": "今天",
   "foodDayEmptyTitle": "这一天没有记录餐食",
-  "foodDayEmptyBody": "用餐时点击“拍照”。时间来自照片本身，标记为可选项。",
-  "foodDayBlankNote": "没有照片的一天保持空白，在任何地方都不会计为零。",
+  "foodDayEmptyBody": "用餐时点击“拍照”，或点击“不带照片”选择时间。标记为可选项。",
+  "foodDayBlankNote": "没有餐食的日子会留空。在任何地方都不会算作零。",
   "foodWindowTitle": "进食窗口",
   "foodWindowOpen": "自 {time} 开启，至今 {duration}",
   "foodWindowSpan": "{from} 至 {to}，{duration}",
@@ -2417,5 +2417,6 @@
   "foodAddPhoto": "拍照",
   "foodAddWithoutPhoto": "不带照片",
   "foodAddFutureError": "用餐时间不能晚于当前时间",
-  "foodAddFailed": "无法保存餐食"
+  "foodAddFailed": "无法保存餐食",
+  "foodDayEmptyPastBody": "点击“不带照片”按时间添加餐食。标记为可选项。"
 }

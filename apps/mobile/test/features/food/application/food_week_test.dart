@@ -408,17 +408,18 @@ void main() {
         final meals = TestMealStore();
         for (var i = 0; i < 5; i++) {
           final day = DateTime(2026, 11, 9 + i);
-          meals.seed(
-            DateTime(day.year, day.month, day.day, 12),
-            kind: MealKind.main,
-            tags: const MealTags(protein: true, veg: MealVeg.some),
-          );
-          meals.seed(
-            DateTime(day.year, day.month, day.day, 19),
-            kind: MealKind.main,
-            tags: const MealTags(protein: true, veg: MealVeg.halfOrMore),
-            last: true,
-          );
+          meals
+            ..seed(
+              DateTime(day.year, day.month, day.day, 12),
+              kind: MealKind.main,
+              tags: const MealTags(protein: true, veg: MealVeg.some),
+            )
+            ..seed(
+              DateTime(day.year, day.month, day.day, 19),
+              kind: MealKind.main,
+              tags: const MealTags(protein: true, veg: MealVeg.halfOrMore),
+              last: true,
+            );
         }
         final container = await _container(
           now: _tuesdayNoon,
@@ -494,7 +495,6 @@ void main() {
         );
         final container = await _container(
           now: _tuesdayNoon,
-          modules: const {ModuleId.food},
           meals: TestMealStore(),
           nights: const [],
           goals: goals,

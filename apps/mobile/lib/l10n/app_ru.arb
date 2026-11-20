@@ -2458,5 +2458,22 @@
   "foodMealDeleteConfirm": "Удалить",
   "foodMealDeleteFailed": "Не удалось удалить приём пищи",
   "foodMealNotFound": "Приём пищи не найден",
-  "foodMealFoot": "Никакая метка не является хорошей или плохой, и ничто из этого приёма пищи не влияет на оценку."
+  "foodMealFoot": "Никакая метка не является хорошей или плохой, и ничто из этого приёма пищи не влияет на оценку.",
+  "foodTabDay": "День",
+  "foodTabWeek": "Неделя",
+  "foodWeekLast": "Прошлая неделя",
+  "foodWeekCompleteLegend": "полный день",
+  "foodWeekIncompleteLegend": "последний приём не отмечен",
+  "foodWeekSummary": "{complete} из 7 полных дней · {records, plural, one{{records} запись} few{{records} записи} many{{records} записей} other{{records} записи}}",
+  "foodWeekEmpty": "На прошлой неделе приёмы пищи не записывались.",
+  "foodWeekThumbLabel": "{day}, {slot} в {time}",
+  "foodWeekSoftTitle": "Мягкий режим",
+  "foodWeekSoftBody": "Когда в модуле «Цели» включён мягкий режим, «Питание» показывает только дневник, время приёмов и сравнения. Шаблон тарелки отключён.",
+  "foodPlateTitle": "Шаблон тарелки",
+  "foodPlateTag": "неделя",
+  "foodPlateSummary": "{score} из 10 по {mains} основным приёмам пищи за {days} дн.",
+  "foodPlateCounts": "Белок: {protein} · овощи или фрукты: {veg} · в основном переработанное: {processed} · сладкий напиток: {sugaryDays} дн. · {drinks}",
+  "foodPlateDrinks": "{count} порц. алкоголя",
+  "foodPlateBuilding": "Нужно {neededDays} полных дней и {neededMains} основных приёмов пищи. Пока {completeDays} из {neededDays} дн. и {mains} из {neededMains} основных приёмов.",
+  "foodPlateNote": "Считает только то, что вы отметили. Он не знает размер порций и не оценивает здоровье."
 }

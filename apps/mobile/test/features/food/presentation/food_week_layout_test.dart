@@ -29,7 +29,7 @@ const _sunday = LocalDate(2026, 11, 15);
 Future<(TestMealStore, PhotoStore)> _populatedClosedWeek() async {
   final meals = TestMealStore();
   final photos = InMemoryPhotoStore();
-  await photos.save('meal.jpg', strippedPlain());
+  final bytes = strippedPlain();
 
   // Mon..Sat (6 days): 6 complete days, 12 mains + 1 snack, mixing photo and
   // no-photo thumbnails, leaving Sun empty.
@@ -44,7 +44,9 @@ Future<(TestMealStore, PhotoStore)> _populatedClosedWeek() async {
       ),
     );
     if (i.isEven) {
-      await meals.attachPhoto(lunch.id, 'meal.jpg');
+      final name = 'meal_${lunch.id}.jpg';
+      await photos.save(name, bytes);
+      await meals.attachPhoto(lunch.id, name);
     }
     if (i == 2) {
       meals.seed(
@@ -64,7 +66,9 @@ Future<(TestMealStore, PhotoStore)> _populatedClosedWeek() async {
       last: true,
     );
     if (i.isOdd) {
-      await meals.attachPhoto(dinner.id, 'meal.jpg');
+      final name = 'meal_${dinner.id}.jpg';
+      await photos.save(name, bytes);
+      await meals.attachPhoto(dinner.id, name);
     }
   }
   return (meals, photos);

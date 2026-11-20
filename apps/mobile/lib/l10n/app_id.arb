@@ -2458,5 +2458,22 @@
   "foodMealDeleteConfirm": "Hapus",
   "foodMealDeleteFailed": "Tidak dapat menghapus makanan",
   "foodMealNotFound": "Makanan tidak ditemukan",
-  "foodMealFoot": "Tidak ada tag yang baik atau buruk, dan tidak ada apa pun dari makanan ini yang masuk ke skor."
+  "foodMealFoot": "Tidak ada tag yang baik atau buruk, dan tidak ada apa pun dari makanan ini yang masuk ke skor.",
+  "foodTabDay": "Hari",
+  "foodTabWeek": "Minggu",
+  "foodWeekLast": "Minggu lalu",
+  "foodWeekCompleteLegend": "hari lengkap",
+  "foodWeekIncompleteLegend": "makanan terakhir belum ditandai",
+  "foodWeekSummary": "{complete} dari 7 hari lengkap · {records, plural, other{{records} catatan}}",
+  "foodWeekEmpty": "Belum ada makanan yang dicatat minggu lalu.",
+  "foodWeekThumbLabel": "{day}, {slot} pukul {time}",
+  "foodWeekSoftTitle": "Mode lembut",
+  "foodWeekSoftBody": "Saat mode lembut Target aktif, Makanan hanya menampilkan catatan harian, waktu makan, dan perbandingan. Pola piring tetap mati.",
+  "foodPlateTitle": "Pola piring",
+  "foodPlateTag": "minggu",
+  "foodPlateSummary": "{score} dari 10, dari {mains} makanan utama dalam {days} hari",
+  "foodPlateCounts": "Protein di {protein} · sayur atau buah di {veg} · hampir semua olahan di {processed} · minuman manis pada {sugaryDays} hari · {drinks}",
+  "foodPlateDrinks": "{count} porsi alkohol",
+  "foodPlateBuilding": "Perlu {neededDays} hari lengkap dan {neededMains} makanan utama. Sejauh ini {completeDays} dari {neededDays} hari dan {mains} dari {neededMains} makanan utama.",
+  "foodPlateNote": "Hanya menghitung apa yang kamu tandai. Ini tidak mengetahui porsi dan bukan skor kesehatan."
 }

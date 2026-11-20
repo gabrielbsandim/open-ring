@@ -15,6 +15,7 @@ import 'package:open_ring/features/food/application/food_day.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/application/meal_capture.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
+import 'package:open_ring/features/food/presentation/food_week_screen.dart';
 import 'package:open_ring/features/food/presentation/meal_capture_presenter.dart';
 import 'package:open_ring/features/food/presentation/meal_saved_sheet.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -129,6 +130,8 @@ class _FoodDayBodyState extends ConsumerState<_FoodDayBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const FoodSectionTabs(current: FoodSection.day),
+        const SizedBox(height: cardGap),
         _DayHeader(
           date: date,
           isToday: isToday,

@@ -173,27 +173,28 @@ void _seedFullPlateWeek(
   // 8 protein, 7 veg, 2 processed, 1 sugary day, 1 alcohol meal.
   for (var i = 0; i < 5; i++) {
     final day = _monday.addDays(i);
-    meals.seed(
-      DateTime(day.year, day.month, day.day, 12, 30),
-      kind: MealKind.main,
-      tags: MealTags(
-        protein: i < 4,
-        veg: i < 4 ? MealVeg.halfOrMore : null,
-        processed: i == 0 ? MealProcessed.mostly : null,
-      ),
-    );
-    meals.seed(
-      DateTime(day.year, day.month, day.day, 19, 30),
-      kind: MealKind.main,
-      tags: MealTags(
-        protein: i < 4,
-        veg: i < 3 ? MealVeg.some : null,
-        processed: i == 1 ? MealProcessed.mostly : null,
-        sugar: i == 2,
-        alcohol: i == 4 ? alcohol : null,
-      ),
-      last: true,
-    );
+    meals
+      ..seed(
+        DateTime(day.year, day.month, day.day, 12, 30),
+        kind: MealKind.main,
+        tags: MealTags(
+          protein: i < 4,
+          veg: i < 4 ? MealVeg.halfOrMore : null,
+          processed: i == 0 ? MealProcessed.mostly : null,
+        ),
+      )
+      ..seed(
+        DateTime(day.year, day.month, day.day, 19, 30),
+        kind: MealKind.main,
+        tags: MealTags(
+          protein: i < 4,
+          veg: i < 3 ? MealVeg.some : null,
+          processed: i == 1 ? MealProcessed.mostly : null,
+          sugar: i == 2,
+          alcohol: i == 4 ? alcohol : null,
+        ),
+        last: true,
+      );
   }
 }
 
@@ -386,9 +387,8 @@ void main() {
       tester,
     ) async {
       final l10n = lookupAppLocalizations(const Locale('en'));
-      final meals = TestMealStore();
       // Mon Nov 9 complete, Tue Nov 10 incomplete, Wed..Sun empty.
-      meals
+      final meals = TestMealStore()
         ..seed(DateTime(2026, 11, 9, 12, 30), last: true)
         ..seed(DateTime(2026, 11, 10, 13));
 
@@ -660,7 +660,7 @@ void main() {
     ) async {
       final l10n = lookupAppLocalizations(const Locale('en'));
       final meals = TestMealStore();
-      _seedFullPlateWeek(meals, alcohol: MealAlcohol.oneToTwo);
+      _seedFullPlateWeek(meals);
       final expected = platePattern(
         monday: _monday,
         meals: [for (final meal in meals.rows) meal.entry],
@@ -734,7 +734,7 @@ void main() {
       final format = MetricFormat.of(
         tester.element(find.byType(FoodWeekScreen)),
       );
-      expect(format.points(4.0), '4');
+      expect(format.points(4), '4');
       expect(
         find.text(l10n.foodPlateCounts(8, 7, 2, 1, l10n.foodPlateDrinks('4'))),
         findsOneWidget,

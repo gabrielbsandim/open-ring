@@ -49,16 +49,43 @@ Uint8List _corruptReadyJpeg(DateTime local) => bytesOf([
 ]);
 
 final class _GatedMealGallery implements MealGallery {
-  final _picked = Completer<List<Uint8List>>();
-  int calls = 0;
+  final List<Completer<List<Uint8List>>> _calls = [];
+  int get calls => _calls.length;
 
-  void complete(List<Uint8List> photos) => _picked.complete(photos);
+  void complete(List<Uint8List> photos, {int at = 0}) =>
+      _calls[at].complete(photos);
 
   @override
   Future<List<Uint8List>> pickPhotos({int limit = galleryPickLimit}) {
-    calls++;
-    return _picked.future;
+    final completer = Completer<List<Uint8List>>();
+    _calls.add(completer);
+    return completer.future;
   }
+}
+
+final class _GatedSavePhotoStore implements PhotoStore {
+  final inner = InMemoryPhotoStore();
+  final gate = Completer<void>();
+  int saveCalls = 0;
+
+  @override
+  Future<void> save(String name, Uint8List bytes) async {
+    saveCalls++;
+    await gate.future;
+    await inner.save(name, bytes);
+  }
+
+  @override
+  Future<Uint8List?> read(String name) => inner.read(name);
+
+  @override
+  Future<bool> delete(String name) => inner.delete(name);
+
+  @override
+  Future<int> deleteAll() => inner.deleteAll();
+
+  @override
+  Future<int> totalBytes() => inner.totalBytes();
 }
 
 final class _FailingSavePhotoStore implements PhotoStore {
@@ -400,6 +427,41 @@ void main() {
         container.read(galleryBackfillProvider).phase,
         GalleryImportPhase.idle,
       );
+    });
+
+    testWidgets('reopening FoodGalleryScreen after popping during picking '
+        'resets cleanly without popping the new screen', (tester) async {
+      final meals = TestMealStore();
+      final gallery = _GatedMealGallery();
+      final container = await _pumpRouterAtFood(
+        tester,
+        meals: meals,
+        gallery: gallery,
+      );
+
+      await _tapKey(tester, FoodDayKeys.addFromGallery);
+      expect(gallery.calls, 1);
+      expect(find.byType(FoodGalleryScreen), findsOneWidget);
+      expect(
+        container.read(galleryBackfillProvider).phase,
+        GalleryImportPhase.picking,
+      );
+
+      container.read(appRouterProvider).pop();
+      await tester.pumpAndSettle();
+      expect(find.byType(FoodDayScreen), findsOneWidget);
+
+      await _tapKey(tester, FoodDayKeys.addFromGallery);
+      expect(gallery.calls, 2);
+      expect(find.byType(FoodGalleryScreen), findsOneWidget);
+
+      gallery.complete([]);
+      await tester.pumpAndSettle();
+      expect(find.byType(FoodGalleryScreen), findsOneWidget);
+
+      gallery.complete([photoTakenAt(DateTime(2026, 11, 17, 12, 30))], at: 1);
+      await tester.pumpAndSettle();
+      expect(find.byKey(FoodGalleryKeys.item(0)), findsOneWidget);
     });
   });
 
@@ -758,6 +820,65 @@ void main() {
       expect(meals.rows, hasLength(2));
       expect(container.read(dataRevisionProvider), before + 1);
       expect(_snackText(l10n.foodGallerySavedCount(2)), findsOneWidget);
+    });
+
+    testWidgets('saving holds all item card action buttons and save disabled '
+        'until PhotoStore finishes', (tester) async {
+      final l10n = lookupAppLocalizations(const Locale('en'));
+      final meals = TestMealStore()..seed(DateTime(2026, 11, 17, 12, 30));
+      final photos = _GatedSavePhotoStore();
+      final oldUtc = _now.toUtc().subtract(const Duration(days: 400));
+      final gallery = FakeMealGallery(
+        photos: [
+          photoTakenAt(DateTime(2026, 11, 17, 8)),
+          photoTakenAt(DateTime(2026, 11, 17, 12, 31)),
+          returnedPhoto,
+          _jpegUtc(oldUtc),
+        ],
+      );
+
+      final container = await _pumpGallery(
+        tester,
+        meals: meals,
+        photos: photos,
+        gallery: gallery,
+      );
+
+      expect(_buttonEnabled(tester, FoodGalleryKeys.save), isTrue);
+      expect(_buttonEnabled(tester, FoodGalleryKeys.anotherMeal(1)), isTrue);
+      expect(_buttonEnabled(tester, FoodGalleryKeys.skip(1)), isTrue);
+      expect(_buttonEnabled(tester, FoodGalleryKeys.pickTime(2)), isTrue);
+      expect(_buttonEnabled(tester, FoodGalleryKeys.skip(2)), isTrue);
+      expect(_buttonEnabled(tester, FoodGalleryKeys.saveOld(3)), isTrue);
+      expect(_buttonEnabled(tester, FoodGalleryKeys.skip(3)), isTrue);
+
+      await tester.ensureVisible(find.byKey(FoodGalleryKeys.save));
+      await tester.pump();
+      await tester.tap(find.byKey(FoodGalleryKeys.save));
+      await tester.pump();
+
+      expect(
+        container.read(galleryBackfillProvider).phase,
+        GalleryImportPhase.saving,
+      );
+      expect(photos.saveCalls, 1);
+      expect(_buttonEnabled(tester, FoodGalleryKeys.save), isFalse);
+      expect(_buttonEnabled(tester, FoodGalleryKeys.anotherMeal(1)), isFalse);
+      expect(_buttonEnabled(tester, FoodGalleryKeys.skip(1)), isFalse);
+      expect(_buttonEnabled(tester, FoodGalleryKeys.pickTime(2)), isFalse);
+      expect(_buttonEnabled(tester, FoodGalleryKeys.skip(2)), isFalse);
+      expect(_buttonEnabled(tester, FoodGalleryKeys.saveOld(3)), isFalse);
+      expect(_buttonEnabled(tester, FoodGalleryKeys.skip(3)), isFalse);
+
+      photos.gate.complete();
+      await tester.pumpAndSettle();
+
+      expect(
+        container.read(galleryBackfillProvider).phase,
+        GalleryImportPhase.done,
+      );
+      expect(meals.rows, hasLength(2));
+      expect(_snackText(l10n.foodGallerySavedCount(1)), findsOneWidget);
     });
 
     testWidgets('noSpace during save shows foodNoSpaceTitle SnackBar and '

@@ -93,33 +93,45 @@ class _FoodGalleryBody extends ConsumerStatefulWidget {
 }
 
 class _FoodGalleryBodyState extends ConsumerState<_FoodGalleryBody> {
+  late bool _armed = !widget.autoPick;
+
   @override
   void initState() {
     super.initState();
     ref.listenManual(galleryBackfillProvider, _onStateChanged);
     if (!widget.autoPick) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !ref.read(foodEnabledProvider)) return;
-      final notifier = ref.read(galleryBackfillProvider.notifier)..reset();
-      unawaited(notifier.pick());
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startAutoPick());
+  }
+
+  void _startAutoPick() {
+    if (!mounted || !ref.read(foodEnabledProvider)) return;
+    final notifier = ref.read(galleryBackfillProvider.notifier)..reset();
+    _armed = true;
+    unawaited(notifier.pick());
   }
 
   void _onStateChanged(GalleryImportState? previous, GalleryImportState next) {
-    if (!mounted) return;
-    final l10n = MetricFormat.of(context).l10n;
+    if (!mounted || !_armed) return;
     if (previous?.phase == GalleryImportPhase.picking &&
         next.phase == GalleryImportPhase.idle) {
-      if (next.pickFailed) _snack(l10n.foodGalleryPickFailed);
-      _popIfMounted();
+      _finishPick(next.pickFailed);
       return;
     }
     if (next.phase == GalleryImportPhase.done &&
         previous?.phase != GalleryImportPhase.done) {
-      final message = _doneMessage(l10n, next);
-      if (message != null) _snack(message);
-      _popIfMounted(reset: true);
+      _finishSave(next);
     }
+  }
+
+  void _finishPick(bool failed) {
+    if (failed) _snack(MetricFormat.of(context).l10n.foodGalleryPickFailed);
+    _popIfMounted();
+  }
+
+  void _finishSave(GalleryImportState next) {
+    final message = _doneMessage(MetricFormat.of(context).l10n, next);
+    if (message != null) _snack(message);
+    _popIfMounted(reset: true);
   }
 
   void _popIfMounted({bool reset = false}) {

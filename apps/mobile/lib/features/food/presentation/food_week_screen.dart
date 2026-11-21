@@ -13,6 +13,7 @@ import 'package:open_ring/features/food/application/food_day.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/application/food_week.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
+import 'package:open_ring/features/food/presentation/food_formula_screen.dart';
 import 'package:open_ring/features/food/presentation/food_timing_chart.dart';
 import 'package:open_ring/features/food/presentation/food_week_evidence_sheet.dart';
 import 'package:open_ring/features/food/presentation/meal_saved_sheet.dart';
@@ -33,6 +34,7 @@ abstract final class FoodWeekKeys {
   static const gapRow = Key('food_week_gap_row');
   static const plateCard = Key('food_week_plate_card');
   static const softModeCard = Key('food_week_soft_mode_card');
+  static const formulaLink = Key('food_week_formula_link');
 
   static Key dayColumn(LocalDate day) => Key('food_week_day_${day.iso}');
   static Key dayDot(LocalDate day) => Key('food_week_dot_${day.iso}');
@@ -164,6 +166,8 @@ class _FoodWeekBodyState extends ConsumerState<_FoodWeekBody> {
           ])
         else
           _plateCard(view.plate, f, t, c, () => _push(AppPaths.foodPlate)),
+        const SizedBox(height: cardGap),
+        const FoodFormulaLink(buttonKey: FoodWeekKeys.formulaLink),
       ];
     }
     if (week.hasError) return [BodyText(f.l10n.metricLoadError)];

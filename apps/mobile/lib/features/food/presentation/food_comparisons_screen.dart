@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
@@ -130,12 +134,13 @@ class FoodComparisonsScreen extends ConsumerWidget {
       children: [
         const FoodSectionTabs(current: FoodSection.comparisons),
         const SizedBox(height: cardGap),
-        ..._body(state, f, t, c),
+        ..._body(context, state, f, t, c),
       ],
     );
   }
 
   List<Widget> _body(
+    BuildContext context,
     AsyncValue<FoodComparisonsView> state,
     MetricFormat f,
     TextTheme t,
@@ -152,7 +157,7 @@ class FoodComparisonsScreen extends ConsumerWidget {
       ),
       const SizedBox(height: cardGap),
       for (final item in view.items) ...[
-        _comparisonCard(item, f, t, c),
+        _comparisonCard(context, item, f, t, c),
         const SizedBox(height: cardGap),
       ],
       _regularityCard(view.regularity, f, t, c),
@@ -165,6 +170,7 @@ class FoodComparisonsScreen extends ConsumerWidget {
 }
 
 Widget _comparisonCard(
+  BuildContext context,
   FoodComparisonItem item,
   MetricFormat f,
   TextTheme t,
@@ -173,15 +179,26 @@ Widget _comparisonCard(
   final lead = item.lead;
   return MetricCard(
     key: FoodComparisonsKeys.card(item.link),
+    onTap: () {
+      final router = GoRouter.maybeOf(context);
+      if (router != null) {
+        unawaited(router.push(AppPaths.foodComparisonOf(item.link)));
+      }
+    },
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _cardHeader(
+        foodComparisonHeader(
           foodLinkTitle(f, item.link),
           foodCompTagText(f.l10n, lead),
           t,
           c,
           tagKey: FoodComparisonsKeys.tag(item.link),
+          trailing: Icon(
+            Icons.chevron_right_rounded,
+            size: 18,
+            color: c.textLabel,
+          ),
         ),
         const SizedBox(height: 10),
         BodyText(foodLeadSummaryText(f, item.leadOutcome, lead)),
@@ -211,7 +228,7 @@ Widget _regularityCard(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _cardHeader(l.foodRegTitle, l.foodRegTag, t, c),
+        foodComparisonHeader(l.foodRegTitle, l.foodRegTag, t, c),
         const SizedBox(height: 10),
         ..._regularityBody(reg, f),
       ],
@@ -245,32 +262,46 @@ String? _weekendShiftText(MetricFormat f, int? shiftMin) {
   );
 }
 
-Widget _cardHeader(
+Widget foodComparisonHeader(
   String title,
   String tag,
   TextTheme t,
   AppColors c, {
   Key? tagKey,
-}) => Wrap(
-  alignment: WrapAlignment.spaceBetween,
-  crossAxisAlignment: WrapCrossAlignment.center,
-  spacing: 8,
-  runSpacing: 4,
-  children: [
-    AccentTitle(title: title, accent: c.activity),
-    DecoratedBox(
-      key: tagKey,
-      decoration: BoxDecoration(
-        color: c.surfaceInner,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        child: Text(tag, style: t.labelSmall?.copyWith(color: c.textSecondary)),
-      ),
+  Widget? trailing,
+}) {
+  final pill = DecoratedBox(
+    key: tagKey,
+    decoration: BoxDecoration(
+      color: c.surfaceInner,
+      borderRadius: const BorderRadius.all(Radius.circular(10)),
     ),
-  ],
-);
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      child: Text(tag, style: t.labelSmall?.copyWith(color: c.textSecondary)),
+    ),
+  );
+  return Wrap(
+    alignment: WrapAlignment.spaceBetween,
+    crossAxisAlignment: WrapCrossAlignment.center,
+    spacing: 8,
+    runSpacing: 4,
+    children: [
+      AccentTitle(title: title, accent: c.activity),
+      if (trailing == null)
+        pill
+      else
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(child: pill),
+            const SizedBox(width: 4),
+            trailing,
+          ],
+        ),
+    ],
+  );
+}
 
 Widget _collectingBar(
   int pairs,

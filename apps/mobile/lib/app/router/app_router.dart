@@ -9,6 +9,7 @@ import 'package:open_ring/features/effort/presentation/effort_formula_screen.dar
 import 'package:open_ring/features/effort/presentation/effort_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_formula_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_screen.dart';
+import 'package:open_ring/features/food/presentation/food_comparison_detail_screen.dart';
 import 'package:open_ring/features/food/presentation/food_comparisons_screen.dart';
 import 'package:open_ring/features/food/presentation/food_day_screen.dart';
 import 'package:open_ring/features/food/presentation/food_formula_screen.dart';
@@ -168,6 +169,15 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
           GoRoute(
             path: 'comparisons',
             builder: (_, _) => const FoodComparisonsScreen(),
+            routes: [
+              GoRoute(
+                path: ':link',
+                builder: (_, state) => FoodComparisonDetailScreen(
+                  link: FoodLink.values
+                      .asNameMap()[state.pathParameters['link']],
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: 'gallery',

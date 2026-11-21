@@ -18,7 +18,7 @@ import 'package:open_ring/features/food/presentation/food_timing_chart.dart';
 import 'package:open_ring/features/food/presentation/food_week_evidence_sheet.dart';
 import 'package:open_ring/features/food/presentation/meal_saved_sheet.dart';
 
-enum FoodSection { day, week }
+enum FoodSection { day, week, comparisons }
 
 const _thumbRadius = BorderRadius.all(Radius.circular(6));
 
@@ -26,6 +26,7 @@ abstract final class FoodWeekKeys {
   static const tabs = Key('food_section_tabs');
   static const tabDay = Key('food_tab_day');
   static const tabWeek = Key('food_tab_week');
+  static const tabComparisons = Key('food_tab_comparisons');
   static const contactSheet = Key('food_week_contact_sheet');
   static const empty = Key('food_week_empty');
   static const timingCard = Key('food_week_timing_card');
@@ -60,25 +61,36 @@ class FoodSectionTabs extends StatelessWidget {
       segments: [
         ButtonSegment(
           value: FoodSection.day,
-          label: Text(l.foodTabDay, key: FoodWeekKeys.tabDay),
+          label: _tabLabel(l.foodTabDay, FoodWeekKeys.tabDay),
         ),
         ButtonSegment(
           value: FoodSection.week,
-          label: Text(l.foodTabWeek, key: FoodWeekKeys.tabWeek),
+          label: _tabLabel(l.foodTabWeek, FoodWeekKeys.tabWeek),
+        ),
+        ButtonSegment(
+          value: FoodSection.comparisons,
+          label: _tabLabel(l.foodTabComparisons, FoodWeekKeys.tabComparisons),
         ),
       ],
       selected: {current},
       onSelectionChanged: (picked) {
         final target = picked.first;
         if (target == current) return;
-        final path = target == FoodSection.day
-            ? AppPaths.food
-            : AppPaths.foodWeek;
+        final path = switch (target) {
+          FoodSection.day => AppPaths.food,
+          FoodSection.week => AppPaths.foodWeek,
+          FoodSection.comparisons => AppPaths.foodComparisons,
+        };
         GoRouter.maybeOf(context)?.go(path);
       },
     );
   }
 }
+
+Widget _tabLabel(String text, Key key) => FittedBox(
+  fit: BoxFit.scaleDown,
+  child: Text(text, key: key, maxLines: 1, softWrap: false),
+);
 
 class FoodWeekScreen extends ConsumerWidget {
   const new({super.key});

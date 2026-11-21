@@ -50,6 +50,9 @@ final class _SpyPhotoStore implements PhotoStore {
   Future<int> deleteAll() => inner.deleteAll();
 
   @override
+  Future<Map<String, int>> fileBytes() => inner.fileBytes();
+
+  @override
   Future<int> totalBytes() => inner.totalBytes();
 }
 

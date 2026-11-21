@@ -46,8 +46,14 @@ final class _ThrowingAddMealStore implements MealStore {
   Future<Meal?> delete(int id) => _inner.delete(id);
 
   @override
+  Future<List<MealPhotoRef>> photoRefs() => _inner.photoRefs();
+
+  @override
   Future<List<String>> deletePhotosBefore(DateTime cutoff) =>
       _inner.deletePhotosBefore(cutoff);
+
+  @override
+  Future<List<String>> deleteAllPhotos() => _inner.deleteAllPhotos();
 
   @override
   Future<bool> update(int id, MealDraft draft) => _inner.update(id, draft);

@@ -1,5 +1,26 @@
+import 'package:meta/meta.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
+
+/// Timestamp, offset, and file name for one saved meal photo.
+@immutable
+final class MealPhotoRef {
+  const new({
+    required this.at,
+    required this.offsetMinutes,
+    required this.photo,
+  });
+
+  final DateTime at;
+  final int offsetMinutes;
+  final String photo;
+
+  /// Capture wall clock as a UTC-flagged DateTime for [foodDay].
+  DateTime get wallClock => DateTime.fromMillisecondsSinceEpoch(
+    at.millisecondsSinceEpoch + offsetMinutes * Duration.millisecondsPerMinute,
+    isUtc: true,
+  );
+}
 
 /// Never touches photo files: callers delete the rows first and then the
 /// files it names, so no row ever points at a missing photo.
@@ -24,7 +45,14 @@ abstract interface class MealStore {
 
   Future<int> clear();
 
+  /// Every row holding a photo, oldest capture instant first.
+  Future<List<MealPhotoRef>> photoRefs();
+
   /// Releases the photos of meals taken before [cutoff], keeping the rows;
   /// returns the released names, oldest first.
   Future<List<String>> deletePhotosBefore(DateTime cutoff);
+
+  /// Releases every meal photo while keeping rows, times, and tags intact;
+  /// returns the released names, oldest first.
+  Future<List<String>> deleteAllPhotos();
 }

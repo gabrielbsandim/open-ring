@@ -51,6 +51,9 @@ final class _ThrowingPhotoStore implements PhotoStore {
   Future<int> deleteAll() async => 0;
 
   @override
+  Future<Map<String, int>> fileBytes() async => const {};
+
+  @override
   Future<int> totalBytes() async => 0;
 }
 
@@ -80,6 +83,9 @@ final class _SpyPhotoStore implements PhotoStore {
 
   @override
   Future<int> deleteAll() => inner.deleteAll();
+
+  @override
+  Future<Map<String, int>> fileBytes() => inner.fileBytes();
 
   @override
   Future<int> totalBytes() => inner.totalBytes();
@@ -136,8 +142,14 @@ final class _GatedMealStore implements MealStore {
   Future<int> clear() => inner.clear();
 
   @override
+  Future<List<MealPhotoRef>> photoRefs() => inner.photoRefs();
+
+  @override
   Future<List<String>> deletePhotosBefore(DateTime cutoff) =>
       inner.deletePhotosBefore(cutoff);
+
+  @override
+  Future<List<String>> deleteAllPhotos() => inner.deleteAllPhotos();
 }
 
 Future<ProviderContainer> _pumpMealScreen(

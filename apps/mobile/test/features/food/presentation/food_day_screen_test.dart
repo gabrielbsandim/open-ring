@@ -53,6 +53,9 @@ final class _ThrowingPhotoStore implements PhotoStore {
   Future<int> deleteAll() async => 0;
 
   @override
+  Future<Map<String, int>> fileBytes() async => const {};
+
+  @override
   Future<int> totalBytes() async => 0;
 }
 

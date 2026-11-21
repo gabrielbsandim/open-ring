@@ -63,6 +63,20 @@ final class IoPhotoStore implements PhotoStore {
   }
 
   @override
+  Future<Map<String, int>> fileBytes() async {
+    final sizes = <String, int>{};
+    for (final file in await _files()) {
+      final name = file.uri.pathSegments.lastWhere(
+        (segment) => segment.isNotEmpty,
+        orElse: () => '',
+      );
+      if (!isMealPhotoName(name)) continue;
+      sizes[name] = await file.length();
+    }
+    return sizes;
+  }
+
+  @override
   Future<int> totalBytes() async {
     var total = 0;
     for (final file in await _files()) {

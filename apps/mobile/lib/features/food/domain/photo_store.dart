@@ -19,6 +19,9 @@ abstract interface class PhotoStore {
   /// Removes every file in the store and returns how many.
   Future<int> deleteAll();
 
+  /// Size in bytes of each valid meal photo file currently stored.
+  Future<Map<String, int>> fileBytes();
+
   Future<int> totalBytes();
 }
 
@@ -49,6 +52,11 @@ final class InMemoryPhotoStore implements PhotoStore {
     _photos.clear();
     return removed;
   }
+
+  @override
+  Future<Map<String, int>> fileBytes() async => {
+    for (final entry in _photos.entries) entry.key: entry.value.length,
+  };
 
   @override
   Future<int> totalBytes() async =>

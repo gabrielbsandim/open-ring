@@ -2,7 +2,9 @@ import 'package:meta/meta.dart';
 
 const int aiMaxResponseBytes = 256 * 1024;
 const int aiMaxErrorDetailChars = 300;
-const int aiMaxLadderAttempts = 4;
+
+/// Maximum attempts from [AiCapabilityProfile.defaults] (1 initial + up to 6 transitions).
+const int aiMaxLadderAttempts = 7;
 
 enum AiJsonMode { jsonSchema, jsonObject, none }
 
@@ -75,7 +77,15 @@ final class AiCapabilityProfile {
         lower.contains('max_completion_tokens')) {
       return copyWith(limitField: AiLimitField.maxTokens);
     }
-    if (jsonMode == AiJsonMode.jsonSchema && streamOk) {
+    if (streamOk &&
+        lower.contains('stream') &&
+        !lower.contains('stream_options')) {
+      return copyWith(streamOk: false);
+    }
+    if (jsonMode == AiJsonMode.jsonSchema &&
+        streamOk &&
+        !lower.contains('json_schema') &&
+        !lower.contains('response_format')) {
       return copyWith(streamOk: false);
     }
     if (jsonMode == AiJsonMode.jsonSchema) {
@@ -83,9 +93,6 @@ final class AiCapabilityProfile {
     }
     if (jsonMode == AiJsonMode.jsonObject) {
       return copyWith(jsonMode: AiJsonMode.none);
-    }
-    if (streamOk && lower.contains('stream')) {
-      return copyWith(streamOk: false);
     }
     return null;
   }

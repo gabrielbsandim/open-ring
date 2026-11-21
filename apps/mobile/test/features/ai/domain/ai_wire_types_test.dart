@@ -28,7 +28,7 @@ void main() {
     test('steps monotonically through the capability ladder', () {
       var profile = AiCapabilityProfile.defaults;
 
-      // Drop stream_options when explicitly named.
+      // Drop stream_options when explicitly named (never treat as 'stream').
       profile = profile.nextOnBadRequest(
         'Unrecognized field: stream_options is not supported',
       )!;
@@ -40,6 +40,28 @@ void main() {
         'max_completion_tokens is not supported; use max_tokens',
       )!;
       expect(profile.limitField, AiLimitField.maxTokens);
+
+      // Explicit json_schema rejection skips non-streaming jsonSchema.
+      final skipped = AiCapabilityProfile.defaults.nextOnBadRequest(
+        'json_schema unsupported',
+      )!;
+      expect(skipped.jsonMode, AiJsonMode.jsonObject);
+      expect(skipped.streamOk, isTrue);
+
+      // Streaming jsonObject drops streaming before dropping jsonObject on 'stream'.
+      final objNonStream = skipped.nextOnBadRequest('stream mode unsupported')!;
+      expect(objNonStream.jsonMode, AiJsonMode.jsonObject);
+      expect(objNonStream.streamOk, isFalse);
+
+      final noneFromObjNonStream = objNonStream.nextOnBadRequest(
+        'bad request',
+      )!;
+      expect(noneFromObjNonStream.jsonMode, AiJsonMode.none);
+      expect(noneFromObjNonStream.streamOk, isFalse);
+      expect(
+        noneFromObjNonStream.nextOnBadRequest('stream mode unsupported'),
+        isNull,
+      );
 
       // Groq: drop streaming under strict json_schema, keep streamUsageOk as-is.
       const fresh = AiCapabilityProfile.defaults;
@@ -60,12 +82,20 @@ void main() {
       )!;
       expect(step3.jsonMode, AiJsonMode.none);
       expect(step3.streamOk, isTrue);
+      expect(step3.nextOnBadRequest('bad request'), isNull);
+      expect(
+        step3
+            .copyWith(streamUsageOk: false)
+            .nextOnBadRequest('stream_options unsupported'),
+        isNull,
+      );
 
       final step4 = step3.nextOnBadRequest('stream mode unsupported')!;
       expect(step4.jsonMode, AiJsonMode.none);
       expect(step4.streamOk, isFalse);
 
       expect(step4.nextOnBadRequest('bad request'), isNull);
+      expect(step4.nextOnBadRequest('stream mode unsupported'), isNull);
     });
     test('preserves streamOk: false when stepping jsonObject to none', () {
       const nonStreamingObj = AiCapabilityProfile(
@@ -77,6 +107,51 @@ void main() {
       expect(keptOff.streamOk, isFalse);
       expect(keptOff.nextOnBadRequest('bad request'), isNull);
     });
+    test(
+      'capability ladder is an acyclic DAG bounded by aiMaxLadderAttempts',
+      () {
+        const triggers = [
+          'stream_options',
+          'max_completion_tokens',
+          'stream',
+          'json_schema',
+          'response_format',
+          'bad request',
+        ];
+        const target = AiCapabilityProfile(
+          jsonMode: AiJsonMode.jsonObject,
+          streamOk: false,
+        );
+        final depths = <AiCapabilityProfile, int>{};
+        final visiting = <AiCapabilityProfile>{};
+
+        int visit(AiCapabilityProfile node, int depth) {
+          if (visiting.contains(node)) {
+            fail('Cycle detected at $node');
+          }
+          final known = depths[node];
+          if (known == null || depth > known) {
+            depths[node] = depth;
+          }
+          visiting.add(node);
+          var best = 0;
+          for (final trigger in triggers) {
+            final next = node.nextOnBadRequest(trigger);
+            if (next == null) continue;
+            expect(next, isNot(node));
+            final candidate = 1 + visit(next, depth + 1);
+            if (candidate > best) best = candidate;
+          }
+          visiting.remove(node);
+          return best;
+        }
+
+        final maxTransitions = visit(AiCapabilityProfile.defaults, 0);
+        expect(maxTransitions, 6);
+        expect(maxTransitions + 1, aiMaxLadderAttempts);
+        expect(depths.containsKey(target), isTrue);
+      },
+    );
   });
 
   group('scrubApiKey', () {
@@ -105,11 +180,43 @@ void main() {
 
       expect(scrubApiKey('  plain error  ', null), 'plain error');
       expect(scrubApiKey('plain error', ''), 'plain error');
+      expect(scrubApiKey('plain error', '   '), 'plain error');
     });
   });
 
   group('value equality', () {
     test('covers non-identical instances and differing fields', () {
+      final pFromJsonA = AiCapabilityProfile.fromJson(const {
+        'jsonMode': 'jsonObject',
+        'limitField': 'maxTokens',
+        'streamOk': false,
+        'streamUsageOk': false,
+        'vision': 'yes',
+      });
+      final pFromJsonB = AiCapabilityProfile.fromJson(const {
+        'jsonMode': 'jsonObject',
+        'limitField': 'maxTokens',
+        'streamOk': false,
+        'streamUsageOk': false,
+        'vision': 'yes',
+      });
+      expect(identical(pFromJsonA, pFromJsonB), isFalse);
+      expect(pFromJsonA, pFromJsonB);
+      expect(pFromJsonA.hashCode, pFromJsonB.hashCode);
+      expect(pFromJsonA, isNot(pFromJsonA.copyWith(jsonMode: AiJsonMode.none)));
+      expect(
+        pFromJsonA,
+        isNot(
+          pFromJsonA.copyWith(limitField: AiLimitField.maxCompletionTokens),
+        ),
+      );
+      expect(pFromJsonA, isNot(pFromJsonA.copyWith(streamOk: true)));
+      expect(pFromJsonA, isNot(pFromJsonA.copyWith(streamUsageOk: true)));
+      expect(
+        pFromJsonA,
+        isNot(pFromJsonA.copyWith(vision: AiVisionSupport.no)),
+      );
+
       final promptA = int.parse('100');
       final promptB = int.parse('100');
       final u1 = AiTokenUsage(
@@ -132,12 +239,60 @@ void main() {
       expect(
         u1,
         isNot(
+          const AiTokenUsage(
+            promptTokens: 101,
+            completionTokens: 20,
+            totalTokens: 120,
+            reasoningTokens: 5,
+            providerCost: 0.001,
+          ),
+        ),
+      );
+      expect(
+        u1,
+        isNot(
           AiTokenUsage(
             promptTokens: promptA,
             completionTokens: 21,
             totalTokens: 120,
             reasoningTokens: 5,
             providerCost: 0.001,
+          ),
+        ),
+      );
+      expect(
+        u1,
+        isNot(
+          AiTokenUsage(
+            promptTokens: promptA,
+            completionTokens: 20,
+            totalTokens: 121,
+            reasoningTokens: 5,
+            providerCost: 0.001,
+          ),
+        ),
+      );
+      expect(
+        u1,
+        isNot(
+          AiTokenUsage(
+            promptTokens: promptA,
+            completionTokens: 20,
+            totalTokens: 120,
+            reasoningTokens: 6,
+            providerCost: 0.001,
+          ),
+        ),
+      );
+      expect(
+        u1,
+        isNot(
+          AiTokenUsage(
+            promptTokens: promptA,
+            completionTokens: 20,
+            totalTokens: 120,
+            reasoningTokens: 5,
+            providerCost: 0.002,
           ),
         ),
       );
@@ -169,9 +324,16 @@ void main() {
       expect(
         c1,
         isNot(
+          AnalysisCompleted(text: '{"a":1}', finishReason: 'stop', usage: u1),
+        ),
+      );
+      expect(
+        c1,
+        isNot(
           AnalysisCompleted(text: textA, finishReason: 'length', usage: u1),
         ),
       );
+      expect(c1, isNot(AnalysisCompleted(text: textA, finishReason: 'stop')));
 
       final statusA = int.parse('429');
       final statusB = int.parse('429');
@@ -180,12 +342,14 @@ void main() {
         detail: 'slow',
         statusCode: statusA,
         retryAfterSeconds: 10,
+        timeoutStage: TimeoutStage.firstByte,
       );
       final f2 = AnalysisFailure(
         kind: AnalysisFailureKind.rateLimited,
         detail: 'slow',
         statusCode: statusB,
         retryAfterSeconds: 10,
+        timeoutStage: TimeoutStage.firstByte,
       );
       expect(identical(f1, f2), isFalse);
       expect(f1, f2);
@@ -194,10 +358,59 @@ void main() {
         f1,
         isNot(
           AnalysisFailure(
+            kind: AnalysisFailureKind.serverError,
+            detail: 'slow',
+            statusCode: statusA,
+            retryAfterSeconds: 10,
+            timeoutStage: TimeoutStage.firstByte,
+          ),
+        ),
+      );
+      expect(
+        f1,
+        isNot(
+          AnalysisFailure(
+            kind: AnalysisFailureKind.rateLimited,
+            detail: 'other',
+            statusCode: statusA,
+            retryAfterSeconds: 10,
+            timeoutStage: TimeoutStage.firstByte,
+          ),
+        ),
+      );
+      expect(
+        f1,
+        isNot(
+          const AnalysisFailure(
+            kind: AnalysisFailureKind.rateLimited,
+            detail: 'slow',
+            statusCode: 500,
+            retryAfterSeconds: 10,
+            timeoutStage: TimeoutStage.firstByte,
+          ),
+        ),
+      );
+      expect(
+        f1,
+        isNot(
+          AnalysisFailure(
             kind: AnalysisFailureKind.rateLimited,
             detail: 'slow',
             statusCode: statusA,
             retryAfterSeconds: 20,
+            timeoutStage: TimeoutStage.firstByte,
+          ),
+        ),
+      );
+      expect(
+        f1,
+        isNot(
+          AnalysisFailure(
+            kind: AnalysisFailureKind.rateLimited,
+            detail: 'slow',
+            statusCode: statusA,
+            retryAfterSeconds: 10,
+            timeoutStage: TimeoutStage.total,
           ),
         ),
       );
@@ -210,7 +423,14 @@ void main() {
       () {
         final dir = Directory('lib/features/ai/domain');
         final files = dir.listSync().whereType<File>().toList();
-        expect(files, hasLength(3));
+        expect(
+          files.map((f) => f.uri.pathSegments.last),
+          containsAll([
+            'ai_provider_preset.dart',
+            'ai_wire_types.dart',
+            'base_url_policy.dart',
+          ]),
+        );
         final dashes = RegExp(r'[\u2013\u2014]');
         for (final file in files) {
           final content = file.readAsStringSync();

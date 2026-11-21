@@ -37,6 +37,28 @@ void main() {
 
       final withDefaultPort = _expectOk('https://api.openai.com:443/v1');
       expect(withDefaultPort, plain);
+      expect(identical(withDefaultPort, plain), isFalse);
+      expect(withDefaultPort.hashCode, plain.hashCode);
+      expect(withDefaultPort.scheme, 'https');
+
+      final httpDefaultPort = _expectOk('http://localhost:80/v1');
+      expect(httpDefaultPort.hostKey, 'http://localhost:80');
+      expect(httpDefaultPort.uri.toString(), 'http://localhost/v1');
+
+      final encodedPath = _expectOk('https://example.com/my%20api/v1');
+      expect(encodedPath.path, '/my%20api/v1');
+      expect(
+        encodedPath.chatCompletionsUri.path,
+        '/my%20api/v1/chat/completions',
+      );
+      expect(encodedPath.modelsUri.path, '/my%20api/v1/models');
+
+      final nonAsciiPath = _expectOk('https://example.com/café/v1');
+      expect(nonAsciiPath.path, '/caf%C3%A9/v1');
+      expect(
+        nonAsciiPath.chatCompletionsUri.path,
+        '/caf%C3%A9/v1/chat/completions',
+      );
 
       final bare = _expectOk('https://custom.example');
       expect(bare.path, '');
@@ -62,6 +84,48 @@ void main() {
       );
     });
 
+    test('covers NormalizedBaseUrl value equality across all 4 fields', () {
+      final a1 = _expectOk('https://api.openai.com/v1');
+      final a2 = _expectOk('https://api.openai.com/v1');
+      expect(identical(a1, a2), isFalse);
+      expect(a1, a2);
+      expect(a1.hashCode, a2.hashCode);
+      expect(a1, isNot(_expectOk('https://api.openai.com/v2')));
+      expect(
+        a1,
+        isNot(
+          NormalizedBaseUrl(
+            uri: a1.uri,
+            asciiHost: 'other.openai.com',
+            hasNonAsciiHost: a1.hasNonAsciiHost,
+            port: a1.port,
+          ),
+        ),
+      );
+      expect(
+        a1,
+        isNot(
+          NormalizedBaseUrl(
+            uri: a1.uri,
+            asciiHost: a1.asciiHost,
+            hasNonAsciiHost: !a1.hasNonAsciiHost,
+            port: a1.port,
+          ),
+        ),
+      );
+      expect(
+        a1,
+        isNot(
+          NormalizedBaseUrl(
+            uri: a1.uri,
+            asciiHost: a1.asciiHost,
+            hasNonAsciiHost: a1.hasNonAsciiHost,
+            port: 8443,
+          ),
+        ),
+      );
+    });
+
     test('flags non-ASCII and punycode hosts', () {
       final nonAscii = _expectOk('https://café.example/v1');
       expect(nonAscii.hasNonAsciiHost, isTrue);
@@ -78,6 +142,14 @@ void main() {
     test('rejects invalid syntax, schemes, userinfo, query, and fragment', () {
       _expectRejected('', BaseUrlRejection.invalidSyntax);
       _expectRejected('   ', BaseUrlRejection.invalidSyntax);
+      _expectRejected(
+        'https://api.openai.com/v 1',
+        BaseUrlRejection.invalidSyntax,
+      );
+      _expectRejected(
+        'https://api.openai.com/\tv1',
+        BaseUrlRejection.invalidSyntax,
+      );
       _expectRejected('api.openai.com/v1', BaseUrlRejection.invalidSyntax);
       _expectRejected('https://:443/v1', BaseUrlRejection.invalidSyntax);
       _expectRejected(
@@ -252,6 +324,34 @@ void main() {
           ]),
           isNull,
         );
+        expect(
+          BaseUrlPolicy.verifyResolvedAddresses(httpUrl, const [
+            '192.168.1.10',
+            'fe80::1%wlan0',
+          ]),
+          isNull,
+        );
+        expect(
+          BaseUrlPolicy.verifyResolvedAddresses(httpUrl, const [
+            'fe80::215:5dff:fefc:a8e3%eth0.2',
+          ]),
+          isNull,
+        );
+        for (final badScoped in [
+          const ['fe80::1%'],
+          const ['fe80::1%eth0%2'],
+          const ['fe80::1%eth 0'],
+          const ['192.168.1.10%eth0'],
+          const ['fc00::1%eth0'],
+          const ['2001:db8::1%eth0'],
+          const ['fe80::1%wlan0', '8.8.8.8'],
+        ]) {
+          expect(
+            BaseUrlPolicy.verifyResolvedAddresses(httpUrl, badScoped),
+            BaseUrlRejection.nonPrivateAddress,
+            reason: badScoped.join(','),
+          );
+        }
       },
     );
   });
@@ -261,23 +361,40 @@ void main() {
       'defines URL-only presets without model IDs and valid HTTPS defaults',
       () {
         expect(AiProviderPreset.values, hasLength(8));
+        const remote = {
+          AiProviderPreset.openAi,
+          AiProviderPreset.openRouter,
+          AiProviderPreset.groq,
+          AiProviderPreset.gemini,
+          AiProviderPreset.anthropic,
+        };
+        const local = {AiProviderPreset.ollama, AiProviderPreset.lmStudio};
         for (final preset in AiProviderPreset.values) {
-          if (preset.baseUrl.isNotEmpty) {
-            final parsed = _expectOk(preset.baseUrl);
-            expect(parsed.isCleartext, isFalse, reason: preset.name);
+          if (remote.contains(preset)) {
+            expect(preset.baseUrl, isNotEmpty, reason: preset.name);
+            expect(preset.placeholderUrl, isEmpty, reason: preset.name);
+            expect(_expectOk(preset.baseUrl).isCleartext, isFalse);
+            expect(preset.isLocal, isFalse);
+            continue;
           }
-          if (preset.placeholderUrl.isNotEmpty) {
+          expect(preset.baseUrl, isEmpty, reason: preset.name);
+          if (local.contains(preset)) {
+            expect(preset.placeholderUrl, isNotEmpty, reason: preset.name);
             expect(_expectOk(preset.placeholderUrl).isCleartext, isTrue);
+            expect(preset.isLocal, isTrue);
+            continue;
           }
+          expect(preset.placeholderUrl, isEmpty, reason: preset.name);
         }
-        expect(AiProviderPreset.ollama.isLocal, isTrue);
-        expect(AiProviderPreset.lmStudio.isLocal, isTrue);
         expect(AiProviderPreset.ollama.defaultTimeoutSeconds, 600);
         expect(AiProviderPreset.lmStudio.defaultCompactContext, isTrue);
         expect(AiProviderPreset.openAi.defaultTimeoutSeconds, 180);
         expect(AiProviderPreset.openAi.defaultCompactContext, isFalse);
         expect(AiProviderPreset.openAi.keyRequired, isTrue);
         expect(AiProviderPreset.ollama.keyRequired, isFalse);
+        expect(AiProviderPreset.custom.isLocal, isFalse);
+        expect(AiProviderPreset.custom.defaultTimeoutSeconds, 180);
+        expect(AiProviderPreset.custom.defaultCompactContext, isFalse);
         expect(AiProviderPreset.custom.keyRequired, isFalse);
       },
     );

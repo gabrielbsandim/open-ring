@@ -548,6 +548,70 @@ void main() {
     });
   });
 
+  group('criterion 12: photoRefs and deleteAllPhotos', () {
+    test(
+      'photoRefs returns only photo rows oldest capture instant first',
+      () async {
+        await store.add(
+          MealDraft(at: DateTime.utc(2026, 12, 3, 12), offsetMinutes: -180),
+          photo: 'b.jpg',
+          now: _now,
+        );
+        await store.add(
+          MealDraft(at: DateTime.utc(2026, 12, 2, 12), offsetMinutes: -180),
+          now: _now,
+        );
+        await store.add(
+          MealDraft(at: DateTime.utc(2026, 12, 1, 3, 30), offsetMinutes: -180),
+          photo: 'a.jpg',
+          now: _now,
+        );
+
+        final refs = await store.photoRefs();
+
+        expect([for (final r in refs) r.photo], ['a.jpg', 'b.jpg']);
+        expect(foodDay(refs.first.wallClock), const LocalDate(2026, 11, 30));
+      },
+    );
+
+    test(
+      'deleteAllPhotos clears photos oldest first and keeps meals/tags',
+      () async {
+        await store.add(
+          MealDraft(
+            at: DateTime.utc(2026, 12, 2, 12),
+            offsetMinutes: -180,
+            kind: MealKind.main,
+            tags: _allTags,
+            last: true,
+          ),
+          photo: 'second.jpg',
+          now: _now,
+        );
+        await store.add(
+          MealDraft(
+            at: DateTime.utc(2026, 12, 1, 12),
+            offsetMinutes: -180,
+            kind: MealKind.main,
+            tags: _allTags,
+          ),
+          photo: 'first.jpg',
+          now: _now,
+        );
+
+        expect(await store.deleteAllPhotos(), ['first.jpg', 'second.jpg']);
+        expect(await store.photoRefs(), isEmpty);
+        expect(await store.count(), 2);
+        final meals = await all();
+        for (final meal in meals) {
+          expect(meal.photo, isNull);
+          expect(_tagsOf(meal.tags), _tagsOf(_allTags));
+        }
+        expect(await store.deleteAllPhotos(), isEmpty);
+      },
+    );
+  });
+
   group('criterion 10: photo names', () {
     for (final name in _badNames) {
       test(

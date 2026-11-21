@@ -85,6 +85,9 @@ final class _GatedSavePhotoStore implements PhotoStore {
   Future<int> deleteAll() => inner.deleteAll();
 
   @override
+  Future<Map<String, int>> fileBytes() => inner.fileBytes();
+
+  @override
   Future<int> totalBytes() => inner.totalBytes();
 }
 
@@ -108,6 +111,9 @@ final class _FailingSavePhotoStore implements PhotoStore {
 
   @override
   Future<int> deleteAll() => inner.deleteAll();
+
+  @override
+  Future<Map<String, int>> fileBytes() => inner.fileBytes();
 
   @override
   Future<int> totalBytes() => inner.totalBytes();

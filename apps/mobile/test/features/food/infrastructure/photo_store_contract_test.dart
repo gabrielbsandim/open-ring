@@ -89,6 +89,15 @@ void main() {
         expect(await store.deleteAll(), 0);
       });
 
+      test('fileBytes returns per-file lengths and skips empty', () async {
+        expect(await store.fileBytes(), isEmpty);
+
+        await store.save('a.jpg', _bytes([1, 2, 3]));
+        await store.save('b.jpg', _bytes([4, 5]));
+
+        expect(await store.fileBytes(), {'a.jpg': 3, 'b.jpg': 2});
+      });
+
       for (final bad in _badNames) {
         test('every named method throws ArgumentError on "$bad"', () async {
           await expectLater(

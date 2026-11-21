@@ -82,8 +82,14 @@ final class _ControllableMealStore implements MealStore {
   Future<Meal?> delete(int id) => inner.delete(id);
 
   @override
+  Future<List<MealPhotoRef>> photoRefs() => inner.photoRefs();
+
+  @override
   Future<List<String>> deletePhotosBefore(DateTime cutoff) =>
       inner.deletePhotosBefore(cutoff);
+
+  @override
+  Future<List<String>> deleteAllPhotos() => inner.deleteAllPhotos();
 
   @override
   Future<bool> update(int id, MealDraft draft) => inner.update(id, draft);

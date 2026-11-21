@@ -186,5 +186,8 @@ final class _FailingPhotoStore implements PhotoStore {
       throw const FileSystemException('Directory not empty', 'meal_photos');
 
   @override
+  Future<Map<String, int>> fileBytes() => _inner.fileBytes();
+
+  @override
   Future<int> totalBytes() => _inner.totalBytes();
 }

@@ -33,6 +33,7 @@ void main() {
       File('${root.path}/x.jpg.tmp').writeAsBytesSync([4, 5]);
 
       expect(await store.totalBytes(), 5);
+      expect(await store.fileBytes(), {'a.jpg': 3});
     });
 
     test('deleteAll removes a leftover .tmp too', () async {

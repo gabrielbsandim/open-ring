@@ -93,24 +93,54 @@ final class DriftMealStore implements MealStore {
   Future<int> clear() => _db.delete(_db.meals).go();
 
   @override
+  Future<List<MealPhotoRef>> photoRefs() async {
+    final rows =
+        await (_db.select(_db.meals)
+              ..where((row) => row.photo.isNotNull())
+              ..orderBy([
+                (row) => OrderingTerm.asc(row.atUtcMs),
+                (row) => OrderingTerm.asc(row.id),
+              ]))
+            .get();
+    return [
+      for (final row in rows)
+        if (row.photo case final photo?)
+          MealPhotoRef(
+            at: DateTime.fromMillisecondsSinceEpoch(row.atUtcMs, isUtc: true),
+            offsetMinutes: row.offsetMinutes,
+            photo: photo,
+          ),
+    ];
+  }
+
+  @override
   Future<List<String>> deletePhotosBefore(DateTime cutoff) =>
-      _db.transaction(() async {
-        Expression<bool> released($MealsTable row) =>
+      _releasePhotosWhere(
+        (row) =>
             row.photo.isNotNull() &
-            row.atUtcMs.isSmallerThanValue(cutoff.millisecondsSinceEpoch);
-        final rows =
-            await (_db.select(_db.meals)
-                  ..where(released)
-                  ..orderBy([
-                    (row) => OrderingTerm.asc(row.atUtcMs),
-                    (row) => OrderingTerm.asc(row.id),
-                  ]))
-                .get();
-        await (_db.update(
-          _db.meals,
-        )..where(released)).write(const MealsCompanion(photo: Value(null)));
-        return [for (final row in rows) ?row.photo];
-      });
+            row.atUtcMs.isSmallerThanValue(cutoff.millisecondsSinceEpoch),
+      );
+
+  @override
+  Future<List<String>> deleteAllPhotos() =>
+      _releasePhotosWhere((row) => row.photo.isNotNull());
+
+  Future<List<String>> _releasePhotosWhere(
+    Expression<bool> Function($MealsTable row) filter,
+  ) => _db.transaction(() async {
+    final rows =
+        await (_db.select(_db.meals)
+              ..where(filter)
+              ..orderBy([
+                (row) => OrderingTerm.asc(row.atUtcMs),
+                (row) => OrderingTerm.asc(row.id),
+              ]))
+            .get();
+    await (_db.update(
+      _db.meals,
+    )..where(filter)).write(const MealsCompanion(photo: Value(null)));
+    return [for (final row in rows) ?row.photo];
+  });
 
   Future<MealRow> _row(int id) =>
       (_db.select(_db.meals)..where((row) => row.id.equals(id))).getSingle();

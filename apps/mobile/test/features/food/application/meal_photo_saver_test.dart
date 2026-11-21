@@ -54,6 +54,9 @@ final class _FailingPhotoStore implements PhotoStore {
   Future<int> deleteAll() => inner.deleteAll();
 
   @override
+  Future<Map<String, int>> fileBytes() => inner.fileBytes();
+
+  @override
   Future<int> totalBytes() => inner.totalBytes();
 }
 
@@ -82,6 +85,9 @@ final class _WatchingPhotoStore implements PhotoStore {
 
   @override
   Future<int> deleteAll() => inner.deleteAll();
+
+  @override
+  Future<Map<String, int>> fileBytes() => inner.fileBytes();
 
   @override
   Future<int> totalBytes() => inner.totalBytes();
@@ -116,7 +122,13 @@ final class _BrokenMealStore implements MealStore {
   Future<int> clear() async => 0;
 
   @override
+  Future<List<MealPhotoRef>> photoRefs() async => const [];
+
+  @override
   Future<List<String>> deletePhotosBefore(DateTime cutoff) async => const [];
+
+  @override
+  Future<List<String>> deleteAllPhotos() async => const [];
 }
 
 void main() {

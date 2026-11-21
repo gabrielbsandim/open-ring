@@ -51,6 +51,9 @@ final class TestMealStore implements MealStore {
   /// Thrown by [delete] after it counts the call, when set.
   Exception? deleteError;
 
+  /// Thrown by [deletePhotosBefore] and [deleteAllPhotos] when set.
+  Exception? deletePhotosError;
+
   List<Meal> get rows => List.unmodifiable(_rows);
 
   Meal seed(
@@ -58,6 +61,7 @@ final class TestMealStore implements MealStore {
     MealKind? kind,
     MealTags tags = const MealTags(),
     bool last = false,
+    String? photo,
   }) {
     final meal = Meal(
       id: _nextId++,
@@ -67,6 +71,7 @@ final class TestMealStore implements MealStore {
       kind: kind,
       tags: tags,
       last: last,
+      photo: photo,
     );
     _rows.add(meal);
     return meal;
@@ -173,7 +178,61 @@ final class TestMealStore implements MealStore {
   }
 
   @override
-  Future<List<String>> deletePhotosBefore(DateTime cutoff) async => const [];
+  Future<List<MealPhotoRef>> photoRefs() async {
+    final ordered = [
+      for (final meal in _rows)
+        if (meal.photo != null) meal,
+    ]..sort(_byCaptureOrder);
+    return [
+      for (final meal in ordered)
+        MealPhotoRef(
+          at: meal.at,
+          offsetMinutes: meal.offsetMinutes,
+          photo: meal.photo!,
+        ),
+    ];
+  }
+
+  @override
+  Future<List<String>> deletePhotosBefore(DateTime cutoff) =>
+      _releasePhotosWhere(
+        (meal) => meal.photo != null && meal.at.isBefore(cutoff),
+      );
+
+  @override
+  Future<List<String>> deleteAllPhotos() =>
+      _releasePhotosWhere((meal) => meal.photo != null);
+
+  Future<List<String>> _releasePhotosWhere(
+    bool Function(Meal meal) test,
+  ) async {
+    final error = deletePhotosError;
+    if (error != null) throw error;
+    final matched = [
+      for (var index = 0; index < _rows.length; index++)
+        if (test(_rows[index])) index,
+    ]..sort((a, b) => _byCaptureOrder(_rows[a], _rows[b]));
+    final released = <String>[];
+    for (final index in matched) {
+      final old = _rows[index];
+      released.add(old.photo!);
+      _rows[index] = Meal(
+        id: old.id,
+        at: old.at,
+        offsetMinutes: old.offsetMinutes,
+        createdAt: old.createdAt,
+        kind: old.kind,
+        tags: old.tags,
+        last: old.last,
+      );
+    }
+    return released;
+  }
+
+  int _byCaptureOrder(Meal a, Meal b) {
+    final byAt = a.at.compareTo(b.at);
+    return byAt != 0 ? byAt : a.id.compareTo(b.id);
+  }
 }
 
 /// Fails every save with errno 28 until [full] is cleared.
@@ -201,6 +260,9 @@ final class FullPhotoStore implements PhotoStore {
 
   @override
   Future<int> deleteAll() => inner.deleteAll();
+
+  @override
+  Future<Map<String, int>> fileBytes() => inner.fileBytes();
 
   @override
   Future<int> totalBytes() => inner.totalBytes();

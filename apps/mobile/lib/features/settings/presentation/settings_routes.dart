@@ -3,6 +3,7 @@ import 'package:open_ring/features/body/presentation/body_module_screen.dart';
 import 'package:open_ring/features/effort/presentation/effort_module_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_module_screen.dart';
 import 'package:open_ring/features/export/presentation/export_screen.dart';
+import 'package:open_ring/features/food/presentation/food_storage_screen.dart';
 import 'package:open_ring/features/goals/presentation/goals_module_screen.dart';
 import 'package:open_ring/features/health_sync/presentation/health_status_screen.dart';
 import 'package:open_ring/features/modules/presentation/modules_screen.dart';
@@ -24,6 +25,7 @@ GoRoute settingsRoute() => GoRoute(
       path: 'workout-notification',
       builder: (_, _) => const WorkoutNotificationHowScreen(),
     ),
+    GoRoute(path: 'food-photos', builder: (_, _) => const FoodStorageScreen()),
     GoRoute(
       path: 'modules',
       builder: (_, _) => const ModulesScreen(),

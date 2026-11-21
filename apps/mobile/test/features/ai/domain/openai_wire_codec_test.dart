@@ -78,6 +78,7 @@ void main() {
         final messages = body['messages']! as List<Object?>;
         expect(messages, hasLength(2));
         expect((messages[0]! as Map)['role'], 'system');
+        expect((messages[0]! as Map)['content'], 'System contract');
         expect((messages[1]! as Map)['role'], 'user');
         expect((messages[1]! as Map)['content'], 'USER_JSON');
 
@@ -137,6 +138,27 @@ void main() {
           profile: AiCapabilityProfile.defaults,
         );
         expect(nullSchema.containsKey('response_format'), isFalse);
+
+        final profileStreamOff = OpenAiWireCodec.buildChatBody(
+          model: 'm',
+          systemPrompt: 's',
+          userContent: const AiTextContent('u'),
+          maxOutputTokens: 512,
+          profile: const AiCapabilityProfile(streamOk: false),
+        );
+        expect(profileStreamOff['stream'], isFalse);
+        expect(profileStreamOff.containsKey('stream_options'), isFalse);
+
+        final forcedStreamOn = OpenAiWireCodec.buildChatBody(
+          model: 'm',
+          systemPrompt: 's',
+          userContent: const AiTextContent('u'),
+          maxOutputTokens: 512,
+          profile: const AiCapabilityProfile(streamOk: false),
+          streamOverride: true,
+        );
+        expect(forcedStreamOn['stream'], isTrue);
+        expect(forcedStreamOn['stream_options'], const {'include_usage': true});
       },
     );
 
@@ -263,6 +285,23 @@ void main() {
       );
     });
 
+    test('ignores non-numeric optional usage telemetry in SSE', () async {
+      final emitted = await OpenAiWireCodec.parseSseStream(
+        _sseChunks([
+          'data: {"choices":[{"delta":{"content":"ok"},"finish_reason":"stop"}],"usage":{"prompt_tokens":"10","completion_tokens":4,"completion_tokens_details":{"reasoning_tokens":"bad"},"cost":"0.001"}}\n\n',
+          'data: [DONE]\n\n',
+        ]),
+      ).toList();
+      expect(
+        emitted.last,
+        const AnalysisCompleted(
+          text: 'ok',
+          finishReason: 'stop',
+          usage: AiTokenUsage(completionTokens: 4),
+        ),
+      );
+    });
+
     test('maps mid-stream top-level errors under HTTP 200 and scrubs key', () async {
       const secret = 'sk-stream-999';
       await expectLater(
@@ -299,16 +338,25 @@ void main() {
       await expectLater(
         OpenAiWireCodec.parseSseStream(
           _sseChunks([
-            'data: {"choices":[{"delta":{},"finish_reason":"error"}],"error":"failed $secret"}\n\n',
+            'data: {"choices":[{"delta":{},"finish_reason":"error","error":{"message":"boom $secret"}}]}\n\n',
           ]),
           apiKey: secret,
         ).toList(),
         throwsA(
           const AnalysisFailure(
             kind: AnalysisFailureKind.serverError,
-            detail: 'failed [redacted]',
+            detail: 'boom [redacted]',
           ),
         ),
+      );
+
+      await expectLater(
+        OpenAiWireCodec.parseSseStream(
+          _sseChunks([
+            'data: {"choices":[{"delta":{},"finish_reason":"error"}]}\n\n',
+          ]),
+        ).toList(),
+        throwsA(const AnalysisFailure(kind: AnalysisFailureKind.serverError)),
       );
     });
 
@@ -386,8 +434,8 @@ void main() {
       await expectLater(
         OpenAiWireCodec.parseSseStream(
           _sseChunks([
-            'data: {"choices":[{"delta":{"content":"too big"}}]}\n\n',
-          ]),
+            'data: {"choices":[{"delta":{"content":"too big across chunks"}}]}\n\n',
+          ], chunkSize: 8),
           maxBytes: 16,
         ).toList(),
         throwsA(const AnalysisFailure(kind: AnalysisFailureKind.unreadable)),
@@ -430,11 +478,18 @@ void main() {
           ),
         );
 
-        // Unexpected field types (bool/int instead of String) do not throw TypeError.
+        // Unexpected field types (including stringified usage) do not throw TypeError.
         final weird = OpenAiWireCodec.parseJsonResponse(
-          '{"choices":[{"finish_reason":42,"message":{"content":false,"refusal":9}}]}',
+          '{"choices":[{"finish_reason":42,"message":{"content":false,"refusal":9}}],"usage":{"prompt_tokens":10,"cost":"0.001","completion_tokens_details":{"reasoning_tokens":"x"}}}',
         );
-        expect(weird, const AnalysisCompleted(text: '', finishReason: ''));
+        expect(
+          weird,
+          const AnalysisCompleted(
+            text: '',
+            finishReason: '',
+            usage: AiTokenUsage(promptTokens: 10),
+          ),
+        );
       },
     );
 
@@ -598,6 +653,35 @@ void main() {
       expect(
         OpenAiWireCodec.classifyHttpError(statusCode: 503, body: 'down').kind,
         AnalysisFailureKind.serverError,
+      );
+      expect(
+        OpenAiWireCodec.classifyHttpError(
+          statusCode: 400,
+          body: '{"object":"error","message":"Unknown field: max_completion_tokens"}',
+        ),
+        const AnalysisFailure(
+          kind: AnalysisFailureKind.badRequest,
+          detail: 'Unknown field: max_completion_tokens',
+          statusCode: 400,
+        ),
+      );
+      expect(
+        OpenAiWireCodec.classifyHttpError(
+          statusCode: 400,
+          body: '{"detail":"Unknown field: stream_options"}',
+        ),
+        const AnalysisFailure(
+          kind: AnalysisFailureKind.badRequest,
+          detail: 'Unknown field: stream_options',
+          statusCode: 400,
+        ),
+      );
+      expect(
+        OpenAiWireCodec.classifyHttpError(
+          statusCode: 400,
+          body: '{"detail":[{"msg":"stream_options unsupported"}]}',
+        ).detail,
+        contains('stream_options unsupported'),
       );
       expect(
         OpenAiWireCodec.classifyHttpError(statusCode: 418, body: 'teapot').kind,

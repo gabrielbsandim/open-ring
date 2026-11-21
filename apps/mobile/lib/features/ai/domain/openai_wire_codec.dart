@@ -315,34 +315,44 @@ abstract final class OpenAiWireCodec {
 
   static String _extractErrorDetailFromBody(String body) {
     final map = _decodeJsonMap(body);
-    if (map != null) return _extractErrorDetail(map);
+    if (map == null) return body;
+    final extracted = _extractErrorDetail(map);
+    if (extracted.isNotEmpty) return extracted;
     return body;
   }
 
   static String _extractErrorDetail(Map<String, Object?> map) {
     final error = map['error'];
     if (error is String) return error;
-    if (error is! Map<String, Object?>) return '';
-    final message = error['message'];
-    if (message is String && message.isNotEmpty) return message;
-    final type = error['type'];
-    return type is String ? type : '';
+    if (error is Map<String, Object?>) return _readMessageOrType(error);
+    return _readString(map['message']) ?? _readString(map['detail']) ?? '';
   }
+
+  static String _readMessageOrType(Map<String, Object?> error) =>
+      _readString(error['message']) ?? _readString(error['type']) ?? '';
+
+  static String? _readString(Object? value) =>
+      value is String && value.isNotEmpty ? value : null;
 
   static AiTokenUsage? _extractUsage(Object? raw) {
     if (raw is! Map<String, Object?>) return null;
     final details = raw['completion_tokens_details'];
     final reasoning = details is Map<String, Object?>
-        ? (details['reasoning_tokens'] as num?)?.toInt()
+        ? _asInt(details['reasoning_tokens'])
         : null;
     return AiTokenUsage(
-      promptTokens: (raw['prompt_tokens'] as num?)?.toInt(),
-      completionTokens: (raw['completion_tokens'] as num?)?.toInt(),
-      totalTokens: (raw['total_tokens'] as num?)?.toInt(),
+      promptTokens: _asInt(raw['prompt_tokens']),
+      completionTokens: _asInt(raw['completion_tokens']),
+      totalTokens: _asInt(raw['total_tokens']),
       reasoningTokens: reasoning,
-      providerCost: (raw['cost'] as num?)?.toDouble(),
+      providerCost: _asDouble(raw['cost']),
     );
   }
+
+  static int? _asInt(Object? value) => value is num ? value.toInt() : null;
+
+  static double? _asDouble(Object? value) =>
+      value is num ? value.toDouble() : null;
 
   static int? _parseRetryAfter(Map<String, String> headers) {
     for (final entry in headers.entries) {

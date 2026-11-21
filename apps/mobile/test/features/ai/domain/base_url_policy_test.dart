@@ -114,6 +114,22 @@ void main() {
         'https://api.openai.com/v1#',
         BaseUrlRejection.hasQueryOrFragment,
       );
+      _expectRejected('http://.local', BaseUrlRejection.invalidSyntax);
+      _expectRejected('https://..', BaseUrlRejection.invalidSyntax);
+      _expectRejected('http://!', BaseUrlRejection.invalidSyntax);
+      _expectRejected(
+        'https://-bad.example/v1',
+        BaseUrlRejection.invalidSyntax,
+      );
+      _expectRejected(
+        'https://bad-.example/v1',
+        BaseUrlRejection.invalidSyntax,
+      );
+      _expectRejected('http://[not-ip]/v1', BaseUrlRejection.invalidSyntax);
+      _expectRejected(
+        'http://[fe80::1%25eth0]/v1',
+        BaseUrlRejection.invalidSyntax,
+      );
     });
 
     test('allows private cleartext http and rejects public cleartext http', () {
@@ -147,7 +163,6 @@ void main() {
         'http://0x7f000001/v1',
         'http://[::]/v1',
         'http://[::ffff:8.8.8.8]/v1',
-        'http://[fe80::1%25eth0]/v1',
       ]) {
         _expectRejected(blocked, BaseUrlRejection.publicCleartext);
       }

@@ -68,6 +68,10 @@ final class BaseUrlRejected extends BaseUrlResult {
 
 abstract final class BaseUrlPolicy {
   static final _whitespace = RegExp(r'\s');
+  static final _hostLabel = RegExp(
+    r'^[a-z0-9\u0080-\uffff](?:[a-z0-9\u0080-\uffff-]{0,61}[a-z0-9\u0080-\uffff])?$',
+    caseSensitive: false,
+  );
   static final _numericOrHexHost = RegExp(
     r'^(?:\d+|0x[0-9a-f]+)$',
     caseSensitive: false,
@@ -110,8 +114,11 @@ abstract final class BaseUrlPolicy {
       return const BaseUrlRejected(BaseUrlRejection.invalidSyntax);
     }
     final rawHost = _stripPort(authority);
-    final hasNonAscii = _detectNonAsciiOrPunycode(rawHost, uri.host);
     final asciiHost = uri.host.toLowerCase();
+    if (!_validHost(rawHost, asciiHost, bracketed: authority.startsWith('['))) {
+      return const BaseUrlRejected(BaseUrlRejection.invalidSyntax);
+    }
+    final hasNonAscii = _detectNonAsciiOrPunycode(rawHost, uri.host);
     final port = uri.port;
     final defaultPort = rawScheme == 'https' ? 443 : 80;
     final cleanPath = _normalizePath(uri.path);
@@ -155,14 +162,23 @@ abstract final class BaseUrlPolicy {
     return null;
   }
 
-  static String _sliceAuthority(String afterScheme) {
-    for (var i = 0; i < afterScheme.length; i++) {
-      final ch = afterScheme[i];
-      if (ch == '/' || ch == '?' || ch == '#') {
-        return afterScheme.substring(0, i);
-      }
-    }
-    return afterScheme;
+  static String _sliceAuthority(String after) {
+    final end = after.indexOf(RegExp('[/?#]'));
+    return end < 0 ? after : after.substring(0, end);
+  }
+
+  static bool _validHost(
+    String rawHost,
+    String asciiHost, {
+    required bool bracketed,
+  }) {
+    if (bracketed) return _tryParseIpv6(asciiHost) != null;
+    if (_tryParseIpv4(asciiHost) != null) return true;
+    final clean = rawHost.endsWith('.')
+        ? rawHost.substring(0, rawHost.length - 1)
+        : rawHost;
+    if (clean.isEmpty || clean.contains(':')) return false;
+    return clean.split('.').every(_hostLabel.hasMatch);
   }
 
   static bool _validPort(Uri uri) =>
@@ -267,17 +283,9 @@ abstract final class BaseUrlPolicy {
     return false;
   }
 
-  static bool _isLoopbackV6(List<int> b) {
-    for (var i = 0; i < 15; i++) {
-      if (b[i] != 0) return false;
-    }
-    return b[15] == 1;
-  }
+  static bool _isLoopbackV6(List<int> b) =>
+      b.sublist(0, 15).every((v) => v == 0) && b[15] == 1;
 
-  static bool _isV4Mapped(List<int> b) {
-    for (var i = 0; i < 10; i++) {
-      if (b[i] != 0) return false;
-    }
-    return b[10] == 0xFF && b[11] == 0xFF;
-  }
+  static bool _isV4Mapped(List<int> b) =>
+      b.sublist(0, 10).every((v) => v == 0) && b[10] == 0xFF && b[11] == 0xFF;
 }

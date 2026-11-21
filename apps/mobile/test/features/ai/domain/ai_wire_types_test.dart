@@ -67,10 +67,20 @@ void main() {
 
       expect(step4.nextOnBadRequest('bad request'), isNull);
     });
+    test('preserves streamOk: false when stepping jsonObject to none', () {
+      const nonStreamingObj = AiCapabilityProfile(
+        jsonMode: AiJsonMode.jsonObject,
+        streamOk: false,
+      );
+      final keptOff = nonStreamingObj.nextOnBadRequest('bad request')!;
+      expect(keptOff.jsonMode, AiJsonMode.none);
+      expect(keptOff.streamOk, isFalse);
+      expect(keptOff.nextOnBadRequest('bad request'), isNull);
+    });
   });
 
   group('scrubApiKey', () {
-    test('redacts exact and trimmed key and caps at aiMaxErrorDetailChars', () {
+    test('redacts exact and trimmed key before capping at 300 chars', () {
       const secret = 'sk-secret-value-1234';
       final scrubbed = scrubApiKey(
         'Auth failed for Bearer $secret and again $secret',
@@ -82,10 +92,16 @@ void main() {
         'Auth failed for Bearer [redacted] and again [redacted]',
       );
 
-      final longMsg = '${'a' * 350}$secret';
-      final capped = scrubApiKey(longMsg, secret);
-      expect(capped.length, aiMaxErrorDetailChars);
-      expect(capped, isNot(contains(secret)));
+      final crossBoundary = '${'a' * 292}$secret';
+      final paddedLeft = '$secret ${'b' * 295}';
+      final cappedCross = scrubApiKey(crossBoundary, secret);
+      final cappedLeft = scrubApiKey(paddedLeft, secret);
+      expect(cappedCross.length, aiMaxErrorDetailChars);
+      expect(cappedCross, isNot(contains('sk-secret')));
+      expect(cappedCross, endsWith('[redacte'));
+      expect(cappedLeft.length, aiMaxErrorDetailChars);
+      expect(cappedLeft, startsWith('[redacted] '));
+      expect(cappedLeft, isNot(contains('sk-secret')));
 
       expect(scrubApiKey('  plain error  ', null), 'plain error');
       expect(scrubApiKey('plain error', ''), 'plain error');
@@ -93,41 +109,96 @@ void main() {
   });
 
   group('value equality', () {
-    test('covers AiTokenUsage, AnalysisEvent, and AnalysisFailure', () {
-      const u1 = AiTokenUsage(
-        promptTokens: 100,
+    test('covers non-identical instances and differing fields', () {
+      final promptA = int.parse('100');
+      final promptB = int.parse('100');
+      final u1 = AiTokenUsage(
+        promptTokens: promptA,
         completionTokens: 20,
         totalTokens: 120,
         reasoningTokens: 5,
         providerCost: 0.001,
       );
-      const u2 = AiTokenUsage(
-        promptTokens: 100,
+      final u2 = AiTokenUsage(
+        promptTokens: promptB,
         completionTokens: 20,
         totalTokens: 120,
         reasoningTokens: 5,
         providerCost: 0.001,
       );
+      expect(identical(u1, u2), isFalse);
       expect(u1, u2);
       expect(u1.hashCode, u2.hashCode);
-
-      expect(const AnalysisProgress(42), const AnalysisProgress(42));
       expect(
-        const AnalysisCompleted(text: '{}', finishReason: 'stop', usage: u1),
-        const AnalysisCompleted(text: '{}', finishReason: 'stop', usage: u2),
-      );
-      expect(
-        const AnalysisFailure(
-          kind: AnalysisFailureKind.rateLimited,
-          detail: 'slow',
-          statusCode: 429,
-          retryAfterSeconds: 10,
+        u1,
+        isNot(
+          AiTokenUsage(
+            promptTokens: promptA,
+            completionTokens: 21,
+            totalTokens: 120,
+            reasoningTokens: 5,
+            providerCost: 0.001,
+          ),
         ),
-        const AnalysisFailure(
-          kind: AnalysisFailureKind.rateLimited,
-          detail: 'slow',
-          statusCode: 429,
-          retryAfterSeconds: 10,
+      );
+
+      final charsA = int.parse('42');
+      final charsB = int.parse('42');
+      final p1 = AnalysisProgress(charsA);
+      final p2 = AnalysisProgress(charsB);
+      expect(identical(p1, p2), isFalse);
+      expect(p1, p2);
+      expect(p1.hashCode, p2.hashCode);
+      expect(p1, isNot(AnalysisProgress(charsA + 1)));
+
+      final textA = String.fromCharCodes('{}'.codeUnits);
+      final textB = String.fromCharCodes('{}'.codeUnits);
+      final c1 = AnalysisCompleted(
+        text: textA,
+        finishReason: 'stop',
+        usage: u1,
+      );
+      final c2 = AnalysisCompleted(
+        text: textB,
+        finishReason: 'stop',
+        usage: u2,
+      );
+      expect(identical(c1, c2), isFalse);
+      expect(c1, c2);
+      expect(c1.hashCode, c2.hashCode);
+      expect(
+        c1,
+        isNot(
+          AnalysisCompleted(text: textA, finishReason: 'length', usage: u1),
+        ),
+      );
+
+      final statusA = int.parse('429');
+      final statusB = int.parse('429');
+      final f1 = AnalysisFailure(
+        kind: AnalysisFailureKind.rateLimited,
+        detail: 'slow',
+        statusCode: statusA,
+        retryAfterSeconds: 10,
+      );
+      final f2 = AnalysisFailure(
+        kind: AnalysisFailureKind.rateLimited,
+        detail: 'slow',
+        statusCode: statusB,
+        retryAfterSeconds: 10,
+      );
+      expect(identical(f1, f2), isFalse);
+      expect(f1, f2);
+      expect(f1.hashCode, f2.hashCode);
+      expect(
+        f1,
+        isNot(
+          AnalysisFailure(
+            kind: AnalysisFailureKind.rateLimited,
+            detail: 'slow',
+            statusCode: statusA,
+            retryAfterSeconds: 20,
+          ),
         ),
       );
     });

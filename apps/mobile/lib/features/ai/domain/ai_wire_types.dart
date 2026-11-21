@@ -65,7 +65,7 @@ final class AiCapabilityProfile {
   );
 
   /// Steps down one wire capability on an HTTP 400 before billing occurs,
-  /// returning null once every structured-output step has been exhausted.
+  /// returning null once every applicable step is exhausted or unmatched.
   AiCapabilityProfile? nextOnBadRequest(String errorMessage) {
     final lower = errorMessage.toLowerCase();
     if (streamOk && streamUsageOk && lower.contains('stream_options')) {
@@ -82,7 +82,7 @@ final class AiCapabilityProfile {
       return copyWith(jsonMode: AiJsonMode.jsonObject, streamOk: true);
     }
     if (jsonMode == AiJsonMode.jsonObject) {
-      return copyWith(jsonMode: AiJsonMode.none, streamOk: true);
+      return copyWith(jsonMode: AiJsonMode.none);
     }
     if (streamOk && lower.contains('stream')) {
       return copyWith(streamOk: false);

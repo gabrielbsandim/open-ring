@@ -100,16 +100,17 @@ FoodPhotoStorageView buildFoodPhotoStorageView({
   final ordered = [...refs]..sort((a, b) => a.at.compareTo(b.at));
   var referencedBytes = 0;
   var present = 0;
+  MealPhotoRef? firstPresent;
   for (final ref in ordered) {
     final size = fileSizes[ref.photo];
     if (size == null) continue;
+    firstPresent ??= ref;
     referencedBytes += size;
     present++;
   }
-  final first = ordered.firstOrNull;
-  final spanDays = first == null
+  final spanDays = firstPresent == null
       ? 0
-      : max(0, nowUtc.difference(first.at).inDays);
+      : max(0, nowUtc.difference(firstPresent.at).inDays);
 
   PhotoPurgePreview before(PhotoPurgeRange range) {
     final limit = range.cutoff(nowUtc);
@@ -128,7 +129,7 @@ FoodPhotoStorageView buildFoodPhotoStorageView({
     photoCount: ordered.length,
     totalBytes: totalBytes,
     averageBytes: present == 0 ? null : (referencedBytes / present).round(),
-    earliestDay: first == null ? null : foodDay(first.wallClock),
+    earliestDay: firstPresent == null ? null : foodDay(firstPresent.wallClock),
     projectedBytesPerYear: present >= 2 && spanDays >= photoPaceMinDays
         ? (referencedBytes * 365 / spanDays).round()
         : null,

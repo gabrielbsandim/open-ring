@@ -9,6 +9,7 @@ import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/food/application/food_photo_storage.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
+import 'package:open_ring/features/food/domain/meal_store.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
@@ -339,6 +340,25 @@ void main() {
           .purge(PhotoPurgeRange.all);
       expect(result?.removedPhotos, 3);
       expect(result?.freedBytes, 0);
+    });
+
+    test('oldest ref missing on disk does not leak 365-day span into pace for recent files', () {
+      final oldMissing = _now.subtract(const Duration(days: 365));
+      final refs = [
+        MealPhotoRef(at: oldMissing, offsetMinutes: 0, photo: 'missing.jpg'),
+        MealPhotoRef(at: _now, offsetMinutes: 0, photo: 'a.jpg'),
+        MealPhotoRef(at: _now, offsetMinutes: 0, photo: 'b.jpg'),
+      ];
+      final view = buildFoodPhotoStorageView(
+        now: _now,
+        refs: refs,
+        fileSizes: const {'a.jpg': 200000, 'b.jpg': 200000},
+        totalBytes: 400000,
+      );
+      expect(view.photoCount, 3);
+      expect(view.averageBytes, 200000);
+      expect(view.earliestDay, foodDay(_now));
+      expect(view.projectedBytesPerYear, isNull);
     });
   });
 }

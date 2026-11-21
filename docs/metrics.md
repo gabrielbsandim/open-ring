@@ -1918,8 +1918,8 @@ answer is a yes, so the way back is to choose Lose fat again and answer no.
 After a no, or when the question is not asked, the setup shows the pace
 (steady, the default, or gentle) with its share of the weight a week, the
 optional reference weight, the block in weeks with no dates, and one sentence
-on what the plan cannot see: the app does not see food. The reference weight
-starts off; Add puts it at the top of `referenceBounds` and a stepper moves
+on what the plan does not read: the plan does not read meals. The reference
+weight starts off; Add puts it at the top of `referenceBounds` and a stepper moves
 it by 0.5 kg or by 1 lb. Pounds are rounded inward, and `referenceKgFor`
 clamps the kilograms back into the bounds, so a value chosen in pounds never
 lands outside them. The choice is kept in kilograms, so a unit or trend

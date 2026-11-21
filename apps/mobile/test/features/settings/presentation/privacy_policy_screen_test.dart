@@ -390,6 +390,7 @@ void main() {
     }
     expect(policy, contains('- ${l.privacyDeleteFood}'));
     expect(policy, contains('No camera or photo library permission is asked'));
+    expect(policy, contains('up to 20 at once'));
     final manifest = File(_manifest).readAsStringSync();
     expect(manifest, isNot(contains('android.permission.CAMERA')));
     expect(manifest, isNot(contains('android.permission.READ_MEDIA_IMAGES')));

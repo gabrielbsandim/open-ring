@@ -40,6 +40,7 @@ class FoodModuleScreen extends ConsumerStatefulWidget {
 
 class _FoodModuleScreenState extends ConsumerState<FoodModuleScreen> {
   var _deleting = false;
+  var _toggling = false;
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +52,7 @@ class _FoodModuleScreenState extends ConsumerState<FoodModuleScreen> {
         false;
     final count = ref.watch(foodDataCountProvider);
     final hasData = count.value?.hasData ?? false;
-    void toggleAction() =>
-        unawaited(setModule(context, ref, OfferedModule.food, on: !on));
+    final toggleAction = _toggling ? null : () => unawaited(_toggle(on: !on));
     return AppPage(
       title: l10n.foodTitle,
       subtitle: l10n.moduleFoodDetail,
@@ -166,6 +166,16 @@ class _FoodModuleScreenState extends ConsumerState<FoodModuleScreen> {
       value.photos,
       formatPhotoBytes(format, value.photoBytes),
     );
+  }
+
+  Future<void> _toggle({required bool on}) async {
+    if (_toggling) return;
+    setState(() => _toggling = true);
+    try {
+      await setModule(context, ref, OfferedModule.food, on: on);
+    } finally {
+      if (mounted) setState(() => _toggling = false);
+    }
   }
 
   // Delete stays disabled until the clear returns so a second tap cannot open

@@ -83,11 +83,16 @@ void main() {
 
         final metricsDoc = File('../../docs/metrics.md').readAsStringSync();
         expect(metricsDoc, isNot(contains('wait for a Food module')));
+        expect(metricsDoc, isNot(contains('does not see food')));
         expect(
           metricsDoc.replaceAll(RegExp(r'\s+'), ' '),
           contains(
             'the plan does not include food levers and only adjusts movement and sleep',
           ),
+        );
+        expect(
+          metricsDoc.replaceAll(RegExp(r'\s+'), ' '),
+          contains('the plan does not read meals'),
         );
       },
     );

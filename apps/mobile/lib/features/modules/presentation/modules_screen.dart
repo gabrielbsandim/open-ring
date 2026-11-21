@@ -34,27 +34,35 @@ Future<void> setModule(
 }) async {
   final l10n = AppLocalizations.of(context);
   final messenger = ScaffoldMessenger.of(context);
-  final router = GoRouter.of(context);
+  final router = GoRouter.maybeOf(context);
   final modules = ref.read(enabledModulesProvider.notifier);
-  if (!on) {
-    await modules.disable(module.id);
-    return;
-  }
   // With numbers hidden Energy shows nothing, so saying where it is would
   // be false.
   final silent =
-      module == OfferedModule.energy && ref.read(profileWeightHiddenProvider);
-  await modules.enable(module.id);
-  if (silent) return;
+      on &&
+      module == OfferedModule.energy &&
+      ref.read(profileWeightHiddenProvider);
+  try {
+    await (on ? modules.enable(module.id) : modules.disable(module.id));
+  } on Object {
+    if (!context.mounted) return;
+    messenger
+      ..clearSnackBars()
+      ..showSnackBar(SnackBar(content: Text(l10n.syncErrorSaving)));
+    return;
+  }
+  if (!on || !context.mounted || silent) return;
   messenger
     ..clearSnackBars()
     ..showSnackBar(
       SnackBar(
         content: Text(module.turnedOn(l10n)),
-        action: SnackBarAction(
-          label: l10n.modulesView,
-          onPressed: () => router.go(module.viewPath),
-        ),
+        action: router == null
+            ? null
+            : SnackBarAction(
+                label: l10n.modulesView,
+                onPressed: () => router.go(module.viewPath),
+              ),
       ),
     );
 }

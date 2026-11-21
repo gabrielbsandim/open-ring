@@ -61,8 +61,9 @@ They are estimates for following trends, not a medical diagnosis.
 | `WAKE_LOCK`, `RECEIVE_BOOT_COMPLETED`, `ACCESS_NETWORK_STATE` | Added by Android's WorkManager library, which runs the periodic background sync and keeps it scheduled after a restart. The sync job has no network condition; it talks to the ring over Bluetooth only. |
 
 No camera or photo library permission is asked: when the Food module is on and
-you attach a photo, Android opens the system camera or photo picker and hands
-back only that single image.
+you attach photos, Android opens the system camera for a single photo or the
+system photo picker (up to 20 at once) and hands back only the images you
+choose.
 
 The only part of the app that opens a network connection is the updater
 described under App updates.

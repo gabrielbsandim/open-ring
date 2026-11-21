@@ -14,6 +14,10 @@ import 'package:open_ring/features/activity/domain/activity_history_reader.dart'
 import 'package:open_ring/features/activity/presentation/activity_screen.dart';
 import 'package:open_ring/features/export/application/export_controller.dart';
 import 'package:open_ring/features/export/presentation/export_screen.dart';
+import 'package:open_ring/features/food/application/meal_store_providers.dart';
+import 'package:open_ring/features/food/domain/photo_store.dart';
+import 'package:open_ring/features/food/presentation/food_module_screen.dart';
+import 'package:open_ring/features/food/presentation/food_storage_screen.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/health_sync/application/health_status_providers.dart';
 import 'package:open_ring/features/health_sync/application/health_sync_controller.dart';
@@ -24,6 +28,8 @@ import 'package:open_ring/features/heart/application/measure_state.dart';
 import 'package:open_ring/features/heart/domain/heart_history_reader.dart';
 import 'package:open_ring/features/heart/presentation/heart_screen.dart';
 import 'package:open_ring/features/heart/presentation/measure_screen.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/modules/presentation/modules_offer_screen.dart';
 import 'package:open_ring/features/onboarding/domain/app_permissions.dart';
 import 'package:open_ring/features/onboarding/presentation/first_sync_screen.dart';
@@ -61,6 +67,7 @@ import 'package:open_ring/features/widgets/presentation/widgets_screen.dart';
 import 'package:open_ring/features/workout/presentation/workout_notification_how_screen.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
+import '../features/food/food_fakes.dart';
 import '../helpers/ble_fakes.dart';
 import '../helpers/fake_health_reader.dart';
 import '../helpers/fake_health_writer.dart';
@@ -207,6 +214,14 @@ List<Override> _sources(MetricsScenario scenario) => [
   healthReaderProvider.overrideWithValue(FakeHealthReader()),
   healthReadStoreProvider.overrideWithValue(InMemoryHealthReadStore()),
   healthSettingsOpenerProvider.overrideWithValue(FakeHealthSettingsOpener()),
+];
+
+List<Override> _foodSettings() => [
+  ..._settings(),
+  moduleStoreProvider.overrideWithValue(InMemoryModuleStore()),
+  mealStoreProvider.overrideWithValue(TestMealStore()),
+  photoStoreProvider.overrideWithValue(InMemoryPhotoStore()),
+  mealCameraProvider.overrideWithValue(GatedMealCamera()),
 ];
 
 List<Override> _widgets({
@@ -451,6 +466,8 @@ final _cases = <String, _Case>{
   ),
   'Export': const _Case(ExportScreen(), _settings),
   'Privacy policy': const _Case(PrivacyPolicyScreen(), _settings),
+  'Food module': const _Case(FoodModuleScreen(), _foodSettings),
+  'Food photos': const _Case(FoodStorageScreen(), _foodSettings),
   'Workout notification': const _Case(
     WorkoutNotificationHowScreen(),
     _settings,

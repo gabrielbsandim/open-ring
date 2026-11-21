@@ -115,6 +115,8 @@ void main() {
       l.privacyStoresDayTagsWhy,
       l.privacyStoresGoals,
       l.privacyStoresGoalsWhy,
+      l.privacyStoresFood,
+      l.privacyStoresFoodWhy,
       l.privacyStoresSettings,
       l.privacyStoresSettingsWhy,
       l.privacyStoresSummary,
@@ -127,6 +129,7 @@ void main() {
       l.privacyDeleteHeading,
       l.privacyDeleteKept,
       l.privacyDeleteWorkout,
+      l.privacyDeleteFood,
       l.privacyDeleteAll,
       l.privacyDeleteHealthConnect,
       l.privacyRevoke,
@@ -343,5 +346,52 @@ void main() {
       File(_manifest).readAsStringSync(),
       contains('androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE'),
     );
+  });
+
+  testWidgets('the privacy screen shows the Meals row and Food delete line', (
+    tester,
+  ) async {
+    await pumpScaled(
+      tester,
+      screenHost(const PrivacyPolicyScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: settingsOverrides(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+
+    await reveal(tester, find.text(l.privacyStoresFood));
+    expect(find.text(l.privacyStoresFood), findsOneWidget);
+    expect(find.text(l.privacyStoresFoodWhy), findsOneWidget);
+
+    await reveal(tester, find.text(l.privacyDeleteFood));
+    expect(find.text(l.privacyDeleteFood), findsOneWidget);
+  });
+
+  test('the policy document describes Food storage, deletions, and no camera '
+      'permission', () {
+    final policy = _normalized(
+      File('../../docs/privacy-policy.md').readAsStringSync(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+    final row = '| ${l.privacyStoresFood} |';
+
+    expect(policy, contains(row));
+    expect(policy.indexOf(row), lessThan(policy.indexOf('## Permissions')));
+    expect(policy, contains('${l.privacyStoresFoodWhy} |'));
+    for (final why in [
+      l.privacyStoresRingDataWhy,
+      l.privacyStoresOtherAppsWhy,
+    ]) {
+      expect(why, contains('Food'));
+      expect(why, contains('meal comparisons'));
+      expect(policy, contains(why));
+    }
+    expect(policy, contains('- ${l.privacyDeleteFood}'));
+    expect(policy, contains('No camera or photo library permission is asked'));
+    final manifest = File(_manifest).readAsStringSync();
+    expect(manifest, isNot(contains('android.permission.CAMERA')));
+    expect(manifest, isNot(contains('android.permission.READ_MEDIA_IMAGES')));
   });
 }

@@ -2040,7 +2040,8 @@ the eleven rules in the order of `ReviewRule` with the answer and the goals
 each applies to, the arrival, the protections, and what is sourced, our
 choice, not yet checked and what the module cannot say. The rule of the
 newest stored week is marked while Goals is on. Food levers are one sentence:
-they wait for a Food module.
+the plan does not include food levers and only adjusts movement and sleep;
+Food is tracked separately.
 
 ### Lever and rule sheets
 

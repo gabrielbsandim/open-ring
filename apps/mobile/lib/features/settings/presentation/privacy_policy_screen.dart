@@ -66,6 +66,7 @@ class PrivacyPolicyScreen extends ConsumerWidget {
               (l10n.privacyStoresWeighIns, l10n.privacyStoresWeighInsWhy),
               (l10n.privacyStoresDayTags, l10n.privacyStoresDayTagsWhy),
               (l10n.privacyStoresGoals, l10n.privacyStoresGoalsWhy),
+              (l10n.privacyStoresFood, l10n.privacyStoresFoodWhy),
               (l10n.privacyStoresSettings, l10n.privacyStoresSettingsWhy),
               (l10n.privacyStoresSummary, l10n.privacyStoresSummaryWhy),
             ])
@@ -91,6 +92,7 @@ class PrivacyPolicyScreen extends ConsumerWidget {
         for (final line in [
           l10n.privacyDeleteKept,
           l10n.privacyDeleteWorkout,
+          l10n.privacyDeleteFood,
           l10n.privacyDeleteAll,
           l10n.privacyDeleteHealthConnect,
           l10n.privacyRevoke,

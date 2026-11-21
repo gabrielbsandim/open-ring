@@ -494,9 +494,21 @@ void main() {
     );
 
     test('handles size limit, malformed shapes, errors, refusal, and emptyAfterLimit', () {
+      const utf8BoundaryJson =
+          '{"choices":[{"finish_reason":"stop","message":{"content":"ção"}}]}';
       expect(
-        () => OpenAiWireCodec.parseJsonResponse('{"a":"ção"}', maxBytes: 5),
+        () => OpenAiWireCodec.parseJsonResponse(
+          utf8BoundaryJson,
+          maxBytes: utf8BoundaryJson.length + 1,
+        ),
         throwsA(const AnalysisFailure(kind: AnalysisFailureKind.unreadable)),
+      );
+      expect(
+        OpenAiWireCodec.parseJsonResponse(
+          utf8BoundaryJson,
+          maxBytes: utf8.encode(utf8BoundaryJson).length,
+        ),
+        const AnalysisCompleted(text: 'ção', finishReason: 'stop'),
       );
       for (final bad in [
         'not-json',
@@ -694,7 +706,8 @@ void main() {
         apiKey: secret,
       ).detail;
       expect(longDetail.length, aiMaxErrorDetailChars);
-      expect(longDetail, isNot(contains(secret)));
+      expect(longDetail, '${'x' * 290}[redacted]');
+      expect(longDetail, isNot(contains('sk-')));
     });
   });
 }

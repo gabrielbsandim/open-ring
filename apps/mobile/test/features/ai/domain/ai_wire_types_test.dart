@@ -429,6 +429,7 @@ void main() {
             'ai_provider_preset.dart',
             'ai_wire_types.dart',
             'base_url_policy.dart',
+            'openai_wire_codec.dart',
           ]),
         );
         final dashes = RegExp(r'[\u2013\u2014]');

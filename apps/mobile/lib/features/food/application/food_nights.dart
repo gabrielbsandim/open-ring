@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/food/application/food_day.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/heart/application/heart_providers.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
@@ -72,7 +73,7 @@ Map<LocalDate, DateTime> sleepOnsetsOf(Iterable<FoodNight> nights) => {
 final foodNightsProvider = FutureProvider<List<FoodNight>>((ref) async {
   if (!ref.watch(foodEnabledProvider)) return const [];
   ref.watch(dataRevisionProvider);
-  final today = ref.watch(currentDateProvider);
+  final today = ref.watch(currentFoodDayProvider);
   final now = ref.watch(clockProvider)();
   final openScoreOn = ref.watch(
     enabledModulesProvider.select(

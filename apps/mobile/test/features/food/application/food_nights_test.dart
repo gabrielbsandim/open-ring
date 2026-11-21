@@ -678,9 +678,23 @@ void main() {
         comparison,
         isA<LinkPattern>()
             .having((r) => r.pairs, 'pairs', foodMinPairs)
-            .having((r) => r.mean, 'mean', closeTo(6.0, 1e-9))
+            .having((r) => r.mean, 'mean', closeTo(6, 1e-9))
             .having((r) => r.low, 'low', greaterThan(0)),
       );
+    });
+
+    test('between 00:00 and 04:59 on Monday, keeps the oldest 7 nights of the '
+        '05:00 food-day 90-night window', () async {
+      final monday1Am = DateTime(2026, 6, 15, 1);
+      final keptOldest = _nightOn(const LocalDate(2026, 3, 10));
+      final tooOld = _nightOn(const LocalDate(2026, 3, 9));
+      final container = await _container(
+        now: monday1Am,
+        sleep: _MutableSleepReader([...tooOld.spans, ...keptOldest.spans]),
+      );
+
+      final nights = await container.read(foodNightsProvider.future);
+      expect([for (final n in nights) n.day], const [LocalDate(2026, 3, 10)]);
     });
   });
 }

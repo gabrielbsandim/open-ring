@@ -10,6 +10,7 @@ import 'package:open_ring/features/effort/presentation/effort_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_formula_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_screen.dart';
 import 'package:open_ring/features/food/presentation/food_day_screen.dart';
+import 'package:open_ring/features/food/presentation/food_formula_screen.dart';
 import 'package:open_ring/features/food/presentation/food_gallery_screen.dart';
 import 'package:open_ring/features/food/presentation/food_meal_screen.dart';
 import 'package:open_ring/features/food/presentation/food_plate_screen.dart';
@@ -159,6 +160,10 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
         routes: [
           GoRoute(path: 'week', builder: (_, _) => const FoodWeekScreen()),
           GoRoute(path: 'plate', builder: (_, _) => const FoodPlateScreen()),
+          GoRoute(
+            path: 'formula',
+            builder: (_, _) => const FoodFormulaScreen(),
+          ),
           GoRoute(
             path: 'gallery',
             builder: (_, state) => FoodGalleryScreen(

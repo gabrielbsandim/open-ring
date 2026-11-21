@@ -7,6 +7,7 @@ import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/application/food_plate.dart';
+import 'package:open_ring/features/food/presentation/food_formula_screen.dart';
 import 'package:open_ring/features/modules/presentation/module_widgets.dart';
 
 abstract final class FoodPlateKeys {
@@ -18,6 +19,7 @@ abstract final class FoodPlateKeys {
   static const ruleCard = Key('food_plate_rule_card');
   static const ruleExpression = Key('food_plate_rule_expression');
   static const oursCard = Key('food_plate_ours_card');
+  static const formulaLink = Key('food_plate_formula_link');
 
   static Key component(int index) => Key('food_plate_component_$index');
   static Key weekRow(LocalDate monday) => Key('food_plate_week_${monday.iso}');
@@ -170,6 +172,8 @@ class FoodPlateScreen extends ConsumerWidget {
         icon: Icons.edit_outlined,
         facts: [l.foodPlateOurs1, l.foodPlateOurs2],
       ),
+      const SizedBox(height: cardGap),
+      const FoodFormulaLink(buttonKey: FoodPlateKeys.formulaLink),
     ];
   }
 }

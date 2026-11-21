@@ -24,6 +24,7 @@ abstract final class AppPaths {
   static const food = '/today/food';
   static const foodWeek = '/today/food/week';
   static const foodPlate = '/today/food/plate';
+  static const foodFormula = '/today/food/formula';
   static const foodGallery = '/today/food/gallery';
   static const foodMeal = '/today/food/meal';
 

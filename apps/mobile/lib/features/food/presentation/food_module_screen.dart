@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
@@ -14,6 +13,8 @@ import 'package:open_ring/features/food/application/food_photo_storage.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/presentation/module_widgets.dart';
+import 'package:open_ring/features/modules/presentation/modules_screen.dart';
+import 'package:open_ring/features/modules/presentation/offered_module.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_receipt_screen.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -170,33 +171,8 @@ class _FoodModuleScreenState extends ConsumerState<FoodModuleScreen> {
   Future<void> _toggle({required bool on}) async {
     if (_toggling) return;
     setState(() => _toggling = true);
-    final l10n = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    final router = GoRouter.maybeOf(context);
-    final modules = ref.read(enabledModulesProvider.notifier);
     try {
-      await (on
-          ? modules.enable(ModuleId.food)
-          : modules.disable(ModuleId.food));
-      if (!mounted || !on) return;
-      messenger
-        ..clearSnackBars()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(l10n.moduleFoodTurnedOn(l10n.tabToday)),
-            action: router == null
-                ? null
-                : SnackBarAction(
-                    label: l10n.modulesView,
-                    onPressed: () => router.go(AppTab.today.path),
-                  ),
-          ),
-        );
-    } on Object {
-      if (!mounted) return;
-      messenger
-        ..clearSnackBars()
-        ..showSnackBar(SnackBar(content: Text(l10n.syncErrorSaving)));
+      await setModule(context, ref, OfferedModule.food, on: on);
     } finally {
       if (mounted) setState(() => _toggling = false);
     }

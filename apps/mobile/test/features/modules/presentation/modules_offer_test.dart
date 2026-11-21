@@ -15,11 +15,13 @@ import 'package:open_ring/features/modules/presentation/modules_shortcut.dart';
 import 'package:open_ring/features/modules/presentation/offered_module.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
+import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/onboarding_app.dart';
 import '../../../helpers/onboarding_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
+import '../../food/food_fakes.dart';
 
 final DateTime _now = DateTime.utc(2026, 11, 10, 12);
 
@@ -56,6 +58,11 @@ Future<InMemoryModuleStore> _pump(
       ...bleOverrides(),
       ...ringOverrides(),
       ...onboardingOverrides(profileStore: profile),
+      ...foodStoreOverrides(
+        meals: TestMealStore(),
+        camera: GatedMealCamera(),
+        clock: () => _now,
+      ),
       clockProvider.overrideWithValue(() => _now),
       moduleStoreProvider.overrideWithValue(store),
     ],
@@ -221,7 +228,7 @@ void main() {
       expect(find.text('Energy'), findsOneWidget);
     });
 
-    testWidgets('criterion 2: does not offer Goals, four modules in all', (
+    testWidgets('criterion 2: does not offer Goals, five modules in all', (
       tester,
     ) async {
       await _pump(
@@ -234,7 +241,7 @@ void main() {
         find.byKey(ModulesOfferKeys.module(OfferedModule.goals)),
         findsNothing,
       );
-      expect(find.byType(SwitchListTile), findsNWidgets(4));
+      expect(find.byType(SwitchListTile), findsNWidgets(5));
       expect(find.text('Goals'), findsNothing);
     });
 
@@ -251,6 +258,7 @@ void main() {
         ModulesOfferKeys.openScore,
         ModulesOfferKeys.energy,
         ModulesOfferKeys.module(OfferedModule.effort),
+        ModulesOfferKeys.module(OfferedModule.food),
       ]) {
         await tapAndSettle(tester, find.byKey(key));
       }
@@ -261,6 +269,7 @@ void main() {
         ModuleId.openScore,
         ModuleId.energy,
         ModuleId.effort,
+        ModuleId.food,
       });
       expect(await store.read(), isNot(contains(ModuleId.goals)));
     });
@@ -325,7 +334,7 @@ void main() {
       expect(find.text('Effort'), findsOneWidget);
     });
 
-    testWidgets('criterion 2: offers Effort to an adult, four in all', (
+    testWidgets('criterion 2: offers Effort to an adult, five in all', (
       tester,
     ) async {
       await _pump(
@@ -338,7 +347,7 @@ void main() {
         find.byKey(ModulesOfferKeys.module(OfferedModule.effort)),
         findsOneWidget,
       );
-      expect(find.byType(SwitchListTile), findsNWidgets(4));
+      expect(find.byType(SwitchListTile), findsNWidgets(5));
     });
 
     testWidgets('criterion 2: offers Effort at 17, with Energy left out', (
@@ -355,7 +364,34 @@ void main() {
         findsOneWidget,
       );
       expect(find.byKey(ModulesOfferKeys.energy), findsNothing);
-      expect(find.byType(SwitchListTile), findsNWidgets(3));
+      expect(find.byType(SwitchListTile), findsNWidgets(4));
+    });
+
+    testWidgets('offers Food at 17 with Energy left out', (tester) async {
+      await _pump(
+        tester,
+        at: AppPaths.onboardingModules,
+        profile: InMemoryUserProfileStore(_aged(17)),
+      );
+      expect(
+        find.byKey(ModulesOfferKeys.module(OfferedModule.food)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('picking Food turns Food on and opens Today', (tester) async {
+      final store = await _pump(tester, at: AppPaths.onboardingModules);
+      await tapAndSettle(
+        tester,
+        find.byKey(ModulesOfferKeys.module(OfferedModule.food)),
+      );
+      expect(find.text('Continue with 1 module'), findsOneWidget);
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.done));
+
+      final l10n = lookupAppLocalizations(const Locale('en'));
+      expect(await store.read(), {ModuleId.food});
+      expect(find.byType(TodayScreen), findsOneWidget);
+      expect(find.text(l10n.moduleFoodTurnedOn(l10n.tabToday)), findsOneWidget);
     });
 
     testWidgets('criterion 2: offers Effort while the profile loads', (

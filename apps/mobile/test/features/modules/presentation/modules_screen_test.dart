@@ -12,6 +12,7 @@ import 'package:open_ring/features/body/domain/weigh_in_store.dart';
 import 'package:open_ring/features/body/presentation/body_module_screen.dart';
 import 'package:open_ring/features/effort/presentation/effort_module_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_module_screen.dart';
+import 'package:open_ring/features/food/presentation/food_module_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_screen.dart';
 import 'package:open_ring/features/goals/presentation/goals_module_screen.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
@@ -25,11 +26,13 @@ import 'package:open_ring/features/ring/presentation/ring_screen.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/settings/presentation/settings_screen.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
+import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/layout_harness.dart';
 import '../../../helpers/ring_fakes.dart';
 import '../../../helpers/settings_fakes.dart';
+import '../../food/food_fakes.dart';
 
 Future<InMemoryWeighInStore> _twoWeighIns() async {
   final store = InMemoryWeighInStore();
@@ -78,6 +81,11 @@ Future<void> _pump(
     ...bleOverrides(),
     ...ringOverrides(),
     ...settingsOverrides(profiles: profiles),
+    ...foodStoreOverrides(
+      meals: TestMealStore(),
+      camera: GatedMealCamera(),
+      clock: () => settingsNow,
+    ),
     moduleStoreProvider.overrideWithValue(modules),
     weighInStoreProvider.overrideWithValue(weighIns ?? InMemoryWeighInStore()),
   ],
@@ -547,18 +555,16 @@ void main() {
     expect(find.byType(DayScoreFormulaScreen), findsOneWidget);
   });
 
-  testWidgets('criterion 1: the Modules screen lists five rows', (
-    tester,
-  ) async {
+  testWidgets('criterion 1: the Modules screen lists six rows', (tester) async {
     await _pump(tester, modules: InMemoryModuleStore());
     await _openModules(tester);
 
-    expect(OfferedModule.values, hasLength(5));
+    expect(OfferedModule.values, hasLength(6));
     for (final module in OfferedModule.values) {
       await reveal(tester, find.byKey(ModulesKeys.row(module)));
       expect(find.byKey(ModulesKeys.row(module)), findsOneWidget);
     }
-    expect(find.byType(Switch), findsNWidgets(5));
+    expect(find.byType(Switch), findsNWidgets(6));
     expect(
       find.descendant(
         of: find.byKey(ModulesKeys.row(OfferedModule.effort)),
@@ -726,5 +732,70 @@ void main() {
     await reveal(tester, find.byKey(SettingsScreen.modulesKey));
 
     expect(find.text('On: 1'), findsOneWidget);
+  });
+
+  testWidgets('the Food row names Food and opens FoodModuleScreen', (
+    tester,
+  ) async {
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openModules(tester);
+    final row = ModulesKeys.row(OfferedModule.food);
+    await reveal(tester, find.byKey(row));
+
+    expect(find.byKey(row), findsOneWidget);
+    expect(
+      find.descendant(of: find.byKey(row), matching: find.text('Food')),
+      findsOneWidget,
+    );
+
+    await _tap(tester, row);
+    expect(find.byType(FoodModuleScreen), findsOneWidget);
+  });
+
+  testWidgets('the Food switch stores ModuleId.food and View opens Today', (
+    tester,
+  ) async {
+    final modules = InMemoryModuleStore();
+    await _pump(tester, modules: modules);
+    await _openModules(tester);
+    final toggle = ModulesKeys.toggle(OfferedModule.food);
+    await reveal(tester, find.byKey(toggle));
+
+    expect(_on(tester, toggle), isFalse);
+    await _tap(tester, toggle);
+
+    expect(await modules.read(), {ModuleId.food});
+    expect(_on(tester, toggle), isTrue);
+    final l10n = lookupAppLocalizations(const Locale('en'));
+    expect(find.text(l10n.moduleFoodTurnedOn(l10n.tabToday)), findsOneWidget);
+
+    await _tap(tester, toggle);
+    expect(await modules.read(), isEmpty);
+    expect(_on(tester, toggle), isFalse);
+
+    await _tap(tester, toggle);
+    await tester.tap(find.text('View'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TodayScreen), findsOneWidget);
+  });
+
+  testWidgets('Settings counts all six modules when on', (tester) async {
+    await _pump(
+      tester,
+      modules: InMemoryModuleStore({
+        ModuleId.body,
+        ModuleId.openScore,
+        ModuleId.energy,
+        ModuleId.effort,
+        ModuleId.goals,
+        ModuleId.food,
+      }),
+      profiles: InMemoryUserProfileStore(_aged(30)),
+    );
+    await _openSettings(tester);
+    await reveal(tester, find.byKey(SettingsScreen.modulesKey));
+
+    expect(find.text('On: 6'), findsOneWidget);
   });
 }

@@ -16,12 +16,28 @@ void main() {
       expect(AppPaths.settingsModuleGoals, '/ring/settings/modules/goals');
     });
 
-    test('the modules are the five, Goals among them once', () {
-      expect(OfferedModule.values, hasLength(5));
+    test('the modules are the six, Goals and Food among them once', () {
+      expect(OfferedModule.values, hasLength(6));
       expect(
         OfferedModule.values.where((module) => module.id == ModuleId.goals),
         [OfferedModule.goals],
       );
+      expect(
+        OfferedModule.values.where((module) => module.id == ModuleId.food),
+        [OfferedModule.food],
+      );
+    });
+  });
+
+  group('Food module', () {
+    test('has its module id, icon and route', () {
+      expect(OfferedModule.food.id, ModuleId.food);
+      expect(OfferedModule.food.icon, Icons.restaurant_outlined);
+      expect(OfferedModule.food.path, AppPaths.settingsModuleFood);
+    });
+
+    test('the route is under Settings, Modules', () {
+      expect(AppPaths.settingsModuleFood, '/ring/settings/modules/food');
     });
   });
 

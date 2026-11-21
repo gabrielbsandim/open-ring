@@ -20,7 +20,8 @@ enum OfferedModule {
     AppPaths.settingsModuleEnergy,
   ),
   effort(ModuleId.effort, Icons.bolt_rounded, AppPaths.settingsModuleEffort),
-  goals(ModuleId.goals, Icons.flag_outlined, AppPaths.settingsModuleGoals);
+  goals(ModuleId.goals, Icons.flag_outlined, AppPaths.settingsModuleGoals),
+  food(ModuleId.food, Icons.restaurant_outlined, AppPaths.settingsModuleFood);
 
   new(this.id, this.icon, this.path);
 
@@ -34,6 +35,7 @@ enum OfferedModule {
     OfferedModule.energy => l10n.energyTitle,
     OfferedModule.effort => l10n.effortTitle,
     OfferedModule.goals => l10n.moduleGoalsName,
+    OfferedModule.food => l10n.foodTitle,
   };
 
   String detail(AppLocalizations l10n) => switch (this) {
@@ -42,6 +44,7 @@ enum OfferedModule {
     OfferedModule.energy => l10n.moduleEnergyDetail,
     OfferedModule.effort => l10n.moduleEffortDetail,
     OfferedModule.goals => l10n.moduleGoalsDetail,
+    OfferedModule.food => l10n.moduleFoodDetail,
   };
 
   String turnedOn(AppLocalizations l10n) => switch (this) {
@@ -50,6 +53,7 @@ enum OfferedModule {
     OfferedModule.energy => l10n.moduleEnergyTurnedOn(l10n.tabToday),
     OfferedModule.effort => l10n.moduleEffortTurnedOn(l10n.tabToday),
     OfferedModule.goals => l10n.moduleGoalsTurnedOn,
+    OfferedModule.food => l10n.moduleFoodTurnedOn(l10n.tabToday),
   };
 
   /// Where View goes after switching on: Goals shows nothing on Today until

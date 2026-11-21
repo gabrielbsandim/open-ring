@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/router/app_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/core/clock/clock.dart';
+import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/food/application/meal_photo_saver.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
@@ -25,6 +26,7 @@ import 'package:open_ring/features/today/presentation/today_screen.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 import '../../../helpers/ble_fakes.dart';
+import '../../../helpers/layout_harness.dart';
 import '../../../helpers/onboarding_app.dart';
 import '../../../helpers/onboarding_fakes.dart';
 import '../../../helpers/ring_fakes.dart';
@@ -80,6 +82,32 @@ final class _ErrorCountMealStore implements MealStore {
   @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw UnimplementedError('${invocation.memberName}');
+}
+
+final class _GatedModuleStore implements ModuleStore {
+  new({this.gate, this.fail = false});
+
+  final Completer<void>? gate;
+  final bool fail;
+  Set<ModuleId> _enabled = {};
+  int writeCalls = 0;
+
+  @override
+  Future<Set<ModuleId>> read() async => {..._enabled};
+
+  @override
+  Future<void> write(Set<ModuleId> enabled) async {
+    writeCalls++;
+    await gate?.future;
+    if (fail) throw const FileSystemException('disk full');
+    _enabled = {...enabled};
+  }
+
+  @override
+  Future<bool> shortcutDismissed() async => false;
+
+  @override
+  Future<void> dismissShortcut({required bool dismissed}) async {}
 }
 
 Future<dynamic> _pumpModule(
@@ -334,5 +362,74 @@ void main() {
         expect(find.text(l10n.metricLoadError), findsWidgets);
       },
     );
+
+    testWidgets(
+      'toggle guards double-tap while pending and shows error on write failure',
+      (tester) async {
+        final gate = Completer<void>();
+        final gated = _GatedModuleStore(gate: gate);
+        await _pumpModule(tester, moduleStore: gated);
+
+        await tester.scrollUntilVisible(
+          find.byKey(FoodModuleKeys.toggle),
+          150,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.tap(find.byKey(FoodModuleKeys.toggle));
+        await tester.pump();
+
+        expect(
+          tester
+              .widget<ActionButton>(find.byKey(FoodModuleKeys.toggle))
+              .onPressed,
+          isNull,
+        );
+        await tester.tap(
+          find.byKey(FoodModuleKeys.toggle),
+          warnIfMissed: false,
+        );
+        expect(gated.writeCalls, 1);
+
+        gate.complete();
+        await tester.pumpAndSettle();
+        expect(await gated.read(), {ModuleId.food});
+
+        await _pumpModule(tester, moduleStore: _GatedModuleStore(fail: true));
+        await tester.scrollUntilVisible(
+          find.byKey(FoodModuleKeys.toggle),
+          150,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.tap(find.byKey(FoodModuleKeys.toggle));
+        await tester.pumpAndSettle();
+        final l10n = lookupAppLocalizations(const Locale('en'));
+        expect(find.text(l10n.syncErrorSaving), findsOneWidget);
+      },
+    );
+
+    testWidgets('toggle works without GoRouter ancestor', (tester) async {
+      await pumpScaled(
+        tester,
+        screenHost(const FoodModuleScreen()),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.dark,
+        locale: const Locale('en'),
+        overrides: [
+          moduleStoreProvider.overrideWithValue(InMemoryModuleStore()),
+          clockProvider.overrideWithValue(() => _now),
+          mealStoreProvider.overrideWithValue(TestMealStore()),
+          photoStoreProvider.overrideWithValue(InMemoryPhotoStore()),
+        ],
+      );
+      await tester.scrollUntilVisible(
+        find.byKey(FoodModuleKeys.toggle),
+        150,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.byKey(FoodModuleKeys.toggle));
+      await tester.pumpAndSettle();
+      final l10n = lookupAppLocalizations(const Locale('en'));
+      expect(find.text(l10n.moduleFoodTurnedOn(l10n.tabToday)), findsOneWidget);
+    });
   });
 }

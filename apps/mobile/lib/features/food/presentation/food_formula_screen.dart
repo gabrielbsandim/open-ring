@@ -137,7 +137,7 @@ class FoodFormulaScreen extends StatelessWidget {
           title: l.dayScoreFormulaSourceOursTitle,
           icon: Icons.edit_outlined,
           facts: [
-            l.foodFormulaOurs1,
+            l.foodFormulaOurs1(_clockOfMinute(f, foodDayStartHour * 60)),
             l.foodFormulaOurs2(foodCompareNights, foodPairMaxDays),
             l.foodPlateOurs1,
             l.foodPlateOurs2,

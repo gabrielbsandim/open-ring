@@ -156,14 +156,12 @@ void main() {
       expect(find.byKey(FoodFormulaKeys.cannot), findsOneWidget);
       expect(find.byKey(FoodFormulaKeys.estimate), findsOneWidget);
 
-      expect(
-        find.text(
-          l10n.foodFormulaMealBody(
-            f.clock(DateTime.utc(2026, 1, 1, foodDayStartHour), Duration.zero),
-          ),
-        ),
-        findsOneWidget,
+      final dayStart = f.clock(
+        DateTime.utc(2026, 1, 1, foodDayStartHour),
+        Duration.zero,
       );
+      expect(find.text(l10n.foodFormulaMealBody(dayStart)), findsOneWidget);
+      expect(find.text(l10n.foodFormulaOurs1(dayStart)), findsOneWidget);
       expect(find.textContaining('10:30'), findsOneWidget);
       expect(find.textContaining('15:00'), findsOneWidget);
       expect(find.textContaining('18:00'), findsOneWidget);

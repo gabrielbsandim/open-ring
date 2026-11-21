@@ -2527,7 +2527,7 @@
   "foodFormulaCompExpr": "差 = タグありの夜 − ペアの夜\n99%区間: 平均 ± t × SD / √n\nHRVは対数比較・%表示\n最小ペア数: アルコール {alcMin}、その他 {otherMin}\n傾向あり: 区間が0を含まず平均が {hr}、{hrv}、または {onset} 以上\n明確な差なし: 区間が0を含む\nデータ収集中: 最小ペア数未満",
   "foodFormulaCompNote": "1人あたり複数の比較を行うため95%ではなく99%を使います（95%では偽の傾向が出やすくなります）。睡眠段階が比較の主指標になることはありません。",
   "foodFormulaSource1": "安静時心拍数、夜間HRV、入眠時刻は、心拍画面および睡眠画面と同じ計算を使用しています。",
-  "foodFormulaOurs1": "食事名の時間帯区切り、05:00の一日開始時刻、および無糖・無アルコール飲料の時間帯除外。",
+  "foodFormulaOurs1": "食事名の時間帯区切り、{start}の一日開始時刻、および無糖・無アルコールの飲み物の時間帯除外。",
   "foodFormulaOurs2": "記録完了日の条件、{days}日間の遡及期間、前後{pairDays}日のペア範囲、99%区間、最小ペア数、および有意な最小差の設定。",
   "foodFormulaUnchecked1": "アルコールと夜間回復: Pietilä 2018。カフェインと睡眠: Drake 2013、Gardiner 2023。",
   "foodFormulaUnchecked2": "就寝間際の食事: Chung 2020、Crispim 2011、Gu 2020、Duan 2021。",

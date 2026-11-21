@@ -2527,7 +2527,7 @@
   "foodFormulaCompExpr": "Differenz = Nacht mit minus gepaarter Nacht\n99-%-Intervall: Mittelwert plus/minus t × SD / sqrt(n)\nHRV logarithmisch verglichen, in % angezeigt\nMindestpaare: {alcMin} für Alkohol, {otherMin} für andere\nMuster: Intervall ohne 0 und Mittelwert erreicht {hr}, {hrv} oder {onset}\nKein klarer Unterschied: Intervall enthält 0\nSammeln: unter Mindestpaaren",
   "foodFormulaCompNote": "99 % statt 95 %, da mehrere Vergleiche pro Person laufen; bei 95 % würden fast alle Scheinmuster sehen. Schlafphasen führen nie einen Vergleich an.",
   "foodFormulaSource1": "Ruheherzfrequenz, nächtliche HRV und Einschlafzeit stammen aus denselben Berechnungen wie auf den Bildschirmen Herz und Schlaf.",
-  "foodFormulaOurs1": "Die Zeitfenster der Mahlzeitennamen, der Tagesbeginn um 05:00 und das Ausschließen reiner Getränke.",
+  "foodFormulaOurs1": "Die Zeitfenster der Mahlzeitennamen, der Tagesbeginn um {start} und das Ausschließen reiner Getränke.",
   "foodFormulaOurs2": "Die Bedingung vollständiger Tage, {days}-Tage-Rückblick, {pairDays}-Tage-Paarungsfenster, 99-%-Intervalle, Mindestpaare und Mindestunterschiede.",
   "foodFormulaUnchecked1": "Alkohol und nächtliche Erholung: Pietilä 2018. Koffein und Schlaf: Drake 2013 und Gardiner 2023.",
   "foodFormulaUnchecked2": "Essen nahe am Schlaf: Chung 2020, Crispim 2011, Gu 2020 und Duan 2021.",

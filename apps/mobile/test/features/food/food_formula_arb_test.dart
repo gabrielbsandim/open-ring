@@ -27,7 +27,6 @@ const _plainKeys = [
   'foodFormulaCompTitle',
   'foodFormulaCompNote',
   'foodFormulaSource1',
-  'foodFormulaOurs1',
   'foodFormulaUnchecked1',
   'foodFormulaUnchecked2',
   'foodFormulaUnchecked3',
@@ -53,6 +52,7 @@ const _placeholderTypes = <String, Map<String, String>>{
     'hrv': 'String',
     'onset': 'String',
   },
+  'foodFormulaOurs1': {'start': 'String'},
   'foodFormulaOurs2': {'days': 'int', 'pairDays': 'int'},
 };
 
@@ -115,6 +115,7 @@ void main() {
 
         final l10n = lookupAppLocalizations(_toLocale(locale));
         expect(l10n.foodFormulaMealBody('05:00'), contains('05:00'));
+        expect(l10n.foodFormulaOurs1('05:00'), contains('05:00'));
         expect(
           l10n.foodFormulaCompBody(90, 10),
           allOf(contains('90'), contains('10')),
@@ -128,8 +129,8 @@ void main() {
 
     test('English ARB metadata defines expected placeholder types', () {
       expect(_allKeys.toSet(), hasLength(20));
-      expect(_plainKeys, hasLength(15));
-      expect(_placeholderTypes, hasLength(5));
+      expect(_plainKeys, hasLength(14));
+      expect(_placeholderTypes, hasLength(6));
 
       final en = _arb('en');
       expect(en['foodFormulaMealTitle'], 'The meal');

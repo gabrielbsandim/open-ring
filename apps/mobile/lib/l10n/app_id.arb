@@ -2527,7 +2527,7 @@
   "foodFormulaCompExpr": "Selisih = malam bertanda dikurangi malam pasangan\nInterval 99%: rerata ± t × SB / akar(n)\nHRV dibandingkan secara logaritmik dalam %\nPasangan minimum: {alcMin} untuk alkohol, {otherMin} lainnya\nPola: interval mengecualikan 0 dan rerata mencapai {hr}, {hrv}, atau {onset}\nTidak ada perbedaan jelas: interval mencakup 0\nMengumpulkan: di bawah jumlah minimum",
   "foodFormulaCompNote": "Memakai 99% alih-alih 95% karena beberapa perbandingan berjalan per orang; pada 95% hampir semua orang bisa melihat pola palsu. Tahapan tidur tidak pernah memimpin perbandingan.",
   "foodFormulaSource1": "Detak jantung istirahat, HRV malam, dan waktu mulai tidur memakai perhitungan yang sama dengan layar Jantung dan Tidur.",
-  "foodFormulaOurs1": "Batas jam nama waktu makan, awal hari pukul 05:00, serta mengecualikan minuman polos dari jendela makan.",
+  "foodFormulaOurs1": "Batas jam nama waktu makan, awal hari pukul {start}, serta mengecualikan minuman polos dari jendela makan.",
   "foodFormulaOurs2": "Syarat hari lengkap, tinjauan {days} hari, jendela pasangan {pairDays} hari, interval 99%, batas minimum pasangan, dan selisih bermakna terkecil.",
   "foodFormulaUnchecked1": "Alkohol dan pemulihan malam: Pietilä 2018. Kafein dan tidur: Drake 2013 dan Gardiner 2023.",
   "foodFormulaUnchecked2": "Makan menjelang tidur: Chung 2020, Crispim 2011, Gu 2020, dan Duan 2021.",

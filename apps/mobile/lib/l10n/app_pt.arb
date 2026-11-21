@@ -2527,7 +2527,7 @@
   "foodFormulaCompExpr": "Diferença = noite com menos noite parecida\nFaixa de 99%: média mais ou menos t × desvio / raiz(n)\nVFC comparada em logaritmo e mostrada em %\nMínimo de pares: {alcMin} para álcool, {otherMin} para os outros\nUm padrão: faixa sem o zero e média atinge {hr}, {hrv} ou {onset}\nSem diferença clara: faixa inclui o zero\nJuntando: pares abaixo do mínimo",
   "foodFormulaCompNote": "99% em vez de 95% porque o app faz várias comparações por pessoa; com 95%, quase todo mundo veria um padrão falso. As fases do sono nunca lideram uma comparação.",
   "foodFormulaSource1": "A FC de repouso, a VFC noturna e o início do sono usam exatamente os mesmos cálculos das telas Coração e Sono.",
-  "foodFormulaOurs1": "As faixas de horário dos nomes das refeições, o início do dia às 05:00 e excluir bebidas puras da janela alimentar.",
+  "foodFormulaOurs1": "As faixas de horário dos nomes das refeições, o início do dia às {start} e excluir bebidas puras da janela alimentar.",
   "foodFormulaOurs2": "A regra do dia completo, os {days} dias de histórico, a janela de {pairDays} dias para pares, a faixa de 99%, os mínimos e as diferenças que importam.",
   "foodFormulaUnchecked1": "Álcool e recuperação noturna: Pietilä 2018. Cafeína e sono: Drake 2013 e Gardiner 2023.",
   "foodFormulaUnchecked2": "Comer perto do sono: Chung 2020, Crispim 2011, Gu 2020 e Duan 2021.",

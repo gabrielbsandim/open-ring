@@ -2527,7 +2527,7 @@
   "foodFormulaCompExpr": "Differenza = notte con meno notte abbinata\nIntervallo 99%: media più o meno t × DS / radice(n)\nHRV confrontata su scala log, mostrata in %\nMinimo coppie: {alcMin} per alcol, {otherMin} per altri\nTendenza: intervallo esclude 0 e media raggiunge {hr}, {hrv} o {onset}\nNessuna differenza netta: l’intervallo include 0\nRaccolta: sotto il minimo di coppie",
   "foodFormulaCompNote": "99% anziché 95% perché si eseguono più confronti per persona; al 95% quasi tutti vedrebbero un falso segnale. Le fasi del sonno non guidano mai un confronto.",
   "foodFormulaSource1": "La FC a riposo, la VFC notturna e l’inizio del sonno derivano dagli stessi calcoli delle schermate Cuore e Sonno.",
-  "foodFormulaOurs1": "Le fasce orarie dei nomi dei pasti, l’inizio del giorno alle 05:00 e l’esclusione delle bevande semplici dalla finestra.",
+  "foodFormulaOurs1": "Le fasce orarie dei nomi dei pasti, l’inizio del giorno alle {start} e l’esclusione delle bevande semplici dalla finestra.",
   "foodFormulaOurs2": "La regola del giorno completo, i {days} giorni di storico, la finestra di {pairDays} giorni per coppia, il 99%, i minimi e le soglie rilevanti.",
   "foodFormulaUnchecked1": "Alcol e recupero notturno: Pietilä 2018. Caffeina e sonno: Drake 2013 e Gardiner 2023.",
   "foodFormulaUnchecked2": "Mangiare vicino al sonno: Chung 2020, Crispim 2011, Gu 2020 e Duan 2021.",

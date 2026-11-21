@@ -2527,7 +2527,7 @@
   "foodFormulaCompExpr": "差值 = 有标记夜晚 − 配对夜晚\n99% 置信区间：均值 ± t × SD / sqrt(n)\nHRV 按对数尺度比较并以 % 显示\n最少配对数：酒精 {alcMin} 对，其余 {otherMin} 对\n存在模式：区间不含 0 且均值达到 {hr}、{hrv} 或 {onset}\n无明显差异：区间包含 0\n收集中：未达最少配对数",
   "foodFormulaCompNote": "采用 99% 而非 95% 区间，因为每人会同时计算多项对比，用 95% 几乎所有人都会看到假性模式。睡眠分期从不作为主指标。",
   "foodFormulaSource1": "静息心率、夜间 HRV 和入睡时间均与心脏和睡眠页面采用同一套计算方法。",
-  "foodFormulaOurs1": "餐次名称的时间分段、05:00 饮食日分界线以及将普通饮品排除在进食窗口之外。",
+  "foodFormulaOurs1": "餐次名称的时间分段、{start} 饮食日分界线以及将普通饮品排除在进食窗口之外。",
   "foodFormulaOurs2": "完整天判定、{days}天回溯期、{pairDays}天配对窗口、99%区间、最少配对数以及最小有意义差值标准。",
   "foodFormulaUnchecked1": "酒精与夜间恢复：Pietilä 2018；咖啡因与睡眠：Drake 2013 和 Gardiner 2023。",
   "foodFormulaUnchecked2": "临睡前饮食：Chung 2020、Crispim 2011、Gu 2020 和 Duan 2021。",

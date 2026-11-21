@@ -176,6 +176,16 @@ void main() {
           find.text(l10n.moduleFoodTurnedOn(l10n.tabToday)),
           findsOneWidget,
         );
+        await tester.scrollUntilVisible(
+          find.byKey(FoodModuleKeys.state),
+          -150,
+          scrollable: find.byType(Scrollable).first,
+        );
+        final pillOn = tester.widget<ModuleStatePill>(
+          find.byKey(FoodModuleKeys.state),
+        );
+        expect(pillOn.on, isTrue);
+        expect(pillOn.label, l10n.modulesOn);
 
         await tester.tap(find.text(l10n.modulesView));
         await tester.pumpAndSettle();
@@ -186,6 +196,9 @@ void main() {
     testWidgets('turning off preserves data and hides kept card when empty', (
       tester,
     ) async {
+      await _pumpModule(tester);
+      expect(find.byKey(FoodModuleKeys.kept), findsNothing);
+
       final meals = TestMealStore();
       final photos = InMemoryPhotoStore();
       await _seedOneMeal(meals, photos);
@@ -198,6 +211,12 @@ void main() {
         moduleStore: modules,
       );
 
+      final l10n = lookupAppLocalizations(const Locale('en'));
+      final pill = tester.widget<ModuleStatePill>(
+        find.byKey(FoodModuleKeys.state),
+      );
+      expect(pill.on, isTrue);
+      expect(pill.label, l10n.modulesOn);
       expect(find.byKey(FoodModuleKeys.kept), findsNothing);
       await tester.scrollUntilVisible(
         find.byKey(FoodModuleKeys.toggle),
@@ -277,6 +296,7 @@ void main() {
 
         final l10n = lookupAppLocalizations(const Locale('en'));
         expect(find.text(l10n.moduleFoodDeleted), findsOneWidget);
+        expect(find.byKey(FoodModuleKeys.kept), findsNothing);
         expect(find.byKey(FoodModuleKeys.delete), findsNothing);
         expect(find.text(l10n.moduleFoodDataEmpty), findsOneWidget);
         expect(await photos.totalBytes(), 0);

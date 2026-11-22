@@ -122,12 +122,15 @@ enum AiFactUnit {
   days('days'),
   pct('pct'),
   kgPerWeek('kg/wk'),
+  lbPerWeek('lb/wk'),
+  points('points'),
   levers('levers');
 
   new(this.wireName);
   final String wireName;
 }
 
+// 11 shipped AppLocalizations locales plus explicit pt-BR from the AI spec.
 const Set<String> aiAllowedReplyLanguages = {
   'de',
   'en',
@@ -161,13 +164,23 @@ const Map<String, String> aiKnownSourceApps = {
   'com.zepp.app': 'Zepp',
 };
 
+final _safeIdPattern = RegExp(r'^[A-Za-z0-9._-]{1,32}$');
+
 String sanitizeReplyLanguage(String raw) {
-  final normalized = raw.trim().replaceAll('_', '-');
-  return aiAllowedReplyLanguages.contains(normalized) ? normalized : 'en';
+  final lower = raw.trim().replaceAll('_', '-').toLowerCase();
+  for (final tag in aiAllowedReplyLanguages) {
+    if (tag.toLowerCase() == lower) return tag;
+  }
+  return 'en';
 }
 
 String sanitizeSourceApp(String? raw) =>
     aiKnownSourceApps[raw?.trim()] ?? 'other app';
+
+String sanitizeSafeId(String raw, {required String fallback}) {
+  final trimmed = raw.trim();
+  return _safeIdPattern.hasMatch(trimmed) ? trimmed : fallback;
+}
 
 String formatAgeBand(int age, {required int width}) {
   if (width <= 0) {
@@ -266,7 +279,7 @@ final class AiDayRow {
     this.activeKcal,
     this.load,
     this.readiness,
-    this.weight,
+    this.weightKg,
   });
 
   final LocalDate date;
@@ -287,7 +300,7 @@ final class AiDayRow {
   final int? activeKcal;
   final int? load;
   final int? readiness;
-  final double? weight;
+  final double? weightKg;
 }
 
 @immutable
@@ -316,7 +329,7 @@ final class AiWeekRow {
     this.loadSum,
     this.workouts,
     this.readinessAvg,
-    this.weightAvg,
+    this.weightAvgKg,
   });
 
   final double? sleepMinAvg;
@@ -327,7 +340,7 @@ final class AiWeekRow {
   final int? loadSum;
   final int? workouts;
   final double? readinessAvg;
-  final double? weightAvg;
+  final double? weightAvgKg;
 }
 
 @immutable
@@ -384,19 +397,19 @@ final class AiWorkoutRow {
 final class AiWeighInsSummary {
   const new({
     required this.n30,
-    required this.trendLast,
-    required this.kgPerWeek,
-    required this.kgPerWeekLow,
-    required this.kgPerWeekHigh,
+    required this.trendLastKg,
     required this.daysSinceLast,
+    this.kgPerWeek,
+    this.kgPerWeekLow,
+    this.kgPerWeekHigh,
   });
 
   final int n30;
-  final double trendLast;
-  final double kgPerWeek;
-  final double kgPerWeekLow;
-  final double kgPerWeekHigh;
+  final double trendLastKg;
   final int daysSinceLast;
+  final double? kgPerWeek;
+  final double? kgPerWeekLow;
+  final double? kgPerWeekHigh;
 }
 
 @immutable

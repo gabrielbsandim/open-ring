@@ -349,6 +349,7 @@ void main() {
       expect(m['detail'], 'minimal');
       expect((m['window']! as Map)['days'], 14);
       expect((m['window']! as Map)['weeks'], 12);
+      expect((m['window']! as Map)['end'], 'D0');
 
       final extMin = HealthContextBuilder.build(
         _sampleInput(
@@ -423,17 +424,33 @@ void main() {
       expect(m['reply_language'], 'pt-BR');
       expect((m['window']! as Map)['days'], 14);
       expect((m['window']! as Map)['weeks'], 12);
+      expect((m['window']! as Map)['end'], 'D0');
       expect(m['coverage'], const {
         'ring': true,
         'sleep_source': 'ring',
         'days_with_ring_data': 28,
         'imported_included': false,
       });
-      expect((m['profile']! as Map)['age_band'], '30-34');
+      expect(m['profile'], const {
+        'age_band': '30-34',
+        'sex': 'male',
+        'height_cm': 178,
+        'max_hr': 186,
+        'step_goal': 9000,
+      });
       final days = m['days']! as Map;
       expect((days['d']! as List).last, 'D0');
       expect((days['bedtime']! as List).first, '00:00');
       expect((days['wake']! as List).first, '07:15');
+      expect((days['deep_min']! as List).first, 62);
+      expect((days['rem_min']! as List).first, 95);
+      expect((days['awake_min']! as List).first, 18);
+      expect((days['rhr']! as List).first, 55.5);
+      expect((days['hrv']! as List).first, 48.2);
+      expect((days['stress_avg']! as List).first, 32);
+      expect((days['spo2_avg']! as List).first, 96);
+      expect((days['spo2_min']! as List).first, 92);
+      expect((days['active_kcal']! as List).first, 450);
       final weeks = m['weeks']! as Map;
       expect((weeks['rhr_avg']! as List).first, 56);
       expect((weeks['hrv_avg']! as List).first, 46);
@@ -492,11 +509,19 @@ void main() {
       final m = built.contextMap;
       expect((m['window']! as Map)['days'], 28);
       expect((m['window']! as Map)['end'], '2026-12-21');
-      expect((m['profile']! as Map)['age'], 34);
+      expect(m['profile'], const {
+        'age': 34,
+        'sex': 'male',
+        'height_cm': 178,
+        'max_hr': 186,
+        'step_goal': 9000,
+      });
       final days = m['days']! as Map;
       expect((days['d']! as List).first, '2026-11-24');
       expect((days['bedtime']! as List).first, '23:53');
       expect((days['wake']! as List).first, '07:22');
+      expect((days['deep_min']! as List).first, 62);
+      expect((days['rhr']! as List).first, 55.5);
       final workouts = m['workouts']! as List;
       expect(workouts, hasLength(2));
       final imported = workouts[1]! as Map;
@@ -574,6 +599,7 @@ void main() {
       );
       expect(capped.droppedCount, 0);
       final cm = capped.contextMap;
+      expect((cm['goal']! as Map)['type'], 'lose_fat');
       expect((cm['days']! as Map)['d'], const [
         '2026-11-27',
         '2026-11-28',

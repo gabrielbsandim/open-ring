@@ -65,7 +65,7 @@ final class AiConfig {
         json['contextWindow'],
         AiContextWindow.standard,
       ),
-      importedIncluded: json['importedIncluded'] as bool? ?? false,
+      importedIncluded: json['importedIncluded'] == true,
       maxOutputTokens: tokens is int
           ? tokens.clamp(aiMinOutputTokens, aiMaxOutputTokens)
           : aiDefaultOutputTokens,

@@ -37,6 +37,7 @@ void main() {
       final again = AiConfig.fromJson(a.toJson());
       expect(identical(restored, again), isFalse);
       expect(restored, a);
+      expect(restored.hashCode, a.hashCode);
       expect(restored.hashCode, again.hashCode);
       expect(restored.trimmedModel, 'openai/gpt-5');
       expect(restored.hostKey, 'https://openrouter.ai:443');
@@ -66,12 +67,19 @@ void main() {
       expect(restored, isNot(a.copyWith(priceCurrency: 'USD')));
       expect(restored, isNot(a.copyWith(clearMonthlyTokenCap: true)));
       expect(restored, isNot(a.copyWith(clearKeyLastFour: true)));
+      expect(restored, isNot(a.copyWith(testedAtUtcMs: 1)));
+      expect(
+        restored,
+        isNot(a.copyWith(testedHostKey: 'https://other.example:443')),
+      );
+      expect(restored, isNot(a.copyWith(testedModel: 'other')));
       expect(restored, isNot(a.copyWith(clearTested: true)));
       expect(restored, isNot(a.copyWith(clearPhotoModel: true)));
     });
 
     test('clamps out-of-range JSON values and sanitizes corrupted inputs', () {
       final lowClamped = AiConfig.fromJson(const {
+        'importedIncluded': 'true',
         'maxOutputTokens': 10,
         'requestTimeoutSeconds': 999,
         'priceCurrency': '   ',
@@ -84,6 +92,7 @@ void main() {
         'preset': 'unknown_provider',
         'reasoningEffort': 'extreme',
       });
+      expect(lowClamped.importedIncluded, isFalse);
       expect(lowClamped.maxOutputTokens, aiMinOutputTokens);
       expect(lowClamped.requestTimeoutSeconds, 180);
       expect(lowClamped.priceCurrency, 'USD');
@@ -97,11 +106,13 @@ void main() {
       expect(lowClamped.reasoningEffort, isNull);
 
       final highClamped = AiConfig.fromJson(const {
+        'importedIncluded': 1,
         'maxOutputTokens': 999999,
         'keyLastFour': '',
         'inputPricePerMillion': 0,
         'outputPricePerMillion': double.nan,
       });
+      expect(highClamped.importedIncluded, isFalse);
       expect(highClamped.maxOutputTokens, aiMaxOutputTokens);
       expect(highClamped.keyLastFour, '');
       expect(highClamped.inputPricePerMillion, 0);
@@ -111,7 +122,7 @@ void main() {
     test('lastFourOf masks short keys, trims whitespace, and preserves '
         'surrogate pairs', () {
       expect(AiConfig.lastFourOf('   '), isNull);
-      expect(AiConfig.lastFourOf('short7'), '');
+      expect(AiConfig.lastFourOf('short77'), '');
       expect(AiConfig.lastFourOf('  sk-1234ab3X  '), 'ab3X');
       expect(AiConfig.lastFourOf('prefix😀😁😂😃'), '😀😁😂😃');
     });
@@ -138,6 +149,21 @@ void main() {
         testedModel: 'gpt-5',
       );
       expect(valid.isTestedForCurrentTarget, isTrue);
+      expect(
+        valid
+            .copyWith(baseUrl: 'https://other.example/v1')
+            .isTestedForCurrentTarget,
+        isFalse,
+      );
+      expect(
+        const AiConfig(
+          baseUrl: 'https://api.openai.com/v1',
+          model: 'gpt-5',
+          testedHostKey: 'https://api.openai.com:443',
+          testedModel: 'gpt-5',
+        ).isTestedForCurrentTarget,
+        isFalse,
+      );
       expect(
         valid.copyWith(testedModel: 'other').isTestedForCurrentTarget,
         isFalse,
@@ -347,6 +373,38 @@ void main() {
       expect(
         resolveAiAvailability(
           moduleEnabled: true,
+          config: baseConfig.copyWith(
+            baseUrl: 'https://other.example/v1',
+            testedHostKey: 'https://other.example:443',
+          ),
+          hasStoredKey: true,
+          consent: baseConsent,
+        ),
+        AiAvailability.consentNeeded,
+      );
+      expect(
+        resolveAiAvailability(
+          moduleEnabled: true,
+          config: baseConfig,
+          hasStoredKey: true,
+          consent: baseConsent,
+          contextSchemaVersion: 'openring.context/3',
+        ),
+        AiAvailability.consentNeeded,
+      );
+      expect(
+        resolveAiAvailability(
+          moduleEnabled: true,
+          config: baseConfig,
+          hasStoredKey: true,
+          consent: baseConsent,
+          policyEffectiveDate: '2026-12-01',
+        ),
+        AiAvailability.consentNeeded,
+      );
+      expect(
+        resolveAiAvailability(
+          moduleEnabled: true,
           config: baseConfig,
           hasStoredKey: true,
           consent: baseConsent,
@@ -455,6 +513,41 @@ void main() {
         );
         await store.clearAll();
         expect(await store.readConfig(), AiConfig.defaults);
+
+        // Re-seed all 4 slots so clearAll() is proven to wipe populated state.
+        await store.writeConfig(const AiConfig(model: 'gpt-5'));
+        await store.writeConsent(
+          const AiConsent(
+            consentedAtUtcMs: 1,
+            policyEffectiveDate: aiCurrentPolicyEffectiveDate,
+            hostKey: 'https://api.openai.com:443',
+            detailLevel: AiDetailLevel.standard,
+            contextSchemaVersion: aiContextSchemaVersion,
+          ),
+        );
+        await store.writeMealPhotoConsent(
+          const AiMealPhotoConsent(
+            consentedAtUtcMs: 2,
+            policyEffectiveDate: aiCurrentPolicyEffectiveDate,
+            hostKey: 'https://api.openai.com:443',
+          ),
+        );
+        await store.writeCapabilityProfile(
+          'https://api.openai.com:443',
+          'gpt-5',
+          AiCapabilityProfile.defaults,
+        );
+        await store.clearAll();
+        expect(await store.readConfig(), AiConfig.defaults);
+        expect(await store.readConsent(), isNull);
+        expect(await store.readMealPhotoConsent(), isNull);
+        expect(
+          await store.readCapabilityProfile(
+            'https://api.openai.com:443',
+            'gpt-5',
+          ),
+          isNull,
+        );
       },
     );
   });

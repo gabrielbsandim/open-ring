@@ -151,6 +151,7 @@ void main() {
           File('android/app/src/main/res/xml/data_extraction_rules.xml')
               .readAsStringSync(),
         );
+        expect(rules.findAllElements('include'), isEmpty);
         final cloudExcludes = rules
             .findAllElements('cloud-backup')
             .single

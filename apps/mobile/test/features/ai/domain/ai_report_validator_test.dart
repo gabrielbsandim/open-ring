@@ -96,11 +96,18 @@ void main() {
       }
       expect(AiSafetyLexicon.findMedicalTerm('Take 500 mg daily', 'en'), 'mg');
       expect(AiSafetyLexicon.findMedicalTerm('Dose of 500mg', 'en'), 'mg');
+      expect(
+        AiSafetyLexicon.findMedicalTerm('Take 500 mcg daily', 'en'),
+        'mcg',
+      );
+      expect(AiSafetyLexicon.findMedicalTerm('BP 120 mmHg', 'en'), 'mmhg');
+      expect(AiSafetyLexicon.findMedicalTerm('Refill Rx soon', 'en'), 'rx');
       expect(AiSafetyLexicon.findMedicalTerm('目標は500mgです', 'ja'), 'mg');
       for (final safe in const [
         'Among healthy images',
         'img preview ready',
         'mgmt notes ok',
+        'mmhgb scale ok',
         'Marx book note',
         'McGraw guide',
       ]) {
@@ -555,6 +562,7 @@ void main() {
             ('Date 2026.12.07 changed.', '2026.12.07', facts, const ['f5']),
             ('HR was 55 bpm.', '55', facts, const ['f5']),
             ('Clock 12:34:54 failed.', '12', facts, const ['f5']),
+            ('Clock 10:12:54 failed.', '10', facts, const ['f5']),
             ('Was steps,99.', '99', facts, const ['f5']),
             ('Slept 7h45.', '7', facts, const ['f5']),
             (
@@ -563,6 +571,14 @@ void main() {
               [...facts, _fact('f7', 7, unit: AiFactUnit.hours)],
               const ['f5', 'f7'],
             ),
+            (
+              'Slept 7hr45.',
+              '45',
+              [...facts, _fact('f7', 7, unit: AiFactUnit.hours)],
+              const ['f5', 'f7'],
+            ),
+            ('COLMI R09\u00a0199', '199', facts, const ['f5']),
+            ('COLMI R09\u202f199', '199', facts, const ['f5']),
           ]) {
         final badCard = _card(
           family: AiMetricFamily.heart,
@@ -583,6 +599,34 @@ void main() {
         expect(res.droppedCards.single.detail, expectedDetail, reason: text);
       }
 
+      for (final (badAction, expectedDetail) in const [
+        ('Walk 7min180bpm.', '180 bpm'),
+        ('Check SpO2\u00a098%.', '98 %'),
+      ]) {
+        final badActCard = _card(
+          family: AiMetricFamily.heart,
+          title: 'Check',
+          insight: 'HR 54.3.',
+          evidence: const ['f5'],
+          action: badAction,
+        );
+        final actRes = AiReportValidator.validateReport(
+          RawAiReport(summary: '', cards: [badActCard]),
+          facts: facts,
+          replyLanguage: 'en',
+        );
+        expect(
+          actRes.droppedCards.single.reason,
+          AiCardDropReason.vitalUnitInAction,
+          reason: badAction,
+        );
+        expect(
+          actRes.droppedCards.single.detail,
+          expectedDetail,
+          reason: badAction,
+        );
+      }
+
       expect(
         AiReportValidator.findUnverifiedSpans(
           'Clock 12:34:56 failed.',
@@ -590,6 +634,30 @@ void main() {
           replyLanguage: 'en',
         ).map((s) => s.raw).toList(),
         const ['12', '34', '56'],
+      );
+      expect(
+        AiReportValidator.findUnverifiedSpans(
+          'Clock 10:12:34 failed.',
+          facts: [facts[4]],
+          replyLanguage: 'en',
+        ).map((s) => s.raw).toList(),
+        const ['10', '12', '34'],
+      );
+      expect(
+        AiReportValidator.findUnverifiedSpans(
+          'Peak at14:30 and Пик в14:30.',
+          facts: [facts[4]],
+          replyLanguage: 'en',
+        ),
+        isEmpty,
+      );
+      expect(
+        AiReportValidator.findUnverifiedSpans(
+          'Peak at24:30.',
+          facts: [facts[4]],
+          replyLanguage: 'en',
+        ).map((s) => s.raw).toList(),
+        const ['24', '30'],
       );
 
       // Duplicate ID ['f5', 'f5'] must deduplicate and not fabricate derived 0.
@@ -631,109 +699,140 @@ void main() {
       );
     });
 
-    test('enforces all 10 drop reasons, cap isolation, and confidence tiers', () {
-      final facts = [
-        _fact('s1', 70, days: 4),
-        _fact('s2', 80, days: 7),
-        _fact('s3', 85, days: 10),
-        _fact('h1', 60, family: AiMetricFamily.heart, days: 12),
-      ];
+    test(
+      'enforces all 10 drop reasons, cap isolation, and confidence tiers',
+      () {
+        final facts = [
+          _fact('s1', 70, days: 4),
+          _fact('s2', 80, days: 7),
+          _fact('s3', 85, days: 10),
+        ];
 
-      final report = RawAiReport(
-        summary: '',
-        cards: [
-          _card(title: '   ', evidence: const ['s3']),
-          _card(evidence: const []),
-          _card(evidence: List.filled(7, 's3')),
-          _card(evidence: const ['missing']),
-          _card(family: AiMetricFamily.heart, evidence: const ['s3']),
-          _card(insight: 'Was 99 today.', evidence: const ['s3']),
-          _card(
-            insight: 'Sleep hit 85.',
-            action: 'Keep HR at 60 bpm.',
-            evidence: const ['s3'],
-          ),
-          _card(
-            insight: 'Sleep hit 85.',
-            action: 'Walk 10 m today.',
-            evidence: const ['s3'],
-          ),
-          _card(insight: 'Avoid diabetes signs.', evidence: const ['s3']),
-          _card(insight: 'See https://x.test now.', evidence: const ['s3']),
-          // Valid cards #1..#6 fill the cap; card #2 proves 5..9 days = medium.
-          for (var i = 1; i <= aiMaxReportCards; i++)
+        final report = RawAiReport(
+          summary: '',
+          cards: [
+            _card(title: '   ', evidence: const ['s3']),
+            _card(evidence: const []),
+            _card(evidence: List.filled(7, 's3')),
+            _card(evidence: const ['missing']),
+            _card(family: AiMetricFamily.heart, evidence: const ['s3']),
+            _card(insight: 'Was 99 today.', evidence: const ['s3']),
             _card(
-              title: 'Valid card',
-              insight: i == 2 ? 'Sleep hit 80.' : 'Sleep hit 85.',
-              evidence: i == 2 ? const ['s2'] : const ['s3'],
-              confidence: i == 1 ? AiConfidence.low : AiConfidence.high,
+              insight: 'Sleep hit 85.',
+              action: 'Keep HR at 60 bpm.',
+              evidence: const ['s3'],
             ),
-          // 7th valid card triggers excessCardCap.
-          _card(
-            title: 'Overflow',
-            insight: 'Sleep hit 85.',
-            evidence: const ['s3'],
-          ),
-        ],
-      );
-
-      final res = AiReportValidator.validateReport(
-        report,
-        facts: facts,
-        replyLanguage: 'en',
-      );
-      expect(res.keptCount, aiMaxReportCards);
-      expect(res.droppedCards.map((d) => d.reason).toList(), [
-        AiCardDropReason.emptyText,
-        AiCardDropReason.evidenceEmptyOrTooMany,
-        AiCardDropReason.evidenceEmptyOrTooMany,
-        AiCardDropReason.unknownFactId,
-        AiCardDropReason.familyMismatch,
-        AiCardDropReason.unverifiedNumber,
-        AiCardDropReason.vitalUnitInAction,
-        AiCardDropReason.disallowedActionNumber,
-        AiCardDropReason.medicalBlocklist,
-        AiCardDropReason.urlOrMarkdown,
-        AiCardDropReason.excessCardCap,
-      ]);
-      expect(res.cards.first.coverageConfidence, AiConfidence.high);
-      expect(res.cards.first.shownConfidence, AiConfidence.low);
-      expect(res.cards[1].coverageConfidence, AiConfidence.medium);
-      expect(res.cards[1].shownConfidence, AiConfidence.medium);
-      expect(res.cards[1].minEvidenceDays, 7);
-
-      // Reword permits empty title/action but rejects empty insight.
-      expect(
-        AiReportValidator.validateReword(
-          _card(title: '', insight: '   ', action: '', evidence: const ['s3']),
-          ruleFacts: facts,
-          replyLanguage: 'en',
-        ),
-        const AiRewordDropped(
-          reason: AiCardDropReason.emptyText,
-          detail: 'insight',
-        ),
-      );
-      // Window weeks exception accepts 4 weeks when windowWeeks == 4.
-      expect(
-        AiReportValidator.validateReport(
-          RawAiReport(
-            summary: 'Pattern across 4 weeks and 85 score.',
-            cards: [
+            _card(
+              insight: 'Sleep hit 85.',
+              action: 'Walk 10 m today.',
+              evidence: const ['s3'],
+            ),
+            _card(insight: 'Avoid diabetes signs.', evidence: const ['s3']),
+            _card(insight: 'See https://x.test now.', evidence: const ['s3']),
+            // Valid cards #1..#6 fill the cap; #2=medium (7d), #3=low (4d).
+            for (var i = 1; i <= aiMaxReportCards; i++)
               _card(
-                title: 'Four weeks',
-                insight: 'Over 4 weeks sleep was 85.',
-                evidence: const ['s3'],
+                title: 'Valid card',
+                insight: i == 2
+                    ? 'Sleep hit 80.'
+                    : i == 3
+                    ? 'Sleep hit 70.'
+                    : 'Sleep hit 85.',
+                evidence: i == 2
+                    ? const ['s2']
+                    : i == 3
+                    ? const ['s1']
+                    : const ['s3'],
+                confidence: i == 1 ? AiConfidence.low : AiConfidence.high,
               ),
-            ],
-          ),
+            // 7th valid card triggers excessCardCap.
+            _card(
+              title: 'Overflow',
+              insight: 'Sleep hit 85.',
+              evidence: const ['s3'],
+            ),
+          ],
+        );
+
+        final res = AiReportValidator.validateReport(
+          report,
           facts: facts,
           replyLanguage: 'en',
-          windowWeeks: 4,
-        ).keptCount,
-        1,
-      );
-    });
+        );
+        expect(res.keptCount, aiMaxReportCards);
+        expect(res.droppedCards.map((d) => d.reason).toList(), [
+          AiCardDropReason.emptyText,
+          AiCardDropReason.evidenceEmptyOrTooMany,
+          AiCardDropReason.evidenceEmptyOrTooMany,
+          AiCardDropReason.unknownFactId,
+          AiCardDropReason.familyMismatch,
+          AiCardDropReason.unverifiedNumber,
+          AiCardDropReason.vitalUnitInAction,
+          AiCardDropReason.disallowedActionNumber,
+          AiCardDropReason.medicalBlocklist,
+          AiCardDropReason.urlOrMarkdown,
+          AiCardDropReason.excessCardCap,
+        ]);
+        expect(res.cards.first.coverageConfidence, AiConfidence.high);
+        expect(res.cards.first.shownConfidence, AiConfidence.low);
+        expect(res.cards[1].coverageConfidence, AiConfidence.medium);
+        expect(res.cards[1].shownConfidence, AiConfidence.medium);
+        expect(res.cards[1].minEvidenceDays, 7);
+        expect(res.cards[2].coverageConfidence, AiConfidence.low);
+        expect(res.cards[2].shownConfidence, AiConfidence.low);
+        expect(res.cards[2].minEvidenceDays, 4);
+
+        // Reword permits empty title/action but rejects empty insight.
+        expect(
+          AiReportValidator.validateReword(
+            _card(
+              title: '',
+              insight: '   ',
+              action: '',
+              evidence: const ['s3'],
+            ),
+            ruleFacts: facts,
+            replyLanguage: 'en',
+          ),
+          const AiRewordDropped(
+            reason: AiCardDropReason.emptyText,
+            detail: 'insight',
+          ),
+        );
+        // Window weeks exception isolates windowWeeks > 0 && v == windowWeeks.
+        final weeksReport = RawAiReport(
+          summary: 'Pattern across 19 weeks and 85 score.',
+          cards: [
+            _card(
+              title: 'Nineteen weeks',
+              insight: 'Over 19 weeks sleep was 85.',
+              evidence: const ['s3'],
+            ),
+          ],
+        );
+        final weeksAccepted = AiReportValidator.validateReport(
+          weeksReport,
+          facts: facts,
+          replyLanguage: 'en',
+          windowWeeks: 19,
+        );
+        expect(weeksAccepted.keptCount, 1);
+        expect(weeksAccepted.summaryStripped, isFalse);
+
+        final weeksRejected = AiReportValidator.validateReport(
+          weeksReport,
+          facts: facts,
+          replyLanguage: 'en',
+        );
+        expect(weeksRejected.keptCount, 0);
+        expect(
+          weeksRejected.droppedCards.single.reason,
+          AiCardDropReason.unverifiedNumber,
+        );
+        expect(weeksRejected.droppedCards.single.detail, '19');
+        expect(weeksRejected.summaryStripped, isTrue);
+      },
+    );
 
     test('filters summary causality/medical/URL/numbers and finds unverified '
         'raw spans', () {
@@ -833,10 +932,7 @@ void main() {
 
     test('validates unspaced CJK numbers, actions, clocks, and medical '
         'tokens', () {
-      final facts = [
-        _fact('f1', 75),
-        _fact('h1', 60, unit: AiFactUnit.bpm, family: AiMetricFamily.heart),
-      ];
+      final facts = [_fact('f1', 75)];
 
       final jaGood = _card(
         title: '睡眠リズムは安定',

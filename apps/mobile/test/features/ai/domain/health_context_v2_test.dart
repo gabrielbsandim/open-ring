@@ -348,6 +348,18 @@ void main() {
       final m = built.contextMap;
       expect(m['detail'], 'minimal');
       expect((m['window']! as Map)['days'], 14);
+      expect((m['window']! as Map)['weeks'], 12);
+
+      final extMin = HealthContextBuilder.build(
+        _sampleInput(
+          detail: AiDetailLevel.minimal,
+          window: AiContextWindow.extended,
+          dayCount: 28,
+          weekCount: 26,
+        ),
+      );
+      expect((extMin.contextMap['window']! as Map)['days'], 14);
+      expect((extMin.contextMap['window']! as Map)['weeks'], 12);
       final profile = m['profile']! as Map;
       expect(profile, {'age_band': '30-39', 'step_goal': 9000});
 
@@ -364,6 +376,17 @@ void main() {
       expect((days['sleep_score']! as List)[2], isNull);
       expect((days['weight_delta']! as List).first, 0.0);
       expect((days['weight_delta']! as List)[2], -0.2);
+
+      final lbMin = HealthContextBuilder.build(
+        _sampleInput(
+          detail: AiDetailLevel.minimal,
+          units: const AiUnits(weight: AiWeightUnit.lb),
+        ),
+      );
+      final lbDeltas =
+          (lbMin.contextMap['days']! as Map)['weight_delta']! as List;
+      expect(lbDeltas.first, 0.0);
+      expect(lbDeltas[2], -0.5);
 
       final weeks = m['weeks']! as Map;
       expect(weeks.keys.toSet(), {
@@ -389,22 +412,52 @@ void main() {
     test('Standard coerces extended window, rounds times to 15m, hides '
         'app', () {
       final built = HealthContextBuilder.build(
-        _sampleInput(window: AiContextWindow.extended),
+        _sampleInput(
+          window: AiContextWindow.extended,
+          dayCount: 28,
+          weekCount: 26,
+        ),
       );
       final m = built.contextMap;
       expect(m['detail'], 'standard');
+      expect(m['reply_language'], 'pt-BR');
       expect((m['window']! as Map)['days'], 14);
+      expect((m['window']! as Map)['weeks'], 12);
+      expect(m['coverage'], const {
+        'ring': true,
+        'sleep_source': 'ring',
+        'days_with_ring_data': 28,
+        'imported_included': false,
+      });
       expect((m['profile']! as Map)['age_band'], '30-34');
       final days = m['days']! as Map;
       expect((days['d']! as List).last, 'D0');
       expect((days['bedtime']! as List).first, '00:00');
       expect((days['wake']! as List).first, '07:15');
+      final weeks = m['weeks']! as Map;
+      expect((weeks['rhr_avg']! as List).first, 56);
+      expect((weeks['hrv_avg']! as List).first, 46);
+      expect((weeks['weight_avg']! as List).first, 77.5);
       expect(m['workouts'], hasLength(1));
       final wk = (m['workouts']! as List).first! as Map;
       expect(wk['id'], 'wk.1');
       expect(wk['d'], 'D0');
       expect(wk['type'], 'running');
+      expect(wk['avg_hr'], 148);
+      expect(wk['max_hr'], 172);
+      expect(wk['z'], const [2, 8, 20, 12, 3]);
+      expect(wk['km'], 8.0);
+      expect(wk['kcal'], 540);
+      expect(wk['src'], 'openring');
       expect(wk.containsKey('app'), isFalse);
+      expect(m['goal'], const {
+        'type': 'lose_fat',
+        'status': 'active',
+        'started': 'D-21',
+        'block_week': 4,
+        'block_weeks': 12,
+        'rate_target_pct': 0.5,
+      });
       expect(m['weigh_ins'], const {
         'n30': 20,
         'trend_last': 77.2,
@@ -484,6 +537,7 @@ void main() {
         'window_median_min': 590,
         'last_meal_to_sleep_min': 165,
       });
+      expect((m['goal']! as Map)['started'], '2026-11-16');
     });
 
     test('enforces window caps, all LeverKind/GoalKind variants, and kg/lb '
@@ -695,6 +749,10 @@ void main() {
         'hrv': 'ms',
         'hr': 'bpm',
       });
+      final lbDays = m['days']! as Map;
+      expect((lbDays['weight']! as List).first, 172.0);
+      final lbWeeks = m['weeks']! as Map;
+      expect((lbWeeks['weight_avg']! as List).first, 170.9);
       final wk = (m['workouts']! as List).first! as Map;
       expect(wk.containsKey('km'), isFalse);
       expect(wk['mi'], 4.97);
@@ -726,33 +784,12 @@ void main() {
 
     test('filters !hasRing metrics, n<3 items, all-null cols, clamps '
         'daysAgo', () {
-      final nullDays = [
-        for (var i = 0; i < 4; i++)
-          AiDayRow(
-            date: const LocalDate(2026, 11, 24).addDays(i),
-            weekday: AiWeekday.values[i % 7],
-            sleepScore: 76,
-            load: 40 + i,
-          ),
-      ];
-      const nullWeeks = [
-        AiWeekRow(
-          sleepMinAvg: 420,
-          sleepScoreAvg: 76,
-          rhrAvg: 55,
-          hrvAvg: 46,
-          stepsAvg: 8000,
-          loadSum: 210,
-          workouts: 2,
-          readinessAvg: 74,
-        ),
-      ];
       final built = HealthContextBuilder.build(
         _sampleInput(
           hasRing: false,
           importedIncluded: true,
-          days: nullDays,
-          weeks: nullWeeks,
+          dayCount: 4,
+          weekCount: 1,
           baselines: const AiBaselinesInput(
             rhr: AiBaselineEntry(value: 55, days: 14),
             hrv: AiBaselineEntry(value: 45, days: 14),
@@ -807,7 +844,8 @@ void main() {
       );
       final m = built.contextMap;
       final days = m['days']! as Map;
-      for (final nullCol in const [
+      expect(days.containsKey('sleep_min'), isTrue);
+      for (final ringCol in const [
         'rhr',
         'hrv',
         'stress_avg',
@@ -816,10 +854,8 @@ void main() {
         'steps',
         'active_kcal',
         'readiness',
-        'sleep_min',
-        'weight',
       ]) {
-        expect(days.containsKey(nullCol), isFalse, reason: nullCol);
+        expect(days.containsKey(ringCol), isFalse, reason: ringCol);
       }
       final weeks = m['weeks']! as Map;
       expect(weeks.keys.toSet(), const {
@@ -828,11 +864,61 @@ void main() {
         'load_sum',
         'sleep_min_avg',
         'workouts',
+        'weight_avg',
       });
       expect(m.containsKey('baselines'), isFalse);
       expect(m.containsKey('trends'), isFalse);
       expect(built.facts.map((f) => f.id), ['f1']);
       expect(((m['workouts']! as List)[1]! as Map)['d'], 'D0');
+
+      final nullDays = [
+        for (var i = 0; i < 4; i++)
+          AiDayRow(
+            date: const LocalDate(2026, 11, 24).addDays(i),
+            weekday: AiWeekday.values[i % 7],
+            sleepScore: 76,
+            load: 40 + i,
+          ),
+      ];
+      const nullWeeks = [
+        AiWeekRow(
+          sleepMinAvg: 420,
+          sleepScoreAvg: 76,
+          rhrAvg: 55,
+          hrvAvg: 46,
+          stepsAvg: 8000,
+          loadSum: 210,
+          workouts: 2,
+          readinessAvg: 74,
+        ),
+      ];
+      final allNull = HealthContextBuilder.build(
+        _sampleInput(days: nullDays, weeks: nullWeeks),
+      );
+      final nullDayMap = allNull.contextMap['days']! as Map;
+      for (final nullCol in const [
+        'readiness',
+        'steps',
+        'sleep_min',
+        'deep_min',
+        'rem_min',
+        'awake_min',
+        'bedtime',
+        'wake',
+        'rhr',
+        'hrv',
+        'stress_avg',
+        'spo2_avg',
+        'spo2_min',
+        'active_kcal',
+        'weight',
+      ]) {
+        expect(nullDayMap.containsKey(nullCol), isFalse, reason: nullCol);
+      }
+      expect(
+        (allNull.contextMap['weeks']! as Map).containsKey('weight_avg'),
+        isFalse,
+      );
 
       final minNull = HealthContextBuilder.build(
         _sampleInput(
@@ -841,10 +927,10 @@ void main() {
           weeks: nullWeeks,
         ),
       );
-      expect(
-        (minNull.contextMap['days']! as Map).containsKey('weight_delta'),
-        isFalse,
-      );
+      final minDayMap = minNull.contextMap['days']! as Map;
+      expect(minDayMap.containsKey('readiness'), isFalse);
+      expect(minDayMap.containsKey('steps'), isFalse);
+      expect(minDayMap.containsKey('weight_delta'), isFalse);
     });
   });
 
@@ -1046,7 +1132,7 @@ void main() {
       final exhausted = HealthContextBuilder.build(
         _sampleInput(
           window: AiContextWindow.compact,
-          days: const [],
+          dayCount: 1,
           weeks: const [],
           workouts: const [],
           trends: const [],
@@ -1063,7 +1149,8 @@ void main() {
           ],
         ),
       );
-      expect(exhausted.droppedCount, 0);
+      expect(exhausted.droppedCount, 1);
+      expect((exhausted.contextMap['days']! as Map)['d'], const <String>[]);
       expect(
         exhausted.contextTokens,
         greaterThan(AiContextWindow.compact.hardCapTokens),

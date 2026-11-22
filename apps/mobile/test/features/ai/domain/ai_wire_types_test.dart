@@ -430,6 +430,8 @@ void main() {
             'ai_prompt.dart',
             'ai_provider_preset.dart',
             'ai_report_models.dart',
+            'ai_report_validator.dart',
+            'ai_safety_lexicon.dart',
             'ai_wire_types.dart',
             'base_url_policy.dart',
             'health_context_models.dart',

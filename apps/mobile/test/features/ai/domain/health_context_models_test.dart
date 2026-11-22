@@ -41,7 +41,8 @@ void main() {
   });
 
   group('sanitizeReplyLanguage', () {
-    test('allows 11 shipped locales plus pt-BR, normalizes case/underscores, rejects injections', () {
+    test('allows 11 shipped locales plus pt-BR, '
+        'normalizes case/underscores, rejects injections', () {
       for (final tag in const [
         'de',
         'en',
@@ -83,6 +84,7 @@ void main() {
           'wk.0',
         );
         expect(sanitizeSafeId('id with spaces', fallback: 'f0'), 'f0');
+        expect(sanitizeSafeId('a' * 32, fallback: 'f0'), 'a' * 32);
         expect(sanitizeSafeId('a' * 33, fallback: 'f0'), 'f0');
       },
     );

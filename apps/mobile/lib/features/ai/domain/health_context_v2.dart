@@ -8,23 +8,17 @@ abstract final class HealthContextBuilder {
   static const double _kmToMi = 0.621371192;
 
   static BuiltAiPayload build(HealthContextInput input) {
-    final effWindow =
-        input.detail != AiDetailLevel.full &&
-            input.window == AiContextWindow.extended
-        ? AiContextWindow.standard
-        : input.window;
+    final isFull = input.detail == AiDetailLevel.full;
+    final ext = !isFull && input.window == AiContextWindow.extended;
+    final effWindow = ext ? AiContextWindow.standard : input.window;
     final lang = sanitizeReplyLanguage(input.replyLanguage);
     final ring = input.coverage.hasRing;
     final dRows = _tail(input.days, effWindow.maxDays);
     final wRows = _tail(input.weeks, effWindow.maxWeeks);
     final wkRows = _filterWorkouts(input, effWindow.maxWorkouts);
     final trRows = _filterTrends(input.trends, ring, input.detail);
-    final fRows = _filterFacts(
-      input.facts,
-      ring,
-      input.detail,
-      effWindow.maxFacts,
-    );
+    final maxF = effWindow.maxFacts;
+    final fRows = _filterFacts(input.facts, ring, input.detail, maxF);
 
     var dropped = 0;
     late Map<String, Object?> map;
@@ -33,7 +27,7 @@ abstract final class HealthContextBuilder {
       map = _assemble(input, lang, dRows, wRows, wkRows, trRows, fRows);
       json = canonicalJsonEncode(map);
       if (estimateAiTokens(json) <= effWindow.hardCapTokens) break;
-      if (!_dropOne(wRows, wkRows, fRows, dRows)) break;
+      if (!_dropOne(wRows, wkRows, fRows, dRows, trRows)) break;
       dropped++;
     }
     final userMsg = buildAnalysisUserMessage(
@@ -128,25 +122,30 @@ abstract final class HealthContextBuilder {
     List<AiWorkoutRow> workouts,
     List<HealthFact> facts,
     List<AiDayRow> days,
+    List<AiTrendItem> trends,
   ) {
-    if (weeks.isNotEmpty) {
-      weeks.removeAt(0);
+    if (weeks.isNotEmpty) return _popFirst(weeks);
+    if (workouts.isNotEmpty) return _popLast(workouts);
+    final wkIdx = facts.lastIndexWhere((f) => f.isWorkoutFact);
+    if (wkIdx >= 0) {
+      facts.removeAt(wkIdx);
       return true;
     }
-    if (workouts.isNotEmpty) {
-      workouts.removeLast();
-      return true;
-    }
-    final wkFactIdx = facts.lastIndexWhere((f) => f.isWorkoutFact);
-    if (wkFactIdx >= 0) {
-      facts.removeAt(wkFactIdx);
-      return true;
-    }
-    if (days.isNotEmpty) {
-      days.removeAt(0);
-      return true;
-    }
+    if (days.length > 1) return _popFirst(days);
+    if (trends.isNotEmpty) return _popLast(trends);
+    if (facts.isNotEmpty) return _popLast(facts);
+    if (days.isNotEmpty) return _popFirst(days);
     return false;
+  }
+
+  static bool _popFirst<T>(List<T> items) {
+    items.removeAt(0);
+    return true;
+  }
+
+  static bool _popLast<T>(List<T> items) {
+    items.removeLast();
+    return true;
   }
 
   static Map<String, Object?> _assemble(
@@ -191,7 +190,7 @@ abstract final class HealthContextBuilder {
       ],
     };
     if (weeks.isNotEmpty) map['weeks'] = _weeksMap(weeks, d, ring, wUnit);
-    if (trends.isNotEmpty) map['trends'] = _trendsList(trends);
+    if (trends.isNotEmpty) map['trends'] = _trendsList(trends, wUnit);
     if (notMin && workouts.isNotEmpty) {
       map['workouts'] = [
         for (var i = 0; i < workouts.length; i++)
@@ -200,9 +199,8 @@ abstract final class HealthContextBuilder {
     }
     final base = _baselinesMap(input.baselines, ring);
     if (notMin && base.isNotEmpty) map['baselines'] = base;
-    if (notMin && input.weighIns != null) {
-      map['weigh_ins'] = _weighInsMap(input.weighIns!, wUnit);
-    }
+    final wi = input.weighIns;
+    if (notMin && wi != null) map['weigh_ins'] = _weighInsMap(wi, wUnit);
     if (notMin && input.energy != null) {
       map['energy'] = {
         'bmr_kcal': input.energy!.bmrKcal,
@@ -249,8 +247,7 @@ abstract final class HealthContextBuilder {
     _col(out, 'load', rows, (r) => r.load);
     if (ring) _col(out, 'steps', rows, (r) => r.steps);
     if (d == AiDetailLevel.minimal) {
-      final deltas = _weightDeltas(rows, wUnit);
-      if (deltas.isNotEmpty) out['weight_delta'] = deltas;
+      _addWeightDeltas(out, rows, wUnit);
       return out;
     }
     final round15 = d == AiDetailLevel.standard;
@@ -301,17 +298,23 @@ abstract final class HealthContextBuilder {
     return out;
   }
 
-  static List<Map<String, Object?>> _trendsList(List<AiTrendItem> trends) => [
+  static List<Map<String, Object?>> _trendsList(
+    List<AiTrendItem> trends,
+    AiWeightUnit wUnit,
+  ) => [
     for (final t in trends)
       {
         'id': sanitizeSafeId(t.id, fallback: 't.${t.metric.wireName}'),
         'metric': t.metric.wireName,
-        'last28': t.last28,
-        'prev28': t.prev28,
+        'last28': _trendVal(t.metric, t.last28, wUnit),
+        'prev28': _trendVal(t.metric, t.prev28, wUnit),
         'dir': t.dir.name,
         'n': t.n,
       },
   ];
+
+  static double _trendVal(AiTrendMetric m, double v, AiWeightUnit u) =>
+      m == AiTrendMetric.weight ? (_weightVal(v, u) ?? v) : v;
 
   static Map<String, Object?> _baselinesMap(AiBaselinesInput? b, bool ring) {
     if (b == null) return const {};
@@ -418,11 +421,15 @@ abstract final class HealthContextBuilder {
     return safe == 0 ? '${prefix}0' : '$prefix-$safe';
   }
 
-  static List<double?> _weightDeltas(List<AiDayRow> rows, AiWeightUnit u) {
+  static void _addWeightDeltas(
+    Map<String, Object?> out,
+    List<AiDayRow> rows,
+    AiWeightUnit u,
+  ) {
     final weights = [for (final r in rows) _weightVal(r.weightKg, u)];
     final base = weights.firstWhere((w) => w != null, orElse: () => null);
-    if (base == null) return const [];
-    return [
+    if (base == null) return;
+    out['weight_delta'] = [
       for (final w in weights)
         _scale(w == null ? null : w - base, false, 1, 10),
     ];

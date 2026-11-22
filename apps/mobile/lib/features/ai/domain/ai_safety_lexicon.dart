@@ -13,6 +13,7 @@ abstract final class AiSafetyLexicon {
   };
   static const _commaLocales = {'de', 'es', 'fr', 'id', 'it', 'pt', 'ru'};
   static const _cjkLocales = {'ja', 'zh'};
+  static const _alpha = r'\p{sc=Latin}\p{sc=Cyrillic}';
 
   static const _medicalStems = {
     'en': 'diagnos|disease|disorder|syndrome|apnea|arrhythmia|fibrillation|hypertension|diabetes|infection|medication|dosage|dose|supplement|prescri|pharmac|antibiotic|insulin|steroid|antidepressant',
@@ -60,20 +61,20 @@ abstract final class AiSafetyLexicon {
     'fr': 'min(?:utes?)?|heures?|jours?|nuits?|semaines?|pas',
     'de': 'min(?:uten?)?|stunden?|tag(?:en?)?|n[aä]cht(?:en?)?|wochen?|schritt(?:en?)?',
     'id': 'menit|min|jam|hari|malam|minggu|pekan|langkah',
-    'it': 'min(?:uti)?|or[ae]|giorn[io]|nott[ei]|settiman[ae]|pass[io]',
+    'it': 'min(?:ut[io])?|or[ae]|giorn[io]|nott[ei]|settiman[ae]|pass[io]',
     'ja': '分間?|時間|日間?|晩|夜|週間?|歩',
-    'ru': 'мин(?:ут[уы]?)?|час(?:а|ов)?|д(?:ень|ня|ней)|ноч(?:ь|и|ей)|недел(?:я|и|ь|ю)|шаг(?:а|ов)?',
+    'ru': 'мин(?:ут[ауы]?)?|час(?:а|ов)?|д(?:ень|ня|ней)|ноч(?:ь|и|ей)|недел(?:я|и|ь|ю)|шаг(?:а|ов)?',
     'zh': '分钟|分鐘|分|小时|小時|天|日|晚|周|週|步',
   };
 
   static final _shortMed = RegExp(
-    r'(?<!\p{L})(?:mg|mcg|mmhg|rx)(?!\p{L})',
+    '(?<![$_alpha])(?:mg|mcg|mmhg|rx)(?![$_alpha])',
     caseSensitive: false,
     unicode: true,
   );
   static final _forbiddenVitalUnit = RegExp(
     r'^\s*(%|(?:bpm|ms|kg|lbs?|kcal|cal|kj|mg|mcg|ug|µg|ml|iu|mmhg|spo2|'
-    r'vo2|bmi|imc|g|oz|уд/мин|мс|кг|ккал|мг|мкг|мл|мм)(?!\p{L})|'
+    'vo2|bmi|imc|g|oz|уд/мин|мс|кг|ккал|мг|мкг|мл|мм)(?![$_alpha])|'
     'カロリー|キロカロリー|ミリグラム|千卡|大卡|毫克|微克|毫升|公斤|磅)',
     caseSensitive: false,
     unicode: true,
@@ -149,7 +150,7 @@ abstract final class AiSafetyLexicon {
   static Map<String, RegExp> _unitCache(Map<String, String> patterns) => {
     for (final e in patterns.entries)
       e.key: RegExp(
-        '^\\s*(?:${e.value})${_cjkLocales.contains(e.key) ? '' : r'(?!\p{L})'}',
+        '^\\s*(?:${e.value})${_cjkLocales.contains(e.key) ? '' : '(?![$_alpha])'}',
         caseSensitive: false,
         unicode: true,
       ),
@@ -164,6 +165,6 @@ abstract final class AiSafetyLexicon {
     final alts = value.split('|').map(RegExp.escape).join('|');
     return _cjkLocales.contains(locale)
         ? '(?:$alts)'
-        : '(?<!\\p{L})(?:$alts)(?!\\p{L})';
+        : '(?<![$_alpha])(?:$alts)(?![$_alpha])';
   }
 }

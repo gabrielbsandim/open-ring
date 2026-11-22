@@ -8,9 +8,12 @@ typedef _NumTok = ({int s, int e, String raw, String after, double? val});
 typedef _Drop = (AiCardDropReason reason, String detail);
 
 const _pow10 = [1.0, 10.0, 100.0, 1000.0, 10000.0];
+const _alpha = r'\p{sc=Latin}\p{sc=Cyrillic}';
 
 final _numOrClock = RegExp(
-  r'(?<!\p{L})(?:(?<![\d.:,])(?:[01]?\d|2[0-3]):[0-5]\d(?![\d:])|(\d+(?:[.,\u00a0\u202f]\d+)*))',
+  '(?:(?<!\\d)[$_alpha]+\\d+(?:[.,\\u00a0\\u202f]\\d+)*'
+  r'|(?<![\d.:,])(?:[01]?\d|2[0-3]):[0-5]\d(?![\d:])'
+  r'|(\d+(?:[.,\u00a0\u202f]\d+)*))',
   unicode: true,
 );
 final _spaceThous = RegExp(

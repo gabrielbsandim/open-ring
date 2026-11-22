@@ -37,14 +37,15 @@
     <!-- Asked only with no ring paired and a read on, so the periodic job can import. -->
     <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" />
 
-    <!-- No Google cloud backup, so health data never leaves the phone that way.
-         Android 12 and later still allow a direct device to device transfer. -->
+    <!-- No Google cloud backup on any SDK; Android 12+ device transfer
+         also excludes flutter_secure_storage encrypted API keys. -->
     <application
         android:label="OpenRing"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:localeConfig="@xml/locales_config"
-        android:allowBackup="false">
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules">
         <activity
             android:name=".MainActivity"
             android:exported="true"

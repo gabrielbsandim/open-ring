@@ -426,6 +426,7 @@ void main() {
         expect(
           files.map((f) => f.uri.pathSegments.last),
           containsAll([
+            'ai_config.dart',
             'ai_output_extractor.dart',
             'ai_prompt.dart',
             'ai_provider_preset.dart',
@@ -437,6 +438,7 @@ void main() {
             'health_context_models.dart',
             'health_context_v2.dart',
             'openai_wire_codec.dart',
+            'secret_store.dart',
           ]),
         );
         final dashes = RegExp(r'[\u2013\u2014]');

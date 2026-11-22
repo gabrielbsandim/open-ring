@@ -3,6 +3,8 @@ import 'package:open_ring/features/ai/domain/ai_output_extractor.dart';
 import 'package:open_ring/features/ai/domain/ai_report_models.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 
+String _rt(String v) => String.fromCharCodes(v.codeUnits);
+
 String _cardJson({
   String family = 'sleep',
   String title = 'T',
@@ -74,14 +76,23 @@ void main() {
         final copy = Map<String, Object?>.of(encoded)..remove(badKey);
         expect(ValidatedAiCard.fromJson(copy), isNull, reason: badKey);
       }
-      expect(
-        ValidatedAiCard.fromJson({...encoded, 'family': 'invalid'}),
-        isNull,
-      );
-      expect(
-        ValidatedAiCard.fromJson({...encoded, 'evidenceIds': const []}),
-        isNull,
-      );
+      for (final override in <String, Object?>{
+        'family': 'invalid',
+        'title': 12,
+        'insight': false,
+        'action': 99,
+        'evidenceIds': const <String>[],
+        'minEvidenceDays': -1,
+        'modelConfidence': 'ultra',
+        'coverageConfidence': 'max',
+        'shownConfidence': 'ultra',
+      }.entries) {
+        expect(
+          ValidatedAiCard.fromJson({...encoded, override.key: override.value}),
+          isNull,
+          reason: override.key,
+        );
+      }
       expect(
         ValidatedAiCard.fromJson({
           ...encoded,
@@ -103,148 +114,225 @@ void main() {
         }),
         isNull,
       );
-      expect(
-        ValidatedAiCard.fromJson({...encoded, 'minEvidenceDays': -1}),
-        isNull,
-      );
-      expect(
-        ValidatedAiCard.fromJson({...encoded, 'shownConfidence': 'ultra'}),
-        isNull,
-      );
     });
 
-    test('value equality holds and distinguishes field diffs across DTOs', () {
-      const rawCardA = RawAiCard(
-        family: AiMetricFamily.heart,
-        title: 'T',
-        insight: 'I',
-        evidence: ['f1'],
-        action: 'A',
+    test('non-const value equality and field diffs hold across all DTOs', () {
+      RawAiCard mkRaw({
+        AiMetricFamily fam = AiMetricFamily.heart,
+        String ev = 'f1',
+      }) => RawAiCard(
+        family: fam,
+        title: _rt('T'),
+        insight: _rt('I'),
+        evidence: [_rt(ev)],
+        action: _rt('A'),
         confidence: AiConfidence.medium,
       );
-      const rawCardB = RawAiCard(
-        family: AiMetricFamily.heart,
-        title: 'T',
-        insight: 'I',
-        evidence: ['f1'],
-        action: 'A',
-        confidence: AiConfidence.medium,
-      );
-      const rawCardDiff = RawAiCard(
-        family: AiMetricFamily.sleep,
-        title: 'T',
-        insight: 'I',
-        evidence: ['f1'],
-        action: 'A',
-        confidence: AiConfidence.medium,
-      );
+      final rawCardA = mkRaw();
+      final rawCardB = mkRaw();
+      expect(identical(rawCardA, rawCardB), isFalse);
       expect(rawCardA, rawCardB);
       expect(rawCardA.hashCode, rawCardB.hashCode);
-      expect(rawCardA, isNot(rawCardDiff));
+      expect(rawCardA, isNot(mkRaw(fam: AiMetricFamily.sleep)));
+      expect(rawCardA, isNot(mkRaw(ev: 'f2')));
 
-      const rptA = RawAiReport(summary: 'S', cards: [rawCardA]);
-      const rptB = RawAiReport(summary: 'S', cards: [rawCardB]);
+      final rptA = RawAiReport(summary: _rt('S'), cards: [rawCardA]);
+      final rptB = RawAiReport(summary: _rt('S'), cards: [rawCardB]);
+      expect(identical(rptA, rptB), isFalse);
       expect(rptA, rptB);
       expect(rptA.hashCode, rptB.hashCode);
-      expect(rptA, isNot(const RawAiReport(summary: 'X', cards: [rawCardA])));
+      expect(rptA, isNot(RawAiReport(summary: _rt('X'), cards: [rawCardA])));
+      expect(
+        rptA,
+        isNot(
+          RawAiReport(
+            summary: _rt('S'),
+            cards: [mkRaw(ev: 'f2')],
+          ),
+        ),
+      );
 
-      const dropA = DroppedAiCard(
+      final dropA = DroppedAiCard(
         card: rawCardA,
         reason: AiCardDropReason.medicalBlocklist,
-        detail: 'apnea',
+        detail: _rt('apnea'),
       );
-      const dropB = DroppedAiCard(
+      final dropB = DroppedAiCard(
         card: rawCardB,
         reason: AiCardDropReason.medicalBlocklist,
-        detail: 'apnea',
+        detail: _rt('apnea'),
       );
+      expect(identical(dropA, dropB), isFalse);
       expect(dropA, dropB);
       expect(dropA.hashCode, dropB.hashCode);
       expect(
         dropA,
         isNot(
-          const DroppedAiCard(
+          DroppedAiCard(
             card: rawCardA,
             reason: AiCardDropReason.urlOrMarkdown,
-            detail: 'apnea',
+            detail: _rt('apnea'),
+          ),
+        ),
+      );
+      expect(
+        dropA,
+        isNot(
+          DroppedAiCard(
+            card: mkRaw(ev: 'f2'),
+            reason: AiCardDropReason.medicalBlocklist,
+            detail: _rt('apnea'),
           ),
         ),
       );
 
-      const vCard = ValidatedAiCard(
-        family: AiMetricFamily.heart,
-        title: 'T',
-        insight: 'I',
-        evidenceIds: ['f1'],
-        action: 'A',
-        modelConfidence: AiConfidence.medium,
-        coverageConfidence: AiConfidence.low,
-        shownConfidence: AiConfidence.low,
-        minEvidenceDays: 4,
-      );
-      const vCardDiff = ValidatedAiCard(
-        family: AiMetricFamily.heart,
-        title: 'T',
-        insight: 'I',
-        evidenceIds: ['f1'],
-        action: 'A',
-        modelConfidence: AiConfidence.medium,
-        coverageConfidence: AiConfidence.low,
-        shownConfidence: AiConfidence.low,
-        minEvidenceDays: 5,
-      );
-      expect(vCard, isNot(vCardDiff));
+      ValidatedAiCard mkVal({int days = 4, String ev = 'f1'}) =>
+          ValidatedAiCard(
+            family: AiMetricFamily.heart,
+            title: _rt('T'),
+            insight: _rt('I'),
+            evidenceIds: [_rt(ev)],
+            action: _rt('A'),
+            modelConfidence: AiConfidence.medium,
+            coverageConfidence: AiConfidence.low,
+            shownConfidence: AiConfidence.low,
+            minEvidenceDays: days,
+          );
+      final vCardA = mkVal();
+      final vCardB = mkVal();
+      expect(identical(vCardA, vCardB), isFalse);
+      expect(vCardA, vCardB);
+      expect(vCardA.hashCode, vCardB.hashCode);
+      expect(vCardA, isNot(mkVal(days: 5)));
+      expect(vCardA, isNot(mkVal(ev: 'f2')));
 
-      const valA = ValidatedAiReport(
-        summary: 'S',
+      final valA = ValidatedAiReport(
+        summary: _rt('S'),
         summaryStripped: true,
-        cards: [vCard],
+        cards: [vCardA],
         droppedCards: [dropA],
         totalModelCards: 2,
       );
-      const valB = ValidatedAiReport(
-        summary: 'S',
+      final valB = ValidatedAiReport(
+        summary: _rt('S'),
         summaryStripped: true,
-        cards: [vCard],
+        cards: [vCardB],
         droppedCards: [dropB],
         totalModelCards: 2,
       );
-      const valDiff = ValidatedAiReport(
-        summary: 'S',
-        summaryStripped: false,
-        cards: [vCard],
-        droppedCards: [dropB],
-        totalModelCards: 2,
-      );
+      expect(identical(valA, valB), isFalse);
       expect(valA, valB);
       expect(valA.hashCode, valB.hashCode);
-      expect(valA, isNot(valDiff));
       expect(valA.keptCount, 1);
       expect(valA.droppedCount, 1);
+      expect(
+        valA,
+        isNot(
+          ValidatedAiReport(
+            summary: _rt('S'),
+            summaryStripped: false,
+            cards: [vCardA],
+            droppedCards: [dropA],
+            totalModelCards: 2,
+          ),
+        ),
+      );
+      expect(
+        valA,
+        isNot(
+          ValidatedAiReport(
+            summary: _rt('S'),
+            summaryStripped: true,
+            cards: [mkVal(ev: 'f2')],
+            droppedCards: [dropA],
+            totalModelCards: 2,
+          ),
+        ),
+      );
+      expect(
+        valA,
+        isNot(
+          ValidatedAiReport(
+            summary: _rt('S'),
+            summaryStripped: true,
+            cards: [vCardA],
+            droppedCards: [
+              DroppedAiCard(
+                card: rawCardA,
+                reason: AiCardDropReason.emptyText,
+                detail: _rt('title'),
+              ),
+            ],
+            totalModelCards: 2,
+          ),
+        ),
+      );
 
-      const spanA = AiUnverifiedSpan(start: 3, end: 7, raw: '12.5');
-      const spanB = AiUnverifiedSpan(start: 3, end: 7, raw: '12.5');
+      final spanA = AiUnverifiedSpan(start: 3, end: 7, raw: _rt('12.5'));
+      final spanB = AiUnverifiedSpan(start: 3, end: 7, raw: _rt('12.5'));
+      expect(identical(spanA, spanB), isFalse);
       expect(spanA, spanB);
       expect(spanA.hashCode, spanB.hashCode);
       expect(
         spanA,
-        isNot(const AiUnverifiedSpan(start: 4, end: 7, raw: '12.5')),
+        isNot(AiUnverifiedSpan(start: 4, end: 7, raw: _rt('12.5'))),
+      );
+      expect(
+        spanA,
+        isNot(AiUnverifiedSpan(start: 3, end: 7, raw: _rt('13.0'))),
       );
 
-      const accA = AiRewordAccepted(text: 'Keep 9.000', evidenceIds: ['p1']);
-      const accB = AiRewordAccepted(text: 'Keep 9.000', evidenceIds: ['p1']);
-      const drpA = AiRewordDropped(
-        reason: AiCardDropReason.unverifiedNumber,
-        detail: '11.000',
+      final accA = AiRewordAccepted(
+        text: _rt('Keep 9.000'),
+        evidenceIds: [_rt('p1')],
       );
-      const drpB = AiRewordDropped(
-        reason: AiCardDropReason.unverifiedNumber,
-        detail: '11.000',
+      final accB = AiRewordAccepted(
+        text: _rt('Keep 9.000'),
+        evidenceIds: [_rt('p1')],
       );
+      expect(identical(accA, accB), isFalse);
       expect(accA, accB);
       expect(accA.hashCode, accB.hashCode);
+      expect(
+        accA,
+        isNot(AiRewordAccepted(text: _rt('Other'), evidenceIds: [_rt('p1')])),
+      );
+      expect(
+        accA,
+        isNot(
+          AiRewordAccepted(text: _rt('Keep 9.000'), evidenceIds: [_rt('p2')]),
+        ),
+      );
+
+      final drpA = AiRewordDropped(
+        reason: AiCardDropReason.unverifiedNumber,
+        detail: _rt('11.000'),
+      );
+      final drpB = AiRewordDropped(
+        reason: AiCardDropReason.unverifiedNumber,
+        detail: _rt('11.000'),
+      );
+      expect(identical(drpA, drpB), isFalse);
       expect(drpA, drpB);
       expect(drpA.hashCode, drpB.hashCode);
+      expect(
+        drpA,
+        isNot(
+          AiRewordDropped(
+            reason: AiCardDropReason.medicalBlocklist,
+            detail: _rt('11.000'),
+          ),
+        ),
+      );
+      expect(
+        drpA,
+        isNot(
+          AiRewordDropped(
+            reason: AiCardDropReason.unverifiedNumber,
+            detail: _rt('12.000'),
+          ),
+        ),
+      );
       expect(accA, isNot(drpA));
     });
   });
@@ -282,6 +370,11 @@ void main() {
         AiOutputExtractor.extractFirstJsonObject('{"a":{"b":1}}', maxDepth: 1),
         isNull,
       );
+
+      final okObj = '${'{"k":' * 16}1${'}' * 16}';
+      expect(AiOutputExtractor.extractFirstJsonObject(okObj), okObj);
+      final okArr = '{"k":${'[' * 15}1${']' * 15}}';
+      expect(AiOutputExtractor.extractFirstJsonObject(okArr), okArr);
 
       final tooDeepObj = '${'{"k":' * 17}1${'}' * 17}';
       expect(AiOutputExtractor.extractFirstJsonObject(tooDeepObj), isNull);
@@ -327,6 +420,14 @@ Hope this helps!
             ),
           ],
         ),
+      );
+
+      const fencedInThink =
+          '<think>\n```json\n{"summary":"Leaked","cards":[]}\n```\n</think>\n'
+          '{"summary":"Real","cards":[]}';
+      expect(
+        AiOutputExtractor.extractReport(fencedInThink),
+        const RawAiReport(summary: 'Real', cards: []),
       );
 
       const crlfRaw = '```json\r\n{"summary":"CRLF ok.","cards":[]}\r\n```';
@@ -432,11 +533,11 @@ Hope this helps!
       expect(AiOutputExtractor.clampAtSentence('  short  ', 10), 'short');
       expect(AiOutputExtractor.clampAtSentence('text', 0), '');
 
-      // Does not break inside "9.316" even when index 60 lands after '.'.
+      // Does not break inside "9.316" when index 24 falls mid-number.
       const decText =
           'Sua media subiu para 9.316 ontem em diante com passos estaveis hoje';
       final decCut = AiOutputExtractor.clampAtSentence(decText, 24);
-      expect(decCut.endsWith('9.'), isFalse);
+      expect(decCut, 'Sua media subiu para');
 
       // Cuts cleanly at real sentence boundary without losing it.
       const sentText =
@@ -455,8 +556,7 @@ Hope this helps!
 
       final emojiStr = '${'a' * 19}\u{1F600}bbbbb';
       final safeEmoji = AiOutputExtractor.clampAtSentence(emojiStr, 20);
-      expect(safeEmoji.length, lessThanOrEqualTo(20));
-      expect(() => safeEmoji.runes.toList(), returnsNormally);
+      expect(safeEmoji, 'a' * 19);
     });
 
     test('extractRewordCard parses standalone card or single-card report', () {

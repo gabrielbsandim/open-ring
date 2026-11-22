@@ -426,8 +426,10 @@ void main() {
         expect(
           files.map((f) => f.uri.pathSegments.last),
           containsAll([
+            'ai_output_extractor.dart',
             'ai_prompt.dart',
             'ai_provider_preset.dart',
+            'ai_report_models.dart',
             'ai_wire_types.dart',
             'base_url_policy.dart',
             'health_context_models.dart',

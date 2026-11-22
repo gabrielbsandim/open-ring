@@ -346,6 +346,7 @@ void main() {
         ),
       );
       final m = built.contextMap;
+      expect(m['schema'], 'openring.context/2');
       expect(m['detail'], 'minimal');
       expect((m['window']! as Map)['days'], 14);
       expect((m['window']! as Map)['weeks'], 12);
@@ -374,7 +375,14 @@ void main() {
         'steps',
         'weight_delta',
       });
+      expect((days['d']! as List).first, 'D-13');
+      expect((days['d']! as List).last, 'D0');
+      expect((days['weekday']! as List).first, 'tue');
+      expect((days['sleep_score']! as List).first, 74);
       expect((days['sleep_score']! as List)[2], isNull);
+      expect((days['readiness']! as List).first, 75);
+      expect((days['load']! as List).first, 35);
+      expect((days['steps']! as List).first, 6000);
       expect((days['weight_delta']! as List).first, 0.0);
       expect((days['weight_delta']! as List)[2], -0.2);
 
@@ -397,6 +405,20 @@ void main() {
         'readiness_avg',
         'load_sum',
       });
+      expect((weeks['w']! as List).first, 'W-11');
+      expect((weeks['w']! as List).last, 'W0');
+      expect((weeks['sleep_score_avg']! as List).first, 77);
+      expect((weeks['steps_avg']! as List).first, 8100);
+      expect((weeks['readiness_avg']! as List).first, 74);
+      expect((weeks['load_sum']! as List).first, 220);
+      expect(m['facts'], const [
+        {
+          'id': 'f1',
+          'label': 'Sleep score, 7 night mean',
+          'v': 78.0,
+          'u': 'score',
+        },
+      ]);
       expect(m.containsKey('workouts'), isFalse);
       expect(m.containsKey('baselines'), isFalse);
       expect(m.containsKey('weigh_ins'), isFalse);
@@ -420,6 +442,7 @@ void main() {
         ),
       );
       final m = built.contextMap;
+      expect(m['schema'], 'openring.context/2');
       expect(m['detail'], 'standard');
       expect(m['reply_language'], 'pt-BR');
       expect((m['window']! as Map)['days'], 14);
@@ -439,7 +462,9 @@ void main() {
         'step_goal': 9000,
       });
       final days = m['days']! as Map;
+      expect((days['d']! as List).first, 'D-13');
       expect((days['d']! as List).last, 'D0');
+      expect((days['sleep_min']! as List).first, 450);
       expect((days['bedtime']! as List).first, '00:00');
       expect((days['wake']! as List).first, '07:15');
       expect((days['deep_min']! as List).first, 62);
@@ -452,6 +477,9 @@ void main() {
       expect((days['spo2_min']! as List).first, 92);
       expect((days['active_kcal']! as List).first, 450);
       final weeks = m['weeks']! as Map;
+      expect((weeks['w']! as List).first, 'W-11');
+      expect((weeks['sleep_min_avg']! as List).first, 444.0);
+      expect((weeks['workouts']! as List).first, 3);
       expect((weeks['rhr_avg']! as List).first, 56);
       expect((weeks['hrv_avg']! as List).first, 46);
       expect((weeks['weight_avg']! as List).first, 77.5);
@@ -765,9 +793,22 @@ void main() {
             trendLastKg: 70,
             daysSinceLast: 1,
           ),
+          facts: const [
+            HealthFact(
+              id: 'f.rate',
+              label: 'Weight rate',
+              value: -0.5,
+              unit: AiFactUnit.kgPerWeek,
+              family: AiMetricFamily.body,
+              days: 14,
+            ),
+          ],
         ),
       );
       final m = built.contextMap;
+      expect(m['facts'], const [
+        {'id': 'f.rate', 'label': 'Weight rate', 'v': -0.5, 'u': 'kg/wk'},
+      ]);
       expect(m['units'], const {
         'energy': 'kcal',
         'distance': 'mi',

@@ -429,6 +429,7 @@ void main() {
             'ai_provider_preset.dart',
             'ai_wire_types.dart',
             'base_url_policy.dart',
+            'health_context_models.dart',
             'openai_wire_codec.dart',
           ]),
         );

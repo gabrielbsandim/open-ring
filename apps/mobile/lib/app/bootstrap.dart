@@ -15,6 +15,8 @@ import 'package:open_ring/features/activity/application/step_goal_history_provid
 import 'package:open_ring/features/activity/infrastructure/drift_activity_history_reader.dart';
 import 'package:open_ring/features/activity/infrastructure/drift_step_goal_history.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_report_providers.dart';
+import 'package:open_ring/features/ai/infrastructure/drift_ai_report_store.dart';
 import 'package:open_ring/features/ai/infrastructure/secure_storage_secret_store.dart';
 import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_config_store.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
@@ -213,6 +215,9 @@ Future<void> bootstrap() async {
       ),
       secretStoreProvider.overrideWithValue(const SecureStorageSecretStore()),
       aiConfigStoreProvider.overrideWithValue(SharedPreferencesAiConfigStore()),
+      aiReportStoreProvider.overrideWith(
+        (ref) => DriftAiReportStore(ref.watch(appDatabaseProvider)),
+      ),
       appDatabaseProvider.overrideWithValue(database),
       syncStoreProvider.overrideWith(
         (ref) => DriftSyncStore(ref.watch(appDatabaseProvider)),

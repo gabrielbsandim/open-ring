@@ -35,6 +35,7 @@ void main() {
     'goal_weeks',
     'goal_screenings',
     'meals',
+    'ai_reports',
   };
 
   test('creates every table listed in the plan', () async {

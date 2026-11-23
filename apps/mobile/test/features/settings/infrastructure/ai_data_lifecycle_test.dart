@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
+import 'package:open_ring/features/ai/infrastructure/drift_ai_report_store.dart';
 import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_config_store.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/settings/infrastructure/device_local_data_eraser.dart';
@@ -64,5 +65,20 @@ void main() {
     for (final table in db.allTables) {
       expect(await rowCount(db, table.actualTableName), 0);
     }
+  });
+
+  test('Delete all data empties ai_reports', () async {
+    final db = await pairedDatabase();
+    await DriftAiReportStore(db)
+        .insert(sampleAiReport(at: DateTime.utc(2026, 11, 23)));
+    expect(await rowCount(db, 'ai_reports'), 1);
+
+    await DeviceLocalDataEraser(
+      db,
+      InMemoryPhotoStore(),
+      secrets: InMemorySecretStore(),
+    ).eraseAll();
+
+    expect(await rowCount(db, 'ai_reports'), 0);
   });
 }

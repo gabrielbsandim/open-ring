@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:open_ring/core/database/app_database.steps.dart';
+import 'package:open_ring/core/database/tables/ai_tables.dart';
 import 'package:open_ring/core/database/tables/body_tables.dart';
 import 'package:open_ring/core/database/tables/goal_tables.dart';
 import 'package:open_ring/core/database/tables/health_tables.dart';
@@ -48,13 +49,14 @@ part 'app_database.g.dart';
     GoalWeeks,
     GoalScreenings,
     Meals,
+    AiReports,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -126,6 +128,10 @@ class AppDatabase extends _$AppDatabase {
       from16To17: (migrator, schema) async {
         final workouts = schema.workouts;
         await migrator.addColumn(workouts, workouts.checkpointUtcMs);
+      },
+      from17To18: (migrator, schema) async {
+        await migrator.createTable(schema.aiReports);
+        await migrator.createIndex(schema.aiReportsCacheKey);
       },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),

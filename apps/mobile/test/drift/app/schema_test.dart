@@ -15,6 +15,7 @@ import 'generated/schema_v14.dart' as v14;
 import 'generated/schema_v15.dart' as v15;
 import 'generated/schema_v16.dart' as v16;
 import 'generated/schema_v17.dart' as v17;
+import 'generated/schema_v18.dart' as v18;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
@@ -624,8 +625,8 @@ void main() {
     },
   );
 
-  test('the code schema is v17', () {
-    expect(memoryDatabase().schemaVersion, 17);
+  test('the code schema is v18', () {
+    expect(memoryDatabase().schemaVersion, 18);
   });
 
   test('v16 migrates to v17, a finished workout keeps its end and has no '
@@ -675,6 +676,39 @@ void main() {
         expect(rows.single.endUtcMs, 1762759800000);
         expect(rows.single.checkpointUtcMs, null);
         expect(await newDb.select(newDb.workoutHrSamples).get(), hasLength(1));
+      },
+    );
+  });
+
+  test('v17 migrates to v18, an empty ai_reports table with its cache key '
+      'index and workouts untouched', () async {
+    const workout = v17.WorkoutsData(
+      id: 1,
+      clientId: 'phone:1762758000000',
+      activityType: 'running',
+      startUtcMs: 1762758000000,
+      endUtcMs: 1762759800000,
+      offsetMinutes: -180,
+      elapsedMs: 1800000,
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 17,
+      newVersion: 18,
+      createOld: v17.DatabaseAtV17.new,
+      createNew: v18.DatabaseAtV18.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch.insert(oldDb.workouts, workout),
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.workouts).get(), hasLength(1));
+        expect(await newDb.select(newDb.aiReports).get(), isEmpty);
+        final index = await newDb
+            .customSelect(
+              "SELECT name FROM sqlite_master WHERE type = 'index' "
+              "AND name = 'ai_reports_cache_key'",
+            )
+            .get();
+        expect(index, hasLength(1));
       },
     );
   });

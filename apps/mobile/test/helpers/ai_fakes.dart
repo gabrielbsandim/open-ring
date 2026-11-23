@@ -1,4 +1,5 @@
 import 'package:open_ring/features/ai/domain/ai_config.dart';
+import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 
@@ -124,3 +125,106 @@ final class InMemoryAiConfigStore implements AiConfigStore {
     profiles.clear();
   }
 }
+
+final class InMemoryAiReportStore implements AiReportStore {
+  final List<AiReport> reports = [];
+  int _nextId = 1;
+
+  @override
+  Future<int> insert(AiReport report) async {
+    final id = _nextId++;
+    reports.add(_withId(report, id));
+    await applyRetention(report.createdAtUtc);
+    return id;
+  }
+
+  @override
+  Future<AiReport?> newestDone(AiReportCacheKey key) async {
+    for (final report in _sorted()) {
+      if (report.status == AiReportStatus.done && report.cacheKey == key) {
+        return report;
+      }
+    }
+    return null;
+  }
+
+  @override
+  Future<List<AiReport>> recent({int limit = aiReportKeepCount}) async =>
+      _sorted().take(limit).toList();
+
+  @override
+  Future<void> deleteAll() async => reports.clear();
+
+  @override
+  Future<void> applyRetention(DateTime nowUtc) async {
+    final kept = _sorted().take(aiReportKeepCount).toList();
+    final cutoff = nowUtc.subtract(const Duration(days: aiReportPayloadDays));
+    reports
+      ..clear()
+      ..addAll([for (final r in kept) _purgedIfOlder(r, cutoff)]);
+  }
+
+  static AiReport _purgedIfOlder(AiReport r, DateTime cutoff) {
+    if (r.createdAtUtc.isBefore(cutoff)) return _purged(r);
+    return r;
+  }
+
+  List<AiReport> _sorted() => [...reports]
+    ..sort((a, b) {
+      final byTime = b.createdAtUtc.compareTo(a.createdAtUtc);
+      return byTime != 0 ? byTime : b.id!.compareTo(a.id!);
+    });
+
+  static AiReport _withId(AiReport r, int id) =>
+      _copy(r, id: id, payloadJson: r.payloadJson, rawText: r.rawText);
+
+  static AiReport _purged(AiReport r) => _copy(r, id: r.id!);
+
+  static AiReport _copy(
+    AiReport r, {
+    required int id,
+    String? payloadJson,
+    String? rawText,
+  }) => AiReport(
+    id: id,
+    createdAtUtc: r.createdAtUtc,
+    offsetMin: r.offsetMin,
+    kind: r.kind,
+    contextSchema: r.contextSchema,
+    contextSha256: r.contextSha256,
+    detailLevel: r.detailLevel,
+    promptVersion: r.promptVersion,
+    providerHost: r.providerHost,
+    model: r.model,
+    status: r.status,
+    payloadJson: payloadJson,
+    cardsJson: r.cardsJson,
+    rawText: rawText,
+    droppedCards: r.droppedCards,
+    promptTokens: r.promptTokens,
+    completionTokens: r.completionTokens,
+    reasoningTokens: r.reasoningTokens,
+    cost: r.cost,
+    costCurrency: r.costCurrency,
+    costSource: r.costSource,
+    durationMs: r.durationMs,
+    errorKind: r.errorKind,
+  );
+}
+
+AiReport sampleAiReport({required DateTime at, String text = 'raw'}) =>
+    AiReport(
+      createdAtUtc: at,
+      offsetMin: 0,
+      kind: 'daily',
+      contextSchema: 'health_context_v2',
+      contextSha256: 'sha-$text',
+      detailLevel: 'standard',
+      promptVersion: 'v1',
+      providerHost: 'reports.example.com',
+      model: 'model-x',
+      status: AiReportStatus.done,
+      payloadJson: text,
+      cardsJson: text,
+      rawText: text,
+    );

@@ -5,6 +5,7 @@ import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
+import 'package:open_ring/features/ai/infrastructure/drift_ai_report_store.dart';
 import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_config_store.dart';
 import 'package:open_ring/features/export/domain/export_kind.dart';
 import 'package:open_ring/features/export/domain/export_request.dart';
@@ -16,6 +17,7 @@ import '../../../helpers/ai_fakes.dart';
 import '../../../helpers/database.dart';
 
 const _keyFixture = 'sk-test-FIXTURE-9f3c2a7d';
+const _reportFixture = 'AI-REPORT-FIXTURE-41c8e0';
 
 String _text(String path) {
   final bytes = File(path).readAsBytesSync();
@@ -34,7 +36,7 @@ void main() {
 
   for (final format in ExportFormat.values) {
     test(
-      'a full ${format.name} export holds no AI key or ai_ setting',
+      'a full ${format.name} export holds no AI key, ai_ setting or report',
       () async {
         final secrets = InMemorySecretStore();
         await secrets.write(aiApiKeySecretName, _keyFixture);
@@ -46,6 +48,9 @@ void main() {
           ),
         );
         final db = await pairedDatabase();
+        await DriftAiReportStore(db).insert(
+          sampleAiReport(at: DateTime.utc(2026, 6), text: _reportFixture),
+        );
         final root = Directory.systemTemp.createTempSync('openring_ai_export_');
         addTearDown(() => root.delete(recursive: true));
 
@@ -66,6 +71,8 @@ void main() {
         final text = result.files.map((f) => _text(f.path)).join('\n');
         expect(text, isNot(contains(_keyFixture)));
         expect(text, isNot(contains('api.example.com')));
+        expect(text, isNot(contains(_reportFixture)));
+        expect(text, isNot(contains('reports.example.com')));
         for (final key in SharedPreferencesAiConfigStore.keys) {
           expect(text, isNot(contains(key)));
         }

@@ -13325,6 +13325,1294 @@ class MealsCompanion extends UpdateCompanion<MealRow> {
   }
 }
 
+class $AiReportsTable extends AiReports
+    with TableInfo<$AiReportsTable, AiReportRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AiReportsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _createdAtUtcMsMeta = const VerificationMeta(
+    'createdAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> createdAtUtcMs = GeneratedColumn<int>(
+    'created_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _offsetMinMeta = const VerificationMeta(
+    'offsetMin',
+  );
+  @override
+  late final GeneratedColumn<int> offsetMin = GeneratedColumn<int>(
+    'offset_min',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contextSchemaMeta = const VerificationMeta(
+    'contextSchema',
+  );
+  @override
+  late final GeneratedColumn<String> contextSchema = GeneratedColumn<String>(
+    'context_schema',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contextSha256Meta = const VerificationMeta(
+    'contextSha256',
+  );
+  @override
+  late final GeneratedColumn<String> contextSha256 = GeneratedColumn<String>(
+    'context_sha256',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _detailLevelMeta = const VerificationMeta(
+    'detailLevel',
+  );
+  @override
+  late final GeneratedColumn<String> detailLevel = GeneratedColumn<String>(
+    'detail_level',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _promptVersionMeta = const VerificationMeta(
+    'promptVersion',
+  );
+  @override
+  late final GeneratedColumn<String> promptVersion = GeneratedColumn<String>(
+    'prompt_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _providerHostMeta = const VerificationMeta(
+    'providerHost',
+  );
+  @override
+  late final GeneratedColumn<String> providerHost = GeneratedColumn<String>(
+    'provider_host',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _modelMeta = const VerificationMeta('model');
+  @override
+  late final GeneratedColumn<String> model = GeneratedColumn<String>(
+    'model',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _payloadJsonMeta = const VerificationMeta(
+    'payloadJson',
+  );
+  @override
+  late final GeneratedColumn<String> payloadJson = GeneratedColumn<String>(
+    'payload_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cardsJsonMeta = const VerificationMeta(
+    'cardsJson',
+  );
+  @override
+  late final GeneratedColumn<String> cardsJson = GeneratedColumn<String>(
+    'cards_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _rawTextMeta = const VerificationMeta(
+    'rawText',
+  );
+  @override
+  late final GeneratedColumn<String> rawText = GeneratedColumn<String>(
+    'raw_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _droppedCardsMeta = const VerificationMeta(
+    'droppedCards',
+  );
+  @override
+  late final GeneratedColumn<int> droppedCards = GeneratedColumn<int>(
+    'dropped_cards',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _promptTokensMeta = const VerificationMeta(
+    'promptTokens',
+  );
+  @override
+  late final GeneratedColumn<int> promptTokens = GeneratedColumn<int>(
+    'prompt_tokens',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _completionTokensMeta = const VerificationMeta(
+    'completionTokens',
+  );
+  @override
+  late final GeneratedColumn<int> completionTokens = GeneratedColumn<int>(
+    'completion_tokens',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reasoningTokensMeta = const VerificationMeta(
+    'reasoningTokens',
+  );
+  @override
+  late final GeneratedColumn<int> reasoningTokens = GeneratedColumn<int>(
+    'reasoning_tokens',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _costMeta = const VerificationMeta('cost');
+  @override
+  late final GeneratedColumn<double> cost = GeneratedColumn<double>(
+    'cost',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _costCurrencyMeta = const VerificationMeta(
+    'costCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> costCurrency = GeneratedColumn<String>(
+    'cost_currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _costSourceMeta = const VerificationMeta(
+    'costSource',
+  );
+  @override
+  late final GeneratedColumn<String> costSource = GeneratedColumn<String>(
+    'cost_source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _durationMsMeta = const VerificationMeta(
+    'durationMs',
+  );
+  @override
+  late final GeneratedColumn<int> durationMs = GeneratedColumn<int>(
+    'duration_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _errorKindMeta = const VerificationMeta(
+    'errorKind',
+  );
+  @override
+  late final GeneratedColumn<String> errorKind = GeneratedColumn<String>(
+    'error_kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAtUtcMs,
+    offsetMin,
+    kind,
+    contextSchema,
+    contextSha256,
+    detailLevel,
+    promptVersion,
+    providerHost,
+    model,
+    status,
+    payloadJson,
+    cardsJson,
+    rawText,
+    droppedCards,
+    promptTokens,
+    completionTokens,
+    reasoningTokens,
+    cost,
+    costCurrency,
+    costSource,
+    durationMs,
+    errorKind,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'ai_reports';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AiReportRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at_utc_ms')) {
+      context.handle(
+        _createdAtUtcMsMeta,
+        createdAtUtcMs.isAcceptableOrUnknown(
+          data['created_at_utc_ms']!,
+          _createdAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtUtcMsMeta);
+    }
+    if (data.containsKey('offset_min')) {
+      context.handle(
+        _offsetMinMeta,
+        offsetMin.isAcceptableOrUnknown(data['offset_min']!, _offsetMinMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_offsetMinMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('context_schema')) {
+      context.handle(
+        _contextSchemaMeta,
+        contextSchema.isAcceptableOrUnknown(
+          data['context_schema']!,
+          _contextSchemaMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contextSchemaMeta);
+    }
+    if (data.containsKey('context_sha256')) {
+      context.handle(
+        _contextSha256Meta,
+        contextSha256.isAcceptableOrUnknown(
+          data['context_sha256']!,
+          _contextSha256Meta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contextSha256Meta);
+    }
+    if (data.containsKey('detail_level')) {
+      context.handle(
+        _detailLevelMeta,
+        detailLevel.isAcceptableOrUnknown(
+          data['detail_level']!,
+          _detailLevelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_detailLevelMeta);
+    }
+    if (data.containsKey('prompt_version')) {
+      context.handle(
+        _promptVersionMeta,
+        promptVersion.isAcceptableOrUnknown(
+          data['prompt_version']!,
+          _promptVersionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_promptVersionMeta);
+    }
+    if (data.containsKey('provider_host')) {
+      context.handle(
+        _providerHostMeta,
+        providerHost.isAcceptableOrUnknown(
+          data['provider_host']!,
+          _providerHostMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_providerHostMeta);
+    }
+    if (data.containsKey('model')) {
+      context.handle(
+        _modelMeta,
+        model.isAcceptableOrUnknown(data['model']!, _modelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_modelMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('payload_json')) {
+      context.handle(
+        _payloadJsonMeta,
+        payloadJson.isAcceptableOrUnknown(
+          data['payload_json']!,
+          _payloadJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cards_json')) {
+      context.handle(
+        _cardsJsonMeta,
+        cardsJson.isAcceptableOrUnknown(data['cards_json']!, _cardsJsonMeta),
+      );
+    }
+    if (data.containsKey('raw_text')) {
+      context.handle(
+        _rawTextMeta,
+        rawText.isAcceptableOrUnknown(data['raw_text']!, _rawTextMeta),
+      );
+    }
+    if (data.containsKey('dropped_cards')) {
+      context.handle(
+        _droppedCardsMeta,
+        droppedCards.isAcceptableOrUnknown(
+          data['dropped_cards']!,
+          _droppedCardsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('prompt_tokens')) {
+      context.handle(
+        _promptTokensMeta,
+        promptTokens.isAcceptableOrUnknown(
+          data['prompt_tokens']!,
+          _promptTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('completion_tokens')) {
+      context.handle(
+        _completionTokensMeta,
+        completionTokens.isAcceptableOrUnknown(
+          data['completion_tokens']!,
+          _completionTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reasoning_tokens')) {
+      context.handle(
+        _reasoningTokensMeta,
+        reasoningTokens.isAcceptableOrUnknown(
+          data['reasoning_tokens']!,
+          _reasoningTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cost')) {
+      context.handle(
+        _costMeta,
+        cost.isAcceptableOrUnknown(data['cost']!, _costMeta),
+      );
+    }
+    if (data.containsKey('cost_currency')) {
+      context.handle(
+        _costCurrencyMeta,
+        costCurrency.isAcceptableOrUnknown(
+          data['cost_currency']!,
+          _costCurrencyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cost_source')) {
+      context.handle(
+        _costSourceMeta,
+        costSource.isAcceptableOrUnknown(data['cost_source']!, _costSourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_costSourceMeta);
+    }
+    if (data.containsKey('duration_ms')) {
+      context.handle(
+        _durationMsMeta,
+        durationMs.isAcceptableOrUnknown(data['duration_ms']!, _durationMsMeta),
+      );
+    }
+    if (data.containsKey('error_kind')) {
+      context.handle(
+        _errorKindMeta,
+        errorKind.isAcceptableOrUnknown(data['error_kind']!, _errorKindMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AiReportRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AiReportRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at_utc_ms'],
+      )!,
+      offsetMin: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}offset_min'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      contextSchema: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}context_schema'],
+      )!,
+      contextSha256: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}context_sha256'],
+      )!,
+      detailLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}detail_level'],
+      )!,
+      promptVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}prompt_version'],
+      )!,
+      providerHost: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_host'],
+      )!,
+      model: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      payloadJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload_json'],
+      ),
+      cardsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cards_json'],
+      ),
+      rawText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}raw_text'],
+      ),
+      droppedCards: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}dropped_cards'],
+      )!,
+      promptTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}prompt_tokens'],
+      ),
+      completionTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}completion_tokens'],
+      ),
+      reasoningTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reasoning_tokens'],
+      ),
+      cost: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cost'],
+      ),
+      costCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cost_currency'],
+      ),
+      costSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cost_source'],
+      )!,
+      durationMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duration_ms'],
+      ),
+      errorKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error_kind'],
+      ),
+    );
+  }
+
+  @override
+  $AiReportsTable createAlias(String alias) {
+    return $AiReportsTable(attachedDatabase, alias);
+  }
+}
+
+class AiReportRow extends DataClass implements Insertable<AiReportRow> {
+  final int id;
+  final int createdAtUtcMs;
+  final int offsetMin;
+  final String kind;
+  final String contextSchema;
+  final String contextSha256;
+  final String detailLevel;
+  final String promptVersion;
+  final String providerHost;
+  final String model;
+  final String status;
+  final String? payloadJson;
+  final String? cardsJson;
+  final String? rawText;
+  final int droppedCards;
+  final int? promptTokens;
+  final int? completionTokens;
+  final int? reasoningTokens;
+  final double? cost;
+  final String? costCurrency;
+  final String costSource;
+  final int? durationMs;
+  final String? errorKind;
+  const AiReportRow({
+    required this.id,
+    required this.createdAtUtcMs,
+    required this.offsetMin,
+    required this.kind,
+    required this.contextSchema,
+    required this.contextSha256,
+    required this.detailLevel,
+    required this.promptVersion,
+    required this.providerHost,
+    required this.model,
+    required this.status,
+    this.payloadJson,
+    this.cardsJson,
+    this.rawText,
+    required this.droppedCards,
+    this.promptTokens,
+    this.completionTokens,
+    this.reasoningTokens,
+    this.cost,
+    this.costCurrency,
+    required this.costSource,
+    this.durationMs,
+    this.errorKind,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs);
+    map['offset_min'] = Variable<int>(offsetMin);
+    map['kind'] = Variable<String>(kind);
+    map['context_schema'] = Variable<String>(contextSchema);
+    map['context_sha256'] = Variable<String>(contextSha256);
+    map['detail_level'] = Variable<String>(detailLevel);
+    map['prompt_version'] = Variable<String>(promptVersion);
+    map['provider_host'] = Variable<String>(providerHost);
+    map['model'] = Variable<String>(model);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || payloadJson != null) {
+      map['payload_json'] = Variable<String>(payloadJson);
+    }
+    if (!nullToAbsent || cardsJson != null) {
+      map['cards_json'] = Variable<String>(cardsJson);
+    }
+    if (!nullToAbsent || rawText != null) {
+      map['raw_text'] = Variable<String>(rawText);
+    }
+    map['dropped_cards'] = Variable<int>(droppedCards);
+    if (!nullToAbsent || promptTokens != null) {
+      map['prompt_tokens'] = Variable<int>(promptTokens);
+    }
+    if (!nullToAbsent || completionTokens != null) {
+      map['completion_tokens'] = Variable<int>(completionTokens);
+    }
+    if (!nullToAbsent || reasoningTokens != null) {
+      map['reasoning_tokens'] = Variable<int>(reasoningTokens);
+    }
+    if (!nullToAbsent || cost != null) {
+      map['cost'] = Variable<double>(cost);
+    }
+    if (!nullToAbsent || costCurrency != null) {
+      map['cost_currency'] = Variable<String>(costCurrency);
+    }
+    map['cost_source'] = Variable<String>(costSource);
+    if (!nullToAbsent || durationMs != null) {
+      map['duration_ms'] = Variable<int>(durationMs);
+    }
+    if (!nullToAbsent || errorKind != null) {
+      map['error_kind'] = Variable<String>(errorKind);
+    }
+    return map;
+  }
+
+  AiReportsCompanion toCompanion(bool nullToAbsent) {
+    return AiReportsCompanion(
+      id: Value(id),
+      createdAtUtcMs: Value(createdAtUtcMs),
+      offsetMin: Value(offsetMin),
+      kind: Value(kind),
+      contextSchema: Value(contextSchema),
+      contextSha256: Value(contextSha256),
+      detailLevel: Value(detailLevel),
+      promptVersion: Value(promptVersion),
+      providerHost: Value(providerHost),
+      model: Value(model),
+      status: Value(status),
+      payloadJson: payloadJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(payloadJson),
+      cardsJson: cardsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cardsJson),
+      rawText: rawText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawText),
+      droppedCards: Value(droppedCards),
+      promptTokens: promptTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(promptTokens),
+      completionTokens: completionTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completionTokens),
+      reasoningTokens: reasoningTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reasoningTokens),
+      cost: cost == null && nullToAbsent ? const Value.absent() : Value(cost),
+      costCurrency: costCurrency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(costCurrency),
+      costSource: Value(costSource),
+      durationMs: durationMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(durationMs),
+      errorKind: errorKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorKind),
+    );
+  }
+
+  factory AiReportRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AiReportRow(
+      id: serializer.fromJson<int>(json['id']),
+      createdAtUtcMs: serializer.fromJson<int>(json['createdAtUtcMs']),
+      offsetMin: serializer.fromJson<int>(json['offsetMin']),
+      kind: serializer.fromJson<String>(json['kind']),
+      contextSchema: serializer.fromJson<String>(json['contextSchema']),
+      contextSha256: serializer.fromJson<String>(json['contextSha256']),
+      detailLevel: serializer.fromJson<String>(json['detailLevel']),
+      promptVersion: serializer.fromJson<String>(json['promptVersion']),
+      providerHost: serializer.fromJson<String>(json['providerHost']),
+      model: serializer.fromJson<String>(json['model']),
+      status: serializer.fromJson<String>(json['status']),
+      payloadJson: serializer.fromJson<String?>(json['payloadJson']),
+      cardsJson: serializer.fromJson<String?>(json['cardsJson']),
+      rawText: serializer.fromJson<String?>(json['rawText']),
+      droppedCards: serializer.fromJson<int>(json['droppedCards']),
+      promptTokens: serializer.fromJson<int?>(json['promptTokens']),
+      completionTokens: serializer.fromJson<int?>(json['completionTokens']),
+      reasoningTokens: serializer.fromJson<int?>(json['reasoningTokens']),
+      cost: serializer.fromJson<double?>(json['cost']),
+      costCurrency: serializer.fromJson<String?>(json['costCurrency']),
+      costSource: serializer.fromJson<String>(json['costSource']),
+      durationMs: serializer.fromJson<int?>(json['durationMs']),
+      errorKind: serializer.fromJson<String?>(json['errorKind']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'createdAtUtcMs': serializer.toJson<int>(createdAtUtcMs),
+      'offsetMin': serializer.toJson<int>(offsetMin),
+      'kind': serializer.toJson<String>(kind),
+      'contextSchema': serializer.toJson<String>(contextSchema),
+      'contextSha256': serializer.toJson<String>(contextSha256),
+      'detailLevel': serializer.toJson<String>(detailLevel),
+      'promptVersion': serializer.toJson<String>(promptVersion),
+      'providerHost': serializer.toJson<String>(providerHost),
+      'model': serializer.toJson<String>(model),
+      'status': serializer.toJson<String>(status),
+      'payloadJson': serializer.toJson<String?>(payloadJson),
+      'cardsJson': serializer.toJson<String?>(cardsJson),
+      'rawText': serializer.toJson<String?>(rawText),
+      'droppedCards': serializer.toJson<int>(droppedCards),
+      'promptTokens': serializer.toJson<int?>(promptTokens),
+      'completionTokens': serializer.toJson<int?>(completionTokens),
+      'reasoningTokens': serializer.toJson<int?>(reasoningTokens),
+      'cost': serializer.toJson<double?>(cost),
+      'costCurrency': serializer.toJson<String?>(costCurrency),
+      'costSource': serializer.toJson<String>(costSource),
+      'durationMs': serializer.toJson<int?>(durationMs),
+      'errorKind': serializer.toJson<String?>(errorKind),
+    };
+  }
+
+  AiReportRow copyWith({
+    int? id,
+    int? createdAtUtcMs,
+    int? offsetMin,
+    String? kind,
+    String? contextSchema,
+    String? contextSha256,
+    String? detailLevel,
+    String? promptVersion,
+    String? providerHost,
+    String? model,
+    String? status,
+    Value<String?> payloadJson = const Value.absent(),
+    Value<String?> cardsJson = const Value.absent(),
+    Value<String?> rawText = const Value.absent(),
+    int? droppedCards,
+    Value<int?> promptTokens = const Value.absent(),
+    Value<int?> completionTokens = const Value.absent(),
+    Value<int?> reasoningTokens = const Value.absent(),
+    Value<double?> cost = const Value.absent(),
+    Value<String?> costCurrency = const Value.absent(),
+    String? costSource,
+    Value<int?> durationMs = const Value.absent(),
+    Value<String?> errorKind = const Value.absent(),
+  }) => AiReportRow(
+    id: id ?? this.id,
+    createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+    offsetMin: offsetMin ?? this.offsetMin,
+    kind: kind ?? this.kind,
+    contextSchema: contextSchema ?? this.contextSchema,
+    contextSha256: contextSha256 ?? this.contextSha256,
+    detailLevel: detailLevel ?? this.detailLevel,
+    promptVersion: promptVersion ?? this.promptVersion,
+    providerHost: providerHost ?? this.providerHost,
+    model: model ?? this.model,
+    status: status ?? this.status,
+    payloadJson: payloadJson.present ? payloadJson.value : this.payloadJson,
+    cardsJson: cardsJson.present ? cardsJson.value : this.cardsJson,
+    rawText: rawText.present ? rawText.value : this.rawText,
+    droppedCards: droppedCards ?? this.droppedCards,
+    promptTokens: promptTokens.present ? promptTokens.value : this.promptTokens,
+    completionTokens: completionTokens.present
+        ? completionTokens.value
+        : this.completionTokens,
+    reasoningTokens: reasoningTokens.present
+        ? reasoningTokens.value
+        : this.reasoningTokens,
+    cost: cost.present ? cost.value : this.cost,
+    costCurrency: costCurrency.present ? costCurrency.value : this.costCurrency,
+    costSource: costSource ?? this.costSource,
+    durationMs: durationMs.present ? durationMs.value : this.durationMs,
+    errorKind: errorKind.present ? errorKind.value : this.errorKind,
+  );
+  AiReportRow copyWithCompanion(AiReportsCompanion data) {
+    return AiReportRow(
+      id: data.id.present ? data.id.value : this.id,
+      createdAtUtcMs: data.createdAtUtcMs.present
+          ? data.createdAtUtcMs.value
+          : this.createdAtUtcMs,
+      offsetMin: data.offsetMin.present ? data.offsetMin.value : this.offsetMin,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      contextSchema: data.contextSchema.present
+          ? data.contextSchema.value
+          : this.contextSchema,
+      contextSha256: data.contextSha256.present
+          ? data.contextSha256.value
+          : this.contextSha256,
+      detailLevel: data.detailLevel.present
+          ? data.detailLevel.value
+          : this.detailLevel,
+      promptVersion: data.promptVersion.present
+          ? data.promptVersion.value
+          : this.promptVersion,
+      providerHost: data.providerHost.present
+          ? data.providerHost.value
+          : this.providerHost,
+      model: data.model.present ? data.model.value : this.model,
+      status: data.status.present ? data.status.value : this.status,
+      payloadJson: data.payloadJson.present
+          ? data.payloadJson.value
+          : this.payloadJson,
+      cardsJson: data.cardsJson.present ? data.cardsJson.value : this.cardsJson,
+      rawText: data.rawText.present ? data.rawText.value : this.rawText,
+      droppedCards: data.droppedCards.present
+          ? data.droppedCards.value
+          : this.droppedCards,
+      promptTokens: data.promptTokens.present
+          ? data.promptTokens.value
+          : this.promptTokens,
+      completionTokens: data.completionTokens.present
+          ? data.completionTokens.value
+          : this.completionTokens,
+      reasoningTokens: data.reasoningTokens.present
+          ? data.reasoningTokens.value
+          : this.reasoningTokens,
+      cost: data.cost.present ? data.cost.value : this.cost,
+      costCurrency: data.costCurrency.present
+          ? data.costCurrency.value
+          : this.costCurrency,
+      costSource: data.costSource.present
+          ? data.costSource.value
+          : this.costSource,
+      durationMs: data.durationMs.present
+          ? data.durationMs.value
+          : this.durationMs,
+      errorKind: data.errorKind.present ? data.errorKind.value : this.errorKind,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AiReportRow(')
+          ..write('id: $id, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('offsetMin: $offsetMin, ')
+          ..write('kind: $kind, ')
+          ..write('contextSchema: $contextSchema, ')
+          ..write('contextSha256: $contextSha256, ')
+          ..write('detailLevel: $detailLevel, ')
+          ..write('promptVersion: $promptVersion, ')
+          ..write('providerHost: $providerHost, ')
+          ..write('model: $model, ')
+          ..write('status: $status, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('cardsJson: $cardsJson, ')
+          ..write('rawText: $rawText, ')
+          ..write('droppedCards: $droppedCards, ')
+          ..write('promptTokens: $promptTokens, ')
+          ..write('completionTokens: $completionTokens, ')
+          ..write('reasoningTokens: $reasoningTokens, ')
+          ..write('cost: $cost, ')
+          ..write('costCurrency: $costCurrency, ')
+          ..write('costSource: $costSource, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('errorKind: $errorKind')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    createdAtUtcMs,
+    offsetMin,
+    kind,
+    contextSchema,
+    contextSha256,
+    detailLevel,
+    promptVersion,
+    providerHost,
+    model,
+    status,
+    payloadJson,
+    cardsJson,
+    rawText,
+    droppedCards,
+    promptTokens,
+    completionTokens,
+    reasoningTokens,
+    cost,
+    costCurrency,
+    costSource,
+    durationMs,
+    errorKind,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AiReportRow &&
+          other.id == this.id &&
+          other.createdAtUtcMs == this.createdAtUtcMs &&
+          other.offsetMin == this.offsetMin &&
+          other.kind == this.kind &&
+          other.contextSchema == this.contextSchema &&
+          other.contextSha256 == this.contextSha256 &&
+          other.detailLevel == this.detailLevel &&
+          other.promptVersion == this.promptVersion &&
+          other.providerHost == this.providerHost &&
+          other.model == this.model &&
+          other.status == this.status &&
+          other.payloadJson == this.payloadJson &&
+          other.cardsJson == this.cardsJson &&
+          other.rawText == this.rawText &&
+          other.droppedCards == this.droppedCards &&
+          other.promptTokens == this.promptTokens &&
+          other.completionTokens == this.completionTokens &&
+          other.reasoningTokens == this.reasoningTokens &&
+          other.cost == this.cost &&
+          other.costCurrency == this.costCurrency &&
+          other.costSource == this.costSource &&
+          other.durationMs == this.durationMs &&
+          other.errorKind == this.errorKind);
+}
+
+class AiReportsCompanion extends UpdateCompanion<AiReportRow> {
+  final Value<int> id;
+  final Value<int> createdAtUtcMs;
+  final Value<int> offsetMin;
+  final Value<String> kind;
+  final Value<String> contextSchema;
+  final Value<String> contextSha256;
+  final Value<String> detailLevel;
+  final Value<String> promptVersion;
+  final Value<String> providerHost;
+  final Value<String> model;
+  final Value<String> status;
+  final Value<String?> payloadJson;
+  final Value<String?> cardsJson;
+  final Value<String?> rawText;
+  final Value<int> droppedCards;
+  final Value<int?> promptTokens;
+  final Value<int?> completionTokens;
+  final Value<int?> reasoningTokens;
+  final Value<double?> cost;
+  final Value<String?> costCurrency;
+  final Value<String> costSource;
+  final Value<int?> durationMs;
+  final Value<String?> errorKind;
+  const AiReportsCompanion({
+    this.id = const Value.absent(),
+    this.createdAtUtcMs = const Value.absent(),
+    this.offsetMin = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.contextSchema = const Value.absent(),
+    this.contextSha256 = const Value.absent(),
+    this.detailLevel = const Value.absent(),
+    this.promptVersion = const Value.absent(),
+    this.providerHost = const Value.absent(),
+    this.model = const Value.absent(),
+    this.status = const Value.absent(),
+    this.payloadJson = const Value.absent(),
+    this.cardsJson = const Value.absent(),
+    this.rawText = const Value.absent(),
+    this.droppedCards = const Value.absent(),
+    this.promptTokens = const Value.absent(),
+    this.completionTokens = const Value.absent(),
+    this.reasoningTokens = const Value.absent(),
+    this.cost = const Value.absent(),
+    this.costCurrency = const Value.absent(),
+    this.costSource = const Value.absent(),
+    this.durationMs = const Value.absent(),
+    this.errorKind = const Value.absent(),
+  });
+  AiReportsCompanion.insert({
+    this.id = const Value.absent(),
+    required int createdAtUtcMs,
+    required int offsetMin,
+    required String kind,
+    required String contextSchema,
+    required String contextSha256,
+    required String detailLevel,
+    required String promptVersion,
+    required String providerHost,
+    required String model,
+    required String status,
+    this.payloadJson = const Value.absent(),
+    this.cardsJson = const Value.absent(),
+    this.rawText = const Value.absent(),
+    this.droppedCards = const Value.absent(),
+    this.promptTokens = const Value.absent(),
+    this.completionTokens = const Value.absent(),
+    this.reasoningTokens = const Value.absent(),
+    this.cost = const Value.absent(),
+    this.costCurrency = const Value.absent(),
+    required String costSource,
+    this.durationMs = const Value.absent(),
+    this.errorKind = const Value.absent(),
+  }) : createdAtUtcMs = Value(createdAtUtcMs),
+       offsetMin = Value(offsetMin),
+       kind = Value(kind),
+       contextSchema = Value(contextSchema),
+       contextSha256 = Value(contextSha256),
+       detailLevel = Value(detailLevel),
+       promptVersion = Value(promptVersion),
+       providerHost = Value(providerHost),
+       model = Value(model),
+       status = Value(status),
+       costSource = Value(costSource);
+  static Insertable<AiReportRow> custom({
+    Expression<int>? id,
+    Expression<int>? createdAtUtcMs,
+    Expression<int>? offsetMin,
+    Expression<String>? kind,
+    Expression<String>? contextSchema,
+    Expression<String>? contextSha256,
+    Expression<String>? detailLevel,
+    Expression<String>? promptVersion,
+    Expression<String>? providerHost,
+    Expression<String>? model,
+    Expression<String>? status,
+    Expression<String>? payloadJson,
+    Expression<String>? cardsJson,
+    Expression<String>? rawText,
+    Expression<int>? droppedCards,
+    Expression<int>? promptTokens,
+    Expression<int>? completionTokens,
+    Expression<int>? reasoningTokens,
+    Expression<double>? cost,
+    Expression<String>? costCurrency,
+    Expression<String>? costSource,
+    Expression<int>? durationMs,
+    Expression<String>? errorKind,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAtUtcMs != null) 'created_at_utc_ms': createdAtUtcMs,
+      if (offsetMin != null) 'offset_min': offsetMin,
+      if (kind != null) 'kind': kind,
+      if (contextSchema != null) 'context_schema': contextSchema,
+      if (contextSha256 != null) 'context_sha256': contextSha256,
+      if (detailLevel != null) 'detail_level': detailLevel,
+      if (promptVersion != null) 'prompt_version': promptVersion,
+      if (providerHost != null) 'provider_host': providerHost,
+      if (model != null) 'model': model,
+      if (status != null) 'status': status,
+      if (payloadJson != null) 'payload_json': payloadJson,
+      if (cardsJson != null) 'cards_json': cardsJson,
+      if (rawText != null) 'raw_text': rawText,
+      if (droppedCards != null) 'dropped_cards': droppedCards,
+      if (promptTokens != null) 'prompt_tokens': promptTokens,
+      if (completionTokens != null) 'completion_tokens': completionTokens,
+      if (reasoningTokens != null) 'reasoning_tokens': reasoningTokens,
+      if (cost != null) 'cost': cost,
+      if (costCurrency != null) 'cost_currency': costCurrency,
+      if (costSource != null) 'cost_source': costSource,
+      if (durationMs != null) 'duration_ms': durationMs,
+      if (errorKind != null) 'error_kind': errorKind,
+    });
+  }
+
+  AiReportsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? createdAtUtcMs,
+    Value<int>? offsetMin,
+    Value<String>? kind,
+    Value<String>? contextSchema,
+    Value<String>? contextSha256,
+    Value<String>? detailLevel,
+    Value<String>? promptVersion,
+    Value<String>? providerHost,
+    Value<String>? model,
+    Value<String>? status,
+    Value<String?>? payloadJson,
+    Value<String?>? cardsJson,
+    Value<String?>? rawText,
+    Value<int>? droppedCards,
+    Value<int?>? promptTokens,
+    Value<int?>? completionTokens,
+    Value<int?>? reasoningTokens,
+    Value<double?>? cost,
+    Value<String?>? costCurrency,
+    Value<String>? costSource,
+    Value<int?>? durationMs,
+    Value<String?>? errorKind,
+  }) {
+    return AiReportsCompanion(
+      id: id ?? this.id,
+      createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+      offsetMin: offsetMin ?? this.offsetMin,
+      kind: kind ?? this.kind,
+      contextSchema: contextSchema ?? this.contextSchema,
+      contextSha256: contextSha256 ?? this.contextSha256,
+      detailLevel: detailLevel ?? this.detailLevel,
+      promptVersion: promptVersion ?? this.promptVersion,
+      providerHost: providerHost ?? this.providerHost,
+      model: model ?? this.model,
+      status: status ?? this.status,
+      payloadJson: payloadJson ?? this.payloadJson,
+      cardsJson: cardsJson ?? this.cardsJson,
+      rawText: rawText ?? this.rawText,
+      droppedCards: droppedCards ?? this.droppedCards,
+      promptTokens: promptTokens ?? this.promptTokens,
+      completionTokens: completionTokens ?? this.completionTokens,
+      reasoningTokens: reasoningTokens ?? this.reasoningTokens,
+      cost: cost ?? this.cost,
+      costCurrency: costCurrency ?? this.costCurrency,
+      costSource: costSource ?? this.costSource,
+      durationMs: durationMs ?? this.durationMs,
+      errorKind: errorKind ?? this.errorKind,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (createdAtUtcMs.present) {
+      map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs.value);
+    }
+    if (offsetMin.present) {
+      map['offset_min'] = Variable<int>(offsetMin.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (contextSchema.present) {
+      map['context_schema'] = Variable<String>(contextSchema.value);
+    }
+    if (contextSha256.present) {
+      map['context_sha256'] = Variable<String>(contextSha256.value);
+    }
+    if (detailLevel.present) {
+      map['detail_level'] = Variable<String>(detailLevel.value);
+    }
+    if (promptVersion.present) {
+      map['prompt_version'] = Variable<String>(promptVersion.value);
+    }
+    if (providerHost.present) {
+      map['provider_host'] = Variable<String>(providerHost.value);
+    }
+    if (model.present) {
+      map['model'] = Variable<String>(model.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (payloadJson.present) {
+      map['payload_json'] = Variable<String>(payloadJson.value);
+    }
+    if (cardsJson.present) {
+      map['cards_json'] = Variable<String>(cardsJson.value);
+    }
+    if (rawText.present) {
+      map['raw_text'] = Variable<String>(rawText.value);
+    }
+    if (droppedCards.present) {
+      map['dropped_cards'] = Variable<int>(droppedCards.value);
+    }
+    if (promptTokens.present) {
+      map['prompt_tokens'] = Variable<int>(promptTokens.value);
+    }
+    if (completionTokens.present) {
+      map['completion_tokens'] = Variable<int>(completionTokens.value);
+    }
+    if (reasoningTokens.present) {
+      map['reasoning_tokens'] = Variable<int>(reasoningTokens.value);
+    }
+    if (cost.present) {
+      map['cost'] = Variable<double>(cost.value);
+    }
+    if (costCurrency.present) {
+      map['cost_currency'] = Variable<String>(costCurrency.value);
+    }
+    if (costSource.present) {
+      map['cost_source'] = Variable<String>(costSource.value);
+    }
+    if (durationMs.present) {
+      map['duration_ms'] = Variable<int>(durationMs.value);
+    }
+    if (errorKind.present) {
+      map['error_kind'] = Variable<String>(errorKind.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AiReportsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('offsetMin: $offsetMin, ')
+          ..write('kind: $kind, ')
+          ..write('contextSchema: $contextSchema, ')
+          ..write('contextSha256: $contextSha256, ')
+          ..write('detailLevel: $detailLevel, ')
+          ..write('promptVersion: $promptVersion, ')
+          ..write('providerHost: $providerHost, ')
+          ..write('model: $model, ')
+          ..write('status: $status, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('cardsJson: $cardsJson, ')
+          ..write('rawText: $rawText, ')
+          ..write('droppedCards: $droppedCards, ')
+          ..write('promptTokens: $promptTokens, ')
+          ..write('completionTokens: $completionTokens, ')
+          ..write('reasoningTokens: $reasoningTokens, ')
+          ..write('cost: $cost, ')
+          ..write('costCurrency: $costCurrency, ')
+          ..write('costSource: $costSource, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('errorKind: $errorKind')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $RingDevicesTable ringDevices = $RingDevicesTable(this);
@@ -13369,6 +14657,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $GoalWeeksTable goalWeeks = $GoalWeeksTable(this);
   late final $GoalScreeningsTable goalScreenings = $GoalScreeningsTable(this);
   late final $MealsTable meals = $MealsTable(this);
+  late final $AiReportsTable aiReports = $AiReportsTable(this);
+  late final Index aiReportsCacheKey = Index(
+    'ai_reports_cache_key',
+    'CREATE INDEX ai_reports_cache_key ON ai_reports (kind, context_sha256, prompt_version, provider_host, model, created_at_utc_ms)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -13403,6 +14696,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     goalWeeks,
     goalScreenings,
     meals,
+    aiReports,
+    aiReportsCacheKey,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

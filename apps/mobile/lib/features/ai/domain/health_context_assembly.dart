@@ -178,8 +178,8 @@ AiDayRow _dayRow(AiContextSources s, LocalDate date) {
     deepMin: _phaseMinutes(night, SleepPhase.deep),
     remMin: s.remMeasured ? _phaseMinutes(night, SleepPhase.rem) : null,
     awakeMin: night?.awake.inMinutes,
-    bedtime: _clock(night?.start, night),
-    wake: _clock(night?.end, night),
+    bedtime: _clock(night?.spans.first, atEnd: false),
+    wake: _clock(night?.spans.last, atEnd: true),
     rhr: _round1(v(AiDailyMetric.rhr)),
     hrv: _round1(v(AiDailyMetric.hrv)),
     stressAvg: _round1(v(AiDailyMetric.stress)),
@@ -209,9 +209,11 @@ int? _phaseMinutes(SleepNight? night, SleepPhase phase) {
   return total.inMinutes;
 }
 
-AiClockTime? _clock(DateTime? at, SleepNight? night) {
-  if (at == null || night == null) return null;
-  final wall = at.toUtc().add(night.spans.last.utcOffset);
+// Each end uses its own span's offset, so an overnight DST change holds.
+AiClockTime? _clock(SleepSpan? span, {required bool atEnd}) {
+  if (span == null) return null;
+  final at = atEnd ? span.end : span.start;
+  final wall = at.toUtc().add(span.utcOffset);
   return AiClockTime(wall.hour, wall.minute);
 }
 

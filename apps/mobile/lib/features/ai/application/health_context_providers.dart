@@ -84,18 +84,21 @@ Future<AiContextSources> _readSources(Ref ref, AiConfig config) async {
     ref.watch(remMeasuredProvider.future),
     ref.watch(ringStatusProvider.future),
   ).wait;
-  // With the flag off the imported readers are never called, so no Health
-  // Connect record can reach the context.
-  final sleepReader = ref.watch(sleepHistoryReaderProvider);
+  // With the flag off no imported record reaches the payload. Module providers
+  // may still read imported data locally; numbers derived from it stay out.
   const ringOnly = NoImportedSleepReader();
+  Future<Map<LocalDate, SleepNight>> nightsOf(ImportedSleepReader other) =>
+      readSleepNights(
+        ring: ref.watch(sleepHistoryReaderProvider),
+        imported: other,
+        from: from,
+        to: now,
+      );
   final (nights, ringNights, activity, own, other) = await (
-    readSleepNights(
-      ring: sleepReader,
-      imported: imported ? ref.watch(importedSleepReaderProvider) : ringOnly,
-      from: from,
-      to: now,
-    ),
-    readSleepNights(ring: sleepReader, imported: ringOnly, from: from, to: now),
+    nightsOf(imported ? ref.watch(importedSleepReaderProvider) : ringOnly),
+    imported
+        ? nightsOf(ringOnly)
+        : Future.value(const <LocalDate, SleepNight>{}),
     ref
         .watch(activityHistoryReaderProvider)
         .dailyActivity(
@@ -141,7 +144,7 @@ Future<AiContextSources> _readSources(Ref ref, AiConfig config) async {
     importedIncluded: imported,
     remMeasured: remMeasured,
     nights: nights,
-    ringNightDates: ringNights.keys.toSet(),
+    ringNightDates: (imported ? ringNights : nights).keys.toSet(),
     workouts: selectWorkouts([...own, ...other.workouts], other.priority),
     series: {
       AiDailyMetric.sleepMin: of(TrendMetric.sleepDuration),

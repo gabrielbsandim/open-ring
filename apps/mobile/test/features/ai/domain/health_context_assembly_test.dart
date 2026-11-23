@@ -65,6 +65,39 @@ void main() {
     expect(map(withFood)['food'], {'complete_days': 4, 'plate_score': 6.5});
   });
 
+  test('a night across a DST change keeps its local bedtime and wake', () {
+    const dstDay = LocalDate(2026, 10, 25);
+    final night = SleepNight([
+      SleepSpan(
+        start: DateTime.utc(2026, 10, 24, 21, 30),
+        end: DateTime.utc(2026, 10, 25),
+        phase: SleepPhase.light,
+        utcOffset: const Duration(hours: 2),
+      ),
+      SleepSpan(
+        start: DateTime.utc(2026, 10, 25, 1),
+        end: DateTime.utc(2026, 10, 25, 6),
+        phase: SleepPhase.deep,
+        utcOffset: const Duration(hours: 1),
+      ),
+    ]);
+    final input = _assemble(
+      AiContextSources(
+        today: dstDay,
+        replyLanguage: 'en',
+        units: const AiUnits(),
+        profile: const AiProfileInput(),
+        hasRing: true,
+        importedIncluded: false,
+        nights: {dstDay: night},
+      ),
+    );
+
+    final row = input.days.last;
+    expect(row.bedtime?.format(round15: false), '23:30');
+    expect(row.wake?.format(round15: false), '07:00');
+  });
+
   test('facts use the fixed metric labels and safe ids', () {
     final input = _assemble(_sources(stepDays: 7));
 

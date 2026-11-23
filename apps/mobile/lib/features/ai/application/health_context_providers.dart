@@ -161,19 +161,21 @@ Future<AiContextSources> _readSources(Ref ref, AiConfig config) async {
       AiDailyMetric.stress: _byDate(
         await ref.watch(dailyStressProvider.future),
       ),
-      if (modules.contains(ModuleId.effort))
+      // Effort, Day Score and Energy already mix in imported records, so they
+      // stay out until the flag is on.
+      if (imported && modules.contains(ModuleId.effort))
         AiDailyMetric.load: _effortLoad(
           await ref.watch(effortDailyLoadProvider.future),
           today,
         ),
-      if (modules.contains(ModuleId.openScore))
+      if (imported && modules.contains(ModuleId.openScore))
         AiDailyMetric.dayScore: _byDate(
           (await ref.watch(dayScoreHistoryProvider.future)).scores,
         ),
       if (weight != null) AiDailyMetric.weight: _byDate(weight.daily),
     },
     weighIns: weight == null ? null : _weighIns(weight, today),
-    energy: ref.watch(energyGateProvider) == EnergyGate.on
+    energy: imported && ref.watch(energyGateProvider) == EnergyGate.on
         ? _energy(await ref.watch(energyWeekProvider.future), today)
         : null,
     food: modules.contains(ModuleId.food)

@@ -9,6 +9,7 @@ import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/effort/application/effort_providers.dart';
 import 'package:open_ring/features/energy/application/energy_providers.dart';
+import 'package:open_ring/features/energy/domain/energy_day.dart';
 import 'package:open_ring/features/food/application/food_week.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
@@ -143,9 +144,9 @@ void main() {
         importedSleepReaderProvider.overrideWithValue(importedSleep),
         importedWorkoutReaderProvider.overrideWithValue(importedWorkouts),
         foodWeekProvider.overrideWith((ref) => _unexpected()),
-        energyWeekProvider.overrideWith((ref) => _unexpected()),
         ...extra.isEmpty
             ? [
+                energyWeekProvider.overrideWith((ref) => _unexpected()),
                 effortDailyLoadProvider.overrideWith((ref) => _unexpected()),
                 dayScoreHistoryProvider.overrideWith((ref) => _unexpected()),
               ]
@@ -208,14 +209,44 @@ void main() {
     expect(p.facts.map((f) => f.id), isNot(contains('f.dayScore.last')));
   });
 
-  test('Effort and Day Score feed the context only when on', () async {
+  const mixingModules = {
+    ModuleId.ai,
+    ModuleId.effort,
+    ModuleId.openScore,
+    ModuleId.energy,
+  };
+
+  test('imported flag off keeps Effort, Day Score and Energy out', () async {
+    final p = await payload(await container(modules: mixingModules));
+
+    expect(days(p).containsKey('load'), isFalse);
+    expect(p.facts.map((f) => f.id), isNot(contains('f.dayScore.last')));
+    expect(p.contextMap.containsKey('energy'), isFalse);
+  });
+
+  test('imported flag on adds Effort, Day Score and Energy', () async {
+    configs.config = AiConfig.defaults.copyWith(importedIncluded: true);
     final c = await container(
-      modules: {ModuleId.ai, ModuleId.effort, ModuleId.openScore},
+      modules: mixingModules,
       extra: [
         effortDailyLoadProvider.overrideWith(
           (ref) async => [for (var i = 0; i < 13; i++) 40.0 + i],
         ),
         dayScoreHistoryProvider.overrideWith((ref) async => mixedHistory()),
+        energyWeekProvider.overrideWith(
+          (ref) async => [
+            for (var age = 6; age >= 0; age--)
+              (
+                date: metricsToday.addDays(-age),
+                day: const EnergyDayEstimate(
+                  resting: 1650,
+                  base: 1650,
+                  steps: 300,
+                  workouts: 100,
+                ),
+              ),
+          ],
+        ),
       ],
     );
 
@@ -225,6 +256,7 @@ void main() {
     expect(load.last, isNull);
     expect(load[load.length - 2], 52);
     expect(p.facts.map((f) => f.id), contains('f.dayScore.last'));
+    expect(p.contextMap['energy'], containsPair('tdee_kcal_avg7', 2050));
   });
 
   test('imported flag off never reads imported records', () async {

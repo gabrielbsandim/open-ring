@@ -32,14 +32,18 @@ Future<List<String>> systemAddressLookup(String host) async => [
   for (final address in await InternetAddress.lookup(host)) address.address,
 ];
 
-http.Client pinnedIoClient(NormalizedBaseUrl url, String? pinnedIp) {
+http.Client pinnedIoClient(
+  NormalizedBaseUrl url,
+  String? pinnedIp, {
+  SocketConnector connect = Socket.startConnect,
+}) {
   final inner = HttpClient()
     ..connectionTimeout = _connectTimeout
     ..userAgent = openRingUserAgent
     ..findProxy = ((_) => 'DIRECT')
     ..badCertificateCallback = ((_, _, _) => false);
   if (pinnedIp == null) return IOClient(inner);
-  inner.connectionFactory = pinnedConnection(url, pinnedIp);
+  inner.connectionFactory = pinnedConnection(url, pinnedIp, connect: connect);
   return IOClient(inner);
 }
 

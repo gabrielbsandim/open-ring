@@ -756,6 +756,56 @@ void main() {
       expect(h.calls, isEmpty);
     });
 
+    test(
+      'the pinned client routes its socket through the checked address',
+      () async {
+        Object? host;
+        int? port;
+        final client = pinnedIoClient(
+          _url('http://gpu-box.local:11434/v1'),
+          '192.168.1.20',
+          connect: (h, p) {
+            host = h;
+            port = p;
+            return Future.error(const SocketException('refused in test'));
+          },
+        );
+
+        await expectLater(
+          client.get(Uri.parse('http://gpu-box.local:11434/v1/models')),
+          throwsA(anything),
+        );
+        client.close();
+
+        expect((host! as InternetAddress).address, '192.168.1.20');
+        expect(port, 11434);
+      },
+    );
+
+    test('a JSON success body stops reading at the cap', () async {
+      var cancelled = false;
+      final body = StreamController<List<int>>(
+        onCancel: () => cancelled = true,
+      );
+      final chunk = utf8.encode(' ' * (64 * 1024));
+      for (var i = 0; i < 5; i++) {
+        body.add(chunk);
+      }
+      final h = _Harness(
+        (_) async => http.StreamedResponse(
+          body.stream,
+          200,
+          headers: {'content-type': 'application/json'},
+        ),
+      );
+
+      final failure = await _failureOf(h.run())
+          .timeout(const Duration(seconds: 5));
+
+      expect(failure.kind, AnalysisFailureKind.unreadable);
+      expect(cancelled, isTrue);
+    });
+
     test('the pinned connection dials the checked address and URL port', () {
       Object? host;
       int? port;

@@ -13,11 +13,14 @@ import 'package:open_ring/features/ai/domain/openai_wire_codec.dart';
 const String openRingUserAgent = 'OpenRing';
 const String probeUserMessage =
     'Reply with this JSON and nothing else: {"ok":true}';
-const int _maxLadderAttempts = 4;
 const Duration _connectTimeout = Duration(seconds: 10);
 const Duration _modelsTimeout = Duration(seconds: 10);
 
 typedef AddressLookup = Future<List<String>> Function(String host);
+typedef SocketConnector = Future<ConnectionTask<Socket>> Function(
+  Object host,
+  int port,
+);
 
 /// Builds the transport for one run. [pinnedIp] is set for cleartext URLs only.
 typedef AnalysisClientFactory = http.Client Function(
@@ -36,9 +39,18 @@ http.Client pinnedIoClient(NormalizedBaseUrl url, String? pinnedIp) {
     ..findProxy = ((_) => 'DIRECT')
     ..badCertificateCallback = ((_, _, _) => false);
   if (pinnedIp == null) return IOClient(inner);
-  final address = InternetAddress(pinnedIp);
-  inner.connectionFactory = (_, _, _) => Socket.startConnect(address, url.port);
+  inner.connectionFactory = pinnedConnection(url, pinnedIp);
   return IOClient(inner);
+}
+
+/// Ignores the request host so the socket goes to the address already checked.
+Future<ConnectionTask<Socket>> Function(Uri, String?, int?) pinnedConnection(
+  NormalizedBaseUrl url,
+  String pinnedIp, {
+  SocketConnector connect = Socket.startConnect,
+}) {
+  final address = InternetAddress(pinnedIp);
+  return (_, _, _) => connect(address, url.port);
 }
 
 final class HttpAnalysisModel implements AnalysisModel {
@@ -101,9 +113,8 @@ final class HttpAnalysisModel implements AnalysisModel {
     final run = await _open(_modelsTimeout);
     try {
       final response = await _send(run, 'GET', baseUrl.modelsUri);
-      final text = await _readText(run, response);
-      if (!_isSuccess(response)) throw _classify(response, text);
-      return OpenAiWireCodec.parseModelsList(text);
+      if (!_isSuccess(response)) throw await _readFailure(run, response);
+      return OpenAiWireCodec.parseModelsList(await _readText(run, response));
     } finally {
       run.close();
     }
@@ -146,13 +157,15 @@ final class HttpAnalysisModel implements AnalysisModel {
       Future.value();
 
   Future<_Run> _open(Duration total, {Future<void>? cancel}) async {
-    final pinnedIp = await _pinnedAddress();
-    return _Run(
-      _clientFactory(baseUrl, pinnedIp),
-      total: total,
-      cancel: cancel,
-      apiKey: apiKey,
-    );
+    final run = _Run(total: total, cancel: cancel, apiKey: apiKey);
+    try {
+      final pinnedIp = await run.guard(_pinnedAddress());
+      run.client = _clientFactory(baseUrl, pinnedIp);
+      return run;
+    } on Object {
+      run.close();
+      rethrow;
+    }
   }
 
   Future<String?> _pinnedAddress() async {
@@ -194,7 +207,7 @@ final class HttpAnalysisModel implements AnalysisModel {
         body: body,
       );
       if (_isSuccess(response)) return (response, profile);
-      final failure = _classify(response, await _readText(run, response));
+      final failure = await _readFailure(run, response);
       final next = _stepDown(failure, profile, attempt);
       if (next == null) throw failure;
       profile = next;
@@ -206,7 +219,7 @@ final class HttpAnalysisModel implements AnalysisModel {
     AiCapabilityProfile profile,
     int attempt,
   ) {
-    if (attempt >= _maxLadderAttempts) return null;
+    if (attempt >= aiMaxLadderAttempts) return null;
     if (failure.statusCode != 400) return null;
     if (failure.kind != AnalysisFailureKind.badRequest) return null;
     return profile.nextOnBadRequest(failure.detail);
@@ -233,7 +246,7 @@ final class HttpAnalysisModel implements AnalysisModel {
     }
     run.arm(TimeoutStage.firstByte, _firstByte);
     try {
-      return await run.guard(run.client.send(request));
+      return await run.guard(run.client!.send(request));
     } on Object catch (error) {
       throw run.translate(error);
     }
@@ -255,6 +268,14 @@ final class HttpAnalysisModel implements AnalysisModel {
   Future<String> _readText(_Run run, http.StreamedResponse response) =>
       _collect(run.watch(response.stream, _idle));
 
+  Future<AnalysisFailure> _readFailure(
+    _Run run,
+    http.StreamedResponse response,
+  ) async => _classify(
+    response,
+    await _collect(run.watch(response.stream, _idle, truncate: true)),
+  );
+
   static Future<String> _collect(Stream<List<int>> bytes) async =>
       utf8.decode(await http.ByteStream(bytes).toBytes(), allowMalformed: true);
 
@@ -272,12 +293,9 @@ final class HttpAnalysisModel implements AnalysisModel {
 
 /// One request lifecycle: owns the client, the stage timers and the abort.
 final class _Run {
-  new(
-    this.client, {
-    required Duration total,
-    required this.apiKey,
-    Future<void>? cancel,
-  }) {
+  new({required Duration total, required this.apiKey, Future<void>? cancel}) {
+    // Armed before the total timer so a stalled lookup reports connect on a tie.
+    arm(TimeoutStage.connect, _connectTimeout);
     _total = Timer(total, () => fail(_timeout(TimeoutStage.total, total)));
     if (cancel == null) return;
     unawaited(
@@ -292,7 +310,7 @@ final class _Run {
     kind: AnalysisFailureKind.cancelled,
   );
 
-  final http.Client client;
+  http.Client? client;
   final String? apiKey;
   final Completer<void> _abort = Completer<void>();
   late final Timer _total;
@@ -315,10 +333,11 @@ final class _Run {
   }
 
   void close() {
+    if (_closed) return;
     _closed = true;
     _total.cancel();
     _stage?.cancel();
-    client.close();
+    client?.close();
   }
 
   Future<T> guard<T>(Future<T> work) =>
@@ -326,20 +345,31 @@ final class _Run {
 
   /// Races the body against the timers and the cancel, and caps its size,
   /// because a mock or a hung socket ignores the abort trigger.
-  Stream<List<int>> watch(Stream<List<int>> source, Duration idle) {
+  Stream<List<int>> watch(
+    Stream<List<int>> source,
+    Duration idle, {
+    bool truncate = false,
+  }) {
     final out = StreamController<List<int>>();
     var received = 0;
     late final StreamSubscription<List<int>> sub;
-    void stop(Object error) {
+    void stop(Object? error) {
       if (out.isClosed) return;
-      out.addError(error);
+      _stage?.cancel();
+      if (error != null) out.addError(error);
       unawaited(out.close());
       unawaited(sub.cancel());
     }
 
     sub = source.listen(
       (chunk) {
+        final room = aiMaxResponseBytes - received;
         received += chunk.length;
+        if (received > aiMaxResponseBytes && truncate) {
+          out.add(chunk.sublist(0, room));
+          stop(null);
+          return;
+        }
         if (received > aiMaxResponseBytes) {
           stop(const AnalysisFailure(kind: AnalysisFailureKind.unreadable));
           return;
@@ -354,7 +384,7 @@ final class _Run {
       },
     );
     out.onCancel = sub.cancel;
-    unawaited(_abort.future.then((_) => stop(_failure!)));
+    unawaited(_abort.future.then((_) => stop(_failure)));
     return out.stream;
   }
 

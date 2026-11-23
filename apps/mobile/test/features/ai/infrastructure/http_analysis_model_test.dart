@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,12 +32,30 @@ final class _Recorded {
 
 typedef _Responder = Future<http.StreamedResponse> Function(_Recorded call);
 
+final class _ClosingClient extends http.BaseClient {
+  new(this._inner, this._onClose);
+
+  final http.Client _inner;
+  final void Function() _onClose;
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) =>
+      _inner.send(request);
+
+  @override
+  void close() {
+    _onClose();
+    _inner.close();
+  }
+}
+
 final class _Harness {
   new(
     this.responder, {
     String url = 'https://api.example.com/v1',
     this.lookup,
     bool local = false,
+    Duration requestTimeout = const Duration(seconds: 180),
   }) {
     store = InMemoryAiConfigStore();
     model = HttpAnalysisModel(
@@ -44,15 +63,17 @@ final class _Harness {
       model: 'model-x',
       apiKey: _key,
       local: local,
+      requestTimeout: requestTimeout,
       profileStore: store,
       lookup: lookup ?? (_) async => ['192.168.1.20'],
       clientFactory: (_, ip) {
         pinnedIps.add(ip);
-        return MockClient.streaming((request, bodyStream) async {
+        final mock = MockClient.streaming((request, bodyStream) async {
           final call = _Recorded(request, await bodyStream.bytesToString());
           calls.add(call);
           return await responder(call);
         });
+        return _ClosingClient(mock, () => closes++);
       },
     );
   }
@@ -61,6 +82,7 @@ final class _Harness {
   final AddressLookup? lookup;
   final List<_Recorded> calls = [];
   final List<String?> pinnedIps = [];
+  int closes = 0;
   late final InMemoryAiConfigStore store;
   late final HttpAnalysisModel model;
 
@@ -515,5 +537,248 @@ void main() {
       expect(h.calls, hasLength(1));
       expect(h.store.profiles, isEmpty);
     });
+
+    test('tolerates a 404 on the model list with a body over 256 KB', () async {
+      final h = _Harness((call) async {
+        if (call.request.method == 'GET') return _html(404);
+        return _sse(_okStream);
+      });
+
+      final result = await h.model.probe();
+
+      expect(result.models, isNull);
+      expect(h.calls, hasLength(2));
+    });
+
+    test('a stalled lookup times out at the connect stage', () {
+      fakeAsync((async) {
+        final h = _Harness(
+          (_) async => _sse(_okStream),
+          url: 'http://gpu-box.local:11434/v1',
+          lookup: (_) => Completer<List<String>>().future,
+        );
+        AnalysisFailure? failure;
+        unawaited(_failureOf(h.model.probe()).then((f) => failure = f));
+
+        async.elapse(const Duration(seconds: 11));
+
+        expect(failure?.kind, AnalysisFailureKind.timeout);
+        expect(failure?.timeoutStage, TimeoutStage.connect);
+      });
+    });
+  });
+
+  group('hardening', () {
+    test('the ladder stops at the cap while steps remain', () async {
+      const messages = [
+        'Unknown parameter: stream_options',
+        'max_completion_tokens is not supported',
+        'stream is not supported',
+        'bad request',
+        'bad request',
+        'bad request',
+        'bad request',
+      ];
+      late final _Harness h;
+      h = _Harness(
+        (_) async => _json(400, _error(messages[h.calls.length - 1])),
+      );
+
+      final failure = await _failureOf(h.run());
+
+      expect(failure.kind, AnalysisFailureKind.badRequest);
+      expect(h.calls, hasLength(aiMaxLadderAttempts));
+      expect(aiMaxLadderAttempts, 4);
+    });
+
+    test('a JSON success body past 256 KB fails as unreadable', () async {
+      final h = _Harness((_) async => _json(200, 'x' * (300 * 1024)));
+
+      final failure = await _failureOf(h.run());
+
+      expect(failure.kind, AnalysisFailureKind.unreadable);
+    });
+
+    for (final entry in {
+      401: AnalysisFailureKind.unauthorized,
+      429: AnalysisFailureKind.rateLimited,
+    }.entries) {
+      test('a ${entry.key} with a body over 256 KB still classifies', () async {
+        final h = _Harness((_) async => _html(entry.key));
+
+        final failure = await _failureOf(h.run());
+
+        expect(failure.kind, entry.value);
+        expect(failure.statusCode, entry.key);
+      });
+    }
+
+    test('a client error naming the key leaves no key in detail', () async {
+      final h = _Harness(
+        (_) async => throw http.ClientException('connect failed $_key'),
+      );
+
+      final failure = await _failureOf(h.run());
+
+      expect(failure.kind, AnalysisFailureKind.unreachable);
+      expect(failure.detail, isNot(contains(_key)));
+    });
+
+    test('a lookup error naming the key leaves no key in detail', () async {
+      final h = _Harness(
+        (_) async => _sse(_okStream),
+        url: 'http://gpu-box.local:11434/v1',
+        lookup: (_) async => throw Exception('lookup failed $_key'),
+      );
+
+      final failure = await _failureOf(h.run());
+
+      expect(failure.kind, AnalysisFailureKind.unreachable);
+      expect(failure.detail, isNot(contains(_key)));
+    });
+
+    test('TlsException maps to tls', () async {
+      final h = _Harness((_) async => throw const TlsException('bad cert'));
+
+      expect((await _failureOf(h.run())).kind, AnalysisFailureKind.tls);
+    });
+
+    test('SocketException maps to unreachable', () async {
+      final h = _Harness((_) async => throw const SocketException('refused'));
+
+      expect((await _failureOf(h.run())).kind, AnalysisFailureKind.unreachable);
+    });
+
+    test('the total timeout fires and closes the client', () {
+      fakeAsync((async) {
+        final h = _Harness(
+          (_) => Completer<http.StreamedResponse>().future,
+          requestTimeout: const Duration(seconds: 30),
+        );
+        AnalysisFailure? failure;
+        unawaited(_failureOf(h.run()).then((f) => failure = f));
+
+        async.elapse(const Duration(seconds: 29));
+        expect(failure, isNull);
+        async.elapse(const Duration(seconds: 2));
+
+        expect(failure?.kind, AnalysisFailureKind.timeout);
+        expect(failure?.timeoutStage, TimeoutStage.total);
+        expect(failure?.detail, '30');
+        expect(h.closes, 1);
+      });
+    });
+
+    test('cancel closes the client', () async {
+      final cancel = Completer<void>();
+      final h = _Harness((_) => Completer<http.StreamedResponse>().future);
+
+      final pending = _failureOf(h.run(cancel: cancel.future));
+      await pumpEventQueue();
+      expect(h.closes, 0);
+      cancel.complete();
+
+      expect((await pending).kind, AnalysisFailureKind.cancelled);
+      expect(h.closes, 1);
+    });
+
+    test('cancel ends a stalled lookup', () async {
+      final cancel = Completer<void>();
+      final h = _Harness(
+        (_) async => _sse(_okStream),
+        url: 'http://gpu-box.local:11434/v1',
+        lookup: (_) => Completer<List<String>>().future,
+      );
+
+      final pending = _failureOf(h.run(cancel: cancel.future));
+      await pumpEventQueue();
+      cancel.complete();
+
+      expect((await pending).kind, AnalysisFailureKind.cancelled);
+      expect(h.calls, isEmpty);
+      expect(h.pinnedIps, isEmpty);
+    });
+
+    test('a stalled lookup without cancel hits the connect timeout', () {
+      fakeAsync((async) {
+        final h = _Harness(
+          (_) async => _sse(_okStream),
+          url: 'http://gpu-box.local:11434/v1',
+          lookup: (_) => Completer<List<String>>().future,
+        );
+        AnalysisFailure? failure;
+        unawaited(_failureOf(h.run()).then((f) => failure = f));
+
+        async.elapse(const Duration(seconds: 9));
+        expect(failure, isNull);
+        async.elapse(const Duration(seconds: 2));
+
+        expect(failure?.kind, AnalysisFailureKind.timeout);
+        expect(failure?.timeoutStage, TimeoutStage.connect);
+        expect(failure?.detail, '10');
+      });
+    });
+
+    test('a 301 is not followed and fails as redirect', () async {
+      final h = _Harness(
+        (_) async =>
+            _json(301, '', headers: {'location': 'https://evil.example/v1'}),
+      );
+
+      final failure = await _failureOf(h.run());
+
+      expect(failure.kind, AnalysisFailureKind.redirect);
+      expect(h.calls, hasLength(1));
+    });
+
+    test('http host on a private IPv6 address is allowed', () async {
+      final h = _Harness(
+        (_) async => _sse(_okStream),
+        url: 'http://gpu-box.local:11434/v1',
+        lookup: (_) async => ['fd00::1'],
+      );
+
+      await h.run();
+
+      expect(h.pinnedIps.single, 'fd00::1');
+    });
+
+    test('http host on a public IPv6 address is refused', () async {
+      final h = _Harness(
+        (_) async => _sse(_okStream),
+        url: 'http://gpu-box.local:11434/v1',
+        lookup: (_) async => ['2001:4860::8888'],
+      );
+
+      final failure = await _failureOf(h.run());
+
+      expect(failure.kind, AnalysisFailureKind.cleartextBlocked);
+      expect(h.calls, isEmpty);
+    });
+
+    test('the pinned connection dials the checked address and URL port', () {
+      Object? host;
+      int? port;
+      final connect = pinnedConnection(
+        _url('http://gpu-box.local:11434/v1'),
+        '192.168.1.20',
+        connect: (h, p) {
+          host = h;
+          port = p;
+          return Completer<ConnectionTask<Socket>>().future;
+        },
+      );
+
+      unawaited(connect(Uri.parse('http://gpu-box.local:11434/v1'), null, 0));
+
+      expect((host! as InternetAddress).address, '192.168.1.20');
+      expect(port, 11434);
+    });
   });
 }
+
+http.StreamedResponse _html(int status) => http.StreamedResponse(
+  Stream.value(utf8.encode('<html>${'x' * (300 * 1024)}</html>')),
+  status,
+  headers: {'content-type': 'text/html'},
+);

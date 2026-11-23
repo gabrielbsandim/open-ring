@@ -107,51 +107,48 @@ void main() {
       expect(keptOff.streamOk, isFalse);
       expect(keptOff.nextOnBadRequest('bad request'), isNull);
     });
-    test(
-      'capability ladder is an acyclic DAG bounded by aiMaxLadderAttempts',
-      () {
-        const triggers = [
-          'stream_options',
-          'max_completion_tokens',
-          'stream',
-          'json_schema',
-          'response_format',
-          'bad request',
-        ];
-        const target = AiCapabilityProfile(
-          jsonMode: AiJsonMode.jsonObject,
-          streamOk: false,
-        );
-        final depths = <AiCapabilityProfile, int>{};
-        final visiting = <AiCapabilityProfile>{};
+    test('capability ladder is an acyclic DAG deeper than the attempt cap', () {
+      const triggers = [
+        'stream_options',
+        'max_completion_tokens',
+        'stream',
+        'json_schema',
+        'response_format',
+        'bad request',
+      ];
+      const target = AiCapabilityProfile(
+        jsonMode: AiJsonMode.jsonObject,
+        streamOk: false,
+      );
+      final depths = <AiCapabilityProfile, int>{};
+      final visiting = <AiCapabilityProfile>{};
 
-        int visit(AiCapabilityProfile node, int depth) {
-          if (visiting.contains(node)) {
-            fail('Cycle detected at $node');
-          }
-          final known = depths[node];
-          if (known == null || depth > known) {
-            depths[node] = depth;
-          }
-          visiting.add(node);
-          var best = 0;
-          for (final trigger in triggers) {
-            final next = node.nextOnBadRequest(trigger);
-            if (next == null) continue;
-            expect(next, isNot(node));
-            final candidate = 1 + visit(next, depth + 1);
-            if (candidate > best) best = candidate;
-          }
-          visiting.remove(node);
-          return best;
+      int visit(AiCapabilityProfile node, int depth) {
+        if (visiting.contains(node)) {
+          fail('Cycle detected at $node');
         }
+        final known = depths[node];
+        if (known == null || depth > known) {
+          depths[node] = depth;
+        }
+        visiting.add(node);
+        var best = 0;
+        for (final trigger in triggers) {
+          final next = node.nextOnBadRequest(trigger);
+          if (next == null) continue;
+          expect(next, isNot(node));
+          final candidate = 1 + visit(next, depth + 1);
+          if (candidate > best) best = candidate;
+        }
+        visiting.remove(node);
+        return best;
+      }
 
-        final maxTransitions = visit(AiCapabilityProfile.defaults, 0);
-        expect(maxTransitions, 6);
-        expect(maxTransitions + 1, aiMaxLadderAttempts);
-        expect(depths.containsKey(target), isTrue);
-      },
-    );
+      final maxTransitions = visit(AiCapabilityProfile.defaults, 0);
+      expect(maxTransitions, 6);
+      expect(aiMaxLadderAttempts, 4);
+      expect(depths.containsKey(target), isTrue);
+    });
   });
 
   group('scrubApiKey', () {

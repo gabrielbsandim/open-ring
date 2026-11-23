@@ -14,6 +14,9 @@ import 'package:open_ring/features/activity/application/activity_providers.dart'
 import 'package:open_ring/features/activity/application/step_goal_history_providers.dart';
 import 'package:open_ring/features/activity/infrastructure/drift_activity_history_reader.dart';
 import 'package:open_ring/features/activity/infrastructure/drift_step_goal_history.dart';
+import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/infrastructure/secure_storage_secret_store.dart';
+import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_config_store.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/infrastructure/drift_weigh_in_store.dart';
@@ -205,8 +208,11 @@ Future<void> bootstrap() async {
         (ref) => DeviceLocalDataEraser(
           ref.watch(appDatabaseProvider),
           ref.watch(photoStoreProvider),
+          secrets: ref.watch(secretStoreProvider),
         ),
       ),
+      secretStoreProvider.overrideWithValue(const SecureStorageSecretStore()),
+      aiConfigStoreProvider.overrideWithValue(SharedPreferencesAiConfigStore()),
       appDatabaseProvider.overrideWithValue(database),
       syncStoreProvider.overrideWith(
         (ref) => DriftSyncStore(ref.watch(appDatabaseProvider)),

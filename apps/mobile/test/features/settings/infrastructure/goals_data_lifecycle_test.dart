@@ -4,6 +4,7 @@ import 'package:open_ring/features/settings/infrastructure/device_local_data_era
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
+import '../../../helpers/ai_fakes.dart';
 import '../../../helpers/database.dart';
 
 const _goal =
@@ -35,7 +36,11 @@ void main() {
     expect(await rowCount(db, 'goal_weeks'), 1);
     expect(await rowCount(db, 'goal_screenings'), 1);
 
-    await DeviceLocalDataEraser(db, InMemoryPhotoStore()).eraseAll();
+    await DeviceLocalDataEraser(
+      db,
+      InMemoryPhotoStore(),
+      secrets: InMemorySecretStore(),
+    ).eraseAll();
 
     expect(await rowCount(db, 'goals'), 0);
     expect(await rowCount(db, 'goal_weeks'), 0);

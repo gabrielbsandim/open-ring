@@ -1,0 +1,94 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:open_ring/features/ai/domain/ai_config.dart';
+import 'package:open_ring/features/ai/domain/secret_store.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+
+final secretStoreProvider = Provider<SecretStore>(
+  (ref) => throw UnimplementedError('Override secretStoreProvider.'),
+);
+
+final aiConfigStoreProvider = Provider<AiConfigStore>(
+  (ref) => throw UnimplementedError('Override aiConfigStoreProvider.'),
+);
+
+final aiConfigProvider = AsyncNotifierProvider<AiConfigController, AiConfig>(
+  AiConfigController.new,
+);
+
+/// Holds the config only: the API key stays in [SecretStore] and is never
+/// kept in provider state.
+class AiConfigController extends AsyncNotifier<AiConfig> {
+  Future<void> _queue = Future.value();
+
+  @override
+  Future<AiConfig> build() => ref.watch(aiConfigStoreProvider).readConfig();
+
+  /// A different scheme, host or port deletes the key and both consents
+  /// before the new address is stored, so a key never follows an edit.
+  Future<void> save(AiConfig next) => _serial(() async {
+    final current = await future;
+    final oldHost = current.hostKey;
+    final moved = oldHost != null && oldHost != next.hostKey;
+    final store = ref.read(aiConfigStoreProvider);
+    final value = moved
+        ? next.copyWith(clearKeyLastFour: true, clearTested: true)
+        : next;
+    if (moved) {
+      await ref.read(secretStoreProvider).delete(aiApiKeySecretName);
+      await store.clearConsent();
+      await store.clearMealPhotoConsent();
+      ref.invalidate(aiConsentProvider);
+    }
+    await store.writeConfig(value);
+    state = AsyncData(value);
+  });
+
+  Future<void> setApiKey(String apiKey) => _serial(() async {
+    final current = await future;
+    final trimmed = apiKey.trim();
+    final secrets = ref.read(secretStoreProvider);
+    if (trimmed.isEmpty) {
+      await secrets.delete(aiApiKeySecretName);
+    } else {
+      await secrets.write(aiApiKeySecretName, trimmed);
+    }
+    final value = current.copyWith(
+      keyLastFour: AiConfig.lastFourOf(trimmed),
+      clearKeyLastFour: trimmed.isEmpty,
+      clearTested: true,
+    );
+    await ref.read(aiConfigStoreProvider).writeConfig(value);
+    state = AsyncData(value);
+  });
+
+  Future<void> recordConsent(AiConsent consent) => _serial(() async {
+    await ref.read(aiConfigStoreProvider).writeConsent(consent);
+    ref.invalidate(aiConsentProvider);
+  });
+
+  Future<void> _serial(Future<void> Function() action) {
+    final run = _queue.then((_) => action());
+    _queue = run.catchError((Object _) {});
+    return run;
+  }
+}
+
+final aiConsentProvider = FutureProvider<AiConsent?>(
+  (ref) => ref.watch(aiConfigStoreProvider).readConsent(),
+);
+
+final aiAvailabilityProvider = FutureProvider<AiAvailability>((ref) async {
+  // Awaits the module list: a still loading list must not resolve to off.
+  final modules = await ref.watch(enabledModulesProvider.future);
+  if (!modules.contains(ModuleId.ai)) return AiAvailability.off;
+  final config = await ref.watch(aiConfigProvider.future);
+  final key = await ref.read(secretStoreProvider).read(aiApiKeySecretName);
+  final consent = await ref.watch(aiConsentProvider.future);
+  return resolveAiAvailability(
+    moduleEnabled: true,
+    config: config,
+    hasStoredKey: key != null && key.isNotEmpty,
+    consent: consent,
+  );
+});

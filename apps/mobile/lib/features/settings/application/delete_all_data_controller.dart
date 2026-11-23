@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
@@ -71,7 +72,10 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
       ..invalidate(weekGoalProvider)
       ..invalidate(celebrationClosedProvider)
       ..invalidate(userProfileProvider)
-      ..invalidate(ringSyncProvider);
+      ..invalidate(ringSyncProvider)
+      ..invalidate(aiConfigProvider)
+      ..invalidate(aiConsentProvider)
+      ..invalidate(aiAvailabilityProvider);
     ref.read(dataRevisionProvider.notifier).bump();
   }
 }

@@ -35,8 +35,8 @@ final class AiCapabilityProfile {
       json['limitField'],
       AiLimitField.maxCompletionTokens,
     ),
-    streamOk: json['streamOk'] as bool? ?? true,
-    streamUsageOk: json['streamUsageOk'] as bool? ?? true,
+    streamOk: json['streamOk'] != false,
+    streamUsageOk: json['streamUsageOk'] != false,
     vision: _enumByName(
       AiVisionSupport.values,
       json['vision'],

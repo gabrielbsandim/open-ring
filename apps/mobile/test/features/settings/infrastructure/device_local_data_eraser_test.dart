@@ -19,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
+import '../../../helpers/ai_fakes.dart';
 import '../../../helpers/database.dart';
 
 void main() {
@@ -51,7 +52,11 @@ void main() {
     await DriftUserProfileStore(db)
         .save(const UserProfile(birthYear: 1990), at: DateTime(2026, 11));
 
-    await DeviceLocalDataEraser(db, InMemoryPhotoStore()).eraseAll();
+    await DeviceLocalDataEraser(
+      db,
+      InMemoryPhotoStore(),
+      secrets: InMemorySecretStore(),
+    ).eraseAll();
 
     for (final table in db.allTables) {
       expect(
@@ -75,7 +80,11 @@ void main() {
       "effort_rating) VALUES ('w1', 'com.example', 'running', 1, 2, 0, 3, 8)",
     );
 
-    await DeviceLocalDataEraser(db, InMemoryPhotoStore()).eraseAll();
+    await DeviceLocalDataEraser(
+      db,
+      InMemoryPhotoStore(),
+      secrets: InMemorySecretStore(),
+    ).eraseAll();
 
     expect(await rowCount(db, 'workouts'), 0);
     expect(await rowCount(db, 'imported_workouts'), 0);
@@ -93,6 +102,7 @@ void main() {
     await DeviceLocalDataEraser(
       memoryDatabase(),
       InMemoryPhotoStore(),
+      secrets: InMemorySecretStore(),
     ).eraseAll();
 
     final keys = await SharedPreferencesAsync().getKeys();
@@ -107,7 +117,11 @@ void main() {
       await photos.save('a.jpg', Uint8List.fromList([1, 2, 3]));
       await photos.save('b.jpg', Uint8List.fromList([4, 5]));
 
-      await DeviceLocalDataEraser(db, photos).eraseAll();
+      await DeviceLocalDataEraser(
+        db,
+        photos,
+        secrets: InMemorySecretStore(),
+      ).eraseAll();
 
       expect(await rowCount(db, 'meals'), 0);
       for (final table in db.allTables) {
@@ -134,7 +148,11 @@ void main() {
 
     test('eraseAll throws the FileSystemException', () async {
       await expectLater(
-        DeviceLocalDataEraser(db, _FailingPhotoStore(photos)).eraseAll(),
+        DeviceLocalDataEraser(
+          db,
+          _FailingPhotoStore(photos),
+          secrets: InMemorySecretStore(),
+        ).eraseAll(),
         throwsA(isA<FileSystemException>()),
       );
     });
@@ -143,6 +161,7 @@ void main() {
       await DeviceLocalDataEraser(
         db,
         _FailingPhotoStore(photos),
+        secrets: InMemorySecretStore(),
       ).eraseAll().catchError((Object _) {}, test: (e) => e is Exception);
 
       expect(await rowCount(db, 'meals'), 0);
@@ -153,10 +172,15 @@ void main() {
       await DeviceLocalDataEraser(
         db,
         _FailingPhotoStore(photos),
+        secrets: InMemorySecretStore(),
       ).eraseAll().catchError((Object _) {}, test: (e) => e is Exception);
       expect(await photos.totalBytes(), 3);
 
-      await DeviceLocalDataEraser(db, photos).eraseAll();
+      await DeviceLocalDataEraser(
+        db,
+        photos,
+        secrets: InMemorySecretStore(),
+      ).eraseAll();
 
       expect(await photos.totalBytes(), 0);
     });

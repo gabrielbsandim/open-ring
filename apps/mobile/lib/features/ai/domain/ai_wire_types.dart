@@ -3,8 +3,8 @@ import 'package:meta/meta.dart';
 const int aiMaxResponseBytes = 256 * 1024;
 const int aiMaxErrorDetailChars = 300;
 
-/// Maximum attempts from [AiCapabilityProfile.defaults] (1 initial + up to 6 transitions).
-const int aiMaxLadderAttempts = 7;
+/// Ladder cap per spec 1.4: 1 initial attempt plus up to 3 step-downs.
+const int aiMaxLadderAttempts = 4;
 
 enum AiJsonMode { jsonSchema, jsonObject, none }
 

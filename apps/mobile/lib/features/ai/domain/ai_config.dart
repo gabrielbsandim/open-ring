@@ -17,6 +17,9 @@ enum AiStreamingMode { auto, off }
 
 enum AiAvailability { off, notConfigured, notTested, consentNeeded, ready }
 
+/// Optional parts of the summary; one turned on later asks for consent again.
+enum AiDataCategory { body, energy, goals, food, imported }
+
 @immutable
 final class AiConfig {
   const new({
@@ -300,6 +303,7 @@ final class AiConsent {
     required this.hostKey,
     required this.detailLevel,
     required this.contextSchemaVersion,
+    this.categories = const {},
   });
 
   final int consentedAtUtcMs;
@@ -307,17 +311,20 @@ final class AiConsent {
   final String hostKey;
   final AiDetailLevel detailLevel;
   final String contextSchemaVersion;
+  final Set<AiDataCategory> categories;
 
   bool covers({
     required String hostKey,
     required AiDetailLevel detailLevel,
     required String contextSchemaVersion,
     required String policyEffectiveDate,
+    Set<AiDataCategory> categories = const {},
   }) =>
       this.hostKey == hostKey &&
       this.contextSchemaVersion == contextSchemaVersion &&
       this.policyEffectiveDate == policyEffectiveDate &&
-      this.detailLevel.index >= detailLevel.index;
+      this.detailLevel.index >= detailLevel.index &&
+      this.categories.containsAll(categories);
 
   Map<String, Object?> toJson() => {
     'consentedAtUtcMs': consentedAtUtcMs,
@@ -325,6 +332,10 @@ final class AiConsent {
     'hostKey': hostKey,
     'detailLevel': detailLevel.name,
     'contextSchemaVersion': contextSchemaVersion,
+    'categories': [
+      for (final c in AiDataCategory.values)
+        if (categories.contains(c)) c.name,
+    ],
   };
 
   static AiConsent? tryFromJson(Map<String, Object?> json) {
@@ -343,12 +354,17 @@ final class AiConsent {
         detail == null) {
       return null;
     }
+    final names = json['categories'];
     return AiConsent(
       consentedAtUtcMs: ts,
       policyEffectiveDate: date,
       hostKey: host,
       detailLevel: detail,
       contextSchemaVersion: schema,
+      categories: {
+        if (names is List)
+          for (final n in names) ?_nullableEnumByName(AiDataCategory.values, n),
+      },
     );
   }
 
@@ -359,7 +375,9 @@ final class AiConsent {
       other.policyEffectiveDate == policyEffectiveDate &&
       other.hostKey == hostKey &&
       other.detailLevel == detailLevel &&
-      other.contextSchemaVersion == contextSchemaVersion;
+      other.contextSchemaVersion == contextSchemaVersion &&
+      other.categories.length == categories.length &&
+      other.categories.containsAll(categories);
 
   @override
   int get hashCode => Object.hash(
@@ -368,6 +386,7 @@ final class AiConsent {
     hostKey,
     detailLevel,
     contextSchemaVersion,
+    Object.hashAllUnordered(categories),
   );
 }
 

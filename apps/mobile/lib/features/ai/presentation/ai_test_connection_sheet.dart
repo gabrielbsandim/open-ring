@@ -55,8 +55,7 @@ String? aiTestFailureMessage(
     AnalysisFailureKind.cleartextBlocked => l10n.aiConnectionRefusalCleartext(
       host,
     ),
-    AnalysisFailureKind.unauthorized ||
-    AnalysisFailureKind.forbidden => l10n.aiErrorKey,
+    AnalysisFailureKind.unauthorized => l10n.aiErrorKey,
     AnalysisFailureKind.modelNotFound => l10n.aiErrorModelNotFound(model),
     _ => null,
   };

@@ -303,15 +303,6 @@ void main() {
         () => l10n.aiErrorKey,
       ),
       (
-        '403',
-        const AnalysisFailure(
-          kind: AnalysisFailureKind.forbidden,
-          statusCode: 403,
-        ),
-        1,
-        () => l10n.aiErrorKey,
-      ),
-      (
         'model not found',
         const AnalysisFailure(
           kind: AnalysisFailureKind.modelNotFound,
@@ -337,6 +328,23 @@ void main() {
         );
       });
     }
+
+    testWidgets("'403' maps to its line on step 1", (tester) async {
+      model.script = _failing(
+        const AnalysisFailure(
+          kind: AnalysisFailureKind.forbidden,
+          statusCode: 403,
+        ),
+      );
+      await pump(tester);
+      await openTest(tester);
+
+      expect(step(1, AiTestStepState.failed), findsOneWidget);
+      expect(find.text(l10n.aiErrorKey), findsNothing);
+      expect(find.byKey(AiTestKeys.message), findsNothing);
+      expect(find.text(l10n.aiErrorDetails), findsOneWidget);
+      expect(find.text('403'), findsOneWidget);
+    });
 
     testWidgets('a local address gets the same Wi-Fi line', (tester) async {
       store.config = const AiConfig(

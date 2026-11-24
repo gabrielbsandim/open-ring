@@ -1,6 +1,7 @@
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
+import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 
 final class InMemorySecretStore implements SecretStore {
@@ -228,3 +229,20 @@ AiReport sampleAiReport({required DateTime at, String text = 'raw'}) =>
       cardsJson: text,
       rawText: text,
     );
+
+final class InMemoryAiRunMarkerStore implements AiRunMarkerStore {
+  AiReport? value;
+  int writes = 0;
+
+  @override
+  Future<AiReport?> read() async => value;
+
+  @override
+  Future<void> write(AiReport draft) async {
+    writes++;
+    value = draft;
+  }
+
+  @override
+  Future<void> clear() async => value = null;
+}

@@ -22,6 +22,7 @@ import 'package:open_ring/features/ai/domain/meal_photo_wire.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
+import 'package:open_ring/features/food/application/meal_analysis_failure_policy.dart';
 import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
@@ -48,7 +49,12 @@ enum EnqueueOutcome {
   demo,
 }
 
-typedef MealAnalysisQueueState = ({int? sendingId, bool capReached});
+/// The pause is the stored one while it still holds for the current target.
+typedef MealAnalysisQueueState = ({
+  int? sendingId,
+  bool capReached,
+  AiPhotoQueuePause? pause,
+});
 
 typedef WirePhotoEncoder = Future<WirePhoto> Function(Uint8List stored);
 
@@ -103,6 +109,9 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
   Future<void> _lock = Future.value();
   Future<void> _drained = Future.value();
   late DateTime Function() _clock;
+  // In memory on purpose: a restart starts the backoff over.
+  int _failures = 0;
+  DateTime? _holdUntil;
 
   /// Settles, never with an error, once the pass and the enqueue or cancel
   /// in flight have finished or aborted.
@@ -117,7 +126,7 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
       _alive = false;
       _abort();
     });
-    return (sendingId: null, capReached: false);
+    return (sendingId: null, capReached: false, pause: null);
   }
 
   bool get _dead => _runEpoch != _epoch;
@@ -192,6 +201,21 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     await ref.read(aiRunMarkerStoreProvider).addPhotoUses(day, -1);
   });
 
+  /// Lifts the pause, whatever its reason, and sends what is queued.
+  Future<void> resume() async {
+    await ref.read(aiConfigStoreProvider).clearPhotoQueuePause();
+    _setPause(null);
+    await drain();
+  }
+
+  /// A failed or rejected row goes back to queued without a new daily use.
+  Future<bool> retry(int id) async {
+    final analyses = ref.read(mealAnalysisStoreProvider);
+    if (!await analyses.retry(id, now: _clock())) return false;
+    unawaited(drain());
+    return true;
+  }
+
   /// A call during a pass asks for one more pass instead of running beside
   /// it, so two requests are never in flight.
   Future<void> drain() {
@@ -233,6 +257,7 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
   Future<_Step> _step(MealAnalysisStore analyses) async {
     if (!_awake) return _Step.stop;
     final gate = await _gate();
+    if (await _paused()) return _Step.stop;
     final now = _clock();
     final closed = switch (gate) {
       _Closed.badUrl => MealAnalysisErrorKind.urlRejected,
@@ -257,6 +282,8 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     }
     if (gate is! _Ready || stored == null) return _Step.stop;
     if (await _capReached(gate.config) || !_awake) return _Step.stop;
+    await _holdOff();
+    if (!_awake) return _Step.stop;
     return await _send(analyses, row, gate, stored);
   }
 
@@ -286,18 +313,12 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
         return _Step.next;
       }
       await _request(analyses, row, gate, stored);
+      _failures = 0;
+      _holdUntil = null;
       return _Step.sent;
     } on AnalysisFailure catch (failure) {
       if (_dead) return _Step.stop;
-      final kind = _cancel.isCompleted
-          ? AnalysisFailureKind.cancelled
-          : failure.kind;
-      if (kind != AnalysisFailureKind.unreachable) {
-        await analyses.fail(row.id, kind.name, now: _clock());
-        return _Step.sent;
-      }
-      await analyses.requeue(row.id, now: _clock());
-      return _Step.stop;
+      return await _failed(analyses, row, gate, failure);
     } on Object {
       if (_dead) return _Step.stop;
       await analyses.fail(
@@ -311,6 +332,109 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     }
   }
 
+  /// Unreachable, the pause reasons and a cancel touch no backoff; 5xx and
+  /// timeouts hold the next item back.
+  Future<_Step> _failed(
+    MealAnalysisStore analyses,
+    MealAnalysis row,
+    _Ready gate,
+    AnalysisFailure failure,
+  ) async {
+    final now = _clock();
+    final kind = _cancel.isCompleted
+        ? AnalysisFailureKind.cancelled
+        : failure.kind;
+    final reason = kind == AnalysisFailureKind.cancelled
+        ? null
+        : aiPhotoPauseReason(failure);
+    if (reason != null) await _pause(reason, gate, now);
+    if (reason != null || kind == AnalysisFailureKind.unreachable) {
+      await analyses.requeue(row.id, now: now);
+      return _Step.stop;
+    }
+    if (aiPhotoBacksOff(kind)) {
+      _holdUntil = now.add(aiPhotoBackoffAfter(++_failures));
+    }
+    await analyses.fail(row.id, kind.name, now: now);
+    return _Step.sent;
+  }
+
+  Future<void> _pause(
+    AiPhotoQueuePauseReason reason,
+    _Ready gate,
+    DateTime now,
+  ) async {
+    final store = ref.read(aiConfigStoreProvider);
+    if (reason == AiPhotoQueuePauseReason.noVision) {
+      final stored = await store.readCapabilityProfile(gate.host, gate.model);
+      final profile = stored ?? AiCapabilityProfile.defaults;
+      await store.writeCapabilityProfile(
+        gate.host,
+        gate.model,
+        profile.copyWith(vision: AiVisionSupport.no),
+      );
+    }
+    if (_dead) return;
+    final pause = AiPhotoQueuePause(
+      reason: reason,
+      hostKey: gate.host,
+      model: gate.model,
+      keyLastFour: gate.config.keyLastFour,
+      atUtcMs: now.toUtc().millisecondsSinceEpoch,
+    );
+    await store.writePhotoQueuePause(pause);
+    _setPause(pause);
+  }
+
+  Future<bool> _paused() async {
+    final config = await ref.read(aiConfigProvider.future);
+    final store = ref.read(aiConfigStoreProvider);
+    final pause = await store.readPhotoQueuePause();
+    final holds =
+        pause?.holds(
+          hostKey: config.hostKey,
+          model: aiPhotoTarget(config),
+          keyLastFour: config.keyLastFour,
+        ) ??
+        false;
+    _setPause(holds ? pause : null);
+    return holds;
+  }
+
+  // Ends early on Delete all data, which completes the cancel.
+  Future<void> _holdOff() async {
+    final left = _holdUntil?.difference(_clock()) ?? Duration.zero;
+    if (left <= Duration.zero) return;
+    _cancel = Completer<void>();
+    await Future.any([Future<void>.delayed(left), _cancel.future]);
+    _holdUntil = null;
+  }
+
+  /// The encode takes up to a second, so everything is checked again; null
+  /// when the row may not go now.
+  Future<_Ready?> _stillGoes(
+    MealAnalysisStore analyses,
+    MealAnalysis row,
+    _Ready gate,
+  ) async {
+    final fresh = await _gate();
+    if (fresh is! _Ready || _targetOf(fresh) != _targetOf(gate)) return null;
+    if (fresh.config.keyLastFour != gate.config.keyLastFour) return null;
+    if (!_awake || await _skipReason(analyses, row) != null) return null;
+    return fresh;
+  }
+
+  // A second request goes out only while nothing changed and no cancel came.
+  Future<bool> _resends(
+    MealAnalysisStore analyses,
+    MealAnalysis row,
+    _Ready gate,
+  ) async {
+    if (_cancel.isCompleted) return false;
+    if (await _stillGoes(analyses, row, gate) == null) return false;
+    return await analyses.countResend(row.id, now: _clock());
+  }
+
   Future<void> _request(
     MealAnalysisStore analyses,
     MealAnalysis row,
@@ -320,38 +444,52 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     final markers = ref.read(aiRunMarkerStoreProvider);
     final language = ref.read(aiReplyLanguageProvider);
     final wire = await ref.read(wirePhotoEncoderProvider)(stored);
-    // The encode takes up to a second, so everything is checked again.
-    final fresh = await _gate();
-    if (fresh is! _Ready || _targetOf(fresh) != _targetOf(gate) || !_awake) {
-      throw _notNow;
-    }
-    if (await _skipReason(analyses, row) != null) throw _notNow;
+    final fresh = await _stillGoes(analyses, row, gate);
+    if (fresh == null) throw _notNow;
     final config = fresh.config;
     final model = ref.read(keyedAnalysisModelFactoryProvider)(
       config.copyWith(model: fresh.model),
       fresh.key,
     );
-    final done = await _generate(
-      model,
-      buildMealPhotoRequest(
-        base64Encode(wire.bytes),
-        withItems: false,
-        replyLanguage: language,
-        maxOutputTokens: config.maxOutputTokens,
-        profile: fresh.profile,
-        pin: aiOutputPin(config),
-      ),
-    );
-    final usage = done.usage;
-    final tokens = (usage?.promptTokens ?? 0) + (usage?.completionTokens ?? 0);
-    await markers.addMonthTokens(aiMonthKey(_clock()), tokens);
-    final outcome = MealPhotoValidator.read(
-      done.text,
-      shortEdgePx: wire.shortEdge,
+    final request = buildMealPhotoRequest(
+      base64Encode(wire.bytes),
       withItems: false,
       replyLanguage: language,
+      maxOutputTokens: config.maxOutputTokens,
+      profile: fresh.profile,
+      pin: aiOutputPin(config),
     );
-    if (_dead) return;
+    var sent = 0;
+    AnalysisCompleted? done;
+    MealPhotoOutcome? outcome;
+    while (done == null) {
+      sent++;
+      try {
+        done = await _generate(model, request);
+      } on AnalysisFailure catch (failure) {
+        final wait = sent < aiPhotoMaxRequests
+            ? aiAutoRetryWait(failure)
+            : null;
+        if (wait == null) rethrow;
+        await Future.any([Future<void>.delayed(wait), _cancel.future]);
+        if (!await _resends(analyses, row, gate)) rethrow;
+        continue;
+      }
+      final usage = done.usage;
+      final tokens =
+          (usage?.promptTokens ?? 0) + (usage?.completionTokens ?? 0);
+      await markers.addMonthTokens(aiMonthKey(_clock()), tokens);
+      outcome = MealPhotoValidator.read(
+        done.text,
+        shortEdgePx: wire.shortEdge,
+        withItems: false,
+        replyLanguage: language,
+      );
+      final again = outcome is MealPhotoRejected && sent < aiPhotoMaxRequests;
+      if (again && await _resends(analyses, row, gate)) done = null;
+    }
+    if (_dead || outcome == null) return;
+    final usage = done.usage;
     await analyses.complete(row.id, (
       status: switch (outcome) {
         MealPhotoDone() => MealAnalysisStatus.done,
@@ -453,7 +591,13 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
         ? 0
         : await markers.monthTokens(aiMonthKey(_clock()));
     final reached = cap != null && used >= cap;
-    if (ref.mounted) state = (sendingId: state.sendingId, capReached: reached);
+    if (ref.mounted) {
+      state = (
+        sendingId: state.sendingId,
+        capReached: reached,
+        pause: state.pause,
+      );
+    }
     return reached;
   }
 
@@ -463,6 +607,19 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
 
   void _set({required int? sendingId}) {
     if (!ref.mounted) return;
-    state = (sendingId: sendingId, capReached: state.capReached);
+    state = (
+      sendingId: sendingId,
+      capReached: state.capReached,
+      pause: state.pause,
+    );
+  }
+
+  void _setPause(AiPhotoQueuePause? pause) {
+    if (!ref.mounted) return;
+    state = (
+      sendingId: state.sendingId,
+      capReached: state.capReached,
+      pause: pause,
+    );
   }
 }

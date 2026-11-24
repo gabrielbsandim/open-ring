@@ -111,6 +111,27 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
   );
 
   @override
+  Future<bool> countResend(int id, {required DateTime now}) => _moveOne(
+    id,
+    _sending,
+    MealAnalysesCompanion.custom(
+      attempts: _db.mealAnalyses.attempts + const Constant(1),
+      updatedAtUtcMs: Constant(now.millisecondsSinceEpoch),
+    ),
+  );
+
+  @override
+  Future<bool> retry(int id, {required DateTime now}) => _moveOne(
+    id,
+    const [MealAnalysisStatus.failed, MealAnalysisStatus.rejected],
+    MealAnalysesCompanion(
+      status: Value(MealAnalysisStatus.queued.wire),
+      errorKind: const Value(null),
+      updatedAtUtcMs: Value(now.millisecondsSinceEpoch),
+    ),
+  );
+
+  @override
   Future<bool> complete(
     int id,
     MealAnalysisAnswer answer, {

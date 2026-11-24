@@ -126,6 +126,50 @@ void main() {
     expect(markers.monthSum, 320);
   });
 
+  group('the photo queue pause', () {
+    AiPhotoQueuePause pause(AiPhotoQueuePauseReason reason, String model) =>
+        AiPhotoQueuePause(
+          reason: reason,
+          hostKey: _host,
+          model: model,
+          keyLastFour: null,
+          atUtcMs: 1,
+        );
+
+    test('a passing probe lifts a noVision pause', () async {
+      configStore.photoQueuePause = pause(
+        AiPhotoQueuePauseReason.noVision,
+        'vision-m',
+      );
+
+      expect(await probe(), AiVisionSupport.yes);
+      expect(configStore.photoQueuePause, isNull);
+    });
+
+    test('a failing probe keeps it', () async {
+      configStore.photoQueuePause = pause(
+        AiPhotoQueuePauseReason.noVision,
+        'vision-m',
+      );
+      respond = () => _says(_cells(['red', 'red', 'red', 'purple']));
+
+      expect(await probe(), AiVisionSupport.no);
+      expect(configStore.photoQueuePause, isNotNull);
+    });
+
+    test('a pass keeps a key pause or a pause for another model', () async {
+      for (final kept in [
+        pause(AiPhotoQueuePauseReason.unauthorized, 'vision-m'),
+        pause(AiPhotoQueuePauseReason.noVision, 'old-m'),
+      ]) {
+        configStore.photoQueuePause = kept;
+
+        expect(await probe(), AiVisionSupport.yes);
+        expect(configStore.photoQueuePause, kept);
+      }
+    });
+  });
+
   test('a wrong answer stores no', () async {
     respond = () => _says(_cells(['red', 'red', 'red', 'purple']));
 

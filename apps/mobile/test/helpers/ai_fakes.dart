@@ -64,6 +64,7 @@ final class InMemoryAiConfigStore implements AiConfigStore {
   AiConfig config = AiConfig.defaults;
   AiConsent? consent;
   AiMealPhotoConsent? mealPhotoConsent;
+  AiPhotoQueuePause? photoQueuePause;
   final Map<String, AiCapabilityProfile> profiles = {};
 
   @override
@@ -101,6 +102,19 @@ final class InMemoryAiConfigStore implements AiConfigStore {
   }
 
   @override
+  Future<AiPhotoQueuePause?> readPhotoQueuePause() async => photoQueuePause;
+
+  @override
+  Future<void> writePhotoQueuePause(AiPhotoQueuePause pause) async {
+    photoQueuePause = pause;
+  }
+
+  @override
+  Future<void> clearPhotoQueuePause() async {
+    photoQueuePause = null;
+  }
+
+  @override
   Future<AiCapabilityProfile?> readCapabilityProfile(
     String hostKey,
     String model,
@@ -125,6 +139,7 @@ final class InMemoryAiConfigStore implements AiConfigStore {
     config = AiConfig.defaults;
     consent = null;
     mealPhotoConsent = null;
+    photoQueuePause = null;
     profiles.clear();
   }
 }

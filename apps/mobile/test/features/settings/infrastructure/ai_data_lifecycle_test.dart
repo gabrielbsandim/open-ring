@@ -52,6 +52,33 @@ void main() {
     expect(await SharedPreferencesAsync().getKeys(), {'some_plugin_key'});
   });
 
+  test('Delete all data removes ai_photo_day_uses and '
+      'ai_photo_queue_pause', () async {
+    await SharedPreferencesAiRunMarkerStore().addPhotoUses('2026-11-24', 3);
+    await SharedPreferencesAiConfigStore().writePhotoQueuePause(
+      const AiPhotoQueuePause(
+        reason: AiPhotoQueuePauseReason.unauthorized,
+        hostKey: 'https://api.example.com:443',
+        model: 'vision-m',
+        keyLastFour: '1234',
+        atUtcMs: 1,
+      ),
+    );
+    final prefs = SharedPreferencesAsync();
+    expect(
+      await prefs.getKeys(),
+      containsAll(['ai_photo_day_uses', 'ai_photo_queue_pause']),
+    );
+
+    await DeviceLocalDataEraser(
+      await pairedDatabase(),
+      InMemoryPhotoStore(),
+      secrets: InMemorySecretStore(),
+    ).eraseAll();
+
+    expect(await prefs.getKeys(), {'some_plugin_key'});
+  });
+
   test('a keystore failure still erases the rest and fails the run', () async {
     final db = await pairedDatabase();
     final secrets = FailingSecretStore(

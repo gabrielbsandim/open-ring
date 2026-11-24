@@ -11,11 +11,13 @@ final class SharedPreferencesAiConfigStore implements AiConfigStore {
   static const consentKey = 'ai_consent';
   static const mealPhotoConsentKey = 'ai_meal_photo_consent';
   static const profilesKey = 'ai_capability_profiles';
+  static const photoQueuePauseKey = 'ai_photo_queue_pause';
   static const Set<String> keys = {
     configKey,
     consentKey,
     mealPhotoConsentKey,
     profilesKey,
+    photoQueuePauseKey,
   };
   static const int maxProfiles = 8;
 
@@ -59,6 +61,19 @@ final class SharedPreferencesAiConfigStore implements AiConfigStore {
 
   @override
   Future<void> clearMealPhotoConsent() => _store.remove(mealPhotoConsentKey);
+
+  @override
+  Future<AiPhotoQueuePause?> readPhotoQueuePause() async {
+    final map = await _readMap(photoQueuePauseKey);
+    return map == null ? null : AiPhotoQueuePause.tryFromJson(map);
+  }
+
+  @override
+  Future<void> writePhotoQueuePause(AiPhotoQueuePause pause) =>
+      _store.setString(photoQueuePauseKey, jsonEncode(pause.toJson()));
+
+  @override
+  Future<void> clearPhotoQueuePause() => _store.remove(photoQueuePauseKey);
 
   @override
   Future<AiCapabilityProfile?> readCapabilityProfile(

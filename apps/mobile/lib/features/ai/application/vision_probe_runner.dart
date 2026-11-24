@@ -65,7 +65,21 @@ Future<AiVisionSupport?> runVisionProbe(
     VisionProbeResult.unreadable => null,
   };
   if (seen == null) return AiVisionSupport.unknown;
+  if (seen == AiVisionSupport.yes) {
+    await _liftNoVisionPause(store, host, target);
+  }
   return await _store(ref, host, target, seen);
+}
+
+Future<void> _liftNoVisionPause(
+  AiConfigStore store,
+  String host,
+  String target,
+) async {
+  final pause = await store.readPhotoQueuePause();
+  if (pause?.reason != AiPhotoQueuePauseReason.noVision) return;
+  if (pause?.hostKey != host || pause?.model != target) return;
+  await store.clearPhotoQueuePause();
 }
 
 Future<AnalysisCompleted> _complete(

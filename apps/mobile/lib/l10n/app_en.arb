@@ -5177,7 +5177,7 @@
   "aiAdvancedPriceIn": "Price per 1M input tokens",
   "aiAdvancedPriceOut": "Price per 1M output tokens",
   "aiAdvancedCurrency": "Currency",
-  "aiAdvancedPriceHelp": "Optional. Prices per million tokens, kept on this phone. Used for an estimate only when the service reports no cost.",
+  "aiAdvancedPriceHelp": "Optional. Prices per million tokens, kept on this phone.",
   "aiAdvancedTokenCap": "Monthly token limit",
   "aiAdvancedTokenCapNone": "Empty means no limit. A spending limit set at the service is safer.",
   "aiAdvancedInvalid": "{kind, select, tokens{Enter a whole number from 256 to 32,000.} cap{Enter a whole number above 0, or leave it empty.} price{Enter a number above 0, or leave it empty.} other{Enter a currency, such as USD.}}",

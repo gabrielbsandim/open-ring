@@ -2709,7 +2709,7 @@
   "aiAdvancedPriceIn": "Preço por 1 milhão de tokens de entrada",
   "aiAdvancedPriceOut": "Preço por 1 milhão de tokens de saída",
   "aiAdvancedCurrency": "Moeda",
-  "aiAdvancedPriceHelp": "Opcional. Preços por 1 milhão de tokens, guardados neste celular. Servem só para estimar o custo quando o serviço não informa quanto cobrou.",
+  "aiAdvancedPriceHelp": "Opcional. Preços por 1 milhão de tokens, guardados neste celular.",
   "aiAdvancedTokenCap": "Limite mensal de tokens",
   "aiAdvancedTokenCapNone": "Vazio quer dizer sem limite. Um limite de gasto no próprio serviço é mais seguro.",
   "aiAdvancedInvalid": "{kind, select, tokens{Digite um número inteiro de 256 a 32.000.} cap{Digite um número inteiro maior que 0, ou deixe vazio.} price{Digite um número maior que 0, ou deixe vazio.} other{Digite uma moeda, por exemplo USD.}}",

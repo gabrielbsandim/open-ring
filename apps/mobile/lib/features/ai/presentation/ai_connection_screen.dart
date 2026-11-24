@@ -48,6 +48,7 @@ abstract final class AiConnectionKeys {
   static const detailHelp = Key('ai_connection_detail_help');
   static const imported = Key('ai_connection_imported');
   static const demoLocked = Key('ai_connection_demo_locked');
+  static const preview = Key('ai_connection_preview');
 
   static Key detail(AiDetailLevel level) =>
       Key('ai_connection_detail_${level.name}');
@@ -251,6 +252,20 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
       ),
       const SizedBox(height: 6),
       _testCaption(l10n, config, url),
+      if (config.isTestedForCurrentTarget) ...[
+        const SizedBox(height: 16),
+        TileGroup(
+          children: [
+            SettingsTile(
+              key: AiConnectionKeys.preview,
+              title: l10n.aiPreviewTitle,
+              leading: const Icon(Icons.visibility_outlined),
+              chevron: true,
+              onTap: () => unawaited(context.push(AppPaths.settingsAiPreview)),
+            ),
+          ],
+        ),
+      ],
     ];
   }
 

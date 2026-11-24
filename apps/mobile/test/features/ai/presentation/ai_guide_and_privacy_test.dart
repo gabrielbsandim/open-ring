@@ -13,6 +13,7 @@ import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/ai/presentation/ai_connection_screen.dart';
+import 'package:open_ring/features/ai/presentation/ai_context_preview_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_guide_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_key_info_screen.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
@@ -116,6 +117,23 @@ void main() {
 
       expect(find.byType(AiGuideScreen), findsNothing);
       expect(find.byType(AiConnectionScreen), findsOneWidget);
+    });
+  });
+
+  group('context preview entry', () {
+    testWidgets('is hidden until the target is tested', (tester) async {
+      await pump(tester);
+      expect(find.byKey(AiConnectionKeys.preview), findsNothing);
+    });
+
+    testWidgets('opens the preview once tested', (tester) async {
+      await withTestedTarget();
+      await pump(tester);
+
+      await tester.tap(find.byKey(AiConnectionKeys.preview));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AiContextPreviewScreen), findsOneWidget);
     });
   });
 

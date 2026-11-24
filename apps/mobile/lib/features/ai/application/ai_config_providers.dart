@@ -96,6 +96,11 @@ class AiConfigController extends AsyncNotifier<AiConfig> {
     ref.invalidate(aiConsentProvider);
   });
 
+  Future<void> withdrawConsent() => _serial(() async {
+    await ref.read(aiConfigStoreProvider).clearConsent();
+    ref.invalidate(aiConsentProvider);
+  });
+
   Future<void> _serial(Future<void> Function() action) {
     final run = _queue.then((_) => action());
     _queue = run.catchError((Object _) {});

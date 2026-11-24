@@ -188,7 +188,7 @@ void main() {
       expect(identical(c1, c2), isFalse);
       expect(c1, c2);
       expect(c1.hashCode, c2.hashCode);
-      expect(c1.toJson(), json);
+      expect(c1.toJson(), {...json, 'categories': <String>[]});
 
       // Lower or equal detail is covered; higher detail asks again.
       expect(

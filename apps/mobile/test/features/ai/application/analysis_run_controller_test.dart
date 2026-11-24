@@ -11,6 +11,7 @@ import 'package:open_ring/features/ai/application/ai_report_providers.dart';
 import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/ai/application/health_context_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
+import 'package:open_ring/features/ai/domain/ai_prompt.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/analysis_model.dart';
@@ -62,6 +63,19 @@ final String _answer = jsonEncode({
     },
   ],
 });
+
+AiConsent _consent({
+  String hostKey = 'https://api.example.com:443',
+  AiDetailLevel detailLevel = AiDetailLevel.standard,
+  Set<AiDataCategory> categories = const {},
+}) => AiConsent(
+  consentedAtUtcMs: 0,
+  policyEffectiveDate: aiCurrentPolicyEffectiveDate,
+  hostKey: hostKey,
+  detailLevel: detailLevel,
+  contextSchemaVersion: aiContextSchemaVersion,
+  categories: categories,
+);
 
 typedef _Script = Stream<AnalysisEvent> Function(Future<void> cancel);
 
@@ -134,7 +148,8 @@ void main() {
       ..config = const AiConfig(
         baseUrl: 'https://api.example.com/v1',
         model: 'm',
-      );
+      )
+      ..consent = _consent();
     reports = InMemoryAiReportStore();
     reportStore = reports;
     factoryError = null;
@@ -710,6 +725,86 @@ void main() {
     await notifier(c).send();
     expect(factoryCalls, 0);
     expect(c.read(analysisRunControllerProvider), isA<AnalysisIdle>());
+  });
+
+  group('consent gate', () {
+    const foodPayload = BuiltAiPayload(
+      contextMap: {
+        'reply_language': 'en',
+        'food': {'complete_days': 3},
+      },
+      canonicalContextJson: '{}',
+      systemPrompt: 'system',
+      userMessage: 'Task: daily_review.',
+      facts: [],
+      estimatedTokens: 10,
+      contextTokens: 5,
+      cacheKey: 'food-sha',
+      droppedCount: 0,
+    );
+
+    Future<void> expectBlocked() async {
+      final c = container();
+      listenState(c);
+      await notifier(c).send();
+      final state = c.read(analysisRunControllerProvider);
+      expect((state as AnalysisFailed).failure, isA<RunConsentNeeded>());
+      expect(factoryCalls, 0);
+      expect(model.calls, 0);
+      expect(reports.reports, isEmpty);
+      expect(await markers.read(), isNull);
+    }
+
+    test('no consent: nothing is sent', () async {
+      configStore.consent = null;
+      await expectBlocked();
+    });
+
+    test('a consent for another host does not cover this one', () async {
+      configStore.consent = _consent(hostKey: 'https://evil.example:443');
+      await expectBlocked();
+    });
+
+    test('a raised detail level asks again', () async {
+      configStore.config = configStore.config.copyWith(
+        detailLevel: AiDetailLevel.full,
+      );
+      await expectBlocked();
+    });
+
+    test('a lowered detail level still sends', () async {
+      configStore.config = configStore.config.copyWith(
+        detailLevel: AiDetailLevel.minimal,
+      );
+      final c = container();
+      listenState(c);
+      await notifier(c).send();
+      expect(model.calls, 1);
+    });
+
+    test('a new data category in the payload asks again', () async {
+      payload = const AiPayloadReady(foodPayload);
+      await expectBlocked();
+    });
+
+    test('a consent listing the category sends', () async {
+      payload = const AiPayloadReady(foodPayload);
+      configStore.consent = _consent(categories: {AiDataCategory.food});
+      final c = container();
+      listenState(c);
+      await notifier(c).send();
+      expect(model.calls, 1);
+    });
+
+    test('demo mode needs no consent and calls no model', () async {
+      configStore.consent = null;
+      demo = true;
+      final c = container();
+      listenState(c);
+      await notifier(c).send();
+      expect(c.read(analysisRunControllerProvider), isA<AnalysisDone>());
+      expect(factoryCalls, 0);
+    });
   });
 }
 

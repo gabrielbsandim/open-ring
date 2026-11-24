@@ -4,6 +4,7 @@ import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/tabs_shell.dart';
 import 'package:open_ring/features/activity/presentation/activity_screen.dart';
+import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/presentation/ai_context_preview_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_readings_screen.dart';
 import 'package:open_ring/features/body/presentation/body_screen.dart';
@@ -278,6 +279,10 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
                 path: 'preview',
                 builder: (_, state) => AiContextPreviewScreen(
                   kind: state.uri.queryParameters['kind'],
+                  report: switch (state.extra) {
+                    final AiReport report => report,
+                    _ => null,
+                  },
                 ),
               ),
             ],

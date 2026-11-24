@@ -56,6 +56,7 @@ class MealSavedSheet extends StatelessWidget {
     required this.recovered,
     required this.today,
     required this.edit,
+    this.ai,
     super.key,
   });
 
@@ -63,6 +64,7 @@ class MealSavedSheet extends StatelessWidget {
     required this.meal,
     required this.today,
     required this.edit,
+    this.ai,
     super.key,
   }) : time = null,
        recovered = false;
@@ -72,6 +74,10 @@ class MealSavedSheet extends StatelessWidget {
   final bool recovered;
   final LocalDate today;
   final ValueNotifier<MealEdit> edit;
+
+  /// The keep switch and Analyze, present only while AI photo analysis can
+  /// run for this meal.
+  final Widget? ai;
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +120,7 @@ class MealSavedSheet extends StatelessWidget {
             subtitle: Text(l10n.foodLastHint),
           ),
         ),
+        ?ai,
         const SizedBox(height: 12),
         ActionButton(
           buttonKey: MealSavedSheetKeys.done,

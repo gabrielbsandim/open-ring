@@ -102,8 +102,9 @@ sealed class AiPayloadResult {
 
 @immutable
 final class AiPayloadReady extends AiPayloadResult {
-  const new(this.payload);
+  const new(this.payload, {this.kind = AiAnalysisKind.dailyReview});
   final BuiltAiPayload payload;
+  final AiAnalysisKind kind;
 }
 
 @immutable
@@ -115,7 +116,7 @@ final class AiPayloadNotEnoughData extends AiPayloadResult {
 AiPayloadResult buildAiPayloadResult(HealthContextInput input) {
   final days = aiDaysWithData(input.days);
   if (days < aiMinDaysWithData) return AiPayloadNotEnoughData(days);
-  return AiPayloadReady(HealthContextBuilder.build(input));
+  return AiPayloadReady(HealthContextBuilder.build(input), kind: input.kind);
 }
 
 int aiDaysWithData(List<AiDayRow> rows) => rows.where(_hasData).length;

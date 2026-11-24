@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
+import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
@@ -18,6 +19,7 @@ import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_consent_scope.dart';
 import 'package:open_ring/features/ai/domain/ai_reading.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
+import 'package:open_ring/features/ai/domain/ai_usage_summary.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/base_url_policy.dart';
@@ -25,7 +27,9 @@ import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/presentation/ai_consent_sheet.dart';
 import 'package:open_ring/features/ai/presentation/ai_reading_card.dart';
+import 'package:open_ring/features/ai/presentation/ai_reading_sheets.dart';
 import 'package:open_ring/features/ai/presentation/ai_test_connection_sheet.dart';
+import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 class AiReadingsScreen extends ConsumerStatefulWidget {
@@ -39,6 +43,7 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
   AnalysisRunController? _run;
   AiAnalysisKind _kind = AiAnalysisKind.weeklyReview;
   bool _visible = true;
+  AiReport? _picked;
 
   @override
   void didChangeDependencies() {
@@ -63,7 +68,9 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
       if (next case AnalysisFailed(failure: RunConsentNeeded())) {
         unawaited(_read(_kind, ask: true));
       }
-      if (next is AnalysisDone) ref.invalidate(aiLatestReadingProvider);
+      if (next is AnalysisDone || next is AnalysisFailed) {
+        ref.invalidate(aiRecentReportsProvider);
+      }
     });
     final on = ref.watch(aiEnabledProvider);
     final config = on ? ref.watch(aiConfigProvider).value : null;
@@ -80,13 +87,14 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
               _sending(l10n, config, n),
             ],
             AnalysisValidating() => [_sending(l10n, config, null)],
-            AnalysisDone(:final report) => [_ReadingView(report)],
+            AnalysisDone(:final report) => _stored(l10n, report),
             AnalysisFailed(:final failure) => [
               ..._failure(l10n, failure, config),
-              ..._stored(),
+              ..._stored(l10n, null),
             ],
-            AnalysisIdle() => _stored(),
+            AnalysisIdle() => _stored(l10n, null),
           },
+        if (on && !busy) ..._usage30(l10n, config),
       ],
     );
   }
@@ -149,7 +157,10 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
   void _tap(AiAnalysisKind kind) => unawaited(_read(kind));
 
   Future<void> _read(AiAnalysisKind kind, {bool ask = false}) async {
-    setState(() => _kind = kind);
+    setState(() {
+      _kind = kind;
+      _picked = null;
+    });
     final config = await ref.read(aiConfigProvider.future);
     final result = await ref.read(aiPayloadProvider(kind).future);
     final consent = await ref.read(aiConsentProvider.future);
@@ -173,10 +184,53 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
     await run.send(kind: kind);
   }
 
-  List<Widget> _stored() => [
-    if (ref.watch(aiLatestReadingProvider).value case final report?)
-      _ReadingView(report),
-  ];
+  List<Widget> _stored(AppLocalizations l10n, AiReport? done) {
+    final shown = _picked ?? done ?? ref.watch(aiLatestReadingProvider).value;
+    final earlier = [
+      for (final r in ref.watch(aiHostReportsProvider).value ?? <AiReport>[])
+        if (_identity(r) != _identity(shown)) r,
+    ];
+    final fmt = MetricFormat.of(context);
+    return [
+      if (shown != null) _ReadingView(shown),
+      if (earlier.isNotEmpty) SectionHeader(l10n.aiReadingsEarlier),
+      for (final r in earlier)
+        SettingsTile(
+          key: AiReadingKeys.earlier(r.createdAtUtc),
+          leading: r.status == AiReportStatus.done
+              ? null
+              : const Icon(Icons.error_outline_rounded),
+          title: l10n.aiReadingKind(_kindArg(r.kind)),
+          detail: fmt.dayAndClock(
+            r.createdAtUtc,
+            Duration(minutes: r.offsetMin),
+          ),
+          value: r.status == AiReportStatus.done
+              ? l10n.aiReadingCards(AiReading.fromReport(r).cards.length)
+              : null,
+          onTap: r.status == AiReportStatus.done
+              ? () => setState(() => _picked = r)
+              : null,
+        ),
+    ];
+  }
+
+  List<Widget> _usage30(AppLocalizations l10n, AiConfig? config) {
+    final reports = ref.watch(aiRecentReportsProvider).value;
+    if (reports == null) return const [];
+    final summary = aiUsageSummary(reports, ref.read(clockProvider)().toUtc());
+    return [
+      const SizedBox(height: 12),
+      SettingsTile(
+        key: AiReadingKeys.usage30,
+        title: l10n.aiUsage30Title(summary.readings),
+        chevron: true,
+        onTap: () => unawaited(
+          showAiUsage30Sheet(context, summary, cap: config?.monthlyTokenCap),
+        ),
+      ),
+    ];
+  }
 
   Widget _sending(AppLocalizations l10n, AiConfig? config, int? chars) {
     final host = config?.normalizedUrl?.asciiHost ?? '';
@@ -258,6 +312,11 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
   }
 }
 
+// The store keeps milliseconds while the run state holds the clock's
+// microseconds, and only stored copies carry an id.
+(int?, String?) _identity(AiReport? r) =>
+    (r?.createdAtUtc.millisecondsSinceEpoch, r?.kind);
+
 // `weekly_review` gives the `weekly` select value of the ARB messages.
 String _kindArg(String wire) => wire.split('_').first;
 
@@ -298,8 +357,25 @@ class _ReadingView extends StatelessWidget {
         if (dropped > 0)
           MetricCard(
             key: AiReadingKeys.dropped,
+            onTap: () =>
+                unawaited(showAiDroppedSheet(context, reading, dropped)),
             child: BodyText(
               l10n.aiReadingDropped(dropped, reading.cards.length + dropped),
+            ),
+          ),
+        SettingsTile(
+          key: AiReadingKeys.usage,
+          title: l10n.aiUsageThis,
+          chevron: true,
+          onTap: () => unawaited(showAiUsageSheet(context, report)),
+        ),
+        if (report.payloadJson != null)
+          SettingsTile(
+            key: AiReadingKeys.sent,
+            title: l10n.aiReadingSent,
+            chevron: true,
+            onTap: () => unawaited(
+              context.push(AppPaths.aiReadingsPreview, extra: report),
             ),
           ),
         const SizedBox(height: 12),

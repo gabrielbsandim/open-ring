@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
@@ -6,6 +10,7 @@ import 'package:open_ring/features/ai/domain/ai_reading.dart';
 import 'package:open_ring/features/ai/domain/ai_report_models.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
+import 'package:open_ring/features/ai/presentation/ai_reading_sheets.dart';
 import 'package:open_ring/features/open_score/presentation/day_tag_sheet.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -16,6 +21,12 @@ abstract final class AiReadingKeys {
   static const cancel = Key('ai_reading_cancel');
   static const dropped = Key('ai_reading_dropped');
   static const dashed = Key('ai_reading_dashed');
+  static const confidence = Key('ai_reading_confidence');
+  static const usage = Key('ai_reading_usage');
+  static const usage30 = Key('ai_reading_usage30');
+  static const sent = Key('ai_reading_sent');
+
+  static Key earlier(DateTime at) => Key('ai_reading_earlier_$at');
 
   static Key chip(String id) => Key('ai_reading_chip_$id');
 }
@@ -69,10 +80,14 @@ class AiReadingCard extends StatelessWidget {
               ),
               Text(l10n.aiReadingSuggestion, style: text.labelLarge),
               BodyText(card.action),
-              CaptionText(
-                l10n.aiReadingConfidence(
-                  card.shownConfidence.name,
-                  card.minEvidenceDays,
+              InkWell(
+                key: AiReadingKeys.confidence,
+                onTap: () => unawaited(showAiConfidenceSheet(context, card)),
+                child: CaptionText(
+                  l10n.aiReadingConfidence(
+                    aiShownConfidence(card).name,
+                    card.minEvidenceDays,
+                  ),
                 ),
               ),
             ],
@@ -83,23 +98,45 @@ class AiReadingCard extends StatelessWidget {
   }
 }
 
-Widget _chip(BuildContext context, String id, AiFactSnapshot? fact) =>
-    MetricCard(
-      key: AiReadingKeys.chip(id),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CaptionText(aiFactChipLabel(AppLocalizations.of(context), id, fact)),
-          if (fact != null)
-            Text(
-              aiFactValue(MetricFormat.of(context), fact),
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-        ],
-      ),
-    );
+Widget _chip(BuildContext context, String id, AiFactSnapshot? fact) {
+  final route = aiFactRoute(id);
+  return MetricCard(
+    key: AiReadingKeys.chip(id),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    onTap: route == null ? null : () => context.go(route),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CaptionText(aiFactChipLabel(AppLocalizations.of(context), id, fact)),
+        if (fact != null)
+          Text(
+            aiFactValue(MetricFormat.of(context), fact),
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+      ],
+    ),
+  );
+}
+
+/// The screen a chip opens, or null when the fact has no metric screen
+/// (workout facts), in which case the chip opens nothing.
+String? aiFactRoute(String id) {
+  final name = RegExp(r'^f\.(\w+)\.').firstMatch(id)?.group(1);
+  return switch (AiDailyMetric.values.asNameMap()[name]) {
+    null => null,
+    AiDailyMetric.sleepMin || AiDailyMetric.sleepScore => AppTab.sleep.path,
+    AiDailyMetric.rhr ||
+    AiDailyMetric.hrv ||
+    AiDailyMetric.stress ||
+    AiDailyMetric.spo2 => AppTab.heart.path,
+    AiDailyMetric.steps || AiDailyMetric.activeKcal => AppTab.activity.path,
+    AiDailyMetric.load => AppPaths.effort,
+    AiDailyMetric.readiness => AppPaths.readiness,
+    AiDailyMetric.dayScore => AppPaths.dayScore,
+    AiDailyMetric.weight => AppPaths.body,
+  };
+}
 
 String aiFactChipLabel(AppLocalizations l10n, String id, AiFactSnapshot? fact) {
   if (fact == null) return id;

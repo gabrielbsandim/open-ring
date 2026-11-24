@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
+import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/application/health_context_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_consent_scope.dart';
+import 'package:open_ring/features/ai/domain/ai_reading.dart';
+import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/presentation/ai_consent_sheet.dart';
@@ -32,11 +35,13 @@ abstract final class AiPreviewKeys {
 }
 
 /// Both tabs render the [BuiltAiPayload] the run controller sends, so the
-/// readable view and the exact text cannot disagree.
+/// readable view and the exact text cannot disagree. With a [report] it shows
+/// only the exact text kept with that report, never today's payload.
 class AiContextPreviewScreen extends ConsumerStatefulWidget {
-  const new({this.kind, super.key});
+  const new({this.kind, this.report, super.key});
 
   final String? kind;
+  final AiReport? report;
 
   @override
   ConsumerState<AiContextPreviewScreen> createState() =>
@@ -50,6 +55,7 @@ class _AiContextPreviewScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    if (widget.report case final report?) return _sent(l10n, report);
     final kind = widget.kind == 'weekly'
         ? AiAnalysisKind.weeklyReview
         : AiAnalysisKind.dailyReview;
@@ -124,7 +130,8 @@ class _AiContextPreviewScreenState
         onSelectionChanged: (s) => setState(() => _exact = s.first),
       ),
       const SizedBox(height: 16),
-      if (_exact) ..._exactText(l10n, payload),
+      if (_exact)
+        ..._exactText(l10n, payload.systemPrompt, payload.userMessage),
       if (!_exact)
         for (final MapEntry(:key, :value) in payload.contextMap.entries)
           _section(l10n, key, value),
@@ -135,23 +142,33 @@ class _AiContextPreviewScreenState
     ];
   }
 
-  List<Widget> _exactText(AppLocalizations l10n, BuiltAiPayload payload) => [
+  Widget _sent(AppLocalizations l10n, AiReport report) {
+    final at = MetricFormat.of(context)
+        .dayAndClock(report.createdAtUtc, Duration(minutes: report.offsetMin));
+    final sent = aiStoredPayload(report.payloadJson);
+    return AppPage(
+      title: l10n.aiReadingSent,
+      subtitle: l10n.aiReadingSentAt(at),
+      children: [if (sent != null) ..._exactText(l10n, sent.system, sent.user)],
+    );
+  }
+
+  List<Widget> _exactText(
+    AppLocalizations l10n,
+    String system,
+    String user,
+  ) => [
     const SectionHeader('system'),
-    _mono(payload.systemPrompt, AiPreviewKeys.system),
+    _mono(system, AiPreviewKeys.system),
     const SectionHeader('user'),
-    _mono(payload.userMessage, AiPreviewKeys.user),
+    _mono(user, AiPreviewKeys.user),
     const SizedBox(height: 12),
     OutlinedButton.icon(
       key: AiPreviewKeys.copy,
       icon: const Icon(Icons.copy_rounded),
       label: Text(l10n.aiPreviewCopy),
-      onPressed: () => unawaited(
-        Clipboard.setData(
-          ClipboardData(
-            text: '${payload.systemPrompt}\n\n${payload.userMessage}',
-          ),
-        ),
-      ),
+      onPressed: () =>
+          unawaited(Clipboard.setData(ClipboardData(text: '$system\n\n$user'))),
     ),
   ];
 

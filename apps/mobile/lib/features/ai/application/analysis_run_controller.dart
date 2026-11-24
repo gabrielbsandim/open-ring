@@ -11,6 +11,7 @@ import 'package:open_ring/features/ai/application/health_context_providers.dart'
 import 'package:open_ring/features/ai/domain/ai_advanced_input.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_consent_scope.dart';
+import 'package:open_ring/features/ai/domain/ai_cost.dart';
 import 'package:open_ring/features/ai/domain/ai_output_extractor.dart';
 import 'package:open_ring/features/ai/domain/ai_prompt.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
@@ -351,6 +352,10 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
         'summary': valid.summary,
         'cards': [for (final card in valid.cards) card.toJson()],
         'facts': _factsSnapshot(base.ready.payload),
+        'dropped': [
+          for (final d in valid.droppedCards)
+            {'title': d.card.title, 'reason': d.reason.name},
+        ],
       }),
     );
   }
@@ -390,6 +395,7 @@ AiReport _report(
 }) {
   final payload = b.ready.payload;
   final usage = completed?.usage;
+  final cost = aiReportCost(usage, b.config);
   return AiReport(
     createdAtUtc: b.at.toUtc(),
     offsetMin: b.at.timeZoneOffset.inMinutes,
@@ -415,6 +421,9 @@ AiReport _report(
     promptTokens: usage?.promptTokens,
     completionTokens: usage?.completionTokens,
     reasoningTokens: usage?.reasoningTokens,
+    cost: cost?.cost,
+    costCurrency: cost?.currency,
+    costSource: cost?.source ?? AiCostSource.none,
     durationMs: durationMs,
     errorKind: errorKind,
   );

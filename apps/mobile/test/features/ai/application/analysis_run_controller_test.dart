@@ -335,6 +335,90 @@ void main() {
     expect((jsonDecode(report.cardsJson!) as Map)['cards'], isEmpty);
   });
 
+  test('dropped cards keep their title and reason', () async {
+    model = _FakeModel([
+      (_) => Stream.value(
+        AnalysisCompleted(
+          text: _answer.replaceFirst('"sleep_avg"', '"invented"'),
+          finishReason: 'stop',
+        ),
+      ),
+    ]);
+    final c = container();
+    listenState(c);
+    await notifier(c).send();
+    final cards = jsonDecode(reports.reports.single.cardsJson!) as Map;
+    expect(cards['dropped'], [
+      {'title': 'Steady sleep', 'reason': 'unknownFactId'},
+    ]);
+  });
+
+  group('cost at send time', () {
+    Stream<AnalysisEvent> usage(AiTokenUsage usage) => Stream.value(
+      AnalysisCompleted(text: _answer, finishReason: 'stop', usage: usage),
+    );
+
+    setUp(
+      () => configStore.config = configStore.config.copyWith(
+        inputPricePerMillion: 2,
+        outputPricePerMillion: 8,
+        priceCurrency: 'EUR',
+      ),
+    );
+
+    test('entered prices are stored and survive a later price edit', () async {
+      model = _FakeModel([
+        (_) => usage(
+          const AiTokenUsage(promptTokens: 1000000, completionTokens: 500000),
+        ),
+      ]);
+      final c = container();
+      listenState(c);
+      await notifier(c).send();
+      configStore.config = configStore.config.copyWith(
+        inputPricePerMillion: 100,
+        priceCurrency: 'USD',
+      );
+      final report = (await reports.recent()).single;
+      expect(report.cost, 6);
+      expect(report.costCurrency, 'EUR');
+      expect(report.costSource, AiCostSource.userPrice);
+    });
+
+    test('the provider cost wins over the entered prices', () async {
+      model = _FakeModel([
+        (_) => usage(
+          const AiTokenUsage(
+            promptTokens: 10,
+            completionTokens: 5,
+            providerCost: 0.0031,
+          ),
+        ),
+      ]);
+      final c = container();
+      listenState(c);
+      await notifier(c).send();
+      final report = reports.reports.single;
+      expect(report.cost, 0.0031);
+      expect(report.costCurrency, 'credits');
+      expect(report.costSource, AiCostSource.provider);
+    });
+
+    test('no usage stores no cost, never 0', () async {
+      model = _FakeModel([
+        (_) => Stream.value(
+          AnalysisCompleted(text: _answer, finishReason: 'stop'),
+        ),
+      ]);
+      final c = container();
+      listenState(c);
+      await notifier(c).send();
+      final report = reports.reports.single;
+      expect(report.cost, isNull);
+      expect(report.costSource, AiCostSource.none);
+    });
+  });
+
   test('advanced settings reach the request', () async {
     configStore.config = configStore.config.copyWith(
       maxOutputTokens: 9000,

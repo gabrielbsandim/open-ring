@@ -17,6 +17,7 @@ import 'package:open_ring/features/ai/domain/base_url_policy.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/presentation/ai_models_sheet.dart';
 import 'package:open_ring/features/ai/presentation/ai_test_connection_sheet.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -42,6 +43,13 @@ abstract final class AiConnectionKeys {
   static const keyPaste = Key('ai_connection_key_paste');
   static const keyInfo = Key('ai_connection_key_info');
   static const models = Key('ai_connection_models');
+  static const guide = Key('ai_connection_guide');
+  static const detailHelp = Key('ai_connection_detail_help');
+  static const imported = Key('ai_connection_imported');
+  static const demoLocked = Key('ai_connection_demo_locked');
+
+  static Key detail(AiDetailLevel level) =>
+      Key('ai_connection_detail_${level.name}');
 
   static Key preset(AiProviderPreset preset) =>
       Key('ai_connection_preset_${preset.name}');
@@ -112,7 +120,10 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
   var _loaded = false;
   var _replacingKey = false;
   var _busy = false;
+  var _demo = false;
   var _testing = false;
+
+  bool get _locked => _busy || _demo;
 
   @override
   void dispose() {
@@ -140,6 +151,7 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final config = ref.watch(aiConfigProvider);
+    _demo = ref.watch(demoModeProvider);
     return AppPage(
       title: l10n.aiConnectionTitle,
       subtitle: l10n.aiConnectionLead,
@@ -162,14 +174,29 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
     final note = aiPresetNote(l10n, _preset);
     final modelsTarget = _modelsTarget(config, url);
     return [
+      if (_demo) ...[
+        _notice(
+          Icons.info_outline_rounded,
+          l10n.aiDemoLocked,
+          AiConnectionKeys.demoLocked,
+        ),
+        const SizedBox(height: 16),
+      ],
       TileGroup(
         children: [
+          SettingsTile(
+            key: AiConnectionKeys.guide,
+            title: l10n.aiGuideTitle,
+            leading: const Icon(Icons.menu_book_rounded),
+            chevron: true,
+            onTap: () => unawaited(context.push(AppPaths.settingsAiGuide)),
+          ),
           SettingsTile(
             key: AiConnectionKeys.service,
             title: l10n.aiConnectionService,
             value: aiPresetLabel(l10n, _preset),
             chevron: true,
-            onTap: _busy ? null : () => unawaited(_pickPreset(config)),
+            onTap: _locked ? null : () => unawaited(_pickPreset(config)),
           ),
         ],
       ),
@@ -185,7 +212,7 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
       TextField(
         key: AiConnectionKeys.model,
         controller: _model,
-        enabled: !_busy,
+        enabled: !_locked,
         autocorrect: false,
         enableSuggestions: false,
         decoration: InputDecoration(
@@ -200,6 +227,7 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
           ),
         ),
       ),
+      ..._privacyControls(l10n, config),
       const SizedBox(height: 24),
       FilledButton(
         key: AiConnectionKeys.save,
@@ -213,7 +241,7 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
       OutlinedButton(
         key: AiConnectionKeys.test,
         style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-        onPressed: !_busy && _formComplete(config, url)
+        onPressed: !_locked && _formComplete(config, url)
             ? () => unawaited(_test(config))
             : null,
         child: Text(l10n.aiTestButton),
@@ -223,8 +251,67 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
     ];
   }
 
+  List<Widget> _privacyControls(AppLocalizations l10n, AiConfig config) {
+    final colors = AppColors.of(context);
+    return [
+      SectionHeader(l10n.aiDetailTitle),
+      ChoiceRow<AiDetailLevel>(
+        values: AiDetailLevel.values,
+        selected: config.detailLevel,
+        label: (level) => l10n.aiDetailLevel(level.name),
+        keyOf: AiConnectionKeys.detail,
+        onSelected: _locked
+            ? null
+            : (level) => unawaited(
+                _saveSetting((c) => c.copyWith(detailLevel: level)),
+              ),
+      ),
+      const SizedBox(height: 6),
+      CaptionText(
+        key: AiConnectionKeys.detailHelp,
+        l10n.aiDetailHelp(config.detailLevel.name),
+      ),
+      const SizedBox(height: 16),
+      MetricCard(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: SwitchListTile(
+          key: AiConnectionKeys.imported,
+          value: config.importedIncluded,
+          onChanged: _locked
+              ? null
+              : (on) => unawaited(
+                  _saveSetting((c) => c.copyWith(importedIncluded: on)),
+                ),
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.aiImportedTitle),
+          subtitle: CaptionText(l10n.aiImportedBody),
+          activeThumbColor: colors.background,
+          activeTrackColor: colors.textPrimary,
+          inactiveThumbColor: colors.textSecondary,
+          inactiveTrackColor: colors.surfaceInner,
+        ),
+      ),
+    ];
+  }
+
+  /// Reads the stored config, so a setting never writes back stale form state.
+  Future<void> _saveSetting(AiConfig Function(AiConfig) change) async {
+    final current = await ref.read(aiConfigProvider.future);
+    await ref.read(aiConfigProvider.notifier).save(change(current));
+  }
+
+  Widget _notice(IconData icon, String text, Key key) => Row(
+    key: key,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Icon(icon, size: 18, color: AppColors.of(context).heart),
+      const SizedBox(width: 8),
+      Expanded(child: BodyText(text)),
+    ],
+  );
+
   AiConfig? _modelsTarget(AiConfig config, NormalizedBaseUrl? url) {
-    if (_busy || url == null) return null;
+    if (_locked || url == null) return null;
     return config.copyWith(
       preset: _preset,
       baseUrl: _url.text.trim(),
@@ -313,14 +400,13 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
   }
 
   List<Widget> _addressField(AppLocalizations l10n, NormalizedBaseUrl? url) {
-    final colors = AppColors.of(context);
     final cleartext = url?.isCleartext ?? false;
     final hint = _preset.placeholderUrl;
     return [
       TextField(
         key: AiConnectionKeys.address,
         controller: _url,
-        enabled: !_busy,
+        enabled: !_locked,
         keyboardType: TextInputType.url,
         autocorrect: false,
         enableSuggestions: false,
@@ -343,26 +429,18 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
       ],
       if (url?.hasNonAsciiHost ?? false) ...[
         const SizedBox(height: 8),
-        Row(
-          key: AiConnectionKeys.hostUnusual,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(Icons.warning_amber_rounded, size: 18, color: colors.heart),
-            const SizedBox(width: 8),
-            Expanded(child: BodyText(l10n.aiHostUnusual)),
-          ],
+        _notice(
+          Icons.warning_amber_rounded,
+          l10n.aiHostUnusual,
+          AiConnectionKeys.hostUnusual,
         ),
       ],
       if (cleartext) ...[
         const SizedBox(height: 8),
-        Row(
-          key: AiConnectionKeys.notEncrypted,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(Icons.lock_open_rounded, size: 18, color: colors.heart),
-            const SizedBox(width: 8),
-            Expanded(child: BodyText(l10n.aiConnectionNotEncrypted)),
-          ],
+        _notice(
+          Icons.lock_open_rounded,
+          l10n.aiConnectionNotEncrypted,
+          AiConnectionKeys.notEncrypted,
         ),
       ],
     ];
@@ -385,7 +463,7 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
         TextField(
           key: AiConnectionKeys.apiKey,
           controller: _key,
-          enabled: !_busy,
+          enabled: !_locked,
           obscureText: true,
           keyboardType: TextInputType.visiblePassword,
           autocorrect: false,
@@ -401,7 +479,7 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
                   key: AiConnectionKeys.keyPaste,
                   tooltip: l10n.aiKeyPaste,
                   icon: const Icon(Icons.content_paste_rounded),
-                  onPressed: _busy ? null : () => unawaited(_paste()),
+                  onPressed: _locked ? null : () => unawaited(_paste()),
                 ),
                 _keyInfoButton(l10n),
               ],
@@ -435,7 +513,7 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
           Flexible(
             child: TextButton(
               key: AiConnectionKeys.keyReplace,
-              onPressed: _busy
+              onPressed: _locked
                   ? null
                   : () => setState(() => _replacingKey = true),
               child: Text(l10n.aiConnectionKeyReplace),
@@ -448,7 +526,7 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
   }
 
   bool _canSave(AiConfig config, NormalizedBaseUrl? url) {
-    if (_busy || url == null) return false;
+    if (_locked || url == null) return false;
     return _preset != config.preset ||
         _url.text.trim() != config.baseUrl ||
         _model.text.trim() != config.model ||

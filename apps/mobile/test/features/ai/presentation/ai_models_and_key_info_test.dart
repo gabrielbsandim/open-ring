@@ -167,7 +167,7 @@ void main() {
 
       expect(find.text(l10n.aiModelsTitle('openrouter.ai')), findsOneWidget);
       final ids = tester
-          .widgetList<ListTile>(find.byType(ListTile))
+          .widgetList<ListTile>(_sheetTiles)
           .map((t) => (t.title! as Text).data)
           .toList();
       expect(ids, [
@@ -188,7 +188,7 @@ void main() {
 
       await tester.enterText(find.byKey(AiModelsKeys.search), 'GEMINI');
       await tester.pump();
-      expect(find.byType(ListTile), findsOneWidget);
+      expect(_sheetTiles, findsOneWidget);
       expect(find.byKey(AiModelsKeys.model('google/gemini-flash')), findsOne);
 
       await tester.enterText(find.byKey(AiModelsKeys.search), 'nothing');
@@ -407,3 +407,8 @@ void main() {
     });
   });
 }
+
+final Finder _sheetTiles = find.descendant(
+  of: find.byType(AiModelsSheet),
+  matching: find.byType(ListTile),
+);

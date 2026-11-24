@@ -7,6 +7,7 @@ import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -40,6 +41,7 @@ class _AiKeyInfoScreenState extends ConsumerState<AiKeyInfoScreen> {
   List<Widget> _body(AppLocalizations l10n, AiConfig config) {
     final lastFour = config.keyLastFour;
     final host = config.normalizedUrl?.asciiHost;
+    final removable = lastFour != null && !ref.watch(demoModeProvider);
     return [
       if (lastFour != null)
         _line(
@@ -59,7 +61,7 @@ class _AiKeyInfoScreenState extends ConsumerState<AiKeyInfoScreen> {
       _line(Icons.cloud_off_rounded, l10n.aiKeyInfoStored3),
       _line(Icons.link_rounded, l10n.aiKeyInfoBound),
       _line(Icons.system_update_rounded, l10n.aiKeyInfoShorebird),
-      if (lastFour != null) ...[
+      if (removable) ...[
         const SizedBox(height: 24),
         OutlinedButton(
           key: AiKeyInfoKeys.remove,

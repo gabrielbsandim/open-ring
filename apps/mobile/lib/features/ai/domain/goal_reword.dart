@@ -130,5 +130,6 @@ AiRewordResult? readGoalReword(String text, BuiltAiPayload payload) {
     ruleFacts: payload.facts,
     replyLanguage: lang is String ? lang : 'en',
     windowDays: aiGoalRewordWindowDays,
+    exactNumbers: true,
   );
 }

@@ -52,10 +52,11 @@ final class GoalRewordFailed extends GoalRewordState {
   final AnalysisRunFailure failure;
 }
 
-// Kept for the app session, so reopening the review never pays twice for
-// the same decision.
-final goalRewordControllerProvider =
-    NotifierProvider<GoalRewordController, GoalRewordState>(
+// Disposed with the review screen, which aborts a send in flight, so a
+// result never outlives the screen or Delete all data.
+final NotifierProvider<GoalRewordController, GoalRewordState>
+goalRewordControllerProvider =
+    NotifierProvider.autoDispose<GoalRewordController, GoalRewordState>(
       GoalRewordController.new,
       retry: (_, _) => null,
     );

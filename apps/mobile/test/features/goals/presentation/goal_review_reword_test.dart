@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
@@ -14,6 +15,7 @@ import 'package:open_ring/features/ai/domain/ai_prompt.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/analysis_model.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
+import 'package:open_ring/features/ai/domain/openai_wire_codec.dart';
 import 'package:open_ring/features/ai/presentation/ai_consent_sheet.dart';
 import 'package:open_ring/features/ai/presentation/goal_reword_card.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
@@ -90,7 +92,7 @@ String _answer(String insight) => jsonEncode({
       'family': 'overall',
       'title': '',
       'insight': insight,
-      'evidence': ['plan.to'],
+      'evidence': ['plan.fit'],
       'action': '',
       'confidence': 'high',
     },
@@ -111,6 +113,7 @@ final class _Model implements AnalysisModel {
 
   final String text;
   int calls = 0;
+  AnalysisRequest? last;
 
   @override
   Stream<AnalysisEvent> generate(
@@ -118,6 +121,7 @@ final class _Model implements AnalysisModel {
     required Future<void> cancel,
   }) {
     calls++;
+    last = request;
     return Stream.value(AnalysisCompleted(text: text, finishReason: 'stop'));
   }
 
@@ -131,15 +135,33 @@ final class _Model implements AnalysisModel {
   }) => throw UnimplementedError();
 }
 
+GoalWeek? _held;
+Review? _review;
+
+Map<String, Object?> _sent(_Model model) {
+  final text = (model.last!.userContent as AiTextContent).text;
+  return jsonDecode(text.split('DATA:\n').last) as Map<String, Object?>;
+}
+
+Future<void> _show(WidgetTester tester, GoalWeek week) async {
+  _held = week;
+  ProviderScope.containerOf(tester.element(find.byType(GoalReviewScreen)))
+    ..invalidate(goalWeekProvider)
+    ..invalidate(goalReviewProvider);
+  await tester.pumpAndSettle();
+}
+
 Future<_Model> _pump(
   WidgetTester tester, {
   GoalWeek? week,
+  Review? review,
   String answer = 'Your steps go from 9,000 to 10,000 a day.',
   AiAvailability availability = AiAvailability.ready,
   Set<AiDataCategory> categories = const {AiDataCategory.goals},
   bool demo = false,
 }) async {
-  final shown = week ?? _week();
+  _held = week ?? _week();
+  _review = review;
   final model = _Model(_answer(answer));
   final store = InMemoryAiConfigStore()
     ..config = const AiConfig(baseUrl: 'https://api.example.com/v1', model: 'm')
@@ -158,12 +180,14 @@ Future<_Model> _pump(
           monday: _monday,
           week: 5,
           levers: const [],
-          review: shown,
+          review: _held,
         ),
       ),
       goalReviewProvider.overrideWith(
-        (ref) async =>
-            GoalReviewView(week: shown, review: reviewWeek(shown.inputs)),
+        (ref) async => GoalReviewView(
+          week: _held!,
+          review: _review ?? reviewWeek(_held!.inputs),
+        ),
       ),
       stepGoalProvider.overrideWithValue(8000),
       stepGoalChangesProvider.overrideWith((ref) async => const []),
@@ -211,6 +235,81 @@ void main() {
     expect(find.byKey(GoalRewordKeys.record), findsNothing);
     await _tap(tester, GoalRewordKeys.rule);
     expect(find.byKey(GoalRewordKeys.record), findsOneWidget);
+  });
+
+  testWidgets('the request holds the decision as shown and its numbers', (
+    tester,
+  ) async {
+    final model = await _pump(tester);
+    await _tap(tester, GoalRewordKeys.send);
+    final sent = _sent(model);
+    final plan = sent['plan']! as Map<String, Object?>;
+    Finder shown(String text) => find.descendant(
+      of: find.byKey(GoalReviewScreenKeys.decision),
+      matching: find.text(text),
+    );
+    expect(shown(plan['decision']! as String), findsOneWidget);
+    expect(shown(plan['line']! as String), findsOneWidget);
+    final change = (plan['change']! as String).split(': ');
+    expect(shown(change.first), findsOneWidget);
+    expect(shown(change.last), findsOneWidget);
+    expect(plan['rule'], ReviewRule.build.number);
+    expect(sent['reply_language'], 'en');
+    expect(
+      {
+        for (final f in sent['facts']! as List<Object?>)
+          (f! as Map<String, Object?>)['id']: (f as Map<String, Object?>)['v'],
+      },
+      {'plan.fit': 1, 'plan.levers': 1, 'plan.from': 9000, 'plan.to': 10000},
+    );
+  });
+
+  testWidgets('only a pause week sends its pause length', (tester) async {
+    final model = await _pump(
+      tester,
+      answer: 'The plan rests for 14 days.',
+      week: GoalWeek(
+        goalId: 1,
+        monday: _monday,
+        inputs: _inputs(),
+        rule: ReviewRule.pauseCheckIn,
+        action: ReviewAction.pause,
+        change: null,
+        answer: null,
+      ),
+      review: const Review(
+        rule: ReviewRule.pauseCheckIn,
+        action: ReviewAction.pause,
+        adherence: 1,
+        pauseDays: 14,
+      ),
+    );
+    await _tap(tester, GoalRewordKeys.send);
+    final facts = [
+      for (final f in _sent(model)['facts']! as List<Object?>)
+        (f! as Map<String, Object?>)['id'],
+    ];
+    expect(facts, ['plan.fit', 'plan.levers', 'plan.pause']);
+    expect(find.byKey(GoalRewordKeys.shown), findsOneWidget);
+  });
+
+  testWidgets('a rewording belongs to its decision for the screen session', (
+    tester,
+  ) async {
+    final model = await _pump(tester);
+    await _tap(tester, GoalRewordKeys.send);
+    expect(find.byKey(GoalRewordKeys.shown), findsOneWidget);
+    await _show(
+      tester,
+      _week(
+        change: const LeverChange(kind: LeverKind.steps, from: 9000, to: 9500),
+      ),
+    );
+    expect(find.byKey(GoalRewordKeys.shown), findsNothing);
+    expect(find.byKey(GoalRewordKeys.send), findsOneWidget);
+    await _show(tester, _week());
+    expect(find.byKey(GoalRewordKeys.shown), findsOneWidget);
+    expect(model.calls, 1);
   });
 
   testWidgets('a number outside the rule leaves the rule text alone', (

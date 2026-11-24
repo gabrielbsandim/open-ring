@@ -56,11 +56,13 @@ abstract final class AiReportValidator {
     required String replyLanguage,
     int windowDays = 14,
     int windowWeeks = 0,
+    bool exactNumbers = false,
   }) => _Validator(
     ruleFacts,
     replyLanguage,
     windowDays,
     windowWeeks,
+    exact: exactNumbers,
   ).reword(card);
 
   static List<AiUnverifiedSpan> findUnverifiedSpans(
@@ -74,14 +76,23 @@ abstract final class AiReportValidator {
 }
 
 final class _Validator {
-  new(this.facts, this.replyLanguage, this.windowDays, this.windowWeeks)
-    : commaDec = AiSafetyLexicon.usesCommaDecimal(replyLanguage);
+  new(
+    this.facts,
+    this.replyLanguage,
+    this.windowDays,
+    this.windowWeeks, {
+    this.exact = false,
+  }) : commaDec = AiSafetyLexicon.usesCommaDecimal(replyLanguage);
 
   final List<HealthFact> facts;
   final String replyLanguage;
   final bool commaDec;
   final int windowDays;
   final int windowWeeks;
+
+  /// Only a value equal to a fact passes: no rounding, derived or period
+  /// allowance.
+  final bool exact;
 
   static bool _near(double a, double b) => (a - b).abs() <= 1e-9;
 
@@ -322,6 +333,7 @@ final class _Validator {
   bool _isNumberVerified(_NumTok n, List<HealthFact> pool) {
     final x = n.val;
     if (x == null || !x.isFinite) return false;
+    if (exact) return pool.any((f) => _near(x, f.value));
     for (final f in pool) {
       if (_matchesFact(x, f.value)) return true;
     }

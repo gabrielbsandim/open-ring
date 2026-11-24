@@ -180,6 +180,48 @@ void main() {
       expect(result, isA<AiRewordAccepted>());
     });
 
+    for (final (name, change, pause, text) in [
+      (
+        'a period number not in the rule',
+        const LeverChange(kind: LeverKind.strengthDays, from: 2, to: 3),
+        null,
+        'Strength moves to 4 days a week.',
+      ),
+      (
+        'a number near a derived difference',
+        const LeverChange(kind: LeverKind.steps, from: 8000, to: 9000),
+        null,
+        'Steps go up to 9,100 a day.',
+      ),
+      (
+        'a pause length not in the rule',
+        null,
+        5,
+        'The plan pauses for 6 days.',
+      ),
+    ]) {
+      test('drops $name', () {
+        final payload = buildGoalRewordPayload(
+          replyLanguage: 'en',
+          rule: 8,
+          head: 'h',
+          line: 'l',
+          change: change,
+          fit: 1,
+          levers: 1,
+          pauseDays: pause,
+        )!;
+        expect(
+          readGoalReword(_answer(text, evidence: ['plan.fit']), payload),
+          isA<AiRewordDropped>().having(
+            (d) => d.reason,
+            'reason',
+            AiCardDropReason.unverifiedNumber,
+          ),
+        );
+      });
+    }
+
     test('an answer with no card is unreadable', () {
       expect(readGoalReword('not json', _payload()), isNull);
     });

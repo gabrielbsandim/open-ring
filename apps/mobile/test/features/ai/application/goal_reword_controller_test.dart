@@ -134,14 +134,16 @@ void main() {
       ],
     );
     addTearDown(c.dispose);
-    c.listen(goalRewordControllerProvider, (_, _) {});
     return c;
   }
 
-  Future<GoalRewordState> send(ProviderContainer c) => c
-      .read(goalRewordControllerProvider.notifier)
-      .send(_payload)
-      .then((_) => c.read(goalRewordControllerProvider));
+  Future<GoalRewordState> send(ProviderContainer c) {
+    c.listen(goalRewordControllerProvider, (_, _) {});
+    return c
+        .read(goalRewordControllerProvider.notifier)
+        .send(_payload)
+        .then((_) => c.read(goalRewordControllerProvider));
+  }
 
   test('a rewording with the rule numbers is shown with its model', () async {
     final state = await send(container());
@@ -219,7 +221,7 @@ void main() {
 
   test('cancel aborts the request and reads as cancelled', () async {
     model.script = () => StreamController<AnalysisEvent>().stream;
-    final c = container();
+    final c = container()..listen(goalRewordControllerProvider, (_, _) {});
     final notifier = c.read(goalRewordControllerProvider.notifier);
     final run = notifier.send(_payload);
     await pumpEventQueue();
@@ -229,6 +231,19 @@ void main() {
     final state = c.read(goalRewordControllerProvider) as GoalRewordFailed;
     final failure = state.failure as RunModelFailure;
     expect(failure.failure.kind, AnalysisFailureKind.cancelled);
+    expect(model.cancelSeen, isTrue);
+  });
+
+  test('leaving the screen disposes the run and aborts the send', () async {
+    model.script = () => StreamController<AnalysisEvent>().stream;
+    final c = container();
+    final sub = c.listen(goalRewordControllerProvider, (_, _) {});
+    final run = c.read(goalRewordControllerProvider.notifier).send(_payload);
+    await pumpEventQueue();
+    expect(c.read(goalRewordControllerProvider), isA<GoalRewordSending>());
+    sub.close();
+    await pumpEventQueue();
+    await run;
     expect(model.cancelSeen, isTrue);
   });
 }

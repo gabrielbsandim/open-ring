@@ -221,6 +221,22 @@ void main() {
     expect(inSheet(sheet, l10n.aiConfidenceRule), findsOne);
   });
 
+  testWidgets('a low model word under high coverage shows low', (tester) async {
+    await reports.insert(
+      _report(
+        cards: [_card(model: 'low', coverage: 'high')],
+      ),
+    );
+    await pump(tester);
+
+    expect(find.text(l10n.aiReadingConfidence('low', 3)), findsOneWidget);
+    await open(tester, AiReadingKeys.confidence);
+
+    const sheet = AiSheetKeys.confidence;
+    expect(inSheet(sheet, l10n.aiConfidenceLevel('low')), findsNWidgets(2));
+    expect(inSheet(sheet, l10n.aiConfidenceLevel('high')), findsOne);
+  });
+
   testWidgets('the dropped sheet lists stored titles and localized reasons', (
     tester,
   ) async {
@@ -418,11 +434,25 @@ void main() {
   });
 
   test('every daily metric has a route and workout facts have none', () {
-    expect(aiFactRoute('f.sleepMin.avg'), AppTab.sleep.path);
-    expect(aiFactRoute('f.hrv.last'), AppTab.heart.path);
-    expect(aiFactRoute('f.steps.avg'), AppTab.activity.path);
-    expect(aiFactRoute('f.load.last'), AppPaths.effort);
-    expect(aiFactRoute('f.weight.last'), AppPaths.body);
+    final expected = {
+      AiDailyMetric.sleepMin: AppTab.sleep.path,
+      AiDailyMetric.sleepScore: AppTab.sleep.path,
+      AiDailyMetric.rhr: AppTab.heart.path,
+      AiDailyMetric.hrv: AppTab.heart.path,
+      AiDailyMetric.stress: AppTab.heart.path,
+      AiDailyMetric.spo2: AppTab.heart.path,
+      AiDailyMetric.steps: AppTab.activity.path,
+      AiDailyMetric.activeKcal: AppTab.activity.path,
+      AiDailyMetric.load: AppPaths.effort,
+      AiDailyMetric.readiness: AppPaths.readiness,
+      AiDailyMetric.dayScore: AppPaths.dayScore,
+      AiDailyMetric.weight: AppPaths.body,
+    };
+    expect(expected.keys, unorderedEquals(AiDailyMetric.values));
+    for (final MapEntry(:key, :value) in expected.entries) {
+      expect(aiFactRoute('f.${key.name}.avg'), value, reason: key.name);
+      expect(aiFactRoute('f.${key.name}.last'), value, reason: key.name);
+    }
     expect(aiFactRoute('f.workouts.count'), isNull);
     expect(aiFactRoute('sleep_avg'), isNull);
   });

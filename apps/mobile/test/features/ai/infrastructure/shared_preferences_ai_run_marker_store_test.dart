@@ -49,6 +49,21 @@ void main() {
     expect(await store.monthTokens('2026-11'), 0);
   });
 
+  test('photo uses add up per day, never go below zero and reset on a new '
+      'day', () async {
+    await store.addPhotoUses('2026-11-24', 2);
+    await store.addPhotoUses('2026-11-24', -1);
+    expect(await store.photoUses('2026-11-24'), 1);
+    await store.addPhotoUses('2026-11-24', -5);
+    expect(await store.photoUses('2026-11-24'), 0);
+    await store.addPhotoUses('2026-11-24', 3);
+    expect(await store.photoUses('2026-11-25'), 0);
+    expect(
+      SharedPreferencesAiRunMarkerStore.keys,
+      contains('ai_photo_day_uses'),
+    );
+  });
+
   test('a corrupt marker reads as none', () async {
     await SharedPreferencesAsync().setString(
       SharedPreferencesAiRunMarkerStore.key,

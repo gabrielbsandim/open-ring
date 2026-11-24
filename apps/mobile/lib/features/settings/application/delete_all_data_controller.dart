@@ -6,6 +6,7 @@ import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
+import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
 import 'package:open_ring/features/open_score/application/celebration_providers.dart';
@@ -44,9 +45,16 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
     if (state == DeletionStatus.deleting) return false;
     state = DeletionStatus.deleting;
     final alive = ref.keepAlive();
-    final run = ref.read(analysisRunControllerProvider.notifier).idle;
-    ref.invalidate(analysisRunControllerProvider);
-    await run.timeout(aiRunAbortWait, onTimeout: () {});
+    final runs = [
+      ref.read(analysisRunControllerProvider.notifier).idle,
+      ref.read(mealAnalysisQueueProvider.notifier).idle,
+    ];
+    ref
+      ..invalidate(analysisRunControllerProvider)
+      ..invalidate(mealAnalysisQueueProvider);
+    await Future.wait(runs)
+        .timeout(aiRunAbortWait, onTimeout: () => [])
+        .catchError((Object _) => <void>[]);
     try {
       await ref.read(localDataEraserProvider).eraseAll();
       await _resetInMemoryState();
@@ -79,6 +87,7 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
       ..invalidate(ringSyncProvider)
       ..invalidate(aiConfigProvider)
       ..invalidate(aiConsentProvider)
+      ..invalidate(aiMealPhotoConsentProvider)
       ..invalidate(aiAvailabilityProvider);
     ref.read(dataRevisionProvider.notifier).bump();
   }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
@@ -9,7 +10,8 @@ final class SharedPreferencesAiRunMarkerStore implements AiRunMarkerStore {
 
   static const key = 'ai_run_marker';
   static const monthKey = 'ai_month_tokens';
-  static const Set<String> keys = {key, monthKey};
+  static const photoUsesKey = 'ai_photo_day_uses';
+  static const Set<String> keys = {key, monthKey, photoUsesKey};
 
   SharedPreferencesAsync? _preferences;
 
@@ -65,15 +67,27 @@ final class SharedPreferencesAiRunMarkerStore implements AiRunMarkerStore {
   Future<void> clear() => _store.remove(key);
 
   @override
-  Future<int> monthTokens(String month) async {
-    final saved = await _store.getStringList(monthKey);
-    if (saved == null || saved.length != 2 || saved.first != month) return 0;
+  Future<int> monthTokens(String month) => _count(monthKey, month);
+
+  @override
+  Future<void> addMonthTokens(String month, int tokens) =>
+      _add(monthKey, month, tokens);
+
+  @override
+  Future<int> photoUses(String day) => _count(photoUsesKey, day);
+
+  @override
+  Future<void> addPhotoUses(String day, int delta) =>
+      _add(photoUsesKey, day, delta);
+
+  Future<int> _count(String key, String period) async {
+    final saved = await _store.getStringList(key);
+    if (saved == null || saved.length != 2 || saved.first != period) return 0;
     return int.tryParse(saved.last) ?? 0;
   }
 
-  @override
-  Future<void> addMonthTokens(String month, int tokens) async {
-    final used = await monthTokens(month);
-    await _store.setStringList(monthKey, [month, '${used + tokens}']);
+  Future<void> _add(String key, String period, int delta) async {
+    final next = math.max(0, await _count(key, period) + delta);
+    await _store.setStringList(key, [period, '$next']);
   }
 }

@@ -30,6 +30,12 @@ abstract final class MealAnalysisErrorKind {
   static const String expired = 'expired';
   static const String targetChanged = 'target_changed';
   static const String interrupted = 'interrupted';
+  static const String keptOnPhone = 'kept_on_phone';
+  static const String noConsent = 'no_consent';
+  static const String photoMissing = 'photo_missing';
+  static const String urlRejected = 'url_rejected';
+  static const String cancelled = 'cancelled';
+  static const String unexpected = 'unexpected';
 }
 
 typedef MealAnalysisTarget = ({

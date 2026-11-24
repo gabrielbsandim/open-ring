@@ -286,4 +286,30 @@ final class InMemoryAiRunMarkerStore implements AiRunMarkerStore {
     monthSum = await monthTokens(month) + tokens;
     this.month = month;
   }
+
+  final Map<String, int> photoDays = {};
+
+  /// Holds the next photoUses read after it took its value, once.
+  Completer<void>? photoGate;
+
+  @override
+  Future<int> photoUses(String day) async {
+    final value = photoDays[day] ?? 0;
+    final gate = photoGate;
+    photoGate = null;
+    await gate?.future;
+    return value;
+  }
+
+  /// Holds the next addPhotoUses between its read and its write, once.
+  Completer<void>? addGate;
+
+  @override
+  Future<void> addPhotoUses(String day, int delta) async {
+    final next = (photoDays[day] ?? 0) + delta;
+    final gate = addGate;
+    addGate = null;
+    await gate?.future;
+    photoDays[day] = next < 0 ? 0 : next;
+  }
 }

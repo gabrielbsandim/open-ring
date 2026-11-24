@@ -21,6 +21,8 @@ import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_run_marker_store.dart';
+import 'package:open_ring/features/food/application/food_gate.dart';
+import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
@@ -44,12 +46,14 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../../helpers/ai_fakes.dart';
+import '../../../helpers/database.dart';
 import '../../../helpers/fake_sync_scheduler.dart';
 import '../../../helpers/in_memory_sync_interval_store.dart';
 import '../../../helpers/in_memory_theme_mode_store.dart';
 import '../../../helpers/onboarding_fakes.dart';
 import '../../../helpers/ring_fakes.dart' show FakeSyncStore;
 import '../../../helpers/settings_fakes.dart';
+import '../../food/application/meal_analysis_harness.dart';
 
 void main() {
   late FakeLocalDataEraser eraser;
@@ -264,6 +268,86 @@ void main() {
 
       await expectNothingWritten();
     });
+  });
+
+  test('a photo send in flight is aborted: no other request and no tokens '
+      'after the wipe', () async {
+    final h = MealQueueHarness();
+    final answer = Completer<AnalysisEvent>();
+    h.respond = () => answer.future;
+    final a = await h.meal();
+    await h.queued(a);
+    await h.queued(
+      await h.meal(photo: 'meal_2.jpg'),
+      at: h.now.add(const Duration(seconds: 1)),
+    );
+    final c = container(
+      FakeLocalDataEraser(onErase: () => h.analyses.deleteAll()),
+      [
+        ...h.overrides,
+        aiEnabledProvider.overrideWithValue(true),
+        foodEnabledProvider.overrideWithValue(true),
+      ],
+    );
+    final pass = c.read(mealAnalysisQueueProvider.notifier).drain();
+    while (h.requests.isEmpty) {
+      await pumpEventQueue(times: 1);
+    }
+
+    expect(await c.read(deleteAllDataProvider.notifier).delete(), isTrue);
+    answer.complete(completed());
+    await pass;
+    await pumpEventQueue();
+
+    expect(h.requests, hasLength(1));
+    expect(h.markers.monthSum, 0);
+    expect(await rowCount(h.db, 'meal_analyses'), 0);
+  });
+
+  test('a photo pass that throws leaves Delete all data working, '
+      'twice', () async {
+    final h = MealQueueHarness()
+      ..failingSecrets = FailingSecretStore(failRead: true);
+    await h.queued(await h.meal());
+    final c = container(FakeLocalDataEraser(), [
+      ...h.overrides,
+      aiEnabledProvider.overrideWithValue(true),
+      foodEnabledProvider.overrideWithValue(true),
+    ]);
+    await c.read(mealAnalysisQueueProvider.notifier).drain();
+
+    expect(await c.read(deleteAllDataProvider.notifier).delete(), isTrue);
+    expect(await c.read(deleteAllDataProvider.notifier).delete(), isTrue);
+    expect(h.requests, isEmpty);
+  });
+
+  test('an enqueue in flight writes no use and no row after the '
+      'wipe', () async {
+    final h = MealQueueHarness();
+    final mealId = await h.meal();
+    final c = container(
+      FakeLocalDataEraser(onErase: () => h.analyses.deleteAll()),
+      [
+        ...h.overrides,
+        aiEnabledProvider.overrideWithValue(true),
+        foodEnabledProvider.overrideWithValue(true),
+      ],
+    );
+    final queue = c.read(mealAnalysisQueueProvider.notifier)..toBackground();
+    final gate = h.markers.photoGate = Completer<void>();
+    final enqueued = queue.enqueue(mealId);
+    while (h.markers.photoGate != null) {
+      await pumpEventQueue(times: 1);
+    }
+
+    final deleting = c.read(deleteAllDataProvider.notifier).delete();
+    await pumpEventQueue();
+    gate.complete();
+
+    expect(await deleting, isTrue);
+    expect(await enqueued, EnqueueOutcome.unavailable);
+    expect(h.markers.photoDays, isEmpty);
+    expect(await rowCount(h.db, 'meal_analyses'), 0);
   });
 
   test('a failed erase reports failure and keeps the settings', () async {

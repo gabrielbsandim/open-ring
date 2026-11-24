@@ -15,10 +15,15 @@ abstract interface class MealAnalysisStore {
 
   Future<List<MealAnalysis>> byMeal(int mealId);
 
+  Future<MealAnalysis?> byId(int id);
+
   Future<MealAnalysis?> next();
 
   /// Queued to sending, counting the attempt.
   Future<bool> markSending(int id, {required DateTime now});
+
+  /// Sending back to queued, undoing the attempt [markSending] counted.
+  Future<bool> requeue(int id, {required DateTime now});
 
   /// Writes a sending row's answer and replaces its model items.
   Future<bool> complete(

@@ -79,6 +79,10 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
       _read((r) => r.mealId.equals(mealId));
 
   @override
+  Future<MealAnalysis?> byId(int id) async =>
+      (await _read(_id(id))).firstOrNull;
+
+  @override
   Future<MealAnalysis?> next() async => (await _read(
     (r) => r.status.equals(MealAnalysisStatus.queued.wire),
     limit: 1,
@@ -91,6 +95,17 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
     MealAnalysesCompanion.custom(
       status: Constant(MealAnalysisStatus.sending.wire),
       attempts: _db.mealAnalyses.attempts + const Constant(1),
+      updatedAtUtcMs: Constant(now.millisecondsSinceEpoch),
+    ),
+  );
+
+  @override
+  Future<bool> requeue(int id, {required DateTime now}) => _moveOne(
+    id,
+    _sending,
+    MealAnalysesCompanion.custom(
+      status: Constant(MealAnalysisStatus.queued.wire),
+      attempts: _db.mealAnalyses.attempts - const Constant(1),
       updatedAtUtcMs: Constant(now.millisecondsSinceEpoch),
     ),
   );

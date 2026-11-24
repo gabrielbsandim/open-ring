@@ -30,6 +30,7 @@ import 'package:open_ring/features/demo/infrastructure/demo_workout_store.dart';
 import 'package:open_ring/features/demo/infrastructure/drift_demo_data_store.dart';
 import 'package:open_ring/features/demo/infrastructure/shared_preferences_demo_mode_store.dart';
 import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
+import 'package:open_ring/features/food/application/meal_analysis_trigger.dart';
 import 'package:open_ring/features/food/application/meal_recovery.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/infrastructure/drift_meal_store.dart';
@@ -318,7 +319,8 @@ Future<void> bootstrap() async {
   container
     ..listen(healthGrantRetryProvider, (_, _) {})
     ..listen(dayRollProvider, (_, _) {})
-    ..listen(goalReviewTriggerProvider, (_, _) {});
+    ..listen(goalReviewTriggerProvider, (_, _) {})
+    ..listen(mealAnalysisTriggerProvider, (_, _) {});
   startWidgetPush(container);
   runApp(
     UncontrolledProviderScope(container: container, child: const OpenRingApp()),

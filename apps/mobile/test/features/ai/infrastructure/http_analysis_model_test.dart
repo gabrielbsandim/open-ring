@@ -303,6 +303,30 @@ void main() {
         expect(h.store.profiles, isEmpty);
       });
 
+      test('no earlier request is resent under a forced mode', () async {
+        final h = _Harness((_) async => _json(400, _error('nope')));
+
+        final failure = await _failureOf(
+          h.run(
+            request: forced(
+              AiCapabilityProfile.defaults,
+              const AiOutputPin(jsonMode: AiJsonMode.jsonSchema),
+            ),
+          ),
+        );
+
+        expect(failure.kind, AnalysisFailureKind.badRequest);
+        final pairs = [
+          for (final c in h.calls)
+            (
+              (c.json['response_format']! as Map<String, Object?>)['type'],
+              c.json['stream'] == true,
+            ),
+        ];
+        expect(pairs, [('json_schema', true), ('json_schema', false)]);
+        expect(h.store.profiles, isEmpty);
+      });
+
       test('nothing is persisted after a ladder step', () async {
         final h = _Harness((call) async {
           if (call.json.containsKey('max_completion_tokens')) {

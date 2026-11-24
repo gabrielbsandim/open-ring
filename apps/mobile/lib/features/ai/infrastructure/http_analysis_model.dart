@@ -203,8 +203,10 @@ final class HttpAnalysisModel implements AnalysisModel {
   ) async {
     final pin = request.pin;
     var ladder = request.profile;
+    final tried = <AiCapabilityProfile>{};
     for (var attempt = 1; ; attempt++) {
       final sent = pin.apply(ladder);
+      tried.add(sent);
       final body = OpenAiWireCodec.buildChatBody(
         model: model,
         systemPrompt: request.systemPrompt,
@@ -222,26 +224,26 @@ final class HttpAnalysisModel implements AnalysisModel {
       );
       if (_isSuccess(response)) return (response, ladder);
       final failure = await _readFailure(run, response);
-      final next = _stepDown(failure, ladder, pin, attempt);
+      final next = _stepDown(failure, ladder, pin, tried, attempt);
       if (next == null) throw failure;
       ladder = next;
     }
   }
 
-  /// Skips steps that only move a forced axis, so no identical request is
-  /// resent and a forced mode never changes on a retry.
+  /// Skips steps whose request was already sent in this run, so no identical
+  /// request is resent and a forced mode never changes on a retry.
   static AiCapabilityProfile? _stepDown(
     AnalysisFailure failure,
     AiCapabilityProfile ladder,
     AiOutputPin pin,
+    Set<AiCapabilityProfile> tried,
     int attempt,
   ) {
     if (attempt >= aiMaxLadderAttempts) return null;
     if (failure.statusCode != 400) return null;
     if (failure.kind != AnalysisFailureKind.badRequest) return null;
-    final sent = pin.apply(ladder);
     var next = ladder.nextOnBadRequest(failure.detail);
-    while (next != null && pin.apply(next) == sent) {
+    while (next != null && tried.contains(pin.apply(next))) {
       next = next.nextOnBadRequest(failure.detail);
     }
     return next;

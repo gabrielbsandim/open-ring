@@ -6,12 +6,20 @@ final class SecureStorageSecretStore implements SecretStore {
   const new([FlutterSecureStorage? storage])
     : _storage = storage ?? _defaultStorage;
 
-  static const _defaultStorage = FlutterSecureStorage();
+  // A this_device class keeps the key out of iCloud backups and transfers.
+  static const _defaultStorage = FlutterSecureStorage(
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock_this_device,
+    ),
+  );
 
   final FlutterSecureStorage _storage;
 
   @visibleForTesting
   AndroidOptions get androidOptions => _storage.aOptions;
+
+  @visibleForTesting
+  IOSOptions get iosOptions => _storage.iOptions;
 
   @override
   Future<String?> read(String name) async {

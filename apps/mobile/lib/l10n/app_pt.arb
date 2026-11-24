@@ -2791,8 +2791,12 @@
   "aiReadingsUntestedTitle": "Teste a conexão antes da primeira leitura",
   "aiReadingsEarlyTitle": "Ainda é cedo para perguntar a um modelo",
   "aiReadingsEarlyNote": "Com poucos dias, um modelo acha padrão onde só há acaso.",
-  "aiReadingStale": "Baseada nos dados até {time}. O anel sincronizou depois disso. A leitura não é refeita sozinha: toque em uma leitura para pedir outra.",
+  "aiReadingStale": "Baseada nos dados até {time}. O resumo dos seus dados mudou desde esta leitura. A leitura não é refeita sozinha: toque em uma leitura para pedir outra.",
   "aiReadingSample": "Amostra. Nenhum modelo foi chamado. No modo demonstração a leitura vem pronta, e nada sai do celular.",
   "aiReadingSampleBy": "Amostra, sem modelo",
-  "aiHistoryRow": "Pedir uma leitura à IA"
+  "aiHistoryRow": "Pedir uma leitura à IA",
+  "aiSampleSummary": "Amostra. Nenhum modelo foi chamado.",
+  "aiSampleCardTitle": "Ficha de amostra",
+  "aiSampleCardInsight": "Esta ficha mostra onde aparece uma observação do seu modelo.",
+  "aiSampleCardAction": "Adicione o seu próprio modelo em Ajustes para analisar seus dados."
 }

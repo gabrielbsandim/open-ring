@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
@@ -138,6 +139,32 @@ AiReport _stored({
       }),
 );
 
+// A real summary, so a units change alone moves the hash.
+HealthContextInput _input(AiAnalysisKind kind, AiUnits units) =>
+    HealthContextInput(
+      kind: kind,
+      replyLanguage: 'en',
+      detail: AiDetailLevel.standard,
+      window: AiContextWindow.standard,
+      units: units,
+      profile: const AiProfileInput(age: 34),
+      coverage: const AiCoverageInput(
+        hasRing: true,
+        sleepSource: AiSleepSource.ring,
+        daysWithRingData: 7,
+      ),
+      days: [
+        for (var i = 0; i < 7; i++)
+          AiDayRow(
+            date: const LocalDate(2026, 11, 17).addDays(i),
+            weekday: AiWeekday.values[i],
+            sleepMin: 420 + i * 10,
+            steps: 6000 + i * 100,
+            weightKg: 78 - i * 0.1,
+          ),
+      ],
+    );
+
 final class _Model implements AnalysisModel {
   final List<AnalysisRequest> requests = [];
   final List<StreamController<AnalysisEvent>> streams = [];
@@ -242,6 +269,7 @@ void main() {
   late DateTime clockNow;
   late double sleepNow;
   late bool demo;
+  late AiUnits? unitsNow;
 
   setUp(() {
     configs = InMemoryAiConfigStore()
@@ -270,6 +298,7 @@ void main() {
     clockNow = _now;
     sleepNow = 300;
     demo = false;
+    unitsNow = null;
     addTearDown(visible.dispose);
   });
 
@@ -283,6 +312,9 @@ void main() {
     aiPayloadProvider.overrideWith((ref, kind) async {
       await payloadGate?.future;
       if (notEnough) return const AiPayloadNotEnoughData(3);
+      if (unitsNow case final units?) {
+        return buildAiPayloadResult(_input(kind, units));
+      }
       final base = _payload(kind, sleep: sleepNow);
       if (!food) return AiPayloadReady(base, kind: kind);
       final map = {
@@ -313,7 +345,11 @@ void main() {
     }),
   ];
 
-  Future<void> pump(WidgetTester tester, {bool pushed = false}) async {
+  Future<void> pump(
+    WidgetTester tester, {
+    bool pushed = false,
+    Locale locale = const Locale('en'),
+  }) async {
     tester.view
       ..devicePixelRatio = 1
       ..physicalSize = const Size(800, 3000);
@@ -323,6 +359,7 @@ void main() {
         overrides: overrides(),
         child: MaterialApp(
           theme: AppTheme.light(),
+          locale: locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: pushed
@@ -830,6 +867,71 @@ void main() {
       expect(factoryCalls, 0);
       expect(model.requests, isEmpty);
       expect(reports.reports, hasLength(1));
+    });
+
+    testWidgets('a units change alone marks the reading stale', (tester) async {
+      unitsNow = const AiUnits();
+      final sent = buildAiPayloadResult(
+        _input(AiAnalysisKind.weeklyReview, const AiUnits()),
+      );
+      final sha = (sent as AiPayloadReady).payload.cacheKey;
+      await reports.insert(
+        AiReport(
+          createdAtUtc: _stored().createdAtUtc,
+          offsetMin: 0,
+          kind: AiAnalysisKind.weeklyReview.wireName,
+          contextSchema: aiContextSchemaVersion,
+          contextSha256: sha,
+          detailLevel: 'standard',
+          promptVersion: 'v$aiPromptVersion',
+          providerHost: _hostKey,
+          model: 'gpt-test',
+          status: AiReportStatus.done,
+          cardsJson: _stored().cardsJson,
+        ),
+      );
+      await pump(tester);
+      expect(find.byKey(AiReadingStateKeys.stale), findsNothing);
+
+      unitsNow = const AiUnits(
+        distance: AiDistanceUnit.mi,
+        weight: AiWeightUnit.lb,
+      );
+      ProviderScope.containerOf(tester.element(find.byType(AiReadingsScreen)))
+          .invalidate(aiPayloadProvider);
+      await tester.pumpAndSettle();
+
+      final notice = find.descendant(
+        of: find.byKey(AiReadingStateKeys.stale),
+        matching: find.textContaining(
+          'Your data summary has changed since this reading.',
+        ),
+      );
+      expect(notice, findsOneWidget);
+      expect(find.textContaining('synced'), findsNothing);
+      expect(factoryCalls, 0);
+    });
+
+    testWidgets('the demo sample reads in the app language', (tester) async {
+      demo = true;
+      await pump(tester, locale: const Locale('pt'));
+      final pt = lookupAppLocalizations(const Locale('pt'));
+
+      expect(find.text(pt.aiSampleSummary), findsOneWidget);
+      expect(find.text(pt.aiSampleCardTitle), findsOneWidget);
+      expect(find.text(pt.aiSampleCardInsight), findsOneWidget);
+      expect(find.text(pt.aiSampleCardAction), findsOneWidget);
+      for (final english in [
+        SampleAnalysisModel.summary,
+        'Sample card',
+        'This card shows where an insight from your model appears.',
+        'Add your own model in Settings to analyze your data.',
+      ]) {
+        expect(find.textContaining(english), findsNothing);
+      }
+      expect(factoryCalls, 0);
+      expect(model.requests, isEmpty);
+      expect(reports.reports, isEmpty);
     });
 
     testWidgets('demo with few data shows the early card and no sample', (

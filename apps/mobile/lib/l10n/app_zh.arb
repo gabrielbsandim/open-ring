@@ -2791,8 +2791,12 @@
   "aiReadingsUntestedTitle": "在第一次解读前测试连接",
   "aiReadingsEarlyTitle": "现在问模型还为时过早",
   "aiReadingsEarlyNote": "天数太少时，模型会在只有偶然的地方找出规律。",
-  "aiReadingStale": "基于截至 {time} 的数据。之后戒指又同步过。解读不会自动重做：点按一种解读即可再请求一次。",
+  "aiReadingStale": "基于截至 {time} 的数据。此次解读之后，你的数据摘要已有变化。解读不会自动重做：点按一种解读即可再请求一次。",
   "aiReadingSample": "示例。没有调用任何模型。在演示模式下，解读是预先准备好的，任何内容都不会离开手机。",
   "aiReadingSampleBy": "示例，无模型",
-  "aiHistoryRow": "请 AI 解读"
+  "aiHistoryRow": "请 AI 解读",
+  "aiSampleSummary": "示例。没有调用任何模型。",
+  "aiSampleCardTitle": "示例卡片",
+  "aiSampleCardInsight": "这张卡片显示你的模型给出的见解会出现在哪里。",
+  "aiSampleCardAction": "在设置中添加你自己的模型，即可分析你的数据。"
 }

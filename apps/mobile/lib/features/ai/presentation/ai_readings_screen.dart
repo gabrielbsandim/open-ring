@@ -19,6 +19,7 @@ import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_consent_scope.dart';
 import 'package:open_ring/features/ai/domain/ai_reading.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
+import 'package:open_ring/features/ai/domain/ai_report_models.dart';
 import 'package:open_ring/features/ai/domain/ai_usage_summary.dart';
 import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/base_url_policy.dart';
@@ -502,6 +503,27 @@ AiAnalysisKind _kindOf(String wire, AiAnalysisKind fallback) => AiAnalysisKind
     .values
     .firstWhere((k) => k.wireName == wire, orElse: () => fallback);
 
+// The sample model answers in English to pass the validator; the screen
+// shows its text in the app language, keeping the cards' evidence.
+AiReading _localSample(AppLocalizations l10n, AiReading r) => AiReading(
+  summary: l10n.aiSampleSummary,
+  facts: r.facts,
+  cards: [
+    for (final c in r.cards)
+      ValidatedAiCard(
+        family: c.family,
+        title: l10n.aiSampleCardTitle,
+        insight: l10n.aiSampleCardInsight,
+        evidenceIds: c.evidenceIds,
+        action: l10n.aiSampleCardAction,
+        modelConfidence: c.modelConfidence,
+        coverageConfidence: c.coverageConfidence,
+        shownConfidence: c.shownConfidence,
+        minEvidenceDays: c.minEvidenceDays,
+      ),
+  ],
+);
+
 // `weekly_review` gives the `weekly` select value of the ARB messages.
 String _kindArg(String wire) => wire.split('_').first;
 
@@ -513,12 +535,13 @@ class _ReadingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final reading = AiReading.fromReport(report);
+    final stored = AiReading.fromReport(report);
     final host = Uri.tryParse(report.providerHost)?.host ?? '';
     final at = MetricFormat.of(context)
         .dayAndClock(report.createdAtUtc, Duration(minutes: report.offsetMin));
     final dropped = report.droppedCards;
     final sample = report.providerHost == aiSampleProviderHost;
+    final reading = sample ? _localSample(l10n, stored) : stored;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

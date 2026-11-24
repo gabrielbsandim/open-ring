@@ -2791,8 +2791,12 @@
   "aiReadingsUntestedTitle": "Prueba la conexión antes de la primera lectura",
   "aiReadingsEarlyTitle": "Todavía es pronto para preguntar a un modelo",
   "aiReadingsEarlyNote": "Con pocos días, un modelo encuentra patrones donde solo hay azar.",
-  "aiReadingStale": "Basada en datos hasta {time}. El anillo se sincronizó después. La lectura no se rehace sola: toca una lectura para pedir otra.",
+  "aiReadingStale": "Basada en datos hasta {time}. Tu resumen de datos cambió desde esta lectura. La lectura no se rehace sola: toca una lectura para pedir otra.",
   "aiReadingSample": "Muestra. No se llamó a ningún modelo. En el modo demostración la lectura viene lista y nada sale del teléfono.",
   "aiReadingSampleBy": "Muestra, sin modelo",
-  "aiHistoryRow": "Pedir una lectura a la IA"
+  "aiHistoryRow": "Pedir una lectura a la IA",
+  "aiSampleSummary": "Muestra. No se llamó a ningún modelo.",
+  "aiSampleCardTitle": "Tarjeta de muestra",
+  "aiSampleCardInsight": "Esta tarjeta muestra dónde aparece una observación de tu modelo.",
+  "aiSampleCardAction": "Añade tu propio modelo en Ajustes para analizar tus datos."
 }

@@ -2791,8 +2791,12 @@
   "aiReadingsUntestedTitle": "Prova la connessione prima della prima lettura",
   "aiReadingsEarlyTitle": "È ancora presto per chiedere a un modello",
   "aiReadingsEarlyNote": "Con pochi giorni, un modello trova schemi dove c’è solo il caso.",
-  "aiReadingStale": "Basata sui dati fino a {time}. L’anello si è sincronizzato dopo. La lettura non viene rifatta da sola: tocca una lettura per chiederne un’altra.",
+  "aiReadingStale": "Basata sui dati fino a {time}. Il riepilogo dei tuoi dati è cambiato da questa lettura. La lettura non viene rifatta da sola: tocca una lettura per chiederne un’altra.",
   "aiReadingSample": "Esempio. Nessun modello è stato chiamato. In modalità demo la lettura è già pronta e nulla lascia il telefono.",
   "aiReadingSampleBy": "Esempio, nessun modello",
-  "aiHistoryRow": "Chiedi una lettura all’IA"
+  "aiHistoryRow": "Chiedi una lettura all’IA",
+  "aiSampleSummary": "Esempio. Nessun modello è stato chiamato.",
+  "aiSampleCardTitle": "Scheda di esempio",
+  "aiSampleCardInsight": "Questa scheda mostra dove compare un’osservazione del tuo modello.",
+  "aiSampleCardAction": "Aggiungi il tuo modello nelle Impostazioni per analizzare i tuoi dati."
 }

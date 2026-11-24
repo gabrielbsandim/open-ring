@@ -17,7 +17,8 @@ const _guarded = [
   'lib/features/workout/infrastructure/method_channel_workout_notifier.dart',
 ];
 
-final _aiUse = RegExp(r'features/ai/|\bl10n\.ai[A-Z]|\.aiHistoryRow\b');
+// Any receiver: notifications read their text through `strings`, not `l10n`.
+final _aiUse = RegExp(r'features/ai/|\.ai[A-Z]\w*\b');
 
 List<File> _files(String path) {
   if (FileSystemEntity.isFileSync(path)) return [File(path)];
@@ -38,6 +39,24 @@ void main() {
       }
     }
     expect(hits, isEmpty);
+  });
+
+  test('the guard catches AI text through any receiver', () {
+    for (final bad in [
+      "title: strings.aiReadingStale('x'),",
+      'final t = l10n.aiHistoryRow;',
+      'body: alertStrings.aiReadingsTitle,',
+      "import 'package:open_ring/features/ai/domain/ai_config.dart';",
+    ]) {
+      expect(_aiUse.hasMatch(bad), isTrue, reason: bad);
+    }
+    for (final ok in [
+      'final t = strings.syncFailedTitle;',
+      'final detail = waitingForSync;',
+      'paint.aim = 1;',
+    ]) {
+      expect(_aiUse.hasMatch(ok), isFalse, reason: ok);
+    }
   });
 
   test('only Histórico places the AI readings row', () {

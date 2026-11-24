@@ -2791,8 +2791,12 @@
   "aiReadingsUntestedTitle": "Teste die Verbindung vor der ersten Auswertung",
   "aiReadingsEarlyTitle": "Es ist noch zu früh, ein Modell zu fragen",
   "aiReadingsEarlyNote": "Bei wenigen Tagen findet ein Modell Muster, wo nur Zufall ist.",
-  "aiReadingStale": "Basiert auf Daten bis {time}. Der Ring hat danach synchronisiert. Die Auswertung wird nicht von selbst neu erstellt: Tippe auf eine Auswertung, um eine neue anzufordern.",
+  "aiReadingStale": "Basiert auf Daten bis {time}. Deine Datenzusammenfassung hat sich seit dieser Auswertung geändert. Die Auswertung wird nicht von selbst neu erstellt: Tippe auf eine Auswertung, um eine neue anzufordern.",
   "aiReadingSample": "Beispiel. Es wurde kein Modell aufgerufen. Im Demomodus ist die Auswertung vorbereitet und nichts verlässt das Telefon.",
   "aiReadingSampleBy": "Beispiel, kein Modell",
-  "aiHistoryRow": "Die KI um eine Auswertung bitten"
+  "aiHistoryRow": "Die KI um eine Auswertung bitten",
+  "aiSampleSummary": "Beispiel. Es wurde kein Modell aufgerufen.",
+  "aiSampleCardTitle": "Beispielkarte",
+  "aiSampleCardInsight": "Diese Karte zeigt, wo eine Erkenntnis deines Modells erscheint.",
+  "aiSampleCardAction": "Füge in den Einstellungen dein eigenes Modell hinzu, um deine Daten auszuwerten."
 }

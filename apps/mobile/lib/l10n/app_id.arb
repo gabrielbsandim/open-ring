@@ -2791,8 +2791,12 @@
   "aiReadingsUntestedTitle": "Uji koneksi sebelum bacaan pertama",
   "aiReadingsEarlyTitle": "Masih terlalu dini untuk bertanya kepada model",
   "aiReadingsEarlyNote": "Dengan sedikit hari, model menemukan pola di tempat yang hanya kebetulan.",
-  "aiReadingStale": "Berdasarkan data hingga {time}. Cincin disinkronkan setelah itu. Bacaan tidak dibuat ulang dengan sendirinya: ketuk salah satu bacaan untuk meminta yang lain.",
+  "aiReadingStale": "Berdasarkan data hingga {time}. Ringkasan data Anda telah berubah sejak bacaan ini. Bacaan tidak dibuat ulang dengan sendirinya: ketuk salah satu bacaan untuk meminta yang lain.",
   "aiReadingSample": "Contoh. Tidak ada model yang dipanggil. Dalam mode demo, bacaan sudah siap dan tidak ada yang keluar dari ponsel.",
   "aiReadingSampleBy": "Contoh, tanpa model",
-  "aiHistoryRow": "Minta bacaan dari AI"
+  "aiHistoryRow": "Minta bacaan dari AI",
+  "aiSampleSummary": "Contoh. Tidak ada model yang dipanggil.",
+  "aiSampleCardTitle": "Kartu contoh",
+  "aiSampleCardInsight": "Kartu ini menunjukkan tempat wawasan dari model Anda muncul.",
+  "aiSampleCardAction": "Tambahkan model Anda sendiri di Pengaturan untuk menganalisis data Anda."
 }

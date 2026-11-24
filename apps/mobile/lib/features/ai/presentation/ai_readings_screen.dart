@@ -133,11 +133,13 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
       ],
     ),
     TextButton(
-      onPressed: () => unawaited(
-        context.push(
-          '${AppPaths.aiReadingsPreview}?kind=${_kindArg(_kind.wireName)}',
-        ),
-      ),
+      onPressed: busy
+          ? null
+          : () => unawaited(
+              context.push(
+                '${AppPaths.aiReadingsPreview}?kind=${_kindArg(_kind.wireName)}',
+              ),
+            ),
       child: Text(l10n.aiReadingSeeSent),
     ),
     const SizedBox(height: 8),

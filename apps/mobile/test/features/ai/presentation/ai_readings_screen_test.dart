@@ -572,6 +572,21 @@ void main() {
     expect(find.byKey(AiReadingKeys.dropped), findsNothing);
   });
 
+  testWidgets('the preview link is off while a run is sending', (tester) async {
+    await pump(tester);
+    await tapKind(tester, AiReadingKeys.weekly);
+    final link = find.widgetWithText(TextButton, l10n.aiReadingSeeSent);
+    expect(tester.widget<TextButton>(link).onPressed, isNull);
+
+    await tester.tap(link);
+    await tester.pump();
+    expect(find.text(l10n.aiReadingSendingNote), findsOneWidget);
+    expect(model.cancelSeen, isFalse);
+
+    await tester.tap(find.byKey(AiReadingKeys.cancel));
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('a consent that lapses mid tap opens the sheet again', (
     tester,
   ) async {

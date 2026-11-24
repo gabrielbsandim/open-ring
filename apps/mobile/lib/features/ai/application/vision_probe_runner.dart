@@ -55,7 +55,7 @@ Future<AiVisionSupport?> runVisionProbe(
   try {
     done = await _complete(model, request, cancel);
   } on AnalysisFailure catch (failure) {
-    if (!isNoVisionFailure(failure)) rethrow;
+    if (!isNoVisionFailure(failure, imageRequest: true)) rethrow;
     return await _store(ref, host, target, AiVisionSupport.no);
   }
   await _addTokens(ref, done.usage);

@@ -9,7 +9,7 @@ const String cameraSecret = 'CAMSECRETMODEL';
 
 /// A real 1024 x 600 JPEG, left half red and right half blue, carrying an
 /// Exif APP1 written by the encoder (Orientation 6 and a camera model) plus
-/// spliced GPS Exif, XMP, IPTC APP13 and COM segments.
+/// spliced GPS Exif, XMP, ICC APP2, IPTC APP13 and COM segments.
 Uint8List leakyPhoto({int width = 1024, int height = 600, int? orientation}) {
   final image = img.Image(width: width, height: height);
   img.fillRect(
@@ -35,6 +35,7 @@ Uint8List leakyPhoto({int width = 1024, int height = 600, int? orientation}) {
     soi,
     if (orientation != null) exifApp1(orientation: orientation),
     xmpApp1,
+    app2Icc,
     app13,
     com,
     encoded.sublist(2),

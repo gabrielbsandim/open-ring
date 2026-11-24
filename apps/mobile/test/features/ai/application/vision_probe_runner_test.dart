@@ -164,12 +164,31 @@ void main() {
     await configStore.writeCapabilityProfile(
       _host,
       'vision-m',
-      AiCapabilityProfile.defaults,
+      const AiCapabilityProfile(vision: AiVisionSupport.yes),
     );
     respond = () => _says('I cannot see any image.');
 
     expect(await probe(), AiVisionSupport.unknown);
-    expect(await stored('vision-m'), AiVisionSupport.unknown);
+    expect(await stored('vision-m'), AiVisionSupport.yes);
+  });
+
+  test('a 400 echoing a vision model name steps down, not to no', () async {
+    var calls = 0;
+    respond = () => ++calls == 1
+        ? _json(400, {
+            'error': {
+              'message':
+                  'llama-3.2-11b-vision-instruct does not support '
+                  'response_format json_schema',
+            },
+          })
+        : _says(_rightAnswer());
+
+    expect(await probe(), AiVisionSupport.yes);
+    expect(bodies, hasLength(2));
+    final second = bodies[1]['response_format']! as Map<String, Object?>;
+    expect(second['type'], 'json_object');
+    expect(await stored('vision-m'), AiVisionSupport.yes);
   });
 
   test('no photo model targets the main model', () async {

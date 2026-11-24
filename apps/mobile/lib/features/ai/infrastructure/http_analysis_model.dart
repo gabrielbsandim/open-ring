@@ -255,6 +255,7 @@ final class HttpAnalysisModel implements AnalysisModel {
         tried,
         attempt,
         stream: request.stream,
+        imageRequest: request.userContent is AiImageContent,
       );
       if (next == null) throw failure;
       ladder = next;
@@ -270,14 +271,16 @@ final class HttpAnalysisModel implements AnalysisModel {
     Set<AiCapabilityProfile> tried,
     int attempt, {
     bool? stream,
+    bool imageRequest = false,
   }) {
     if (attempt >= aiMaxLadderAttempts) return null;
     if (failure.statusCode != 400) return null;
     if (failure.kind != AnalysisFailureKind.badRequest) return null;
-    var next = ladder.nextOnBadRequest(failure.detail);
+    final detail = failure.detail;
+    var next = ladder.nextOnBadRequest(detail, imageRequest: imageRequest);
     while (next != null &&
         tried.contains(pin.apply(next).copyWith(streamOk: stream))) {
-      next = next.nextOnBadRequest(failure.detail);
+      next = next.nextOnBadRequest(detail, imageRequest: imageRequest);
     }
     return next;
   }

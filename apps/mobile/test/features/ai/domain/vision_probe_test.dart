@@ -14,6 +14,9 @@ const _grid = VisionProbeGrid([
   VisionProbeColor.red,
 ]);
 
+const _echoedModel =
+    'llama-3.2-11b-vision-instruct does not support response_format json_schema';
+
 final Matcher isUnreadable = equals(VisionProbeResult.unreadable);
 
 String _answer(List<String> colours) => jsonEncode({
@@ -131,22 +134,55 @@ void main() {
     for (final detail in [
       'Model does not support image input',
       'Invalid content type: image_url',
-      'This model has no Vision capability',
+      'This model does not support vision',
       'multimodal input is not enabled',
+      'Images are not supported by this endpoint',
     ]) {
-      test('"$detail" stops the ladder and counts as no vision', () {
-        expect(AiCapabilityProfile.defaults.nextOnBadRequest(detail), isNull);
-        expect(isNoVisionFailure(badRequest(detail)), isTrue);
+      test('"$detail" on an image request stops and counts as no vision', () {
+        expect(
+          AiCapabilityProfile.defaults.nextOnBadRequest(
+            detail,
+            imageRequest: true,
+          ),
+          isNull,
+        );
+        expect(
+          isNoVisionFailure(badRequest(detail), imageRequest: true),
+          isTrue,
+        );
       });
-    }
 
-    test('a content or stream message still walks the ladder', () {
-      for (final detail in ['invalid content', 'stream not supported']) {
+      test('"$detail" on a text request still walks the ladder', () {
         expect(
           AiCapabilityProfile.defaults.nextOnBadRequest(detail),
           isNotNull,
         );
-        expect(isNoVisionFailure(badRequest(detail)), isFalse);
+        expect(
+          isNoVisionFailure(badRequest(detail), imageRequest: false),
+          isFalse,
+        );
+      });
+    }
+
+    test('a model name holding vision or multimodal is not a refusal', () {
+      for (final detail in [
+        _echoedModel,
+        'gemma-multimodal-7b: stream not supported',
+        'invalid content',
+      ]) {
+        expect(
+          AiCapabilityProfile.defaults.nextOnBadRequest(
+            detail,
+            imageRequest: true,
+          ),
+          isNotNull,
+          reason: detail,
+        );
+        expect(
+          isNoVisionFailure(badRequest(detail), imageRequest: true),
+          isFalse,
+          reason: detail,
+        );
       }
     });
 
@@ -156,7 +192,7 @@ void main() {
         statusCode: 500,
         detail: 'image decoder crashed',
       );
-      expect(isNoVisionFailure(server), isFalse);
+      expect(isNoVisionFailure(server, imageRequest: true), isFalse);
     });
   });
 }

@@ -13,7 +13,7 @@ void main() {
     test('the fixture really carries every leak before the wire step', () {
       final input = leakyPhoto(orientation: 6);
       final markers = headerMarkers(input);
-      expect(markers, containsAll([0xE1, 0xED, 0xFE]));
+      expect(markers, containsAll([0xE1, 0xE2, 0xED, 0xFE]));
       for (final secret in ['Exif', 'GPS', 'XMPSECRET', cameraSecret]) {
         expect(containsAscii(input, secret), isTrue, reason: secret);
       }

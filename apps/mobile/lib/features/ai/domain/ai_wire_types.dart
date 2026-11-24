@@ -96,9 +96,13 @@ final class AiCapabilityProfile {
 
   /// Steps down one wire capability on an HTTP 400 before billing occurs,
   /// returning null once every applicable step is exhausted or unmatched.
-  AiCapabilityProfile? nextOnBadRequest(String errorMessage) {
+  /// An [imageRequest] refused for its image stops here.
+  AiCapabilityProfile? nextOnBadRequest(
+    String errorMessage, {
+    bool imageRequest = false,
+  }) {
     final lower = errorMessage.toLowerCase();
-    if (_namesVision(lower)) return null;
+    if (imageRequest && _refusesImage(lower)) return null;
     if (streamOk && streamUsageOk && lower.contains('stream_options')) {
       return copyWith(streamUsageOk: false);
     }
@@ -285,16 +289,29 @@ final class AnalysisFailure implements Exception {
       Object.hash(kind, detail, statusCode, retryAfterSeconds, timeoutStage);
 }
 
-// Not 'content': it appears in too many unrelated 400 messages.
-const List<String> _visionWords = ['image', 'vision', 'multimodal'];
+// Phrases, not bare words: a model id such as "llama-3.2-11b-vision" is
+// echoed in unrelated 400s.
+const List<String> _imageRefusals = [
+  'image input',
+  'image_url',
+  'image content',
+  'images are not supported',
+  'does not support image',
+  'does not support vision',
+  'not a vision model',
+  'not multimodal',
+  'multimodal input',
+];
 
-bool _namesVision(String lower) => _visionWords.any(lower.contains);
+bool _refusesImage(String lower) => _imageRefusals.any(lower.contains);
 
-/// A 400 that refuses the image itself, so no wire step down can help.
-bool isNoVisionFailure(AnalysisFailure failure) =>
+/// A 400 to a request with an image part that refuses the image itself, so
+/// no wire step down can help.
+bool isNoVisionFailure(AnalysisFailure failure, {required bool imageRequest}) =>
+    imageRequest &&
     failure.kind == AnalysisFailureKind.badRequest &&
     failure.statusCode == 400 &&
-    _namesVision(failure.detail.toLowerCase());
+    _refusesImage(failure.detail.toLowerCase());
 
 String scrubApiKey(String text, String? apiKey) {
   final cleaned = _replaceKey(text, apiKey).trim();

@@ -9,6 +9,7 @@ import 'package:open_ring/features/ai/domain/analysis_model.dart';
 import 'package:open_ring/features/ai/domain/base_url_policy.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_prompt.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_wire.dart';
+import 'package:open_ring/features/ai/domain/openai_wire_codec.dart';
 import 'package:open_ring/features/ai/infrastructure/http_analysis_model.dart';
 
 import '../../../helpers/ai_fakes.dart';
@@ -130,8 +131,41 @@ void main() {
 
     await expectLater(
       rec.send(_mealRequest()),
-      throwsA(isA<AnalysisFailure>().having(isNoVisionFailure, 'vision', true)),
+      throwsA(
+        isA<AnalysisFailure>().having(
+          (f) => isNoVisionFailure(f, imageRequest: true),
+          'vision',
+          true,
+        ),
+      ),
     );
     expect(rec.bodies, hasLength(1));
+  });
+
+  test('a text 400 echoing a vision model name steps down', () async {
+    final rec = _Recording(
+      (call) => call == 1
+          ? _json(400, {
+              'error': {
+                'message':
+                    'llama-3.2-11b-vision-instruct does not support '
+                    'response_format json_schema',
+              },
+            })
+          : _json(200, _answer),
+    );
+
+    await rec.send(
+      const AnalysisRequest(
+        systemPrompt: 'system',
+        userContent: AiTextContent('user'),
+        maxOutputTokens: 900,
+        jsonSchema: {'type': 'object'},
+      ),
+    );
+
+    expect(rec.bodies, hasLength(2));
+    final second = rec.bodies[1]['response_format']! as Map<String, Object?>;
+    expect(second['type'], 'json_object');
   });
 }

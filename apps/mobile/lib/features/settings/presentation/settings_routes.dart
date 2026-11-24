@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:open_ring/features/ai/presentation/ai_connection_screen.dart';
+import 'package:open_ring/features/ai/presentation/ai_context_preview_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_guide_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_key_info_screen.dart';
 import 'package:open_ring/features/body/presentation/body_module_screen.dart';
@@ -36,6 +37,10 @@ GoRoute settingsRoute() => GoRoute(
       routes: [
         GoRoute(path: 'key', builder: (_, _) => const AiKeyInfoScreen()),
         GoRoute(path: 'guide', builder: (_, _) => const AiGuideScreen()),
+        GoRoute(
+          path: 'preview',
+          builder: (_, _) => const AiContextPreviewScreen(),
+        ),
       ],
     ),
     GoRoute(

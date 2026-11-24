@@ -69,6 +69,7 @@ abstract final class AppPaths {
   static const settingsAiConnection = '/ring/settings/ai-connection';
   static const settingsAiKeyInfo = '/ring/settings/ai-connection/key';
   static const settingsAiGuide = '/ring/settings/ai-connection/guide';
+  static const settingsAiPreview = '/ring/settings/ai-connection/preview';
   static const settingsWidgets = '/ring/settings/widgets';
   static const settingsWidgetToday = '/ring/settings/widgets/today';
   static const settingsModules = '/ring/settings/modules';

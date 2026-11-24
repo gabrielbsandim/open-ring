@@ -104,8 +104,14 @@ final class MealQueueHarness {
   final AppDatabase db = memoryDatabase();
   late final DriftMealStore meals = DriftMealStore(db);
   late final GatedAnalysisStore analyses = GatedAnalysisStore(
-    DriftMealAnalysisStore(db),
+    DriftMealAnalysisStore(db, onWrite: () => onAnalysisWrite?.call()),
   );
+
+  /// Opt in, for a test that watches the analysis revision.
+  void Function()? onAnalysisWrite;
+
+  /// Appended after [overrides] in [container].
+  List<Override> extraOverrides = const [];
   final InMemoryPhotoStore photos = InMemoryPhotoStore();
   final InMemoryAiRunMarkerStore markers = InMemoryAiRunMarkerStore();
   final InMemorySecretStore secrets = InMemorySecretStore()
@@ -141,6 +147,7 @@ final class MealQueueHarness {
       overrides: [
         moduleStoreProvider.overrideWithValue(moduleStore),
         ...overrides,
+        ...extraOverrides,
       ],
     );
     addTearDown(c.dispose);
@@ -165,7 +172,7 @@ final class MealQueueHarness {
       return prepareWirePhoto(stored);
     }),
     keyedAnalysisModelFactoryProvider.overrideWithValue((config, key) {
-      expect(
+      expectSync(
         (config.trimmedModel, key),
         (photoModel, secrets.values[aiApiKeySecretName]),
       );
@@ -213,6 +220,9 @@ final class GatedAnalysisStore implements MealAnalysisStore {
   final MealAnalysisStore inner;
   Completer<void>? markGate;
 
+  /// Runs before each enqueue reaches the store.
+  Future<void> Function(int mealId)? onEnqueue;
+
   @override
   Future<bool> markSending(int id, {required DateTime now}) async {
     final moved = await inner.markSending(id, now: now);
@@ -227,10 +237,25 @@ final class GatedAnalysisStore implements MealAnalysisStore {
     MealAnalysisTarget target, {
     required DateTime now,
     bool again = false,
-  }) => inner.enqueue(mealId, photoName, target, now: now, again: again);
+  }) async {
+    await onEnqueue?.call(mealId);
+    return await inner.enqueue(
+      mealId,
+      photoName,
+      target,
+      now: now,
+      again: again,
+    );
+  }
+
+  /// Holds every byMeal read until completed.
+  Completer<void>? byMealGate;
 
   @override
-  Future<List<MealAnalysis>> byMeal(int mealId) => inner.byMeal(mealId);
+  Future<List<MealAnalysis>> byMeal(int mealId) async {
+    await byMealGate?.future;
+    return await inner.byMeal(mealId);
+  }
 
   @override
   Future<MealAnalysis?> byId(int id) => inner.byId(id);

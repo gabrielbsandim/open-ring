@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:open_ring/core/database/app_database_provider.dart';
+import 'package:open_ring/features/food/domain/meal_analysis.dart';
 import 'package:open_ring/features/food/domain/meal_analysis_store.dart';
 import 'package:open_ring/features/food/infrastructure/drift_meal_analysis_store.dart';
 
@@ -27,3 +28,17 @@ class MealAnalysisRevision extends Notifier<int> {
 
   void bump() => state++;
 }
+
+/// Every analysis row of a meal, the latest first.
+final FutureProviderFamily<List<MealAnalysis>, int> mealAnalysesProvider =
+    FutureProvider.family<List<MealAnalysis>, int>((ref, mealId) async {
+      ref.watch(mealAnalysisRevisionProvider);
+      final rows = await ref.watch(mealAnalysisStoreProvider).byMeal(mealId);
+      return [...rows]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    });
+
+final FutureProviderFamily<bool, int> mealKeepOnPhoneProvider =
+    FutureProvider.family<bool, int>((ref, mealId) {
+      ref.watch(mealAnalysisRevisionProvider);
+      return ref.watch(mealAnalysisStoreProvider).keepOnPhone(mealId);
+    });

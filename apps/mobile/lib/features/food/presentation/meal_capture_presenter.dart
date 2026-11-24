@@ -4,9 +4,14 @@ import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
+import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/application/meal_capture.dart';
 import 'package:open_ring/features/food/application/meal_photo_saver.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
+import 'package:open_ring/features/food/presentation/meal_analyze_flow.dart';
+import 'package:open_ring/features/food/presentation/meal_keep_switch.dart';
 import 'package:open_ring/features/food/presentation/meal_saved_sheet.dart';
 
 final Provider<MealCaptureHosts> mealCaptureHostsProvider =
@@ -44,6 +49,7 @@ Future<void> presentMealCapture({
   await switch ((result.outcome, result.meal)) {
     (SaveOutcome.saved, final Meal meal) => _saved(
       context,
+      ref,
       capture,
       meal,
       today,
@@ -62,6 +68,7 @@ Future<void> presentMealCapture({
 
 Future<void> _saved(
   BuildContext context,
+  WidgetRef ref,
   MealCapture capture,
   Meal meal,
   LocalDate today, {
@@ -69,7 +76,7 @@ Future<void> _saved(
   required bool recovered,
 }) async {
   final edit = ValueNotifier(MealEdit.of(meal));
-  await _sheet<void>(
+  final action = await _sheet<MealSavedAction>(
     context,
     MealSavedSheet(
       meal: meal,
@@ -77,14 +84,24 @@ Future<void> _saved(
       recovered: recovered,
       today: today,
       edit: edit,
+      ai: _photoAi(ref, meal) ? MealSavedAiSlot(mealId: meal.id) : null,
     ),
   );
   final next = edit.value;
   edit.dispose();
   final saved = await capture.finish(next);
-  if (saved || !context.mounted) return;
-  _snack(context, MetricFormat.of(context).l10n.foodTagsFailed);
+  if (!context.mounted) return;
+  final failed = MetricFormat.of(context).l10n.foodTagsFailed;
+  if (!saved) return _snack(context, failed);
+  if (action != MealSavedAction.analyze) return;
+  await analyzeMealPhotos(context, ref, [meal.id]);
 }
+
+bool _photoAi(WidgetRef ref, Meal meal) =>
+    meal.photo != null &&
+    ref.read(aiEnabledProvider) &&
+    ref.read(foodEnabledProvider) &&
+    !ref.read(demoModeProvider);
 
 Future<void> _noSpace(
   BuildContext context,

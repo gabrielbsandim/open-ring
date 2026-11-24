@@ -63,13 +63,17 @@ BuiltAiPayload _payload({bool food = false, bool goals = false}) {
   );
 }
 
-AiConfig _config(String url, {AiDetailLevel detail = AiDetailLevel.standard}) {
+AiConfig _config(
+  String url, {
+  AiDetailLevel detail = AiDetailLevel.standard,
+  String? keyLastFour = 'ab3X',
+}) {
   final host = AiConfig(baseUrl: url).hostKey;
   return AiConfig(
     baseUrl: url,
     model: 'gpt-test',
     detailLevel: detail,
-    keyLastFour: 'ab3X',
+    keyLastFour: keyLastFour,
     testedAtUtcMs: 1,
     testedHostKey: host,
     testedModel: 'gpt-test',
@@ -211,6 +215,20 @@ void main() {
       await openSheet(tester);
       expect(find.byKey(AiConsentKeys.unencrypted), findsOneWidget);
       expect(find.text(l10n.aiConsentWhere('192.168.1.10')), findsOneWidget);
+    });
+
+    testWidgets('with no key stored the Where line does not name a key', (
+      tester,
+    ) async {
+      store.config = _config(_lan, keyLastFour: null);
+      await pump(tester);
+      await openSheet(tester);
+
+      expect(
+        find.text(l10n.aiConsentWhereNoKey('192.168.1.10')),
+        findsOneWidget,
+      );
+      expect(find.text(l10n.aiConsentWhere('192.168.1.10')), findsNothing);
     });
   });
 

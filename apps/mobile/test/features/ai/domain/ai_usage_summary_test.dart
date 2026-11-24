@@ -58,11 +58,21 @@ void main() {
     final summary = aiUsageSummary([
       _report(cost: 0.02, currency: 'USD', source: AiCostSource.userPrice),
       _report(cost: 0.03, currency: 'USD', source: AiCostSource.userPrice),
-      _report(),
+      _report(status: AiReportStatus.failed),
     ], _now);
     expect(summary.cost?.cost, closeTo(0.05, 1e-12));
     expect(summary.cost?.currency, 'USD');
     expect(summary.cost?.source, AiCostSource.userPrice);
+  });
+
+  test('a reading without a cost hides the money total', () {
+    final summary = aiUsageSummary([
+      _report(cost: 0.02, currency: 'USD', source: AiCostSource.userPrice),
+      _report(),
+    ], _now);
+    expect(summary.readings, 2);
+    expect(summary.cost, isNull);
+    expect(summary.tokensIn, 200);
   });
 
   test('provider credits carry their host', () {

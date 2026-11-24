@@ -11,8 +11,8 @@ typedef AiUsageSummary = ({
   String costHost,
 });
 
-/// Money is summed only when every costed report shares one currency and
-/// source (and host, for credits), since unlike amounts do not add.
+/// Money is summed only when every reading has a cost and every costed report
+/// shares one currency and source (and host, for credits).
 AiUsageSummary aiUsageSummary(List<AiReport> reports, DateTime nowUtc) {
   final since = nowUtc.subtract(aiUsageWindow);
   final window = [
@@ -21,8 +21,7 @@ AiUsageSummary aiUsageSummary(List<AiReport> reports, DateTime nowUtc) {
   ];
   final costed = [
     for (final r in window)
-      if (r.cost case final cost? when r.costSource != AiCostSource.none)
-        (r, cost),
+      if (r.cost case final cost? when _costed(r)) (r, cost),
   ];
   final kinds = {
     for (final (r, _) in costed)
@@ -32,7 +31,10 @@ AiUsageSummary aiUsageSummary(List<AiReport> reports, DateTime nowUtc) {
         r.costSource == AiCostSource.provider ? _host(r) : '',
       ),
   };
-  final total = kinds.length == 1
+  final allCosted = window.every(
+    (r) => r.status != AiReportStatus.done || _costed(r),
+  );
+  final total = kinds.length == 1 && allCosted
       ? (
           cost: costed.fold<double>(0, (sum, c) => sum + c.$2),
           currency: kinds.first.$1,
@@ -49,3 +51,5 @@ AiUsageSummary aiUsageSummary(List<AiReport> reports, DateTime nowUtc) {
 }
 
 String _host(AiReport r) => Uri.tryParse(r.providerHost)?.host ?? '';
+
+bool _costed(AiReport r) => r.cost != null && r.costSource != AiCostSource.none;

@@ -66,6 +66,7 @@ abstract final class AppPaths {
   static const settingsWorkoutNotification =
       '/ring/settings/workout-notification';
   static const settingsFoodPhotos = '/ring/settings/food-photos';
+  static const settingsAiConnection = '/ring/settings/ai-connection';
   static const settingsWidgets = '/ring/settings/widgets';
   static const settingsWidgetToday = '/ring/settings/widgets/today';
   static const settingsModules = '/ring/settings/modules';

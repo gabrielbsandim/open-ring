@@ -8,6 +8,7 @@ import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/application/vision_probe_controller.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
+import 'package:open_ring/features/ai/domain/openai_wire_codec.dart';
 import 'package:open_ring/features/ai/domain/vision_probe.dart';
 import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/food/application/meal_analysis_trigger.dart';
@@ -208,5 +209,43 @@ void main() {
     }
     final fourth = await h.meal(photo: 'meal_3.jpg');
     expect(await h.queue.enqueue(fourth), EnqueueOutcome.dailyLimit);
+  });
+
+  test('after a passing probe, a no vision 400 from the queue turns the '
+      'vision state to text only', () async {
+    h.configStore.profiles.clear();
+    final c = ProviderContainer(
+      overrides: [
+        moduleStoreProvider.overrideWithValue(h.moduleStore),
+        ...h.overrides,
+        visionProbeRandomProvider.overrideWithValue(Random(11)),
+      ],
+    )..listen(aiPhotoVisionProvider, (_, _) {});
+    addTearDown(c.dispose);
+    final grid = VisionProbeGrid.random(Random(11));
+    final probeAnswer = jsonEncode({
+      for (final (i, cell) in grid.cells.indexed)
+        visionProbeCellNames[i]: cell.name,
+    });
+    h.respond = () {
+      if (h.requests.length == 1) return completed(probeAnswer);
+      throw OpenAiWireCodec.classifyHttpError(
+        statusCode: 400,
+        body: jsonEncode({
+          'error': {'message': 'Unsupported content type image_url'},
+        }),
+      );
+    };
+    await c.read(enabledModulesProvider.future);
+    c.listen(visionProbeControllerProvider, (_, _) {});
+    await c.read(visionProbeControllerProvider.notifier).run();
+    expect(await c.read(aiPhotoVisionProvider.future), AiVisionSupport.yes);
+
+    final mealId = await h.meal();
+    await h.queued(mealId);
+    await c.read(mealAnalysisQueueProvider.notifier).drain();
+
+    expect(h.requests, hasLength(2));
+    expect(await c.read(aiPhotoVisionProvider.future), AiVisionSupport.no);
   });
 }

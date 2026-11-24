@@ -10,6 +10,7 @@ import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/ai/application/health_context_providers.dart';
+import 'package:open_ring/features/ai/application/vision_probe_controller.dart';
 import 'package:open_ring/features/ai/application/vision_probe_runner.dart';
 import 'package:open_ring/features/ai/domain/ai_advanced_input.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
@@ -382,6 +383,8 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
         gate.model,
         profile.copyWith(vision: AiVisionSupport.no),
       );
+      // The next pass meets the stored pause and writes nothing, so no loop.
+      ref.invalidate(aiPhotoVisionProvider);
     }
     if (_dead) return;
     final pause = AiPhotoQueuePause(

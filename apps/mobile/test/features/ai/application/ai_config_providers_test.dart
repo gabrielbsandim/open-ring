@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -277,12 +279,20 @@ void main() {
       expect(await c.read(aiMealPhotoConsentProvider.future), isNull);
     });
 
-    test('a record queued behind a withdraw lands last', () async {
-      store.mealPhotoConsent = consent;
+    test('a record queued behind a slow withdraw still lands last', () async {
+      final clear = Completer<void>();
+      final write = Completer<void>();
+      store
+        ..mealPhotoConsent = consent
+        ..photoConsentClearGate = clear.future
+        ..photoConsentWriteGate = write.future;
       final controller = container().read(aiConfigProvider.notifier);
 
       final withdraw = controller.withdrawMealPhotoConsent();
       final record = controller.recordMealPhotoConsent(consent);
+      write.complete();
+      await pumpEventQueue();
+      clear.complete();
       await Future.wait([withdraw, record]);
 
       expect(store.mealPhotoConsent, consent);

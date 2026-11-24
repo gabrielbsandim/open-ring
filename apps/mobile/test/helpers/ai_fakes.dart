@@ -91,13 +91,20 @@ final class InMemoryAiConfigStore implements AiConfigStore {
   @override
   Future<AiMealPhotoConsent?> readMealPhotoConsent() async => mealPhotoConsent;
 
+  /// Awaited before the photo consent write or clear lands, so a test can
+  /// hold one and release another out of order.
+  Future<void>? photoConsentWriteGate;
+  Future<void>? photoConsentClearGate;
+
   @override
   Future<void> writeMealPhotoConsent(AiMealPhotoConsent consent) async {
+    await photoConsentWriteGate;
     mealPhotoConsent = consent;
   }
 
   @override
   Future<void> clearMealPhotoConsent() async {
+    await photoConsentClearGate;
     mealPhotoConsent = null;
   }
 

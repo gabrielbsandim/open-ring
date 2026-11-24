@@ -103,6 +103,18 @@ class AiConfigController extends AsyncNotifier<AiConfig> {
     ref.invalidate(aiConsentProvider);
   });
 
+  Future<void> recordMealPhotoConsent(AiMealPhotoConsent consent) =>
+      _serial(() async {
+        await ref.read(aiConfigStoreProvider).writeMealPhotoConsent(consent);
+        ref.invalidate(aiMealPhotoConsentProvider);
+      });
+
+  /// Deletes nothing else: queued rows are skipped on the next pass.
+  Future<void> withdrawMealPhotoConsent() => _serial(() async {
+    await ref.read(aiConfigStoreProvider).clearMealPhotoConsent();
+    ref.invalidate(aiMealPhotoConsentProvider);
+  });
+
   Future<void> _serial(Future<void> Function() action) {
     final run = _queue.then((_) => action());
     _queue = run.catchError((Object _) {});

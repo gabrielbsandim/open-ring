@@ -244,4 +244,48 @@ void main() {
       });
     }
   });
+
+  group('meal photo consent', () {
+    const consent = AiMealPhotoConsent(
+      consentedAtUtcMs: 5,
+      policyEffectiveDate: aiCurrentPolicyEffectiveDate,
+      hostKey: 'https://api.example.com:443',
+    );
+
+    test('record stores it and the provider rereads it', () async {
+      final c = container();
+      expect(await c.read(aiMealPhotoConsentProvider.future), isNull);
+
+      await c.read(aiConfigProvider.notifier).recordMealPhotoConsent(consent);
+
+      expect(store.mealPhotoConsent, consent);
+      expect(await c.read(aiMealPhotoConsentProvider.future), consent);
+    });
+
+    test('withdraw clears it, leaves the summary consent and the provider '
+        'rereads it', () async {
+      store
+        ..mealPhotoConsent = consent
+        ..consent = _consentFor(consent.hostKey);
+      final c = container();
+      expect(await c.read(aiMealPhotoConsentProvider.future), consent);
+
+      await c.read(aiConfigProvider.notifier).withdrawMealPhotoConsent();
+
+      expect(store.mealPhotoConsent, isNull);
+      expect(store.consent, isNotNull);
+      expect(await c.read(aiMealPhotoConsentProvider.future), isNull);
+    });
+
+    test('a record queued behind a withdraw lands last', () async {
+      store.mealPhotoConsent = consent;
+      final controller = container().read(aiConfigProvider.notifier);
+
+      final withdraw = controller.withdrawMealPhotoConsent();
+      final record = controller.recordMealPhotoConsent(consent);
+      await Future.wait([withdraw, record]);
+
+      expect(store.mealPhotoConsent, consent);
+    });
+  });
 }

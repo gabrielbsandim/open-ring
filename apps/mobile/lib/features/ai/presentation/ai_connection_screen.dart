@@ -11,6 +11,7 @@ import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_provider_preset.dart';
 import 'package:open_ring/features/ai/domain/base_url_policy.dart';
@@ -19,6 +20,7 @@ import 'package:open_ring/features/ai/presentation/ai_advanced_section.dart';
 import 'package:open_ring/features/ai/presentation/ai_models_sheet.dart';
 import 'package:open_ring/features/ai/presentation/ai_test_connection_sheet.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
+import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -49,6 +51,7 @@ abstract final class AiConnectionKeys {
   static const imported = Key('ai_connection_imported');
   static const demoLocked = Key('ai_connection_demo_locked');
   static const preview = Key('ai_connection_preview');
+  static const photos = Key('ai_connection_photos');
 
   static Key detail(AiDetailLevel level) =>
       Key('ai_connection_detail_${level.name}');
@@ -124,6 +127,7 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
   var _busy = false;
   var _demo = false;
   var _testing = false;
+  var _photos = false;
 
   bool get _locked => _busy || _demo;
 
@@ -154,6 +158,7 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
     final l10n = AppLocalizations.of(context);
     final config = ref.watch(aiConfigProvider);
     _demo = ref.watch(demoModeProvider);
+    _photos = ref.watch(aiEnabledProvider) && ref.watch(foodEnabledProvider);
     return AppPage(
       title: l10n.aiConnectionTitle,
       subtitle: l10n.aiConnectionLead,
@@ -263,6 +268,15 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
               chevron: true,
               onTap: () => unawaited(context.push(AppPaths.settingsAiPreview)),
             ),
+            if (_photos)
+              SettingsTile(
+                key: AiConnectionKeys.photos,
+                title: l10n.aiPhotosTitle,
+                detail: l10n.aiPhotosTile,
+                leading: const Icon(Icons.photo_camera_outlined),
+                chevron: true,
+                onTap: () => unawaited(context.push(AppPaths.settingsAiPhotos)),
+              ),
           ],
         ),
       ],

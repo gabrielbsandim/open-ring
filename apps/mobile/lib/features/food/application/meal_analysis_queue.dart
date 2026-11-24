@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
@@ -92,37 +92,58 @@ MealAnalysisTarget _targetOf(_Ready gate) => (
 /// Sends queued meal photos one at a time while the app is in the
 /// foreground. A pass in the background starts no new request.
 class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
-  bool _dead = false;
+  // Disposal bumps the epoch; a pass or enqueue of an older epoch is dead.
+  int _epoch = 0;
+  int _runEpoch = -1;
+  bool _alive = false;
   bool _background = false;
   bool _running = false;
   bool _again = false;
   Completer<void> _cancel = Completer<void>();
   Future<void> _lock = Future.value();
+  Future<void> _drained = Future.value();
   late DateTime Function() _clock;
 
-  /// Settles when the pass in flight, if any, has finished or aborted.
-  Future<void> idle = Future.value();
+  /// Settles, never with an error, once the pass and the enqueue or cancel
+  /// in flight have finished or aborted.
+  Future<void> get idle => Future.wait([_drained, _lock]);
 
   @override
   MealAnalysisQueueState build() {
     _clock = ref.read(clockProvider);
+    _alive = true;
     ref.onDispose(() {
-      _dead = true;
+      _epoch++;
+      _alive = false;
       _abort();
     });
     return (sendingId: null, capReached: false);
   }
 
+  bool get _dead => _runEpoch != _epoch;
+
   bool get _awake => !_dead && !_background;
 
-  /// Calls run one at a time, so the daily check and its count are atomic.
-  Future<EnqueueOutcome> enqueue(int mealId, {bool again = false}) {
-    final run = _lock.then((_) => _enqueue(mealId, again: again));
+  void toBackground() => _background = true;
+
+  void toForeground() => _background = false;
+
+  // Enqueues and cancels run one at a time, so a daily check and its count
+  // never interleave with another counter write.
+  Future<T> _serial<T>(Future<T> Function() body) {
+    final run = _lock.then((_) => body());
     _lock = run.then<void>((_) {}, onError: (Object _) {});
     return run;
   }
 
-  Future<EnqueueOutcome> _enqueue(int mealId, {required bool again}) async {
+  Future<EnqueueOutcome> enqueue(int mealId, {bool again = false}) =>
+      _serial(() => _enqueue(mealId, _epoch, again: again));
+
+  Future<EnqueueOutcome> _enqueue(
+    int mealId,
+    int epoch, {
+    required bool again,
+  }) async {
     final gate = await _gate();
     if (gate is! _Ready) {
       return gate is EnqueueOutcome ? gate : EnqueueOutcome.unavailable;
@@ -134,12 +155,7 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     if (await analyses.keepOnPhone(mealId)) return EnqueueOutcome.keptOnPhone;
     final target = _targetOf(gate);
     final current = (await analyses.byMeal(mealId))
-        .where(
-          (r) =>
-              r.target.providerHost == target.providerHost &&
-              r.target.model == target.model &&
-              r.target.promptVersion == target.promptVersion,
-        )
+        .where((r) => _sameKey(r.target, target))
         .firstOrNull;
     final writes = _writesQueue(current, photo, target, again: again);
     final day = aiPhotoDayKey(_clock());
@@ -147,6 +163,7 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     if (writes && used >= gate.config.photoDailyLimit) {
       return EnqueueOutcome.dailyLimit;
     }
+    if (epoch != _epoch) return EnqueueOutcome.unavailable;
     final row = await analyses.enqueue(
       mealId,
       photo,
@@ -155,56 +172,48 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
       again: again,
     );
     if (row.status.isAnswer) return EnqueueOutcome.cached;
-    if (writes) await markers.addPhotoUses(day, 1);
-    unawaited(drain().catchError((Object _) {}));
+    if (writes && epoch == _epoch) await markers.addPhotoUses(day, 1);
+    unawaited(drain());
     return EnqueueOutcome.queued;
   }
 
   /// A queued row is skipped and gives its use back. The row being sent is
   /// aborted and kept as failed, since the provider may still bill it.
-  Future<void> cancel(int id) async {
-    if (state.sendingId == id) {
-      _abort();
-      return;
-    }
+  Future<void> cancel(int id) => _serial(() async {
+    if (state.sendingId == id) return _abort();
     final analyses = ref.read(mealAnalysisStoreProvider);
     final row = await analyses.byId(id);
-    if (row == null) return;
     final now = _clock();
-    final skipped = await analyses.skip(
-      id,
-      MealAnalysisErrorKind.cancelled,
-      now: now,
-    );
+    const cancelled = MealAnalysisErrorKind.cancelled;
+    final skipped = await analyses.skip(id, cancelled, now: now);
     if (!skipped && state.sendingId == id) _abort();
-    if (!skipped) return;
-    final day = aiPhotoDayKey(row.queuedAt.toLocal());
-    if (day != aiPhotoDayKey(now)) return;
+    final day = aiPhotoDayKey(row?.queuedAt.toLocal() ?? now);
+    if (!skipped || row == null || day != aiPhotoDayKey(now)) return;
     await ref.read(aiRunMarkerStoreProvider).addPhotoUses(day, -1);
-  }
-
-  void toBackground() => _background = true;
-
-  void toForeground() => _background = false;
+  });
 
   /// A call during a pass asks for one more pass instead of running beside
   /// it, so two requests are never in flight.
   Future<void> drain() {
     if (_running) {
       _again = true;
-      return idle;
+      return _drained;
     }
+    if (!_alive) return _drained;
     _running = true;
-    _dead = false;
-    return idle = _loop();
+    _runEpoch = _epoch;
+    return _drained = _loop();
   }
 
+  // Any failure, such as a read after disposal, only ends the pass.
   Future<void> _loop() async {
     try {
       do {
         _again = false;
         await _pass();
       } while (_again && _awake);
+    } on Object catch (error) {
+      debugPrint('Meal analysis pass failed: $error');
     } finally {
       _running = false;
     }
@@ -417,8 +426,8 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     };
   }
 
-  // Mirrors the store: a row already queued or sending, or an answer it
-  // hands back, writes no new queue entry and uses nothing of the day.
+  // Mirrors the store: it writes, and so moves queued_at, unless the row is
+  // sending or the same photo and target is queued or cached.
   static bool _writesQueue(
     MealAnalysis? row,
     String photo,
@@ -426,14 +435,16 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     required bool again,
   }) {
     if (row == null) return true;
+    final same = row.photoName == photo && row.target == target;
     final status = row.status;
-    if (status == MealAnalysisStatus.queued) return false;
-    if (status == MealAnalysisStatus.sending) return false;
-    return again ||
-        !status.isAnswer ||
-        row.photoName != photo ||
-        row.target != target;
+    final reuse =
+        status == MealAnalysisStatus.queued || status.isAnswer && !again;
+    return status != MealAnalysisStatus.sending && !(same && reuse);
   }
+
+  static bool _sameKey(MealAnalysisTarget a, MealAnalysisTarget b) =>
+      (a.providerHost, a.model, a.promptVersion) ==
+      (b.providerHost, b.model, b.promptVersion);
 
   Future<bool> _capReached(AiConfig config) async {
     final cap = config.monthlyTokenCap;

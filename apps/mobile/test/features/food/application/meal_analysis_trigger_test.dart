@@ -56,6 +56,27 @@ void main() {
     expect(h.requests, hasLength(1));
   });
 
+  test('a launch while paused sends nothing until resume', () async {
+    lifecycle([
+      AppLifecycleState.inactive,
+      AppLifecycleState.hidden,
+      AppLifecycleState.paused,
+    ]);
+    final mealId = await h.meal();
+    await h.queued(mealId);
+
+    await listen();
+    expect(h.requests, isEmpty);
+
+    lifecycle([
+      AppLifecycleState.hidden,
+      AppLifecycleState.inactive,
+      AppLifecycleState.resumed,
+    ]);
+    await pumpEventQueue();
+    expect(h.requests, hasLength(1));
+  });
+
   test('a config change runs a pass', () async {
     await listen();
     final mealId = await h.meal();

@@ -131,6 +131,7 @@ final class MealQueueHarness {
   FutureOr<AnalysisEvent> Function() respond = completed;
   Duration Function()? elapsed;
   Completer<void>? encodeGate;
+  SecretStore? failingSecrets;
 
   late final ProviderContainer container = _container();
 
@@ -151,7 +152,7 @@ final class MealQueueHarness {
       InMemoryDemoModeStore(enabled: demo),
     ),
     aiConfigStoreProvider.overrideWithValue(configStore),
-    secretStoreProvider.overrideWithValue(secrets),
+    secretStoreProvider.overrideWithValue(failingSecrets ?? secrets),
     aiRunMarkerStoreProvider.overrideWithValue(markers),
     aiReplyLanguageProvider.overrideWithValue('en'),
     clockProvider.overrideWithValue(() => now),

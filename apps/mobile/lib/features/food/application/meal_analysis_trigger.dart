@@ -14,13 +14,12 @@ final mealAnalysisTriggerProvider = Provider<void>((ref) {
   MealAnalysisQueue queue() => ref.read(mealAnalysisQueueProvider.notifier);
   void pass() {
     if (!ref.mounted) return;
-    unawaited(
-      queue().drain().catchError((Object error) {
-        debugPrint('Meal analysis pass failed: $error');
-      }),
-    );
+    unawaited(queue().drain());
   }
 
+  // A launch while hidden sends no lifecycle event until the next change.
+  final now = WidgetsBinding.instance.lifecycleState;
+  if (now != null && now != AppLifecycleState.resumed) queue().toBackground();
   ref
     ..listen(mealAnalysisQueueProvider, (_, _) {})
     ..listen(aiConfigProvider, (_, _) => pass())

@@ -304,6 +304,52 @@ void main() {
     expect(await rowCount(h.db, 'meal_analyses'), 0);
   });
 
+  test('a photo pass that throws leaves Delete all data working, '
+      'twice', () async {
+    final h = MealQueueHarness()
+      ..failingSecrets = FailingSecretStore(failRead: true);
+    await h.queued(await h.meal());
+    final c = container(FakeLocalDataEraser(), [
+      ...h.overrides,
+      aiEnabledProvider.overrideWithValue(true),
+      foodEnabledProvider.overrideWithValue(true),
+    ]);
+    await c.read(mealAnalysisQueueProvider.notifier).drain();
+
+    expect(await c.read(deleteAllDataProvider.notifier).delete(), isTrue);
+    expect(await c.read(deleteAllDataProvider.notifier).delete(), isTrue);
+    expect(h.requests, isEmpty);
+  });
+
+  test('an enqueue in flight writes no use and no row after the '
+      'wipe', () async {
+    final h = MealQueueHarness();
+    final mealId = await h.meal();
+    final c = container(
+      FakeLocalDataEraser(onErase: () => h.analyses.deleteAll()),
+      [
+        ...h.overrides,
+        aiEnabledProvider.overrideWithValue(true),
+        foodEnabledProvider.overrideWithValue(true),
+      ],
+    );
+    final queue = c.read(mealAnalysisQueueProvider.notifier)..toBackground();
+    final gate = h.markers.photoGate = Completer<void>();
+    final enqueued = queue.enqueue(mealId);
+    while (h.markers.photoGate != null) {
+      await pumpEventQueue(times: 1);
+    }
+
+    final deleting = c.read(deleteAllDataProvider.notifier).delete();
+    await pumpEventQueue();
+    gate.complete();
+
+    expect(await deleting, isTrue);
+    expect(await enqueued, EnqueueOutcome.unavailable);
+    expect(h.markers.photoDays, isEmpty);
+    expect(await rowCount(h.db, 'meal_analyses'), 0);
+  });
+
   test('a failed erase reports failure and keeps the settings', () async {
     final c = container(FakeLocalDataEraser(fail: true));
 

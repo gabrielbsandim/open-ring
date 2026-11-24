@@ -52,7 +52,9 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
     ref
       ..invalidate(analysisRunControllerProvider)
       ..invalidate(mealAnalysisQueueProvider);
-    await Future.wait(runs).timeout(aiRunAbortWait, onTimeout: () => []);
+    await Future.wait(runs)
+        .timeout(aiRunAbortWait, onTimeout: () => [])
+        .catchError((Object _) => <void>[]);
     try {
       await ref.read(localDataEraserProvider).eraseAll();
       await _resetInMemoryState();

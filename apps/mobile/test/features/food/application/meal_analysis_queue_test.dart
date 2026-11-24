@@ -153,6 +153,60 @@ void main() {
       expect(await rowCount(h.db, 'meal_analyses'), 1);
     });
 
+    test('a cancel overlapping an enqueue loses no counter update', () async {
+      await h.start();
+      h.queue.toBackground();
+      final a = await h.meal();
+      await h.queue.enqueue(a);
+      final b = await h.meal(photo: 'meal_2.jpg');
+
+      final gate = h.markers.addGate = Completer<void>();
+      final enqueued = h.queue.enqueue(b);
+      while (h.markers.addGate != null) {
+        await pumpEventQueue(times: 1);
+      }
+      final cancelled = h.queue.cancel((await h.row(a)).id);
+      await pumpEventQueue();
+      gate.complete();
+      await Future.wait([enqueued, cancelled]);
+
+      expect(await h.markers.photoUses(today()), 1);
+    });
+
+    test('a photo change after midnight counts a new use on the new day, so '
+        'its cancel gives back only that use', () async {
+      await h.start();
+      h.queue.toBackground();
+      h.now = DateTime(2026, 11, 24, 23, 50);
+      final mealId = await h.meal();
+      expect(await h.queue.enqueue(mealId), EnqueueOutcome.queued);
+      h.now = DateTime(2026, 11, 25, 0, 10);
+      await h.queue.enqueue(await h.meal(photo: 'meal_other.jpg'));
+      await h.photos.save('meal_new.jpg', leakyPhoto());
+      await h.meals.attachPhoto(mealId, 'meal_new.jpg');
+
+      expect(await h.queue.enqueue(mealId), EnqueueOutcome.queued);
+      expect(await h.markers.photoUses(aiPhotoDayKey(h.now)), 2);
+      await h.queue.cancel((await h.row(mealId)).id);
+
+      expect(await h.markers.photoUses(aiPhotoDayKey(h.now)), 1);
+      final before = DateTime(2026, 11, 24, 23, 50);
+      expect(await h.markers.photoUses(aiPhotoDayKey(before)), 1);
+    });
+
+    test('a photo change at the daily limit returns dailyLimit', () async {
+      h.configStore.config = testedConfig.copyWith(photoDailyLimit: 1);
+      await h.start();
+      h.queue.toBackground();
+      final mealId = await h.meal();
+      expect(await h.queue.enqueue(mealId), EnqueueOutcome.queued);
+      await h.photos.save('meal_new.jpg', leakyPhoto());
+      await h.meals.attachPhoto(mealId, 'meal_new.jpg');
+
+      expect(await h.queue.enqueue(mealId), EnqueueOutcome.dailyLimit);
+      expect((await h.row(mealId)).photoName, 'meal_1.jpg');
+    });
+
     test('a cached answer comes back without using the day', () async {
       await h.start();
       final mealId = await h.meal();

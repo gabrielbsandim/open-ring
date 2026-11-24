@@ -5,6 +5,7 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/openai_wire_codec.dart';
@@ -411,6 +412,7 @@ void main() {
         'daily use', () {
       timed((async, settle) {
         late int mealId;
+        late DateTime queuedAt;
         replies([http(500), completed()]);
         settle(() async {
           await h.start();
@@ -418,6 +420,7 @@ void main() {
           expect(await h.queue.enqueue(mealId), EnqueueOutcome.queued);
           await h.queue.idle;
           expect((await h.row(mealId)).status, MealAnalysisStatus.failed);
+          queuedAt = (await h.row(mealId)).queuedAt;
         }());
 
         settle(() async {
@@ -430,6 +433,8 @@ void main() {
         settle(() async {
           final row = await h.row(mealId);
           expect((row.status, row.errorKind), (MealAnalysisStatus.done, null));
+          expect(row.attempts, 2);
+          expect(row.queuedAt, queuedAt);
           expect(await h.markers.photoUses(aiPhotoDayKey(h.now)), 1);
         }());
       });
@@ -449,6 +454,135 @@ void main() {
       expect((await h.row(mealId)).status, MealAnalysisStatus.done);
       expect(await h.queue.retry(id), isFalse);
     });
+  });
+
+  group('review round 1', () {
+    test('malformed then unreachable fails the row and a later drain sends '
+        'nothing', () async {
+      replies([
+        completed('not json'),
+        const AnalysisFailure(kind: AnalysisFailureKind.unreachable),
+      ]);
+      final mealId = await h.meal();
+      await h.queued(mealId);
+      await h.start();
+
+      await h.queue.drain();
+      await h.queue.drain();
+
+      expect(h.requests, hasLength(2));
+      final row = await h.row(mealId);
+      expect(
+        (row.status, row.errorKind, row.attempts),
+        (MealAnalysisStatus.failed, 'unreachable', 2),
+      );
+    });
+
+    test('a 401 on the resend pauses and fails the row', () async {
+      replies([completed('not json'), http(401)]);
+      final mealId = await h.meal();
+      await h.queued(mealId);
+      await h.start();
+
+      await h.queue.drain();
+
+      expect(h.requests, hasLength(2));
+      expect(pause()?.reason, AiPhotoQueuePauseReason.unauthorized);
+      expect((await h.row(mealId)).status, MealAnalysisStatus.failed);
+    });
+
+    test('at a limit of 1, enqueue, 5xx, retry, cancel, enqueue gives '
+        'dailyLimit', () async {
+      h.configStore.config = testedConfig.copyWith(photoDailyLimit: 1);
+      replies([http(500)]);
+      await h.start();
+      final mealId = await h.meal();
+      expect(await h.queue.enqueue(mealId), EnqueueOutcome.queued);
+      await h.queue.idle;
+      final id = (await h.row(mealId)).id;
+
+      expect(await h.queue.retry(id), isTrue);
+      await h.queue.cancel(id);
+
+      expect((await h.row(mealId)).status, MealAnalysisStatus.skipped);
+      expect(
+        await h.queue.enqueue(await h.meal(photo: 'meal_2.jpg')),
+        EnqueueOutcome.dailyLimit,
+      );
+      expect(h.requests, hasLength(1));
+    });
+
+    test('tokens past the monthly cap during the hold send nothing more', () {
+      timed((async, settle) {
+        h.configStore.config = testedConfig.copyWith(monthlyTokenCap: 1000);
+        replies([http(500), completed()]);
+        late int second;
+        settle(() async {
+          await h.queued(await h.meal());
+          second = await h.meal(photo: 'meal_2.jpg');
+          await h.queued(second, at: h.now.add(const Duration(seconds: 1)));
+          await h.start();
+        }());
+
+        final pass = h.queue.drain();
+        async.elapse(const Duration(seconds: 30));
+        expect(h.requests, hasLength(1));
+        settle(h.markers.addMonthTokens(aiMonthKey(h.now), 5000));
+        settle(pass);
+
+        expect(h.requests, hasLength(1));
+        settle(() async {
+          final row = await h.row(second);
+          expect((row.status, row.attempts), (MealAnalysisStatus.queued, 0));
+        }());
+      });
+    });
+
+    test('resume leaves a noVision pause and sends nothing', () async {
+      replies([http(400, message: 'Unsupported content type image_url')]);
+      final mealId = await h.meal();
+      await h.queued(mealId);
+      await h.start();
+      await h.queue.drain();
+
+      await h.queue.resume();
+
+      expect(h.requests, hasLength(1));
+      expect(
+        h.configStore.photoQueuePause?.reason,
+        AiPhotoQueuePauseReason.noVision,
+      );
+      expect((await h.row(mealId)).status, MealAnalysisStatus.queued);
+    });
+
+    test(
+      'a pause stores the key last four and holds across a restart',
+      () async {
+        h.configStore.config = testedConfig.copyWith(keyLastFour: '1234');
+        replies([http(401)]);
+        final mealId = await h.meal();
+        await h.queued(mealId);
+        await h.start();
+        await h.queue.drain();
+        expect(h.configStore.photoQueuePause?.keyLastFour, '1234');
+
+        final restarted = ProviderContainer(
+          overrides: [
+            moduleStoreProvider.overrideWithValue(h.moduleStore),
+            ...h.overrides,
+          ],
+        );
+        addTearDown(restarted.dispose);
+        await restarted.read(enabledModulesProvider.future);
+        await restarted.read(mealAnalysisQueueProvider.notifier).drain();
+
+        expect(h.requests, hasLength(1));
+        expect(
+          restarted.read(mealAnalysisQueueProvider).pause?.keyLastFour,
+          '1234',
+        );
+      },
+    );
   });
 }
 

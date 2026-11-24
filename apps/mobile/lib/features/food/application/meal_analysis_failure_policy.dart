@@ -4,6 +4,7 @@ import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 
 /// Requests one tap may cost a photo: the first and one automatic resend.
+/// A row that started its resend is never requeued, so only a tap adds more.
 const int aiPhotoMaxRequests = 2;
 
 /// The wait before the next queued item after a run of 5xx or timeouts.

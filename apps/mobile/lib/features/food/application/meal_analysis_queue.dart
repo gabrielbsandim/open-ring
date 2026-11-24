@@ -112,6 +112,7 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
   // In memory on purpose: a restart starts the backoff over.
   int _failures = 0;
   DateTime? _holdUntil;
+  bool _resent = false;
 
   /// Settles, never with an error, once the pass and the enqueue or cancel
   /// in flight have finished or aborted.
@@ -186,8 +187,9 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     return EnqueueOutcome.queued;
   }
 
-  /// A queued row is skipped and gives its use back. The row being sent is
-  /// aborted and kept as failed, since the provider may still bill it.
+  /// A queued row that was never sent is skipped and gives its use back; a
+  /// retried one keeps it. The row being sent is aborted and kept as failed,
+  /// since the provider may still bill it.
   Future<void> cancel(int id) => _serial(() async {
     if (state.sendingId == id) return _abort();
     final analyses = ref.read(mealAnalysisStoreProvider);
@@ -197,24 +199,29 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     final skipped = await analyses.skip(id, cancelled, now: now);
     if (!skipped && state.sendingId == id) _abort();
     final day = aiPhotoDayKey(row?.queuedAt.toLocal() ?? now);
-    if (!skipped || row == null || day != aiPhotoDayKey(now)) return;
+    if (!skipped || row == null || row.attempts > 0) return;
+    if (day != aiPhotoDayKey(now)) return;
     await ref.read(aiRunMarkerStoreProvider).addPhotoUses(day, -1);
   });
 
-  /// Lifts the pause, whatever its reason, and sends what is queued.
+  /// Lifts a key, credit or access pause and sends what is queued. A noVision
+  /// pause stays: only a passing vision probe lifts it.
   Future<void> resume() async {
-    await ref.read(aiConfigStoreProvider).clearPhotoQueuePause();
+    final store = ref.read(aiConfigStoreProvider);
+    final pause = await store.readPhotoQueuePause();
+    if (pause?.reason == AiPhotoQueuePauseReason.noVision) return;
+    await store.clearPhotoQueuePause();
     _setPause(null);
     await drain();
   }
 
   /// A failed or rejected row goes back to queued without a new daily use.
-  Future<bool> retry(int id) async {
+  Future<bool> retry(int id) => _serial(() async {
     final analyses = ref.read(mealAnalysisStoreProvider);
     if (!await analyses.retry(id, now: _clock())) return false;
     unawaited(drain());
     return true;
-  }
+  });
 
   /// A call during a pass asks for one more pass instead of running beside
   /// it, so two requests are never in flight.
@@ -307,6 +314,7 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     Uint8List stored,
   ) async {
     _cancel = Completer<void>();
+    _resent = false;
     _set(sendingId: row.id);
     try {
       if (!await analyses.markSending(row.id, now: _clock())) {
@@ -332,8 +340,8 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     }
   }
 
-  /// Unreachable, the pause reasons and a cancel touch no backoff; 5xx and
-  /// timeouts hold the next item back.
+  /// Unreachable and the pause reasons requeue a row that used no resend; once
+  /// a resend started the row fails, so only a tap sends it again.
   Future<_Step> _failed(
     MealAnalysisStore analyses,
     MealAnalysis row,
@@ -348,7 +356,8 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
         ? null
         : aiPhotoPauseReason(failure);
     if (reason != null) await _pause(reason, gate, now);
-    if (reason != null || kind == AnalysisFailureKind.unreachable) {
+    final halts = reason != null || kind == AnalysisFailureKind.unreachable;
+    if (halts && !_resent) {
       await analyses.requeue(row.id, now: now);
       return _Step.stop;
     }
@@ -356,7 +365,7 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
       _holdUntil = now.add(aiPhotoBackoffAfter(++_failures));
     }
     await analyses.fail(row.id, kind.name, now: now);
-    return _Step.sent;
+    return halts ? _Step.stop : _Step.sent;
   }
 
   Future<void> _pause(
@@ -421,6 +430,7 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     if (fresh is! _Ready || _targetOf(fresh) != _targetOf(gate)) return null;
     if (fresh.config.keyLastFour != gate.config.keyLastFour) return null;
     if (!_awake || await _skipReason(analyses, row) != null) return null;
+    if (await _capReached(fresh.config)) return null;
     return fresh;
   }
 
@@ -432,7 +442,7 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
   ) async {
     if (_cancel.isCompleted) return false;
     if (await _stillGoes(analyses, row, gate) == null) return false;
-    return await analyses.countResend(row.id, now: _clock());
+    return _resent = await analyses.countResend(row.id, now: _clock());
   }
 
   Future<void> _request(

@@ -2798,5 +2798,17 @@
   "aiSampleSummary": "サンプルです。モデルは呼び出されていません。",
   "aiSampleCardTitle": "サンプルカード",
   "aiSampleCardInsight": "このカードには、あなたのモデルによる気づきが表示される場所を示しています。",
-  "aiSampleCardAction": "データを分析するには、設定で自分のモデルを追加してください。"
+  "aiSampleCardAction": "データを分析するには、設定で自分のモデルを追加してください。",
+  "goalsRewordOptional": "任意",
+  "goalsRewordTitle": "AIで言い換える",
+  "goalsRewordInfo": "モデルがこの判断をやさしい言葉で言い直します。数値、目標、ルールは変えません。",
+  "goalsRewordSends": "{host}に送るもの：上の判断とその数値だけ。ほかのデータは送りません。",
+  "goalsRewordSending": "{host}からの言い換えを待っています。上のルールの文はそのままです。",
+  "goalsRewordBy": "{model}による言い換え",
+  "goalsRewordSeeRule": "ルールを見る",
+  "goalsRewordHideRule": "ルールを隠す",
+  "goalsRewordRecord": "上のルールの文が正式な記録です。言い換えは同じ判断の別の読み方で、プランは何も変わりません。",
+  "goalsRewordDropped": "言い換えを破棄しました",
+  "goalsRewordDroppedNumber": "{model}の言い換えにルールにない数値が含まれていたため、上のルールの文だけを残します。",
+  "goalsRewordDroppedOther": "{model}の言い換えがアプリのチェックを通らなかったため、上のルールの文だけを残します。"
 }

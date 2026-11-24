@@ -12,6 +12,11 @@ import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
 import 'package:open_ring/features/activity/application/step_goal_history_providers.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
+import 'package:open_ring/features/ai/application/health_context_providers.dart';
+import 'package:open_ring/features/ai/domain/goal_reword.dart';
+import 'package:open_ring/features/ai/domain/health_context_models.dart';
+import 'package:open_ring/features/ai/presentation/goal_reword_card.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/goals/application/goal_providers.dart';
@@ -116,6 +121,8 @@ class _GoalReviewScreenState extends ConsumerState<GoalReviewScreen> {
           const SizedBox(height: cardGap),
         ],
         _decision(context, format, view, answerable: _answerable(state, week)),
+        if (_rewordPayload(format, view) case final payload?)
+          GoalRewordCard(payload: payload),
         const SizedBox(height: 16),
         CaptionText(l10n.goalsReviewFoot),
       ],
@@ -127,6 +134,28 @@ class _GoalReviewScreenState extends ConsumerState<GoalReviewScreen> {
   bool _answerable(GoalWeekView state, GoalWeek week) {
     if (ref.read(demoModeProvider) || state is! GoalWeekRunning) return false;
     return state.review?.monday == week.monday;
+  }
+
+  BuiltAiPayload? _rewordPayload(MetricFormat format, GoalReviewView view) {
+    if (!ref.watch(aiEnabledProvider)) return null;
+    final week = view.week;
+    final change = week.change;
+    final levers = week.inputs.levers;
+    final (head, line) = _words(format, week, view.review);
+    final pause = week.action == ReviewAction.pause;
+    return buildGoalRewordPayload(
+      replyLanguage: aiLanguageTag(Localizations.localeOf(context)),
+      rule: week.rule.number,
+      head: head,
+      line: line,
+      change: change,
+      changeText: change == null
+          ? null
+          : '${leverName(format.l10n, change.kind)}: ${_fromTo(format, change)}',
+      fit: levers.isEmpty ? null : levers.where(leverFits).length,
+      levers: levers.isEmpty ? null : levers.length,
+      pauseDays: pause ? view.review.pauseDays : null,
+    );
   }
 
   bool _takesCheckIn(GoalWeekView state, GoalWeek week, {required bool demo}) {

@@ -20,6 +20,7 @@ final _spaceThous = RegExp(
   r'^[1-9]\d{0,2}(?:[\u00a0\u202f]\d{3})+(?:[.,]\d+)?$',
 );
 final _spaceChar = RegExp(r'[\u00a0\u202f]');
+final _asciiThous = RegExp(r'(?<=\d) (?=\d{3}(?!\d))');
 final _dotThousComma = RegExp(r'^[1-9]\d{0,2}(?:\.\d{3})+,\d+$');
 final _commaThousDot = RegExp(r'^[1-9]\d{0,2}(?:,\d{3})+\.\d+$');
 
@@ -56,11 +57,13 @@ abstract final class AiReportValidator {
     required String replyLanguage,
     int windowDays = 14,
     int windowWeeks = 0,
+    bool exactNumbers = false,
   }) => _Validator(
     ruleFacts,
     replyLanguage,
     windowDays,
     windowWeeks,
+    exact: exactNumbers,
   ).reword(card);
 
   static List<AiUnverifiedSpan> findUnverifiedSpans(
@@ -74,14 +77,23 @@ abstract final class AiReportValidator {
 }
 
 final class _Validator {
-  new(this.facts, this.replyLanguage, this.windowDays, this.windowWeeks)
-    : commaDec = AiSafetyLexicon.usesCommaDecimal(replyLanguage);
+  new(
+    this.facts,
+    this.replyLanguage,
+    this.windowDays,
+    this.windowWeeks, {
+    this.exact = false,
+  }) : commaDec = AiSafetyLexicon.usesCommaDecimal(replyLanguage);
 
   final List<HealthFact> facts;
   final String replyLanguage;
   final bool commaDec;
   final int windowDays;
   final int windowWeeks;
+
+  /// Any fact, cited or not, by equal value only: no rounding, derived or
+  /// period allowance; an ASCII space may group thousands.
+  final bool exact;
 
   static bool _near(double a, double b) => (a - b).abs() <= 1e-9;
 
@@ -185,7 +197,7 @@ final class _Validator {
     }
 
     final drop =
-        _checkTextNumbers([title, insight], cited) ??
+        _checkTextNumbers([title, insight], exact ? facts : cited) ??
         _checkActionNumbers(action) ??
         _checkSafety([title, insight, action]);
     if (drop != null) return (null, drop);
@@ -263,7 +275,9 @@ final class _Validator {
     return AiConfidence.low;
   }
 
-  Iterable<_NumTok> _scanNumbers(String text) sync* {
+  Iterable<_NumTok> _scanNumbers(String raw) sync* {
+    // Same length swap, so spans still index the original text.
+    final text = exact ? raw.replaceAll(_asciiThous, '\u00a0') : raw;
     for (final m in _numOrClock.allMatches(text)) {
       final raw = m.group(1);
       if (raw == null) continue;
@@ -322,6 +336,7 @@ final class _Validator {
   bool _isNumberVerified(_NumTok n, List<HealthFact> pool) {
     final x = n.val;
     if (x == null || !x.isFinite) return false;
+    if (exact) return pool.any((f) => _near(x, f.value));
     for (final f in pool) {
       if (_matchesFact(x, f.value)) return true;
     }

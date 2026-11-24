@@ -2798,5 +2798,17 @@
   "aiSampleSummary": "Exemple. Aucun modèle n’a été appelé.",
   "aiSampleCardTitle": "Carte d’exemple",
   "aiSampleCardInsight": "Cette carte montre où apparaît une observation de votre modèle.",
-  "aiSampleCardAction": "Ajoutez votre propre modèle dans les Réglages pour analyser vos données."
+  "aiSampleCardAction": "Ajoutez votre propre modèle dans les Réglages pour analyser vos données.",
+  "goalsRewordOptional": "Facultatif",
+  "goalsRewordTitle": "Reformuler avec l’IA",
+  "goalsRewordInfo": "Le modèle redit cette décision avec des mots simples. Il ne change aucun nombre, aucun objectif ni la règle.",
+  "goalsRewordSends": "Envoyé à {host} : la décision ci-dessus et ses nombres. Rien d’autre de vos données.",
+  "goalsRewordSending": "En attente de la reformulation de {host}. Le texte de la règle ci-dessus reste tel quel.",
+  "goalsRewordBy": "Reformulé par {model}",
+  "goalsRewordSeeRule": "Voir la règle",
+  "goalsRewordHideRule": "Masquer la règle",
+  "goalsRewordRecord": "Le texte de la règle ci-dessus fait foi. La reformulation est une autre façon de lire la même décision et ne change rien au plan.",
+  "goalsRewordDropped": "Reformulation écartée",
+  "goalsRewordDroppedNumber": "La reformulation de {model} contenait un nombre absent de la règle, donc seul le texte de la règle ci-dessus reste.",
+  "goalsRewordDroppedOther": "La reformulation de {model} n’a pas passé les vérifications de l’app, donc seul le texte de la règle ci-dessus reste."
 }

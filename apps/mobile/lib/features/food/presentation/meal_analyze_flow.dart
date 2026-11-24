@@ -45,10 +45,12 @@ Future<void> analyzeMealPhotos(
       outcome == EnqueueOutcome.visionUntested) {
     final granted = await showMealPhotoConsentSheet(
       context,
-      config: config,
-      mealId: first,
-      consent: outcome == EnqueueOutcome.noPhotoConsent,
-      probe: vision == AiVisionSupport.unknown,
+      MealPhotoConsentSheet(
+        config: config,
+        mealId: first,
+        consent: outcome == EnqueueOutcome.noPhotoConsent,
+        probe: vision == AiVisionSupport.unknown,
+      ),
     );
     if (!granted || !context.mounted) return;
     outcome = await queue.enqueue(first);
@@ -78,12 +80,7 @@ void _report(BuildContext context, AiConfig config, EnqueueOutcome outcome) {
         label: l10n.aiGuideOpen,
         path: AppPaths.settingsAiConnection,
       ));
-    case EnqueueOutcome.cached ||
-        EnqueueOutcome.keptOnPhone ||
-        EnqueueOutcome.noPhoto ||
-        EnqueueOutcome.demo ||
-        EnqueueOutcome.noPhotoConsent ||
-        EnqueueOutcome.visionUntested:
+    case _:
       break;
   }
 }

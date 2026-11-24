@@ -25,6 +25,13 @@ class _Held extends MealCapture {
   CaptureState build() => CaptureState(result: result);
 }
 
+class _FailingSave extends _Held {
+  new(super.result);
+
+  @override
+  Future<bool> finish([MealEdit? edit]) async => false;
+}
+
 class _Present extends ConsumerWidget {
   const new(this.token, this.result);
 
@@ -57,14 +64,22 @@ void main() {
 
   Future<Meal> photoMeal() async => (await h.meals.byId(await h.meal()))!;
 
-  Future<void> present(WidgetTester tester, Meal meal) async {
+  Future<void> present(
+    WidgetTester tester,
+    Meal meal, {
+    bool saves = true,
+  }) async {
     tester.view
       ..devicePixelRatio = 1
       ..physicalSize = const Size(800, 2400);
     addTearDown(tester.view.reset);
     final result = SaveResult(SaveOutcome.saved, TimeSource.returned, meal);
     final token = Object();
-    h.extraOverrides = [mealCaptureProvider.overrideWith(() => _Held(result))];
+    h.extraOverrides = [
+      mealCaptureProvider.overrideWith(
+        () => saves ? _Held(result) : _FailingSave(result),
+      ),
+    ];
     h.container.read(mealCaptureHostsProvider).attach(token);
     await h.start();
     await tester.pumpWidget(
@@ -123,6 +138,22 @@ void main() {
     expect(find.text(l10n.foodAiQueued), findsOneWidget);
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
+  });
+
+  testWidgets('a failed tag save shows its line and does not analyze', (
+    tester,
+  ) async {
+    final meal = await photoMeal();
+    var enqueued = 0;
+    h.analyses.onEnqueue = (_) async => enqueued++;
+    await present(tester, meal, saves: false);
+    await tester.tap(find.byKey(MealAiKeys.analyze));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.foodTagsFailed), findsOneWidget);
+    expect(enqueued, 0);
+    expect(await h.analyses.byMeal(meal.id), isEmpty);
+    expect(h.requests, isEmpty);
   });
 
   testWidgets('Done saves the tags and enqueues nothing', (tester) async {

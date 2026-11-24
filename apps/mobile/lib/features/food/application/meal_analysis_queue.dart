@@ -79,6 +79,13 @@ final mealAnalysisQueueProvider =
 
 enum _Closed { badUrl }
 
+/// A keep or a lost photo met at send time skips the row, not the pass.
+final class _Skip implements Exception {
+  const new(this.reason);
+
+  final String reason;
+}
+
 enum _Step { stop, next, sent }
 
 typedef _Ready = ({
@@ -199,11 +206,27 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     const cancelled = MealAnalysisErrorKind.cancelled;
     final skipped = await analyses.skip(id, cancelled, now: now);
     if (!skipped && state.sendingId == id) _abort();
-    final day = aiPhotoDayKey(row?.queuedAt.toLocal() ?? now);
-    if (!skipped || row == null || row.attempts > 0) return;
-    if (day != aiPhotoDayKey(now)) return;
-    await ref.read(aiRunMarkerStoreProvider).addPhotoUses(day, -1);
+    if (!skipped || row == null) return;
+    await _giveBack(row, now);
   });
+
+  // Only a row never sent and queued today holds a use to give back.
+  Future<void> _giveBack(MealAnalysis row, DateTime now) async {
+    final day = aiPhotoDayKey(row.queuedAt.toLocal());
+    if (row.attempts > 0 || day != aiPhotoDayKey(now)) return;
+    await ref.read(aiRunMarkerStoreProvider).addPhotoUses(day, -1);
+  }
+
+  Future<void> _skip(
+    MealAnalysisStore analyses,
+    MealAnalysis row,
+    String reason,
+  ) async {
+    final now = _clock();
+    final skipped = await analyses.skip(row.id, reason, now: now);
+    if (!skipped || reason != MealAnalysisErrorKind.keptOnPhone) return;
+    await _giveBack(row, now);
+  }
 
   /// Lifts a key, credit or access pause and sends what is queued. A noVision
   /// pause stays: only a passing vision probe lifts it.
@@ -285,7 +308,7 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
         await _skipReason(analyses, row) ??
         (stored == null ? MealAnalysisErrorKind.photoMissing : null);
     if (reason != null) {
-      await analyses.skip(row.id, reason, now: now);
+      await _skip(analyses, row, reason);
       return _Step.next;
     }
     if (gate is! _Ready || stored == null) return _Step.stop;
@@ -325,6 +348,11 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
       _failures = 0;
       _holdUntil = null;
       return _Step.sent;
+    } on _Skip catch (skip) {
+      if (_dead) return _Step.stop;
+      await analyses.requeue(row.id, now: _clock());
+      await _skip(analyses, row, skip.reason);
+      return _Step.next;
     } on AnalysisFailure catch (failure) {
       if (_dead) return _Step.stop;
       return await _failed(analyses, row, gate, failure);
@@ -457,6 +485,8 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     final markers = ref.read(aiRunMarkerStoreProvider);
     final language = ref.read(aiReplyLanguageProvider);
     final wire = await ref.read(wirePhotoEncoderProvider)(stored);
+    final skip = await _skipReason(analyses, row);
+    if (skip != null) throw _Skip(skip);
     final fresh = await _stillGoes(analyses, row, gate);
     if (fresh == null) throw _notNow;
     final config = fresh.config;

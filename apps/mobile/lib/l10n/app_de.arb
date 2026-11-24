@@ -2848,5 +2848,6 @@
   "foodAiKeepHint": "Wird nie gesendet, auch nicht in einem Stapel.",
   "foodAiQueued": "In der Warteschlange. Es wird gesendet, solange die App geöffnet und online ist.",
   "foodAiLimit": "{count, plural, one{Tageslimit erreicht: {count} Foto. Das Limit findest du in den KI-Einstellungen, und es wird morgen zurückgesetzt.} other{Tageslimit erreicht: {count} Fotos. Das Limit findest du in den KI-Einstellungen, und es wird morgen zurückgesetzt.}}",
-  "foodAiUnavailable": "Richte zuerst die KI-Verbindung ein: Adresse, Schlüssel, Modell und ein bestandener Test."
+  "foodAiUnavailable": "Richte zuerst die KI-Verbindung ein: Adresse, Schlüssel, Modell und ein bestandener Test.",
+  "aiConsentWhereNoKey": "Wohin: an {host}. Nicht an OpenRing."
 }

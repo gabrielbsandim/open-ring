@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/ai/application/vision_probe_controller.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
+import 'package:open_ring/features/ai/domain/meal_photo_wire.dart';
 import 'package:open_ring/features/ai/domain/vision_probe.dart';
 import 'package:open_ring/features/food/presentation/meal_photo_consent_sheet.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -77,6 +79,7 @@ void main() {
     AiConfig config = testedConfig,
     bool consent = true,
     bool probe = true,
+    Uint8List? source,
   }) async {
     tester.view
       ..devicePixelRatio = 1
@@ -84,7 +87,10 @@ void main() {
     addTearDown(tester.view.reset);
     await h.start();
     mealId = await h.meal(save: false);
-    await h.photos.save('meal_1.jpg', leakyPhoto(width: 768, height: 576));
+    await h.photos.save(
+      'meal_1.jpg',
+      source ?? leakyPhoto(width: 768, height: 576),
+    );
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: h.container,
@@ -92,10 +98,12 @@ void main() {
           _Open(
             (context) async => granted = await showMealPhotoConsentSheet(
               context,
-              config: config,
-              mealId: mealId,
-              consent: consent,
-              probe: probe,
+              MealPhotoConsentSheet(
+                config: config,
+                mealId: mealId,
+                consent: consent,
+                probe: probe,
+              ),
             ),
           ),
         ),
@@ -115,19 +123,26 @@ void main() {
   testWidgets('the consent step starts unticked and shows the wire size', (
     tester,
   ) async {
-    await open(tester);
+    await open(tester, source: leakyPhoto());
 
     expect(find.text(l10n.foodAiConsentFirst), findsOneWidget);
-    expect(find.text(l10n.aiConsentWhere('api.example.com')), findsOneWidget);
+    expect(
+      find.text(l10n.aiConsentWhereNoKey('api.example.com')),
+      findsOneWidget,
+    );
     final tick = tester.widget<CheckboxListTile>(
       find.byKey(MealPhotoConsentKeys.tick),
     );
     expect(tick.value, isFalse);
     final proceed = find.byKey(MealPhotoConsentKeys.proceed);
     expect(tester.widget<FilledButton>(proceed).onPressed, isNull);
+    final source = leakyPhoto();
+    final wire = prepareWirePhoto(source);
+    expect((wire.width, wire.bytes.length), isNot((1024, source.length)));
+    final kb = (wire.bytes.length / 1024).ceil();
     final how = find.descendant(
       of: find.byKey(MealPhotoConsentKeys.how),
-      matching: find.textContaining('How it goes: 768 × 576 px, '),
+      matching: find.text(l10n.foodAiConsentHow(wire.width, wire.height, kb)),
     );
     expect(how, findsOneWidget);
     expect(find.byKey(MealPhotoConsentKeys.unencrypted), findsNothing);
@@ -157,6 +172,16 @@ void main() {
 
     expect(find.byKey(MealPhotoConsentKeys.unencrypted), findsOneWidget);
     expect(find.text(l10n.foodAiConsentUnencrypted), findsOneWidget);
+  });
+
+  testWidgets('a stored key is named in the Where line', (tester) async {
+    await open(tester, config: testedConfig.copyWith(keyLastFour: '1234'));
+
+    expect(find.text(l10n.aiConsentWhere('api.example.com')), findsOneWidget);
+    expect(
+      find.text(l10n.aiConsentWhereNoKey('api.example.com')),
+      findsNothing,
+    );
   });
 
   testWidgets('without a probe, Continue stores the consent and grants', (

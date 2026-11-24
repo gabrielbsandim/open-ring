@@ -2848,5 +2848,6 @@
   "foodAiKeepHint": "Nunca é enviada, nem em lote.",
   "foodAiQueued": "Na fila. Sai quando o app estiver aberto e com internet.",
   "foodAiLimit": "{count, plural, one{Limite diário atingido: {count} foto. O limite fica nos ajustes de IA e volta a zero amanhã.} other{Limite diário atingido: {count} fotos. O limite fica nos ajustes de IA e volta a zero amanhã.}}",
-  "foodAiUnavailable": "Termine a conexão de IA primeiro: endereço, chave, modelo e um teste aprovado."
+  "foodAiUnavailable": "Termine a conexão de IA primeiro: endereço, chave, modelo e um teste aprovado.",
+  "aiConsentWhereNoKey": "Para onde: {host}. Não para o OpenRing."
 }

@@ -5,6 +5,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:open_ring/app/router/app_routes.dart';
+import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/features/ai/application/vision_probe_controller.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
@@ -82,6 +85,42 @@ void main() {
         child: screenHost(_Analyze(() => ids)),
       ),
     );
+  }
+
+  Future<void> pumpRouted(WidgetTester tester) async {
+    tester.view
+      ..devicePixelRatio = 1
+      ..physicalSize = const Size(800, 2400);
+    addTearDown(tester.view.reset);
+    await h.start();
+    ids = [await h.meal()];
+    Widget page(String text) => Scaffold(body: Text(text));
+    final router = GoRouter(
+      routes: [
+        GoRoute(path: '/', builder: (_, _) => _Analyze(() => ids)),
+        GoRoute(
+          path: AppPaths.settingsAiConnection,
+          builder: (_, _) => page('connection page'),
+        ),
+        GoRoute(
+          path: AppPaths.settingsAiPhotos,
+          builder: (_, _) => page('photos page'),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: h.container,
+        child: MaterialApp.router(
+          theme: AppTheme.light(),
+          routerConfig: router,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
   }
 
   Future<void> analyze(WidgetTester tester) async {
@@ -235,5 +274,49 @@ void main() {
 
     expect(sentKinds(), ['probe', 'photo', 'photo']);
     expect(await h.analyses.byMeal(ids.last), isEmpty);
+  });
+
+  group('the links go to their screens', () {
+    testWidgets('Open the connection from the unavailable line', (
+      tester,
+    ) async {
+      h.configStore.config = testedConfig.copyWith(clearTested: true);
+      await pumpRouted(tester);
+      await analyze(tester);
+      await tester.tap(find.text(l10n.aiGuideOpen));
+      await tester.pumpAndSettle();
+
+      expect(find.text('connection page'), findsOneWidget);
+    });
+
+    testWidgets('Open the photo settings from the text only line', (
+      tester,
+    ) async {
+      h.configStore.profiles[aiCapabilityProfileKey(hostKey, photoModel)] =
+          const AiCapabilityProfile(vision: AiVisionSupport.no);
+      await pumpRouted(tester);
+      await analyze(tester);
+      await tester.tap(find.text(l10n.foodAiOpenPhotos));
+      await tester.pumpAndSettle();
+
+      expect(find.text('photos page'), findsOneWidget);
+    });
+
+    testWidgets('Open the photo settings from the sheet after a failed probe', (
+      tester,
+    ) async {
+      h.configStore.profiles.clear();
+      h.respond = () => _says(
+        jsonEncode({for (final name in visionProbeCellNames) name: 'black'}),
+      );
+      await pumpRouted(tester);
+      await analyze(tester);
+      await tester.tap(find.byKey(MealPhotoConsentKeys.photos));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(MealPhotoConsentKeys.sheet), findsNothing);
+      expect(find.text('photos page'), findsOneWidget);
+      expect(await h.analyses.byMeal(ids.single), isEmpty);
+    });
   });
 }

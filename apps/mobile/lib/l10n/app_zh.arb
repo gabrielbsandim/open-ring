@@ -2848,5 +2848,6 @@
   "foodAiKeepHint": "永远不会发送，批量发送时也不会。",
   "foodAiQueued": "已排队。应用打开且联网时发送。",
   "foodAiLimit": "{count, plural, other{已达到每日上限：{count} 张照片。上限可在 AI 设置中调整，明天重置。}}",
-  "foodAiUnavailable": "请先完成 AI 连接：地址、密钥、模型以及通过的测试。"
+  "foodAiUnavailable": "请先完成 AI 连接：地址、密钥、模型以及通过的测试。",
+  "aiConsentWhereNoKey": "发送到：{host}。不会发送给 OpenRing。"
 }

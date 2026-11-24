@@ -2848,5 +2848,6 @@
   "foodAiKeepHint": "Mai inviata, nemmeno in un gruppo.",
   "foodAiQueued": "In coda. Parte mentre l’app è aperta e online.",
   "foodAiLimit": "{count, plural, one{Limite giornaliero raggiunto: {count} foto. Il limite è nelle impostazioni IA e si azzera domani.} other{Limite giornaliero raggiunto: {count} foto. Il limite è nelle impostazioni IA e si azzera domani.}}",
-  "foodAiUnavailable": "Completa prima la connessione IA: indirizzo, chiave, modello e un test superato."
+  "foodAiUnavailable": "Completa prima la connessione IA: indirizzo, chiave, modello e un test superato.",
+  "aiConsentWhereNoKey": "Dove: a {host}. Non a OpenRing."
 }

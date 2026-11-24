@@ -172,7 +172,7 @@ final class MealQueueHarness {
       return prepareWirePhoto(stored);
     }),
     keyedAnalysisModelFactoryProvider.overrideWithValue((config, key) {
-      expect(
+      expectSync(
         (config.trimmedModel, key),
         (photoModel, secrets.values[aiApiKeySecretName]),
       );
@@ -248,8 +248,14 @@ final class GatedAnalysisStore implements MealAnalysisStore {
     );
   }
 
+  /// Holds every byMeal read until completed.
+  Completer<void>? byMealGate;
+
   @override
-  Future<List<MealAnalysis>> byMeal(int mealId) => inner.byMeal(mealId);
+  Future<List<MealAnalysis>> byMeal(int mealId) async {
+    await byMealGate?.future;
+    return await inner.byMeal(mealId);
+  }
 
   @override
   Future<MealAnalysis?> byId(int id) => inner.byId(id);

@@ -5370,5 +5370,7 @@
   "foodAiQueued": "Queued. It goes while the app is open and online.",
   "foodAiLimit": "{count, plural, one{Daily limit reached: 1 photo. The limit is in the AI settings, and it resets tomorrow.} other{Daily limit reached: {count} photos. The limit is in the AI settings, and it resets tomorrow.}}",
   "@foodAiLimit": {"placeholders": {"count": {"type": "int"}}},
-  "foodAiUnavailable": "Finish the AI connection first: address, key, model and a passing test."
+  "foodAiUnavailable": "Finish the AI connection first: address, key, model and a passing test.",
+  "aiConsentWhereNoKey": "Where: {host}. Not to OpenRing.",
+  "@aiConsentWhereNoKey": {"placeholders": {"host": {"type": "String"}}}
 }

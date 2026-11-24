@@ -610,10 +610,42 @@ void main() {
       await expectRequeued(mealId, pass);
     });
 
-    test('keep on phone during the encode requeues the row unsent', () async {
+    test('keep on phone during the encode skips the row, gives its use back '
+        'and the pass goes on', () async {
+      final day = aiPhotoDayKey(h.now);
       final (mealId, pass) = await encoding();
+      final other = await h.meal(photo: 'meal_other.jpg');
+      await h.queued(other, at: h.now.add(const Duration(seconds: 1)));
+      await h.markers.addPhotoUses(day, 2);
       await h.analyses.setKeepOnPhone(mealId, keep: true);
-      await expectRequeued(mealId, pass);
+      h.encodeGate!.complete();
+      await pass;
+
+      final kept = await h.row(mealId);
+      expect(
+        (kept.status, kept.errorKind, kept.attempts),
+        (MealAnalysisStatus.skipped, MealAnalysisErrorKind.keptOnPhone, 0),
+      );
+      expect(await h.markers.photoUses(day), 1);
+      expect(h.requests, hasLength(1));
+      expect((await h.row(other)).status, MealAnalysisStatus.done);
+    });
+
+    test('a keep met at pass time gives the use back', () async {
+      final day = aiPhotoDayKey(h.now);
+      final mealId = await h.meal();
+      await h.queued(mealId);
+      await h.markers.addPhotoUses(day, 1);
+      await h.analyses.setKeepOnPhone(mealId, keep: true);
+      await h.start();
+      await h.queue.drain();
+
+      expect(
+        (await h.row(mealId)).errorKind,
+        MealAnalysisErrorKind.keptOnPhone,
+      );
+      expect(await h.markers.photoUses(day), 0);
+      expect(h.requests, isEmpty);
     });
 
     test('Food off: enqueue is unavailable and a pass sends nothing', () async {

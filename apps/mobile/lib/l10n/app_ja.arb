@@ -2848,5 +2848,6 @@
   "foodAiKeepHint": "送信されません。まとめて送るときも送りません。",
   "foodAiQueued": "送信待ちです。アプリが開いていてオンラインのときに送ります。",
   "foodAiLimit": "{count, plural, other{1日の上限に達しました：{count}枚。上限は AI 設定で変えられ、明日リセットされます。}}",
-  "foodAiUnavailable": "先に AI 接続を完了してください：アドレス、キー、モデル、テストの合格。"
+  "foodAiUnavailable": "先に AI 接続を完了してください：アドレス、キー、モデル、テストの合格。",
+  "aiConsentWhereNoKey": "送信先: {host}。OpenRingには送られません。"
 }

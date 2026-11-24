@@ -29,6 +29,13 @@ String aiCategoryLabel(AppLocalizations l10n, AiDataCategory category) =>
       AiDataCategory.imported => l10n.aiImportedTitle,
     };
 
+/// Names the key only when one is stored; local servers often take none.
+String aiConsentWhereLine(AppLocalizations l10n, AiConfig config) {
+  final host = config.normalizedUrl?.asciiHost ?? '';
+  if (config.keyLastFour == null) return l10n.aiConsentWhereNoKey(host);
+  return l10n.aiConsentWhere(host);
+}
+
 /// True once a consent covering [payload] at the config's host is stored.
 Future<bool> showAiConsentSheet(
   BuildContext context, {
@@ -102,7 +109,7 @@ class _AiConsentSheetState extends ConsumerState<AiConsentSheet> {
             ],
             const SizedBox(height: 12),
             _line(l10n.aiConsentWhat),
-            _line(l10n.aiConsentWhere(host)),
+            _line(aiConsentWhereLine(l10n, widget.config)),
             _line(l10n.aiConsentAfter(host)),
             _line(l10n.aiConsentModel),
             if (url?.isCleartext ?? false)

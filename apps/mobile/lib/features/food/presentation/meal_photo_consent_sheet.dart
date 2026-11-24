@@ -13,6 +13,7 @@ import 'package:open_ring/features/ai/application/vision_probe_runner.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_wire.dart';
+import 'package:open_ring/features/ai/presentation/ai_consent_sheet.dart';
 import 'package:open_ring/features/ai/presentation/ai_failure_message.dart';
 import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
@@ -31,29 +32,20 @@ abstract final class MealPhotoConsentKeys {
   static const photos = Key('meal_photo_consent_photos');
 }
 
-/// True once photos may go: consent stored when [consent] asks for it, and
-/// the photo model read the probe when [probe] asks for that.
+/// True once photos may go: consent stored when the sheet asks for it, and
+/// the photo model read the probe when it asks for that.
 Future<bool> showMealPhotoConsentSheet(
-  BuildContext context, {
-  required AiConfig config,
-  required int mealId,
-  required bool consent,
-  required bool probe,
-}) async {
-  final granted = await showModalBottomSheet<bool>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
-    backgroundColor: AppColors.of(context).surface,
-    builder: (_) => MealPhotoConsentSheet(
-      config: config,
-      mealId: mealId,
-      consent: consent,
-      probe: probe,
-    ),
-  );
-  return granted ?? false;
-}
+  BuildContext context,
+  MealPhotoConsentSheet sheet,
+) async =>
+    await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: AppColors.of(context).surface,
+      builder: (_) => sheet,
+    ) ??
+    false;
 
 class MealPhotoConsentSheet extends ConsumerStatefulWidget {
   const new({
@@ -143,7 +135,7 @@ class _MealPhotoConsentSheetState extends ConsumerState<MealPhotoConsentSheet> {
       const SizedBox(height: 6),
       _line(l10n.foodAiConsentWhat),
       _line(l10n.foodAiConsentShows),
-      _line(l10n.aiConsentWhere(_host)),
+      _line(aiConsentWhereLine(l10n, widget.config)),
       _line(l10n.foodAiConsentAfter(_host)),
       _line(l10n.foodAiConsentRough),
       if (cleartext)

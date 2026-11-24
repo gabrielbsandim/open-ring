@@ -129,6 +129,31 @@ void main() {
     expect(await h.markers.photoUses(day), 0);
   });
 
+  testWidgets('a pass that wins the race against the keep still gives the use '
+      'back and sends the other meal', (tester) async {
+    await open(tester);
+    final day = aiPhotoDayKey(h.now);
+    await h.markers.addPhotoUses(day, 1);
+    final kept = await h.queued(mealId);
+    final other = await h.meal(photo: 'meal_other.jpg');
+    await h.queued(other, at: h.now.add(const Duration(seconds: 1)));
+    await h.markers.addPhotoUses(day, 2);
+    final hold = h.analyses.byMealGate = Completer<void>();
+    await tester.tap(find.byKey(MealAiKeys.keep));
+    await tester.pump();
+    unawaited(h.queue.drain());
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 2));
+    hold.complete();
+    await tester.pumpAndSettle();
+
+    final row = (await h.analyses.byId(kept))!;
+    expect(row.errorKind, MealAnalysisErrorKind.keptOnPhone);
+    expect(await h.markers.photoUses(day), 2);
+    expect(h.requests, hasLength(1));
+    expect((await h.row(other)).status, MealAnalysisStatus.done);
+  });
+
   testWidgets('the switch is off while the photo is being sent', (
     tester,
   ) async {

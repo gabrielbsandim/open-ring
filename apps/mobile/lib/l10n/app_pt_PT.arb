@@ -2717,7 +2717,7 @@
   "aiConsentTitle": "{kind, select, added{O resumo tem dados novos. Enviar para {host}?} other{Enviar o teu resumo de saúde para {host}?}}",
   "aiConsentAdded": "Desde o teu último consentimento, o resumo passou a incluir:",
   "aiConsentWhat": "O quê: o resumo que acabaste de ver. Sem GPS, sem amostras em bruto, sem identificadores do telemóvel.",
-  "aiConsentWhere": "Para onde: {host}, com a tua chave. Não para a OpenRing.",
+  "aiConsentWhere": "Para onde: {host}, com a sua chave. Não para a OpenRing.",
   "aiConsentAfter": "Depois: {host} pode guardar o resumo e usá-lo conforme os seus próprios termos. A OpenRing não o consegue apagar lá.",
   "aiConsentModel": "A resposta é escrita por um modelo. Pode estar errada e não é aconselhamento médico.",
   "aiConsentUnencrypted": "Esta ligação não é encriptada. Outros dispositivos nesta rede podem ler o resumo.",
@@ -2840,5 +2840,6 @@
   "foodAiKeepHint": "Nunca é enviada, nem num lote.",
   "foodAiQueued": "Na fila. Sai enquanto a app estiver aberta e com ligação.",
   "foodAiLimit": "{count, plural, one{Limite diário atingido: {count} fotografia. O limite está nas definições de IA e repõe amanhã.} other{Limite diário atingido: {count} fotografias. O limite está nas definições de IA e repõe amanhã.}}",
-  "foodAiUnavailable": "Conclua primeiro a ligação de IA: endereço, chave, modelo e um teste aprovado."
+  "foodAiUnavailable": "Conclua primeiro a ligação de IA: endereço, chave, modelo e um teste aprovado.",
+  "aiConsentWhereNoKey": "Para onde: {host}. Não para a OpenRing."
 }

@@ -319,7 +319,10 @@ final class _HeldModel implements AnalysisModel {
   Future<List<String>> listModels() => throw UnimplementedError();
 
   @override
-  Future<ConnectionProbe> probe() => throw UnimplementedError();
+  Future<ConnectionProbe> probe({
+    Future<void>? cancel,
+    void Function()? onReached,
+  }) => throw UnimplementedError();
 }
 
 final class _GatedReports implements AiReportStore {

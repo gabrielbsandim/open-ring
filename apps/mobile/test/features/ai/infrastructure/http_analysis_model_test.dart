@@ -528,6 +528,37 @@ void main() {
       },
     );
 
+    test('onReached fires after the model list and before chat', () async {
+      var callsAtReach = -1;
+      final h = _Harness((call) async {
+        if (call.request.method == 'GET') return _json(404, 'not found');
+        return _sse(_okStream);
+      });
+
+      await h.model.probe(onReached: () => callsAtReach = h.calls.length);
+
+      expect(callsAtReach, 1);
+    });
+
+    test('cancel aborts the model list and the chat request', () async {
+      for (final method in ['GET', 'POST']) {
+        final cancel = Completer<void>();
+        final h = _Harness((call) async {
+          if (call.request.method != method) return _json(404, 'not found');
+          return Completer<http.StreamedResponse>().future;
+        });
+
+        final pending = _failureOf(h.model.probe(cancel: cancel.future));
+        await Future<void>.delayed(Duration.zero);
+        cancel.complete();
+        final failure = await pending;
+
+        expect(failure.kind, AnalysisFailureKind.cancelled, reason: method);
+        expect(h.closes, greaterThan(0), reason: method);
+        expect(h.store.profiles, isEmpty, reason: method);
+      }
+    });
+
     test('401 on the model list stops before chat', () async {
       final h = _Harness((_) async => _json(401, _error('bad key')));
 

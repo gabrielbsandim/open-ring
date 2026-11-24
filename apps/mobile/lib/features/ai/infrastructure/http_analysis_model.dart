@@ -113,8 +113,10 @@ final class HttpAnalysisModel implements AnalysisModel {
   }
 
   @override
-  Future<List<String>> listModels() async {
-    final run = await _open(_modelsTimeout);
+  Future<List<String>> listModels() => _listModels();
+
+  Future<List<String>> _listModels({Future<void>? cancel}) async {
+    final run = await _open(_modelsTimeout, cancel: cancel);
     try {
       final response = await _send(run, 'GET', baseUrl.modelsUri);
       if (!_isSuccess(response)) throw await _readFailure(run, response);
@@ -125,10 +127,14 @@ final class HttpAnalysisModel implements AnalysisModel {
   }
 
   @override
-  Future<ConnectionProbe> probe() async {
-    final models = await _probeModels();
+  Future<ConnectionProbe> probe({
+    Future<void>? cancel,
+    void Function()? onReached,
+  }) async {
+    final models = await _probeModels(cancel);
+    onReached?.call();
     final stopwatch = Stopwatch()..start();
-    final run = await _open(_probeTimeout);
+    final run = await _open(_probeTimeout, cancel: cancel);
     try {
       final (response, profile) = await _sendChat(run, probeRequest);
       final last = await _decode(run, response).last;
@@ -147,9 +153,9 @@ final class HttpAnalysisModel implements AnalysisModel {
     }
   }
 
-  Future<List<String>?> _probeModels() async {
+  Future<List<String>?> _probeModels(Future<void>? cancel) async {
     try {
-      return await listModels();
+      return await _listModels(cancel: cancel);
     } on AnalysisFailure catch (failure) {
       if (failure.statusCode == 404 || failure.statusCode == 405) return null;
       rethrow;

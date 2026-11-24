@@ -40,5 +40,8 @@ final class SampleAnalysisModel implements AnalysisModel {
   Future<List<String>> listModels() async => const [];
 
   @override
-  Future<ConnectionProbe> probe() => throw UnsupportedError('demo');
+  Future<ConnectionProbe> probe({
+    Future<void>? cancel,
+    void Function()? onReached,
+  }) => throw UnsupportedError('demo');
 }

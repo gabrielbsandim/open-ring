@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +9,7 @@ import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_provider_preset.dart';
+import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/ai/presentation/ai_connection_screen.dart';
@@ -45,7 +48,11 @@ void main() {
     await secrets.write(aiApiKeySecretName, 'sk-or-secret-ab3X');
   }
 
-  Future<void> pump(WidgetTester tester, {bool demo = false}) async {
+  Future<void> pump(
+    WidgetTester tester, {
+    bool demo = false,
+    AiConfigStore? configStore,
+  }) async {
     tester.view
       ..devicePixelRatio = 1
       ..physicalSize = const Size(800, 3000);
@@ -67,7 +74,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          aiConfigStoreProvider.overrideWithValue(store),
+          aiConfigStoreProvider.overrideWithValue(configStore ?? store),
           secretStoreProvider.overrideWithValue(secrets),
           demoModeStoreProvider.overrideWithValue(
             InMemoryDemoModeStore(enabled: demo),
@@ -152,6 +159,80 @@ void main() {
     });
   });
 
+  group('queued writes', () {
+    late _GatedStore gated;
+
+    setUp(() => gated = _GatedStore(store));
+
+    testWidgets('two settings in a row both land', (tester) async {
+      await withTestedTarget();
+      await pump(tester, configStore: gated);
+      gated.gate = Completer<void>();
+
+      await tester.tap(find.byKey(AiConnectionKeys.detail(AiDetailLevel.full)));
+      await tester.pump();
+      await tester.tap(find.byKey(AiConnectionKeys.imported));
+      await tester.pump();
+      gated.gate!.complete();
+      await tester.pumpAndSettle();
+
+      expect(store.config.detailLevel, AiDetailLevel.full);
+      expect(store.config.importedIncluded, isTrue);
+    });
+
+    testWidgets('Save keeps a setting still being written', (tester) async {
+      await withTestedTarget();
+      await pump(tester, configStore: gated);
+      gated.gate = Completer<void>();
+
+      await tester.tap(find.byKey(AiConnectionKeys.detail(AiDetailLevel.full)));
+      await tester.pump();
+      await tester.enterText(find.byKey(AiConnectionKeys.model), 'other/model');
+      await tester.pump();
+      await tester.tap(find.byKey(AiConnectionKeys.save));
+      await tester.pump();
+      gated.gate!.complete();
+      await tester.pumpAndSettle();
+
+      expect(store.config.detailLevel, AiDetailLevel.full);
+      expect(store.config.model, 'other/model');
+    });
+
+    testWidgets('a pending test result survives a setting change', (
+      tester,
+    ) async {
+      store.config = const AiConfig(
+        preset: AiProviderPreset.openRouter,
+        baseUrl: _openRouter,
+        model: _model,
+        keyLastFour: 'ab3X',
+      );
+      await pump(tester, configStore: gated);
+      gated.gate = Completer<void>();
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(AiConnectionScreen)),
+      );
+
+      final test = container
+          .read(aiConfigProvider.notifier)
+          .recordTest(
+            hostKey: 'https://openrouter.ai:443',
+            model: _model,
+            profile: AiCapabilityProfile.defaults,
+            at: DateTime.utc(2026, 11, 24, 8, 12),
+          );
+      await tester.pump();
+      await tester.tap(find.byKey(AiConnectionKeys.detail(AiDetailLevel.full)));
+      await tester.pump();
+      gated.gate!.complete();
+      await test;
+      await tester.pumpAndSettle();
+
+      expect(store.config.isTestedForCurrentTarget, isTrue);
+      expect(store.config.detailLevel, AiDetailLevel.full);
+    });
+  });
+
   group('imported data switch', () {
     testWidgets('is off by default and persists when turned on', (
       tester,
@@ -186,6 +267,12 @@ void main() {
         tester.widget<TextField>(find.byKey(AiConnectionKeys.model)).enabled,
         isFalse,
       );
+      tester
+              .widget<TextField>(find.byKey(AiConnectionKeys.model))
+              .controller!
+              .text =
+          'other/model';
+      await tester.pump();
       expect(
         tester.widget<FilledButton>(find.byKey(AiConnectionKeys.save)).enabled,
         isFalse,
@@ -220,6 +307,28 @@ void main() {
       expect(store.config.detailLevel, AiDetailLevel.standard);
     });
 
+    testWidgets('locks the key field and paste without a saved key', (
+      tester,
+    ) async {
+      store.config = const AiConfig(
+        preset: AiProviderPreset.openRouter,
+        baseUrl: _openRouter,
+        model: _model,
+      );
+      await pump(tester, demo: true);
+
+      expect(
+        tester.widget<TextField>(find.byKey(AiConnectionKeys.apiKey)).enabled,
+        isFalse,
+      );
+      expect(
+        tester
+            .widget<IconButton>(find.byKey(AiConnectionKeys.keyPaste))
+            .onPressed,
+        isNull,
+      );
+    });
+
     testWidgets('hides Remove the key on the key info screen', (tester) async {
       await withTestedTarget();
       await pump(tester, demo: true);
@@ -237,4 +346,59 @@ void main() {
       expect(find.byKey(AiConnectionKeys.demoLocked), findsNothing);
     });
   });
+}
+
+final class _GatedStore implements AiConfigStore {
+  new(this.inner);
+
+  final InMemoryAiConfigStore inner;
+  Completer<void>? gate;
+
+  @override
+  Future<void> writeConfig(AiConfig config) async {
+    await gate?.future;
+    await inner.writeConfig(config);
+  }
+
+  @override
+  Future<AiConfig> readConfig() => inner.readConfig();
+
+  @override
+  Future<AiConsent?> readConsent() => inner.readConsent();
+
+  @override
+  Future<void> writeConsent(AiConsent consent) => inner.writeConsent(consent);
+
+  @override
+  Future<void> clearConsent() => inner.clearConsent();
+
+  @override
+  Future<AiMealPhotoConsent?> readMealPhotoConsent() =>
+      inner.readMealPhotoConsent();
+
+  @override
+  Future<void> writeMealPhotoConsent(AiMealPhotoConsent consent) =>
+      inner.writeMealPhotoConsent(consent);
+
+  @override
+  Future<void> clearMealPhotoConsent() => inner.clearMealPhotoConsent();
+
+  @override
+  Future<AiCapabilityProfile?> readCapabilityProfile(
+    String hostKey,
+    String model,
+  ) => inner.readCapabilityProfile(hostKey, model);
+
+  @override
+  Future<void> writeCapabilityProfile(
+    String hostKey,
+    String model,
+    AiCapabilityProfile profile,
+  ) => inner.writeCapabilityProfile(hostKey, model, profile);
+
+  @override
+  Future<void> clearCapabilityProfiles() => inner.clearCapabilityProfiles();
+
+  @override
+  Future<void> clearAll() => inner.clearAll();
 }

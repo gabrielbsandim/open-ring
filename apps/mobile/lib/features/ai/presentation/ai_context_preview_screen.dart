@@ -44,7 +44,6 @@ class AiContextPreviewScreen extends ConsumerStatefulWidget {
 class _AiContextPreviewScreenState
     extends ConsumerState<AiContextPreviewScreen> {
   var _exact = false;
-  var _busy = false;
 
   @override
   Widget build(BuildContext context) {
@@ -213,47 +212,45 @@ class _AiContextPreviewScreenState
     AiConsent? consent,
     String host,
   ) {
-    if (!aiConsentCoversPayload(consent, config, payload)) {
-      return [
+    final covered = aiConsentCoversPayload(consent, config, payload);
+    final at = consent?.consentedAtUtcMs;
+    return [
+      if (covered && at != null)
+        BodyText(
+          key: AiPreviewKeys.given,
+          l10n.aiConsentGiven(
+            host,
+            MaterialLocalizations.of(context)
+                .formatMediumDate(DateTime.fromMillisecondsSinceEpoch(at)),
+          ),
+        ),
+      if (!covered)
         FilledButton(
           key: AiPreviewKeys.ask,
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          onPressed: _busy
-              ? null
-              : () => unawaited(
-                  showAiConsentSheet(
-                    context,
-                    config: config,
-                    payload: payload,
-                    previous: consent,
-                  ),
-                ),
+          onPressed: () => unawaited(
+            showAiConsentSheet(
+              context,
+              config: config,
+              payload: payload,
+              previous: consent,
+            ),
+          ),
           child: Text(l10n.aiConsentAsk(host)),
         ),
-      ];
-    }
-    final date = MaterialLocalizations.of(context).formatMediumDate(
-      DateTime.fromMillisecondsSinceEpoch(consent!.consentedAtUtcMs),
-    );
-    return [
-      BodyText(key: AiPreviewKeys.given, l10n.aiConsentGiven(host, date)),
-      const SizedBox(height: 12),
-      OutlinedButton(
-        key: AiPreviewKeys.withdraw,
-        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-        onPressed: _busy ? null : () => unawaited(_withdraw()),
-        child: Text(l10n.aiConsentWithdraw),
-      ),
+      if (at != null) ...[
+        const SizedBox(height: 12),
+        OutlinedButton(
+          key: AiPreviewKeys.withdraw,
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+          ),
+          onPressed: () =>
+              unawaited(ref.read(aiConfigProvider.notifier).withdrawConsent()),
+          child: Text(l10n.aiConsentWithdraw),
+        ),
+      ],
     ];
-  }
-
-  Future<void> _withdraw() async {
-    setState(() => _busy = true);
-    try {
-      await ref.read(aiConfigProvider.notifier).withdrawConsent();
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
   }
 }
 

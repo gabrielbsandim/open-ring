@@ -31,7 +31,7 @@ const _httpsHost = 'https://api.example.com:443';
 const _lan = 'http://192.168.1.10:11434/v1';
 final _now = DateTime.utc(2026, 11, 24, 9);
 
-BuiltAiPayload _payload({bool food = false}) {
+BuiltAiPayload _payload({bool food = false, bool goals = false}) {
   final context = <String, Object?>{
     'schema': aiContextSchemaVersion,
     'reply_language': 'pt-BR',
@@ -44,6 +44,7 @@ BuiltAiPayload _payload({bool food = false}) {
       {'id': 'f.sleep', 'label': 'Sleep "avg", média', 'v': 431, 'u': 'min'},
     ],
     if (food) 'food': {'complete_days': 3},
+    if (goals) 'goal': {'type': 'lose_fat'},
   };
   final json = canonicalJsonEncode(context);
   return BuiltAiPayload(
@@ -271,6 +272,42 @@ void main() {
 
       expect(store.consent, isNull);
       expect(find.byKey(AiPreviewKeys.ask), findsOneWidget);
+    });
+
+    testWidgets('a stored consent that no longer covers can be withdrawn', (
+      tester,
+    ) async {
+      store
+        ..consent = _consent()
+        ..config = _config(_https, detail: AiDetailLevel.full);
+      await pump(tester);
+      expect(find.byKey(AiPreviewKeys.ask), findsOneWidget);
+      expect(find.byKey(AiPreviewKeys.given), findsNothing);
+
+      await tester.tap(find.byKey(AiPreviewKeys.withdraw));
+      await tester.pumpAndSettle();
+
+      expect(store.consent, isNull);
+      expect(find.byKey(AiPreviewKeys.withdraw), findsNothing);
+      expect(find.byKey(AiPreviewKeys.ask), findsOneWidget);
+    });
+
+    testWidgets('granting again keeps the categories consented before', (
+      tester,
+    ) async {
+      store.consent = _consent(categories: {AiDataCategory.food});
+      payload = _payload(goals: true);
+      await pump(tester);
+      await openSheet(tester);
+      await tester.tap(find.byKey(AiConsentKeys.tick));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(AiConsentKeys.allow));
+      await tester.pumpAndSettle();
+
+      expect(store.consent!.categories, {
+        AiDataCategory.food,
+        AiDataCategory.goals,
+      });
     });
 
     testWidgets('a new data category asks again and lists it', (tester) async {

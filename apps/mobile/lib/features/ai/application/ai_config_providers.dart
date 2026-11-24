@@ -27,7 +27,14 @@ class AiConfigController extends AsyncNotifier<AiConfig> {
 
   /// A different scheme, host or port deletes the key and both consents
   /// before the new address is stored, so a key never follows an edit.
-  Future<void> save(AiConfig next) => _serial(() async {
+  Future<void> save(AiConfig next) => _serial(() => _write(next));
+
+  /// Applies [change] to the config as stored when the write runs, so queued
+  /// edits and a finished test are never overwritten by a stale copy.
+  Future<void> edit(AiConfig Function(AiConfig current) change) =>
+      _serial(() async => await _write(change(await future)));
+
+  Future<void> _write(AiConfig next) async {
     final current = await future;
     final oldHost = current.hostKey;
     final moved = oldHost != null && oldHost != next.hostKey;
@@ -43,7 +50,7 @@ class AiConfigController extends AsyncNotifier<AiConfig> {
     }
     await store.writeConfig(value);
     state = AsyncData(value);
-  });
+  }
 
   Future<void> setApiKey(String apiKey) => _serial(() async {
     final current = await future;

@@ -294,11 +294,8 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
     ];
   }
 
-  /// Reads the stored config, so a setting never writes back stale form state.
-  Future<void> _saveSetting(AiConfig Function(AiConfig) change) async {
-    final current = await ref.read(aiConfigProvider.future);
-    await ref.read(aiConfigProvider.notifier).save(change(current));
-  }
+  Future<void> _saveSetting(AiConfig Function(AiConfig) change) =>
+      ref.read(aiConfigProvider.notifier).edit(change);
 
   Widget _notice(IconData icon, String text, Key key) => Row(
     key: key,
@@ -555,14 +552,14 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
       _key.clear();
       _replacingKey = false;
     });
-    if (moves) await _persist(config);
+    if (moves) await _persist();
   }
 
   Future<void> _save(AiConfig config) async {
     if (_hostMoves(config, _url.text) && !await _confirmSwitch(config)) {
       return;
     }
-    await _persist(config);
+    await _persist();
   }
 
   Future<bool> _confirmSwitch(AiConfig config) async {
@@ -574,13 +571,16 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
     return mounted && ok == true;
   }
 
-  Future<void> _persist(AiConfig config) async {
+  Future<void> _persist() async {
     setState(() => _busy = true);
     try {
       final controller = ref.read(aiConfigProvider.notifier);
-      await controller.save(
-        _withPresetDefaults(config)
-            .copyWith(baseUrl: _url.text.trim(), model: _model.text.trim()),
+      final baseUrl = _url.text.trim();
+      final model = _model.text.trim();
+      await controller.edit(
+        (current) =>
+            _withPresetDefaults(current)
+                .copyWith(baseUrl: baseUrl, model: model),
       );
       final apiKey = _key.text.trim();
       if (apiKey.isNotEmpty) await controller.setApiKey(apiKey);

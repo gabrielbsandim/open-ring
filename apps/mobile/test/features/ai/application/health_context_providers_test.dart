@@ -35,6 +35,7 @@ import '../../../helpers/day_score_fakes.dart';
 import '../../../helpers/metrics_fakes.dart';
 
 const _otherApp = 'com.sec.android.app.shealth';
+const AiAnalysisKind _daily = AiAnalysisKind.dailyReview;
 
 final class _ImportedSleep implements ImportedSleepReader {
   int calls = 0;
@@ -230,7 +231,7 @@ void main() {
   }
 
   Future<BuiltAiPayload> payload(ProviderContainer c) async {
-    final result = await c.read(aiPayloadProvider.future);
+    final result = await c.read(aiPayloadProvider(_daily).future);
     return (result! as AiPayloadReady).payload;
   }
 
@@ -248,14 +249,14 @@ void main() {
     addTearDown(c.dispose);
     await c.read(enabledModulesProvider.future);
 
-    expect(await c.read(healthContextInputProvider.future), isNull);
-    expect(await c.read(aiPayloadProvider.future), isNull);
+    expect(await c.read(healthContextInputProvider(_daily).future), isNull);
+    expect(await c.read(aiPayloadProvider(_daily).future), isNull);
   });
 
   test('under five days with data returns notEnoughData', () async {
     final c = await container(scenario: buildingScenario);
 
-    final result = await c.read(aiPayloadProvider.future);
+    final result = await c.read(aiPayloadProvider(_daily).future);
 
     expect(result, isA<AiPayloadNotEnoughData>());
     expect((result! as AiPayloadNotEnoughData).days, 3);
@@ -269,6 +270,19 @@ void main() {
     expect(d['sleep_score'], isA<List<Object?>>());
     expect(p.contextMap['reply_language'], 'pt-BR');
     expect(p.contextMap.containsKey('weeks'), isTrue);
+  });
+
+  test('each kind builds its own payload over the same sources', () async {
+    final c = await container();
+    final daily = await payload(c);
+    final weekly =
+        (await c.read(aiPayloadProvider(AiAnalysisKind.weeklyReview).future))!
+            as AiPayloadReady;
+
+    expect(weekly.kind, AiAnalysisKind.weeklyReview);
+    expect(weekly.payload.userMessage, contains('Task: weekly_review.'));
+    expect(daily.userMessage, contains('Task: daily_review.'));
+    expect(weekly.payload.cacheKey, isNot(daily.cacheKey));
   });
 
   test('modules that are off are neither read nor sent', () async {

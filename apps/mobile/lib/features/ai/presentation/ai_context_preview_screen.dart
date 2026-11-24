@@ -34,7 +34,9 @@ abstract final class AiPreviewKeys {
 /// Both tabs render the [BuiltAiPayload] the run controller sends, so the
 /// readable view and the exact text cannot disagree.
 class AiContextPreviewScreen extends ConsumerStatefulWidget {
-  const new({super.key});
+  const new({this.kind, super.key});
+
+  final String? kind;
 
   @override
   ConsumerState<AiContextPreviewScreen> createState() =>
@@ -48,8 +50,11 @@ class _AiContextPreviewScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final kind = widget.kind == 'weekly'
+        ? AiAnalysisKind.weeklyReview
+        : AiAnalysisKind.dailyReview;
     final config = ref.watch(aiConfigProvider).value;
-    final result = ref.watch(aiPayloadProvider).value;
+    final result = ref.watch(aiPayloadProvider(kind)).value;
     final consent = ref.watch(aiConsentProvider).value;
     final host = config?.normalizedUrl?.asciiHost ?? '';
     return AppPage(

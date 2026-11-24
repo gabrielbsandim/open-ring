@@ -19,6 +19,7 @@ import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/analysis_model.dart';
 import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
+import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/domain/openai_wire_codec.dart';
 import 'package:open_ring/features/ai/domain/sample_analysis_model.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
@@ -111,17 +112,20 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
   /// Settles when the run in flight, if any, has finished or aborted.
   Future<void> idle = Future.value();
 
-  Future<void> send({bool force = false}) {
+  Future<void> send({
+    AiAnalysisKind kind = AiAnalysisKind.dailyReview,
+    bool force = false,
+  }) {
     if (_busy || !ref.read(aiEnabledProvider)) return Future.value();
     _busy = true;
     _dead = false;
     _cancel = Completer<void>();
-    return idle = _run(force: force);
+    return idle = _run(kind, force: force);
   }
 
-  Future<void> _run({required bool force}) async {
+  Future<void> _run(AiAnalysisKind kind, {required bool force}) async {
     try {
-      await _prepare(force: force);
+      await _prepare(kind, force: force);
     } on Object catch (error) {
       _fail(RunUnexpected(error));
     } finally {
@@ -138,10 +142,10 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     _settle(_done, _cancelled);
   }
 
-  Future<void> _prepare({required bool force}) async {
+  Future<void> _prepare(AiAnalysisKind kind, {required bool force}) async {
     await ref.read(aiRunRecoveryProvider.future).catchError((Object _) {});
     if (_dead) return;
-    final result = await ref.read(aiPayloadProvider.future);
+    final result = await ref.read(aiPayloadProvider(kind).future);
     if (_dead) return;
     final config = await ref.read(aiConfigProvider.future);
     if (_dead) return;
@@ -346,6 +350,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
       cardsJson: jsonEncode({
         'summary': valid.summary,
         'cards': [for (final card in valid.cards) card.toJson()],
+        'facts': _factsSnapshot(base.ready.payload),
       }),
     );
   }
@@ -400,7 +405,11 @@ AiReport _report(
       'system': payload.systemPrompt,
       'user': payload.userMessage,
     }),
-    cardsJson: cardsJson,
+    cardsJson:
+        cardsJson ??
+        (completed == null
+            ? null
+            : jsonEncode({'facts': _factsSnapshot(payload)})),
     rawText: completed?.text,
     droppedCards: droppedCards,
     promptTokens: usage?.promptTokens,
@@ -410,3 +419,17 @@ AiReport _report(
     errorKind: errorKind,
   );
 }
+
+// The numbers as they were sent, so a chip never shows a later value under
+// the text the model wrote about this one.
+List<Map<String, Object?>> _factsSnapshot(BuiltAiPayload payload) => [
+  for (final f in payload.facts)
+    {
+      'id': f.id,
+      'label': f.label,
+      'value': f.value,
+      'unit': f.unit.wireName,
+      'days': f.days,
+      'family': f.family.name,
+    },
+];

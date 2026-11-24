@@ -168,7 +168,7 @@ void main() {
         [
           aiEnabledProvider.overrideWithValue(true),
           aiPayloadProvider.overrideWith(
-            (ref) async => const AiPayloadReady(_payload),
+            (ref, _) async => const AiPayloadReady(_payload),
           ),
           aiConfigStoreProvider.overrideWithValue(
             InMemoryAiConfigStore()

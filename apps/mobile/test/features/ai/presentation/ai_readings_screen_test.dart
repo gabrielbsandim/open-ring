@@ -865,6 +865,32 @@ void main() {
       await answer(tester);
     });
 
+    testWidgets('a larger retry that hits the limit again offers the next '
+        'step up, then nothing at 32,000', (tester) async {
+      const limit = AnalysisFailure(kind: AnalysisFailureKind.emptyAfterLimit);
+      Future<void> larger() async {
+        await tester.tap(action(AiFailureAction.larger));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+
+      await pump(tester);
+      await tapKind(tester, AiReadingKeys.weekly);
+      await fail(tester, limit);
+      await larger();
+      expect(model.requests.last.maxOutputTokens, 16000);
+
+      await fail(tester, limit);
+      expect(shown(tester), [AiFailureAction.larger]);
+      await larger();
+      expect(model.requests.last.maxOutputTokens, aiMaxOutputTokens);
+
+      await fail(tester, limit);
+      expect(shown(tester), [AiFailureAction.retry]);
+      expect(model.requests, hasLength(3));
+      expect(configs.config.maxOutputTokens, aiDefaultOutputTokens);
+    });
+
     testWidgets('no larger retry when Advanced is already at the maximum', (
       tester,
     ) async {

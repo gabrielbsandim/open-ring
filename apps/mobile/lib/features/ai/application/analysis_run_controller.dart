@@ -253,6 +253,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
           RunModelFailure(failure),
           canRetryLarger: larger,
           report: report,
+          outputLimit: request.maxOutputTokens,
         );
         return (report, next);
       }

@@ -39,7 +39,8 @@ GoRoute settingsRoute() => GoRoute(
         GoRoute(path: 'guide', builder: (_, _) => const AiGuideScreen()),
         GoRoute(
           path: 'preview',
-          builder: (_, _) => const AiContextPreviewScreen(),
+          builder: (_, state) =>
+              AiContextPreviewScreen(kind: state.uri.queryParameters['kind']),
         ),
       ],
     ),

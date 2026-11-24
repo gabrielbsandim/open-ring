@@ -81,6 +81,8 @@ abstract final class AppPaths {
   static const settingsModuleFood = '/ring/settings/modules/food';
   static const measure = '/heart/measure';
   static const trends = '/heart/trends';
+  static const aiReadings = '/heart/trends/ai';
+  static const aiReadingsPreview = '/heart/trends/ai/preview';
   static const pair = '/ring/pair';
   static const onboarding = '/onboarding';
   static const onboardingPermissions = '/onboarding/permissions';

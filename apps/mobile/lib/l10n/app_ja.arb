@@ -2733,5 +2733,20 @@
   "aiConsentAsk": "{host}への送信を許可",
   "aiConsentScope": "この同意はこのアドレスとこの詳細レベルに対して有効です。アドレスが変わったとき、詳細レベルが上がったとき、要約に新しい種類のデータが加わったとき、またはポリシーが変わったときに、改めて同意を求めます。",
   "aiConsentGiven": "{date}に{host}への同意済み。",
-  "aiConsentWithdraw": "同意を取り消す"
+  "aiConsentWithdraw": "同意を取り消す",
+  "aiReadingsTitle": "AIの読み解き",
+  "aiReadingsLead": "モデルは、あなたが送る要約の中のパターンを説明します。チップの数値はOpenRingのもので、あなたのデータと照合済みです。",
+  "aiReadingKind": "{kind, select, weekly{週の読み解き} other{日の読み解き}}",
+  "aiReadingSeeSent": "送信される内容を見る",
+  "aiReadingReceiving": "{host}から回答を受信中... {count}文字",
+  "aiReadingChecking": "すべての数値をあなたのデータと照合中...",
+  "aiReadingSendingNote": "カードは確認が済んでからまとめて表示されます。この画面を離れるとリクエストはキャンセルされます。",
+  "aiReadingByLine": "AI分析、{host}の{model}が作成",
+  "aiReadingWrittenBy": "{model}が作成",
+  "aiReadingSuggestion": "提案",
+  "aiReadingConfidence": "信頼度: {level, select, low{低} medium{中} other{高}}、{days}日分のデータ",
+  "aiReadingDropped": "{total}件中{dropped}件の気づきは、あなたのデータと一致しなかったため削除されました。",
+  "aiReadingFooter": "これはあなたが送った要約からモデルが書いたものです。誤っている可能性があります。医学的な助言や診断ではありません。リングの値は推定値です。",
+  "aiFactLabel": "{kind, select, last{{metric}、最新の日} other{{metric}、{days}日間の平均}}",
+  "aiReadingCancelled": "キャンセルしました。プロバイダーは生成済みの分を請求する場合があります。"
 }

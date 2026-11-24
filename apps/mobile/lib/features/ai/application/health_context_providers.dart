@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
@@ -47,25 +48,30 @@ String aiLanguageTag(Locale locale) =>
     ? 'pt-${locale.countryCode}'
     : locale.languageCode;
 
+final _aiSourcesProvider = FutureProvider<AiContextSources>((ref) async {
+  final config = await ref.watch(aiConfigProvider.future);
+  return await _readSources(ref, config);
+});
+
 /// Null while the AI module is off, and then no source is read.
-final healthContextInputProvider = FutureProvider<HealthContextInput?>((
-  ref,
-) async {
+final FutureProviderFamily<HealthContextInput?, AiAnalysisKind>
+healthContextInputProvider = FutureProvider.family((ref, kind) async {
   if (!ref.watch(aiEnabledProvider)) return null;
   final config = await ref.watch(aiConfigProvider.future);
-  final sources = await _readSources(ref, config);
   return assembleHealthContextInput(
-    sources,
+    await ref.watch(_aiSourcesProvider.future),
     detail: config.detailLevel,
     window: config.contextWindow,
+    kind: kind,
   );
 });
 
-final aiPayloadProvider = FutureProvider<AiPayloadResult?>((ref) async {
-  final input = await ref.watch(healthContextInputProvider.future);
-  if (input == null) return null;
-  return buildAiPayloadResult(input);
-});
+final FutureProviderFamily<AiPayloadResult?, AiAnalysisKind> aiPayloadProvider =
+    FutureProvider.family((ref, kind) async {
+      final input = await ref.watch(healthContextInputProvider(kind).future);
+      if (input == null) return null;
+      return buildAiPayloadResult(input);
+    });
 
 int _historyDays(AiContextWindow window) =>
     math.min(math.max(window.maxWeeks * 7, window.maxDays), trendHistoryDays);

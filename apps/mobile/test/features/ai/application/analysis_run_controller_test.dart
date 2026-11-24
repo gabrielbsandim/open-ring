@@ -18,6 +18,7 @@ import 'package:open_ring/features/ai/domain/analysis_model.dart';
 import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
+import 'package:open_ring/features/ai/domain/openai_wire_codec.dart';
 import 'package:open_ring/features/ai/domain/sample_analysis_model.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/demo/domain/demo_mode_store.dart';
@@ -142,6 +143,7 @@ void main() {
   late bool enabled;
   late bool demo;
   late AiPayloadResult payload;
+  late AiPayloadResult weekly;
 
   setUp(() {
     configStore = InMemoryAiConfigStore()
@@ -160,13 +162,30 @@ void main() {
     enabled = true;
     demo = false;
     payload = const AiPayloadReady(_payload);
+    weekly = AiPayloadReady(
+      BuiltAiPayload(
+        contextMap: _payload.contextMap,
+        canonicalContextJson: '{}',
+        systemPrompt: 'system',
+        userMessage: 'Task: weekly_review.\nDATA:\n{}',
+        facts: _payload.facts,
+        estimatedTokens: 10,
+        contextTokens: 5,
+        cacheKey: 'weekly-sha',
+        droppedCount: 0,
+      ),
+      kind: AiAnalysisKind.weeklyReview,
+    );
   });
 
   ProviderContainer container() {
     final c = ProviderContainer(
       overrides: [
         aiEnabledProvider.overrideWith((ref) => enabled),
-        aiPayloadProvider.overrideWith((ref) async => payload),
+        aiPayloadProvider.overrideWith(
+          (ref, kind) async =>
+              kind == AiAnalysisKind.weeklyReview ? weekly : payload,
+        ),
         aiConfigStoreProvider.overrideWithValue(configStore),
         aiReportStoreProvider.overrideWithValue(reportStore),
         aiRunMarkerStoreProvider.overrideWithValue(markers),
@@ -245,6 +264,75 @@ void main() {
     expect(reports.reports.single.promptTokens, 100);
     expect(markers.writes, 1);
     expect(markers.value, isNull);
+  });
+
+  test('a weekly send reads the weekly payload and caches by it', () async {
+    final c = container();
+    listenState(c);
+    await notifier(c).send(kind: AiAnalysisKind.weeklyReview);
+    final content = model.lastRequest!.userContent as AiTextContent;
+    expect(content.text, startsWith('Task: weekly_review.'));
+    final report = reports.reports.single;
+    expect(report.kind, 'weekly_review');
+    expect(report.contextSha256, 'weekly-sha');
+
+    await notifier(c).send();
+    expect(model.calls, 2);
+    expect(reports.reports.map((r) => r.kind), {
+      'weekly_review',
+      'daily_review',
+    });
+  });
+
+  test('a done report stores the facts as they were sent', () async {
+    final c = container();
+    listenState(c);
+    await notifier(c).send();
+    final cards = jsonDecode(reports.reports.single.cardsJson!) as Map;
+    expect(cards['facts'], [
+      {
+        'id': 'sleep_avg',
+        'label': 'Sleep average',
+        'value': 420.0,
+        'unit': 'min',
+        'days': 14,
+        'family': 'sleep',
+      },
+    ]);
+  });
+
+  test('an unreadable answer keeps the facts with its raw text', () async {
+    model = _FakeModel([
+      (_) => Stream.value(
+        const AnalysisCompleted(text: 'not json', finishReason: 'stop'),
+      ),
+    ]);
+    final c = container();
+    listenState(c);
+    await notifier(c).send();
+    final report = reports.reports.single;
+    expect(report.status, AiReportStatus.failed);
+    expect(report.rawText, 'not json');
+    final cards = jsonDecode(report.cardsJson!) as Map;
+    expect((cards['facts'] as List).single, containsPair('id', 'sleep_avg'));
+  });
+
+  test('an answer whose every card is dropped is still done', () async {
+    model = _FakeModel([
+      (_) => Stream.value(
+        AnalysisCompleted(
+          text: _answer.replaceFirst('"sleep_avg"', '"invented"'),
+          finishReason: 'stop',
+        ),
+      ),
+    ]);
+    final c = container();
+    listenState(c);
+    await notifier(c).send();
+    final report = reports.reports.single;
+    expect(report.status, AiReportStatus.done);
+    expect(report.droppedCards, 1);
+    expect((jsonDecode(report.cardsJson!) as Map)['cards'], isEmpty);
   });
 
   test('advanced settings reach the request', () async {

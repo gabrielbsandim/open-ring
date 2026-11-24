@@ -103,7 +103,7 @@ void main() {
     secretStoreProvider.overrideWithValue(InMemorySecretStore()),
     demoModeStoreProvider.overrideWithValue(InMemoryDemoModeStore()),
     aiEnabledProvider.overrideWith((ref) => true),
-    aiPayloadProvider.overrideWith((ref) async => AiPayloadReady(payload)),
+    aiPayloadProvider.overrideWith((ref, _) async => AiPayloadReady(payload)),
     clockProvider.overrideWithValue(() => _now),
   ];
 

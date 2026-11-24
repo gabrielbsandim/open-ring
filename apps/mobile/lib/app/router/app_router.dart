@@ -4,6 +4,8 @@ import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/tabs_shell.dart';
 import 'package:open_ring/features/activity/presentation/activity_screen.dart';
+import 'package:open_ring/features/ai/presentation/ai_context_preview_screen.dart';
+import 'package:open_ring/features/ai/presentation/ai_readings_screen.dart';
 import 'package:open_ring/features/body/presentation/body_screen.dart';
 import 'package:open_ring/features/effort/presentation/effort_formula_screen.dart';
 import 'package:open_ring/features/effort/presentation/effort_screen.dart';
@@ -264,7 +266,24 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
     builder: (_, _) => const HeartScreen(),
     routes: [
       GoRoute(path: 'measure', builder: (_, _) => const MeasureScreen()),
-      GoRoute(path: 'trends', builder: (_, _) => const TrendsScreen()),
+      GoRoute(
+        path: 'trends',
+        builder: (_, _) => const TrendsScreen(),
+        routes: [
+          GoRoute(
+            path: 'ai',
+            builder: (_, _) => const AiReadingsScreen(),
+            routes: [
+              GoRoute(
+                path: 'preview',
+                builder: (_, state) => AiContextPreviewScreen(
+                  kind: state.uri.queryParameters['kind'],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     ],
   ),
   AppTab.activity => GoRoute(

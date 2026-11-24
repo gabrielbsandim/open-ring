@@ -2733,5 +2733,20 @@
   "aiConsentAsk": "Senden an {host} erlauben",
   "aiConsentScope": "Diese Einwilligung gilt für diese Adresse und diese Detailstufe. Sie wird erneut abgefragt, wenn sich die Adresse ändert, die Detailstufe steigt, die Zusammenfassung eine neue Art von Daten bekommt oder sich die Datenschutzerklärung ändert.",
   "aiConsentGiven": "Einwilligung für {host} am {date} erteilt.",
-  "aiConsentWithdraw": "Einwilligung widerrufen"
+  "aiConsentWithdraw": "Einwilligung widerrufen",
+  "aiReadingsTitle": "KI-Auswertungen",
+  "aiReadingsLead": "Ein Modell beschreibt Muster in der Zusammenfassung, die du sendest. Die Zahlen in den Chips stammen von OpenRing und sind mit deinen Daten abgeglichen.",
+  "aiReadingKind": "{kind, select, weekly{Wochenauswertung} other{Tagesauswertung}}",
+  "aiReadingSeeSent": "Ansehen, was gesendet wird",
+  "aiReadingReceiving": "Antwort von {host} wird empfangen... {count} Zeichen",
+  "aiReadingChecking": "Jede Zahl wird mit deinen Daten abgeglichen...",
+  "aiReadingSendingNote": "Die Karten erscheinen auf einmal, nachdem sie geprüft wurden. Wenn du diesen Bildschirm verlässt, wird die Anfrage abgebrochen.",
+  "aiReadingByLine": "KI-Analyse, geschrieben von {model} bei {host}",
+  "aiReadingWrittenBy": "Geschrieben von {model}",
+  "aiReadingSuggestion": "Vorschlag",
+  "aiReadingConfidence": "Zuverlässigkeit: {level, select, low{niedrig} medium{mittel} other{hoch}}, {days} Tage mit Daten",
+  "aiReadingDropped": "{dropped} von {total} Erkenntnissen wurden entfernt, weil sie nicht zu deinen Daten passten.",
+  "aiReadingFooter": "Ein Modell hat dies aus der Zusammenfassung geschrieben, die du gesendet hast. Es kann falsch sein. Es ist kein medizinischer Rat und keine Diagnose. Ringwerte sind Schätzungen.",
+  "aiFactLabel": "{kind, select, last{{metric}, letzter Tag} other{{metric}, Mittel über {days} Tage}}",
+  "aiReadingCancelled": "Abgebrochen. Der Anbieter kann trotzdem berechnen, was bereits erzeugt wurde."
 }

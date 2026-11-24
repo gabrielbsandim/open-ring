@@ -13,6 +13,7 @@ import 'package:open_ring/features/ai/application/ai_report_providers.dart';
 import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/ai/application/health_context_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
+import 'package:open_ring/features/ai/domain/ai_prompt.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/analysis_model.dart';
@@ -174,6 +175,13 @@ void main() {
               ..config = const AiConfig(
                 baseUrl: 'https://api.example.com/v1',
                 model: 'm',
+              )
+              ..consent = const AiConsent(
+                consentedAtUtcMs: 0,
+                policyEffectiveDate: aiCurrentPolicyEffectiveDate,
+                hostKey: 'https://api.example.com:443',
+                detailLevel: AiDetailLevel.standard,
+                contextSchemaVersion: aiContextSchemaVersion,
               ),
           ),
           aiReportStoreProvider.overrideWithValue(reports),

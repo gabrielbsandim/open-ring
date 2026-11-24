@@ -22,6 +22,10 @@ final class RunUnexpected extends AnalysisRunFailure {
   final Object error;
 }
 
+final class RunConsentNeeded extends AnalysisRunFailure {
+  const new();
+}
+
 final class RunCeilingReached extends AnalysisRunFailure {
   const new({required this.used, required this.cap});
   final int used;

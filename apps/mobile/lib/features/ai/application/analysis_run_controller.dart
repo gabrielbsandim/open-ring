@@ -10,6 +10,7 @@ import 'package:open_ring/features/ai/application/ai_report_providers.dart';
 import 'package:open_ring/features/ai/application/health_context_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_advanced_input.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
+import 'package:open_ring/features/ai/domain/ai_consent_scope.dart';
 import 'package:open_ring/features/ai/domain/ai_output_extractor.dart';
 import 'package:open_ring/features/ai/domain/ai_prompt.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
@@ -158,6 +159,11 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     }
     final host = config.hostKey;
     if (host == null || config.trimmedModel.isEmpty) return;
+    final consent = await ref.read(aiConfigStoreProvider).readConsent();
+    if (_dead) return;
+    if (!aiConsentCoversPayload(consent, config, result.payload)) {
+      return _fail(const RunConsentNeeded());
+    }
     final run = base(host);
     final key = _report(run).cacheKey;
     final cached = force ? null : await store.newestDone(key);

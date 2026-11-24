@@ -8,6 +8,7 @@ import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/features/ai/application/ai_report_providers.dart';
 import 'package:open_ring/features/ai/application/health_context_providers.dart';
+import 'package:open_ring/features/ai/domain/ai_advanced_input.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_output_extractor.dart';
 import 'package:open_ring/features/ai/domain/ai_prompt.dart';
@@ -181,7 +182,10 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     await _execute(
       model,
       run,
-      profile: profile ?? AiCapabilityProfile.defaults,
+      profile: applyAiOutputModes(
+        config,
+        profile ?? AiCapabilityProfile.defaults,
+      ),
       store: store,
       markers: markers,
     );

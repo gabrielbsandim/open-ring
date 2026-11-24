@@ -71,6 +71,7 @@ final class _FakeModel implements AnalysisModel {
   final List<_Script> scripts;
   int calls = 0;
   bool cancelSeen = false;
+  AnalysisRequest? lastRequest;
 
   @override
   Stream<AnalysisEvent> generate(
@@ -78,6 +79,7 @@ final class _FakeModel implements AnalysisModel {
     required Future<void> cancel,
   }) {
     unawaited(cancel.then((_) => cancelSeen = true));
+    lastRequest = request;
     final script = scripts[calls.clamp(0, scripts.length - 1)];
     calls++;
     return script(cancel);
@@ -228,6 +230,23 @@ void main() {
     expect(reports.reports.single.promptTokens, 100);
     expect(markers.writes, 1);
     expect(markers.value, isNull);
+  });
+
+  test('advanced settings reach the request', () async {
+    configStore.config = configStore.config.copyWith(
+      maxOutputTokens: 9000,
+      structuredOutputMode: AiStructuredOutputMode.off,
+      streamingMode: AiStreamingMode.off,
+      reasoningEffort: AiReasoningEffort.high,
+    );
+    final c = container();
+    listenState(c);
+    await notifier(c).send();
+    final request = model.lastRequest!;
+    expect(request.maxOutputTokens, 9000);
+    expect(request.profile.jsonMode, AiJsonMode.none);
+    expect(request.profile.streamOk, isFalse);
+    expect(request.reasoningEffort, AiReasoningEffort.high);
   });
 
   test('a cached done report is returned with no network call', () async {

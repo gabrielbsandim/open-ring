@@ -402,6 +402,17 @@ final class _GatedStore implements AiConfigStore {
   Future<void> clearMealPhotoConsent() => inner.clearMealPhotoConsent();
 
   @override
+  Future<AiPhotoQueuePause?> readPhotoQueuePause() =>
+      inner.readPhotoQueuePause();
+
+  @override
+  Future<void> writePhotoQueuePause(AiPhotoQueuePause pause) =>
+      inner.writePhotoQueuePause(pause);
+
+  @override
+  Future<void> clearPhotoQueuePause() => inner.clearPhotoQueuePause();
+
+  @override
   Future<AiCapabilityProfile?> readCapabilityProfile(
     String hostKey,
     String model,

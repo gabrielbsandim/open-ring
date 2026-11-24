@@ -123,6 +123,7 @@ final class MealQueueHarness {
   late final InMemoryModuleStore moduleStore = InMemoryModuleStore(modules);
 
   DateTime now = DateTime(2026, 11, 24, 12);
+  DateTime Function()? clock;
   bool demo = false;
   final List<AnalysisRequest> requests = [];
   final List<Duration> sentAt = [];
@@ -155,7 +156,7 @@ final class MealQueueHarness {
     secretStoreProvider.overrideWithValue(failingSecrets ?? secrets),
     aiRunMarkerStoreProvider.overrideWithValue(markers),
     aiReplyLanguageProvider.overrideWithValue('en'),
-    clockProvider.overrideWithValue(() => now),
+    clockProvider.overrideWithValue(() => clock?.call() ?? now),
     mealStoreProvider.overrideWithValue(meals),
     photoStoreProvider.overrideWithValue(photos),
     mealAnalysisStoreProvider.overrideWithValue(analyses),
@@ -164,7 +165,10 @@ final class MealQueueHarness {
       return prepareWirePhoto(stored);
     }),
     keyedAnalysisModelFactoryProvider.overrideWithValue((config, key) {
-      expect((config.trimmedModel, key), (photoModel, 'sk-test-1234'));
+      expect(
+        (config.trimmedModel, key),
+        (photoModel, secrets.values[aiApiKeySecretName]),
+      );
       sentAt.add(elapsed?.call() ?? Duration.zero);
       return FakePhotoModel(this);
     }),
@@ -237,6 +241,14 @@ final class GatedAnalysisStore implements MealAnalysisStore {
   @override
   Future<bool> requeue(int id, {required DateTime now}) =>
       inner.requeue(id, now: now);
+
+  @override
+  Future<bool> countResend(int id, {required DateTime now}) =>
+      inner.countResend(id, now: now);
+
+  @override
+  Future<bool> retry(int id, {required DateTime now}) =>
+      inner.retry(id, now: now);
 
   @override
   Future<bool> complete(

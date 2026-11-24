@@ -22,8 +22,15 @@ abstract interface class MealAnalysisStore {
   /// Queued to sending, counting the attempt.
   Future<bool> markSending(int id, {required DateTime now});
 
-  /// Sending back to queued, undoing the attempt [markSending] counted.
+  /// Sending back to queued, undoing the attempt [markSending] counted. The
+  /// queue calls it only before any resend, so that is the only attempt.
   Future<bool> requeue(int id, {required DateTime now});
+
+  /// Counts one more attempt on a sending row before it is sent again.
+  Future<bool> countResend(int id, {required DateTime now});
+
+  /// Failed or rejected back to queued, keeping its attempts and queued time.
+  Future<bool> retry(int id, {required DateTime now});
 
   /// Writes a sending row's answer and replaces its model items.
   Future<bool> complete(

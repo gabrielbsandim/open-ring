@@ -7,6 +7,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
+const _pause = AiPhotoQueuePause(
+  reason: AiPhotoQueuePauseReason.noCredit,
+  hostKey: 'https://api.example.com:443',
+  model: 'vision-m',
+  keyLastFour: '1234',
+  atUtcMs: 1764000000000,
+);
+
 const _consent = AiConsent(
   consentedAtUtcMs: 1,
   policyEffectiveDate: aiCurrentPolicyEffectiveDate,
@@ -98,6 +106,7 @@ void main() {
       ),
     );
     await store.writeCapabilityProfile('h', 'm', AiCapabilityProfile.defaults);
+    await store.writePhotoQueuePause(_pause);
     final prefs = SharedPreferencesAsync();
     final written = (await prefs.getKeys()).difference({'some_plugin_key'});
 
@@ -115,5 +124,51 @@ void main() {
     expect(await store.readCapabilityProfile('h', 'm'), isNotNull);
     await store.clearCapabilityProfiles();
     expect(await store.readCapabilityProfile('h', 'm'), isNull);
+  });
+
+  test('the photo queue pause round trips, survives a new store and '
+      'clears', () async {
+    expect(await store.readPhotoQueuePause(), isNull);
+    await store.writePhotoQueuePause(_pause);
+
+    expect(
+      await SharedPreferencesAiConfigStore().readPhotoQueuePause(),
+      _pause,
+    );
+    expect(
+      await SharedPreferencesAsync().getString('ai_photo_queue_pause'),
+      isNotNull,
+    );
+    await store.clearPhotoQueuePause();
+    expect(await store.readPhotoQueuePause(), isNull);
+  });
+
+  test('a keyless pause round trips and a broken one reads as none', () {
+    const keyless = AiPhotoQueuePause(
+      reason: AiPhotoQueuePauseReason.unauthorized,
+      hostKey: 'h',
+      model: 'm',
+      keyLastFour: null,
+      atUtcMs: 1,
+    );
+    expect(AiPhotoQueuePause.tryFromJson(keyless.toJson()), keyless);
+    for (final broken in <Map<String, Object?>>[
+      {..._pause.toJson(), 'reason': 'later'},
+      {..._pause.toJson(), 'hostKey': ''},
+      {..._pause.toJson(), 'atUtcMs': '1'},
+      {..._pause.toJson(), 'keyLastFour': '123456'},
+    ]) {
+      expect(AiPhotoQueuePause.tryFromJson(broken), isNull);
+    }
+  });
+
+  test('a pause holds only for its host, model and key', () {
+    bool holds(String? host, String model, String? last) =>
+        _pause.holds(hostKey: host, model: model, keyLastFour: last);
+
+    expect(holds(_pause.hostKey, 'vision-m', '1234'), isTrue);
+    expect(holds('https://other.example:443', 'vision-m', '1234'), isFalse);
+    expect(holds(_pause.hostKey, 'other-m', '1234'), isFalse);
+    expect(holds(_pause.hostKey, 'vision-m', '9999'), isFalse);
   });
 }

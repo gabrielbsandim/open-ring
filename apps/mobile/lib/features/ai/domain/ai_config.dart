@@ -453,6 +453,78 @@ final class AiMealPhotoConsent {
       Object.hash(consentedAtUtcMs, policyEffectiveDate, hostKey);
 }
 
+enum AiPhotoQueuePauseReason { unauthorized, noCredit, forbidden, noVision }
+
+/// Why the photo queue stopped sending, bound to the target that refused.
+@immutable
+final class AiPhotoQueuePause {
+  const new({
+    required this.reason,
+    required this.hostKey,
+    required this.model,
+    required this.keyLastFour,
+    required this.atUtcMs,
+  });
+
+  final AiPhotoQueuePauseReason reason;
+  final String hostKey;
+  final String model;
+  final String? keyLastFour;
+  final int atUtcMs;
+
+  /// A new host, photo model or key lifts the pause.
+  bool holds({
+    required String? hostKey,
+    required String model,
+    required String? keyLastFour,
+  }) =>
+      this.hostKey == hostKey &&
+      this.model == model &&
+      this.keyLastFour == keyLastFour;
+
+  Map<String, Object?> toJson() => {
+    'reason': reason.name,
+    'hostKey': hostKey,
+    'model': model,
+    'keyLastFour': keyLastFour,
+    'atUtcMs': atUtcMs,
+  };
+
+  static AiPhotoQueuePause? tryFromJson(Map<String, Object?> json) {
+    final reason = _nullableEnumByName(
+      AiPhotoQueuePauseReason.values,
+      json['reason'],
+    );
+    final host = _nonEmptyString(json['hostKey']);
+    final model = _nonEmptyString(json['model']);
+    final at = json['atUtcMs'];
+    final last = _validLastFour(json['keyLastFour']);
+    if (reason == null || host == null || model == null || at is! int) {
+      return null;
+    }
+    if (last == null && json['keyLastFour'] != null) return null;
+    return AiPhotoQueuePause(
+      reason: reason,
+      hostKey: host,
+      model: model,
+      keyLastFour: last,
+      atUtcMs: at,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is AiPhotoQueuePause &&
+      other.reason == reason &&
+      other.hostKey == hostKey &&
+      other.model == model &&
+      other.keyLastFour == keyLastFour &&
+      other.atUtcMs == atUtcMs;
+
+  @override
+  int get hashCode => Object.hash(reason, hostKey, model, keyLastFour, atUtcMs);
+}
+
 String aiCapabilityProfileKey(String hostKey, String model) =>
     '$hostKey|${model.trim()}';
 
@@ -493,6 +565,9 @@ abstract interface class AiConfigStore {
   Future<AiMealPhotoConsent?> readMealPhotoConsent();
   Future<void> writeMealPhotoConsent(AiMealPhotoConsent consent);
   Future<void> clearMealPhotoConsent();
+  Future<AiPhotoQueuePause?> readPhotoQueuePause();
+  Future<void> writePhotoQueuePause(AiPhotoQueuePause pause);
+  Future<void> clearPhotoQueuePause();
   Future<AiCapabilityProfile?> readCapabilityProfile(
     String hostKey,
     String model,

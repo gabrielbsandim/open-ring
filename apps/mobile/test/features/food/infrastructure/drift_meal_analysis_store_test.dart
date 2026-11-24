@@ -356,6 +356,40 @@ void main() {
     });
   });
 
+  group('resend and retry', () {
+    test('countResend adds an attempt to a sending row only', () async {
+      final id = await _analysisAt(store, mealId, _target, _now);
+      expect(await store.countResend(id, now: _now), isFalse);
+      await store.markSending(id, now: _now);
+
+      expect(await store.countResend(id, now: _now), isTrue);
+      expect((await store.byId(id))!.attempts, 2);
+    });
+
+    test('retry moves failed or rejected to queued, keeping attempts and '
+        'queued_at', () async {
+      final id = await _analysisAt(store, mealId, _target, _now);
+      await store.markSending(id, now: _now);
+      await store.fail(id, 'serverError', now: _now);
+      final later = _now.add(const Duration(hours: 2));
+
+      expect(await store.retry(id, now: later), isTrue);
+      final row = (await store.byId(id))!;
+      expect(
+        (row.status, row.errorKind, row.attempts),
+        (MealAnalysisStatus.queued, null, 1),
+      );
+      expect(row.queuedAt, _now);
+      expect(await store.retry(id, now: later), isFalse);
+    });
+
+    test('retry refuses a done row', () async {
+      final id = await _doneRow(store, mealId);
+
+      expect(await store.retry(id, now: _now), isFalse);
+    });
+  });
+
   group('maintenance', () {
     test('purgeRawBefore nulls raw_text only', () async {
       await _doneRow(store, mealId);

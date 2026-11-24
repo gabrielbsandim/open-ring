@@ -283,7 +283,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     try {
       return await _stream(model, request);
     } on AnalysisFailure catch (failure) {
-      final wait = _autoRetryWait(failure);
+      final wait = aiAutoRetryWait(failure);
       if (wait == null || _cancel.isCompleted) rethrow;
       await Future.any([Future<void>.delayed(wait), _cancel.future]);
       if (_cancel.isCompleted) throw _cancelled;
@@ -375,7 +375,8 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
   }
 }
 
-Duration? _autoRetryWait(AnalysisFailure f) {
+/// The wait before the one automatic resend a 429 allows, or null.
+Duration? aiAutoRetryWait(AnalysisFailure f) {
   final seconds = f.retryAfterSeconds;
   if (f.kind != AnalysisFailureKind.rateLimited || seconds == null) return null;
   if (seconds < 0 || seconds > aiAutoRetryMaxSeconds) return null;

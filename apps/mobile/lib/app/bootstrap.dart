@@ -312,6 +312,7 @@ Future<void> bootstrap() async {
   unawaited(container.read(resumeSyncTriggerProvider).onForeground());
   unawaited(container.read(mealRecoveryProvider.notifier).run());
   unawaited(container.read(workoutRecoveryProvider.notifier).run());
+  unawaited(container.read(aiRunRecoveryProvider.future).catchError((_) {}));
   container
     ..listen(healthGrantRetryProvider, (_, _) {})
     ..listen(dayRollProvider, (_, _) {})

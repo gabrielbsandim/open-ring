@@ -37,7 +37,7 @@ final class SharedPreferencesAiRunMarkerStore implements AiRunMarkerStore {
         promptVersion: prompt,
         providerHost: host,
         model: model,
-        status: AiReportStatus.failed,
+        status: AiReportStatus.cancelled,
         errorKind: 'cancelled',
       );
     } on Object {

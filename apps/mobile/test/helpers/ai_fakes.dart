@@ -251,7 +251,7 @@ final class InMemoryAiRunMarkerStore implements AiRunMarkerStore {
       promptVersion: draft.promptVersion,
       providerHost: draft.providerHost,
       model: draft.model,
-      status: AiReportStatus.failed,
+      status: AiReportStatus.cancelled,
       errorKind: 'cancelled',
     );
   }

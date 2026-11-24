@@ -24,7 +24,7 @@ void main() {
     expect(read.createdAtUtc, draft.createdAtUtc);
     expect(read.offsetMin, draft.offsetMin);
     expect(read.detailLevel, draft.detailLevel);
-    expect(read.status, AiReportStatus.failed);
+    expect(read.status, AiReportStatus.cancelled);
   });
 
   test('clear removes the marker', () async {

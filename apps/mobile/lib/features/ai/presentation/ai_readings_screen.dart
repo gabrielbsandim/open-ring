@@ -63,6 +63,7 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
       if (next case AnalysisFailed(failure: RunConsentNeeded())) {
         unawaited(_read(_kind, ask: true));
       }
+      if (next is AnalysisDone) ref.invalidate(aiLatestReadingProvider);
     });
     final on = ref.watch(aiEnabledProvider);
     final config = on ? ref.watch(aiConfigProvider).value : null;

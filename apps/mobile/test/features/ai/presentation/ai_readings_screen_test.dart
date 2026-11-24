@@ -587,6 +587,26 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  testWidgets('a cancelled run after a new reading keeps the new one', (
+    tester,
+  ) async {
+    await reports.insert(_stored());
+    await pump(tester);
+    expect(find.text('Stored summary.'), findsOneWidget);
+
+    await tapKind(tester, AiReadingKeys.weekly);
+    await answer(tester);
+    expect(find.text('A calm week.'), findsOneWidget);
+
+    await tapKind(tester, AiReadingKeys.daily);
+    await tester.tap(find.byKey(AiReadingKeys.cancel));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.aiReadingCancelled), findsOneWidget);
+    expect(find.text('A calm week.'), findsOneWidget);
+    expect(find.text('Stored summary.'), findsNothing);
+  });
+
   testWidgets('a consent that lapses mid tap opens the sheet again', (
     tester,
   ) async {

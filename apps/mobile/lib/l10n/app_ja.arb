@@ -2785,5 +2785,14 @@
   "aiErrorCeiling": "今月のトークン上限に達しました：{cap} トークン中 {used} トークン。上限は詳細設定で変更できます。",
   "aiRawTitle": "未確認のテキスト",
   "aiRawBanner": "OpenRing があなたのデータと照合できなかった {model} のテキストです。? の付いた数値は、送信したどのデータとも一致しません。",
-  "aiReadingFailedRow": "{kind, select, cancelled{キャンセル済み} other{完了しませんでした}}"
+  "aiReadingFailedRow": "{kind, select, cancelled{キャンセル済み} other{完了しませんでした}}",
+  "aiReadingsNoModelTitle": "モデルが接続されていません",
+  "aiReadingsNoModelBody": "読み解きを依頼するには、アドレス、モデル、キーを使ってAIサービスを接続してください。それまでは何もスマートフォンから送信されません。",
+  "aiReadingsUntestedTitle": "最初の読み解きの前に接続をテストしてください",
+  "aiReadingsEarlyTitle": "モデルに尋ねるにはまだ早すぎます",
+  "aiReadingsEarlyNote": "日数が少ないと、モデルは偶然にすぎないところにパターンを見つけてしまいます。",
+  "aiReadingStale": "{time}までのデータに基づいています。その後リングが同期されました。読み解きは自動ではやり直されません。別の読み解きを依頼するには、読み解きをタップしてください。",
+  "aiReadingSample": "サンプルです。モデルは呼び出されていません。デモモードでは読み解きがあらかじめ用意されており、何もスマートフォンから送信されません。",
+  "aiReadingSampleBy": "サンプル、モデルなし",
+  "aiHistoryRow": "AIに読み解きを依頼"
 }

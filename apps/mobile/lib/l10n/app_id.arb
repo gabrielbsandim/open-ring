@@ -2785,5 +2785,14 @@
   "aiErrorCeiling": "Batas token bulan ini tercapai: {used} dari {cap} token. Anda dapat mengubah batasnya di Lanjutan.",
   "aiRawTitle": "Teks yang belum diperiksa",
   "aiRawBanner": "Teks dari {model} yang tidak dapat diperiksa OpenRing dengan data Anda. Angka bertanda ? tidak cocok dengan data apa pun yang dikirim.",
-  "aiReadingFailedRow": "{kind, select, cancelled{Dibatalkan} other{Tidak selesai}}"
+  "aiReadingFailedRow": "{kind, select, cancelled{Dibatalkan} other{Tidak selesai}}",
+  "aiReadingsNoModelTitle": "Tidak ada model yang terhubung",
+  "aiReadingsNoModelBody": "Untuk meminta bacaan, hubungkan layanan AI dengan alamat, model, dan kunci Anda. Sampai saat itu, tidak ada yang keluar dari ponsel.",
+  "aiReadingsUntestedTitle": "Uji koneksi sebelum bacaan pertama",
+  "aiReadingsEarlyTitle": "Masih terlalu dini untuk bertanya kepada model",
+  "aiReadingsEarlyNote": "Dengan sedikit hari, model menemukan pola di tempat yang hanya kebetulan.",
+  "aiReadingStale": "Berdasarkan data hingga {time}. Cincin disinkronkan setelah itu. Bacaan tidak dibuat ulang dengan sendirinya: ketuk salah satu bacaan untuk meminta yang lain.",
+  "aiReadingSample": "Contoh. Tidak ada model yang dipanggil. Dalam mode demo, bacaan sudah siap dan tidak ada yang keluar dari ponsel.",
+  "aiReadingSampleBy": "Contoh, tanpa model",
+  "aiHistoryRow": "Minta bacaan dari AI"
 }

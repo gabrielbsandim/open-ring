@@ -5291,5 +5291,15 @@
   "aiRawBanner": "Text from {model} that OpenRing could not check against your data. Numbers marked with ? match no data that was sent.",
   "@aiRawBanner": {"placeholders": {"model": {"type": "String"}}},
   "aiReadingFailedRow": "{kind, select, cancelled{Cancelled} other{Did not finish}}",
-  "@aiReadingFailedRow": {"placeholders": {"kind": {"type": "String"}}}
+  "@aiReadingFailedRow": {"placeholders": {"kind": {"type": "String"}}},
+  "aiReadingsNoModelTitle": "No model connected",
+  "aiReadingsNoModelBody": "To ask for a reading, connect an AI service with your address, your model and your key. Nothing leaves the phone until then.",
+  "aiReadingsUntestedTitle": "Test the connection before the first reading",
+  "aiReadingsEarlyTitle": "It is still early to ask a model",
+  "aiReadingsEarlyNote": "With few days, a model finds patterns where there is only chance.",
+  "aiReadingStale": "Based on data up to {time}. The ring synced after that. The reading is not redone by itself: tap a reading to ask for another.",
+  "@aiReadingStale": {"placeholders": {"time": {"type": "String"}}},
+  "aiReadingSample": "Sample. No model was called. In demo mode the reading comes ready and nothing leaves the phone.",
+  "aiReadingSampleBy": "Sample, no model",
+  "aiHistoryRow": "Ask the AI for a reading"
 }

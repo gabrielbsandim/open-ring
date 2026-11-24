@@ -2785,5 +2785,14 @@
   "aiErrorCeiling": "Se alcanzó el límite de tokens de este mes: {used} de {cap} tokens. Puedes cambiar el límite en Avanzado.",
   "aiRawTitle": "Texto sin verificar",
   "aiRawBanner": "Texto de {model} que OpenRing no pudo comprobar con tus datos. Los números marcados con ? no coinciden con ningún dato enviado.",
-  "aiReadingFailedRow": "{kind, select, cancelled{Cancelada} other{No terminó}}"
+  "aiReadingFailedRow": "{kind, select, cancelled{Cancelada} other{No terminó}}",
+  "aiReadingsNoModelTitle": "Ningún modelo conectado",
+  "aiReadingsNoModelBody": "Para pedir una lectura, conecta un servicio de IA con tu dirección, tu modelo y tu clave. Hasta entonces, nada sale del teléfono.",
+  "aiReadingsUntestedTitle": "Prueba la conexión antes de la primera lectura",
+  "aiReadingsEarlyTitle": "Todavía es pronto para preguntar a un modelo",
+  "aiReadingsEarlyNote": "Con pocos días, un modelo encuentra patrones donde solo hay azar.",
+  "aiReadingStale": "Basada en datos hasta {time}. El anillo se sincronizó después. La lectura no se rehace sola: toca una lectura para pedir otra.",
+  "aiReadingSample": "Muestra. No se llamó a ningún modelo. En el modo demostración la lectura viene lista y nada sale del teléfono.",
+  "aiReadingSampleBy": "Muestra, sin modelo",
+  "aiHistoryRow": "Pedir una lectura a la IA"
 }

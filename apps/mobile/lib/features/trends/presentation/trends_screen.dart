@@ -10,6 +10,7 @@ import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/charts.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/ai/presentation/ai_history_row.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/day_score_providers.dart';
@@ -79,6 +80,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
             onRange: (range) => setState(() => _range = range),
           ),
         ),
+        const AiHistoryRow(),
       ],
     );
   }

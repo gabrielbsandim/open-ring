@@ -42,12 +42,14 @@ class AiReadingCard extends StatelessWidget {
     required this.card,
     required this.facts,
     required this.model,
+    this.sample = false,
     super.key,
   });
 
   final ValidatedAiCard card;
   final Map<String, AiFactSnapshot> facts;
   final String model;
+  final bool sample;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +71,13 @@ class AiReadingCard extends StatelessWidget {
                 spacing: 8,
                 children: [
                   AccentDot(color: aiFamilyColor(colors, card.family)),
-                  Expanded(child: CaptionText(l10n.aiReadingWrittenBy(model))),
+                  Expanded(
+                    child: CaptionText(
+                      sample
+                          ? l10n.aiReadingSampleBy
+                          : l10n.aiReadingWrittenBy(model),
+                    ),
+                  ),
                 ],
               ),
               Text(card.title, style: text.titleMedium),

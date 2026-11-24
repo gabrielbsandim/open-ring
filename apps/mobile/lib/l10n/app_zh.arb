@@ -2785,5 +2785,14 @@
   "aiErrorCeiling": "本月的 token 上限已用完：{cap} 中已用 {used}。你可以在“高级”中更改上限。",
   "aiRawTitle": "未核对的文本",
   "aiRawBanner": "来自 {model} 的文本，OpenRing 无法将其与你的数据核对。标有 ? 的数字与发送的任何数据都不符。",
-  "aiReadingFailedRow": "{kind, select, cancelled{已取消} other{未完成}}"
+  "aiReadingFailedRow": "{kind, select, cancelled{已取消} other{未完成}}",
+  "aiReadingsNoModelTitle": "未连接模型",
+  "aiReadingsNoModelBody": "要请求解读，请用你的地址、模型和密钥连接一个 AI 服务。在此之前，任何内容都不会离开手机。",
+  "aiReadingsUntestedTitle": "在第一次解读前测试连接",
+  "aiReadingsEarlyTitle": "现在问模型还为时过早",
+  "aiReadingsEarlyNote": "天数太少时，模型会在只有偶然的地方找出规律。",
+  "aiReadingStale": "基于截至 {time} 的数据。之后戒指又同步过。解读不会自动重做：点按一种解读即可再请求一次。",
+  "aiReadingSample": "示例。没有调用任何模型。在演示模式下，解读是预先准备好的，任何内容都不会离开手机。",
+  "aiReadingSampleBy": "示例，无模型",
+  "aiHistoryRow": "请 AI 解读"
 }

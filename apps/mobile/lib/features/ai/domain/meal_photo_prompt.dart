@@ -108,8 +108,6 @@ String buildMealPhotoUserText({
   return '$head\nWrite item names in ${sanitizeReplyLanguage(replyLanguage)}.';
 }
 
-// The request must also carry schemaName aiMealSchemaName and stream false;
-// AnalysisRequest gains both fields in A11b, which sets them here.
 AnalysisRequest buildMealPhotoRequest(
   String base64Jpeg, {
   required bool withItems,
@@ -130,4 +128,6 @@ AnalysisRequest buildMealPhotoRequest(
   profile: profile,
   jsonSchema: mealPhotoOutputSchema(withItems: withItems),
   pin: pin,
+  schemaName: aiMealSchemaName,
+  stream: false,
 );

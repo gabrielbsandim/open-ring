@@ -12,6 +12,8 @@ final class AnalysisRequest {
     this.jsonSchema,
     this.reasoningEffort,
     this.pin = AiOutputPin.none,
+    this.schemaName = aiReportSchemaName,
+    this.stream,
   });
 
   final String systemPrompt;
@@ -21,6 +23,10 @@ final class AnalysisRequest {
   final Map<String, Object?>? jsonSchema;
   final AiReasoningEffort? reasoningEffort;
   final AiOutputPin pin;
+  final String schemaName;
+
+  /// Overrides the profile's streaming for this request; null follows it.
+  final bool? stream;
 }
 
 @immutable

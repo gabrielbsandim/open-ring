@@ -98,6 +98,7 @@ final class AiCapabilityProfile {
   /// returning null once every applicable step is exhausted or unmatched.
   AiCapabilityProfile? nextOnBadRequest(String errorMessage) {
     final lower = errorMessage.toLowerCase();
+    if (_namesVision(lower)) return null;
     if (streamOk && streamUsageOk && lower.contains('stream_options')) {
       return copyWith(streamUsageOk: false);
     }
@@ -283,6 +284,17 @@ final class AnalysisFailure implements Exception {
   int get hashCode =>
       Object.hash(kind, detail, statusCode, retryAfterSeconds, timeoutStage);
 }
+
+// Not 'content': it appears in too many unrelated 400 messages.
+const List<String> _visionWords = ['image', 'vision', 'multimodal'];
+
+bool _namesVision(String lower) => _visionWords.any(lower.contains);
+
+/// A 400 that refuses the image itself, so no wire step down can help.
+bool isNoVisionFailure(AnalysisFailure failure) =>
+    failure.kind == AnalysisFailureKind.badRequest &&
+    failure.statusCode == 400 &&
+    _namesVision(failure.detail.toLowerCase());
 
 String scrubApiKey(String text, String? apiKey) {
   final cleaned = _replaceKey(text, apiKey).trim();

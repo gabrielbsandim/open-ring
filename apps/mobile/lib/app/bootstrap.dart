@@ -16,9 +16,11 @@ import 'package:open_ring/features/activity/infrastructure/drift_activity_histor
 import 'package:open_ring/features/activity/infrastructure/drift_step_goal_history.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/application/ai_report_providers.dart';
+import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/ai/infrastructure/drift_ai_report_store.dart';
 import 'package:open_ring/features/ai/infrastructure/secure_storage_secret_store.dart';
 import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_config_store.dart';
+import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_run_marker_store.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/infrastructure/drift_weigh_in_store.dart';
@@ -215,6 +217,9 @@ Future<void> bootstrap() async {
       ),
       secretStoreProvider.overrideWithValue(const SecureStorageSecretStore()),
       aiConfigStoreProvider.overrideWithValue(SharedPreferencesAiConfigStore()),
+      aiRunMarkerStoreProvider.overrideWithValue(
+        SharedPreferencesAiRunMarkerStore(),
+      ),
       aiReportStoreProvider.overrideWith(
         (ref) => DriftAiReportStore(ref.watch(appDatabaseProvider)),
       ),
@@ -307,6 +312,7 @@ Future<void> bootstrap() async {
   unawaited(container.read(resumeSyncTriggerProvider).onForeground());
   unawaited(container.read(mealRecoveryProvider.notifier).run());
   unawaited(container.read(workoutRecoveryProvider.notifier).run());
+  unawaited(container.read(aiRunRecoveryProvider.future).catchError((_) {}));
   container
     ..listen(healthGrantRetryProvider, (_, _) {})
     ..listen(dayRollProvider, (_, _) {})

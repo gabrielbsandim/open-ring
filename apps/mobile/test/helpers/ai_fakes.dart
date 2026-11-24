@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
+import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 
 final class InMemorySecretStore implements SecretStore {
@@ -228,3 +231,59 @@ AiReport sampleAiReport({required DateTime at, String text = 'raw'}) =>
       cardsJson: text,
       rawText: text,
     );
+
+final class InMemoryAiRunMarkerStore implements AiRunMarkerStore {
+  AiReport? value;
+  int writes = 0;
+
+  @override
+  Future<AiReport?> read() async {
+    await readGate?.future;
+    final draft = value;
+    if (draft == null) return null;
+    return AiReport(
+      createdAtUtc: draft.createdAtUtc,
+      offsetMin: draft.offsetMin,
+      kind: draft.kind,
+      contextSchema: draft.contextSchema,
+      contextSha256: draft.contextSha256,
+      detailLevel: draft.detailLevel,
+      promptVersion: draft.promptVersion,
+      providerHost: draft.providerHost,
+      model: draft.model,
+      status: AiReportStatus.cancelled,
+      errorKind: 'cancelled',
+    );
+  }
+
+  @override
+  Future<void> write(AiReport draft) async {
+    writes++;
+    await writeGate?.future;
+    if (writeError != null) throw writeError!;
+    value = draft;
+  }
+
+  @override
+  Future<void> clear() async {
+    if (clearError != null) throw clearError!;
+    value = null;
+  }
+
+  String? month;
+  int monthSum = 0;
+  Completer<void>? readGate;
+  Exception? writeError;
+  Completer<void>? writeGate;
+  Exception? clearError;
+
+  @override
+  Future<int> monthTokens(String month) async =>
+      month == this.month ? monthSum : 0;
+
+  @override
+  Future<void> addMonthTokens(String month, int tokens) async {
+    monthSum = await monthTokens(month) + tokens;
+    this.month = month;
+  }
+}

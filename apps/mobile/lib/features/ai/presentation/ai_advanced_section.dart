@@ -7,6 +7,7 @@ import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_advanced_input.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
+import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -157,8 +158,7 @@ class _AiAdvancedSectionState extends ConsumerState<AiAdvancedSection> {
   List<Widget> _controls(AppLocalizations l10n) {
     final config = widget.config;
     final locked = widget.locked;
-    final local =
-        config.preset.isLocal || (config.normalizedUrl?.isCleartext ?? false);
+    final compact = config.contextWindow == AiContextWindow.compact;
     return [
       const SizedBox(height: 16),
       _number(
@@ -179,7 +179,7 @@ class _AiAdvancedSectionState extends ConsumerState<AiAdvancedSection> {
             : (s) =>
                   unawaited(_edit((c) => c.copyWith(requestTimeoutSeconds: s))),
       ),
-      if (local) ...[
+      if (compact) ...[
         const SizedBox(height: 8),
         CaptionText(key: AiAdvancedKeys.localNote, l10n.aiLocalSoftnote),
       ],

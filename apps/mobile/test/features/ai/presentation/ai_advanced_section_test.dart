@@ -10,6 +10,7 @@ import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_provider_preset.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
+import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/ai/presentation/ai_advanced_section.dart';
 import 'package:open_ring/features/ai/presentation/ai_connection_screen.dart';
@@ -253,17 +254,33 @@ void main() {
   });
 
   group('local model note', () {
-    testWidgets('shows next to the timeout for a local host', (tester) async {
+    testWidgets('shows next to the timeout with the compact context', (
+      tester,
+    ) async {
       store.config = const AiConfig(
         preset: AiProviderPreset.ollama,
         baseUrl: 'http://192.168.1.10:11434/v1',
         model: 'llama3.1',
+        contextWindow: AiContextWindow.compact,
         requestTimeoutSeconds: 600,
       );
       await pump(tester);
 
       expect(find.byKey(AiAdvancedKeys.localNote), findsOneWidget);
       expect(find.text(l10n.aiLocalSoftnote), findsOneWidget);
+    });
+
+    testWidgets('is hidden for an http address on the standard context', (
+      tester,
+    ) async {
+      store.config = const AiConfig(
+        preset: AiProviderPreset.custom,
+        baseUrl: 'http://192.168.1.10:8080/v1',
+        model: 'local-model',
+      );
+      await pump(tester);
+
+      expect(find.byKey(AiAdvancedKeys.localNote), findsNothing);
     });
 
     testWidgets('is hidden for a service on the internet', (tester) async {

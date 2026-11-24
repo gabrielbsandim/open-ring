@@ -40,6 +40,8 @@ final class AiImageContent extends AiUserContent {
   int get hashCode => Object.hash(text, base64Jpeg);
 }
 
+const String aiReportSchemaName = 'openring_report';
+
 abstract final class OpenAiWireCodec {
   static final _thinkPattern = RegExp(
     r'<think>[\s\S]*?</think>',
@@ -65,7 +67,7 @@ abstract final class OpenAiWireCodec {
     required int maxOutputTokens,
     required AiCapabilityProfile profile,
     Map<String, Object?>? jsonSchema,
-    String schemaName = 'openring_report',
+    String schemaName = aiReportSchemaName,
     AiReasoningEffort? reasoningEffort,
     bool? streamOverride,
   }) {

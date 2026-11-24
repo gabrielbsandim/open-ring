@@ -96,8 +96,13 @@ final class AiCapabilityProfile {
 
   /// Steps down one wire capability on an HTTP 400 before billing occurs,
   /// returning null once every applicable step is exhausted or unmatched.
-  AiCapabilityProfile? nextOnBadRequest(String errorMessage) {
+  /// An [imageRequest] refused for its image stops here.
+  AiCapabilityProfile? nextOnBadRequest(
+    String errorMessage, {
+    bool imageRequest = false,
+  }) {
     final lower = errorMessage.toLowerCase();
+    if (imageRequest && _refusesImage(lower)) return null;
     if (streamOk && streamUsageOk && lower.contains('stream_options')) {
       return copyWith(streamUsageOk: false);
     }
@@ -283,6 +288,30 @@ final class AnalysisFailure implements Exception {
   int get hashCode =>
       Object.hash(kind, detail, statusCode, retryAfterSeconds, timeoutStage);
 }
+
+// Phrases, not bare words: a model id such as "llama-3.2-11b-vision" is
+// echoed in unrelated 400s.
+const List<String> _imageRefusals = [
+  'image input',
+  'image_url',
+  'image content',
+  'images are not supported',
+  'does not support image',
+  'does not support vision',
+  'not a vision model',
+  'not multimodal',
+  'multimodal input',
+];
+
+bool _refusesImage(String lower) => _imageRefusals.any(lower.contains);
+
+/// A 400 to a request with an image part that refuses the image itself, so
+/// no wire step down can help.
+bool isNoVisionFailure(AnalysisFailure failure, {required bool imageRequest}) =>
+    imageRequest &&
+    failure.kind == AnalysisFailureKind.badRequest &&
+    failure.statusCode == 400 &&
+    _refusesImage(failure.detail.toLowerCase());
 
 String scrubApiKey(String text, String? apiKey) {
   final cleaned = _replaceKey(text, apiKey).trim();

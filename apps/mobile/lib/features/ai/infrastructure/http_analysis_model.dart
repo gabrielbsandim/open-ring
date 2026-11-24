@@ -225,7 +225,9 @@ final class HttpAnalysisModel implements AnalysisModel {
     var ladder = request.profile;
     final tried = <AiCapabilityProfile>{};
     for (var attempt = 1; ; attempt++) {
-      final sent = pin.apply(ladder);
+      // A stream override folds into the sent profile so a streaming step
+      // down that would resend the same body counts as already tried.
+      final sent = pin.apply(ladder).copyWith(streamOk: request.stream);
       tried.add(sent);
       final body = OpenAiWireCodec.buildChatBody(
         model: model,
@@ -234,7 +236,9 @@ final class HttpAnalysisModel implements AnalysisModel {
         maxOutputTokens: request.maxOutputTokens,
         profile: sent,
         jsonSchema: request.jsonSchema,
+        schemaName: request.schemaName,
         reasoningEffort: request.reasoningEffort,
+        streamOverride: request.stream,
       );
       final response = await _send(
         run,
@@ -244,7 +248,15 @@ final class HttpAnalysisModel implements AnalysisModel {
       );
       if (_isSuccess(response)) return (response, ladder);
       final failure = await _readFailure(run, response);
-      final next = _stepDown(failure, ladder, pin, tried, attempt);
+      final next = _stepDown(
+        failure,
+        ladder,
+        pin,
+        tried,
+        attempt,
+        stream: request.stream,
+        imageRequest: request.userContent is AiImageContent,
+      );
       if (next == null) throw failure;
       ladder = next;
     }
@@ -257,14 +269,18 @@ final class HttpAnalysisModel implements AnalysisModel {
     AiCapabilityProfile ladder,
     AiOutputPin pin,
     Set<AiCapabilityProfile> tried,
-    int attempt,
-  ) {
+    int attempt, {
+    bool? stream,
+    bool imageRequest = false,
+  }) {
     if (attempt >= aiMaxLadderAttempts) return null;
     if (failure.statusCode != 400) return null;
     if (failure.kind != AnalysisFailureKind.badRequest) return null;
-    var next = ladder.nextOnBadRequest(failure.detail);
-    while (next != null && tried.contains(pin.apply(next))) {
-      next = next.nextOnBadRequest(failure.detail);
+    final detail = failure.detail;
+    var next = ladder.nextOnBadRequest(detail, imageRequest: imageRequest);
+    while (next != null &&
+        tried.contains(pin.apply(next).copyWith(streamOk: stream))) {
+      next = next.nextOnBadRequest(detail, imageRequest: imageRequest);
     }
     return next;
   }

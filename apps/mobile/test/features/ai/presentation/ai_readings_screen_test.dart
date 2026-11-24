@@ -168,16 +168,45 @@ final class _Model implements AnalysisModel {
   }) => throw UnimplementedError();
 }
 
+AiReport _atMillis(AiReport r) => AiReport(
+  createdAtUtc: DateTime.fromMillisecondsSinceEpoch(
+    r.createdAtUtc.millisecondsSinceEpoch,
+    isUtc: true,
+  ),
+  offsetMin: r.offsetMin,
+  kind: r.kind,
+  contextSchema: r.contextSchema,
+  contextSha256: r.contextSha256,
+  detailLevel: r.detailLevel,
+  promptVersion: r.promptVersion,
+  providerHost: r.providerHost,
+  model: r.model,
+  status: r.status,
+  payloadJson: r.payloadJson,
+  cardsJson: r.cardsJson,
+  rawText: r.rawText,
+  droppedCards: r.droppedCards,
+  promptTokens: r.promptTokens,
+  completionTokens: r.completionTokens,
+  reasoningTokens: r.reasoningTokens,
+  cost: r.cost,
+  costCurrency: r.costCurrency,
+  costSource: r.costSource,
+  durationMs: r.durationMs,
+  errorKind: r.errorKind,
+);
+
 final class _GatedStore implements AiReportStore {
   final InMemoryAiReportStore _inner = InMemoryAiReportStore();
   Completer<void>? gate;
 
   List<AiReport> get reports => _inner.reports;
 
+  // Like the Drift column, the store keeps milliseconds only.
   @override
   Future<int> insert(AiReport report) async {
     await gate?.future;
-    return await _inner.insert(report);
+    return await _inner.insert(_atMillis(report));
   }
 
   @override
@@ -204,6 +233,7 @@ void main() {
   late bool notEnough;
   late Completer<void>? payloadGate;
   late ValueNotifier<bool> visible;
+  late DateTime clockNow;
 
   setUp(() {
     configs = InMemoryAiConfigStore()
@@ -229,6 +259,7 @@ void main() {
     notEnough = false;
     payloadGate = null;
     visible = ValueNotifier(true);
+    clockNow = _now;
     addTearDown(visible.dispose);
   });
 
@@ -263,7 +294,7 @@ void main() {
     }),
     aiReportStoreProvider.overrideWithValue(reports),
     aiRunMarkerStoreProvider.overrideWithValue(InMemoryAiRunMarkerStore()),
-    clockProvider.overrideWithValue(() => _now),
+    clockProvider.overrideWithValue(() => clockNow),
     analysisModelFactoryProvider.overrideWithValue((config) async {
       factoryCalls++;
       return model;
@@ -388,6 +419,19 @@ void main() {
 
     expect(find.text('f.sleepMin.avg'), findsOneWidget);
     expect(find.text(l10n.aiReadingConfidence('low', 4)), findsOneWidget);
+  });
+
+  testWidgets('a reading just sent is not listed again under earlier ones', (
+    tester,
+  ) async {
+    clockNow = _now.add(const Duration(microseconds: 123));
+    await pump(tester);
+
+    await tapKind(tester, AiReadingKeys.weekly);
+    await answer(tester);
+
+    expect(find.text('Steady sleep'), findsOneWidget);
+    expect(find.text(l10n.aiReadingsEarlier), findsNothing);
   });
 
   testWidgets('weekly and daily send their own payload', (tester) async {

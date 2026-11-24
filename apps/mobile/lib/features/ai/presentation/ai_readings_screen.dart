@@ -188,7 +188,7 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
     final shown = _picked ?? done ?? ref.watch(aiLatestReadingProvider).value;
     final earlier = [
       for (final r in ref.watch(aiHostReportsProvider).value ?? <AiReport>[])
-        if ((r.createdAtUtc, r.kind) != (shown?.createdAtUtc, shown?.kind)) r,
+        if (_identity(r) != _identity(shown)) r,
     ];
     final fmt = MetricFormat.of(context);
     return [
@@ -311,6 +311,11 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
     ];
   }
 }
+
+// The store keeps milliseconds while the run state holds the clock's
+// microseconds, and only stored copies carry an id.
+(int?, String?) _identity(AiReport? r) =>
+    (r?.createdAtUtc.millisecondsSinceEpoch, r?.kind);
 
 // `weekly_review` gives the `weekly` select value of the ARB messages.
 String _kindArg(String wire) => wire.split('_').first;

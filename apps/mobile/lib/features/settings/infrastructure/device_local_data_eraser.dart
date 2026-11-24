@@ -2,6 +2,7 @@ import 'package:open_ring/app/theme/shared_preferences_theme_mode_store.dart';
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_config_store.dart';
+import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_run_marker_store.dart';
 import 'package:open_ring/features/body/infrastructure/shared_preferences_hide_numbers_store.dart';
 import 'package:open_ring/features/demo/infrastructure/shared_preferences_demo_mode_store.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
@@ -37,6 +38,7 @@ final class DeviceLocalDataEraser implements LocalDataEraser {
     SharedPreferencesWorkoutLockPreferences.key,
     SharedPreferencesWorkoutAlertPreferences.key,
     ...SharedPreferencesAiConfigStore.keys,
+    SharedPreferencesAiRunMarkerStore.key,
     ...legacyPreferenceKeys,
   };
 

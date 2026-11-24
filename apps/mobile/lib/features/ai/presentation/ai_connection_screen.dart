@@ -294,12 +294,15 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
       builder: (sheetCtx) => _presetSheet(sheetCtx, _preset),
     );
     if (!mounted || next == null || next == _preset) return;
-    final moves = _hostMoves(config, next.baseUrl);
+    // A preset without a fixed address defers the host move to a typed save.
+    final moves = next.baseUrl.isNotEmpty && _hostMoves(config, next.baseUrl);
     if (moves && !await _confirmSwitch(config)) return;
     setState(() {
       _preset = next;
       _url.text = next.baseUrl;
       _model.clear();
+      _key.clear();
+      _replacingKey = false;
     });
     if (moves) await _persist(config);
   }

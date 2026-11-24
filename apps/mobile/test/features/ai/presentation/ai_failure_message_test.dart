@@ -112,7 +112,7 @@ void main() {
   });
 
   test('429 names the retry-after seconds, or says in a moment', () {
-    final rate = AnalysisFailureKind.rateLimited;
+    const rate = AnalysisFailureKind.rateLimited;
     expect(
       aiFailureMessage(l10n, _f(rate, retryAfter: 45), _remote),
       'The provider is limiting requests. Try again in 45 s.',

@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
@@ -12,6 +15,7 @@ import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_provider_preset.dart';
 import 'package:open_ring/features/ai/domain/base_url_policy.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
+import 'package:open_ring/features/ai/presentation/ai_models_sheet.dart';
 import 'package:open_ring/features/ai/presentation/ai_test_connection_sheet.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -33,6 +37,11 @@ abstract final class AiConnectionKeys {
   static const test = Key('ai_connection_test');
   static const testFillFirst = Key('ai_connection_test_fill_first');
   static const tested = Key('ai_connection_tested');
+  static const presetNote = Key('ai_connection_preset_note');
+  static const hostUnusual = Key('ai_connection_host_unusual');
+  static const keyPaste = Key('ai_connection_key_paste');
+  static const keyInfo = Key('ai_connection_key_info');
+  static const models = Key('ai_connection_models');
 
   static Key preset(AiProviderPreset preset) =>
       Key('ai_connection_preset_${preset.name}');
@@ -48,6 +57,15 @@ String aiPresetLabel(AppLocalizations l10n, AiProviderPreset preset) =>
       AiProviderPreset.ollama => l10n.aiConnectionPresetLocal('Ollama'),
       AiProviderPreset.lmStudio => l10n.aiConnectionPresetLocal('LM Studio'),
       AiProviderPreset.custom => l10n.aiConnectionPresetCustom,
+    };
+
+String? aiPresetNote(AppLocalizations l10n, AiProviderPreset preset) =>
+    switch (preset) {
+      AiProviderPreset.openAi => l10n.aiNoteOpenAi,
+      AiProviderPreset.openRouter => l10n.aiNoteOpenRouter,
+      AiProviderPreset.gemini => l10n.aiNoteGemini,
+      AiProviderPreset.anthropic => l10n.aiNoteAnthropic,
+      _ => null,
     };
 
 /// The inline refusal for a typed base URL, or null when it is empty or valid.
@@ -141,6 +159,8 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
 
   List<Widget> _form(AppLocalizations l10n, AiConfig config) {
     final url = _parsedUrl(_url.text);
+    final note = aiPresetNote(l10n, _preset);
+    final modelsTarget = _modelsTarget(config, url);
     return [
       TileGroup(
         children: [
@@ -153,6 +173,10 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
           ),
         ],
       ),
+      if (note != null) ...[
+        const SizedBox(height: 6),
+        CaptionText(key: AiConnectionKeys.presetNote, note),
+      ],
       const SizedBox(height: 16),
       ..._addressField(l10n, url),
       const SizedBox(height: 16),
@@ -164,7 +188,17 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
         enabled: !_busy,
         autocorrect: false,
         enableSuggestions: false,
-        decoration: InputDecoration(labelText: l10n.aiConnectionModel),
+        decoration: InputDecoration(
+          labelText: l10n.aiConnectionModel,
+          suffixIcon: IconButton(
+            key: AiConnectionKeys.models,
+            tooltip: l10n.aiModelsSearch,
+            icon: const Icon(Icons.list_rounded),
+            onPressed: modelsTarget == null
+                ? null
+                : () => unawaited(_pickModel(config, modelsTarget)),
+          ),
+        ),
       ),
       const SizedBox(height: 24),
       FilledButton(
@@ -188,6 +222,45 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
       _testCaption(l10n, config, url),
     ];
   }
+
+  AiConfig? _modelsTarget(AiConfig config, NormalizedBaseUrl? url) {
+    if (_busy || url == null) return null;
+    return config.copyWith(
+      preset: _preset,
+      baseUrl: _url.text.trim(),
+      model: _model.text.trim(),
+    );
+  }
+
+  Future<void> _pickModel(AiConfig config, AiConfig target) async {
+    final typed = _key.text.trim();
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => AiModelsSheet(
+        config: target,
+        storedKeyAllowed:
+            config.hostKey != null && target.hostKey == config.hostKey,
+        typedKey: typed.isEmpty ? null : typed,
+      ),
+    );
+    if (!mounted || picked == null) return;
+    _model.text = picked;
+  }
+
+  Future<void> _paste() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text?.trim() ?? '';
+    if (!mounted || text.isEmpty) return;
+    _key.text = text;
+  }
+
+  Widget _keyInfoButton(AppLocalizations l10n) => IconButton(
+    key: AiConnectionKeys.keyInfo,
+    tooltip: l10n.aiKeyInfoTitle,
+    icon: const Icon(Icons.info_outline_rounded),
+    onPressed: () => unawaited(context.push(AppPaths.settingsAiKeyInfo)),
+  );
 
   bool _formComplete(AiConfig config, NormalizedBaseUrl? url) =>
       url != null &&
@@ -268,6 +341,18 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
           l10n.aiConnectionRequestsGoTo('${url.chatCompletionsUri}'),
         ),
       ],
+      if (url?.hasNonAsciiHost ?? false) ...[
+        const SizedBox(height: 8),
+        Row(
+          key: AiConnectionKeys.hostUnusual,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.warning_amber_rounded, size: 18, color: colors.heart),
+            const SizedBox(width: 8),
+            Expanded(child: BodyText(l10n.aiHostUnusual)),
+          ],
+        ),
+      ],
       if (cleartext) ...[
         const SizedBox(height: 8),
         Row(
@@ -309,6 +394,18 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
           decoration: InputDecoration(
             labelText: label,
             prefixIcon: const Icon(Icons.key_rounded),
+            suffixIcon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  key: AiConnectionKeys.keyPaste,
+                  tooltip: l10n.aiKeyPaste,
+                  icon: const Icon(Icons.content_paste_rounded),
+                  onPressed: _busy ? null : () => unawaited(_paste()),
+                ),
+                _keyInfoButton(l10n),
+              ],
+            ),
           ),
         ),
       if (host != null) ...[
@@ -335,13 +432,16 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
               l10n.aiConnectionKeySaved(lastFour.isEmpty ? 'hidden' : lastFour),
             ),
           ),
-          TextButton(
-            key: AiConnectionKeys.keyReplace,
-            onPressed: _busy
-                ? null
-                : () => setState(() => _replacingKey = true),
-            child: Text(l10n.aiConnectionKeyReplace),
+          Flexible(
+            child: TextButton(
+              key: AiConnectionKeys.keyReplace,
+              onPressed: _busy
+                  ? null
+                  : () => setState(() => _replacingKey = true),
+              child: Text(l10n.aiConnectionKeyReplace),
+            ),
           ),
+          _keyInfoButton(l10n),
         ],
       ),
     );

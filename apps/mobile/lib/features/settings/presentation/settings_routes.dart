@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:open_ring/features/ai/presentation/ai_connection_screen.dart';
+import 'package:open_ring/features/ai/presentation/ai_key_info_screen.dart';
 import 'package:open_ring/features/body/presentation/body_module_screen.dart';
 import 'package:open_ring/features/effort/presentation/effort_module_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_module_screen.dart';
@@ -31,6 +32,9 @@ GoRoute settingsRoute() => GoRoute(
     GoRoute(
       path: 'ai-connection',
       builder: (_, _) => const AiConnectionScreen(),
+      routes: [
+        GoRoute(path: 'key', builder: (_, _) => const AiKeyInfoScreen()),
+      ],
     ),
     GoRoute(
       path: 'modules',

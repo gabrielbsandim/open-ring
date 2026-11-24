@@ -69,6 +69,14 @@ final class _FakeFlutterSecureStorage extends FlutterSecureStorage {
 
 void main() {
   group('SecureStorageSecretStore', () {
+    test('iOS keeps the key on this device only', () {
+      const store = SecureStorageSecretStore();
+      expect(
+        store.iosOptions.toMap()['accessibility'],
+        KeychainAccessibility.first_unlock_this_device.name,
+      );
+    });
+
     test(
       'uses default v11 AndroidOptions without encryptedSharedPreferences',
       () {

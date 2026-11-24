@@ -262,6 +262,20 @@ void main() {
     expect(saveEnabled(tester), isTrue);
   });
 
+  testWidgets('a service switch empties a typed key', (tester) async {
+    await pump(tester);
+    await tester.enterText(find.byKey(AiConnectionKeys.apiKey), 'sk-typed');
+    await pickPreset(tester, AiProviderPreset.groq);
+
+    expect(
+      tester
+          .widget<TextField>(find.byKey(AiConnectionKeys.apiKey))
+          .controller!
+          .text,
+      isEmpty,
+    );
+  });
+
   group('host change with a saved key', () {
     testWidgets('switching service deletes the key after confirm', (
       tester,
@@ -318,6 +332,60 @@ void main() {
       expect(await secrets.read(aiApiKeySecretName), isNull);
       expect(store.config.baseUrl, 'https://api.other.example/v1');
       expect(store.config.keyLastFour, isNull);
+    });
+
+    testWidgets('a key typed for the old service never reaches the new one', (
+      tester,
+    ) async {
+      await withSavedKey();
+      await pump(tester);
+      await tester.tap(find.byKey(AiConnectionKeys.keyReplace));
+      await tester.pump();
+      await tester.enterText(
+        find.byKey(AiConnectionKeys.apiKey),
+        'sk-or-typed-9999',
+      );
+      await pickPreset(tester, AiProviderPreset.groq);
+      await tester.tap(find.byKey(AiConnectionKeys.switchConfirm));
+      await tester.pumpAndSettle();
+
+      expect(await secrets.read(aiApiKeySecretName), isNull);
+      expect(store.config.keyLastFour, isNull);
+      expect(
+        tester
+            .widget<TextField>(find.byKey(AiConnectionKeys.apiKey))
+            .controller!
+            .text,
+        isEmpty,
+      );
+    });
+
+    testWidgets('a preset without an address changes nothing until saved', (
+      tester,
+    ) async {
+      await withSavedKey();
+      final before = store.config;
+      await pump(tester);
+      await tester.tap(find.byKey(AiConnectionKeys.keyReplace));
+      await tester.pump();
+      await pickPreset(tester, AiProviderPreset.ollama);
+
+      expect(find.byKey(AiConnectionKeys.switchDialog), findsNothing);
+      expect(find.byKey(AiConnectionKeys.keySaved), findsOneWidget);
+      expect(store.config, before);
+      expect(await secrets.read(aiApiKeySecretName), 'sk-or-secret-ab3X');
+      expect(saveEnabled(tester), isFalse);
+
+      await typeUrl(tester, 'http://192.168.1.10:11434/v1');
+      await tester.tap(find.byKey(AiConnectionKeys.save));
+      await tester.pumpAndSettle();
+      expect(find.byKey(AiConnectionKeys.switchDialog), findsOneWidget);
+      await tester.tap(find.byKey(AiConnectionKeys.switchConfirm));
+      await tester.pumpAndSettle();
+
+      expect(await secrets.read(aiApiKeySecretName), isNull);
+      expect(store.config.preset, AiProviderPreset.ollama);
+      expect(store.config.baseUrl, 'http://192.168.1.10:11434/v1');
     });
 
     testWidgets('a typed new host cancelled saves nothing', (tester) async {

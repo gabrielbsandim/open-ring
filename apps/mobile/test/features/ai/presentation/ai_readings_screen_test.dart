@@ -86,7 +86,11 @@ final String _answer = jsonEncode({
   ],
 });
 
-AiReport _stored({String? cardsJson, String model = 'gpt-test'}) => AiReport(
+AiReport _stored({
+  String? cardsJson,
+  String model = 'gpt-test',
+  int dropped = 1,
+}) => AiReport(
   createdAtUtc: _now.subtract(const Duration(days: 1)),
   offsetMin: 0,
   kind: AiAnalysisKind.weeklyReview.wireName,
@@ -97,7 +101,7 @@ AiReport _stored({String? cardsJson, String model = 'gpt-test'}) => AiReport(
   providerHost: _hostKey,
   model: model,
   status: AiReportStatus.done,
-  droppedCards: 1,
+  droppedCards: dropped,
   cardsJson:
       cardsJson ??
       jsonEncode({
@@ -198,6 +202,8 @@ void main() {
   late int factoryCalls;
   late bool food;
   late bool notEnough;
+  late Completer<void>? payloadGate;
+  late ValueNotifier<bool> visible;
 
   setUp(() {
     configs = InMemoryAiConfigStore()
@@ -221,6 +227,9 @@ void main() {
     factoryCalls = 0;
     food = false;
     notEnough = false;
+    payloadGate = null;
+    visible = ValueNotifier(true);
+    addTearDown(visible.dispose);
   });
 
   List<Override> overrides() => [
@@ -229,6 +238,7 @@ void main() {
     demoModeStoreProvider.overrideWithValue(InMemoryDemoModeStore()),
     aiEnabledProvider.overrideWith((ref) => true),
     aiPayloadProvider.overrideWith((ref, kind) async {
+      await payloadGate?.future;
       if (notEnough) return const AiPayloadNotEnoughData(3);
       final base = _payload(kind);
       if (!food) return AiPayloadReady(base, kind: kind);
@@ -283,7 +293,11 @@ void main() {
                     child: const Text('open'),
                   ),
                 )
-              : const AiReadingsScreen(),
+              : ValueListenableBuilder<bool>(
+                  valueListenable: visible,
+                  builder: (_, on, _) =>
+                      TickerMode(enabled: on, child: const AiReadingsScreen()),
+                ),
         ),
       ),
     );
@@ -514,6 +528,39 @@ void main() {
     expect(model.cancelSeen, isTrue);
     expect(reports.reports.single.status, AiReportStatus.cancelled);
   });
+
+  testWidgets('a tab switch cancels the run in flight', (tester) async {
+    await pump(tester);
+    await tapKind(tester, AiReadingKeys.weekly);
+    expect(model.requests, hasLength(1));
+
+    visible.value = false;
+    await tester.pumpAndSettle();
+
+    expect(model.cancelSeen, isTrue);
+    expect(reports.reports.single.status, AiReportStatus.cancelled);
+  });
+
+  for (final withFood in [false, true]) {
+    testWidgets('a tab switch while the payload loads sends nothing '
+        '(new category: $withFood)', (tester) async {
+      food = withFood;
+      await pump(tester);
+      payloadGate = Completer<void>();
+      await tester.tap(find.byKey(AiReadingKeys.weekly));
+      await tester.pump();
+
+      visible.value = false;
+      await tester.pump();
+      payloadGate!.complete();
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(AiConsentKeys.sheet), findsNothing);
+      expect(factoryCalls, 0);
+      expect(model.requests, isEmpty);
+      expect(reports.reports, isEmpty);
+    });
+  }
 
   testWidgets('a consent that lapses mid tap opens the sheet again', (
     tester,

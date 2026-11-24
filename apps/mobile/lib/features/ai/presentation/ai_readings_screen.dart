@@ -38,12 +38,14 @@ class AiReadingsScreen extends ConsumerStatefulWidget {
 class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
   AnalysisRunController? _run;
   AiAnalysisKind _kind = AiAnalysisKind.weeklyReview;
+  bool _visible = true;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // A tab switch keeps this screen mounted offstage, which still leaves it.
-    if (!TickerMode.valuesOf(context).enabled) _run?.cancel();
+    _visible = TickerMode.valuesOf(context).enabled;
+    if (!_visible) _run?.cancel();
   }
 
   @override
@@ -149,7 +151,7 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
     final result = await ref.read(aiPayloadProvider(kind).future);
     final consent = await ref.read(aiConsentProvider.future);
     final run = _run;
-    if (!mounted || run == null) return;
+    if (!mounted || !_visible || run == null) return;
     final uncovered = switch (result) {
       AiPayloadReady(:final payload)
           when ask || !aiConsentCoversPayload(consent, config, payload) =>
@@ -164,7 +166,7 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
           payload: uncovered,
           previous: consent,
         );
-    if (!granted || !mounted) return;
+    if (!granted || !mounted || !_visible) return;
     await run.send(kind: kind);
   }
 

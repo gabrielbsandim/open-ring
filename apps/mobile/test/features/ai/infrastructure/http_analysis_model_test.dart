@@ -86,8 +86,11 @@ final class _Harness {
   late final InMemoryAiConfigStore store;
   late final HttpAnalysisModel model;
 
-  Future<List<AnalysisEvent>> run({Future<void>? cancel}) => model
-      .generate(_request, cancel: cancel ?? Completer<void>().future)
+  Future<List<AnalysisEvent>> run({
+    Future<void>? cancel,
+    AnalysisRequest request = _request,
+  }) => model
+      .generate(request, cancel: cancel ?? Completer<void>().future)
       .toList();
 }
 
@@ -231,6 +234,98 @@ void main() {
       await h.run();
 
       expect(h.calls.last.json['max_tokens'], 1000);
+    });
+
+    group('forced output modes', () {
+      AnalysisRequest forced(AiCapabilityProfile stored, AiOutputPin pin) =>
+          AnalysisRequest(
+            systemPrompt: 'system',
+            userContent: const AiTextContent('user'),
+            maxOutputTokens: 1000,
+            jsonSchema: const {'type': 'object'},
+            profile: stored,
+            pin: pin,
+          );
+
+      http.StreamedResponse plain() => _json(200, {
+        'choices': [
+          {
+            'message': {'content': '{"ok":true}'},
+            'finish_reason': 'stop',
+          },
+        ],
+      });
+
+      test('hold through a ladder retry and are never stored', () async {
+        final h = _Harness((call) async {
+          if (call.json.containsKey('max_completion_tokens')) {
+            return _json(400, _error('max_completion_tokens is not supported'));
+          }
+          return plain();
+        });
+
+        final events = await h.run(
+          request: forced(
+            const AiCapabilityProfile(jsonMode: AiJsonMode.jsonObject),
+            const AiOutputPin(jsonMode: AiJsonMode.jsonSchema, streamOff: true),
+          ),
+        );
+
+        expect(events.last, isA<AnalysisCompleted>());
+        expect(h.calls, hasLength(2));
+        for (final call in h.calls) {
+          expect(call.json['stream'], isNot(true));
+          final format = call.json['response_format']! as Map<String, Object?>;
+          expect(format['type'], 'json_schema');
+        }
+        expect(h.calls.last.json['max_tokens'], 1000);
+        expect(h.store.profiles, isEmpty);
+      });
+
+      test('a forced stream off holds on every ladder step', () async {
+        final h = _Harness(
+          (_) async => _json(400, _error('response_format is not supported')),
+        );
+
+        final failure = await _failureOf(
+          h.run(
+            request: forced(
+              AiCapabilityProfile.defaults,
+              const AiOutputPin(streamOff: true),
+            ),
+          ),
+        );
+
+        expect(failure.kind, AnalysisFailureKind.badRequest);
+        final bodies = [for (final c in h.calls) jsonEncode(c.json)];
+        expect(bodies.toSet(), hasLength(bodies.length));
+        expect(h.calls.every((c) => c.json['stream'] != true), isTrue);
+        expect(h.store.profiles, isEmpty);
+      });
+
+      test('nothing is persisted after a ladder step', () async {
+        final h = _Harness((call) async {
+          if (call.json.containsKey('max_completion_tokens')) {
+            return _json(400, _error('max_completion_tokens is not supported'));
+          }
+          return plain();
+        });
+
+        await h.run(
+          request: forced(
+            const AiCapabilityProfile(jsonMode: AiJsonMode.none),
+            const AiOutputPin(jsonMode: AiJsonMode.jsonObject, streamOff: true),
+          ),
+        );
+
+        expect(h.calls, hasLength(2));
+        for (final call in h.calls) {
+          expect(call.json['stream'], isNot(true));
+          final format = call.json['response_format']! as Map<String, Object?>;
+          expect(format['type'], 'json_object');
+        }
+        expect(h.store.profiles, isEmpty);
+      });
     });
 
     test('400 stops after 4 attempts with badRequest', () async {

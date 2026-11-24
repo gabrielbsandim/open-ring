@@ -244,9 +244,49 @@ void main() {
     await notifier(c).send();
     final request = model.lastRequest!;
     expect(request.maxOutputTokens, 9000);
-    expect(request.profile.jsonMode, AiJsonMode.none);
-    expect(request.profile.streamOk, isFalse);
+    expect(
+      request.pin,
+      const AiOutputPin(jsonMode: AiJsonMode.none, streamOff: true),
+    );
     expect(request.reasoningEffort, AiReasoningEffort.high);
+  });
+
+  group('a stored capability profile', () {
+    const stored = AiCapabilityProfile(
+      jsonMode: AiJsonMode.jsonObject,
+      streamOk: false,
+    );
+
+    setUp(
+      () => configStore.writeCapabilityProfile(
+        'https://api.example.com:443',
+        'm',
+        stored,
+      ),
+    );
+
+    test('goes out as is when both modes are Auto', () async {
+      final c = container();
+      listenState(c);
+      await notifier(c).send();
+      final request = model.lastRequest!;
+      expect(request.profile, stored);
+      expect(request.pin.isAuto, isTrue);
+    });
+
+    test('a forced JSON schema overrides only its own axis', () async {
+      configStore.config = configStore.config.copyWith(
+        structuredOutputMode: AiStructuredOutputMode.jsonSchema,
+      );
+      final c = container();
+      listenState(c);
+      await notifier(c).send();
+      final request = model.lastRequest!;
+      expect(request.profile, stored);
+      final sent = request.pin.apply(request.profile);
+      expect(sent.jsonMode, AiJsonMode.jsonSchema);
+      expect(sent.streamOk, isFalse);
+    });
   });
 
   test('a cached done report is returned with no network call', () async {

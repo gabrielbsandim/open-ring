@@ -11,6 +11,7 @@ final class AnalysisRequest {
     this.profile = AiCapabilityProfile.defaults,
     this.jsonSchema,
     this.reasoningEffort,
+    this.pin = AiOutputPin.none,
   });
 
   final String systemPrompt;
@@ -19,6 +20,7 @@ final class AnalysisRequest {
   final AiCapabilityProfile profile;
   final Map<String, Object?>? jsonSchema;
   final AiReasoningEffort? reasoningEffort;
+  final AiOutputPin pin;
 }
 
 @immutable

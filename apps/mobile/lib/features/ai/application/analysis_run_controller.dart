@@ -182,10 +182,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     await _execute(
       model,
       run,
-      profile: applyAiOutputModes(
-        config,
-        profile ?? AiCapabilityProfile.defaults,
-      ),
+      profile: profile ?? AiCapabilityProfile.defaults,
       store: store,
       markers: markers,
     );
@@ -212,6 +209,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
       userContent: AiTextContent(payload.userMessage),
       maxOutputTokens: config.maxOutputTokens,
       profile: profile,
+      pin: aiOutputPin(config),
       jsonSchema: aiReportOutputSchema,
       reasoningEffort: config.reasoningEffort,
     );

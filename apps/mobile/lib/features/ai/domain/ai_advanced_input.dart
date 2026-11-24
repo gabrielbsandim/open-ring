@@ -54,19 +54,12 @@ int? _positiveInt(String text) {
   return value;
 }
 
-/// Forced modes replace what the ladder found; auto keeps the stored
-/// profile, so a ladder step down still applies on the next run.
-AiCapabilityProfile applyAiOutputModes(
-  AiConfig config,
-  AiCapabilityProfile profile,
-) {
-  final json = switch (config.structuredOutputMode) {
-    AiStructuredOutputMode.auto => profile.jsonMode,
+AiOutputPin aiOutputPin(AiConfig config) => AiOutputPin(
+  jsonMode: switch (config.structuredOutputMode) {
+    AiStructuredOutputMode.auto => null,
     AiStructuredOutputMode.jsonSchema => AiJsonMode.jsonSchema,
     AiStructuredOutputMode.jsonObject => AiJsonMode.jsonObject,
     AiStructuredOutputMode.off => AiJsonMode.none,
-  };
-  final stream =
-      config.streamingMode == AiStreamingMode.auto && profile.streamOk;
-  return profile.copyWith(jsonMode: json, streamOk: stream);
-}
+  },
+  streamOff: config.streamingMode == AiStreamingMode.off,
+);

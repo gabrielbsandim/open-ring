@@ -74,20 +74,18 @@ void main() {
     expect(parseAiCurrency('123456789'), isNull);
   });
 
-  group('output modes', () {
+  group('output pin', () {
     const ladder = AiCapabilityProfile(jsonMode: AiJsonMode.jsonObject);
 
-    test('auto keeps what the ladder found', () {
-      final out = applyAiOutputModes(AiConfig.defaults, ladder);
-      expect(out, ladder);
+    test('Auto pins nothing and keeps what the ladder found', () {
+      final pin = aiOutputPin(AiConfig.defaults);
+      expect(pin.isAuto, isTrue);
+      expect(pin.apply(ladder), ladder);
     });
 
-    test('auto streaming keeps a ladder that turned streaming off', () {
-      final out = applyAiOutputModes(
-        AiConfig.defaults,
-        ladder.copyWith(streamOk: false),
-      );
-      expect(out.streamOk, isFalse);
+    test('Auto streaming keeps a ladder that turned streaming off', () {
+      final off = ladder.copyWith(streamOk: false);
+      expect(aiOutputPin(AiConfig.defaults).apply(off).streamOk, isFalse);
     });
 
     test('a forced mode replaces the ladder step', () {
@@ -98,7 +96,9 @@ void main() {
       };
       cases.forEach((mode, json) {
         final config = AiConfig.defaults.copyWith(structuredOutputMode: mode);
-        expect(applyAiOutputModes(config, ladder).jsonMode, json);
+        final pin = aiOutputPin(config);
+        expect(pin.isAuto, isFalse);
+        expect(pin.apply(ladder).jsonMode, json);
       });
     });
 
@@ -106,7 +106,9 @@ void main() {
       final config = AiConfig.defaults.copyWith(
         streamingMode: AiStreamingMode.off,
       );
-      expect(applyAiOutputModes(config, ladder).streamOk, isFalse);
+      final pin = aiOutputPin(config);
+      expect(pin.isAuto, isFalse);
+      expect(pin.apply(ladder).streamOk, isFalse);
     });
   });
 }

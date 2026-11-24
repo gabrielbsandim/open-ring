@@ -14,6 +14,34 @@ enum AiReasoningEffort { low, medium, high }
 
 enum AiVisionSupport { unknown, yes, no }
 
+/// Output modes the person forced in Advanced; a forced axis holds through
+/// every ladder step. Both null and false means Auto.
+@immutable
+final class AiOutputPin {
+  const new({this.jsonMode, this.streamOff = false});
+
+  static const AiOutputPin none = AiOutputPin();
+
+  final AiJsonMode? jsonMode;
+  final bool streamOff;
+
+  bool get isAuto => jsonMode == null && !streamOff;
+
+  AiCapabilityProfile apply(AiCapabilityProfile profile) => profile.copyWith(
+    jsonMode: jsonMode ?? profile.jsonMode,
+    streamOk: profile.streamOk && !streamOff,
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is AiOutputPin &&
+      other.jsonMode == jsonMode &&
+      other.streamOff == streamOff;
+
+  @override
+  int get hashCode => Object.hash(jsonMode, streamOff);
+}
+
 @immutable
 final class AiCapabilityProfile {
   const new({

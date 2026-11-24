@@ -105,7 +105,9 @@ final class HttpAnalysisModel implements AnalysisModel {
     final run = await _open(requestTimeout, cancel: cancel);
     try {
       final (response, profile) = await _sendChat(run, request);
-      if (profile != request.profile) await _storeProfile(profile);
+      // A forced mode is not what the ladder found, so only Auto writes back.
+      final learned = request.pin.isAuto && profile != request.profile;
+      if (learned) await _storeProfile(profile);
       yield* _decode(run, response);
     } finally {
       run.close();
@@ -199,14 +201,16 @@ final class HttpAnalysisModel implements AnalysisModel {
     _Run run,
     AnalysisRequest request,
   ) async {
-    var profile = request.profile;
+    final pin = request.pin;
+    var ladder = request.profile;
     for (var attempt = 1; ; attempt++) {
+      final sent = pin.apply(ladder);
       final body = OpenAiWireCodec.buildChatBody(
         model: model,
         systemPrompt: request.systemPrompt,
         userContent: request.userContent,
         maxOutputTokens: request.maxOutputTokens,
-        profile: profile,
+        profile: sent,
         jsonSchema: request.jsonSchema,
         reasoningEffort: request.reasoningEffort,
       );
@@ -216,23 +220,31 @@ final class HttpAnalysisModel implements AnalysisModel {
         baseUrl.chatCompletionsUri,
         body: body,
       );
-      if (_isSuccess(response)) return (response, profile);
+      if (_isSuccess(response)) return (response, ladder);
       final failure = await _readFailure(run, response);
-      final next = _stepDown(failure, profile, attempt);
+      final next = _stepDown(failure, ladder, pin, attempt);
       if (next == null) throw failure;
-      profile = next;
+      ladder = next;
     }
   }
 
+  /// Skips steps that only move a forced axis, so no identical request is
+  /// resent and a forced mode never changes on a retry.
   static AiCapabilityProfile? _stepDown(
     AnalysisFailure failure,
-    AiCapabilityProfile profile,
+    AiCapabilityProfile ladder,
+    AiOutputPin pin,
     int attempt,
   ) {
     if (attempt >= aiMaxLadderAttempts) return null;
     if (failure.statusCode != 400) return null;
     if (failure.kind != AnalysisFailureKind.badRequest) return null;
-    return profile.nextOnBadRequest(failure.detail);
+    final sent = pin.apply(ladder);
+    var next = ladder.nextOnBadRequest(failure.detail);
+    while (next != null && pin.apply(next) == sent) {
+      next = next.nextOnBadRequest(failure.detail);
+    }
+    return next;
   }
 
   Future<http.StreamedResponse> _send(

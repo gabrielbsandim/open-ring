@@ -188,7 +188,7 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
     final shown = _picked ?? done ?? ref.watch(aiLatestReadingProvider).value;
     final earlier = [
       for (final r in ref.watch(aiHostReportsProvider).value ?? <AiReport>[])
-        if (r.createdAtUtc != shown?.createdAtUtc) r,
+        if ((r.createdAtUtc, r.kind) != (shown?.createdAtUtc, shown?.kind)) r,
     ];
     final fmt = MetricFormat.of(context);
     return [

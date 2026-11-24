@@ -2785,5 +2785,18 @@
   "aiErrorCeiling": "Il limite di token di questo mese è stato raggiunto: {used} su {cap} token. Puoi cambiarlo in Avanzate.",
   "aiRawTitle": "Testo non verificato",
   "aiRawBanner": "Testo di {model} che OpenRing non ha potuto confrontare con i tuoi dati. I numeri segnati con ? non corrispondono a nessun dato inviato.",
-  "aiReadingFailedRow": "{kind, select, cancelled{Annullata} other{Non completata}}"
+  "aiReadingFailedRow": "{kind, select, cancelled{Annullata} other{Non completata}}",
+  "aiReadingsNoModelTitle": "Nessun modello collegato",
+  "aiReadingsNoModelBody": "Per chiedere una lettura, collega un servizio di IA con il tuo indirizzo, il tuo modello e la tua chiave. Fino ad allora nulla lascia il telefono.",
+  "aiReadingsUntestedTitle": "Prova la connessione prima della prima lettura",
+  "aiReadingsEarlyTitle": "È ancora presto per chiedere a un modello",
+  "aiReadingsEarlyNote": "Con pochi giorni, un modello trova schemi dove c’è solo il caso.",
+  "aiReadingStale": "Basata sui dati fino a {time}. Il riepilogo dei tuoi dati è cambiato da questa lettura. La lettura non viene rifatta da sola: tocca una lettura per chiederne un’altra.",
+  "aiReadingSample": "Esempio. Nessun modello è stato chiamato. In modalità demo la lettura è già pronta e nulla lascia il telefono.",
+  "aiReadingSampleBy": "Esempio, nessun modello",
+  "aiHistoryRow": "Chiedi una lettura all’IA",
+  "aiSampleSummary": "Esempio. Nessun modello è stato chiamato.",
+  "aiSampleCardTitle": "Scheda di esempio",
+  "aiSampleCardInsight": "Questa scheda mostra dove compare un’osservazione del tuo modello.",
+  "aiSampleCardAction": "Aggiungi il tuo modello nelle Impostazioni per analizzare i tuoi dati."
 }

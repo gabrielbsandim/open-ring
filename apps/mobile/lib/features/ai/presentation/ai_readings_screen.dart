@@ -19,6 +19,7 @@ import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_consent_scope.dart';
 import 'package:open_ring/features/ai/domain/ai_reading.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
+import 'package:open_ring/features/ai/domain/ai_report_models.dart';
 import 'package:open_ring/features/ai/domain/ai_usage_summary.dart';
 import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/base_url_policy.dart';
@@ -29,6 +30,8 @@ import 'package:open_ring/features/ai/presentation/ai_failure_message.dart';
 import 'package:open_ring/features/ai/presentation/ai_raw_text_sheet.dart';
 import 'package:open_ring/features/ai/presentation/ai_reading_card.dart';
 import 'package:open_ring/features/ai/presentation/ai_reading_sheets.dart';
+import 'package:open_ring/features/ai/presentation/ai_readings_states.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -45,6 +48,7 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
   bool _visible = true;
   AiReport? _picked;
   ({bool force, int? maxOutput}) _options = (force: false, maxOutput: null);
+  bool _sampled = false;
 
   @override
   void didChangeDependencies() {
@@ -74,38 +78,88 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
       }
     });
     final on = ref.watch(aiEnabledProvider);
+    final demo = ref.watch(demoModeProvider);
     final config = on ? ref.watch(aiConfigProvider).value : null;
-    final busy = state is AnalysisSending || state is AnalysisValidating;
+    if (on && demo) _sample(state);
     return AppPage(
       title: l10n.aiReadingsTitle,
       subtitle: l10n.aiReadingsLead,
       children: [
-        if (config?.normalizedUrl case final url?)
-          ..._top(l10n, config!, url, busy: busy),
-        if (on)
-          ...switch (state) {
-            AnalysisSending(receivedChars: final n) => [
-              _sending(l10n, config, n),
-            ],
-            AnalysisValidating() => [_sending(l10n, config, null)],
-            AnalysisDone(:final report) => _stored(l10n, report),
-            AnalysisFailed() => [
-              ..._failure(l10n, state, config),
-              ..._stored(l10n, null),
-            ],
-            AnalysisIdle() => _stored(l10n, null),
-          },
-        if (on && !busy) ..._usage30(l10n, config),
+        if (on && demo) ..._demo(l10n, state, config),
+        if (on && !demo && config != null) ..._body(l10n, state, config),
       ],
     );
   }
 
-  List<Widget> _top(
+  List<Widget> _body(
     AppLocalizations l10n,
+    AnalysisRunState state,
     AiConfig config,
-    NormalizedBaseUrl url, {
-    required bool busy,
-  }) => [
+  ) {
+    final url = config.normalizedUrl;
+    if (url == null || aiNoConnection(config)) return const [AiNoModelCard()];
+    if (!config.isTestedForCurrentTarget) {
+      return [..._chips(config, url), AiUntestedCard(config: config)];
+    }
+    final busy = state is AnalysisSending || state is AnalysisValidating;
+    final early = switch (ref.watch(aiPayloadProvider(_kind)).value) {
+      AiPayloadNotEnoughData(:final days) => days,
+      _ => null,
+    };
+    return [
+      ..._top(l10n, config, url, busy: busy, early: early != null),
+      if (early != null) ...[
+        AiEarlyCard(days: early),
+        const SizedBox(height: 12),
+      ],
+      ...switch (state) {
+        AnalysisSending(receivedChars: final n) => [_sending(l10n, config, n)],
+        AnalysisValidating() => [_sending(l10n, config, null)],
+        AnalysisDone(:final report) => _stored(l10n, report),
+        AnalysisFailed() => [
+          ..._failure(l10n, state, config),
+          ..._stored(l10n, null),
+        ],
+        AnalysisIdle() => _stored(l10n, null),
+      },
+      if (!busy) ..._usage30(l10n, config),
+    ];
+  }
+
+  // Demo never reaches a model factory or the store: the controller answers
+  // with the sample model, and no button here can start a send.
+  List<Widget> _demo(
+    AppLocalizations l10n,
+    AnalysisRunState state,
+    AiConfig? config,
+  ) => [
+    AiReadingNotice(
+      key: AiReadingStateKeys.sample,
+      icon: Icons.info_outline_rounded,
+      text: l10n.aiReadingSample,
+      caption: l10n.aiDemoLocked,
+    ),
+    ...switch (state) {
+      AnalysisSending() ||
+      AnalysisValidating() => [_sending(l10n, config, null)],
+      AnalysisDone(isSample: true, :final report) => [_ReadingView(report)],
+      AnalysisFailed(failure: RunNotEnoughData(:final days)) => [
+        AiEarlyCard(days: days),
+      ],
+      _ => const <Widget>[],
+    },
+  ];
+
+  void _sample(AnalysisRunState state) {
+    if (_sampled || state is! AnalysisIdle) return;
+    _sampled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_visible) return;
+      unawaited(_run?.send(kind: AiAnalysisKind.weeklyReview));
+    });
+  }
+
+  List<Widget> _chips(AiConfig config, NormalizedBaseUrl url) => [
     Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -123,12 +177,24 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
       ],
     ),
     const SizedBox(height: 16),
+  ];
+
+  List<Widget> _top(
+    AppLocalizations l10n,
+    AiConfig config,
+    NormalizedBaseUrl url, {
+    required bool busy,
+    required bool early,
+  }) => [
+    ..._chips(config, url),
     Row(
       children: [
         Expanded(
           child: FilledButton(
             key: AiReadingKeys.weekly,
-            onPressed: busy ? null : () => _tap(AiAnalysisKind.weeklyReview),
+            onPressed: busy || early
+                ? null
+                : () => _tap(AiAnalysisKind.weeklyReview),
             child: Text(l10n.aiReadingKind('weekly')),
           ),
         ),
@@ -136,7 +202,9 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
         Expanded(
           child: OutlinedButton(
             key: AiReadingKeys.daily,
-            onPressed: busy ? null : () => _tap(AiAnalysisKind.dailyReview),
+            onPressed: busy || early
+                ? null
+                : () => _tap(AiAnalysisKind.dailyReview),
             child: Text(l10n.aiReadingKind('daily')),
           ),
         ),
@@ -165,6 +233,7 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
     bool force = false,
     int? maxOutput,
   }) async {
+    if (ref.read(demoModeProvider)) return;
     if (!ask) _options = (force: force, maxOutput: maxOutput);
     setState(() {
       _kind = kind;
@@ -207,8 +276,15 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
     return [
       if (shown != null && aiNoMatch(shown))
         ..._noMatch(l10n, shown)
-      else if (shown != null)
+      else if (shown != null) ...[
+        if (_staleAt(shown) case final at?)
+          AiReadingNotice(
+            key: AiReadingStateKeys.stale,
+            icon: Icons.schedule_rounded,
+            text: l10n.aiReadingStale(at),
+          ),
         _ReadingView(shown),
+      ],
       if (earlier.isNotEmpty) SectionHeader(l10n.aiReadingsEarlier),
       for (final r in earlier)
         SettingsTile(
@@ -233,6 +309,19 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
               : null,
         ),
     ];
+  }
+
+  // Stale when today's summary of the same kind no longer hashes to the one
+  // sent; it is only shown, never resent.
+  String? _staleAt(AiReport report) {
+    final now = ref.watch(aiPayloadProvider(_kindOf(report.kind, _kind)));
+    if (now.value case AiPayloadReady(:final payload)
+        when payload.cacheKey != report.contextSha256) {
+      return MetricFormat.of(
+        context,
+      ).dayAndClock(report.createdAtUtc, Duration(minutes: report.offsetMin));
+    }
+    return null;
   }
 
   List<Widget> _usage30(AppLocalizations l10n, AiConfig? config) {
@@ -330,10 +419,7 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
   }
 
   List<Widget> _noMatch(AppLocalizations l10n, AiReport report) {
-    final kind = AiAnalysisKind.values.firstWhere(
-      (k) => k.wireName == report.kind,
-      orElse: () => _kind,
-    );
+    final kind = _kindOf(report.kind, _kind);
     return _errorCard(
       l10n,
       l10n.aiErrorNoMatch,
@@ -413,6 +499,31 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
 (int?, String?) _identity(AiReport? r) =>
     (r?.createdAtUtc.millisecondsSinceEpoch, r?.kind);
 
+AiAnalysisKind _kindOf(String wire, AiAnalysisKind fallback) => AiAnalysisKind
+    .values
+    .firstWhere((k) => k.wireName == wire, orElse: () => fallback);
+
+// The sample model answers in English to pass the validator; the screen
+// shows its text in the app language, keeping the cards' evidence.
+AiReading _localSample(AppLocalizations l10n, AiReading r) => AiReading(
+  summary: l10n.aiSampleSummary,
+  facts: r.facts,
+  cards: [
+    for (final c in r.cards)
+      ValidatedAiCard(
+        family: c.family,
+        title: l10n.aiSampleCardTitle,
+        insight: l10n.aiSampleCardInsight,
+        evidenceIds: c.evidenceIds,
+        action: l10n.aiSampleCardAction,
+        modelConfidence: c.modelConfidence,
+        coverageConfidence: c.coverageConfidence,
+        shownConfidence: c.shownConfidence,
+        minEvidenceDays: c.minEvidenceDays,
+      ),
+  ],
+);
+
 // `weekly_review` gives the `weekly` select value of the ARB messages.
 String _kindArg(String wire) => wire.split('_').first;
 
@@ -424,11 +535,13 @@ class _ReadingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final reading = AiReading.fromReport(report);
+    final stored = AiReading.fromReport(report);
     final host = Uri.tryParse(report.providerHost)?.host ?? '';
     final at = MetricFormat.of(context)
         .dayAndClock(report.createdAtUtc, Duration(minutes: report.offsetMin));
     final dropped = report.droppedCards;
+    final sample = report.providerHost == aiSampleProviderHost;
+    final reading = sample ? _localSample(l10n, stored) : stored;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -442,14 +555,23 @@ class _ReadingView extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               CaptionText(at),
-              CaptionText(l10n.aiReadingByLine(report.model, host)),
+              CaptionText(
+                sample
+                    ? l10n.aiReadingSampleBy
+                    : l10n.aiReadingByLine(report.model, host),
+              ),
               if (reading.summary.isNotEmpty) BodyText(reading.summary),
             ],
           ),
         ),
         const SizedBox(height: 12),
         for (final card in reading.cards)
-          AiReadingCard(card: card, facts: reading.facts, model: report.model),
+          AiReadingCard(
+            card: card,
+            facts: reading.facts,
+            model: report.model,
+            sample: sample,
+          ),
         if (dropped > 0)
           MetricCard(
             key: AiReadingKeys.dropped,
@@ -459,13 +581,14 @@ class _ReadingView extends StatelessWidget {
               l10n.aiReadingDropped(dropped, reading.cards.length + dropped),
             ),
           ),
-        SettingsTile(
-          key: AiReadingKeys.usage,
-          title: l10n.aiUsageThis,
-          chevron: true,
-          onTap: () => unawaited(showAiUsageSheet(context, report)),
-        ),
-        if (report.payloadJson != null)
+        if (!sample)
+          SettingsTile(
+            key: AiReadingKeys.usage,
+            title: l10n.aiUsageThis,
+            chevron: true,
+            onTap: () => unawaited(showAiUsageSheet(context, report)),
+          ),
+        if (!sample && report.payloadJson != null)
           SettingsTile(
             key: AiReadingKeys.sent,
             title: l10n.aiReadingSent,

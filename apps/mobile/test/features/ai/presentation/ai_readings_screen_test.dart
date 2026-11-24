@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
@@ -21,11 +22,14 @@ import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/domain/openai_wire_codec.dart';
+import 'package:open_ring/features/ai/domain/sample_analysis_model.dart';
 import 'package:open_ring/features/ai/presentation/ai_consent_sheet.dart';
 import 'package:open_ring/features/ai/presentation/ai_failure_message.dart';
 import 'package:open_ring/features/ai/presentation/ai_raw_text_sheet.dart';
 import 'package:open_ring/features/ai/presentation/ai_reading_card.dart';
 import 'package:open_ring/features/ai/presentation/ai_readings_screen.dart';
+import 'package:open_ring/features/ai/presentation/ai_readings_states.dart';
+import 'package:open_ring/features/ai/presentation/ai_test_connection_sheet.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/demo/domain/demo_mode_store.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -135,6 +139,32 @@ AiReport _stored({
       }),
 );
 
+// A real summary, so a units change alone moves the hash.
+HealthContextInput _input(AiAnalysisKind kind, AiUnits units) =>
+    HealthContextInput(
+      kind: kind,
+      replyLanguage: 'en',
+      detail: AiDetailLevel.standard,
+      window: AiContextWindow.standard,
+      units: units,
+      profile: const AiProfileInput(age: 34),
+      coverage: const AiCoverageInput(
+        hasRing: true,
+        sleepSource: AiSleepSource.ring,
+        daysWithRingData: 7,
+      ),
+      days: [
+        for (var i = 0; i < 7; i++)
+          AiDayRow(
+            date: const LocalDate(2026, 11, 17).addDays(i),
+            weekday: AiWeekday.values[i],
+            sleepMin: 420 + i * 10,
+            steps: 6000 + i * 100,
+            weightKg: 78 - i * 0.1,
+          ),
+      ],
+    );
+
 final class _Model implements AnalysisModel {
   final List<AnalysisRequest> requests = [];
   final List<StreamController<AnalysisEvent>> streams = [];
@@ -237,6 +267,9 @@ void main() {
   late Completer<void>? payloadGate;
   late ValueNotifier<bool> visible;
   late DateTime clockNow;
+  late double sleepNow;
+  late bool demo;
+  late AiUnits? unitsNow;
 
   setUp(() {
     configs = InMemoryAiConfigStore()
@@ -263,18 +296,26 @@ void main() {
     payloadGate = null;
     visible = ValueNotifier(true);
     clockNow = _now;
+    sleepNow = 300;
+    demo = false;
+    unitsNow = null;
     addTearDown(visible.dispose);
   });
 
   List<Override> overrides() => [
     aiConfigStoreProvider.overrideWithValue(configs),
     secretStoreProvider.overrideWithValue(InMemorySecretStore()),
-    demoModeStoreProvider.overrideWithValue(InMemoryDemoModeStore()),
+    demoModeStoreProvider.overrideWithValue(
+      InMemoryDemoModeStore(enabled: demo),
+    ),
     aiEnabledProvider.overrideWith((ref) => true),
     aiPayloadProvider.overrideWith((ref, kind) async {
       await payloadGate?.future;
       if (notEnough) return const AiPayloadNotEnoughData(3);
-      final base = _payload(kind);
+      if (unitsNow case final units?) {
+        return buildAiPayloadResult(_input(kind, units));
+      }
+      final base = _payload(kind, sleep: sleepNow);
       if (!food) return AiPayloadReady(base, kind: kind);
       final map = {
         ...base.contextMap,
@@ -304,7 +345,11 @@ void main() {
     }),
   ];
 
-  Future<void> pump(WidgetTester tester, {bool pushed = false}) async {
+  Future<void> pump(
+    WidgetTester tester, {
+    bool pushed = false,
+    Locale locale = const Locale('en'),
+  }) async {
     tester.view
       ..devicePixelRatio = 1
       ..physicalSize = const Size(800, 3000);
@@ -314,6 +359,7 @@ void main() {
         overrides: overrides(),
         child: MaterialApp(
           theme: AppTheme.light(),
+          locale: locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: pushed
@@ -592,8 +638,9 @@ void main() {
     testWidgets('a tab switch while the payload loads sends nothing '
         '(new category: $withFood)', (tester) async {
       food = withFood;
-      await pump(tester);
+      // The screen reads the payload on open, so it is held from the start.
       payloadGate = Completer<void>();
+      await pump(tester);
       await tester.tap(find.byKey(AiReadingKeys.weekly));
       await tester.pump();
 
@@ -678,6 +725,226 @@ void main() {
     expect(find.text(l10n.aiPreviewNotEnough(3)), findsOneWidget);
     expect(factoryCalls, 0);
     expect(find.byKey(AiConsentKeys.sheet), findsNothing);
+  });
+
+  group('A9d states', () {
+    final weekly = find.byKey(AiReadingKeys.weekly);
+    final daily = find.byKey(AiReadingKeys.daily);
+
+    VoidCallback? onPressed(WidgetTester tester, Finder button) =>
+        tester.widget<ButtonStyleButton>(button).onPressed;
+
+    for (final (name, config) in [
+      ('no model', const AiConfig(baseUrl: _url, keyLastFour: 'ab3X')),
+      ('no address', const AiConfig(model: 'gpt-test', keyLastFour: 'ab3X')),
+      ('no key', const AiConfig(baseUrl: _url, model: 'gpt-test')),
+    ]) {
+      testWidgets('$name shows No model connected with no buttons', (
+        tester,
+      ) async {
+        configs.config = config;
+        await reports.insert(_stored());
+        await pump(tester);
+
+        expect(find.byKey(AiReadingStateKeys.noModel), findsOneWidget);
+        expect(find.text(l10n.aiReadingsNoModelTitle), findsOneWidget);
+        expect(find.byKey(AiReadingStateKeys.guide), findsOneWidget);
+        expect(find.byKey(AiReadingStateKeys.connection), findsOneWidget);
+        expect(weekly, findsNothing);
+        expect(daily, findsNothing);
+        expect(find.byType(Chip), findsNothing);
+        expect(find.text('Stored summary.'), findsNothing);
+        expect(factoryCalls, 0);
+      });
+    }
+
+    testWidgets('untested shows the chips and Test connection only', (
+      tester,
+    ) async {
+      configs.config = const AiConfig(
+        baseUrl: _url,
+        model: 'gpt-test',
+        keyLastFour: 'ab3X',
+      );
+      await pump(tester);
+
+      expect(find.byKey(AiReadingStateKeys.untested), findsOneWidget);
+      expect(find.text(l10n.aiReadingsUntestedTitle), findsOneWidget);
+      expect(find.text(l10n.aiTestNoData), findsOneWidget);
+      expect(find.text('api.example.com'), findsOneWidget);
+      expect(find.text('gpt-test'), findsOneWidget);
+      expect(weekly, findsNothing);
+      expect(daily, findsNothing);
+
+      await tester.tap(find.byKey(AiReadingStateKeys.test));
+      await tester.pumpAndSettle();
+      expect(find.byKey(AiTestKeys.sheet), findsOneWidget);
+      expect(model.requests, isEmpty);
+    });
+
+    testWidgets('few data disables both readings and explains why', (
+      tester,
+    ) async {
+      notEnough = true;
+      await pump(tester);
+
+      expect(find.byKey(AiReadingStateKeys.early), findsOneWidget);
+      expect(find.text(l10n.aiReadingsEarlyTitle), findsOneWidget);
+      expect(find.text(l10n.aiPreviewNotEnough(3)), findsOneWidget);
+      expect(find.text(l10n.aiReadingsEarlyNote), findsOneWidget);
+      expect(onPressed(tester, weekly), isNull);
+      expect(onPressed(tester, daily), isNull);
+    });
+
+    testWidgets('enough data keeps both readings on and no early card', (
+      tester,
+    ) async {
+      await pump(tester);
+
+      expect(find.byKey(AiReadingStateKeys.early), findsNothing);
+      expect(onPressed(tester, weekly), isNotNull);
+      expect(onPressed(tester, daily), isNotNull);
+    });
+
+    testWidgets('a data change after the reading shows the stale notice and '
+        'sends nothing', (tester) async {
+      final sent = _payload(AiAnalysisKind.weeklyReview).cacheKey;
+      await reports.insert(
+        AiReport(
+          createdAtUtc: _stored().createdAtUtc,
+          offsetMin: 0,
+          kind: AiAnalysisKind.weeklyReview.wireName,
+          contextSchema: aiContextSchemaVersion,
+          contextSha256: sent,
+          detailLevel: 'standard',
+          promptVersion: 'v$aiPromptVersion',
+          providerHost: _hostKey,
+          model: 'gpt-test',
+          status: AiReportStatus.done,
+          cardsJson: _stored().cardsJson,
+        ),
+      );
+      await pump(tester);
+      expect(find.text('Stored summary.'), findsOneWidget);
+      expect(find.byKey(AiReadingStateKeys.stale), findsNothing);
+
+      sleepNow = 420;
+      ProviderScope.containerOf(tester.element(find.byType(AiReadingsScreen)))
+          .invalidate(aiPayloadProvider);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(AiReadingStateKeys.stale), findsOneWidget);
+      final notice = find.descendant(
+        of: find.byKey(AiReadingStateKeys.stale),
+        matching: find.textContaining(RegExp('^Based on data up to .*23')),
+      );
+      expect(notice, findsOneWidget);
+      expect(find.text('Stored summary.'), findsOneWidget);
+      expect(factoryCalls, 0);
+      expect(model.requests, isEmpty);
+      expect(reports.reports, hasLength(1));
+    });
+
+    testWidgets('demo shows the sample with no model and stores nothing', (
+      tester,
+    ) async {
+      demo = true;
+      await reports.insert(_stored());
+      await pump(tester);
+
+      expect(find.byKey(AiReadingStateKeys.sample), findsOneWidget);
+      expect(find.text(l10n.aiReadingSample), findsOneWidget);
+      expect(find.text(l10n.aiDemoLocked), findsOneWidget);
+      expect(find.text(SampleAnalysisModel.summary), findsOneWidget);
+      expect(find.text(l10n.aiReadingSampleBy), findsNWidgets(2));
+      expect(find.text(l10n.aiReadingWrittenBy('gpt-test')), findsNothing);
+      expect(find.text('Stored summary.'), findsNothing);
+      expect(weekly, findsNothing);
+      expect(daily, findsNothing);
+      expect(find.byKey(AiReadingStateKeys.connection), findsNothing);
+      expect(find.byKey(AiReadingKeys.usage), findsNothing);
+      expect(find.byKey(AiReadingKeys.sent), findsNothing);
+      expect(factoryCalls, 0);
+      expect(model.requests, isEmpty);
+      expect(reports.reports, hasLength(1));
+    });
+
+    testWidgets('a units change alone marks the reading stale', (tester) async {
+      unitsNow = const AiUnits();
+      final sent = buildAiPayloadResult(
+        _input(AiAnalysisKind.weeklyReview, const AiUnits()),
+      );
+      final sha = (sent as AiPayloadReady).payload.cacheKey;
+      await reports.insert(
+        AiReport(
+          createdAtUtc: _stored().createdAtUtc,
+          offsetMin: 0,
+          kind: AiAnalysisKind.weeklyReview.wireName,
+          contextSchema: aiContextSchemaVersion,
+          contextSha256: sha,
+          detailLevel: 'standard',
+          promptVersion: 'v$aiPromptVersion',
+          providerHost: _hostKey,
+          model: 'gpt-test',
+          status: AiReportStatus.done,
+          cardsJson: _stored().cardsJson,
+        ),
+      );
+      await pump(tester);
+      expect(find.byKey(AiReadingStateKeys.stale), findsNothing);
+
+      unitsNow = const AiUnits(
+        distance: AiDistanceUnit.mi,
+        weight: AiWeightUnit.lb,
+      );
+      ProviderScope.containerOf(tester.element(find.byType(AiReadingsScreen)))
+          .invalidate(aiPayloadProvider);
+      await tester.pumpAndSettle();
+
+      final notice = find.descendant(
+        of: find.byKey(AiReadingStateKeys.stale),
+        matching: find.textContaining(
+          'Your data summary has changed since this reading.',
+        ),
+      );
+      expect(notice, findsOneWidget);
+      expect(find.textContaining('synced'), findsNothing);
+      expect(factoryCalls, 0);
+    });
+
+    testWidgets('the demo sample reads in the app language', (tester) async {
+      demo = true;
+      await pump(tester, locale: const Locale('pt'));
+      final pt = lookupAppLocalizations(const Locale('pt'));
+
+      expect(find.text(pt.aiSampleSummary), findsOneWidget);
+      expect(find.text(pt.aiSampleCardTitle), findsOneWidget);
+      expect(find.text(pt.aiSampleCardInsight), findsOneWidget);
+      expect(find.text(pt.aiSampleCardAction), findsOneWidget);
+      for (final english in [
+        SampleAnalysisModel.summary,
+        'Sample card',
+        'This card shows where an insight from your model appears.',
+        'Add your own model in Settings to analyze your data.',
+      ]) {
+        expect(find.textContaining(english), findsNothing);
+      }
+      expect(factoryCalls, 0);
+      expect(model.requests, isEmpty);
+      expect(reports.reports, isEmpty);
+    });
+
+    testWidgets('demo with few data shows the early card and no sample', (
+      tester,
+    ) async {
+      demo = true;
+      notEnough = true;
+      await pump(tester);
+
+      expect(find.byKey(AiReadingStateKeys.early), findsOneWidget);
+      expect(find.text(SampleAnalysisModel.summary), findsNothing);
+      expect(factoryCalls, 0);
+    });
   });
 
   testWidgets('no em or en dash in rendered text', (tester) async {

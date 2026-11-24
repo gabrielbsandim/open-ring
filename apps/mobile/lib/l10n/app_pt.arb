@@ -2785,5 +2785,18 @@
   "aiErrorCeiling": "O limite de tokens deste mês foi atingido: {used} de {cap} tokens. Você pode mudar o limite em Avançado.",
   "aiRawTitle": "Texto sem conferência",
   "aiRawBanner": "Texto de {model} que o OpenRing não conseguiu conferir com os seus dados. Números marcados com ? não batem com nenhum dado enviado.",
-  "aiReadingFailedRow": "{kind, select, cancelled{Cancelada} other{Não terminou}}"
+  "aiReadingFailedRow": "{kind, select, cancelled{Cancelada} other{Não terminou}}",
+  "aiReadingsNoModelTitle": "Nenhum modelo conectado",
+  "aiReadingsNoModelBody": "Para pedir uma leitura, conecte um serviço de IA com o seu endereço, o seu modelo e a sua chave. Nada sai do celular enquanto isso.",
+  "aiReadingsUntestedTitle": "Teste a conexão antes da primeira leitura",
+  "aiReadingsEarlyTitle": "Ainda é cedo para perguntar a um modelo",
+  "aiReadingsEarlyNote": "Com poucos dias, um modelo acha padrão onde só há acaso.",
+  "aiReadingStale": "Baseada nos dados até {time}. O resumo dos seus dados mudou desde esta leitura. A leitura não é refeita sozinha: toque em uma leitura para pedir outra.",
+  "aiReadingSample": "Amostra. Nenhum modelo foi chamado. No modo demonstração a leitura vem pronta, e nada sai do celular.",
+  "aiReadingSampleBy": "Amostra, sem modelo",
+  "aiHistoryRow": "Pedir uma leitura à IA",
+  "aiSampleSummary": "Amostra. Nenhum modelo foi chamado.",
+  "aiSampleCardTitle": "Ficha de amostra",
+  "aiSampleCardInsight": "Esta ficha mostra onde aparece uma observação do seu modelo.",
+  "aiSampleCardAction": "Adicione o seu próprio modelo em Ajustes para analisar seus dados."
 }

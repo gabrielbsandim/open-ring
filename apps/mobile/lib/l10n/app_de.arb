@@ -2785,5 +2785,18 @@
   "aiErrorCeiling": "Das Token-Limit dieses Monats ist erreicht: {used} von {cap} Tokens. Du kannst das Limit unter Erweitert ändern.",
   "aiRawTitle": "Ungeprüfter Text",
   "aiRawBanner": "Text von {model}, den OpenRing nicht mit deinen Daten abgleichen konnte. Mit ? markierte Zahlen passen zu keinem gesendeten Wert.",
-  "aiReadingFailedRow": "{kind, select, cancelled{Abgebrochen} other{Nicht abgeschlossen}}"
+  "aiReadingFailedRow": "{kind, select, cancelled{Abgebrochen} other{Nicht abgeschlossen}}",
+  "aiReadingsNoModelTitle": "Kein Modell verbunden",
+  "aiReadingsNoModelBody": "Um eine Auswertung anzufordern, verbinde einen KI-Dienst mit deiner Adresse, deinem Modell und deinem Schlüssel. Bis dahin verlässt nichts das Telefon.",
+  "aiReadingsUntestedTitle": "Teste die Verbindung vor der ersten Auswertung",
+  "aiReadingsEarlyTitle": "Es ist noch zu früh, ein Modell zu fragen",
+  "aiReadingsEarlyNote": "Bei wenigen Tagen findet ein Modell Muster, wo nur Zufall ist.",
+  "aiReadingStale": "Basiert auf Daten bis {time}. Deine Datenzusammenfassung hat sich seit dieser Auswertung geändert. Die Auswertung wird nicht von selbst neu erstellt: Tippe auf eine Auswertung, um eine neue anzufordern.",
+  "aiReadingSample": "Beispiel. Es wurde kein Modell aufgerufen. Im Demomodus ist die Auswertung vorbereitet und nichts verlässt das Telefon.",
+  "aiReadingSampleBy": "Beispiel, kein Modell",
+  "aiHistoryRow": "Die KI um eine Auswertung bitten",
+  "aiSampleSummary": "Beispiel. Es wurde kein Modell aufgerufen.",
+  "aiSampleCardTitle": "Beispielkarte",
+  "aiSampleCardInsight": "Diese Karte zeigt, wo eine Erkenntnis deines Modells erscheint.",
+  "aiSampleCardAction": "Füge in den Einstellungen dein eigenes Modell hinzu, um deine Daten auszuwerten."
 }

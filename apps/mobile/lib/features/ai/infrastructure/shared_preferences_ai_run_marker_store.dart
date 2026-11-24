@@ -8,6 +8,8 @@ final class SharedPreferencesAiRunMarkerStore implements AiRunMarkerStore {
   new([SharedPreferencesAsync? preferences]) : _preferences = preferences;
 
   static const key = 'ai_run_marker';
+  static const monthKey = 'ai_month_tokens';
+  static const Set<String> keys = {key, monthKey};
 
   SharedPreferencesAsync? _preferences;
 
@@ -36,6 +38,7 @@ final class SharedPreferencesAiRunMarkerStore implements AiRunMarkerStore {
         providerHost: host,
         model: model,
         status: AiReportStatus.failed,
+        errorKind: 'cancelled',
       );
     } on Object {
       return null;
@@ -60,4 +63,17 @@ final class SharedPreferencesAiRunMarkerStore implements AiRunMarkerStore {
 
   @override
   Future<void> clear() => _store.remove(key);
+
+  @override
+  Future<int> monthTokens(String month) async {
+    final saved = await _store.getStringList(monthKey);
+    if (saved == null || saved.length != 2 || saved.first != month) return 0;
+    return int.tryParse(saved.last) ?? 0;
+  }
+
+  @override
+  Future<void> addMonthTokens(String month, int tokens) async {
+    final used = await monthTokens(month);
+    await _store.setStringList(monthKey, [month, '${used + tokens}']);
+  }
 }

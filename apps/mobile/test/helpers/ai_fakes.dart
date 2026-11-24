@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
@@ -235,14 +237,51 @@ final class InMemoryAiRunMarkerStore implements AiRunMarkerStore {
   int writes = 0;
 
   @override
-  Future<AiReport?> read() async => value;
+  Future<AiReport?> read() async {
+    await readGate?.future;
+    final draft = value;
+    if (draft == null) return null;
+    return AiReport(
+      createdAtUtc: draft.createdAtUtc,
+      offsetMin: draft.offsetMin,
+      kind: draft.kind,
+      contextSchema: draft.contextSchema,
+      contextSha256: draft.contextSha256,
+      detailLevel: draft.detailLevel,
+      promptVersion: draft.promptVersion,
+      providerHost: draft.providerHost,
+      model: draft.model,
+      status: AiReportStatus.failed,
+      errorKind: 'cancelled',
+    );
+  }
 
   @override
   Future<void> write(AiReport draft) async {
     writes++;
+    if (writeError != null) throw writeError!;
     value = draft;
   }
 
   @override
-  Future<void> clear() async => value = null;
+  Future<void> clear() async {
+    if (clearError != null) throw clearError!;
+    value = null;
+  }
+
+  String? month;
+  int monthSum = 0;
+  Completer<void>? readGate;
+  Exception? writeError;
+  Exception? clearError;
+
+  @override
+  Future<int> monthTokens(String month) async =>
+      month == this.month ? monthSum : 0;
+
+  @override
+  Future<void> addMonthTokens(String month, int tokens) async {
+    monthSum = await monthTokens(month) + tokens;
+    this.month = month;
+  }
 }

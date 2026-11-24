@@ -19,6 +19,11 @@ final class RunNotEnoughData extends AnalysisRunFailure {
   final int days;
 }
 
+final class RunUnexpected extends AnalysisRunFailure {
+  const new(this.error);
+  final Object error;
+}
+
 final class RunCeilingReached extends AnalysisRunFailure {
   const new({required this.used, required this.cap});
   final int used;
@@ -58,10 +63,11 @@ final class AnalysisFailed extends AnalysisRunState {
   final bool canRetryLarger;
 }
 
-/// Holds the draft of the run in flight, so a run killed with the process is
-/// stored as cancelled on the next launch.
+/// Run in flight (read back as cancelled) and a retention-proof month total.
 abstract interface class AiRunMarkerStore {
   Future<AiReport?> read();
   Future<void> write(AiReport draft);
   Future<void> clear();
+  Future<int> monthTokens(String month);
+  Future<void> addMonthTokens(String month, int tokens);
 }

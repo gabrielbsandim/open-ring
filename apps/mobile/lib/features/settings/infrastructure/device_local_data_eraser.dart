@@ -38,7 +38,7 @@ final class DeviceLocalDataEraser implements LocalDataEraser {
     SharedPreferencesWorkoutLockPreferences.key,
     SharedPreferencesWorkoutAlertPreferences.key,
     ...SharedPreferencesAiConfigStore.keys,
-    SharedPreferencesAiRunMarkerStore.key,
+    ...SharedPreferencesAiRunMarkerStore.keys,
     ...legacyPreferenceKeys,
   };
 

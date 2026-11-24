@@ -27,9 +27,8 @@ import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 const int aiAutoRetryMaxSeconds = 20;
 const Duration aiProgressInterval = Duration(milliseconds: 250);
 
-const AnalysisFailure _cancelled = AnalysisFailure(
-  kind: AnalysisFailureKind.cancelled,
-);
+const _cancelled = AnalysisFailure(kind: AnalysisFailureKind.cancelled);
+const _unreadable = AnalysisFailure(kind: AnalysisFailureKind.unreadable);
 
 // A null retry falls back to Riverpod's default, which retries; a paid
 // request must never be resent by the framework.
@@ -53,19 +52,12 @@ final aiRunMarkerStoreProvider = Provider<AiRunMarkerStore>(
   (ref) => throw UnimplementedError('Override aiRunMarkerStoreProvider.'),
 );
 
-/// Runs once per process: a marker left by a killed run becomes a failed,
-/// cancelled report.
+// Runs once per process, so a marker left by a killed run is stored once.
 final aiRunRecoveryProvider = FutureProvider<void>((ref) async {
   final markers = ref.read(aiRunMarkerStoreProvider);
   final draft = await markers.read();
   if (draft == null) return;
-  const kind = AnalysisFailureKind.cancelled;
-  final report = finishAiReport(
-    draft,
-    status: AiReportStatus.failed,
-    errorKind: kind.name,
-  );
-  await ref.read(aiReportStoreProvider).insert(report);
+  await ref.read(aiReportStoreProvider).insert(draft);
   await markers.clear();
 }, retry: _noRetry);
 
@@ -94,16 +86,16 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     return const AnalysisIdle();
   }
 
-  /// [force] is "Analyze again": it skips the cached report.
   Future<void> send({bool force = false}) async {
     if (_busy || !ref.read(aiEnabledProvider)) return;
     _busy = true;
     try {
       await _prepare(force: force);
+    } on Object catch (error) {
+      _fail(RunUnexpected(error));
     } finally {
       _busy = false;
       _link?.close();
-      _link = null;
     }
   }
 
@@ -113,15 +105,14 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     if (cancel == null || cancel.isCompleted) return;
     cancel.complete();
     unawaited(_sub?.cancel());
-    final done = _done;
-    if (done != null) _settle(done, _cancelled);
+    _settle(_done, _cancelled);
   }
 
   Future<void> _prepare({required bool force}) async {
-    await ref
-        .read(aiRunRecoveryProvider.future)
-        .then((_) {}, onError: (Object _) {});
+    await ref.read(aiRunRecoveryProvider.future).catchError((Object _) {});
+    if (!ref.mounted) return;
     final result = await ref.read(aiPayloadProvider.future);
+    if (!ref.mounted) return;
     final config = await ref.read(aiConfigProvider.future);
     if (!ref.mounted) return;
     if (result is AiPayloadNotEnoughData) {
@@ -132,7 +123,8 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     final store = ref.read(aiReportStoreProvider);
     if (ref.read(demoModeProvider)) {
       final draft = _draft(result, config, clock(), aiSampleProviderHost);
-      return await _execute(const SampleAnalysisModel(), result, draft, config);
+      final sample = SampleAnalysisModel(result.payload.facts.firstOrNull?.id);
+      return await _execute(sample, result, draft, config);
     }
     final host = config.hostKey;
     if (host == null || config.trimmedModel.isEmpty) return;
@@ -144,11 +136,15 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
       return;
     }
     final cap = config.monthlyTokenCap;
-    final used = cap == null ? 0 : await _monthTokens(store, clock());
+    final markers = ref.read(aiRunMarkerStoreProvider);
+    final used = cap == null
+        ? 0
+        : await markers.monthTokens(aiMonthKey(clock()));
     if (cap != null && used >= cap) {
       return _fail(RunCeilingReached(used: used, cap: cap));
     }
     final model = await ref.read(analysisModelFactoryProvider)(config);
+    if (!ref.mounted) return;
     final profile = await ref
         .read(aiConfigStoreProvider)
         .readCapabilityProfile(host, config.trimmedModel);
@@ -160,11 +156,11 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
       config,
       profile: profile ?? AiCapabilityProfile.defaults,
       store: store,
-      markers: ref.read(aiRunMarkerStoreProvider),
+      markers: markers,
     );
   }
 
-  /// A null [store] and [markers] mean demo mode: nothing is persisted.
+  // Demo mode passes no store and no markers, so nothing is persisted.
   Future<void> _execute(
     AnalysisModel model,
     AiPayloadReady ready,
@@ -180,7 +176,6 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     _completed = null;
     _link = ref.keepAlive();
     state = AnalysisSending(receivedChars: 0, startedAt: startedAt);
-    await markers?.write(draft);
     final payload = ready.payload;
     final request = AnalysisRequest(
       systemPrompt: payload.systemPrompt,
@@ -191,35 +186,43 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
       reasoningEffort: config.reasoningEffort,
     );
     int elapsed() => clock().difference(startedAt).inMilliseconds;
-    try {
-      final completed = _completed = await _generate(model, request);
-      _throttle?.cancel();
-      _set(const AnalysisValidating());
-      final report = _validated(draft, payload, completed, elapsed());
-      await store?.insert(report);
-      _set(AnalysisDone(report));
-    } on Object catch (error) {
-      final failure = _asFailure(error);
-      // fromWire maps every kind but cancelled to failed.
-      final status = AiReportStatus.fromWire(failure.kind.name);
-      await store?.insert(
-        finishAiReport(
+    Future<(AiReport, AnalysisRunState)> attempt() async {
+      try {
+        final completed = _completed = await _generate(model, request);
+        _throttle?.cancel();
+        _set(const AnalysisValidating());
+        final report = _validated(draft, payload, completed, elapsed());
+        return (report, AnalysisDone(report));
+      } on Object catch (error) {
+        final failure = _asFailure(error);
+        // fromWire maps every kind but cancelled to failed.
+        final report = finishAiReport(
           draft,
-          status: status,
+          status: AiReportStatus.fromWire(failure.kind.name),
           completed: _completed,
           durationMs: elapsed(),
           errorKind: failure.kind.name,
-        ),
-      );
-      _set(
-        AnalysisFailed(
+        );
+        final larger = failure.kind == AnalysisFailureKind.emptyAfterLimit;
+        final next = AnalysisFailed(
           RunModelFailure(failure),
-          canRetryLarger: failure.kind == AnalysisFailureKind.emptyAfterLimit,
-        ),
-      );
+          canRetryLarger: larger,
+        );
+        return (report, next);
+      }
+    }
+
+    try {
+      await markers?.write(draft);
+      final (report, next) = await attempt();
+      await store?.insert(report);
+      final tokens =
+          (report.promptTokens ?? 0) + (report.completionTokens ?? 0);
+      await markers?.addMonthTokens(aiMonthKey(startedAt), tokens);
+      _set(next);
     } finally {
       _throttle?.cancel();
-      await markers?.clear();
+      await markers?.clear().catchError((Object _) {});
     }
   }
 
@@ -232,10 +235,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     } on AnalysisFailure catch (failure) {
       final wait = _autoRetryWait(failure);
       if (wait == null || _cancel!.isCompleted) rethrow;
-      final timer = Completer<void>();
-      final t = Timer(wait, timer.complete);
-      await Future.any([timer.future, _cancel!.future]);
-      t.cancel();
+      await Future.any([Future<void>.delayed(wait), _cancel!.future]);
       if (_cancel!.isCompleted) throw _cancelled;
       return await _stream(model, request);
     }
@@ -251,10 +251,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
         .listen(
           (event) => _onEvent(done, event),
           onError: (Object error) => _settle(done, error),
-          onDone: () => _settle(
-            done,
-            const AnalysisFailure(kind: AnalysisFailureKind.unreadable),
-          ),
+          onDone: () => _settle(done, _unreadable),
           cancelOnError: true,
         );
     return done.future;
@@ -281,8 +278,8 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     _throttle = Timer(aiProgressInterval, _emitProgress);
   }
 
-  void _settle(Completer<AnalysisCompleted> done, Object outcome) {
-    if (done.isCompleted) return;
+  void _settle(Completer<AnalysisCompleted>? done, Object outcome) {
+    if (done == null || done.isCompleted) return;
     if (outcome is AnalysisCompleted) return done.complete(outcome);
     done.completeError(outcome);
   }
@@ -290,7 +287,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
   AnalysisFailure _asFailure(Object error) {
     if (_cancel?.isCompleted ?? false) return _cancelled;
     if (error is AnalysisFailure) return error;
-    return const AnalysisFailure(kind: AnalysisFailureKind.unreadable);
+    return _unreadable;
   }
 
   AiReport _validated(
@@ -301,7 +298,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
   ) {
     final raw = AiOutputExtractor.extractReport(completed.text);
     if (raw == null) {
-      throw const AnalysisFailure(kind: AnalysisFailureKind.unreadable);
+      throw _unreadable;
     }
     final valid = AiReportValidator.validateForPayload(raw, payload);
     return finishAiReport(
@@ -331,15 +328,9 @@ Duration? _autoRetryWait(AnalysisFailure f) {
   return Duration(seconds: seconds);
 }
 
-Future<int> _monthTokens(AiReportStore store, DateTime now) async {
+String aiMonthKey(DateTime now) {
   final local = now.toLocal();
-  var sum = 0;
-  for (final r in await store.recent()) {
-    final at = r.createdAtUtc.toLocal();
-    if (at.year != local.year || at.month != local.month) continue;
-    sum += (r.promptTokens ?? 0) + (r.completionTokens ?? 0);
-  }
-  return sum;
+  return '${local.year}-${local.month.toString().padLeft(2, '0')}';
 }
 
 AiReport _draft(

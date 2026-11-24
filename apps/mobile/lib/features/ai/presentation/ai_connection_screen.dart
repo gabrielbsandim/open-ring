@@ -431,12 +431,14 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
               l10n.aiConnectionKeySaved(lastFour.isEmpty ? 'hidden' : lastFour),
             ),
           ),
-          TextButton(
-            key: AiConnectionKeys.keyReplace,
-            onPressed: _busy
-                ? null
-                : () => setState(() => _replacingKey = true),
-            child: Text(l10n.aiConnectionKeyReplace),
+          Flexible(
+            child: TextButton(
+              key: AiConnectionKeys.keyReplace,
+              onPressed: _busy
+                  ? null
+                  : () => setState(() => _replacingKey = true),
+              child: Text(l10n.aiConnectionKeyReplace),
+            ),
           ),
           _keyInfoButton(l10n),
         ],

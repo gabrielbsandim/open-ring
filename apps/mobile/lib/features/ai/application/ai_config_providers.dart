@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
+import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
@@ -62,6 +63,27 @@ class AiConfigController extends AsyncNotifier<AiConfig> {
     state = AsyncData(value);
   });
 
+  /// Drops a result whose target changed while the test ran, so a stale
+  /// pass never marks a new address or model as tested.
+  Future<void> recordTest({
+    required String hostKey,
+    required String model,
+    required AiCapabilityProfile profile,
+    required DateTime at,
+  }) => _serial(() async {
+    final current = await future;
+    if (current.hostKey != hostKey || current.trimmedModel != model) return;
+    final store = ref.read(aiConfigStoreProvider);
+    await store.writeCapabilityProfile(hostKey, model, profile);
+    final value = current.copyWith(
+      testedAtUtcMs: at.toUtc().millisecondsSinceEpoch,
+      testedHostKey: hostKey,
+      testedModel: model,
+    );
+    await store.writeConfig(value);
+    state = AsyncData(value);
+  });
+
   Future<void> recordConsent(AiConsent consent) => _serial(() async {
     await ref.read(aiConfigStoreProvider).writeConsent(consent);
     ref.invalidate(aiConsentProvider);
@@ -91,4 +113,16 @@ final aiAvailabilityProvider = FutureProvider<AiAvailability>((ref) async {
     hasStoredKey: key != null && key.isNotEmpty,
     consent: consent,
   );
+});
+
+/// The stored profile behind the tested caption, null while untested.
+final aiTestedProfileProvider = FutureProvider<AiCapabilityProfile?>((
+  ref,
+) async {
+  final config = await ref.watch(aiConfigProvider.future);
+  final hostKey = config.hostKey;
+  if (!config.isTestedForCurrentTarget || hostKey == null) return null;
+  return await ref
+      .read(aiConfigStoreProvider)
+      .readCapabilityProfile(hostKey, config.trimmedModel);
 });

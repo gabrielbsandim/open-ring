@@ -44,5 +44,11 @@ abstract interface class AnalysisModel {
     required Future<void> cancel,
   });
   Future<List<String>> listModels();
-  Future<ConnectionProbe> probe();
+
+  /// [onReached] fires once the model list answered or was tolerated as
+  /// missing, before the fixed sentence is sent.
+  Future<ConnectionProbe> probe({
+    Future<void>? cancel,
+    void Function()? onReached,
+  });
 }

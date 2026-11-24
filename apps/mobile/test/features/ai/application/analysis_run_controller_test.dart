@@ -87,7 +87,10 @@ final class _FakeModel implements AnalysisModel {
   Future<List<String>> listModels() => throw UnimplementedError();
 
   @override
-  Future<ConnectionProbe> probe() => throw UnimplementedError();
+  Future<ConnectionProbe> probe({
+    Future<void>? cancel,
+    void Function()? onReached,
+  }) => throw UnimplementedError();
 }
 
 Stream<AnalysisEvent> _ok(Future<void> _) => Stream.fromIterable([

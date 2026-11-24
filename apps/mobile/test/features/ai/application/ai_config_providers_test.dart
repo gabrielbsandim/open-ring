@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_prompt.dart';
+import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
@@ -197,5 +198,50 @@ void main() {
         AiAvailability.notConfigured,
       );
     });
+  });
+
+  group('recordTest', () {
+    const hostKey = 'https://api.example.com:443';
+    const profile = AiCapabilityProfile(jsonMode: AiJsonMode.none);
+    final at = DateTime.utc(2026, 11, 24, 8, 12);
+
+    test('stores the profile and marks the target tested', () async {
+      final c = container();
+      await c.read(aiConfigProvider.future);
+
+      await c
+          .read(aiConfigProvider.notifier)
+          .recordTest(hostKey: hostKey, model: 'm', profile: profile, at: at);
+
+      expect(store.config.isTestedForCurrentTarget, isTrue);
+      expect(store.config.testedAtUtcMs, at.millisecondsSinceEpoch);
+      expect(await store.readCapabilityProfile(hostKey, 'm'), profile);
+      expect(await c.read(aiTestedProfileProvider.future), profile);
+    });
+
+    test('an untested target has no caption profile', () async {
+      await store.writeCapabilityProfile(hostKey, 'm', profile);
+      final c = container();
+
+      expect(await c.read(aiTestedProfileProvider.future), isNull);
+    });
+
+    for (final (host, model) in [
+      ('https://other.example.com:443', 'm'),
+      (hostKey, 'other'),
+    ]) {
+      test('drops a result for a changed target ($host, $model)', () async {
+        final c = container();
+        await c.read(aiConfigProvider.future);
+
+        await c
+            .read(aiConfigProvider.notifier)
+            .recordTest(hostKey: host, model: model, profile: profile, at: at);
+
+        expect(store.config.testedAtUtcMs, isNull);
+        expect(store.profiles, isEmpty);
+        expect(await c.read(aiTestedProfileProvider.future), isNull);
+      });
+    }
   });
 }

@@ -212,40 +212,4 @@ final class MealPhotoSuggestion {
     'processed': mealWireName(processed),
     'items': [for (final i in items) i.toJson()],
   };
-
-  @override
-  bool operator ==(Object other) =>
-      other is MealPhotoSuggestion &&
-      other.isFood == isFood &&
-      other.kind == kind &&
-      other.protein == protein &&
-      other.caffeine == caffeine &&
-      other.fried == fried &&
-      other.sugaryDrink == sugaryDrink &&
-      other.veg == veg &&
-      other.alcohol == alcohol &&
-      other.processed == processed &&
-      _sameItems(other.items, items);
-
-  @override
-  int get hashCode => Object.hash(
-    isFood,
-    kind,
-    protein,
-    caffeine,
-    fried,
-    sugaryDrink,
-    veg,
-    alcohol,
-    processed,
-    Object.hashAll(items),
-  );
-}
-
-bool _sameItems(List<MealPhotoItem> a, List<MealPhotoItem> b) {
-  if (a.length != b.length) return false;
-  for (var i = 0; i < a.length; i++) {
-    if (a[i] != b[i]) return false;
-  }
-  return true;
 }

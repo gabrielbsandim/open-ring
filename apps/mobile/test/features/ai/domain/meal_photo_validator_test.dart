@@ -255,11 +255,11 @@ void main() {
       expect(done.droppedItems, 2);
     });
 
-    test('duplicates by case folded name merge counts and grams', () {
+    test('duplicates by case folded name and measure merge', () {
       final done = _withItems([
         _item('Rice', count: 1),
         _item('bread', count: 1, grams: 50),
-        _item(' rice ', measure: 'cup', count: 0.5, grams: 80),
+        _item(' rice ', count: 0.5, grams: 80),
         _item('ÄPFEL', count: 1, grams: 90),
         _item('äpfel', count: 1, grams: 90),
       ]);
@@ -286,6 +286,54 @@ void main() {
       expect(done.droppedItems, 0);
     });
 
+    test('the same name with another measure stays a separate item', () {
+      final done = _withItems([
+        _item('rice', measure: 'cup', grams: 150),
+        _item('Rice', measure: 'bowl', grams: 200),
+      ]);
+      expect(done.suggestion.items.map((i) => i.measure), [
+        MealPhotoMeasure.cup,
+        MealPhotoMeasure.bowl,
+      ]);
+      expect(done.droppedItems, 0);
+    });
+
+    test('separate measures still count toward the cap of 8', () {
+      final done = _withItems([
+        for (final m in ['unit', 'slice', 'cup', 'glass', 'bowl'])
+          _item('rice', measure: m, grams: 50),
+        for (final m in ['unit', 'slice', 'cup', 'glass', 'bowl'])
+          _item('bread', measure: m, grams: 50),
+      ]);
+      expect(done.suggestion.items, hasLength(8));
+      expect(done.droppedItems, 2);
+    });
+
+    test('a merged item past 1500 g is dropped and lowers confidence', () {
+      final done = _withItems([
+        _item('rice', grams: 1400, count: 6),
+        _item('Rice', grams: 1000, count: 6),
+        _item('beans', grams: 50),
+      ]);
+      expect(done.suggestion.items.map((i) => i.name), ['beans']);
+      expect(done.droppedItems, 1);
+      expect(done.confidence, MealPhotoConfidence.low);
+    });
+
+    test(
+      'a merged item past a count of 6 is dropped and lowers confidence',
+      () {
+        final done = _withItems([
+          _item('egg', measure: 'unit', count: 4, grams: 200),
+          _item('Egg', measure: 'unit', count: 3, grams: 150),
+          _item('beans', grams: 50),
+        ]);
+        expect(done.suggestion.items.map((i) => i.name), ['beans']);
+        expect(done.droppedItems, 1);
+        expect(done.confidence, MealPhotoConfidence.low);
+      },
+    );
+
     group('name sanitizer', () {
       const clean = <String, String>{
         'en': 'grilled chicken',
@@ -308,9 +356,40 @@ void main() {
         });
       }
 
-      test('keeps hyphens, apostrophes and combining marks', () {
+      test('keeps hyphens, apostrophes and precomposed accents', () {
         expect(MealPhotoValidator.isCleanItemName("pick-n'-mix", 'en'), isTrue);
-        expect(MealPhotoValidator.isCleanItemName('café', 'fr'), isTrue);
+        expect(MealPhotoValidator.isCleanItemName('caf\u00e9', 'fr'), isTrue);
+        expect(
+          MealPhotoValidator.isCleanItemName('\u0130zmir k\u00f6fte', 'tr'),
+          isTrue,
+        );
+      });
+
+      const bypass = <String, (String, String)>{
+        'grapheme joiner': ('insu\u034Flin', 'en'),
+        'zero width joiner': ('insu\u200Dlin', 'en'),
+        'word joiner': ('insu\u2060lin', 'en'),
+        'byte order mark': ('insu\uFEFFlin', 'en'),
+        'dotted capital I': ('\u0130nsulin', 'en'),
+        'decomposed i dot': ('i\u0307nsulin', 'en'),
+        'NFD accent': ('farma\u0301cia', 'pt-BR'),
+        'NFD accent, harmless word': ('cafe\u0301', 'fr'),
+        'Cyrillic homoglyph': ('\u0456nsulin', 'en'),
+        'Greek homoglyph': ('insul\u03b9n', 'en'),
+        'mark after a space': ('\u0926\u093E\u0932 \u093E', 'hi'),
+      };
+      for (final MapEntry(:key, value: (name, lang)) in bypass.entries) {
+        test('rejects the $key bypass', () {
+          expect(MealPhotoValidator.isCleanItemName(name, lang), isFalse);
+          final done = _withItems([_item(name), _item('rice')], lang: lang);
+          expect(done.suggestion.items.map((i) => i.name), ['rice']);
+        });
+      }
+
+      test('a pt only stem is dropped in pt-BR and kept in en', () {
+        const name = 'rem\u00e9dio caseiro';
+        expect(MealPhotoValidator.isCleanItemName(name, 'pt-BR'), isFalse);
+        expect(MealPhotoValidator.isCleanItemName(name, 'en'), isTrue);
       });
 
       const dirty = <String, String>{
@@ -454,8 +533,7 @@ void main() {
       final back = MealPhotoSuggestion.fromJson(
         jsonDecode(json) as Map<String, Object?>,
       );
-      expect(back, done.suggestion);
-      expect(back!.hashCode, done.suggestion.hashCode);
+      expect(back!.items, done.suggestion.items);
       expect(jsonEncode(back.toJson()), json);
     });
 
@@ -463,7 +541,7 @@ void main() {
       final s = _done(_tags(isFood: 'unsure')).suggestion;
       final json = s.toJson();
       expect(json['items'], isEmpty);
-      expect(MealPhotoSuggestion.fromJson(json), s);
+      expect(MealPhotoSuggestion.fromJson(json)!.toJson(), json);
     });
 
     test('a corrupt stored value reads as null', () {

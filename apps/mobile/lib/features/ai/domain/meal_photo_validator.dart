@@ -62,6 +62,18 @@ abstract final class MealPhotoValidator {
     r"^\p{L}[\p{L}\p{M} '\-]{0,31}$",
     unicode: true,
   );
+  static final RegExp _hiddenOrStrayMark = RegExp(
+    r'[\u034F\u200B-\u200F\u2060-\u2064\uFEFF]|(?<![\p{L}\p{M}])\p{M}',
+    unicode: true,
+  );
+  static final RegExp _latin = RegExp(r'\p{Script=Latin}', unicode: true);
+
+  // Latin names must be precomposed and single script, so a mark or a
+  // homoglyph cannot split a stem that findMedicalTerm looks for.
+  static final RegExp _latinTrap = RegExp(
+    r'\p{M}|\p{Script=Cyrillic}|\p{Script=Greek}',
+    unicode: true,
+  );
   static const Set<String> _itemKeys = {'name', 'measure', 'count', 'grams'};
   static const _offSchema = MealPhotoRejected(MealPhotoRejectReason.offSchema);
 
@@ -174,10 +186,12 @@ abstract final class MealPhotoValidator {
         countX2: (item.count * 2).round(),
         grams: item.grams,
       );
-      final key = name.toLowerCase();
+      final key = '${name.toLowerCase()}|${item.measure.name}';
       merged[key] = merged[key]?.plus(next) ?? next;
     }
-    final kept = merged.values.take(maxItems).toList();
+    final inRange = merged.values.where(_plausibleMerged).toList();
+    implausible = implausible || inRange.length < merged.length;
+    final kept = inRange.take(maxItems).toList();
     dropped += merged.length - kept.length;
     final total = kept.fold(0, (sum, i) => sum + i.grams);
     if (total > maxTotalGrams) {
@@ -197,8 +211,16 @@ abstract final class MealPhotoValidator {
     return halves && inRange && item.grams >= 1 && item.grams <= maxItemGrams;
   }
 
+  static bool _plausibleMerged(MealPhotoItem item) =>
+      item.countX2 <= maxCount * 2 && item.grams <= maxItemGrams;
+
   /// The only guard on free text the model writes in the reply language.
-  static bool isCleanItemName(String name, String replyLanguage) =>
-      _itemName.hasMatch(name) &&
-      AiSafetyLexicon.findMedicalTerm(name, replyLanguage) == null;
+  static bool isCleanItemName(String name, String replyLanguage) {
+    if (!_itemName.hasMatch(name) || _hiddenOrStrayMark.hasMatch(name)) {
+      return false;
+    }
+    if (_latin.hasMatch(name) && _latinTrap.hasMatch(name)) return false;
+    final folded = name.toLowerCase().replaceAll('i\u0307', 'i');
+    return AiSafetyLexicon.findMedicalTerm(folded, replyLanguage) == null;
+  }
 }

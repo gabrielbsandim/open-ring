@@ -32,6 +32,7 @@ void main() {
         testedHostKey: 'https://openrouter.ai:443',
         testedModel: 'openai/gpt-5',
         photoModel: 'openai/gpt-5-vision',
+        photoDailyLimit: 3,
       );
       final restored = AiConfig.fromJson(a.toJson());
       final again = AiConfig.fromJson(a.toJson());
@@ -75,6 +76,22 @@ void main() {
       expect(restored, isNot(a.copyWith(testedModel: 'other')));
       expect(restored, isNot(a.copyWith(clearTested: true)));
       expect(restored, isNot(a.copyWith(clearPhotoModel: true)));
+      expect(restored, isNot(a.copyWith(photoDailyLimit: 8)));
+      expect(restored.photoDailyLimit, 3);
+    });
+
+    test('photoDailyLimit defaults to 8 and keeps only 1 to 30', () {
+      expect(AiConfig.defaults.photoDailyLimit, 8);
+      expect(AiConfig.fromJson(const {}).photoDailyLimit, 8);
+      for (final kept in [1, 30]) {
+        expect(
+          AiConfig.fromJson({'photoDailyLimit': kept}).photoDailyLimit,
+          kept,
+        );
+      }
+      for (final bad in <Object>[0, 31, -4, 8.5, '12']) {
+        expect(AiConfig.fromJson({'photoDailyLimit': bad}).photoDailyLimit, 8);
+      }
     });
 
     test('clamps out-of-range JSON values and sanitizes corrupted inputs', () {

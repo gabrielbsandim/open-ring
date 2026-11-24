@@ -9,6 +9,9 @@ const int aiMinOutputTokens = 256;
 const int aiDefaultOutputTokens = 4000;
 const int aiMaxOutputTokens = 32000;
 const List<int> aiAllowedTimeoutSeconds = [60, 180, 600];
+const int aiMinPhotoDailyLimit = 1;
+const int aiDefaultPhotoDailyLimit = 8;
+const int aiMaxPhotoDailyLimit = 30;
 const String aiCurrentPolicyEffectiveDate = '2026-11-22';
 
 enum AiStructuredOutputMode { auto, jsonSchema, jsonObject, off }
@@ -43,6 +46,7 @@ final class AiConfig {
     this.testedHostKey,
     this.testedModel,
     this.photoModel,
+    this.photoDailyLimit = aiDefaultPhotoDailyLimit,
   });
 
   factory fromJson(Map<String, Object?> json) {
@@ -50,6 +54,7 @@ final class AiConfig {
     final currency = json['priceCurrency'];
     final cap = json['monthlyTokenCap'];
     final tokens = json['maxOutputTokens'];
+    final daily = json['photoDailyLimit'];
     return AiConfig(
       preset: _enumByName(
         AiProviderPreset.values,
@@ -103,6 +108,12 @@ final class AiConfig {
       testedHostKey: _nonEmptyString(json['testedHostKey']),
       testedModel: _nonEmptyString(json['testedModel']),
       photoModel: _nonEmptyString(json['photoModel']),
+      photoDailyLimit:
+          daily is int &&
+              daily >= aiMinPhotoDailyLimit &&
+              daily <= aiMaxPhotoDailyLimit
+          ? daily
+          : aiDefaultPhotoDailyLimit,
     );
   }
 
@@ -128,6 +139,7 @@ final class AiConfig {
   final String? testedHostKey;
   final String? testedModel;
   final String? photoModel;
+  final int photoDailyLimit;
 
   String get trimmedModel => model.trim();
 
@@ -185,6 +197,7 @@ final class AiConfig {
     bool clearTested = false,
     String? photoModel,
     bool clearPhotoModel = false,
+    int? photoDailyLimit,
   }) => AiConfig(
     preset: preset ?? this.preset,
     baseUrl: baseUrl ?? this.baseUrl,
@@ -214,6 +227,7 @@ final class AiConfig {
     testedHostKey: clearTested ? null : testedHostKey ?? this.testedHostKey,
     testedModel: clearTested ? null : testedModel ?? this.testedModel,
     photoModel: clearPhotoModel ? null : photoModel ?? this.photoModel,
+    photoDailyLimit: photoDailyLimit ?? this.photoDailyLimit,
   );
 
   Map<String, Object?> toJson() => {
@@ -239,6 +253,7 @@ final class AiConfig {
     if (testedHostKey != null) 'testedHostKey': testedHostKey,
     if (testedModel != null) 'testedModel': testedModel,
     if (photoModel != null) 'photoModel': photoModel,
+    'photoDailyLimit': photoDailyLimit,
   };
 
   @override
@@ -263,7 +278,8 @@ final class AiConfig {
       other.testedAtUtcMs == testedAtUtcMs &&
       other.testedHostKey == testedHostKey &&
       other.testedModel == testedModel &&
-      other.photoModel == photoModel;
+      other.photoModel == photoModel &&
+      other.photoDailyLimit == photoDailyLimit;
 
   @override
   int get hashCode => Object.hashAll([
@@ -287,6 +303,7 @@ final class AiConfig {
     testedHostKey,
     testedModel,
     photoModel,
+    photoDailyLimit,
   ]);
 
   @override

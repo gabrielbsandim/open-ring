@@ -275,6 +275,21 @@ void main() {
       },
     );
 
+    test(
+      'requeue moves only a sending row back and undoes its attempt',
+      () async {
+        final id = await _analysisAt(store, mealId, _target, _now);
+        await store.markSending(id, now: _now);
+
+        expect(await store.requeue(id, now: _now), isTrue);
+        expect(await store.requeue(id, now: _now), isFalse);
+
+        final row = (await store.byMeal(mealId)).single;
+        expect((row.status, row.attempts), (MealAnalysisStatus.queued, 0));
+        expect((await store.next())!.id, id);
+      },
+    );
+
     test('complete stores the answer and replaces only model items', () async {
       final id = await _doneRow(store, mealId);
       await _userItem(db, id, 'juice');

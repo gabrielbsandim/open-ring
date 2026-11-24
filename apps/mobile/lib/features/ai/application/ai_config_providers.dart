@@ -112,6 +112,11 @@ final aiConsentProvider = FutureProvider<AiConsent?>(
   (ref) => ref.watch(aiConfigStoreProvider).readConsent(),
 );
 
+/// A writer of the photo consent invalidates it, so the photo queue runs.
+final aiMealPhotoConsentProvider = FutureProvider<AiMealPhotoConsent?>(
+  (ref) => ref.watch(aiConfigStoreProvider).readMealPhotoConsent(),
+);
+
 final aiAvailabilityProvider = FutureProvider<AiAvailability>((ref) async {
   // Awaits the module list: a still loading list must not resolve to off.
   final modules = await ref.watch(enabledModulesProvider.future);

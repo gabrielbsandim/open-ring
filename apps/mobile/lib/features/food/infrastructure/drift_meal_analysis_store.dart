@@ -96,6 +96,17 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
   );
 
   @override
+  Future<bool> requeue(int id, {required DateTime now}) => _moveOne(
+    id,
+    _sending,
+    MealAnalysesCompanion.custom(
+      status: Constant(MealAnalysisStatus.queued.wire),
+      attempts: _db.mealAnalyses.attempts - const Constant(1),
+      updatedAtUtcMs: Constant(now.millisecondsSinceEpoch),
+    ),
+  );
+
+  @override
   Future<bool> complete(
     int id,
     MealAnalysisAnswer answer, {

@@ -10,6 +10,7 @@ import 'package:open_ring/features/ai/domain/ai_reading.dart';
 import 'package:open_ring/features/ai/domain/ai_report_models.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
+import 'package:open_ring/features/ai/presentation/ai_failure_message.dart';
 import 'package:open_ring/features/ai/presentation/ai_reading_sheets.dart';
 import 'package:open_ring/features/open_score/presentation/day_tag_sheet.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
@@ -25,6 +26,9 @@ abstract final class AiReadingKeys {
   static const usage = Key('ai_reading_usage');
   static const usage30 = Key('ai_reading_usage30');
   static const sent = Key('ai_reading_sent');
+  static const error = Key('ai_reading_error');
+
+  static Key action(AiFailureAction a) => Key('ai_reading_action_${a.name}');
 
   static Key earlier(DateTime at) => Key('ai_reading_earlier_$at');
 

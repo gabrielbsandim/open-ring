@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
@@ -113,16 +114,21 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
   /// Settles when the run in flight, if any, has finished or aborted.
   Future<void> idle = Future.value();
 
+  /// [maxOutputTokens] overrides Advanced for this run only.
   Future<void> send({
     AiAnalysisKind kind = AiAnalysisKind.dailyReview,
     bool force = false,
+    int? maxOutputTokens,
   }) {
     if (_busy || !ref.read(aiEnabledProvider)) return Future.value();
     _busy = true;
     _dead = false;
     _cancel = Completer<void>();
+    _maxOutput = maxOutputTokens;
     return idle = _run(kind, force: force);
   }
+
+  int? _maxOutput;
 
   Future<void> _run(AiAnalysisKind kind, {required bool force}) async {
     try {
@@ -218,7 +224,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     final request = AnalysisRequest(
       systemPrompt: payload.systemPrompt,
       userContent: AiTextContent(payload.userMessage),
-      maxOutputTokens: config.maxOutputTokens,
+      maxOutputTokens: _maxOutput ?? config.maxOutputTokens,
       profile: profile,
       pin: aiOutputPin(config),
       jsonSchema: aiReportOutputSchema,
@@ -246,6 +252,8 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
         final next = AnalysisFailed(
           RunModelFailure(failure),
           canRetryLarger: larger,
+          report: report,
+          outputLimit: request.maxOutputTokens,
         );
         return (report, next);
       }
@@ -373,6 +381,9 @@ Duration? _autoRetryWait(AnalysisFailure f) {
   if (seconds < 0 || seconds > aiAutoRetryMaxSeconds) return null;
   return Duration(seconds: seconds);
 }
+
+int aiLargerOutputTokens(int current) =>
+    math.min(aiMaxOutputTokens, math.max(16000, 2 * current));
 
 String aiMonthKey(DateTime now) =>
     now.toLocal().toIso8601String().substring(0, 7);

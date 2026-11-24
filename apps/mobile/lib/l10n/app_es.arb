@@ -2768,5 +2768,22 @@
   "aiReadingSent": "Lo que se envió",
   "aiReadingSentAt": "Enviado el {date}. Este es el texto que se guarda con la lectura.",
   "aiReadingsEarlier": "Lecturas anteriores",
-  "aiReadingCards": "{count, plural, =0{Sin tarjetas} =1{1 tarjeta} other{{count} tarjetas}}"
+  "aiReadingCards": "{count, plural, =0{Sin tarjetas} =1{1 tarjeta} other{{count} tarjetas}}",
+  "aiErrorRejected": "El servidor rechazó la solicitud.",
+  "aiErrorNoCredit": "El proveedor dice que esta cuenta no tiene crédito.",
+  "aiErrorForbidden": "Esta clave no tiene permiso para usar {model}.",
+  "aiErrorTooLong": "El resumen de tus datos es demasiado largo para este modelo. Elige un nivel de detalle menor.",
+  "aiErrorRateLimited": "{seconds, plural, =0{El proveedor está limitando las solicitudes. Vuelve a intentarlo en un momento.} other{El proveedor está limitando las solicitudes. Vuelve a intentarlo en {seconds} s.}}",
+  "aiErrorServer": "{status, select, none{{host} tuvo un problema.} other{{host} tuvo un problema ({status}).}} No se mostró nada. Vuelve a intentarlo más tarde.",
+  "aiErrorTimeout": "{host} dejó de responder después de {seconds} s.{stage, select, total{ Los modelos locales pueden necesitar un tiempo de espera mayor en Avanzado.} other{}}",
+  "aiErrorOutputLimit": "El modelo usó todo su límite de salida antes de responder. Esto pasa con los modelos de razonamiento.",
+  "aiRetryLarger": "Reintentar con un límite mayor",
+  "aiErrorRefused": "El modelo se negó a responder.",
+  "aiErrorUnreadable": "{source, select, phone{Algo salió mal en este teléfono. Mira los detalles.} other{No se pudo leer la respuesta del modelo.}}",
+  "aiErrorNoMatch": "La respuesta del modelo no coincidió con tus datos, así que no se muestra nada.",
+  "aiShowRaw": "{kind, select, unverified{Ver texto sin verificar} other{Ver texto sin procesar}}",
+  "aiErrorCeiling": "Se alcanzó el límite de tokens de este mes: {used} de {cap} tokens. Puedes cambiar el límite en Avanzado.",
+  "aiRawTitle": "Texto sin verificar",
+  "aiRawBanner": "Texto de {model} que OpenRing no pudo comprobar con tus datos. Los números marcados con ? no coinciden con ningún dato enviado.",
+  "aiReadingFailedRow": "{kind, select, cancelled{Cancelada} other{No terminó}}"
 }

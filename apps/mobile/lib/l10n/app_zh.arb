@@ -2768,5 +2768,22 @@
   "aiReadingSent": "发送的内容",
   "aiReadingSentAt": "发送于 {date}。这是随解读保存的文本。",
   "aiReadingsEarlier": "以前的解读",
-  "aiReadingCards": "{count, plural, =0{没有卡片} other{{count} 张卡片}}"
+  "aiReadingCards": "{count, plural, =0{没有卡片} other{{count} 张卡片}}",
+  "aiErrorRejected": "服务器拒绝了请求。",
+  "aiErrorNoCredit": "服务商表示此账户没有余额。",
+  "aiErrorForbidden": "此密钥无权使用 {model}。",
+  "aiErrorTooLong": "你的数据摘要对这个模型来说太长了。请选择更低的详细程度。",
+  "aiErrorRateLimited": "{seconds, plural, =0{服务商正在限制请求。请稍后再试。} other{服务商正在限制请求。请在 {seconds} 秒后再试。}}",
+  "aiErrorServer": "{status, select, none{{host} 出现问题。} other{{host} 出现问题（{status}）。}}没有显示任何内容。请稍后再试。",
+  "aiErrorTimeout": "{host} 在 {seconds} 秒后停止响应。{stage, select, total{本地模型可能需要在“高级”中设置更长的超时。} other{}}",
+  "aiErrorOutputLimit": "模型在回答前用完了全部输出上限。推理模型会出现这种情况。",
+  "aiRetryLarger": "用更大的上限重试",
+  "aiErrorRefused": "模型拒绝回答。",
+  "aiErrorUnreadable": "{source, select, phone{这部手机上出了问题。请查看详情。} other{无法读取模型的回答。}}",
+  "aiErrorNoMatch": "模型的回答与你的数据不符，因此不显示任何内容。",
+  "aiShowRaw": "{kind, select, unverified{显示未核对的文本} other{显示原始文本}}",
+  "aiErrorCeiling": "本月的 token 上限已用完：{cap} 中已用 {used}。你可以在“高级”中更改上限。",
+  "aiRawTitle": "未核对的文本",
+  "aiRawBanner": "来自 {model} 的文本，OpenRing 无法将其与你的数据核对。标有 ? 的数字与发送的任何数据都不符。",
+  "aiReadingFailedRow": "{kind, select, cancelled{已取消} other{未完成}}"
 }

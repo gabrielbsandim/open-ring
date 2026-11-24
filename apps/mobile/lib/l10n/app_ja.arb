@@ -2768,5 +2768,22 @@
   "aiReadingSent": "送信した内容",
   "aiReadingSentAt": "{date}に送信。読み解きとともに保存されているテキストです。",
   "aiReadingsEarlier": "以前の読み解き",
-  "aiReadingCards": "{count, plural, =0{カードなし} other{{count}件のカード}}"
+  "aiReadingCards": "{count, plural, =0{カードなし} other{{count}件のカード}}",
+  "aiErrorRejected": "サーバーがリクエストを拒否しました。",
+  "aiErrorNoCredit": "プロバイダーによると、このアカウントにはクレジットがありません。",
+  "aiErrorForbidden": "このキーでは {model} を使用できません。",
+  "aiErrorTooLong": "データの要約がこのモデルには長すぎます。詳細レベルを下げてください。",
+  "aiErrorRateLimited": "{seconds, plural, =0{プロバイダーがリクエストを制限しています。少し待ってからもう一度お試しください。} other{プロバイダーがリクエストを制限しています。{seconds} 秒後にもう一度お試しください。}}",
+  "aiErrorServer": "{status, select, none{{host} で問題が発生しました。} other{{host} で問題が発生しました（{status}）。}}何も表示していません。後でもう一度お試しください。",
+  "aiErrorTimeout": "{host} が {seconds} 秒後に応答しなくなりました。{stage, select, total{ローカルモデルでは詳細設定でタイムアウトを長くする必要がある場合があります。} other{}}",
+  "aiErrorOutputLimit": "モデルが回答する前に出力上限をすべて使い切りました。推論モデルで起こります。",
+  "aiRetryLarger": "上限を増やして再試行",
+  "aiErrorRefused": "モデルが回答を拒否しました。",
+  "aiErrorUnreadable": "{source, select, phone{このスマートフォンで問題が発生しました。詳細をご覧ください。} other{モデルの回答を読み取れませんでした。}}",
+  "aiErrorNoMatch": "モデルの回答があなたのデータと一致しなかったため、何も表示していません。",
+  "aiShowRaw": "{kind, select, unverified{未確認のテキストを表示} other{生のテキストを表示}}",
+  "aiErrorCeiling": "今月のトークン上限に達しました：{cap} トークン中 {used} トークン。上限は詳細設定で変更できます。",
+  "aiRawTitle": "未確認のテキスト",
+  "aiRawBanner": "OpenRing があなたのデータと照合できなかった {model} のテキストです。? の付いた数値は、送信したどのデータとも一致しません。",
+  "aiReadingFailedRow": "{kind, select, cancelled{キャンセル済み} other{完了しませんでした}}"
 }

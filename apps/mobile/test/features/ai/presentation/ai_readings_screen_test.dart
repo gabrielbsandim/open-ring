@@ -17,10 +17,13 @@ import 'package:open_ring/features/ai/domain/ai_prompt.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/analysis_model.dart';
+import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/domain/openai_wire_codec.dart';
 import 'package:open_ring/features/ai/presentation/ai_consent_sheet.dart';
+import 'package:open_ring/features/ai/presentation/ai_failure_message.dart';
+import 'package:open_ring/features/ai/presentation/ai_raw_text_sheet.dart';
 import 'package:open_ring/features/ai/presentation/ai_reading_card.dart';
 import 'package:open_ring/features/ai/presentation/ai_readings_screen.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
@@ -692,5 +695,253 @@ void main() {
     }
     await tester.tap(find.byKey(AiReadingKeys.cancel));
     await tester.pumpAndSettle();
+  });
+
+  group('2.3 errors', () {
+    Future<void> fail(WidgetTester tester, AnalysisFailure failure) async {
+      model.streams.last.addError(failure);
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> reply(WidgetTester tester, String text) async {
+      model.streams.last.add(
+        AnalysisCompleted(text: text, finishReason: 'stop'),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    Finder action(AiFailureAction a) => find.byKey(AiReadingKeys.action(a));
+
+    List<AiFailureAction> shown(WidgetTester tester) => [
+      for (final a in AiFailureAction.values)
+        if (tester.any(action(a))) a,
+    ];
+
+    final noMatch = jsonEncode({
+      'summary': 'Nothing matched.',
+      'cards': [
+        {
+          ..._card('Invented'),
+          'evidence': ['f.unknown.avg'],
+        },
+      ],
+    });
+    const rawText =
+        'Sleep averaged 300 min and HRV was 87 ms. **Bold** [x](https://a.example)';
+
+    for (final (kind, expected) in [
+      (AnalysisFailureKind.unauthorized, [AiFailureAction.connection]),
+      (
+        AnalysisFailureKind.timeout,
+        [AiFailureAction.retry, AiFailureAction.connection],
+      ),
+      (AnalysisFailureKind.serverError, [AiFailureAction.retry]),
+      (AnalysisFailureKind.emptyAfterLimit, [AiFailureAction.larger]),
+    ]) {
+      testWidgets('$kind shows its line and buttons', (tester) async {
+        await pump(tester);
+        await tapKind(tester, AiReadingKeys.weekly);
+        await fail(
+          tester,
+          AnalysisFailure(kind: kind, statusCode: 503, detail: 'boom'),
+        );
+
+        expect(find.byKey(AiReadingKeys.error), findsOneWidget);
+        expect(shown(tester), expected);
+        final config = configs.config;
+        final failed = AnalysisFailed(
+          RunModelFailure(
+            AnalysisFailure(kind: kind, statusCode: 503, detail: 'boom'),
+          ),
+        );
+        expect(
+          find.text(aiFailureMessage(l10n, failed.failure, config)!),
+          findsOneWidget,
+        );
+        expect(find.text('${l10n.aiErrorDetails}: 503 · boom'), findsOne);
+      });
+    }
+
+    testWidgets('an unreadable answer offers Try again and the raw text, '
+        'which marks an invented number and not a cited one', (tester) async {
+      await pump(tester);
+      await tapKind(tester, AiReadingKeys.weekly);
+      await reply(tester, rawText);
+
+      expect(find.text(l10n.aiErrorUnreadable('model')), findsOneWidget);
+      expect(
+        find.textContaining('HRV was 87', findRichText: true),
+        findsNothing,
+      );
+      expect(shown(tester), [AiFailureAction.retry, AiFailureAction.raw]);
+      await tester.tap(action(AiFailureAction.raw));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(AiRawKeys.sheet), findsOneWidget);
+      expect(find.text(l10n.aiRawBanner('gpt-test')), findsOneWidget);
+      final text = tester.widget<Text>(find.byKey(AiRawKeys.text));
+      final marked = <String>[];
+      text.textSpan!.visitChildren((span) {
+        final style = (span as TextSpan).style;
+        if (style?.decorationStyle == TextDecorationStyle.dotted) {
+          marked.add(span.text!);
+        }
+        return true;
+      });
+      expect(marked, ['87']);
+      expect(text.textSpan!.toPlainText(), contains('87?'));
+      expect(text.textSpan!.toPlainText(), contains('[x](https://a.example)'));
+    });
+
+    testWidgets('Try again forces past the cache and goes through consent, '
+        'sending exactly once after Allow', (tester) async {
+      await pump(tester);
+      await tapKind(tester, AiReadingKeys.weekly);
+      await reply(tester, noMatch);
+
+      expect(find.text(l10n.aiErrorNoMatch), findsOneWidget);
+      expect(find.text('Nothing matched.'), findsNothing);
+      expect(
+        find.textContaining('f.unknown.avg', findRichText: true),
+        findsNothing,
+      );
+      await tester.tap(action(AiFailureAction.raw));
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('f.unknown.avg', findRichText: true),
+        findsOneWidget,
+      );
+      Navigator.of(tester.element(find.byKey(AiRawKeys.sheet))).pop();
+      await tester.pumpAndSettle();
+      expect(shown(tester), [AiFailureAction.retry, AiFailureAction.raw]);
+      expect(
+        tester.widget<OutlinedButton>(action(AiFailureAction.raw)).child,
+        isA<Text>().having(
+          (t) => t.data,
+          'label',
+          l10n.aiShowRaw('unverified'),
+        ),
+      );
+
+      configs.consent = null;
+      await tester.tap(action(AiFailureAction.retry));
+      await tester.pumpAndSettle();
+      expect(find.byKey(AiConsentKeys.sheet), findsOneWidget);
+      expect(model.requests, hasLength(1));
+
+      await tester.tap(find.byKey(AiConsentKeys.tick));
+      await tester.pump();
+      await tester.tap(find.byKey(AiConsentKeys.allow));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(model.requests, hasLength(2));
+      await answer(tester);
+
+      expect(model.requests, hasLength(2));
+      expect(find.text('Steady sleep'), findsOneWidget);
+    });
+
+    testWidgets('the larger limit sends 16,000 once and leaves Advanced', (
+      tester,
+    ) async {
+      await pump(tester);
+      await tapKind(tester, AiReadingKeys.weekly);
+      await fail(
+        tester,
+        const AnalysisFailure(kind: AnalysisFailureKind.emptyAfterLimit),
+      );
+      expect(find.text(l10n.aiErrorOutputLimit), findsOneWidget);
+
+      await tester.tap(action(AiFailureAction.larger));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(model.requests, hasLength(2));
+      expect(model.requests.last.maxOutputTokens, 16000);
+      await answer(tester);
+      expect(configs.config.maxOutputTokens, aiDefaultOutputTokens);
+
+      await tapKind(tester, AiReadingKeys.daily);
+      expect(model.requests.last.maxOutputTokens, aiDefaultOutputTokens);
+      await answer(tester);
+    });
+
+    testWidgets('a larger retry that hits the limit again offers the next '
+        'step up, then nothing at 32,000', (tester) async {
+      const limit = AnalysisFailure(kind: AnalysisFailureKind.emptyAfterLimit);
+      Future<void> larger() async {
+        await tester.tap(action(AiFailureAction.larger));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+
+      await pump(tester);
+      await tapKind(tester, AiReadingKeys.weekly);
+      await fail(tester, limit);
+      await larger();
+      expect(model.requests.last.maxOutputTokens, 16000);
+
+      await fail(tester, limit);
+      expect(shown(tester), [AiFailureAction.larger]);
+      await larger();
+      expect(model.requests.last.maxOutputTokens, aiMaxOutputTokens);
+
+      await fail(tester, limit);
+      expect(shown(tester), [AiFailureAction.retry]);
+      expect(model.requests, hasLength(3));
+      expect(configs.config.maxOutputTokens, aiDefaultOutputTokens);
+    });
+
+    testWidgets('no larger retry when Advanced is already at the maximum', (
+      tester,
+    ) async {
+      configs.config = configs.config.copyWith(
+        maxOutputTokens: aiMaxOutputTokens,
+      );
+      await pump(tester);
+      await tapKind(tester, AiReadingKeys.weekly);
+      await fail(
+        tester,
+        const AnalysisFailure(kind: AnalysisFailureKind.emptyAfterLimit),
+      );
+
+      expect(find.text(l10n.aiErrorOutputLimit), findsOneWidget);
+      expect(shown(tester), [AiFailureAction.retry]);
+    });
+
+    testWidgets('a stored no match reading keeps its error and hides the raw '
+        'text once retention cleared it', (tester) async {
+      final cards = jsonEncode({'summary': '', 'cards': <Object?>[]});
+      await reports.insert(_stored(cardsJson: cards, dropped: 2));
+      await pump(tester);
+
+      expect(find.text(l10n.aiErrorNoMatch), findsOneWidget);
+      expect(
+        find.text('${l10n.aiErrorDetails}: ${l10n.aiDroppedTitle(2)}'),
+        findsOneWidget,
+      );
+      expect(shown(tester), [AiFailureAction.retry]);
+    });
+
+    testWidgets('failed and cancelled earlier rows say why', (tester) async {
+      AiReport row(AiReportStatus status, int hours) => AiReport(
+        createdAtUtc: _now.subtract(Duration(hours: hours)),
+        offsetMin: 0,
+        kind: 'daily_review',
+        contextSchema: aiContextSchemaVersion,
+        contextSha256: 'x$hours',
+        detailLevel: 'standard',
+        promptVersion: 'v$aiPromptVersion',
+        providerHost: _hostKey,
+        model: 'gpt-test',
+        status: status,
+      );
+      await reports.insert(_stored());
+      await reports.insert(row(AiReportStatus.failed, 2));
+      await reports.insert(row(AiReportStatus.cancelled, 3));
+      await pump(tester);
+
+      expect(find.text(l10n.aiReadingFailedRow('failed')), findsOneWidget);
+      expect(find.text(l10n.aiReadingFailedRow('cancelled')), findsOneWidget);
+    });
   });
 }

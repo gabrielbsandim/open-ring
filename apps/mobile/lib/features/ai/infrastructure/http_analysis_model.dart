@@ -16,6 +16,19 @@ const String probeUserMessage =
 const Duration _connectTimeout = Duration(seconds: 10);
 const Duration _modelsTimeout = Duration(seconds: 10);
 
+/// Seconds a chat request waits at [stage]; [totalSeconds] is the request
+/// timeout from Advanced.
+int aiTimeoutStageSeconds(
+  TimeoutStage stage, {
+  required bool local,
+  required int totalSeconds,
+}) => switch (stage) {
+  TimeoutStage.connect => _connectTimeout.inSeconds,
+  TimeoutStage.firstByte => local ? 180 : 60,
+  TimeoutStage.idle => local ? 120 : 45,
+  TimeoutStage.total => totalSeconds,
+};
+
 typedef AddressLookup = Future<List<String>> Function(String host);
 typedef SocketConnector = Future<ConnectionTask<Socket>> Function(
   Object host,
@@ -93,8 +106,15 @@ final class HttpAnalysisModel implements AnalysisModel {
   final AddressLookup _lookup;
   final AnalysisClientFactory _clientFactory;
 
-  Duration get _firstByte => Duration(seconds: local ? 180 : 60);
-  Duration get _idle => Duration(seconds: local ? 120 : 45);
+  Duration _stage(TimeoutStage stage) => Duration(
+    seconds: aiTimeoutStageSeconds(
+      stage,
+      local: local,
+      totalSeconds: requestTimeout.inSeconds,
+    ),
+  );
+  Duration get _firstByte => _stage(TimeoutStage.firstByte);
+  Duration get _idle => _stage(TimeoutStage.idle);
   Duration get _probeTimeout => Duration(seconds: local ? 180 : 60);
 
   @override

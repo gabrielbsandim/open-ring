@@ -2768,5 +2768,22 @@
   "aiReadingSent": "Yang dikirim",
   "aiReadingSentAt": "Dikirim pada {date}. Ini teks yang disimpan bersama bacaan.",
   "aiReadingsEarlier": "Bacaan sebelumnya",
-  "aiReadingCards": "{count, plural, =0{Tidak ada kartu} other{{count} kartu}}"
+  "aiReadingCards": "{count, plural, =0{Tidak ada kartu} other{{count} kartu}}",
+  "aiErrorRejected": "Server menolak permintaan.",
+  "aiErrorNoCredit": "Penyedia menyatakan akun ini tidak punya kredit.",
+  "aiErrorForbidden": "Kunci ini tidak diizinkan memakai {model}.",
+  "aiErrorTooLong": "Ringkasan data Anda terlalu panjang untuk model ini. Pilih tingkat detail yang lebih rendah.",
+  "aiErrorRateLimited": "{seconds, plural, =0{Penyedia sedang membatasi permintaan. Coba lagi sebentar lagi.} other{Penyedia sedang membatasi permintaan. Coba lagi dalam {seconds} dtk.}}",
+  "aiErrorServer": "{status, select, none{{host} mengalami masalah.} other{{host} mengalami masalah ({status}).}} Tidak ada yang ditampilkan. Coba lagi nanti.",
+  "aiErrorTimeout": "{host} berhenti menjawab setelah {seconds} dtk.{stage, select, total{ Model lokal mungkin perlu batas waktu lebih lama di Lanjutan.} other{}}",
+  "aiErrorOutputLimit": "Model memakai seluruh batas keluarannya sebelum menjawab. Ini terjadi pada model penalaran.",
+  "aiRetryLarger": "Coba lagi dengan batas lebih besar",
+  "aiErrorRefused": "Model menolak menjawab.",
+  "aiErrorUnreadable": "{source, select, phone{Terjadi kesalahan di ponsel ini. Lihat Detail.} other{Jawaban model tidak dapat dibaca.}}",
+  "aiErrorNoMatch": "Jawaban model tidak cocok dengan data Anda, jadi tidak ada yang ditampilkan.",
+  "aiShowRaw": "{kind, select, unverified{Tampilkan teks yang belum diperiksa} other{Tampilkan teks mentah}}",
+  "aiErrorCeiling": "Batas token bulan ini tercapai: {used} dari {cap} token. Anda dapat mengubah batasnya di Lanjutan.",
+  "aiRawTitle": "Teks yang belum diperiksa",
+  "aiRawBanner": "Teks dari {model} yang tidak dapat diperiksa OpenRing dengan data Anda. Angka bertanda ? tidak cocok dengan data apa pun yang dikirim.",
+  "aiReadingFailedRow": "{kind, select, cancelled{Dibatalkan} other{Tidak selesai}}"
 }

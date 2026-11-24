@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
+import 'package:open_ring/core/clock/clock.dart';
+import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
@@ -10,6 +12,7 @@ import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_provider_preset.dart';
 import 'package:open_ring/features/ai/domain/base_url_policy.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
+import 'package:open_ring/features/ai/presentation/ai_test_connection_sheet.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -27,6 +30,9 @@ abstract final class AiConnectionKeys {
   static const switchDialog = Key('ai_connection_switch_dialog');
   static const switchConfirm = Key('ai_connection_switch_confirm');
   static const switchCancel = Key('ai_connection_switch_cancel');
+  static const test = Key('ai_connection_test');
+  static const testFillFirst = Key('ai_connection_test_fill_first');
+  static const tested = Key('ai_connection_tested');
 
   static Key preset(AiProviderPreset preset) =>
       Key('ai_connection_preset_${preset.name}');
@@ -62,6 +68,11 @@ String? aiBaseUrlRefusal(AppLocalizations l10n, String raw) {
   };
 }
 
+bool _testable(AiConfig config) =>
+    config.normalizedUrl != null &&
+    config.trimmedModel.isNotEmpty &&
+    (!config.preset.keyRequired || config.keyLastFour != null);
+
 NormalizedBaseUrl? _parsedUrl(String raw) =>
     switch (BaseUrlPolicy.parse(raw.trim())) {
       BaseUrlOk(:final url) => url,
@@ -83,6 +94,7 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
   var _loaded = false;
   var _replacingKey = false;
   var _busy = false;
+  var _testing = false;
 
   @override
   void dispose() {
@@ -163,7 +175,68 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
             : null,
         child: Text(l10n.workoutSave),
       ),
+      const SizedBox(height: 12),
+      OutlinedButton(
+        key: AiConnectionKeys.test,
+        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        onPressed: !_busy && _formComplete(config, url)
+            ? () => unawaited(_test(config))
+            : null,
+        child: Text(l10n.aiTestButton),
+      ),
+      const SizedBox(height: 6),
+      _testCaption(l10n, config, url),
     ];
+  }
+
+  bool _formComplete(AiConfig config, NormalizedBaseUrl? url) =>
+      url != null &&
+      _model.text.trim().isNotEmpty &&
+      (!_preset.keyRequired ||
+          _key.text.trim().isNotEmpty ||
+          config.keyLastFour != null);
+
+  Widget _testCaption(
+    AppLocalizations l10n,
+    AiConfig config,
+    NormalizedBaseUrl? url,
+  ) {
+    final profile = ref.watch(aiTestedProfileProvider).value;
+    final at = config.testedAtUtcMs;
+    if (!_formComplete(config, url)) {
+      return CaptionText(
+        key: AiConnectionKeys.testFillFirst,
+        l10n.aiTestFillFirst,
+      );
+    }
+    if (profile == null || at == null) return const SizedBox.shrink();
+    final when = MetricFormat.of(context).clockOrDay(
+      DateTime.fromMillisecondsSinceEpoch(at, isUtc: true),
+      ref.read(clockProvider)(),
+    );
+    return CaptionText(
+      key: AiConnectionKeys.tested,
+      l10n.aiTestTested(when, profile.jsonMode.name),
+    );
+  }
+
+  /// Saves pending edits first, so the test always runs on the stored target.
+  Future<void> _test(AiConfig config) async {
+    if (_testing) return;
+    _testing = true;
+    try {
+      if (_canSave(config, _parsedUrl(_url.text))) await _save(config);
+      final saved = await ref.read(aiConfigProvider.future);
+      final pending = _canSave(saved, _parsedUrl(_url.text));
+      if (!mounted || pending || !_testable(saved)) return;
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        builder: (_) => AiTestConnectionSheet(config: saved),
+      );
+    } finally {
+      _testing = false;
+    }
   }
 
   List<Widget> _addressField(AppLocalizations l10n, NormalizedBaseUrl? url) {

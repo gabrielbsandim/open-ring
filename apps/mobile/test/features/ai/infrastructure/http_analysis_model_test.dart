@@ -545,7 +545,7 @@ void main() {
         final cancel = Completer<void>();
         final h = _Harness((call) async {
           if (call.request.method != method) return _json(404, 'not found');
-          return Completer<http.StreamedResponse>().future;
+          return await Completer<http.StreamedResponse>().future;
         });
 
         final pending = _failureOf(h.model.probe(cancel: cancel.future));

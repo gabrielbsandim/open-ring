@@ -53,9 +53,12 @@ AiConsent aiConsentFor({
   required AiConsent? previous,
   required DateTime at,
 }) {
-  final kept = previous?.hostKey == config.hostKey
-      ? previous!.categories
-      : const <AiDataCategory>{};
+  final valid =
+      previous != null &&
+      previous.hostKey == config.hostKey &&
+      previous.policyEffectiveDate == aiCurrentPolicyEffectiveDate &&
+      previous.contextSchemaVersion == aiContextSchemaVersion;
+  final kept = valid ? previous.categories : const <AiDataCategory>{};
   return AiConsent(
     consentedAtUtcMs: at.toUtc().millisecondsSinceEpoch,
     policyEffectiveDate: aiCurrentPolicyEffectiveDate,

@@ -22,12 +22,14 @@ const _host = 'https://api.example.com:443';
 AiConsent _consent({
   String host = _host,
   Set<AiDataCategory> categories = const {},
+  String policy = aiCurrentPolicyEffectiveDate,
+  String schema = aiContextSchemaVersion,
 }) => AiConsent(
   consentedAtUtcMs: 1,
-  policyEffectiveDate: aiCurrentPolicyEffectiveDate,
+  policyEffectiveDate: policy,
   hostKey: host,
   detailLevel: AiDetailLevel.standard,
-  contextSchemaVersion: aiContextSchemaVersion,
+  contextSchemaVersion: schema,
   categories: categories,
 );
 
@@ -158,6 +160,25 @@ void main() {
         at: at,
       );
       expect(moved.categories, isEmpty);
+    });
+
+    test('categories of an outdated policy or schema are dropped', () {
+      final at = DateTime.utc(2026, 11, 24, 9);
+      for (final previous in [
+        _consent(categories: {AiDataCategory.food}, policy: '2026-01-01'),
+        _consent(
+          categories: {AiDataCategory.food},
+          schema: 'openring.context/1',
+        ),
+      ]) {
+        final consent = aiConsentFor(
+          config: _config,
+          payload: _payload({'goal': {}}),
+          previous: previous,
+          at: at,
+        );
+        expect(consent.categories, {AiDataCategory.goals});
+      }
     });
   });
 }

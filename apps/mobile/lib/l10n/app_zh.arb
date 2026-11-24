@@ -2696,5 +2696,22 @@
   "aiDetailHelp": "{level, select, minimal{仅评分和趋势。不含性别、身高、时间、SpO2 或单次训练。} standard{每日和每周合计，时间取整到 15 分钟，年龄按 5 岁分段，日期显示为昨天或前天。} other{另含日历日期、准确年龄和精确到分钟的时间。}}细节越少，离开手机的数据越少，回答也越笼统。服务仍可能将你发送的内容与你的账户关联。",
   "aiImportedTitle": "其他应用的睡眠和训练",
   "aiImportedBody": "其他应用保存在 Health Connect 中的记录。关闭时，只有戒指和 OpenRing 记录的内容会进入摘要。",
-  "aiDemoLocked": "演示模式。此处无法编辑连接和密钥。"
+  "aiDemoLocked": "演示模式。此处无法编辑连接和密钥。",
+  "aiAdvancedTitle": "高级",
+  "aiAdvancedCaption": "输出上限、超时、格式、价格",
+  "aiAdvancedMaxTokens": "最大输出 token 数",
+  "aiAdvancedTimeout": "请求超时",
+  "aiAdvancedStructuredTitle": "结构化输出",
+  "aiAdvancedStructured": "{mode, select, auto{自动} jsonSchema{JSON Schema} jsonObject{JSON 对象} other{关闭}}",
+  "aiAdvancedStreamingTitle": "流式传输",
+  "aiAdvancedReasoningTitle": "推理强度",
+  "aiAdvancedReasoning": "{effort, select, low{低} medium{中} high{高} other{不发送}}",
+  "aiAdvancedPriceIn": "每 100 万输入 token 的价格",
+  "aiAdvancedPriceOut": "每 100 万输出 token 的价格",
+  "aiAdvancedCurrency": "货币",
+  "aiAdvancedPriceHelp": "可选。每百万 token 的价格，仅保存在这部手机上。",
+  "aiAdvancedTokenCap": "每月 token 上限",
+  "aiAdvancedTokenCapNone": "留空表示不设上限。在服务端设置消费上限更安全。",
+  "aiAdvancedInvalid": "{kind, select, tokens{请输入 256 到 32,000 之间的整数。} cap{请输入大于 0 的整数，或留空。} price{请输入大于 0 的数字，或留空。} other{请输入货币，例如 USD。}}",
+  "aiLocalSoftnote": "本地模型。摘要以 7 天的精简大小发送。在 Ollama 中，请将上下文设为 8192 个 token 或更多。"
 }

@@ -2696,5 +2696,22 @@
   "aiDetailHelp": "{level, select, minimal{Solo puntuaciones y tendencias. Sin sexo, altura, horas, SpO2 ni entrenamientos uno a uno.} standard{Totales diarios y semanales, horas redondeadas a 15 minutos, edad en franjas de 5 años, días como ayer o anteayer.} other{También fechas del calendario, edad exacta y horas al minuto.}} Menos detalle significa menos datos saliendo del teléfono y respuestas más vagas. El servicio aún puede vincular lo que envías a tu cuenta.",
   "aiImportedTitle": "Sueño y entrenamientos de otras apps",
   "aiImportedBody": "Los que otras apps guardaron en Health Connect. Desactivado, solo lo que registraron el anillo y OpenRing entra en el resumen.",
-  "aiDemoLocked": "Modo demo. La conexión y la clave no se pueden editar aquí."
+  "aiDemoLocked": "Modo demo. La conexión y la clave no se pueden editar aquí.",
+  "aiAdvancedTitle": "Avanzado",
+  "aiAdvancedCaption": "Límite de salida, tiempo de espera, formato, precios",
+  "aiAdvancedMaxTokens": "Máximo de tokens de salida",
+  "aiAdvancedTimeout": "Tiempo de espera de la solicitud",
+  "aiAdvancedStructuredTitle": "Salida estructurada",
+  "aiAdvancedStructured": "{mode, select, auto{Automático} jsonSchema{Esquema JSON} jsonObject{Objeto JSON} other{Desactivado}}",
+  "aiAdvancedStreamingTitle": "Streaming",
+  "aiAdvancedReasoningTitle": "Esfuerzo de razonamiento",
+  "aiAdvancedReasoning": "{effort, select, low{Bajo} medium{Medio} high{Alto} other{No se envía}}",
+  "aiAdvancedPriceIn": "Precio por 1 M de tokens de entrada",
+  "aiAdvancedPriceOut": "Precio por 1 M de tokens de salida",
+  "aiAdvancedCurrency": "Moneda",
+  "aiAdvancedPriceHelp": "Opcional. Precios por millón de tokens, guardados en este teléfono.",
+  "aiAdvancedTokenCap": "Límite mensual de tokens",
+  "aiAdvancedTokenCapNone": "Vacío significa sin límite. Un límite de gasto en el servicio es más seguro.",
+  "aiAdvancedInvalid": "{kind, select, tokens{Introduce un número entero de 256 a 32.000.} cap{Introduce un número entero mayor que 0 o déjalo vacío.} price{Introduce un número mayor que 0 o déjalo vacío.} other{Introduce una moneda, por ejemplo USD.}}",
+  "aiLocalSoftnote": "Modelo local. El resumen se envía en el tamaño compacto de 7 días. En Ollama, ajusta el contexto a 8192 tokens o más."
 }

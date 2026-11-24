@@ -15,6 +15,7 @@ import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_provider_preset.dart';
 import 'package:open_ring/features/ai/domain/base_url_policy.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
+import 'package:open_ring/features/ai/presentation/ai_advanced_section.dart';
 import 'package:open_ring/features/ai/presentation/ai_models_sheet.dart';
 import 'package:open_ring/features/ai/presentation/ai_test_connection_sheet.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
@@ -228,6 +229,8 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
         ),
       ),
       ..._privacyControls(l10n, config),
+      const SizedBox(height: 16),
+      AiAdvancedSection(config: config, locked: _locked),
       const SizedBox(height: 24),
       FilledButton(
         key: AiConnectionKeys.save,

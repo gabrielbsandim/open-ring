@@ -8,6 +8,7 @@ import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/features/ai/application/ai_report_providers.dart';
 import 'package:open_ring/features/ai/application/health_context_providers.dart';
+import 'package:open_ring/features/ai/domain/ai_advanced_input.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_output_extractor.dart';
 import 'package:open_ring/features/ai/domain/ai_prompt.dart';
@@ -208,6 +209,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
       userContent: AiTextContent(payload.userMessage),
       maxOutputTokens: config.maxOutputTokens,
       profile: profile,
+      pin: aiOutputPin(config),
       jsonSchema: aiReportOutputSchema,
       reasoningEffort: config.reasoningEffort,
     );

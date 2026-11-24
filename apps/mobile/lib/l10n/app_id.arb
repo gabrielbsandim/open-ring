@@ -2696,5 +2696,22 @@
   "aiDetailHelp": "{level, select, minimal{Hanya skor dan tren. Tanpa jenis kelamin, tinggi badan, jam, SpO2, atau latihan satu per satu.} standard{Total harian dan mingguan, jam dibulatkan ke 15 menit, usia dalam rentang 5 tahun, hari sebagai kemarin atau dua hari lalu.} other{Juga tanggal kalender, usia persis, dan jam hingga menit.}} Detail yang lebih sedikit berarti lebih sedikit data yang keluar dari ponsel dan jawaban yang lebih samar. Layanan tetap bisa menghubungkan apa yang Anda kirim dengan akun Anda.",
   "aiImportedTitle": "Tidur dan latihan dari aplikasi lain",
   "aiImportedBody": "Yang disimpan aplikasi lain di Health Connect. Saat nonaktif, hanya yang direkam cincin dan OpenRing yang masuk ke ringkasan.",
-  "aiDemoLocked": "Mode demo. Koneksi dan kunci tidak dapat diubah di sini."
+  "aiDemoLocked": "Mode demo. Koneksi dan kunci tidak dapat diubah di sini.",
+  "aiAdvancedTitle": "Lanjutan",
+  "aiAdvancedCaption": "Batas keluaran, batas waktu, format, harga",
+  "aiAdvancedMaxTokens": "Token keluaran maksimum",
+  "aiAdvancedTimeout": "Batas waktu permintaan",
+  "aiAdvancedStructuredTitle": "Keluaran terstruktur",
+  "aiAdvancedStructured": "{mode, select, auto{Otomatis} jsonSchema{Skema JSON} jsonObject{Objek JSON} other{Mati}}",
+  "aiAdvancedStreamingTitle": "Streaming",
+  "aiAdvancedReasoningTitle": "Upaya penalaran",
+  "aiAdvancedReasoning": "{effort, select, low{Rendah} medium{Sedang} high{Tinggi} other{Tidak dikirim}}",
+  "aiAdvancedPriceIn": "Harga per 1 juta token masukan",
+  "aiAdvancedPriceOut": "Harga per 1 juta token keluaran",
+  "aiAdvancedCurrency": "Mata uang",
+  "aiAdvancedPriceHelp": "Opsional. Harga per satu juta token, disimpan di ponsel ini.",
+  "aiAdvancedTokenCap": "Batas token bulanan",
+  "aiAdvancedTokenCapNone": "Kosong berarti tanpa batas. Batas pengeluaran yang diatur di layanan lebih aman.",
+  "aiAdvancedInvalid": "{kind, select, tokens{Masukkan bilangan bulat dari 256 sampai 32.000.} cap{Masukkan bilangan bulat di atas 0, atau biarkan kosong.} price{Masukkan angka di atas 0, atau biarkan kosong.} other{Masukkan mata uang, misalnya USD.}}",
+  "aiLocalSoftnote": "Model lokal. Ringkasan dikirim dalam ukuran ringkas 7 hari. Di Ollama, atur konteks ke 8192 token atau lebih."
 }

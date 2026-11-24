@@ -69,7 +69,7 @@ void main() {
       }
       for (final MapEntry(:key, :value) in lines.entries) {
         if (key == AnalysisFailureKind.unreadable) continue;
-        expect(value, isNot(l10n.aiErrorUnreadable), reason: '$key');
+        expect(value, isNot(l10n.aiErrorUnreadable('model')), reason: '$key');
       }
       expect(lines.values.toSet(), hasLength(lines.length));
     });
@@ -89,7 +89,7 @@ void main() {
       );
       expect(
         aiFailureMessage(l10n, RunUnexpected(StateError('x')), _remote),
-        l10n.aiErrorUnreadable,
+        l10n.aiErrorUnreadable('phone'),
       );
       expect(l10n.aiErrorNoMatch, isNotEmpty);
     });
@@ -140,6 +140,81 @@ void main() {
     );
   });
 
+  test('5xx without a status leaves out the parentheses', () {
+    expect(
+      aiFailureMessage(l10n, _f(AnalysisFailureKind.serverError), _remote),
+      'api.example.com had a problem. Nothing was shown. Try again later.',
+    );
+  });
+
+  test('the Advanced hint shows only for the total timeout', () {
+    String? line(TimeoutStage stage) => aiFailureMessage(
+      l10n,
+      _f(AnalysisFailureKind.timeout, stage: stage),
+      _remote,
+    );
+    expect(
+      line(TimeoutStage.total),
+      'api.example.com stopped answering after 180 s. Local models can need '
+      'a longer timeout in Advanced.',
+    );
+    expect(
+      line(TimeoutStage.firstByte),
+      'api.example.com stopped answering after 60 s.',
+    );
+    expect(
+      line(TimeoutStage.idle),
+      'api.example.com stopped answering after 45 s.',
+    );
+  });
+
+  test('an unexpected failure blames the phone, not the model, with '
+      'Details', () {
+    final failure = RunUnexpected(StateError('x'));
+    expect(
+      aiFailureMessage(l10n, failure, _remote),
+      'Something went wrong on this phone. See Details.',
+    );
+    expect(aiFailureDetails(failure), 'StateError');
+  });
+
+  test('each kind has its exact line', () {
+    final expected = {
+      AnalysisFailureKind.unreachable: l10n.aiErrorUnreachable(
+        'api.example.com',
+      ),
+      AnalysisFailureKind.tls: l10n.aiErrorTls('api.example.com'),
+      AnalysisFailureKind.cleartextBlocked: l10n.aiConnectionRefusalCleartext(
+        'api.example.com',
+      ),
+      AnalysisFailureKind.redirect: l10n.aiErrorRedirect('api.example.com'),
+      AnalysisFailureKind.badRequest: l10n.aiErrorRejected,
+      AnalysisFailureKind.unauthorized: l10n.aiErrorKey,
+      AnalysisFailureKind.noCredit: l10n.aiErrorNoCredit,
+      AnalysisFailureKind.forbidden: l10n.aiErrorForbidden('gpt-x'),
+      AnalysisFailureKind.modelNotFound: l10n.aiErrorModelNotFound('gpt-x'),
+      AnalysisFailureKind.contextTooLong: l10n.aiErrorTooLong,
+      AnalysisFailureKind.rateLimited: l10n.aiErrorRateLimited(0),
+      AnalysisFailureKind.serverError: l10n.aiErrorServer(
+        'api.example.com',
+        'none',
+      ),
+      AnalysisFailureKind.timeout: l10n.aiErrorTimeout(
+        'api.example.com',
+        180,
+        'total',
+      ),
+      AnalysisFailureKind.emptyAfterLimit: l10n.aiErrorOutputLimit,
+      AnalysisFailureKind.refused: l10n.aiErrorRefused,
+      AnalysisFailureKind.unreadable: l10n.aiErrorUnreadable('model'),
+      AnalysisFailureKind.cancelled: l10n.aiReadingCancelled,
+    };
+    expect(expected.keys.toSet(), AnalysisFailureKind.values.toSet());
+    for (final MapEntry(:key, :value) in expected.entries) {
+      expect(aiFailureMessage(l10n, _f(key), _remote), value, reason: '$key');
+    }
+  });
+
   test('403 names the model', () {
     expect(
       aiFailureMessage(l10n, _f(AnalysisFailureKind.forbidden), _remote),
@@ -161,15 +236,15 @@ void main() {
       );
       expect(
         line(_remote, TimeoutStage.firstByte),
-        l10n.aiErrorTimeout('api.example.com', 60),
+        l10n.aiErrorTimeout('api.example.com', 60, 'firstByte'),
       );
       expect(
         line(_remote, TimeoutStage.idle),
-        l10n.aiErrorTimeout('api.example.com', 45),
+        l10n.aiErrorTimeout('api.example.com', 45, 'idle'),
       );
       expect(
         line(_remote, TimeoutStage.total),
-        l10n.aiErrorTimeout('api.example.com', 180),
+        l10n.aiErrorTimeout('api.example.com', 180, 'total'),
       );
     });
 
@@ -180,15 +255,15 @@ void main() {
       );
       expect(
         line(_local, TimeoutStage.firstByte),
-        l10n.aiErrorTimeout('192.168.1.10', 180),
+        l10n.aiErrorTimeout('192.168.1.10', 180, 'firstByte'),
       );
       expect(
         line(_local, TimeoutStage.idle),
-        l10n.aiErrorTimeout('192.168.1.10', 120),
+        l10n.aiErrorTimeout('192.168.1.10', 120, 'idle'),
       );
       expect(
         line(_local, TimeoutStage.total),
-        l10n.aiErrorTimeout('192.168.1.10', 600),
+        l10n.aiErrorTimeout('192.168.1.10', 600, 'total'),
       );
     });
   });

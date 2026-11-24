@@ -768,7 +768,11 @@ void main() {
       await tapKind(tester, AiReadingKeys.weekly);
       await reply(tester, rawText);
 
-      expect(find.text(l10n.aiErrorUnreadable), findsOneWidget);
+      expect(find.text(l10n.aiErrorUnreadable('model')), findsOneWidget);
+      expect(
+        find.textContaining('HRV was 87', findRichText: true),
+        findsNothing,
+      );
       expect(shown(tester), [AiFailureAction.retry, AiFailureAction.raw]);
       await tester.tap(action(AiFailureAction.raw));
       await tester.pumpAndSettle();
@@ -797,6 +801,18 @@ void main() {
 
       expect(find.text(l10n.aiErrorNoMatch), findsOneWidget);
       expect(find.text('Nothing matched.'), findsNothing);
+      expect(
+        find.textContaining('f.unknown.avg', findRichText: true),
+        findsNothing,
+      );
+      await tester.tap(action(AiFailureAction.raw));
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('f.unknown.avg', findRichText: true),
+        findsOneWidget,
+      );
+      Navigator.of(tester.element(find.byKey(AiRawKeys.sheet))).pop();
+      await tester.pumpAndSettle();
       expect(shown(tester), [AiFailureAction.retry, AiFailureAction.raw]);
       expect(
         tester.widget<OutlinedButton>(action(AiFailureAction.raw)).child,
@@ -847,6 +863,23 @@ void main() {
       await tapKind(tester, AiReadingKeys.daily);
       expect(model.requests.last.maxOutputTokens, aiDefaultOutputTokens);
       await answer(tester);
+    });
+
+    testWidgets('no larger retry when Advanced is already at the maximum', (
+      tester,
+    ) async {
+      configs.config = configs.config.copyWith(
+        maxOutputTokens: aiMaxOutputTokens,
+      );
+      await pump(tester);
+      await tapKind(tester, AiReadingKeys.weekly);
+      await fail(
+        tester,
+        const AnalysisFailure(kind: AnalysisFailureKind.emptyAfterLimit),
+      );
+
+      expect(find.text(l10n.aiErrorOutputLimit), findsOneWidget);
+      expect(shown(tester), [AiFailureAction.retry]);
     });
 
     testWidgets('a stored no match reading keeps its error and hides the raw '

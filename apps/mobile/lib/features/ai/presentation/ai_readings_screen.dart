@@ -295,12 +295,12 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
     final line = aiFailureMessage(l10n, failed.failure, config);
     if (line == null) return const [];
     final raw = failed.report?.rawText == null ? null : failed.report;
+    final larger = aiLargerOutputTokens(config.maxOutputTokens);
     final actions = aiFailureActions(
       failed.failure,
-      canRetryLarger: failed.canRetryLarger,
+      canRetryLarger: failed.canRetryLarger && larger > config.maxOutputTokens,
       hasRaw: raw != null,
     );
-    final larger = aiLargerOutputTokens(config.maxOutputTokens);
     return _errorCard(l10n, line, aiFailureDetails(failed.failure), [
       for (final a in actions)
         switch (a) {

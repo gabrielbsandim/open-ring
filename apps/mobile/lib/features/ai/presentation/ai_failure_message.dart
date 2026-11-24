@@ -19,7 +19,7 @@ String? aiFailureMessage(
   RunModelFailure(:final failure) => _modelLine(l10n, failure, config),
   RunNotEnoughData(:final days) => l10n.aiPreviewNotEnough(days),
   RunCeilingReached(:final used, :final cap) => l10n.aiErrorCeiling(used, cap),
-  RunUnexpected() => l10n.aiErrorUnreadable,
+  RunUnexpected() => l10n.aiErrorUnreadable('phone'),
   RunConsentNeeded() => null,
 };
 
@@ -50,21 +50,31 @@ String _modelLine(
     ),
     AnalysisFailureKind.serverError => l10n.aiErrorServer(
       host,
-      '${failure.statusCode ?? ''}',
+      '${failure.statusCode ?? 'none'}',
     ),
-    AnalysisFailureKind.timeout => l10n.aiErrorTimeout(
-      host,
-      aiTimeoutStageSeconds(
-        failure.timeoutStage ?? TimeoutStage.total,
-        local: local,
-        totalSeconds: config.requestTimeoutSeconds,
-      ),
-    ),
+    AnalysisFailureKind.timeout => _timeoutLine(l10n, failure, config, host),
     AnalysisFailureKind.emptyAfterLimit => l10n.aiErrorOutputLimit,
     AnalysisFailureKind.refused => l10n.aiErrorRefused,
     AnalysisFailureKind.cancelled => l10n.aiReadingCancelled,
-    _ => l10n.aiErrorUnreadable,
+    _ => l10n.aiErrorUnreadable('model'),
   };
+}
+
+// Only the total stage follows Advanced; first byte and idle are fixed, so
+// the Advanced hint shows for the total alone.
+String _timeoutLine(
+  AppLocalizations l10n,
+  AnalysisFailure failure,
+  AiConfig config,
+  String host,
+) {
+  final stage = failure.timeoutStage ?? TimeoutStage.total;
+  final seconds = aiTimeoutStageSeconds(
+    stage,
+    local: config.preset.isLocal,
+    totalSeconds: config.requestTimeoutSeconds,
+  );
+  return l10n.aiErrorTimeout(host, seconds, stage.name);
 }
 
 /// Status and the provider's own text, already scrubbed of the key where

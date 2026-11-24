@@ -12629,6 +12629,21 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, MealRow> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _keepOnPhoneMeta = const VerificationMeta(
+    'keepOnPhone',
+  );
+  @override
+  late final GeneratedColumn<bool> keepOnPhone = GeneratedColumn<bool>(
+    'keep_on_phone',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("keep_on_phone" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -12647,6 +12662,7 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, MealRow> {
     lastMeal,
     photo,
     createdAtUtcMs,
+    keepOnPhone,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -12765,6 +12781,15 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, MealRow> {
     } else if (isInserting) {
       context.missing(_createdAtUtcMsMeta);
     }
+    if (data.containsKey('keep_on_phone')) {
+      context.handle(
+        _keepOnPhoneMeta,
+        keepOnPhone.isAcceptableOrUnknown(
+          data['keep_on_phone']!,
+          _keepOnPhoneMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -12838,6 +12863,10 @@ class $MealsTable extends Meals with TableInfo<$MealsTable, MealRow> {
         DriftSqlType.int,
         data['${effectivePrefix}created_at_utc_ms'],
       )!,
+      keepOnPhone: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}keep_on_phone'],
+      )!,
     );
   }
 
@@ -12864,6 +12893,7 @@ class MealRow extends DataClass implements Insertable<MealRow> {
   final bool lastMeal;
   final String? photo;
   final int createdAtUtcMs;
+  final bool keepOnPhone;
   const MealRow({
     required this.id,
     required this.atUtcMs,
@@ -12881,6 +12911,7 @@ class MealRow extends DataClass implements Insertable<MealRow> {
     required this.lastMeal,
     this.photo,
     required this.createdAtUtcMs,
+    required this.keepOnPhone,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -12913,6 +12944,7 @@ class MealRow extends DataClass implements Insertable<MealRow> {
       map['photo'] = Variable<String>(photo);
     }
     map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs);
+    map['keep_on_phone'] = Variable<bool>(keepOnPhone);
     return map;
   }
 
@@ -12942,6 +12974,7 @@ class MealRow extends DataClass implements Insertable<MealRow> {
           ? const Value.absent()
           : Value(photo),
       createdAtUtcMs: Value(createdAtUtcMs),
+      keepOnPhone: Value(keepOnPhone),
     );
   }
 
@@ -12967,6 +13000,7 @@ class MealRow extends DataClass implements Insertable<MealRow> {
       lastMeal: serializer.fromJson<bool>(json['lastMeal']),
       photo: serializer.fromJson<String?>(json['photo']),
       createdAtUtcMs: serializer.fromJson<int>(json['createdAtUtcMs']),
+      keepOnPhone: serializer.fromJson<bool>(json['keepOnPhone']),
     );
   }
   @override
@@ -12989,6 +13023,7 @@ class MealRow extends DataClass implements Insertable<MealRow> {
       'lastMeal': serializer.toJson<bool>(lastMeal),
       'photo': serializer.toJson<String?>(photo),
       'createdAtUtcMs': serializer.toJson<int>(createdAtUtcMs),
+      'keepOnPhone': serializer.toJson<bool>(keepOnPhone),
     };
   }
 
@@ -13009,6 +13044,7 @@ class MealRow extends DataClass implements Insertable<MealRow> {
     bool? lastMeal,
     Value<String?> photo = const Value.absent(),
     int? createdAtUtcMs,
+    bool? keepOnPhone,
   }) => MealRow(
     id: id ?? this.id,
     atUtcMs: atUtcMs ?? this.atUtcMs,
@@ -13026,6 +13062,7 @@ class MealRow extends DataClass implements Insertable<MealRow> {
     lastMeal: lastMeal ?? this.lastMeal,
     photo: photo.present ? photo.value : this.photo,
     createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+    keepOnPhone: keepOnPhone ?? this.keepOnPhone,
   );
   MealRow copyWithCompanion(MealsCompanion data) {
     return MealRow(
@@ -13049,6 +13086,9 @@ class MealRow extends DataClass implements Insertable<MealRow> {
       createdAtUtcMs: data.createdAtUtcMs.present
           ? data.createdAtUtcMs.value
           : this.createdAtUtcMs,
+      keepOnPhone: data.keepOnPhone.present
+          ? data.keepOnPhone.value
+          : this.keepOnPhone,
     );
   }
 
@@ -13070,7 +13110,8 @@ class MealRow extends DataClass implements Insertable<MealRow> {
           ..write('place: $place, ')
           ..write('lastMeal: $lastMeal, ')
           ..write('photo: $photo, ')
-          ..write('createdAtUtcMs: $createdAtUtcMs')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('keepOnPhone: $keepOnPhone')
           ..write(')'))
         .toString();
   }
@@ -13093,6 +13134,7 @@ class MealRow extends DataClass implements Insertable<MealRow> {
     lastMeal,
     photo,
     createdAtUtcMs,
+    keepOnPhone,
   );
   @override
   bool operator ==(Object other) =>
@@ -13113,7 +13155,8 @@ class MealRow extends DataClass implements Insertable<MealRow> {
           other.place == this.place &&
           other.lastMeal == this.lastMeal &&
           other.photo == this.photo &&
-          other.createdAtUtcMs == this.createdAtUtcMs);
+          other.createdAtUtcMs == this.createdAtUtcMs &&
+          other.keepOnPhone == this.keepOnPhone);
 }
 
 class MealsCompanion extends UpdateCompanion<MealRow> {
@@ -13133,6 +13176,7 @@ class MealsCompanion extends UpdateCompanion<MealRow> {
   final Value<bool> lastMeal;
   final Value<String?> photo;
   final Value<int> createdAtUtcMs;
+  final Value<bool> keepOnPhone;
   const MealsCompanion({
     this.id = const Value.absent(),
     this.atUtcMs = const Value.absent(),
@@ -13150,6 +13194,7 @@ class MealsCompanion extends UpdateCompanion<MealRow> {
     this.lastMeal = const Value.absent(),
     this.photo = const Value.absent(),
     this.createdAtUtcMs = const Value.absent(),
+    this.keepOnPhone = const Value.absent(),
   });
   MealsCompanion.insert({
     this.id = const Value.absent(),
@@ -13168,6 +13213,7 @@ class MealsCompanion extends UpdateCompanion<MealRow> {
     this.lastMeal = const Value.absent(),
     this.photo = const Value.absent(),
     required int createdAtUtcMs,
+    this.keepOnPhone = const Value.absent(),
   }) : atUtcMs = Value(atUtcMs),
        offsetMinutes = Value(offsetMinutes),
        createdAtUtcMs = Value(createdAtUtcMs);
@@ -13188,6 +13234,7 @@ class MealsCompanion extends UpdateCompanion<MealRow> {
     Expression<bool>? lastMeal,
     Expression<String>? photo,
     Expression<int>? createdAtUtcMs,
+    Expression<bool>? keepOnPhone,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -13206,6 +13253,7 @@ class MealsCompanion extends UpdateCompanion<MealRow> {
       if (lastMeal != null) 'last_meal': lastMeal,
       if (photo != null) 'photo': photo,
       if (createdAtUtcMs != null) 'created_at_utc_ms': createdAtUtcMs,
+      if (keepOnPhone != null) 'keep_on_phone': keepOnPhone,
     });
   }
 
@@ -13226,6 +13274,7 @@ class MealsCompanion extends UpdateCompanion<MealRow> {
     Value<bool>? lastMeal,
     Value<String?>? photo,
     Value<int>? createdAtUtcMs,
+    Value<bool>? keepOnPhone,
   }) {
     return MealsCompanion(
       id: id ?? this.id,
@@ -13244,6 +13293,7 @@ class MealsCompanion extends UpdateCompanion<MealRow> {
       lastMeal: lastMeal ?? this.lastMeal,
       photo: photo ?? this.photo,
       createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+      keepOnPhone: keepOnPhone ?? this.keepOnPhone,
     );
   }
 
@@ -13298,6 +13348,9 @@ class MealsCompanion extends UpdateCompanion<MealRow> {
     if (createdAtUtcMs.present) {
       map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs.value);
     }
+    if (keepOnPhone.present) {
+      map['keep_on_phone'] = Variable<bool>(keepOnPhone.value);
+    }
     return map;
   }
 
@@ -13319,7 +13372,8 @@ class MealsCompanion extends UpdateCompanion<MealRow> {
           ..write('place: $place, ')
           ..write('lastMeal: $lastMeal, ')
           ..write('photo: $photo, ')
-          ..write('createdAtUtcMs: $createdAtUtcMs')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('keepOnPhone: $keepOnPhone')
           ..write(')'))
         .toString();
   }
@@ -14613,6 +14667,2095 @@ class AiReportsCompanion extends UpdateCompanion<AiReportRow> {
   }
 }
 
+class $MealAnalysesTable extends MealAnalyses
+    with TableInfo<$MealAnalysesTable, MealAnalysisRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MealAnalysesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _mealIdMeta = const VerificationMeta('mealId');
+  @override
+  late final GeneratedColumn<int> mealId = GeneratedColumn<int>(
+    'meal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES meals (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _photoNameMeta = const VerificationMeta(
+    'photoName',
+  );
+  @override
+  late final GeneratedColumn<String> photoName = GeneratedColumn<String>(
+    'photo_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _providerHostMeta = const VerificationMeta(
+    'providerHost',
+  );
+  @override
+  late final GeneratedColumn<String> providerHost = GeneratedColumn<String>(
+    'provider_host',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _modelMeta = const VerificationMeta('model');
+  @override
+  late final GeneratedColumn<String> model = GeneratedColumn<String>(
+    'model',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _promptVersionMeta = const VerificationMeta(
+    'promptVersion',
+  );
+  @override
+  late final GeneratedColumn<int> promptVersion = GeneratedColumn<int>(
+    'prompt_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _outputSchemaMeta = const VerificationMeta(
+    'outputSchema',
+  );
+  @override
+  late final GeneratedColumn<int> outputSchema = GeneratedColumn<int>(
+    'output_schema',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sentSha256Meta = const VerificationMeta(
+    'sentSha256',
+  );
+  @override
+  late final GeneratedColumn<String> sentSha256 = GeneratedColumn<String>(
+    'sent_sha256',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sentWidthMeta = const VerificationMeta(
+    'sentWidth',
+  );
+  @override
+  late final GeneratedColumn<int> sentWidth = GeneratedColumn<int>(
+    'sent_width',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sentHeightMeta = const VerificationMeta(
+    'sentHeight',
+  );
+  @override
+  late final GeneratedColumn<int> sentHeight = GeneratedColumn<int>(
+    'sent_height',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sentBytesMeta = const VerificationMeta(
+    'sentBytes',
+  );
+  @override
+  late final GeneratedColumn<int> sentBytes = GeneratedColumn<int>(
+    'sent_bytes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _resultJsonMeta = const VerificationMeta(
+    'resultJson',
+  );
+  @override
+  late final GeneratedColumn<String> resultJson = GeneratedColumn<String>(
+    'result_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _rawTextMeta = const VerificationMeta(
+    'rawText',
+  );
+  @override
+  late final GeneratedColumn<String> rawText = GeneratedColumn<String>(
+    'raw_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _confidenceMeta = const VerificationMeta(
+    'confidence',
+  );
+  @override
+  late final GeneratedColumn<String> confidence = GeneratedColumn<String>(
+    'confidence',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _promptTokensMeta = const VerificationMeta(
+    'promptTokens',
+  );
+  @override
+  late final GeneratedColumn<int> promptTokens = GeneratedColumn<int>(
+    'prompt_tokens',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _completionTokensMeta = const VerificationMeta(
+    'completionTokens',
+  );
+  @override
+  late final GeneratedColumn<int> completionTokens = GeneratedColumn<int>(
+    'completion_tokens',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reasoningTokensMeta = const VerificationMeta(
+    'reasoningTokens',
+  );
+  @override
+  late final GeneratedColumn<int> reasoningTokens = GeneratedColumn<int>(
+    'reasoning_tokens',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _costMeta = const VerificationMeta('cost');
+  @override
+  late final GeneratedColumn<double> cost = GeneratedColumn<double>(
+    'cost',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _costCurrencyMeta = const VerificationMeta(
+    'costCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> costCurrency = GeneratedColumn<String>(
+    'cost_currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _costSourceMeta = const VerificationMeta(
+    'costSource',
+  );
+  @override
+  late final GeneratedColumn<String> costSource = GeneratedColumn<String>(
+    'cost_source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _attemptsMeta = const VerificationMeta(
+    'attempts',
+  );
+  @override
+  late final GeneratedColumn<int> attempts = GeneratedColumn<int>(
+    'attempts',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _errorKindMeta = const VerificationMeta(
+    'errorKind',
+  );
+  @override
+  late final GeneratedColumn<String> errorKind = GeneratedColumn<String>(
+    'error_kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hiddenOilMeta = const VerificationMeta(
+    'hiddenOil',
+  );
+  @override
+  late final GeneratedColumn<bool> hiddenOil = GeneratedColumn<bool>(
+    'hidden_oil',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("hidden_oil" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _hiddenSauceMeta = const VerificationMeta(
+    'hiddenSauce',
+  );
+  @override
+  late final GeneratedColumn<bool> hiddenSauce = GeneratedColumn<bool>(
+    'hidden_sauce',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("hidden_sauce" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _hiddenSugarMeta = const VerificationMeta(
+    'hiddenSugar',
+  );
+  @override
+  late final GeneratedColumn<bool> hiddenSugar = GeneratedColumn<bool>(
+    'hidden_sugar',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("hidden_sugar" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _queuedAtUtcMsMeta = const VerificationMeta(
+    'queuedAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> queuedAtUtcMs = GeneratedColumn<int>(
+    'queued_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtUtcMsMeta = const VerificationMeta(
+    'updatedAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAtUtcMs = GeneratedColumn<int>(
+    'updated_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    mealId,
+    photoName,
+    status,
+    providerHost,
+    model,
+    promptVersion,
+    outputSchema,
+    sentSha256,
+    sentWidth,
+    sentHeight,
+    sentBytes,
+    resultJson,
+    rawText,
+    confidence,
+    promptTokens,
+    completionTokens,
+    reasoningTokens,
+    cost,
+    costCurrency,
+    costSource,
+    attempts,
+    errorKind,
+    hiddenOil,
+    hiddenSauce,
+    hiddenSugar,
+    queuedAtUtcMs,
+    updatedAtUtcMs,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'meal_analyses';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MealAnalysisRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('meal_id')) {
+      context.handle(
+        _mealIdMeta,
+        mealId.isAcceptableOrUnknown(data['meal_id']!, _mealIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mealIdMeta);
+    }
+    if (data.containsKey('photo_name')) {
+      context.handle(
+        _photoNameMeta,
+        photoName.isAcceptableOrUnknown(data['photo_name']!, _photoNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_photoNameMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('provider_host')) {
+      context.handle(
+        _providerHostMeta,
+        providerHost.isAcceptableOrUnknown(
+          data['provider_host']!,
+          _providerHostMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_providerHostMeta);
+    }
+    if (data.containsKey('model')) {
+      context.handle(
+        _modelMeta,
+        model.isAcceptableOrUnknown(data['model']!, _modelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_modelMeta);
+    }
+    if (data.containsKey('prompt_version')) {
+      context.handle(
+        _promptVersionMeta,
+        promptVersion.isAcceptableOrUnknown(
+          data['prompt_version']!,
+          _promptVersionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_promptVersionMeta);
+    }
+    if (data.containsKey('output_schema')) {
+      context.handle(
+        _outputSchemaMeta,
+        outputSchema.isAcceptableOrUnknown(
+          data['output_schema']!,
+          _outputSchemaMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_outputSchemaMeta);
+    }
+    if (data.containsKey('sent_sha256')) {
+      context.handle(
+        _sentSha256Meta,
+        sentSha256.isAcceptableOrUnknown(data['sent_sha256']!, _sentSha256Meta),
+      );
+    }
+    if (data.containsKey('sent_width')) {
+      context.handle(
+        _sentWidthMeta,
+        sentWidth.isAcceptableOrUnknown(data['sent_width']!, _sentWidthMeta),
+      );
+    }
+    if (data.containsKey('sent_height')) {
+      context.handle(
+        _sentHeightMeta,
+        sentHeight.isAcceptableOrUnknown(data['sent_height']!, _sentHeightMeta),
+      );
+    }
+    if (data.containsKey('sent_bytes')) {
+      context.handle(
+        _sentBytesMeta,
+        sentBytes.isAcceptableOrUnknown(data['sent_bytes']!, _sentBytesMeta),
+      );
+    }
+    if (data.containsKey('result_json')) {
+      context.handle(
+        _resultJsonMeta,
+        resultJson.isAcceptableOrUnknown(data['result_json']!, _resultJsonMeta),
+      );
+    }
+    if (data.containsKey('raw_text')) {
+      context.handle(
+        _rawTextMeta,
+        rawText.isAcceptableOrUnknown(data['raw_text']!, _rawTextMeta),
+      );
+    }
+    if (data.containsKey('confidence')) {
+      context.handle(
+        _confidenceMeta,
+        confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
+      );
+    }
+    if (data.containsKey('prompt_tokens')) {
+      context.handle(
+        _promptTokensMeta,
+        promptTokens.isAcceptableOrUnknown(
+          data['prompt_tokens']!,
+          _promptTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('completion_tokens')) {
+      context.handle(
+        _completionTokensMeta,
+        completionTokens.isAcceptableOrUnknown(
+          data['completion_tokens']!,
+          _completionTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reasoning_tokens')) {
+      context.handle(
+        _reasoningTokensMeta,
+        reasoningTokens.isAcceptableOrUnknown(
+          data['reasoning_tokens']!,
+          _reasoningTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cost')) {
+      context.handle(
+        _costMeta,
+        cost.isAcceptableOrUnknown(data['cost']!, _costMeta),
+      );
+    }
+    if (data.containsKey('cost_currency')) {
+      context.handle(
+        _costCurrencyMeta,
+        costCurrency.isAcceptableOrUnknown(
+          data['cost_currency']!,
+          _costCurrencyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cost_source')) {
+      context.handle(
+        _costSourceMeta,
+        costSource.isAcceptableOrUnknown(data['cost_source']!, _costSourceMeta),
+      );
+    }
+    if (data.containsKey('attempts')) {
+      context.handle(
+        _attemptsMeta,
+        attempts.isAcceptableOrUnknown(data['attempts']!, _attemptsMeta),
+      );
+    }
+    if (data.containsKey('error_kind')) {
+      context.handle(
+        _errorKindMeta,
+        errorKind.isAcceptableOrUnknown(data['error_kind']!, _errorKindMeta),
+      );
+    }
+    if (data.containsKey('hidden_oil')) {
+      context.handle(
+        _hiddenOilMeta,
+        hiddenOil.isAcceptableOrUnknown(data['hidden_oil']!, _hiddenOilMeta),
+      );
+    }
+    if (data.containsKey('hidden_sauce')) {
+      context.handle(
+        _hiddenSauceMeta,
+        hiddenSauce.isAcceptableOrUnknown(
+          data['hidden_sauce']!,
+          _hiddenSauceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('hidden_sugar')) {
+      context.handle(
+        _hiddenSugarMeta,
+        hiddenSugar.isAcceptableOrUnknown(
+          data['hidden_sugar']!,
+          _hiddenSugarMeta,
+        ),
+      );
+    }
+    if (data.containsKey('queued_at_utc_ms')) {
+      context.handle(
+        _queuedAtUtcMsMeta,
+        queuedAtUtcMs.isAcceptableOrUnknown(
+          data['queued_at_utc_ms']!,
+          _queuedAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_queuedAtUtcMsMeta);
+    }
+    if (data.containsKey('updated_at_utc_ms')) {
+      context.handle(
+        _updatedAtUtcMsMeta,
+        updatedAtUtcMs.isAcceptableOrUnknown(
+          data['updated_at_utc_ms']!,
+          _updatedAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtUtcMsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MealAnalysisRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MealAnalysisRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      mealId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}meal_id'],
+      )!,
+      photoName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}photo_name'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      providerHost: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_host'],
+      )!,
+      model: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model'],
+      )!,
+      promptVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}prompt_version'],
+      )!,
+      outputSchema: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}output_schema'],
+      )!,
+      sentSha256: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sent_sha256'],
+      ),
+      sentWidth: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sent_width'],
+      ),
+      sentHeight: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sent_height'],
+      ),
+      sentBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sent_bytes'],
+      ),
+      resultJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}result_json'],
+      ),
+      rawText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}raw_text'],
+      ),
+      confidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}confidence'],
+      ),
+      promptTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}prompt_tokens'],
+      ),
+      completionTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}completion_tokens'],
+      ),
+      reasoningTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reasoning_tokens'],
+      ),
+      cost: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cost'],
+      ),
+      costCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cost_currency'],
+      ),
+      costSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cost_source'],
+      ),
+      attempts: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}attempts'],
+      )!,
+      errorKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error_kind'],
+      ),
+      hiddenOil: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}hidden_oil'],
+      )!,
+      hiddenSauce: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}hidden_sauce'],
+      )!,
+      hiddenSugar: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}hidden_sugar'],
+      )!,
+      queuedAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}queued_at_utc_ms'],
+      )!,
+      updatedAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at_utc_ms'],
+      )!,
+    );
+  }
+
+  @override
+  $MealAnalysesTable createAlias(String alias) {
+    return $MealAnalysesTable(attachedDatabase, alias);
+  }
+}
+
+class MealAnalysisRow extends DataClass implements Insertable<MealAnalysisRow> {
+  final int id;
+  final int mealId;
+  final String photoName;
+  final String status;
+  final String providerHost;
+  final String model;
+  final int promptVersion;
+  final int outputSchema;
+  final String? sentSha256;
+  final int? sentWidth;
+  final int? sentHeight;
+  final int? sentBytes;
+  final String? resultJson;
+  final String? rawText;
+  final String? confidence;
+  final int? promptTokens;
+  final int? completionTokens;
+  final int? reasoningTokens;
+  final double? cost;
+  final String? costCurrency;
+  final String? costSource;
+  final int attempts;
+  final String? errorKind;
+  final bool hiddenOil;
+  final bool hiddenSauce;
+  final bool hiddenSugar;
+  final int queuedAtUtcMs;
+  final int updatedAtUtcMs;
+  const MealAnalysisRow({
+    required this.id,
+    required this.mealId,
+    required this.photoName,
+    required this.status,
+    required this.providerHost,
+    required this.model,
+    required this.promptVersion,
+    required this.outputSchema,
+    this.sentSha256,
+    this.sentWidth,
+    this.sentHeight,
+    this.sentBytes,
+    this.resultJson,
+    this.rawText,
+    this.confidence,
+    this.promptTokens,
+    this.completionTokens,
+    this.reasoningTokens,
+    this.cost,
+    this.costCurrency,
+    this.costSource,
+    required this.attempts,
+    this.errorKind,
+    required this.hiddenOil,
+    required this.hiddenSauce,
+    required this.hiddenSugar,
+    required this.queuedAtUtcMs,
+    required this.updatedAtUtcMs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['meal_id'] = Variable<int>(mealId);
+    map['photo_name'] = Variable<String>(photoName);
+    map['status'] = Variable<String>(status);
+    map['provider_host'] = Variable<String>(providerHost);
+    map['model'] = Variable<String>(model);
+    map['prompt_version'] = Variable<int>(promptVersion);
+    map['output_schema'] = Variable<int>(outputSchema);
+    if (!nullToAbsent || sentSha256 != null) {
+      map['sent_sha256'] = Variable<String>(sentSha256);
+    }
+    if (!nullToAbsent || sentWidth != null) {
+      map['sent_width'] = Variable<int>(sentWidth);
+    }
+    if (!nullToAbsent || sentHeight != null) {
+      map['sent_height'] = Variable<int>(sentHeight);
+    }
+    if (!nullToAbsent || sentBytes != null) {
+      map['sent_bytes'] = Variable<int>(sentBytes);
+    }
+    if (!nullToAbsent || resultJson != null) {
+      map['result_json'] = Variable<String>(resultJson);
+    }
+    if (!nullToAbsent || rawText != null) {
+      map['raw_text'] = Variable<String>(rawText);
+    }
+    if (!nullToAbsent || confidence != null) {
+      map['confidence'] = Variable<String>(confidence);
+    }
+    if (!nullToAbsent || promptTokens != null) {
+      map['prompt_tokens'] = Variable<int>(promptTokens);
+    }
+    if (!nullToAbsent || completionTokens != null) {
+      map['completion_tokens'] = Variable<int>(completionTokens);
+    }
+    if (!nullToAbsent || reasoningTokens != null) {
+      map['reasoning_tokens'] = Variable<int>(reasoningTokens);
+    }
+    if (!nullToAbsent || cost != null) {
+      map['cost'] = Variable<double>(cost);
+    }
+    if (!nullToAbsent || costCurrency != null) {
+      map['cost_currency'] = Variable<String>(costCurrency);
+    }
+    if (!nullToAbsent || costSource != null) {
+      map['cost_source'] = Variable<String>(costSource);
+    }
+    map['attempts'] = Variable<int>(attempts);
+    if (!nullToAbsent || errorKind != null) {
+      map['error_kind'] = Variable<String>(errorKind);
+    }
+    map['hidden_oil'] = Variable<bool>(hiddenOil);
+    map['hidden_sauce'] = Variable<bool>(hiddenSauce);
+    map['hidden_sugar'] = Variable<bool>(hiddenSugar);
+    map['queued_at_utc_ms'] = Variable<int>(queuedAtUtcMs);
+    map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs);
+    return map;
+  }
+
+  MealAnalysesCompanion toCompanion(bool nullToAbsent) {
+    return MealAnalysesCompanion(
+      id: Value(id),
+      mealId: Value(mealId),
+      photoName: Value(photoName),
+      status: Value(status),
+      providerHost: Value(providerHost),
+      model: Value(model),
+      promptVersion: Value(promptVersion),
+      outputSchema: Value(outputSchema),
+      sentSha256: sentSha256 == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sentSha256),
+      sentWidth: sentWidth == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sentWidth),
+      sentHeight: sentHeight == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sentHeight),
+      sentBytes: sentBytes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sentBytes),
+      resultJson: resultJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(resultJson),
+      rawText: rawText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawText),
+      confidence: confidence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(confidence),
+      promptTokens: promptTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(promptTokens),
+      completionTokens: completionTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completionTokens),
+      reasoningTokens: reasoningTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reasoningTokens),
+      cost: cost == null && nullToAbsent ? const Value.absent() : Value(cost),
+      costCurrency: costCurrency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(costCurrency),
+      costSource: costSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(costSource),
+      attempts: Value(attempts),
+      errorKind: errorKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorKind),
+      hiddenOil: Value(hiddenOil),
+      hiddenSauce: Value(hiddenSauce),
+      hiddenSugar: Value(hiddenSugar),
+      queuedAtUtcMs: Value(queuedAtUtcMs),
+      updatedAtUtcMs: Value(updatedAtUtcMs),
+    );
+  }
+
+  factory MealAnalysisRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MealAnalysisRow(
+      id: serializer.fromJson<int>(json['id']),
+      mealId: serializer.fromJson<int>(json['mealId']),
+      photoName: serializer.fromJson<String>(json['photoName']),
+      status: serializer.fromJson<String>(json['status']),
+      providerHost: serializer.fromJson<String>(json['providerHost']),
+      model: serializer.fromJson<String>(json['model']),
+      promptVersion: serializer.fromJson<int>(json['promptVersion']),
+      outputSchema: serializer.fromJson<int>(json['outputSchema']),
+      sentSha256: serializer.fromJson<String?>(json['sentSha256']),
+      sentWidth: serializer.fromJson<int?>(json['sentWidth']),
+      sentHeight: serializer.fromJson<int?>(json['sentHeight']),
+      sentBytes: serializer.fromJson<int?>(json['sentBytes']),
+      resultJson: serializer.fromJson<String?>(json['resultJson']),
+      rawText: serializer.fromJson<String?>(json['rawText']),
+      confidence: serializer.fromJson<String?>(json['confidence']),
+      promptTokens: serializer.fromJson<int?>(json['promptTokens']),
+      completionTokens: serializer.fromJson<int?>(json['completionTokens']),
+      reasoningTokens: serializer.fromJson<int?>(json['reasoningTokens']),
+      cost: serializer.fromJson<double?>(json['cost']),
+      costCurrency: serializer.fromJson<String?>(json['costCurrency']),
+      costSource: serializer.fromJson<String?>(json['costSource']),
+      attempts: serializer.fromJson<int>(json['attempts']),
+      errorKind: serializer.fromJson<String?>(json['errorKind']),
+      hiddenOil: serializer.fromJson<bool>(json['hiddenOil']),
+      hiddenSauce: serializer.fromJson<bool>(json['hiddenSauce']),
+      hiddenSugar: serializer.fromJson<bool>(json['hiddenSugar']),
+      queuedAtUtcMs: serializer.fromJson<int>(json['queuedAtUtcMs']),
+      updatedAtUtcMs: serializer.fromJson<int>(json['updatedAtUtcMs']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'mealId': serializer.toJson<int>(mealId),
+      'photoName': serializer.toJson<String>(photoName),
+      'status': serializer.toJson<String>(status),
+      'providerHost': serializer.toJson<String>(providerHost),
+      'model': serializer.toJson<String>(model),
+      'promptVersion': serializer.toJson<int>(promptVersion),
+      'outputSchema': serializer.toJson<int>(outputSchema),
+      'sentSha256': serializer.toJson<String?>(sentSha256),
+      'sentWidth': serializer.toJson<int?>(sentWidth),
+      'sentHeight': serializer.toJson<int?>(sentHeight),
+      'sentBytes': serializer.toJson<int?>(sentBytes),
+      'resultJson': serializer.toJson<String?>(resultJson),
+      'rawText': serializer.toJson<String?>(rawText),
+      'confidence': serializer.toJson<String?>(confidence),
+      'promptTokens': serializer.toJson<int?>(promptTokens),
+      'completionTokens': serializer.toJson<int?>(completionTokens),
+      'reasoningTokens': serializer.toJson<int?>(reasoningTokens),
+      'cost': serializer.toJson<double?>(cost),
+      'costCurrency': serializer.toJson<String?>(costCurrency),
+      'costSource': serializer.toJson<String?>(costSource),
+      'attempts': serializer.toJson<int>(attempts),
+      'errorKind': serializer.toJson<String?>(errorKind),
+      'hiddenOil': serializer.toJson<bool>(hiddenOil),
+      'hiddenSauce': serializer.toJson<bool>(hiddenSauce),
+      'hiddenSugar': serializer.toJson<bool>(hiddenSugar),
+      'queuedAtUtcMs': serializer.toJson<int>(queuedAtUtcMs),
+      'updatedAtUtcMs': serializer.toJson<int>(updatedAtUtcMs),
+    };
+  }
+
+  MealAnalysisRow copyWith({
+    int? id,
+    int? mealId,
+    String? photoName,
+    String? status,
+    String? providerHost,
+    String? model,
+    int? promptVersion,
+    int? outputSchema,
+    Value<String?> sentSha256 = const Value.absent(),
+    Value<int?> sentWidth = const Value.absent(),
+    Value<int?> sentHeight = const Value.absent(),
+    Value<int?> sentBytes = const Value.absent(),
+    Value<String?> resultJson = const Value.absent(),
+    Value<String?> rawText = const Value.absent(),
+    Value<String?> confidence = const Value.absent(),
+    Value<int?> promptTokens = const Value.absent(),
+    Value<int?> completionTokens = const Value.absent(),
+    Value<int?> reasoningTokens = const Value.absent(),
+    Value<double?> cost = const Value.absent(),
+    Value<String?> costCurrency = const Value.absent(),
+    Value<String?> costSource = const Value.absent(),
+    int? attempts,
+    Value<String?> errorKind = const Value.absent(),
+    bool? hiddenOil,
+    bool? hiddenSauce,
+    bool? hiddenSugar,
+    int? queuedAtUtcMs,
+    int? updatedAtUtcMs,
+  }) => MealAnalysisRow(
+    id: id ?? this.id,
+    mealId: mealId ?? this.mealId,
+    photoName: photoName ?? this.photoName,
+    status: status ?? this.status,
+    providerHost: providerHost ?? this.providerHost,
+    model: model ?? this.model,
+    promptVersion: promptVersion ?? this.promptVersion,
+    outputSchema: outputSchema ?? this.outputSchema,
+    sentSha256: sentSha256.present ? sentSha256.value : this.sentSha256,
+    sentWidth: sentWidth.present ? sentWidth.value : this.sentWidth,
+    sentHeight: sentHeight.present ? sentHeight.value : this.sentHeight,
+    sentBytes: sentBytes.present ? sentBytes.value : this.sentBytes,
+    resultJson: resultJson.present ? resultJson.value : this.resultJson,
+    rawText: rawText.present ? rawText.value : this.rawText,
+    confidence: confidence.present ? confidence.value : this.confidence,
+    promptTokens: promptTokens.present ? promptTokens.value : this.promptTokens,
+    completionTokens: completionTokens.present
+        ? completionTokens.value
+        : this.completionTokens,
+    reasoningTokens: reasoningTokens.present
+        ? reasoningTokens.value
+        : this.reasoningTokens,
+    cost: cost.present ? cost.value : this.cost,
+    costCurrency: costCurrency.present ? costCurrency.value : this.costCurrency,
+    costSource: costSource.present ? costSource.value : this.costSource,
+    attempts: attempts ?? this.attempts,
+    errorKind: errorKind.present ? errorKind.value : this.errorKind,
+    hiddenOil: hiddenOil ?? this.hiddenOil,
+    hiddenSauce: hiddenSauce ?? this.hiddenSauce,
+    hiddenSugar: hiddenSugar ?? this.hiddenSugar,
+    queuedAtUtcMs: queuedAtUtcMs ?? this.queuedAtUtcMs,
+    updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+  );
+  MealAnalysisRow copyWithCompanion(MealAnalysesCompanion data) {
+    return MealAnalysisRow(
+      id: data.id.present ? data.id.value : this.id,
+      mealId: data.mealId.present ? data.mealId.value : this.mealId,
+      photoName: data.photoName.present ? data.photoName.value : this.photoName,
+      status: data.status.present ? data.status.value : this.status,
+      providerHost: data.providerHost.present
+          ? data.providerHost.value
+          : this.providerHost,
+      model: data.model.present ? data.model.value : this.model,
+      promptVersion: data.promptVersion.present
+          ? data.promptVersion.value
+          : this.promptVersion,
+      outputSchema: data.outputSchema.present
+          ? data.outputSchema.value
+          : this.outputSchema,
+      sentSha256: data.sentSha256.present
+          ? data.sentSha256.value
+          : this.sentSha256,
+      sentWidth: data.sentWidth.present ? data.sentWidth.value : this.sentWidth,
+      sentHeight: data.sentHeight.present
+          ? data.sentHeight.value
+          : this.sentHeight,
+      sentBytes: data.sentBytes.present ? data.sentBytes.value : this.sentBytes,
+      resultJson: data.resultJson.present
+          ? data.resultJson.value
+          : this.resultJson,
+      rawText: data.rawText.present ? data.rawText.value : this.rawText,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      promptTokens: data.promptTokens.present
+          ? data.promptTokens.value
+          : this.promptTokens,
+      completionTokens: data.completionTokens.present
+          ? data.completionTokens.value
+          : this.completionTokens,
+      reasoningTokens: data.reasoningTokens.present
+          ? data.reasoningTokens.value
+          : this.reasoningTokens,
+      cost: data.cost.present ? data.cost.value : this.cost,
+      costCurrency: data.costCurrency.present
+          ? data.costCurrency.value
+          : this.costCurrency,
+      costSource: data.costSource.present
+          ? data.costSource.value
+          : this.costSource,
+      attempts: data.attempts.present ? data.attempts.value : this.attempts,
+      errorKind: data.errorKind.present ? data.errorKind.value : this.errorKind,
+      hiddenOil: data.hiddenOil.present ? data.hiddenOil.value : this.hiddenOil,
+      hiddenSauce: data.hiddenSauce.present
+          ? data.hiddenSauce.value
+          : this.hiddenSauce,
+      hiddenSugar: data.hiddenSugar.present
+          ? data.hiddenSugar.value
+          : this.hiddenSugar,
+      queuedAtUtcMs: data.queuedAtUtcMs.present
+          ? data.queuedAtUtcMs.value
+          : this.queuedAtUtcMs,
+      updatedAtUtcMs: data.updatedAtUtcMs.present
+          ? data.updatedAtUtcMs.value
+          : this.updatedAtUtcMs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MealAnalysisRow(')
+          ..write('id: $id, ')
+          ..write('mealId: $mealId, ')
+          ..write('photoName: $photoName, ')
+          ..write('status: $status, ')
+          ..write('providerHost: $providerHost, ')
+          ..write('model: $model, ')
+          ..write('promptVersion: $promptVersion, ')
+          ..write('outputSchema: $outputSchema, ')
+          ..write('sentSha256: $sentSha256, ')
+          ..write('sentWidth: $sentWidth, ')
+          ..write('sentHeight: $sentHeight, ')
+          ..write('sentBytes: $sentBytes, ')
+          ..write('resultJson: $resultJson, ')
+          ..write('rawText: $rawText, ')
+          ..write('confidence: $confidence, ')
+          ..write('promptTokens: $promptTokens, ')
+          ..write('completionTokens: $completionTokens, ')
+          ..write('reasoningTokens: $reasoningTokens, ')
+          ..write('cost: $cost, ')
+          ..write('costCurrency: $costCurrency, ')
+          ..write('costSource: $costSource, ')
+          ..write('attempts: $attempts, ')
+          ..write('errorKind: $errorKind, ')
+          ..write('hiddenOil: $hiddenOil, ')
+          ..write('hiddenSauce: $hiddenSauce, ')
+          ..write('hiddenSugar: $hiddenSugar, ')
+          ..write('queuedAtUtcMs: $queuedAtUtcMs, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    mealId,
+    photoName,
+    status,
+    providerHost,
+    model,
+    promptVersion,
+    outputSchema,
+    sentSha256,
+    sentWidth,
+    sentHeight,
+    sentBytes,
+    resultJson,
+    rawText,
+    confidence,
+    promptTokens,
+    completionTokens,
+    reasoningTokens,
+    cost,
+    costCurrency,
+    costSource,
+    attempts,
+    errorKind,
+    hiddenOil,
+    hiddenSauce,
+    hiddenSugar,
+    queuedAtUtcMs,
+    updatedAtUtcMs,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MealAnalysisRow &&
+          other.id == this.id &&
+          other.mealId == this.mealId &&
+          other.photoName == this.photoName &&
+          other.status == this.status &&
+          other.providerHost == this.providerHost &&
+          other.model == this.model &&
+          other.promptVersion == this.promptVersion &&
+          other.outputSchema == this.outputSchema &&
+          other.sentSha256 == this.sentSha256 &&
+          other.sentWidth == this.sentWidth &&
+          other.sentHeight == this.sentHeight &&
+          other.sentBytes == this.sentBytes &&
+          other.resultJson == this.resultJson &&
+          other.rawText == this.rawText &&
+          other.confidence == this.confidence &&
+          other.promptTokens == this.promptTokens &&
+          other.completionTokens == this.completionTokens &&
+          other.reasoningTokens == this.reasoningTokens &&
+          other.cost == this.cost &&
+          other.costCurrency == this.costCurrency &&
+          other.costSource == this.costSource &&
+          other.attempts == this.attempts &&
+          other.errorKind == this.errorKind &&
+          other.hiddenOil == this.hiddenOil &&
+          other.hiddenSauce == this.hiddenSauce &&
+          other.hiddenSugar == this.hiddenSugar &&
+          other.queuedAtUtcMs == this.queuedAtUtcMs &&
+          other.updatedAtUtcMs == this.updatedAtUtcMs);
+}
+
+class MealAnalysesCompanion extends UpdateCompanion<MealAnalysisRow> {
+  final Value<int> id;
+  final Value<int> mealId;
+  final Value<String> photoName;
+  final Value<String> status;
+  final Value<String> providerHost;
+  final Value<String> model;
+  final Value<int> promptVersion;
+  final Value<int> outputSchema;
+  final Value<String?> sentSha256;
+  final Value<int?> sentWidth;
+  final Value<int?> sentHeight;
+  final Value<int?> sentBytes;
+  final Value<String?> resultJson;
+  final Value<String?> rawText;
+  final Value<String?> confidence;
+  final Value<int?> promptTokens;
+  final Value<int?> completionTokens;
+  final Value<int?> reasoningTokens;
+  final Value<double?> cost;
+  final Value<String?> costCurrency;
+  final Value<String?> costSource;
+  final Value<int> attempts;
+  final Value<String?> errorKind;
+  final Value<bool> hiddenOil;
+  final Value<bool> hiddenSauce;
+  final Value<bool> hiddenSugar;
+  final Value<int> queuedAtUtcMs;
+  final Value<int> updatedAtUtcMs;
+  const MealAnalysesCompanion({
+    this.id = const Value.absent(),
+    this.mealId = const Value.absent(),
+    this.photoName = const Value.absent(),
+    this.status = const Value.absent(),
+    this.providerHost = const Value.absent(),
+    this.model = const Value.absent(),
+    this.promptVersion = const Value.absent(),
+    this.outputSchema = const Value.absent(),
+    this.sentSha256 = const Value.absent(),
+    this.sentWidth = const Value.absent(),
+    this.sentHeight = const Value.absent(),
+    this.sentBytes = const Value.absent(),
+    this.resultJson = const Value.absent(),
+    this.rawText = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.promptTokens = const Value.absent(),
+    this.completionTokens = const Value.absent(),
+    this.reasoningTokens = const Value.absent(),
+    this.cost = const Value.absent(),
+    this.costCurrency = const Value.absent(),
+    this.costSource = const Value.absent(),
+    this.attempts = const Value.absent(),
+    this.errorKind = const Value.absent(),
+    this.hiddenOil = const Value.absent(),
+    this.hiddenSauce = const Value.absent(),
+    this.hiddenSugar = const Value.absent(),
+    this.queuedAtUtcMs = const Value.absent(),
+    this.updatedAtUtcMs = const Value.absent(),
+  });
+  MealAnalysesCompanion.insert({
+    this.id = const Value.absent(),
+    required int mealId,
+    required String photoName,
+    required String status,
+    required String providerHost,
+    required String model,
+    required int promptVersion,
+    required int outputSchema,
+    this.sentSha256 = const Value.absent(),
+    this.sentWidth = const Value.absent(),
+    this.sentHeight = const Value.absent(),
+    this.sentBytes = const Value.absent(),
+    this.resultJson = const Value.absent(),
+    this.rawText = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.promptTokens = const Value.absent(),
+    this.completionTokens = const Value.absent(),
+    this.reasoningTokens = const Value.absent(),
+    this.cost = const Value.absent(),
+    this.costCurrency = const Value.absent(),
+    this.costSource = const Value.absent(),
+    this.attempts = const Value.absent(),
+    this.errorKind = const Value.absent(),
+    this.hiddenOil = const Value.absent(),
+    this.hiddenSauce = const Value.absent(),
+    this.hiddenSugar = const Value.absent(),
+    required int queuedAtUtcMs,
+    required int updatedAtUtcMs,
+  }) : mealId = Value(mealId),
+       photoName = Value(photoName),
+       status = Value(status),
+       providerHost = Value(providerHost),
+       model = Value(model),
+       promptVersion = Value(promptVersion),
+       outputSchema = Value(outputSchema),
+       queuedAtUtcMs = Value(queuedAtUtcMs),
+       updatedAtUtcMs = Value(updatedAtUtcMs);
+  static Insertable<MealAnalysisRow> custom({
+    Expression<int>? id,
+    Expression<int>? mealId,
+    Expression<String>? photoName,
+    Expression<String>? status,
+    Expression<String>? providerHost,
+    Expression<String>? model,
+    Expression<int>? promptVersion,
+    Expression<int>? outputSchema,
+    Expression<String>? sentSha256,
+    Expression<int>? sentWidth,
+    Expression<int>? sentHeight,
+    Expression<int>? sentBytes,
+    Expression<String>? resultJson,
+    Expression<String>? rawText,
+    Expression<String>? confidence,
+    Expression<int>? promptTokens,
+    Expression<int>? completionTokens,
+    Expression<int>? reasoningTokens,
+    Expression<double>? cost,
+    Expression<String>? costCurrency,
+    Expression<String>? costSource,
+    Expression<int>? attempts,
+    Expression<String>? errorKind,
+    Expression<bool>? hiddenOil,
+    Expression<bool>? hiddenSauce,
+    Expression<bool>? hiddenSugar,
+    Expression<int>? queuedAtUtcMs,
+    Expression<int>? updatedAtUtcMs,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (mealId != null) 'meal_id': mealId,
+      if (photoName != null) 'photo_name': photoName,
+      if (status != null) 'status': status,
+      if (providerHost != null) 'provider_host': providerHost,
+      if (model != null) 'model': model,
+      if (promptVersion != null) 'prompt_version': promptVersion,
+      if (outputSchema != null) 'output_schema': outputSchema,
+      if (sentSha256 != null) 'sent_sha256': sentSha256,
+      if (sentWidth != null) 'sent_width': sentWidth,
+      if (sentHeight != null) 'sent_height': sentHeight,
+      if (sentBytes != null) 'sent_bytes': sentBytes,
+      if (resultJson != null) 'result_json': resultJson,
+      if (rawText != null) 'raw_text': rawText,
+      if (confidence != null) 'confidence': confidence,
+      if (promptTokens != null) 'prompt_tokens': promptTokens,
+      if (completionTokens != null) 'completion_tokens': completionTokens,
+      if (reasoningTokens != null) 'reasoning_tokens': reasoningTokens,
+      if (cost != null) 'cost': cost,
+      if (costCurrency != null) 'cost_currency': costCurrency,
+      if (costSource != null) 'cost_source': costSource,
+      if (attempts != null) 'attempts': attempts,
+      if (errorKind != null) 'error_kind': errorKind,
+      if (hiddenOil != null) 'hidden_oil': hiddenOil,
+      if (hiddenSauce != null) 'hidden_sauce': hiddenSauce,
+      if (hiddenSugar != null) 'hidden_sugar': hiddenSugar,
+      if (queuedAtUtcMs != null) 'queued_at_utc_ms': queuedAtUtcMs,
+      if (updatedAtUtcMs != null) 'updated_at_utc_ms': updatedAtUtcMs,
+    });
+  }
+
+  MealAnalysesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? mealId,
+    Value<String>? photoName,
+    Value<String>? status,
+    Value<String>? providerHost,
+    Value<String>? model,
+    Value<int>? promptVersion,
+    Value<int>? outputSchema,
+    Value<String?>? sentSha256,
+    Value<int?>? sentWidth,
+    Value<int?>? sentHeight,
+    Value<int?>? sentBytes,
+    Value<String?>? resultJson,
+    Value<String?>? rawText,
+    Value<String?>? confidence,
+    Value<int?>? promptTokens,
+    Value<int?>? completionTokens,
+    Value<int?>? reasoningTokens,
+    Value<double?>? cost,
+    Value<String?>? costCurrency,
+    Value<String?>? costSource,
+    Value<int>? attempts,
+    Value<String?>? errorKind,
+    Value<bool>? hiddenOil,
+    Value<bool>? hiddenSauce,
+    Value<bool>? hiddenSugar,
+    Value<int>? queuedAtUtcMs,
+    Value<int>? updatedAtUtcMs,
+  }) {
+    return MealAnalysesCompanion(
+      id: id ?? this.id,
+      mealId: mealId ?? this.mealId,
+      photoName: photoName ?? this.photoName,
+      status: status ?? this.status,
+      providerHost: providerHost ?? this.providerHost,
+      model: model ?? this.model,
+      promptVersion: promptVersion ?? this.promptVersion,
+      outputSchema: outputSchema ?? this.outputSchema,
+      sentSha256: sentSha256 ?? this.sentSha256,
+      sentWidth: sentWidth ?? this.sentWidth,
+      sentHeight: sentHeight ?? this.sentHeight,
+      sentBytes: sentBytes ?? this.sentBytes,
+      resultJson: resultJson ?? this.resultJson,
+      rawText: rawText ?? this.rawText,
+      confidence: confidence ?? this.confidence,
+      promptTokens: promptTokens ?? this.promptTokens,
+      completionTokens: completionTokens ?? this.completionTokens,
+      reasoningTokens: reasoningTokens ?? this.reasoningTokens,
+      cost: cost ?? this.cost,
+      costCurrency: costCurrency ?? this.costCurrency,
+      costSource: costSource ?? this.costSource,
+      attempts: attempts ?? this.attempts,
+      errorKind: errorKind ?? this.errorKind,
+      hiddenOil: hiddenOil ?? this.hiddenOil,
+      hiddenSauce: hiddenSauce ?? this.hiddenSauce,
+      hiddenSugar: hiddenSugar ?? this.hiddenSugar,
+      queuedAtUtcMs: queuedAtUtcMs ?? this.queuedAtUtcMs,
+      updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (mealId.present) {
+      map['meal_id'] = Variable<int>(mealId.value);
+    }
+    if (photoName.present) {
+      map['photo_name'] = Variable<String>(photoName.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (providerHost.present) {
+      map['provider_host'] = Variable<String>(providerHost.value);
+    }
+    if (model.present) {
+      map['model'] = Variable<String>(model.value);
+    }
+    if (promptVersion.present) {
+      map['prompt_version'] = Variable<int>(promptVersion.value);
+    }
+    if (outputSchema.present) {
+      map['output_schema'] = Variable<int>(outputSchema.value);
+    }
+    if (sentSha256.present) {
+      map['sent_sha256'] = Variable<String>(sentSha256.value);
+    }
+    if (sentWidth.present) {
+      map['sent_width'] = Variable<int>(sentWidth.value);
+    }
+    if (sentHeight.present) {
+      map['sent_height'] = Variable<int>(sentHeight.value);
+    }
+    if (sentBytes.present) {
+      map['sent_bytes'] = Variable<int>(sentBytes.value);
+    }
+    if (resultJson.present) {
+      map['result_json'] = Variable<String>(resultJson.value);
+    }
+    if (rawText.present) {
+      map['raw_text'] = Variable<String>(rawText.value);
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<String>(confidence.value);
+    }
+    if (promptTokens.present) {
+      map['prompt_tokens'] = Variable<int>(promptTokens.value);
+    }
+    if (completionTokens.present) {
+      map['completion_tokens'] = Variable<int>(completionTokens.value);
+    }
+    if (reasoningTokens.present) {
+      map['reasoning_tokens'] = Variable<int>(reasoningTokens.value);
+    }
+    if (cost.present) {
+      map['cost'] = Variable<double>(cost.value);
+    }
+    if (costCurrency.present) {
+      map['cost_currency'] = Variable<String>(costCurrency.value);
+    }
+    if (costSource.present) {
+      map['cost_source'] = Variable<String>(costSource.value);
+    }
+    if (attempts.present) {
+      map['attempts'] = Variable<int>(attempts.value);
+    }
+    if (errorKind.present) {
+      map['error_kind'] = Variable<String>(errorKind.value);
+    }
+    if (hiddenOil.present) {
+      map['hidden_oil'] = Variable<bool>(hiddenOil.value);
+    }
+    if (hiddenSauce.present) {
+      map['hidden_sauce'] = Variable<bool>(hiddenSauce.value);
+    }
+    if (hiddenSugar.present) {
+      map['hidden_sugar'] = Variable<bool>(hiddenSugar.value);
+    }
+    if (queuedAtUtcMs.present) {
+      map['queued_at_utc_ms'] = Variable<int>(queuedAtUtcMs.value);
+    }
+    if (updatedAtUtcMs.present) {
+      map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MealAnalysesCompanion(')
+          ..write('id: $id, ')
+          ..write('mealId: $mealId, ')
+          ..write('photoName: $photoName, ')
+          ..write('status: $status, ')
+          ..write('providerHost: $providerHost, ')
+          ..write('model: $model, ')
+          ..write('promptVersion: $promptVersion, ')
+          ..write('outputSchema: $outputSchema, ')
+          ..write('sentSha256: $sentSha256, ')
+          ..write('sentWidth: $sentWidth, ')
+          ..write('sentHeight: $sentHeight, ')
+          ..write('sentBytes: $sentBytes, ')
+          ..write('resultJson: $resultJson, ')
+          ..write('rawText: $rawText, ')
+          ..write('confidence: $confidence, ')
+          ..write('promptTokens: $promptTokens, ')
+          ..write('completionTokens: $completionTokens, ')
+          ..write('reasoningTokens: $reasoningTokens, ')
+          ..write('cost: $cost, ')
+          ..write('costCurrency: $costCurrency, ')
+          ..write('costSource: $costSource, ')
+          ..write('attempts: $attempts, ')
+          ..write('errorKind: $errorKind, ')
+          ..write('hiddenOil: $hiddenOil, ')
+          ..write('hiddenSauce: $hiddenSauce, ')
+          ..write('hiddenSugar: $hiddenSugar, ')
+          ..write('queuedAtUtcMs: $queuedAtUtcMs, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MealItemsTable extends MealItems
+    with TableInfo<$MealItemsTable, MealItemRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MealItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _analysisIdMeta = const VerificationMeta(
+    'analysisId',
+  );
+  @override
+  late final GeneratedColumn<int> analysisId = GeneratedColumn<int>(
+    'analysis_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES meal_analyses (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta(
+    'position',
+  );
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _measureMeta = const VerificationMeta(
+    'measure',
+  );
+  @override
+  late final GeneratedColumn<String> measure = GeneratedColumn<String>(
+    'measure',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _countX2Meta = const VerificationMeta(
+    'countX2',
+  );
+  @override
+  late final GeneratedColumn<int> countX2 = GeneratedColumn<int>(
+    'count_x2',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _gramsMeta = const VerificationMeta('grams');
+  @override
+  late final GeneratedColumn<int> grams = GeneratedColumn<int>(
+    'grams',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _originMeta = const VerificationMeta('origin');
+  @override
+  late final GeneratedColumn<String> origin = GeneratedColumn<String>(
+    'origin',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _confirmedMeta = const VerificationMeta(
+    'confirmed',
+  );
+  @override
+  late final GeneratedColumn<bool> confirmed = GeneratedColumn<bool>(
+    'confirmed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("confirmed" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    analysisId,
+    position,
+    name,
+    measure,
+    countX2,
+    grams,
+    origin,
+    confirmed,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'meal_items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MealItemRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('analysis_id')) {
+      context.handle(
+        _analysisIdMeta,
+        analysisId.isAcceptableOrUnknown(data['analysis_id']!, _analysisIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_analysisIdMeta);
+    }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('measure')) {
+      context.handle(
+        _measureMeta,
+        measure.isAcceptableOrUnknown(data['measure']!, _measureMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_measureMeta);
+    }
+    if (data.containsKey('count_x2')) {
+      context.handle(
+        _countX2Meta,
+        countX2.isAcceptableOrUnknown(data['count_x2']!, _countX2Meta),
+      );
+    } else if (isInserting) {
+      context.missing(_countX2Meta);
+    }
+    if (data.containsKey('grams')) {
+      context.handle(
+        _gramsMeta,
+        grams.isAcceptableOrUnknown(data['grams']!, _gramsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_gramsMeta);
+    }
+    if (data.containsKey('origin')) {
+      context.handle(
+        _originMeta,
+        origin.isAcceptableOrUnknown(data['origin']!, _originMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_originMeta);
+    }
+    if (data.containsKey('confirmed')) {
+      context.handle(
+        _confirmedMeta,
+        confirmed.isAcceptableOrUnknown(data['confirmed']!, _confirmedMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MealItemRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MealItemRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      analysisId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}analysis_id'],
+      )!,
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      measure: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}measure'],
+      )!,
+      countX2: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}count_x2'],
+      )!,
+      grams: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}grams'],
+      )!,
+      origin: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}origin'],
+      )!,
+      confirmed: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}confirmed'],
+      )!,
+    );
+  }
+
+  @override
+  $MealItemsTable createAlias(String alias) {
+    return $MealItemsTable(attachedDatabase, alias);
+  }
+}
+
+class MealItemRow extends DataClass implements Insertable<MealItemRow> {
+  final int id;
+  final int analysisId;
+  final int position;
+  final String name;
+  final String measure;
+  final int countX2;
+  final int grams;
+  final String origin;
+  final bool confirmed;
+  const MealItemRow({
+    required this.id,
+    required this.analysisId,
+    required this.position,
+    required this.name,
+    required this.measure,
+    required this.countX2,
+    required this.grams,
+    required this.origin,
+    required this.confirmed,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['analysis_id'] = Variable<int>(analysisId);
+    map['position'] = Variable<int>(position);
+    map['name'] = Variable<String>(name);
+    map['measure'] = Variable<String>(measure);
+    map['count_x2'] = Variable<int>(countX2);
+    map['grams'] = Variable<int>(grams);
+    map['origin'] = Variable<String>(origin);
+    map['confirmed'] = Variable<bool>(confirmed);
+    return map;
+  }
+
+  MealItemsCompanion toCompanion(bool nullToAbsent) {
+    return MealItemsCompanion(
+      id: Value(id),
+      analysisId: Value(analysisId),
+      position: Value(position),
+      name: Value(name),
+      measure: Value(measure),
+      countX2: Value(countX2),
+      grams: Value(grams),
+      origin: Value(origin),
+      confirmed: Value(confirmed),
+    );
+  }
+
+  factory MealItemRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MealItemRow(
+      id: serializer.fromJson<int>(json['id']),
+      analysisId: serializer.fromJson<int>(json['analysisId']),
+      position: serializer.fromJson<int>(json['position']),
+      name: serializer.fromJson<String>(json['name']),
+      measure: serializer.fromJson<String>(json['measure']),
+      countX2: serializer.fromJson<int>(json['countX2']),
+      grams: serializer.fromJson<int>(json['grams']),
+      origin: serializer.fromJson<String>(json['origin']),
+      confirmed: serializer.fromJson<bool>(json['confirmed']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'analysisId': serializer.toJson<int>(analysisId),
+      'position': serializer.toJson<int>(position),
+      'name': serializer.toJson<String>(name),
+      'measure': serializer.toJson<String>(measure),
+      'countX2': serializer.toJson<int>(countX2),
+      'grams': serializer.toJson<int>(grams),
+      'origin': serializer.toJson<String>(origin),
+      'confirmed': serializer.toJson<bool>(confirmed),
+    };
+  }
+
+  MealItemRow copyWith({
+    int? id,
+    int? analysisId,
+    int? position,
+    String? name,
+    String? measure,
+    int? countX2,
+    int? grams,
+    String? origin,
+    bool? confirmed,
+  }) => MealItemRow(
+    id: id ?? this.id,
+    analysisId: analysisId ?? this.analysisId,
+    position: position ?? this.position,
+    name: name ?? this.name,
+    measure: measure ?? this.measure,
+    countX2: countX2 ?? this.countX2,
+    grams: grams ?? this.grams,
+    origin: origin ?? this.origin,
+    confirmed: confirmed ?? this.confirmed,
+  );
+  MealItemRow copyWithCompanion(MealItemsCompanion data) {
+    return MealItemRow(
+      id: data.id.present ? data.id.value : this.id,
+      analysisId: data.analysisId.present
+          ? data.analysisId.value
+          : this.analysisId,
+      position: data.position.present ? data.position.value : this.position,
+      name: data.name.present ? data.name.value : this.name,
+      measure: data.measure.present ? data.measure.value : this.measure,
+      countX2: data.countX2.present ? data.countX2.value : this.countX2,
+      grams: data.grams.present ? data.grams.value : this.grams,
+      origin: data.origin.present ? data.origin.value : this.origin,
+      confirmed: data.confirmed.present ? data.confirmed.value : this.confirmed,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MealItemRow(')
+          ..write('id: $id, ')
+          ..write('analysisId: $analysisId, ')
+          ..write('position: $position, ')
+          ..write('name: $name, ')
+          ..write('measure: $measure, ')
+          ..write('countX2: $countX2, ')
+          ..write('grams: $grams, ')
+          ..write('origin: $origin, ')
+          ..write('confirmed: $confirmed')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    analysisId,
+    position,
+    name,
+    measure,
+    countX2,
+    grams,
+    origin,
+    confirmed,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MealItemRow &&
+          other.id == this.id &&
+          other.analysisId == this.analysisId &&
+          other.position == this.position &&
+          other.name == this.name &&
+          other.measure == this.measure &&
+          other.countX2 == this.countX2 &&
+          other.grams == this.grams &&
+          other.origin == this.origin &&
+          other.confirmed == this.confirmed);
+}
+
+class MealItemsCompanion extends UpdateCompanion<MealItemRow> {
+  final Value<int> id;
+  final Value<int> analysisId;
+  final Value<int> position;
+  final Value<String> name;
+  final Value<String> measure;
+  final Value<int> countX2;
+  final Value<int> grams;
+  final Value<String> origin;
+  final Value<bool> confirmed;
+  const MealItemsCompanion({
+    this.id = const Value.absent(),
+    this.analysisId = const Value.absent(),
+    this.position = const Value.absent(),
+    this.name = const Value.absent(),
+    this.measure = const Value.absent(),
+    this.countX2 = const Value.absent(),
+    this.grams = const Value.absent(),
+    this.origin = const Value.absent(),
+    this.confirmed = const Value.absent(),
+  });
+  MealItemsCompanion.insert({
+    this.id = const Value.absent(),
+    required int analysisId,
+    required int position,
+    required String name,
+    required String measure,
+    required int countX2,
+    required int grams,
+    required String origin,
+    this.confirmed = const Value.absent(),
+  }) : analysisId = Value(analysisId),
+       position = Value(position),
+       name = Value(name),
+       measure = Value(measure),
+       countX2 = Value(countX2),
+       grams = Value(grams),
+       origin = Value(origin);
+  static Insertable<MealItemRow> custom({
+    Expression<int>? id,
+    Expression<int>? analysisId,
+    Expression<int>? position,
+    Expression<String>? name,
+    Expression<String>? measure,
+    Expression<int>? countX2,
+    Expression<int>? grams,
+    Expression<String>? origin,
+    Expression<bool>? confirmed,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (analysisId != null) 'analysis_id': analysisId,
+      if (position != null) 'position': position,
+      if (name != null) 'name': name,
+      if (measure != null) 'measure': measure,
+      if (countX2 != null) 'count_x2': countX2,
+      if (grams != null) 'grams': grams,
+      if (origin != null) 'origin': origin,
+      if (confirmed != null) 'confirmed': confirmed,
+    });
+  }
+
+  MealItemsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? analysisId,
+    Value<int>? position,
+    Value<String>? name,
+    Value<String>? measure,
+    Value<int>? countX2,
+    Value<int>? grams,
+    Value<String>? origin,
+    Value<bool>? confirmed,
+  }) {
+    return MealItemsCompanion(
+      id: id ?? this.id,
+      analysisId: analysisId ?? this.analysisId,
+      position: position ?? this.position,
+      name: name ?? this.name,
+      measure: measure ?? this.measure,
+      countX2: countX2 ?? this.countX2,
+      grams: grams ?? this.grams,
+      origin: origin ?? this.origin,
+      confirmed: confirmed ?? this.confirmed,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (analysisId.present) {
+      map['analysis_id'] = Variable<int>(analysisId.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (measure.present) {
+      map['measure'] = Variable<String>(measure.value);
+    }
+    if (countX2.present) {
+      map['count_x2'] = Variable<int>(countX2.value);
+    }
+    if (grams.present) {
+      map['grams'] = Variable<int>(grams.value);
+    }
+    if (origin.present) {
+      map['origin'] = Variable<String>(origin.value);
+    }
+    if (confirmed.present) {
+      map['confirmed'] = Variable<bool>(confirmed.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MealItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('analysisId: $analysisId, ')
+          ..write('position: $position, ')
+          ..write('name: $name, ')
+          ..write('measure: $measure, ')
+          ..write('countX2: $countX2, ')
+          ..write('grams: $grams, ')
+          ..write('origin: $origin, ')
+          ..write('confirmed: $confirmed')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $RingDevicesTable ringDevices = $RingDevicesTable(this);
@@ -14658,9 +16801,23 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $GoalScreeningsTable goalScreenings = $GoalScreeningsTable(this);
   late final $MealsTable meals = $MealsTable(this);
   late final $AiReportsTable aiReports = $AiReportsTable(this);
+  late final $MealAnalysesTable mealAnalyses = $MealAnalysesTable(this);
+  late final $MealItemsTable mealItems = $MealItemsTable(this);
   late final Index aiReportsCacheKey = Index(
     'ai_reports_cache_key',
     'CREATE INDEX ai_reports_cache_key ON ai_reports (kind, context_sha256, prompt_version, provider_host, model, created_at_utc_ms)',
+  );
+  late final Index mealAnalysesCacheKey = Index(
+    'meal_analyses_cache_key',
+    'CREATE UNIQUE INDEX meal_analyses_cache_key ON meal_analyses (meal_id, provider_host, model, prompt_version)',
+  );
+  late final Index mealAnalysesStatus = Index(
+    'meal_analyses_status',
+    'CREATE INDEX meal_analyses_status ON meal_analyses (status)',
+  );
+  late final Index mealItemsAnalysis = Index(
+    'meal_items_analysis',
+    'CREATE INDEX meal_items_analysis ON meal_items (analysis_id)',
   );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -14697,7 +16854,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     goalScreenings,
     meals,
     aiReports,
+    mealAnalyses,
+    mealItems,
     aiReportsCacheKey,
+    mealAnalysesCacheKey,
+    mealAnalysesStatus,
+    mealItemsAnalysis,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -14735,6 +16897,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('goal_weeks', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'meals',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('meal_analyses', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'meal_analyses',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('meal_items', kind: UpdateKind.delete)],
     ),
   ]);
 }

@@ -29,8 +29,10 @@ import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/demo/infrastructure/demo_workout_store.dart';
 import 'package:open_ring/features/demo/infrastructure/drift_demo_data_store.dart';
 import 'package:open_ring/features/demo/infrastructure/shared_preferences_demo_mode_store.dart';
+import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
 import 'package:open_ring/features/food/application/meal_recovery.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
+import 'package:open_ring/features/food/infrastructure/drift_meal_analysis_store.dart';
 import 'package:open_ring/features/food/infrastructure/drift_meal_store.dart';
 import 'package:open_ring/features/food/infrastructure/image_picker_meal_camera.dart';
 import 'package:open_ring/features/food/infrastructure/image_picker_meal_gallery.dart';
@@ -189,6 +191,12 @@ Future<void> bootstrap() async {
       ),
       mealStoreProvider.overrideWith(
         (ref) => DriftMealStore(ref.watch(appDatabaseProvider)),
+      ),
+      mealAnalysisStoreProvider.overrideWith(
+        (ref) => DriftMealAnalysisStore(
+          ref.watch(appDatabaseProvider),
+          onWrite: () => ref.read(mealAnalysisRevisionProvider.notifier).bump(),
+        ),
       ),
       photoStoreProvider.overrideWithValue(IoPhotoStore.documents()),
       mealCameraProvider.overrideWithValue(

@@ -16,6 +16,7 @@ import 'generated/schema_v15.dart' as v15;
 import 'generated/schema_v16.dart' as v16;
 import 'generated/schema_v17.dart' as v17;
 import 'generated/schema_v18.dart' as v18;
+import 'generated/schema_v19.dart' as v19;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
@@ -625,8 +626,8 @@ void main() {
     },
   );
 
-  test('the code schema is v18', () {
-    expect(memoryDatabase().schemaVersion, 18);
+  test('the code schema is v19', () {
+    expect(memoryDatabase().schemaVersion, 19);
   });
 
   test('v16 migrates to v17, a finished workout keeps its end and has no '
@@ -709,6 +710,70 @@ void main() {
             )
             .get();
         expect(index, hasLength(1));
+      },
+    );
+  });
+
+  test('v18 migrates to v19, a meal keeps its tags and photo, is not kept on '
+      'the phone, and both analysis tables start empty', () async {
+    const meal = v18.MealsData(
+      id: 1,
+      atUtcMs: 1762758000000,
+      offsetMinutes: -180,
+      kind: 'main',
+      protein: 1,
+      caffeine: 1,
+      heavy: 1,
+      fried: 1,
+      sugar: 1,
+      veg: 'halfOrMore',
+      alcohol: 'oneToTwo',
+      processed: 'mostly',
+      place: 'home',
+      lastMeal: 1,
+      photo: 'meal_1.jpg',
+      createdAtUtcMs: 1762758001000,
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 18,
+      newVersion: 19,
+      createOld: v18.DatabaseAtV18.new,
+      createNew: v19.DatabaseAtV19.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch.insert(oldDb.meals, meal),
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.meals).get(), [
+          const v19.MealsData(
+            id: 1,
+            atUtcMs: 1762758000000,
+            offsetMinutes: -180,
+            kind: 'main',
+            protein: 1,
+            caffeine: 1,
+            heavy: 1,
+            fried: 1,
+            sugar: 1,
+            veg: 'halfOrMore',
+            alcohol: 'oneToTwo',
+            processed: 'mostly',
+            place: 'home',
+            lastMeal: 1,
+            photo: 'meal_1.jpg',
+            createdAtUtcMs: 1762758001000,
+            keepOnPhone: 0,
+          ),
+        ]);
+        expect(await newDb.select(newDb.mealAnalyses).get(), isEmpty);
+        expect(await newDb.select(newDb.mealItems).get(), isEmpty);
+        final indexes = await newDb
+            .customSelect(
+              "SELECT name FROM sqlite_master WHERE type = 'index' "
+              "AND name IN ('meal_analyses_cache_key', "
+              "'meal_analyses_status', 'meal_items_analysis')",
+            )
+            .get();
+        expect(indexes, hasLength(3));
       },
     );
   });

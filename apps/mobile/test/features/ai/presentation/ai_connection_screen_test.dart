@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:open_ring/app/router/app_routes.dart';
+import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_provider_preset.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/ai/presentation/ai_connection_screen.dart';
+import 'package:open_ring/features/ai/presentation/ai_photo_settings_screen.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
+import 'package:open_ring/features/settings/presentation/settings_routes.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 import '../../../helpers/ai_fakes.dart';
@@ -400,6 +408,82 @@ void main() {
 
       expect(store.config.baseUrl, _openRouter);
       expect(await secrets.read(aiApiKeySecretName), 'sk-or-secret-ab3X');
+    });
+  });
+
+  group('the meal photos tile', () {
+    const tested = AiConfig(
+      baseUrl: 'https://api.example.com/v1',
+      model: 'm',
+      testedAtUtcMs: 1764000000000,
+      testedHostKey: 'https://api.example.com:443',
+      testedModel: 'm',
+    );
+
+    Future<void> pumpRouted(WidgetTester tester, Set<ModuleId> modules) async {
+      tester.view
+        ..devicePixelRatio = 1
+        ..physicalSize = const Size(800, 2400);
+      addTearDown(tester.view.reset);
+      final aiRoute = settingsRoute().routes.whereType<GoRoute>().singleWhere(
+        (r) => r.path == 'ai-connection',
+      );
+      final router = GoRouter(
+        initialLocation: AppPaths.settingsAiConnection,
+        routes: [
+          GoRoute(
+            path: AppPaths.settings,
+            builder: (_, _) => const SizedBox(),
+            routes: [aiRoute],
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            aiConfigStoreProvider.overrideWithValue(store),
+            secretStoreProvider.overrideWithValue(secrets),
+            moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
+          ],
+          child: MaterialApp.router(
+            routerConfig: router,
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    for (final (name, modules, config) in [
+      ('Food off', {ModuleId.ai}, tested),
+      ('AI off', {ModuleId.food}, tested),
+      (
+        'an untested target',
+        {ModuleId.ai, ModuleId.food},
+        tested.copyWith(clearTested: true),
+      ),
+    ]) {
+      testWidgets('is absent with $name', (tester) async {
+        store.config = config;
+        await pumpRouted(tester, modules);
+
+        expect(find.byKey(AiConnectionKeys.photos), findsNothing);
+      });
+    }
+
+    testWidgets('with AI and Food on and a tested target it opens the '
+        'screen', (tester) async {
+      store.config = tested;
+      await pumpRouted(tester, {ModuleId.ai, ModuleId.food});
+
+      await tester.tap(find.byKey(AiConnectionKeys.photos));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AiPhotoSettingsScreen), findsOneWidget);
+      expect(find.text(l10n.aiPhotosLead), findsOneWidget);
     });
   });
 }

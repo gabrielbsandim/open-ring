@@ -3,6 +3,7 @@ import 'package:open_ring/features/ai/presentation/ai_connection_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_context_preview_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_guide_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_key_info_screen.dart';
+import 'package:open_ring/features/ai/presentation/ai_photo_settings_screen.dart';
 import 'package:open_ring/features/body/presentation/body_module_screen.dart';
 import 'package:open_ring/features/effort/presentation/effort_module_screen.dart';
 import 'package:open_ring/features/energy/presentation/energy_module_screen.dart';
@@ -41,6 +42,10 @@ GoRoute settingsRoute() => GoRoute(
           path: 'preview',
           builder: (_, state) =>
               AiContextPreviewScreen(kind: state.uri.queryParameters['kind']),
+        ),
+        GoRoute(
+          path: 'photos',
+          builder: (_, _) => const AiPhotoSettingsScreen(),
         ),
       ],
     ),

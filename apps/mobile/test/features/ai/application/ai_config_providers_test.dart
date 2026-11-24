@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -243,5 +245,57 @@ void main() {
         expect(await c.read(aiTestedProfileProvider.future), isNull);
       });
     }
+  });
+
+  group('meal photo consent', () {
+    const consent = AiMealPhotoConsent(
+      consentedAtUtcMs: 5,
+      policyEffectiveDate: aiCurrentPolicyEffectiveDate,
+      hostKey: 'https://api.example.com:443',
+    );
+
+    test('record stores it and the provider rereads it', () async {
+      final c = container();
+      expect(await c.read(aiMealPhotoConsentProvider.future), isNull);
+
+      await c.read(aiConfigProvider.notifier).recordMealPhotoConsent(consent);
+
+      expect(store.mealPhotoConsent, consent);
+      expect(await c.read(aiMealPhotoConsentProvider.future), consent);
+    });
+
+    test('withdraw clears it, leaves the summary consent and the provider '
+        'rereads it', () async {
+      store
+        ..mealPhotoConsent = consent
+        ..consent = _consentFor(consent.hostKey);
+      final c = container();
+      expect(await c.read(aiMealPhotoConsentProvider.future), consent);
+
+      await c.read(aiConfigProvider.notifier).withdrawMealPhotoConsent();
+
+      expect(store.mealPhotoConsent, isNull);
+      expect(store.consent, isNotNull);
+      expect(await c.read(aiMealPhotoConsentProvider.future), isNull);
+    });
+
+    test('a record queued behind a slow withdraw still lands last', () async {
+      final clear = Completer<void>();
+      final write = Completer<void>();
+      store
+        ..mealPhotoConsent = consent
+        ..photoConsentClearGate = clear.future
+        ..photoConsentWriteGate = write.future;
+      final controller = container().read(aiConfigProvider.notifier);
+
+      final withdraw = controller.withdrawMealPhotoConsent();
+      final record = controller.recordMealPhotoConsent(consent);
+      write.complete();
+      await pumpEventQueue();
+      clear.complete();
+      await Future.wait([withdraw, record]);
+
+      expect(store.mealPhotoConsent, consent);
+    });
   });
 }

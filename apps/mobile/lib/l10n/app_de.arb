@@ -2709,7 +2709,7 @@
   "aiAdvancedPriceIn": "Preis pro 1 Mio. Eingabe-Tokens",
   "aiAdvancedPriceOut": "Preis pro 1 Mio. Ausgabe-Tokens",
   "aiAdvancedCurrency": "Währung",
-  "aiAdvancedPriceHelp": "Ohne Preis zeigen Auswertungen nur Tokens. Mit Preis zeigen sie ungefähre Kosten, berechnet aus dem Preis, den du eingegeben hast.",
+  "aiAdvancedPriceHelp": "Optional. Preise pro Million Tokens, gespeichert auf diesem Telefon. Sie dienen nur dann für eine Schätzung, wenn der Dienst keine Kosten meldet.",
   "aiAdvancedTokenCap": "Monatliches Token-Limit",
   "aiAdvancedTokenCapNone": "Leer bedeutet kein Limit. Ein Ausgabenlimit beim Dienst ist sicherer.",
   "aiAdvancedInvalid": "{kind, select, tokens{Gib eine ganze Zahl von 256 bis 32.000 ein.} cap{Gib eine ganze Zahl über 0 ein oder lass das Feld leer.} price{Gib eine Zahl über 0 ein oder lass das Feld leer.} other{Gib eine Währung ein, zum Beispiel USD.}}",

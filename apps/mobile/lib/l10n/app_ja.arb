@@ -2709,7 +2709,7 @@
   "aiAdvancedPriceIn": "入力100万トークンあたりの料金",
   "aiAdvancedPriceOut": "出力100万トークンあたりの料金",
   "aiAdvancedCurrency": "通貨",
-  "aiAdvancedPriceHelp": "料金を入力しない場合、読み取りにはトークン数だけが表示されます。入力すると、その料金から計算したおおよその費用が表示されます。",
+  "aiAdvancedPriceHelp": "任意。100万トークンあたりの料金で、このスマートフォンに保存されます。サービスが費用を報告しない場合の見積もりにだけ使います。",
   "aiAdvancedTokenCap": "月間トークン上限",
   "aiAdvancedTokenCapNone": "空欄は上限なしを意味します。サービス側で利用額の上限を設定するほうが安全です。",
   "aiAdvancedInvalid": "{kind, select, tokens{256から32,000までの整数を入力してください。} cap{0より大きい整数を入力するか、空欄のままにしてください。} price{0より大きい数値を入力するか、空欄のままにしてください。} other{USDなどの通貨を入力してください。}}",

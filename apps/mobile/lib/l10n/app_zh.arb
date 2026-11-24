@@ -2709,7 +2709,7 @@
   "aiAdvancedPriceIn": "每 100 万输入 token 的价格",
   "aiAdvancedPriceOut": "每 100 万输出 token 的价格",
   "aiAdvancedCurrency": "货币",
-  "aiAdvancedPriceHelp": "未填写价格时，解读只显示 token 数。填写后，会显示根据你输入的价格算出的大致费用。",
+  "aiAdvancedPriceHelp": "可选。每百万 token 的价格，仅保存在这部手机上。只在服务未报告费用时用于估算。",
   "aiAdvancedTokenCap": "每月 token 上限",
   "aiAdvancedTokenCapNone": "留空表示不设上限。在服务端设置消费上限更安全。",
   "aiAdvancedInvalid": "{kind, select, tokens{请输入 256 到 32,000 之间的整数。} cap{请输入大于 0 的整数，或留空。} price{请输入大于 0 的数字，或留空。} other{请输入货币，例如 USD。}}",

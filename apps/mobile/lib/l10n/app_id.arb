@@ -2709,7 +2709,7 @@
   "aiAdvancedPriceIn": "Harga per 1 juta token masukan",
   "aiAdvancedPriceOut": "Harga per 1 juta token keluaran",
   "aiAdvancedCurrency": "Mata uang",
-  "aiAdvancedPriceHelp": "Tanpa harga, pembacaan hanya menampilkan token. Dengan harga, pembacaan menampilkan perkiraan biaya yang dihitung dari harga yang Anda masukkan.",
+  "aiAdvancedPriceHelp": "Opsional. Harga per satu juta token, disimpan di ponsel ini. Hanya dipakai untuk perkiraan jika layanan tidak melaporkan biaya.",
   "aiAdvancedTokenCap": "Batas token bulanan",
   "aiAdvancedTokenCapNone": "Kosong berarti tanpa batas. Batas pengeluaran yang diatur di layanan lebih aman.",
   "aiAdvancedInvalid": "{kind, select, tokens{Masukkan bilangan bulat dari 256 sampai 32.000.} cap{Masukkan bilangan bulat di atas 0, atau biarkan kosong.} price{Masukkan angka di atas 0, atau biarkan kosong.} other{Masukkan mata uang, misalnya USD.}}",

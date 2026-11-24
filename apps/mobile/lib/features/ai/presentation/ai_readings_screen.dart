@@ -20,15 +20,15 @@ import 'package:open_ring/features/ai/domain/ai_consent_scope.dart';
 import 'package:open_ring/features/ai/domain/ai_reading.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/ai_usage_summary.dart';
-import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/base_url_policy.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/presentation/ai_consent_sheet.dart';
+import 'package:open_ring/features/ai/presentation/ai_failure_message.dart';
+import 'package:open_ring/features/ai/presentation/ai_raw_text_sheet.dart';
 import 'package:open_ring/features/ai/presentation/ai_reading_card.dart';
 import 'package:open_ring/features/ai/presentation/ai_reading_sheets.dart';
-import 'package:open_ring/features/ai/presentation/ai_test_connection_sheet.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -44,6 +44,7 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
   AiAnalysisKind _kind = AiAnalysisKind.weeklyReview;
   bool _visible = true;
   AiReport? _picked;
+  ({bool force, int? maxOutput}) _options = (force: false, maxOutput: null);
 
   @override
   void didChangeDependencies() {
@@ -88,8 +89,8 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
             ],
             AnalysisValidating() => [_sending(l10n, config, null)],
             AnalysisDone(:final report) => _stored(l10n, report),
-            AnalysisFailed(:final failure) => [
-              ..._failure(l10n, failure, config),
+            AnalysisFailed() => [
+              ..._failure(l10n, state, config),
               ..._stored(l10n, null),
             ],
             AnalysisIdle() => _stored(l10n, null),
@@ -156,7 +157,15 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
 
   void _tap(AiAnalysisKind kind) => unawaited(_read(kind));
 
-  Future<void> _read(AiAnalysisKind kind, {bool ask = false}) async {
+  // A consent race reopens the sheet with `ask`, and the resend after Allow
+  // keeps the options of the tap that started it.
+  Future<void> _read(
+    AiAnalysisKind kind, {
+    bool ask = false,
+    bool force = false,
+    int? maxOutput,
+  }) async {
+    if (!ask) _options = (force: force, maxOutput: maxOutput);
     setState(() {
       _kind = kind;
       _picked = null;
@@ -181,7 +190,11 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
           previous: consent,
         );
     if (!granted || !mounted || !_visible) return;
-    await run.send(kind: kind);
+    await run.send(
+      kind: kind,
+      force: _options.force,
+      maxOutputTokens: _options.maxOutput,
+    );
   }
 
   List<Widget> _stored(AppLocalizations l10n, AiReport? done) {
@@ -192,7 +205,10 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
     ];
     final fmt = MetricFormat.of(context);
     return [
-      if (shown != null) _ReadingView(shown),
+      if (shown != null && aiNoMatch(shown))
+        ..._noMatch(l10n, shown)
+      else if (shown != null)
+        _ReadingView(shown),
       if (earlier.isNotEmpty) SectionHeader(l10n.aiReadingsEarlier),
       for (final r in earlier)
         SettingsTile(
@@ -205,9 +221,13 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
             r.createdAtUtc,
             Duration(minutes: r.offsetMin),
           ),
-          value: r.status == AiReportStatus.done
-              ? l10n.aiReadingCards(AiReading.fromReport(r).cards.length)
-              : null,
+          value: switch (r.status) {
+            AiReportStatus.done => l10n.aiReadingCards(
+              AiReading.fromReport(r).cards.length,
+            ),
+            AiReportStatus.cancelled => l10n.aiReadingFailedRow('cancelled'),
+            AiReportStatus.failed => l10n.aiReadingFailedRow('failed'),
+          },
           onTap: r.status == AiReportStatus.done
               ? () => setState(() => _picked = r)
               : null,
@@ -268,48 +288,123 @@ class _AiReadingsScreenState extends ConsumerState<AiReadingsScreen> {
 
   List<Widget> _failure(
     AppLocalizations l10n,
-    AnalysisRunFailure failure,
+    AnalysisFailed failed,
     AiConfig? config,
   ) {
-    final url = config?.normalizedUrl;
-    final line = switch (failure) {
-      RunModelFailure(failure: AnalysisFailure(:final kind))
-          when kind == AnalysisFailureKind.cancelled =>
-        l10n.aiReadingCancelled,
-      RunModelFailure(:final failure) when url != null && config != null =>
-        aiTestFailureMessage(
-          l10n,
-          failure,
-          host: url.asciiHost,
-          model: config.trimmedModel,
-          local: config.preset.isLocal || url.isCleartext,
-        ),
-      RunNotEnoughData(:final days) => l10n.aiPreviewNotEnough(days),
-      _ => null,
-    };
-    final details = switch (failure) {
-      RunModelFailure(:final failure)
-          when failure.kind != AnalysisFailureKind.cancelled =>
-        aiTestFailureDetails(failure, null),
-      RunCeilingReached(:final used, :final cap) => '$used / $cap',
-      RunUnexpected(:final error) => '${error.runtimeType}',
-      _ => null,
-    };
-    if (line == null && details == null) return const [];
-    return [
-      MetricCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (line != null) BodyText(line),
-            if (details != null)
-              CaptionText('${l10n.aiErrorDetails}: $details'),
-          ],
-        ),
-      ),
-      const SizedBox(height: 12),
-    ];
+    if (config == null) return const [];
+    final line = aiFailureMessage(l10n, failed.failure, config);
+    if (line == null) return const [];
+    final raw = failed.report?.rawText == null ? null : failed.report;
+    final actions = aiFailureActions(
+      failed.failure,
+      canRetryLarger: failed.canRetryLarger,
+      hasRaw: raw != null,
+    );
+    final larger = aiLargerOutputTokens(config.maxOutputTokens);
+    return _errorCard(l10n, line, aiFailureDetails(failed.failure), [
+      for (final a in actions)
+        switch (a) {
+          AiFailureAction.retry => _button(
+            a,
+            l10n.syncRetry,
+            () => _again(_kind),
+          ),
+          AiFailureAction.connection => _button(
+            a,
+            l10n.aiGuideOpen,
+            () => context.go(AppPaths.settingsAiConnection),
+          ),
+          AiFailureAction.larger => _button(
+            a,
+            l10n.aiRetryLarger,
+            () => _again(_kind, maxOutput: larger),
+          ),
+          AiFailureAction.raw => _button(
+            a,
+            l10n.aiShowRaw('raw'),
+            () => _showRaw(raw),
+          ),
+        },
+    ]);
   }
+
+  List<Widget> _noMatch(AppLocalizations l10n, AiReport report) {
+    final kind = AiAnalysisKind.values.firstWhere(
+      (k) => k.wireName == report.kind,
+      orElse: () => _kind,
+    );
+    return _errorCard(
+      l10n,
+      l10n.aiErrorNoMatch,
+      l10n.aiDroppedTitle(report.droppedCards),
+      [
+        if (report.rawText != null)
+          _button(
+            AiFailureAction.raw,
+            l10n.aiShowRaw('unverified'),
+            () => _showRaw(report),
+          ),
+        _button(AiFailureAction.retry, l10n.syncRetry, () => _again(kind)),
+      ],
+    );
+  }
+
+  // Through `_read`, so the consent gate runs before the one send.
+  void _again(AiAnalysisKind kind, {int? maxOutput}) =>
+      unawaited(_read(kind, force: true, maxOutput: maxOutput));
+
+  void _showRaw(AiReport? report) {
+    if (report == null) return;
+    unawaited(
+      showAiRawTextSheet(
+        context,
+        report,
+        replyLanguage: ref.read(aiReplyLanguageProvider),
+      ),
+    );
+  }
+
+  Widget _button(
+    AiFailureAction action,
+    String label,
+    VoidCallback onPressed,
+  ) => OutlinedButton(
+    key: AiReadingKeys.action(action),
+    onPressed: onPressed,
+    child: Text(label),
+  );
+
+  List<Widget> _errorCard(
+    AppLocalizations l10n,
+    String line,
+    String? details,
+    List<Widget> buttons,
+  ) => [
+    MetricCard(
+      key: AiReadingKeys.error,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 8,
+            children: [
+              Icon(
+                Icons.error_outline_rounded,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              Expanded(child: BodyText(line)),
+            ],
+          ),
+          if (details != null) CaptionText('${l10n.aiErrorDetails}: $details'),
+          if (buttons.isNotEmpty)
+            Wrap(spacing: 8, runSpacing: 8, children: buttons),
+        ],
+      ),
+    ),
+    const SizedBox(height: 12),
+  ];
 }
 
 // The store keeps milliseconds while the run state holds the clock's

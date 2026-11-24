@@ -438,6 +438,25 @@ void main() {
     expect(request.reasoningEffort, AiReasoningEffort.high);
   });
 
+  test('a one off output limit reaches the request and the next plain '
+      'send uses Advanced again', () async {
+    configStore.config = configStore.config.copyWith(maxOutputTokens: 9000);
+    final c = container();
+    listenState(c);
+    await notifier(c).send(force: true, maxOutputTokens: 18000);
+    expect(model.lastRequest!.maxOutputTokens, 18000);
+    expect(configStore.config.maxOutputTokens, 9000);
+
+    await notifier(c).send(force: true);
+    expect(model.lastRequest!.maxOutputTokens, 9000);
+  });
+
+  test('the larger limit doubles, with 16,000 as floor and 32,000 as cap', () {
+    expect(aiLargerOutputTokens(aiDefaultOutputTokens), 16000);
+    expect(aiLargerOutputTokens(9000), 18000);
+    expect(aiLargerOutputTokens(20000), aiMaxOutputTokens);
+  });
+
   group('a stored capability profile', () {
     const stored = AiCapabilityProfile(
       jsonMode: AiJsonMode.jsonObject,
@@ -747,6 +766,8 @@ void main() {
     expect(modelFailure(c).kind, AnalysisFailureKind.unreadable);
     expect(reports.reports.single.rawText, 'not json');
     expect(reports.reports.single.status, AiReportStatus.failed);
+    final failed = c.read(analysisRunControllerProvider) as AnalysisFailed;
+    expect(failed.report!.rawText, 'not json');
   });
 
   group('monthly token ceiling', () {

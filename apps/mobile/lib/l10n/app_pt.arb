@@ -2768,5 +2768,22 @@
   "aiReadingSent": "O que foi enviado",
   "aiReadingSentAt": "Enviado em {date}. Este é o texto guardado com a leitura.",
   "aiReadingsEarlier": "Leituras anteriores",
-  "aiReadingCards": "{count, plural, =0{Nenhum quadro} =1{1 quadro} other{{count} quadros}}"
+  "aiReadingCards": "{count, plural, =0{Nenhum quadro} =1{1 quadro} other{{count} quadros}}",
+  "aiErrorRejected": "O servidor recusou o pedido.",
+  "aiErrorNoCredit": "O serviço diz que esta conta está sem crédito.",
+  "aiErrorForbidden": "Esta chave não tem permissão para usar {model}.",
+  "aiErrorTooLong": "O resumo dos seus dados é longo demais para este modelo. Escolha um nível de detalhe menor.",
+  "aiErrorRateLimited": "{seconds, plural, =0{O serviço está limitando os pedidos. Tente de novo em instantes.} other{O serviço está limitando os pedidos. Tente de novo em {seconds} s.}}",
+  "aiErrorServer": "{host} teve um problema ({status}). Nada foi mostrado. Tente de novo mais tarde.",
+  "aiErrorTimeout": "{host} parou de responder depois de {seconds} s. Modelos locais podem precisar de um tempo limite maior em Avançado.",
+  "aiErrorOutputLimit": "O modelo usou todo o limite de saída antes de responder. Isso acontece com modelos que raciocinam.",
+  "aiRetryLarger": "Tentar com um limite maior",
+  "aiErrorRefused": "O modelo se recusou a responder.",
+  "aiErrorUnreadable": "Não deu para ler a resposta do modelo.",
+  "aiErrorNoMatch": "A resposta do modelo não bateu com os seus dados, então nada é mostrado.",
+  "aiShowRaw": "{kind, select, unverified{Ver o texto sem conferência} other{Ver o texto bruto}}",
+  "aiErrorCeiling": "O limite de tokens deste mês foi atingido: {used} de {cap} tokens. Você pode mudar o limite em Avançado.",
+  "aiRawTitle": "Texto sem conferência",
+  "aiRawBanner": "Texto de {model} que o OpenRing não conseguiu conferir com os seus dados. Números marcados com ? não batem com nenhum dado enviado.",
+  "aiReadingFailedRow": "{kind, select, cancelled{Cancelada} other{Não terminou}}"
 }

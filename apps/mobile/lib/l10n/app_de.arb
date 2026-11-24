@@ -2768,5 +2768,22 @@
   "aiReadingSent": "Was gesendet wurde",
   "aiReadingSentAt": "Gesendet am {date}. Dies ist der Text, der mit der Auswertung gespeichert ist.",
   "aiReadingsEarlier": "Frühere Auswertungen",
-  "aiReadingCards": "{count, plural, =0{Keine Karten} =1{1 Karte} other{{count} Karten}}"
+  "aiReadingCards": "{count, plural, =0{Keine Karten} =1{1 Karte} other{{count} Karten}}",
+  "aiErrorRejected": "Der Server hat die Anfrage abgelehnt.",
+  "aiErrorNoCredit": "Laut Anbieter hat dieses Konto kein Guthaben.",
+  "aiErrorForbidden": "Dieser Schlüssel darf {model} nicht verwenden.",
+  "aiErrorTooLong": "Deine Datenzusammenfassung ist für dieses Modell zu lang. Wähle eine niedrigere Detailstufe.",
+  "aiErrorRateLimited": "{seconds, plural, =0{Der Anbieter begrenzt die Anfragen. Versuche es gleich noch einmal.} other{Der Anbieter begrenzt die Anfragen. Versuche es in {seconds} s noch einmal.}}",
+  "aiErrorServer": "{host} hatte ein Problem ({status}). Es wurde nichts angezeigt. Versuche es später noch einmal.",
+  "aiErrorTimeout": "{host} hat nach {seconds} s nicht mehr geantwortet. Lokale Modelle brauchen unter Erweitert eventuell ein längeres Zeitlimit.",
+  "aiErrorOutputLimit": "Das Modell hat sein ganzes Ausgabelimit verbraucht, bevor es geantwortet hat. Das passiert bei Reasoning-Modellen.",
+  "aiRetryLarger": "Mit höherem Limit erneut versuchen",
+  "aiErrorRefused": "Das Modell hat die Antwort verweigert.",
+  "aiErrorUnreadable": "Die Antwort des Modells konnte nicht gelesen werden.",
+  "aiErrorNoMatch": "Die Antwort des Modells passte nicht zu deinen Daten, daher wird nichts angezeigt.",
+  "aiShowRaw": "{kind, select, unverified{Ungeprüften Text anzeigen} other{Rohtext anzeigen}}",
+  "aiErrorCeiling": "Das Token-Limit dieses Monats ist erreicht: {used} von {cap} Tokens. Du kannst das Limit unter Erweitert ändern.",
+  "aiRawTitle": "Ungeprüfter Text",
+  "aiRawBanner": "Text von {model}, den OpenRing nicht mit deinen Daten abgleichen konnte. Mit ? markierte Zahlen passen zu keinem gesendeten Wert.",
+  "aiReadingFailedRow": "{kind, select, cancelled{Abgebrochen} other{Nicht abgeschlossen}}"
 }

@@ -2768,5 +2768,22 @@
   "aiReadingSent": "Cosa è stato inviato",
   "aiReadingSentAt": "Inviato il {date}. Questo è il testo conservato con la lettura.",
   "aiReadingsEarlier": "Letture precedenti",
-  "aiReadingCards": "{count, plural, =0{Nessuna scheda} =1{1 scheda} other{{count} schede}}"
+  "aiReadingCards": "{count, plural, =0{Nessuna scheda} =1{1 scheda} other{{count} schede}}",
+  "aiErrorRejected": "Il server ha rifiutato la richiesta.",
+  "aiErrorNoCredit": "Il fornitore dice che questo account non ha credito.",
+  "aiErrorForbidden": "Questa chiave non è autorizzata a usare {model}.",
+  "aiErrorTooLong": "Il riepilogo dei tuoi dati è troppo lungo per questo modello. Scegli un livello di dettaglio più basso.",
+  "aiErrorRateLimited": "{seconds, plural, =0{Il fornitore sta limitando le richieste. Riprova tra un momento.} other{Il fornitore sta limitando le richieste. Riprova tra {seconds} s.}}",
+  "aiErrorServer": "{host} ha avuto un problema ({status}). Non è stato mostrato nulla. Riprova più tardi.",
+  "aiErrorTimeout": "{host} ha smesso di rispondere dopo {seconds} s. I modelli locali possono richiedere un timeout più lungo in Avanzate.",
+  "aiErrorOutputLimit": "Il modello ha usato tutto il limite di output prima di rispondere. Succede con i modelli di ragionamento.",
+  "aiRetryLarger": "Riprova con un limite più alto",
+  "aiErrorRefused": "Il modello si è rifiutato di rispondere.",
+  "aiErrorUnreadable": "Non è stato possibile leggere la risposta del modello.",
+  "aiErrorNoMatch": "La risposta del modello non corrispondeva ai tuoi dati, quindi non viene mostrato nulla.",
+  "aiShowRaw": "{kind, select, unverified{Mostra il testo non verificato} other{Mostra il testo grezzo}}",
+  "aiErrorCeiling": "Il limite di token di questo mese è stato raggiunto: {used} su {cap} token. Puoi cambiarlo in Avanzate.",
+  "aiRawTitle": "Testo non verificato",
+  "aiRawBanner": "Testo di {model} che OpenRing non ha potuto confrontare con i tuoi dati. I numeri segnati con ? non corrispondono a nessun dato inviato.",
+  "aiReadingFailedRow": "{kind, select, cancelled{Annullata} other{Non completata}}"
 }

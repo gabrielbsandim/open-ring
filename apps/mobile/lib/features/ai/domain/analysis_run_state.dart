@@ -59,9 +59,10 @@ final class AnalysisDone extends AnalysisRunState {
 }
 
 final class AnalysisFailed extends AnalysisRunState {
-  const new(this.failure, {this.canRetryLarger = false});
+  const new(this.failure, {this.canRetryLarger = false, this.report});
   final AnalysisRunFailure failure;
   final bool canRetryLarger;
+  final AiReport? report;
 }
 
 /// Run in flight (read back as cancelled) and a retention-proof month total.

@@ -196,7 +196,7 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
             icon: const Icon(Icons.list_rounded),
             onPressed: modelsTarget == null
                 ? null
-                : () => unawaited(_pickModel(modelsTarget)),
+                : () => unawaited(_pickModel(config, modelsTarget)),
           ),
         ),
       ),
@@ -223,13 +223,8 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
     ];
   }
 
-  /// The stored key is bound to its host, so models are never listed from
-  /// a typed address on another host while a key is saved.
   AiConfig? _modelsTarget(AiConfig config, NormalizedBaseUrl? url) {
     if (_busy || url == null) return null;
-    if (config.keyLastFour != null && url.hostKey != config.hostKey) {
-      return null;
-    }
     return config.copyWith(
       preset: _preset,
       baseUrl: _url.text.trim(),
@@ -237,11 +232,17 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
     );
   }
 
-  Future<void> _pickModel(AiConfig target) async {
+  Future<void> _pickModel(AiConfig config, AiConfig target) async {
+    final typed = _key.text.trim();
     final picked = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => AiModelsSheet(config: target),
+      builder: (_) => AiModelsSheet(
+        config: target,
+        storedKeyAllowed:
+            config.hostKey != null && target.hostKey == config.hostKey,
+        typedKey: typed.isEmpty ? null : typed,
+      ),
     );
     if (!mounted || picked == null) return;
     _model.text = picked;

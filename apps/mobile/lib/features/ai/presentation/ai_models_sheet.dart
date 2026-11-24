@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
+import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
+import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/ai/presentation/ai_test_connection_sheet.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -27,9 +29,19 @@ List<String> aiFilterModels(Iterable<String> ids, String query) {
 
 /// Pops the chosen model id, or null so the typed name stays as it is.
 class AiModelsSheet extends ConsumerStatefulWidget {
-  const new({required this.config, super.key});
+  const new({
+    required this.config,
+    required this.storedKeyAllowed,
+    this.typedKey,
+    super.key,
+  });
 
   final AiConfig config;
+
+  /// False when the address moved off the saved host, so the stored key,
+  /// bound to that host, is never sent here.
+  final bool storedKeyAllowed;
+  final String? typedKey;
 
   @override
   ConsumerState<AiModelsSheet> createState() => _AiModelsSheetState();
@@ -55,12 +67,23 @@ class _AiModelsSheetState extends ConsumerState<AiModelsSheet> {
 
   Future<void> _load() async {
     try {
-      final model = await ref.read(analysisModelFactoryProvider)(widget.config);
+      final typed = widget.typedKey;
+      final secrets = ref.read(secretStoreProvider);
+      final key = typed ?? await _storedKey(secrets);
+      final model = ref.read(keyedAnalysisModelFactoryProvider)(
+        widget.config,
+        key,
+      );
       final ids = await model.listModels();
       if (mounted) setState(() => _models = ids);
     } on Object catch (error) {
       if (mounted) setState(() => _error = error);
     }
+  }
+
+  Future<String?> _storedKey(SecretStore secrets) async {
+    if (!widget.storedKeyAllowed) return null;
+    return await secrets.read(aiApiKeySecretName);
   }
 
   @override

@@ -36,15 +36,30 @@ Duration? _noRetry(int _, Object _) => null;
 
 typedef AnalysisModelFactory = Future<AnalysisModel> Function(AiConfig config);
 
-final analysisModelFactoryProvider = Provider<AnalysisModelFactory>(
+/// Builds a model with exactly [apiKey], so a caller decides which key
+/// may go to the config's host.
+typedef KeyedAnalysisModelFactory = AnalysisModel Function(
+  AiConfig config,
+  String? apiKey,
+);
+
+final keyedAnalysisModelFactoryProvider = Provider<KeyedAnalysisModelFactory>(
   (ref) =>
-      (config) async => HttpAnalysisModel(
+      (config, apiKey) => HttpAnalysisModel(
         baseUrl: config.normalizedUrl!,
         model: config.trimmedModel,
-        apiKey: await ref.read(secretStoreProvider).read(aiApiKeySecretName),
+        apiKey: apiKey,
         local: config.preset.isLocal,
         requestTimeout: Duration(seconds: config.requestTimeoutSeconds),
         profileStore: ref.read(aiConfigStoreProvider),
+      ),
+);
+
+final analysisModelFactoryProvider = Provider<AnalysisModelFactory>(
+  (ref) =>
+      (config) async => ref.read(keyedAnalysisModelFactoryProvider)(
+        config,
+        await ref.read(secretStoreProvider).read(aiApiKeySecretName),
       ),
 );
 

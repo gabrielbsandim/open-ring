@@ -335,6 +335,24 @@ void main() {
     );
 
     group('name sanitizer', () {
+      const lookalikeSafe = [
+        'ph\u1edf b\u00f2',
+        'b\u00e1nh m\u00ec',
+        '\u0926\u093e\u0932 \u092e\u0916\u0928\u0940',
+        '\u30e9\u30fc\u30e1\u30f3',
+        '\u03c3\u03bf\u03c5\u03b2\u03bb\u03ac\u03ba\u03b9',
+        '\u0e02\u0e49\u0e32\u0e27\u0e1c\u0e31\u0e14',
+        '\uae40\uce58\ucc0c\uac1c',
+        '\u0643\u064f\u0633\u0652\u0643\u064f\u0633',
+        "p\u00e3o d'\u00e1gua",
+        'p\u00e9-de-moleque',
+      ];
+      for (final name in lookalikeSafe) {
+        test('keeps "$name"', () {
+          expect(MealPhotoValidator.isCleanItemName(name, 'en'), isTrue);
+        });
+      }
+
       const clean = <String, String>{
         'en': 'grilled chicken',
         'pt-BR': 'pão de queijo',
@@ -377,6 +395,24 @@ void main() {
         'Cyrillic homoglyph': ('\u0456nsulin', 'en'),
         'Greek homoglyph': ('insul\u03b9n', 'en'),
         'mark after a space': ('\u0926\u093E\u0932 \u093E', 'hi'),
+        'Cyrillic variation selector': (
+          '\u0438\u043d\u0441\u0443\uFE0F\u043b\u0438\u043d',
+          'ru',
+        ),
+        'CJK variation selector': ('\u80f0\uFE0F\u5c9b\u7d20', 'zh'),
+        'ideographic variation selector': ('\u80f0\u{E0100}\u5c9b\u7d20', 'zh'),
+        'dotless i': ('\u0131nsul\u0131na', 'pt-BR'),
+        'fullwidth': (
+          '\uFF49\uFF4E\uFF53\uFF55\uFF4C\uFF49\uFF4E\uFF41',
+          'pt-BR',
+        ),
+        'small caps': ('\u026A\u0274s\u1D1C\u029F\u026A\u0274\u1D00', 'pt-BR'),
+        'long s': ('in\u017Fulina', 'pt-BR'),
+        'math bold': (
+          '\u{1D422}\u{1D427}\u{1D42C}\u{1D42E}\u{1D425}\u{1D422}\u{1D427}\u{1D41A}',
+          'pt-BR',
+        ),
+        'Armenian homoglyph': ('d\u0585se', 'en'),
       };
       for (final MapEntry(:key, value: (name, lang)) in bypass.entries) {
         test('rejects the $key bypass', () {

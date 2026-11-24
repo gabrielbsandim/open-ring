@@ -62,8 +62,12 @@ abstract final class MealPhotoValidator {
     r"^\p{L}[\p{L}\p{M} '\-]{0,31}$",
     unicode: true,
   );
-  static final RegExp _hiddenOrStrayMark = RegExp(
-    r'[\u034F\u200B-\u200F\u2060-\u2064\uFEFF]|(?<![\p{L}\p{M}])\p{M}',
+  // Invisible joiners, variation selectors and letter lookalikes (dotless i,
+  // long s, IPA, small caps, letterlike, fullwidth, math alphanumerics).
+  static final RegExp _hiddenOrLookalike = RegExp(
+    r'[\u034F\u200B-\u200F\u2060-\u2064\uFEFF\uFE00-\uFE0F\u{E0100}-\u{E01EF}'
+    r'\u0131\u017F\u0250-\u02AF\u1D00-\u1DBF\u2100-\u214F\uFF00-\uFFEF'
+    r'\u{1D400}-\u{1D7FF}]|(?<![\p{L}\p{M}])\p{M}',
     unicode: true,
   );
   static final RegExp _latin = RegExp(r'\p{Script=Latin}', unicode: true);
@@ -71,7 +75,7 @@ abstract final class MealPhotoValidator {
   // Latin names must be precomposed and single script, so a mark or a
   // homoglyph cannot split a stem that findMedicalTerm looks for.
   static final RegExp _latinTrap = RegExp(
-    r'\p{M}|\p{Script=Cyrillic}|\p{Script=Greek}',
+    r'\p{M}|(?!\p{Script=Latin})\p{L}',
     unicode: true,
   );
   static const Set<String> _itemKeys = {'name', 'measure', 'count', 'grams'};
@@ -216,7 +220,7 @@ abstract final class MealPhotoValidator {
 
   /// The only guard on free text the model writes in the reply language.
   static bool isCleanItemName(String name, String replyLanguage) {
-    if (!_itemName.hasMatch(name) || _hiddenOrStrayMark.hasMatch(name)) {
+    if (!_itemName.hasMatch(name) || _hiddenOrLookalike.hasMatch(name)) {
       return false;
     }
     if (_latin.hasMatch(name) && _latinTrap.hasMatch(name)) return false;

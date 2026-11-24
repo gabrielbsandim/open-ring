@@ -562,6 +562,16 @@ void main() {
     });
   }
 
+  testWidgets('a reading with nothing dropped has no dropped banner', (
+    tester,
+  ) async {
+    await reports.insert(_stored(dropped: 0));
+    await pump(tester);
+
+    expect(find.text('Stored card'), findsOneWidget);
+    expect(find.byKey(AiReadingKeys.dropped), findsNothing);
+  });
+
   testWidgets('a consent that lapses mid tap opens the sheet again', (
     tester,
   ) async {

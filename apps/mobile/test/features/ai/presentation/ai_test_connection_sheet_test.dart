@@ -164,7 +164,7 @@ void main() {
       model.script = (_, onReached) async {
         await reach.future;
         onReached?.call();
-        return answer.future;
+        return await answer.future;
       };
       await pump(tester);
       await openTest(tester);

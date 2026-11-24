@@ -2725,5 +2725,20 @@
   "aiConsentAsk": "Permitir o envio para {host}",
   "aiConsentScope": "Este consentimento vale para este endereço e este nível de detalhe. Volta a ser pedido se o endereço mudar, se o detalhe subir, se o resumo ganhar um tipo de dados ou se a política mudar.",
   "aiConsentGiven": "Consentimento dado para {host} em {date}.",
-  "aiConsentWithdraw": "Retirar o consentimento"
+  "aiConsentWithdraw": "Retirar o consentimento",
+  "aiReadingsTitle": "Leituras da IA",
+  "aiReadingsLead": "Um modelo descreve padrões no resumo que enviares. Os números nas fichas são do OpenRing, verificados com os teus dados.",
+  "aiReadingKind": "{kind, select, weekly{Leitura da semana} other{Leitura do dia}}",
+  "aiReadingSeeSent": "Ver o que vai ser enviado",
+  "aiReadingReceiving": "A receber a resposta de {host}... {count} caracteres",
+  "aiReadingChecking": "A verificar cada número com os teus dados...",
+  "aiReadingSendingNote": "Os cartões aparecem de uma vez, depois de verificados. Sair deste ecrã cancela o pedido.",
+  "aiReadingByLine": "Análise com IA, escrita por {model} em {host}",
+  "aiReadingWrittenBy": "Escrito por {model}",
+  "aiReadingSuggestion": "Sugestão",
+  "aiReadingConfidence": "Confiança: {level, select, low{baixa} medium{média} other{alta}}, {days} dias de dados",
+  "aiReadingDropped": "{dropped} de {total} cartões foram removidos porque não correspondiam aos teus dados.",
+  "aiReadingFooter": "Um modelo escreveu isto a partir do resumo que enviaste. Pode estar errado. Não é aconselhamento médico nem diagnóstico. Os valores do anel são estimativas.",
+  "aiFactLabel": "{kind, select, last{{metric}, último dia} other{{metric}, média de {days} dias}}",
+  "aiReadingCancelled": "Cancelado. O serviço ainda pode cobrar o que já tinha gerado."
 }

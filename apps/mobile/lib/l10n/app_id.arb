@@ -2733,5 +2733,20 @@
   "aiConsentAsk": "Izinkan pengiriman ke {host}",
   "aiConsentScope": "Persetujuan ini berlaku untuk alamat ini dan tingkat detail ini. Persetujuan diminta lagi jika alamat berubah, detail naik, ringkasan mendapat jenis data baru, atau kebijakan berubah.",
   "aiConsentGiven": "Persetujuan diberikan untuk {host} pada {date}.",
-  "aiConsentWithdraw": "Tarik persetujuan"
+  "aiConsentWithdraw": "Tarik persetujuan",
+  "aiReadingsTitle": "Bacaan AI",
+  "aiReadingsLead": "Model menjelaskan pola dalam ringkasan yang Anda kirim. Angka di chip berasal dari OpenRing dan sudah dicocokkan dengan data Anda.",
+  "aiReadingKind": "{kind, select, weekly{Bacaan mingguan} other{Bacaan harian}}",
+  "aiReadingSeeSent": "Lihat apa yang akan dikirim",
+  "aiReadingReceiving": "Menerima jawaban dari {host}... {count} karakter",
+  "aiReadingChecking": "Mencocokkan setiap angka dengan data Anda...",
+  "aiReadingSendingNote": "Kartu muncul sekaligus setelah diperiksa. Meninggalkan layar ini membatalkan permintaan.",
+  "aiReadingByLine": "Analisis AI, ditulis oleh {model} di {host}",
+  "aiReadingWrittenBy": "Ditulis oleh {model}",
+  "aiReadingSuggestion": "Saran",
+  "aiReadingConfidence": "Keyakinan: {level, select, low{rendah} medium{sedang} other{tinggi}}, data {days} hari",
+  "aiReadingDropped": "{dropped} dari {total} wawasan dihapus karena tidak cocok dengan data Anda.",
+  "aiReadingFooter": "Model menulis ini dari ringkasan yang Anda kirim. Bisa saja salah. Ini bukan saran medis atau diagnosis. Nilai cincin adalah perkiraan.",
+  "aiFactLabel": "{kind, select, last{{metric}, hari terakhir} other{{metric}, rata-rata {days} hari}}",
+  "aiReadingCancelled": "Dibatalkan. Penyedia mungkin tetap menagih apa yang sudah dihasilkan."
 }

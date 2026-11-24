@@ -2733,5 +2733,20 @@
   "aiConsentAsk": "Permitir el envío a {host}",
   "aiConsentScope": "Este consentimiento vale para esta dirección y este nivel de detalle. Se vuelve a pedir si cambia la dirección, si sube el detalle, si el resumen gana un tipo de dato o si cambia la política.",
   "aiConsentGiven": "Consentimiento dado para {host} el {date}.",
-  "aiConsentWithdraw": "Retirar el consentimiento"
+  "aiConsentWithdraw": "Retirar el consentimiento",
+  "aiReadingsTitle": "Lecturas de la IA",
+  "aiReadingsLead": "Un modelo describe patrones en el resumen que envíes. Los números de las fichas son de OpenRing, comprobados con tus datos.",
+  "aiReadingKind": "{kind, select, weekly{Lectura de la semana} other{Lectura del día}}",
+  "aiReadingSeeSent": "Ver lo que se enviará",
+  "aiReadingReceiving": "Recibiendo la respuesta de {host}... {count} caracteres",
+  "aiReadingChecking": "Comprobando cada número con tus datos...",
+  "aiReadingSendingNote": "Las tarjetas aparecen de una vez, después de comprobarse. Salir de esta pantalla cancela la solicitud.",
+  "aiReadingByLine": "Análisis con IA, escrito por {model} en {host}",
+  "aiReadingWrittenBy": "Escrito por {model}",
+  "aiReadingSuggestion": "Sugerencia",
+  "aiReadingConfidence": "Confianza: {level, select, low{baja} medium{media} other{alta}}, {days} días de datos",
+  "aiReadingDropped": "Se quitaron {dropped} de {total} observaciones porque no coincidían con tus datos.",
+  "aiReadingFooter": "Un modelo escribió esto a partir del resumen que enviaste. Puede estar equivocado. No es consejo médico ni un diagnóstico. Los valores del anillo son estimaciones.",
+  "aiFactLabel": "{kind, select, last{{metric}, último día} other{{metric}, media de {days} días}}",
+  "aiReadingCancelled": "Cancelado. El proveedor puede cobrar lo que ya había generado."
 }

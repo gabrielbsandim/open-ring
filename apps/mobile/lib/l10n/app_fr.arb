@@ -2733,5 +2733,20 @@
   "aiConsentAsk": "Autoriser l’envoi à {host}",
   "aiConsentScope": "Ce consentement vaut pour cette adresse et ce niveau de détail. Il est redemandé si l’adresse change, si le détail augmente, si le résumé gagne un type de données ou si la politique change.",
   "aiConsentGiven": "Consentement donné pour {host} le {date}.",
-  "aiConsentWithdraw": "Retirer le consentement"
+  "aiConsentWithdraw": "Retirer le consentement",
+  "aiReadingsTitle": "Lectures de l’IA",
+  "aiReadingsLead": "Un modèle décrit des tendances dans le résumé que vous envoyez. Les chiffres des puces viennent d’OpenRing et sont vérifiés avec vos données.",
+  "aiReadingKind": "{kind, select, weekly{Lecture de la semaine} other{Lecture du jour}}",
+  "aiReadingSeeSent": "Voir ce qui sera envoyé",
+  "aiReadingReceiving": "Réception de la réponse de {host}... {count} caractères",
+  "aiReadingChecking": "Vérification de chaque chiffre avec vos données...",
+  "aiReadingSendingNote": "Les cartes apparaissent d’un coup, après vérification. Quitter cet écran annule la demande.",
+  "aiReadingByLine": "Analyse par IA, écrite par {model} sur {host}",
+  "aiReadingWrittenBy": "Écrit par {model}",
+  "aiReadingSuggestion": "Suggestion",
+  "aiReadingConfidence": "Confiance : {level, select, low{faible} medium{moyenne} other{élevée}}, {days} jours de données",
+  "aiReadingDropped": "{dropped} observations sur {total} ont été retirées car elles ne correspondaient pas à vos données.",
+  "aiReadingFooter": "Un modèle a écrit ceci à partir du résumé que vous avez envoyé. Il peut se tromper. Ce n’est ni un avis médical ni un diagnostic. Les valeurs de la bague sont des estimations.",
+  "aiFactLabel": "{kind, select, last{{metric}, dernier jour} other{{metric}, moyenne sur {days} jours}}",
+  "aiReadingCancelled": "Annulé. Le fournisseur peut quand même facturer ce qu’il avait déjà généré."
 }

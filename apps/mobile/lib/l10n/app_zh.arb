@@ -2733,5 +2733,20 @@
   "aiConsentAsk": "允许发送到 {host}",
   "aiConsentScope": "此同意适用于这个地址和这个详细程度。当地址变化、详细程度提高、摘要新增一类数据或政策变化时，会再次征求同意。",
   "aiConsentGiven": "已于 {date} 同意发送到 {host}。",
-  "aiConsentWithdraw": "撤回同意"
+  "aiConsentWithdraw": "撤回同意",
+  "aiReadingsTitle": "AI 解读",
+  "aiReadingsLead": "模型会描述你发送的摘要中的规律。标签中的数字来自 OpenRing，已与你的数据核对。",
+  "aiReadingKind": "{kind, select, weekly{本周解读} other{当日解读}}",
+  "aiReadingSeeSent": "查看将发送的内容",
+  "aiReadingReceiving": "正在接收来自 {host} 的回答... {count} 个字符",
+  "aiReadingChecking": "正在将每个数字与你的数据核对...",
+  "aiReadingSendingNote": "卡片会在核对后一次性显示。离开此页面会取消请求。",
+  "aiReadingByLine": "AI 分析，由 {host} 上的 {model} 撰写",
+  "aiReadingWrittenBy": "由 {model} 撰写",
+  "aiReadingSuggestion": "建议",
+  "aiReadingConfidence": "可信度：{level, select, low{低} medium{中} other{高}}，{days} 天的数据",
+  "aiReadingDropped": "{total} 条见解中有 {dropped} 条已被移除，因为它们与你的数据不符。",
+  "aiReadingFooter": "这是模型根据你发送的摘要写的。它可能有误。这不是医疗建议，也不是诊断。戒指数值为估计值。",
+  "aiFactLabel": "{kind, select, last{{metric}，最近一天} other{{metric}，{days} 天平均}}",
+  "aiReadingCancelled": "已取消。服务商仍可能对已生成的内容收费。"
 }

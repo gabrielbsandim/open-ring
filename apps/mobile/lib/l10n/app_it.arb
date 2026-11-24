@@ -2733,5 +2733,20 @@
   "aiConsentAsk": "Consenti l’invio a {host}",
   "aiConsentScope": "Questo consenso vale per questo indirizzo e questo livello di dettaglio. Viene richiesto di nuovo se l’indirizzo cambia, se il dettaglio aumenta, se il riepilogo acquisisce un tipo di dato o se l’informativa cambia.",
   "aiConsentGiven": "Consenso dato per {host} il {date}.",
-  "aiConsentWithdraw": "Revoca il consenso"
+  "aiConsentWithdraw": "Revoca il consenso",
+  "aiReadingsTitle": "Letture dell’IA",
+  "aiReadingsLead": "Un modello descrive schemi nel riepilogo che invii. I numeri nelle etichette sono di OpenRing, verificati con i tuoi dati.",
+  "aiReadingKind": "{kind, select, weekly{Lettura della settimana} other{Lettura del giorno}}",
+  "aiReadingSeeSent": "Vedi cosa verrà inviato",
+  "aiReadingReceiving": "Ricezione della risposta da {host}... {count} caratteri",
+  "aiReadingChecking": "Verifica di ogni numero con i tuoi dati...",
+  "aiReadingSendingNote": "Le schede compaiono tutte insieme, dopo la verifica. Uscire da questa schermata annulla la richiesta.",
+  "aiReadingByLine": "Analisi con IA, scritta da {model} su {host}",
+  "aiReadingWrittenBy": "Scritto da {model}",
+  "aiReadingSuggestion": "Suggerimento",
+  "aiReadingConfidence": "Affidabilità: {level, select, low{bassa} medium{media} other{alta}}, {days} giorni di dati",
+  "aiReadingDropped": "{dropped} osservazioni su {total} sono state rimosse perché non corrispondevano ai tuoi dati.",
+  "aiReadingFooter": "Un modello ha scritto questo dal riepilogo che hai inviato. Può essere sbagliato. Non è un consiglio medico né una diagnosi. I valori dell’anello sono stime.",
+  "aiFactLabel": "{kind, select, last{{metric}, ultimo giorno} other{{metric}, media di {days} giorni}}",
+  "aiReadingCancelled": "Annullato. Il fornitore può comunque addebitare ciò che aveva già generato."
 }

@@ -7,14 +7,15 @@ import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 
 /// Drains the photo queue on start, on resume, and when the AI config, the
-/// photo consent or the module list changes. In the background no new
-/// request starts, and the one in flight finishes, since it may be billed.
-final mealAnalysisTriggerProvider = Provider<MealAnalysisQueue>((ref) {
-  final queue = ref.read(mealAnalysisQueueProvider.notifier);
+/// photo consent or the module list changes. In the background a request
+/// already sent finishes, since it may be billed; a photo still being
+/// prepared goes back to the queue unsent.
+final mealAnalysisTriggerProvider = Provider<void>((ref) {
+  MealAnalysisQueue queue() => ref.read(mealAnalysisQueueProvider.notifier);
   void pass() {
     if (!ref.mounted) return;
     unawaited(
-      queue.drain().catchError((Object error) {
+      queue().drain().catchError((Object error) {
         debugPrint('Meal analysis pass failed: $error');
       }),
     );
@@ -27,12 +28,11 @@ final mealAnalysisTriggerProvider = Provider<MealAnalysisQueue>((ref) {
     ..listen(enabledModulesProvider, (_, _) => pass(), fireImmediately: true);
   final listener = AppLifecycleListener(
     onResume: () {
-      queue.toForeground();
+      queue().toForeground();
       pass();
     },
-    onHide: queue.toBackground,
-    onPause: queue.toBackground,
+    onHide: () => queue().toBackground(),
+    onPause: () => queue().toBackground(),
   );
   ref.onDispose(listener.dispose);
-  return queue;
 });

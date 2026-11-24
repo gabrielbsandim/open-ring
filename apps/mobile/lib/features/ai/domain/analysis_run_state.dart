@@ -80,4 +80,8 @@ abstract interface class AiRunMarkerStore {
   Future<void> clear();
   Future<int> monthTokens(String month);
   Future<void> addMonthTokens(String month, int tokens);
+
+  /// Meal photo uses queued on the local [day]; never below zero.
+  Future<int> photoUses(String day);
+  Future<void> addPhotoUses(String day, int delta);
 }

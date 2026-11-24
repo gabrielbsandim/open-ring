@@ -86,4 +86,18 @@ void main() {
 
     expect(h.requests, hasLength(1));
   });
+
+  test('a host change clears the photo consent and the provider rereads '
+      'it', () async {
+    expect(
+      await h.container.read(aiMealPhotoConsentProvider.future),
+      isNotNull,
+    );
+
+    await h.container
+        .read(aiConfigProvider.notifier)
+        .save(testedConfig.copyWith(baseUrl: 'https://other.example/v1'));
+
+    expect(await h.container.read(aiMealPhotoConsentProvider.future), isNull);
+  });
 }

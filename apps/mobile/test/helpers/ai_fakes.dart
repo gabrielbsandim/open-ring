@@ -286,4 +286,15 @@ final class InMemoryAiRunMarkerStore implements AiRunMarkerStore {
     monthSum = await monthTokens(month) + tokens;
     this.month = month;
   }
+
+  final Map<String, int> photoDays = {};
+
+  @override
+  Future<int> photoUses(String day) async => photoDays[day] ?? 0;
+
+  @override
+  Future<void> addPhotoUses(String day, int delta) async {
+    final next = await photoUses(day) + delta;
+    photoDays[day] = next < 0 ? 0 : next;
+  }
 }

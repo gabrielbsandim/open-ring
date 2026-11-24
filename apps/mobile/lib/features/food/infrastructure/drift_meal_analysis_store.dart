@@ -79,6 +79,10 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
       _read((r) => r.mealId.equals(mealId));
 
   @override
+  Future<MealAnalysis?> byId(int id) async =>
+      (await _read(_id(id))).firstOrNull;
+
+  @override
   Future<MealAnalysis?> next() async => (await _read(
     (r) => r.status.equals(MealAnalysisStatus.queued.wire),
     limit: 1,

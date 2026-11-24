@@ -46,7 +46,9 @@ class AiConfigController extends AsyncNotifier<AiConfig> {
       await ref.read(secretStoreProvider).delete(aiApiKeySecretName);
       await store.clearConsent();
       await store.clearMealPhotoConsent();
-      ref.invalidate(aiConsentProvider);
+      ref
+        ..invalidate(aiConsentProvider)
+        ..invalidate(aiMealPhotoConsentProvider);
     }
     await store.writeConfig(value);
     state = AsyncData(value);
@@ -112,7 +114,8 @@ final aiConsentProvider = FutureProvider<AiConsent?>(
   (ref) => ref.watch(aiConfigStoreProvider).readConsent(),
 );
 
-/// A writer of the photo consent invalidates it, so the photo queue runs.
+/// Every writer of the photo consent invalidates it, so the photo queue
+/// runs a pass on each change.
 final aiMealPhotoConsentProvider = FutureProvider<AiMealPhotoConsent?>(
   (ref) => ref.watch(aiConfigStoreProvider).readMealPhotoConsent(),
 );

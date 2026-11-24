@@ -15,6 +15,8 @@ abstract interface class MealAnalysisStore {
 
   Future<List<MealAnalysis>> byMeal(int mealId);
 
+  Future<MealAnalysis?> byId(int id);
+
   Future<MealAnalysis?> next();
 
   /// Queued to sending, counting the attempt.

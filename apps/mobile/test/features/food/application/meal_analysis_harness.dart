@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/database/app_database.dart';
@@ -21,6 +22,7 @@ import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
+import 'package:open_ring/features/food/domain/meal_analysis_store.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/food/infrastructure/drift_meal_analysis_store.dart';
 import 'package:open_ring/features/food/infrastructure/drift_meal_store.dart';
@@ -101,7 +103,9 @@ final class FakePhotoModel implements AnalysisModel {
 final class MealQueueHarness {
   final AppDatabase db = memoryDatabase();
   late final DriftMealStore meals = DriftMealStore(db);
-  late final DriftMealAnalysisStore analyses = DriftMealAnalysisStore(db);
+  late final GatedAnalysisStore analyses = GatedAnalysisStore(
+    DriftMealAnalysisStore(db),
+  );
   final InMemoryPhotoStore photos = InMemoryPhotoStore();
   final InMemoryAiRunMarkerStore markers = InMemoryAiRunMarkerStore();
   final InMemorySecretStore secrets = InMemorySecretStore()
@@ -126,6 +130,7 @@ final class MealQueueHarness {
   int maxInFlight = 0;
   FutureOr<AnalysisEvent> Function() respond = completed;
   Duration Function()? elapsed;
+  Completer<void>? encodeGate;
 
   late final ProviderContainer container = _container();
 
@@ -133,30 +138,36 @@ final class MealQueueHarness {
     final c = ProviderContainer(
       overrides: [
         moduleStoreProvider.overrideWithValue(moduleStore),
-        demoModeStoreProvider.overrideWithValue(
-          InMemoryDemoModeStore(enabled: demo),
-        ),
-        aiConfigStoreProvider.overrideWithValue(configStore),
-        secretStoreProvider.overrideWithValue(secrets),
-        aiRunMarkerStoreProvider.overrideWithValue(markers),
-        aiReplyLanguageProvider.overrideWithValue('en'),
-        clockProvider.overrideWithValue(() => now),
-        mealStoreProvider.overrideWithValue(meals),
-        photoStoreProvider.overrideWithValue(photos),
-        mealAnalysisStoreProvider.overrideWithValue(analyses),
-        wirePhotoEncoderProvider.overrideWithValue(
-          (stored) async => prepareWirePhoto(stored),
-        ),
-        keyedAnalysisModelFactoryProvider.overrideWithValue((config, key) {
-          expect((config.trimmedModel, key), (photoModel, 'sk-test-1234'));
-          sentAt.add(elapsed?.call() ?? Duration.zero);
-          return FakePhotoModel(this);
-        }),
+        ...overrides,
       ],
     );
     addTearDown(c.dispose);
     return c;
   }
+
+  /// Every override but the module store, for a container of another test.
+  List<Override> get overrides => [
+    demoModeStoreProvider.overrideWithValue(
+      InMemoryDemoModeStore(enabled: demo),
+    ),
+    aiConfigStoreProvider.overrideWithValue(configStore),
+    secretStoreProvider.overrideWithValue(secrets),
+    aiRunMarkerStoreProvider.overrideWithValue(markers),
+    aiReplyLanguageProvider.overrideWithValue('en'),
+    clockProvider.overrideWithValue(() => now),
+    mealStoreProvider.overrideWithValue(meals),
+    photoStoreProvider.overrideWithValue(photos),
+    mealAnalysisStoreProvider.overrideWithValue(analyses),
+    wirePhotoEncoderProvider.overrideWithValue((stored) async {
+      await encodeGate?.future;
+      return prepareWirePhoto(stored);
+    }),
+    keyedAnalysisModelFactoryProvider.overrideWithValue((config, key) {
+      expect((config.trimmedModel, key), (photoModel, 'sk-test-1234'));
+      sentAt.add(elapsed?.call() ?? Duration.zero);
+      return FakePhotoModel(this);
+    }),
+  ];
 
   MealAnalysisQueue get queue =>
       container.read(mealAnalysisQueueProvider.notifier);
@@ -187,4 +198,88 @@ final class MealQueueHarness {
 
   Future<MealAnalysis> row(int mealId) async =>
       (await analyses.byMeal(mealId)).single;
+}
+
+/// Delegates to drift; [markGate] holds a row after it turned sending and
+/// before the queue hears back.
+final class GatedAnalysisStore implements MealAnalysisStore {
+  new(this.inner);
+
+  final MealAnalysisStore inner;
+  Completer<void>? markGate;
+
+  @override
+  Future<bool> markSending(int id, {required DateTime now}) async {
+    final moved = await inner.markSending(id, now: now);
+    await markGate?.future;
+    return moved;
+  }
+
+  @override
+  Future<MealAnalysis> enqueue(
+    int mealId,
+    String photoName,
+    MealAnalysisTarget target, {
+    required DateTime now,
+    bool again = false,
+  }) => inner.enqueue(mealId, photoName, target, now: now, again: again);
+
+  @override
+  Future<List<MealAnalysis>> byMeal(int mealId) => inner.byMeal(mealId);
+
+  @override
+  Future<MealAnalysis?> byId(int id) => inner.byId(id);
+
+  @override
+  Future<MealAnalysis?> next() => inner.next();
+
+  @override
+  Future<bool> requeue(int id, {required DateTime now}) =>
+      inner.requeue(id, now: now);
+
+  @override
+  Future<bool> complete(
+    int id,
+    MealAnalysisAnswer answer, {
+    required DateTime now,
+  }) => inner.complete(id, answer, now: now);
+
+  @override
+  Future<bool> fail(int id, String errorKind, {required DateTime now}) =>
+      inner.fail(id, errorKind, now: now);
+
+  @override
+  Future<bool> skip(int id, String reason, {required DateTime now}) =>
+      inner.skip(id, reason, now: now);
+
+  @override
+  Future<int> countQueuedSince(DateTime since) => inner.countQueuedSince(since);
+
+  @override
+  Future<int> expireBefore(DateTime cutoff, {required DateTime now}) =>
+      inner.expireBefore(cutoff, now: now);
+
+  @override
+  Future<int> skipOffTarget(
+    String providerHost,
+    String model, {
+    required DateTime now,
+  }) => inner.skipOffTarget(providerHost, model, now: now);
+
+  @override
+  Future<int> recoverInterrupted({required DateTime now}) =>
+      inner.recoverInterrupted(now: now);
+
+  @override
+  Future<int> purgeRawBefore(DateTime cutoff) => inner.purgeRawBefore(cutoff);
+
+  @override
+  Future<bool> keepOnPhone(int mealId) => inner.keepOnPhone(mealId);
+
+  @override
+  Future<bool> setKeepOnPhone(int mealId, {required bool keep}) =>
+      inner.setKeepOnPhone(mealId, keep: keep);
+
+  @override
+  Future<void> deleteAll() => inner.deleteAll();
 }

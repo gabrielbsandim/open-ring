@@ -291,7 +291,7 @@ void main() {
     expect(c.read(analysisRunControllerProvider), isA<AnalysisIdle>());
   });
 
-  test('invalidating aborts the request and stores it as cancelled', () async {
+  test('invalidating aborts the request and writes nothing', () async {
     model = _FakeModel([_hang]);
     final c = container();
     final sub = c.listen(analysisRunControllerProvider, (_, _) {});
@@ -302,7 +302,8 @@ void main() {
     await run;
     await pumpEventQueue();
     expect(model.cancelSeen, isTrue);
-    expect(reports.reports.single.status, AiReportStatus.cancelled);
+    expect(reports.reports, isEmpty);
+    expect(markers.month, isNull);
     expect(markers.value, isNull);
   });
 
@@ -515,14 +516,13 @@ void main() {
   });
 
   test(
-    'a marker left by a killed run becomes a failed cancelled row',
+    'launch recovery turns a marker into a cancelled row, no controller needed',
     () async {
       markers.value = sampleAiReport(at: _now);
       final c = container();
-      listenState(c);
       await c.read(aiRunRecoveryProvider.future);
       final row = reports.reports.single;
-      expect(row.status, AiReportStatus.failed);
+      expect(row.status, AiReportStatus.cancelled);
       expect(row.errorKind, AnalysisFailureKind.cancelled.name);
       expect(markers.value, isNull);
     },

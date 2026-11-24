@@ -1,10 +1,8 @@
-import 'package:meta/meta.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 
 const String aiSampleProviderHost = 'sample';
 
-@immutable
 sealed class AnalysisRunFailure {
   const new();
 }
@@ -30,7 +28,6 @@ final class RunCeilingReached extends AnalysisRunFailure {
   final int cap;
 }
 
-@immutable
 sealed class AnalysisRunState {
   const new();
 }

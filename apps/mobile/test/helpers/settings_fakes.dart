@@ -57,10 +57,11 @@ final class RecordingExternalLinkOpener implements ExternalLinkOpener {
 }
 
 final class FakeLocalDataEraser implements LocalDataEraser {
-  new({this.fail = false, this.hold});
+  new({this.fail = false, this.hold, this.onErase});
 
   final bool fail;
   final Completer<void>? hold;
+  final Future<void> Function()? onErase;
   int erased = 0;
 
   @override
@@ -68,6 +69,7 @@ final class FakeLocalDataEraser implements LocalDataEraser {
     await hold?.future;
     if (fail) throw const FileSystemException('disk full');
     erased++;
+    await onErase?.call();
   }
 }
 

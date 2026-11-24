@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
@@ -43,6 +44,7 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
     if (state == DeletionStatus.deleting) return false;
     state = DeletionStatus.deleting;
     final alive = ref.keepAlive();
+    ref.invalidate(analysisRunControllerProvider);
     try {
       await ref.read(localDataEraserProvider).eraseAll();
       await _resetInMemoryState();

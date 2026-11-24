@@ -52,7 +52,6 @@ final aiRunMarkerStoreProvider = Provider<AiRunMarkerStore>(
   (ref) => throw UnimplementedError('Override aiRunMarkerStoreProvider.'),
 );
 
-// Runs once per process, so a marker left by a killed run is stored once.
 final aiRunRecoveryProvider = FutureProvider<void>((ref) async {
   final markers = ref.read(aiRunMarkerStoreProvider);
   final draft = await markers.read();
@@ -80,10 +79,14 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
 
   @override
   AnalysisRunState build() {
-    ref
-      ..onDispose(cancel)
-      ..read(aiRunRecoveryProvider);
+    ref.onDispose(_dispose);
     return const AnalysisIdle();
+  }
+
+  // The notifier outlives an invalidation, so a run checks its own link.
+  void _dispose() {
+    _link = null;
+    cancel();
   }
 
   Future<void> send({bool force = false}) async {
@@ -100,10 +103,9 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
   }
 
   void cancel() {
-    final cancel = _cancel;
     _throttle?.cancel();
-    if (cancel == null || cancel.isCompleted) return;
-    cancel.complete();
+    if (_cancel?.isCompleted ?? true) return;
+    _cancel!.complete();
     unawaited(_sub?.cancel());
     _settle(_done, _cancelled);
   }
@@ -174,7 +176,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     final startedAt = clock();
     _cancel = Completer<void>();
     _completed = null;
-    _link = ref.keepAlive();
+    final link = _link = ref.keepAlive();
     state = AnalysisSending(receivedChars: 0, startedAt: startedAt);
     final payload = ready.payload;
     final request = AnalysisRequest(
@@ -215,6 +217,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     try {
       await markers?.write(draft);
       final (report, next) = await attempt();
+      if (!identical(link, _link)) return;
       await store?.insert(report);
       final tokens =
           (report.promptTokens ?? 0) + (report.completionTokens ?? 0);
@@ -328,10 +331,8 @@ Duration? _autoRetryWait(AnalysisFailure f) {
   return Duration(seconds: seconds);
 }
 
-String aiMonthKey(DateTime now) {
-  final local = now.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}';
-}
+String aiMonthKey(DateTime now) =>
+    now.toLocal().toIso8601String().substring(0, 7);
 
 AiReport _draft(
   AiPayloadReady ready,

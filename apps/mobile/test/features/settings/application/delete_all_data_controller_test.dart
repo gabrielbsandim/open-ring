@@ -2,10 +2,23 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
+import 'package:open_ring/features/ai/application/ai_report_providers.dart';
+import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
+import 'package:open_ring/features/ai/application/health_context_providers.dart';
+import 'package:open_ring/features/ai/domain/ai_config.dart';
+import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
+import 'package:open_ring/features/ai/domain/analysis_model.dart';
+import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
+import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
+import 'package:open_ring/features/ai/domain/health_context_models.dart';
+import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_run_marker_store.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
@@ -24,7 +37,11 @@ import 'package:open_ring/features/settings/domain/unit_system.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
+import '../../../helpers/ai_fakes.dart';
 import '../../../helpers/fake_sync_scheduler.dart';
 import '../../../helpers/in_memory_sync_interval_store.dart';
 import '../../../helpers/in_memory_theme_mode_store.dart';
@@ -43,7 +60,10 @@ void main() {
   late InMemoryWeekGoalStore weekGoal;
   late InMemoryCelebrationStore celebration;
 
-  ProviderContainer container([FakeLocalDataEraser? override]) {
+  ProviderContainer container([
+    FakeLocalDataEraser? override,
+    List<Override> extra = const [],
+  ]) {
     eraser = override ?? FakeLocalDataEraser();
     scheduler = FakeSyncScheduler();
     units = InMemoryUnitSystemStore(UnitSystem.imperial);
@@ -73,6 +93,7 @@ void main() {
         moduleStoreProvider.overrideWithValue(modules),
         weekGoalStoreProvider.overrideWithValue(weekGoal),
         celebrationStoreProvider.overrideWithValue(celebration),
+        ...extra,
       ],
     );
     addTearDown(container.dispose);
@@ -117,6 +138,65 @@ void main() {
     expect(await c.read(celebrationClosedProvider.future), isNull);
   });
 
+  test('Delete all data aborts a run so nothing is written back', () async {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    final reports = InMemoryAiReportStore();
+    final events = StreamController<AnalysisEvent>();
+    final c = container(
+      FakeLocalDataEraser(
+        onErase: () async {
+          await reports.deleteAll();
+          await SharedPreferencesAsync().clear(
+            allowList: SharedPreferencesAiRunMarkerStore.keys,
+          );
+        },
+      ),
+      [
+        aiEnabledProvider.overrideWithValue(true),
+        aiPayloadProvider.overrideWith(
+          (ref) async => const AiPayloadReady(_payload),
+        ),
+        aiConfigStoreProvider.overrideWithValue(
+          InMemoryAiConfigStore()
+            ..config = const AiConfig(
+              baseUrl: 'https://api.example.com/v1',
+              model: 'm',
+            ),
+        ),
+        aiReportStoreProvider.overrideWithValue(reports),
+        aiRunMarkerStoreProvider.overrideWithValue(
+          SharedPreferencesAiRunMarkerStore(),
+        ),
+        analysisModelFactoryProvider.overrideWithValue(
+          (config) async => _HeldModel(events.stream),
+        ),
+      ],
+    );
+    final sub = c.listen(analysisRunControllerProvider, (_, _) {});
+    addTearDown(sub.close);
+    final run = c.read(analysisRunControllerProvider.notifier).send();
+    await pumpEventQueue();
+    expect(c.read(analysisRunControllerProvider), isA<AnalysisSending>());
+
+    expect(await c.read(deleteAllDataProvider.notifier).delete(), isTrue);
+    events.add(
+      const AnalysisCompleted(
+        text: '{"summary":"ok","cards":[]}',
+        finishReason: 'stop',
+        usage: AiTokenUsage(promptTokens: 100, completionTokens: 50),
+      ),
+    );
+    await run;
+    await pumpEventQueue();
+
+    expect(reports.reports, isEmpty);
+    expect(
+      await SharedPreferencesAsync().getKeys(),
+      isNot(contains(SharedPreferencesAiRunMarkerStore.monthKey)),
+    );
+  });
+
   test('a failed erase reports failure and keeps the settings', () async {
     final c = container(FakeLocalDataEraser(fail: true));
 
@@ -145,4 +225,34 @@ void main() {
     expect(await first, isTrue);
     expect(eraser.erased, 1);
   });
+}
+
+const _payload = BuiltAiPayload(
+  contextMap: {'reply_language': 'en'},
+  canonicalContextJson: '{}',
+  systemPrompt: 'system',
+  userMessage: 'user',
+  facts: [],
+  estimatedTokens: 1,
+  contextTokens: 1,
+  cacheKey: 'context-sha',
+  droppedCount: 0,
+);
+
+final class _HeldModel implements AnalysisModel {
+  new(this.events);
+
+  final Stream<AnalysisEvent> events;
+
+  @override
+  Stream<AnalysisEvent> generate(
+    AnalysisRequest request, {
+    required Future<void> cancel,
+  }) => events;
+
+  @override
+  Future<List<String>> listModels() => throw UnimplementedError();
+
+  @override
+  Future<ConnectionProbe> probe() => throw UnimplementedError();
 }

@@ -137,7 +137,7 @@ void main() {
         readGoalReword(_answer(text), _payload()),
         const AiRewordAccepted(
           text: text,
-          evidenceIds: ['plan.from', 'plan.to', 'plan.fit', 'plan.levers'],
+          evidenceIds: ['plan.from', 'plan.to', 'plan.fit'],
         ),
       );
     });
@@ -221,6 +221,60 @@ void main() {
         );
       });
     }
+
+    test('an ASCII space groups thousands in a French rewording', () {
+      final payload = buildGoalRewordPayload(
+        replyLanguage: 'fr',
+        rule: 8,
+        head: 'Un changement proposé',
+        line: 'La semaine a tenu.',
+        change: _steps,
+        fit: 1,
+        levers: 1,
+      )!;
+      final ok = readGoalReword(
+        _answer('Ton objectif passe de 9 000 à 10 000 pas.'),
+        payload,
+      );
+      expect(ok, isA<AiRewordAccepted>());
+      final bad = readGoalReword(
+        _answer('Ton objectif passe à 9 100 pas.', evidence: ['plan.to']),
+        payload,
+      );
+      expect(
+        bad,
+        const AiRewordDropped(
+          reason: AiCardDropReason.unverifiedNumber,
+          detail: '9\u00a0100',
+        ),
+      );
+    });
+
+    test('a number in the decision text may be repeated', () {
+      final payload = buildGoalRewordPayload(
+        replyLanguage: 'en',
+        rule: 4,
+        head: 'Recovery week',
+        line: 'Recovery was low on most of the last 7 days. Sleep comes first.',
+        fit: 1,
+        levers: 2,
+      )!;
+      String said(String text) => _answer(text, evidence: ['plan.fit']);
+      expect(
+        readGoalReword(
+          said('Recovery was low most of the last 7 days.'),
+          payload,
+        ),
+        isA<AiRewordAccepted>(),
+      );
+      expect(
+        readGoalReword(
+          said('Recovery was low most of the last 8 days.'),
+          payload,
+        ),
+        isA<AiRewordDropped>(),
+      );
+    });
 
     test('an answer with no card is unreadable', () {
       expect(readGoalReword('not json', _payload()), isNull);

@@ -60,6 +60,15 @@ BuiltAiPayload? buildGoalRewordPayload({
       _fact('plan.pause', 'Pause length', pauseDays, AiFactUnit.days),
   ];
   if (facts.isEmpty) return null;
+  final known = {for (final f in facts) f.value.toInt()};
+  final shown = RegExp(r'\d+').allMatches('$head $line');
+  final extra = [
+    for (final m in shown)
+      if (known.add(int.parse(m[0]!))) int.parse(m[0]!),
+  ];
+  for (final (i, n) in extra.indexed) {
+    facts.add(_fact('plan.n${i + 1}', 'Number in the decision text', n));
+  }
   final lang = sanitizeReplyLanguage(replyLanguage);
   final map = <String, Object?>{
     'reply_language': lang,
@@ -118,12 +127,7 @@ AiRewordResult? readGoalReword(String text, BuiltAiPayload payload) {
       family: AiMetricFamily.overall,
       title: card.title,
       insight: card.insight,
-      // Every rule number may be written, while an id the rule lacks still
-      // drops the rewording.
-      evidence: {
-        ...card.evidence,
-        for (final f in payload.facts) f.id,
-      }.toList(),
+      evidence: card.evidence,
       action: card.action,
       confidence: card.confidence,
     ),

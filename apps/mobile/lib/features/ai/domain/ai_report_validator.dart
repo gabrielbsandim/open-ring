@@ -20,6 +20,7 @@ final _spaceThous = RegExp(
   r'^[1-9]\d{0,2}(?:[\u00a0\u202f]\d{3})+(?:[.,]\d+)?$',
 );
 final _spaceChar = RegExp(r'[\u00a0\u202f]');
+final _asciiThous = RegExp(r'(?<=\d) (?=\d{3}(?!\d))');
 final _dotThousComma = RegExp(r'^[1-9]\d{0,2}(?:\.\d{3})+,\d+$');
 final _commaThousDot = RegExp(r'^[1-9]\d{0,2}(?:,\d{3})+\.\d+$');
 
@@ -90,8 +91,8 @@ final class _Validator {
   final int windowDays;
   final int windowWeeks;
 
-  /// Only a value equal to a fact passes: no rounding, derived or period
-  /// allowance.
+  /// Any fact, cited or not, by equal value only: no rounding, derived or
+  /// period allowance; an ASCII space may group thousands.
   final bool exact;
 
   static bool _near(double a, double b) => (a - b).abs() <= 1e-9;
@@ -196,7 +197,7 @@ final class _Validator {
     }
 
     final drop =
-        _checkTextNumbers([title, insight], cited) ??
+        _checkTextNumbers([title, insight], exact ? facts : cited) ??
         _checkActionNumbers(action) ??
         _checkSafety([title, insight, action]);
     if (drop != null) return (null, drop);
@@ -274,7 +275,9 @@ final class _Validator {
     return AiConfidence.low;
   }
 
-  Iterable<_NumTok> _scanNumbers(String text) sync* {
+  Iterable<_NumTok> _scanNumbers(String raw) sync* {
+    // Same length swap, so spans still index the original text.
+    final text = exact ? raw.replaceAll(_asciiThous, '\u00a0') : raw;
     for (final m in _numOrClock.allMatches(text)) {
       final raw = m.group(1);
       if (raw == null) continue;

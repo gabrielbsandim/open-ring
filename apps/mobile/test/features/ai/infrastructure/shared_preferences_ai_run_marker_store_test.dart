@@ -33,6 +33,22 @@ void main() {
     expect(await store.read(), isNull);
   });
 
+  test('a marker reads back as a cancelled failure', () async {
+    await store.write(sampleAiReport(at: DateTime.utc(2026, 11, 20)));
+    final read = await store.read();
+    expect(read!.errorKind, 'cancelled');
+  });
+
+  test('the month total adds up and resets in a new month', () async {
+    await store.addMonthTokens('2026-11', 100);
+    await store.addMonthTokens('2026-11', 50);
+    expect(await store.monthTokens('2026-11'), 150);
+    expect(await store.monthTokens('2026-12'), 0);
+    await store.addMonthTokens('2026-12', 7);
+    expect(await store.monthTokens('2026-12'), 7);
+    expect(await store.monthTokens('2026-11'), 0);
+  });
+
   test('a corrupt marker reads as none', () async {
     await SharedPreferencesAsync().setString(
       SharedPreferencesAiRunMarkerStore.key,

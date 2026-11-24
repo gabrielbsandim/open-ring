@@ -114,6 +114,8 @@ AnalysisFailure _limited(int? seconds) => AnalysisFailure(
 void main() {
   late InMemoryAiConfigStore configStore;
   late InMemoryAiReportStore reports;
+  late AiReportStore reportStore;
+  late Exception? factoryError;
   late InMemoryAiRunMarkerStore markers;
   late _FakeModel model;
   late int factoryCalls;
@@ -128,6 +130,8 @@ void main() {
         model: 'm',
       );
     reports = InMemoryAiReportStore();
+    reportStore = reports;
+    factoryError = null;
     markers = InMemoryAiRunMarkerStore();
     model = _FakeModel([_ok]);
     factoryCalls = 0;
@@ -142,7 +146,7 @@ void main() {
         aiEnabledProvider.overrideWith((ref) => enabled),
         aiPayloadProvider.overrideWith((ref) async => payload),
         aiConfigStoreProvider.overrideWithValue(configStore),
-        aiReportStoreProvider.overrideWithValue(reports),
+        aiReportStoreProvider.overrideWithValue(reportStore),
         aiRunMarkerStoreProvider.overrideWithValue(markers),
         demoModeStoreProvider.overrideWithValue(
           InMemoryDemoModeStore(enabled: demo),
@@ -150,6 +154,7 @@ void main() {
         clockProvider.overrideWithValue(() => _now),
         analysisModelFactoryProvider.overrideWithValue((config) async {
           factoryCalls++;
+          if (factoryError != null) throw factoryError!;
           return model;
         }),
       ],
@@ -286,7 +291,7 @@ void main() {
     expect(c.read(analysisRunControllerProvider), isA<AnalysisIdle>());
   });
 
-  test('dispose aborts the request and stores it as cancelled', () async {
+  test('invalidating aborts the request and stores it as cancelled', () async {
     model = _FakeModel([_hang]);
     final c = container();
     final sub = c.listen(analysisRunControllerProvider, (_, _) {});
@@ -299,6 +304,21 @@ void main() {
     expect(model.cancelSeen, isTrue);
     expect(reports.reports.single.status, AiReportStatus.cancelled);
     expect(markers.value, isNull);
+  });
+
+  test('closing the last listener while sending does not cancel', () async {
+    model = _FakeModel([_hang]);
+    final c = container();
+    final sub = c.listen(analysisRunControllerProvider, (_, _) {});
+    final run = notifier(c).send();
+    await pumpEventQueue();
+    sub.close();
+    await pumpEventQueue();
+    expect(model.cancelSeen, isFalse);
+    expect(c.read(analysisRunControllerProvider), isA<AnalysisSending>());
+    expect(markers.value, isNotNull);
+    notifier(c).cancel();
+    await run;
   });
 
   test('progress is throttled to at most 4 updates per second', () {
@@ -424,24 +444,11 @@ void main() {
   });
 
   group('monthly token ceiling', () {
-    AiReport used(DateTime at, int tokens) => AiReport(
-      createdAtUtc: at,
-      offsetMin: 0,
-      kind: 'daily_review',
-      contextSchema: 's',
-      contextSha256: 'other',
-      detailLevel: 'standard',
-      promptVersion: 'v1',
-      providerHost: 'api.example.com',
-      model: 'm',
-      status: AiReportStatus.failed,
-      promptTokens: tokens,
-      completionTokens: tokens,
-    );
-
     test('at the cap it fails without sending', () async {
       configStore.config = configStore.config.copyWith(monthlyTokenCap: 100);
-      await reports.insert(used(_now.subtract(const Duration(days: 2)), 50));
+      markers
+        ..month = aiMonthKey(_now)
+        ..monthSum = 100;
       final c = container();
       listenState(c);
       await notifier(c).send();
@@ -451,28 +458,59 @@ void main() {
       expect(model.calls, 0);
     });
 
+    test('61 runs in a month still block past report retention', () async {
+      configStore.config = configStore.config.copyWith(
+        monthlyTokenCap: 61 * 150,
+      );
+      final c = container();
+      listenState(c);
+      for (var i = 0; i < 61; i++) {
+        await notifier(c).send(force: true);
+      }
+      expect(reports.reports, hasLength(aiReportKeepCount));
+      await notifier(c).send(force: true);
+      final state = c.read(analysisRunControllerProvider) as AnalysisFailed;
+      expect(state.failure, isA<RunCeilingReached>());
+      expect(model.calls, 61);
+    });
+
     test('tokens from an earlier month do not count', () async {
       configStore.config = configStore.config.copyWith(monthlyTokenCap: 100);
-      await reports.insert(used(DateTime.utc(2026, 10, 15), 500));
+      markers
+        ..month = '2026-10'
+        ..monthSum = 500;
       final c = container();
       listenState(c);
       await notifier(c).send();
       expect(c.read(analysisRunControllerProvider), isA<AnalysisDone>());
+      expect((markers.month, markers.monthSum), ('2026-11', 150));
     });
   });
 
   test('demo mode answers with a sample and calls no model', () async {
+    final real = container();
+    listenState(real);
+    await notifier(real).send();
+    configStore.config = configStore.config.copyWith(monthlyTokenCap: 150);
+    reports.reports.clear();
+    model.calls = 0;
+    factoryCalls = 0;
+    markers.writes = 0;
+    reports.reports.add(
+      (real.read(analysisRunControllerProvider) as AnalysisDone).report,
+    );
     demo = true;
     final c = container();
     listenState(c);
     await notifier(c).send();
     final state = c.read(analysisRunControllerProvider) as AnalysisDone;
     expect(state.isSample, isTrue);
+    expect(state.fromCache, isFalse);
     expect(state.report.cardsJson, contains('sleep_avg'));
     expect(state.report.cardsJson, contains(SampleAnalysisModel.summary));
     expect(factoryCalls, 0);
     expect(model.calls, 0);
-    expect(reports.reports, isEmpty);
+    expect(reports.reports, hasLength(1));
     expect(markers.writes, 0);
   });
 
@@ -491,11 +529,85 @@ void main() {
   );
 
   test('send waits for recovery before writing its own marker', () async {
-    markers.value = sampleAiReport(at: _now);
+    model = _FakeModel([_hang]);
+    markers
+      ..value = sampleAiReport(at: _now)
+      ..readGate = Completer<void>();
+    final c = container();
+    listenState(c);
+    final run = notifier(c).send();
+    await pumpEventQueue();
+    expect(model.calls, 0);
+    markers.readGate!.complete();
+    await pumpEventQueue();
+    expect(reports.reports.single.providerHost, 'reports.example.com');
+    expect(reports.reports.single.errorKind, 'cancelled');
+    expect(markers.value?.providerHost, configStore.config.hostKey);
+    notifier(c).cancel();
+    await run;
+  });
+
+  test('a failing marker write ends the run as failed', () async {
+    markers.writeError = Exception('disk full');
     final c = container();
     listenState(c);
     await notifier(c).send();
-    expect(reports.reports, hasLength(2));
+    final state = c.read(analysisRunControllerProvider) as AnalysisFailed;
+    expect(state.failure, isA<RunUnexpected>());
+    expect(markers.value, isNull);
+    expect(model.calls, 0);
+  });
+
+  test('a failing marker clear does not undo a finished run', () async {
+    markers.clearError = Exception('disk full');
+    final c = container();
+    listenState(c);
+    await notifier(c).send();
+    expect(c.read(analysisRunControllerProvider), isA<AnalysisDone>());
+  });
+
+  test('a failing report insert ends the run as failed', () async {
+    reportStore = _FailingInsertStore();
+    final c = container();
+    listenState(c);
+    await notifier(c).send();
+    final state = c.read(analysisRunControllerProvider) as AnalysisFailed;
+    expect(state.failure, isA<RunUnexpected>());
     expect(markers.value, isNull);
   });
+
+  test('a failing model factory ends the run as failed', () async {
+    factoryError = Exception('keystore');
+    final c = container();
+    listenState(c);
+    await notifier(c).send();
+    final state = c.read(analysisRunControllerProvider) as AnalysisFailed;
+    expect(state.failure, isA<RunUnexpected>());
+  });
+
+  test('a blank model name sends nothing', () async {
+    configStore.config = configStore.config.copyWith(model: '  ');
+    final c = container();
+    listenState(c);
+    await notifier(c).send();
+    expect(factoryCalls, 0);
+    expect(c.read(analysisRunControllerProvider), isA<AnalysisIdle>());
+  });
+}
+
+final class _FailingInsertStore implements AiReportStore {
+  @override
+  Future<int> insert(AiReport report) => throw Exception('db locked');
+
+  @override
+  Future<AiReport?> newestDone(AiReportCacheKey key) async => null;
+
+  @override
+  Future<List<AiReport>> recent({int limit = aiReportKeepCount}) async => [];
+
+  @override
+  Future<void> deleteAll() async {}
+
+  @override
+  Future<void> applyRetention(DateTime nowUtc) async {}
 }

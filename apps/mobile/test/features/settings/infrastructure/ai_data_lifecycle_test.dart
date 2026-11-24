@@ -5,6 +5,7 @@ import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/ai/infrastructure/drift_ai_report_store.dart';
 import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_config_store.dart';
+import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_run_marker_store.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/settings/infrastructure/device_local_data_eraser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +26,10 @@ void main() {
       DeviceLocalDataEraser.preferenceKeys,
       containsAll(SharedPreferencesAiConfigStore.keys),
     );
+    expect(
+      DeviceLocalDataEraser.preferenceKeys,
+      containsAll(SharedPreferencesAiRunMarkerStore.keys),
+    );
   });
 
   test('deletes the API key and every ai_ preference', () async {
@@ -33,6 +38,9 @@ void main() {
     final store = SharedPreferencesAiConfigStore();
     await store.writeConfig(const AiConfig(baseUrl: 'https://a.example'));
     await store.writeCapabilityProfile('h', 'm', AiCapabilityProfile.defaults);
+    final markers = SharedPreferencesAiRunMarkerStore();
+    await markers.write(sampleAiReport(at: DateTime.utc(2026, 11, 20)));
+    await markers.addMonthTokens('2026-11', 150);
 
     await DeviceLocalDataEraser(
       await pairedDatabase(),

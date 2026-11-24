@@ -2798,5 +2798,17 @@
   "aiSampleSummary": "Muestra. No se llamó a ningún modelo.",
   "aiSampleCardTitle": "Tarjeta de muestra",
   "aiSampleCardInsight": "Esta tarjeta muestra dónde aparece una observación de tu modelo.",
-  "aiSampleCardAction": "Añade tu propio modelo en Ajustes para analizar tus datos."
+  "aiSampleCardAction": "Añade tu propio modelo en Ajustes para analizar tus datos.",
+  "goalsRewordOptional": "Opcional",
+  "goalsRewordTitle": "Reescribir con la IA",
+  "goalsRewordInfo": "El modelo vuelve a decir esta decisión con palabras sencillas. No cambia ningún número, objetivo ni la regla.",
+  "goalsRewordSends": "Se envía a {host}: la decisión de arriba y sus números. Nada más de tus datos.",
+  "goalsRewordSending": "Esperando la reescritura de {host}. El texto de la regla de arriba sigue igual.",
+  "goalsRewordBy": "Reescrito por {model}",
+  "goalsRewordSeeRule": "Ver la regla",
+  "goalsRewordHideRule": "Ocultar la regla",
+  "goalsRewordRecord": "El texto de la regla de arriba es el registro. La reescritura es otra forma de leer la misma decisión y no cambia nada en el plan.",
+  "goalsRewordDropped": "Reescritura descartada",
+  "goalsRewordDroppedNumber": "La reescritura de {model} usó un número que no está en la regla, así que solo queda el texto de la regla de arriba.",
+  "goalsRewordDroppedOther": "La reescritura de {model} no pasó las comprobaciones de la app, así que solo queda el texto de la regla de arriba."
 }

@@ -2798,5 +2798,17 @@
   "aiSampleSummary": "Contoh. Tidak ada model yang dipanggil.",
   "aiSampleCardTitle": "Kartu contoh",
   "aiSampleCardInsight": "Kartu ini menunjukkan tempat wawasan dari model Anda muncul.",
-  "aiSampleCardAction": "Tambahkan model Anda sendiri di Pengaturan untuk menganalisis data Anda."
+  "aiSampleCardAction": "Tambahkan model Anda sendiri di Pengaturan untuk menganalisis data Anda.",
+  "goalsRewordOptional": "Opsional",
+  "goalsRewordTitle": "Tulis ulang dengan AI",
+  "goalsRewordInfo": "Model menyampaikan ulang keputusan ini dengan kata-kata sederhana. Model tidak mengubah angka, target, atau aturan.",
+  "goalsRewordSends": "Dikirim ke {host}: keputusan di atas dan angkanya. Tidak ada data lain Anda.",
+  "goalsRewordSending": "Menunggu tulisan ulang dari {host}. Teks aturan di atas tetap seperti apa adanya.",
+  "goalsRewordBy": "Ditulis ulang oleh {model}",
+  "goalsRewordSeeRule": "Lihat aturan",
+  "goalsRewordHideRule": "Sembunyikan aturan",
+  "goalsRewordRecord": "Teks aturan di atas adalah catatan resminya. Tulisan ulang hanyalah cara lain membaca keputusan yang sama dan tidak mengubah apa pun dalam rencana.",
+  "goalsRewordDropped": "Tulisan ulang dibuang",
+  "goalsRewordDroppedNumber": "Tulisan ulang dari {model} memakai angka yang tidak ada dalam aturan, jadi hanya teks aturan di atas yang tetap.",
+  "goalsRewordDroppedOther": "Tulisan ulang dari {model} tidak lolos pemeriksaan aplikasi, jadi hanya teks aturan di atas yang tetap."
 }

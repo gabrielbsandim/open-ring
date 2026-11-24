@@ -5305,5 +5305,22 @@
   "aiSampleSummary": "Sample. No model was called.",
   "aiSampleCardTitle": "Sample card",
   "aiSampleCardInsight": "This card shows where an insight from your model appears.",
-  "aiSampleCardAction": "Add your own model in Settings to analyze your data."
+  "aiSampleCardAction": "Add your own model in Settings to analyze your data.",
+  "goalsRewordOptional": "Optional",
+  "goalsRewordTitle": "Reword with AI",
+  "goalsRewordInfo": "The model says this decision again in plain words. It does not change a number, a target or the rule.",
+  "goalsRewordSends": "Goes to {host}: the decision above and its numbers. Nothing else from your data.",
+  "@goalsRewordSends": {"placeholders": {"host": {"type": "String"}}},
+  "goalsRewordSending": "Waiting for the rewording from {host}. The rule text above stays as it is.",
+  "@goalsRewordSending": {"placeholders": {"host": {"type": "String"}}},
+  "goalsRewordBy": "Reworded by {model}",
+  "@goalsRewordBy": {"placeholders": {"model": {"type": "String"}}},
+  "goalsRewordSeeRule": "See the rule",
+  "goalsRewordHideRule": "Hide the rule",
+  "goalsRewordRecord": "The rule text above is the record. The rewording is another way to read the same decision and changes nothing in the plan.",
+  "goalsRewordDropped": "Rewording dropped",
+  "goalsRewordDroppedNumber": "The rewording from {model} used a number that is not in the rule, so only the rule text above stays.",
+  "@goalsRewordDroppedNumber": {"placeholders": {"model": {"type": "String"}}},
+  "goalsRewordDroppedOther": "The rewording from {model} did not pass the app checks, so only the rule text above stays.",
+  "@goalsRewordDroppedOther": {"placeholders": {"model": {"type": "String"}}}
 }

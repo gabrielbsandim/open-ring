@@ -2798,5 +2798,17 @@
   "aiSampleSummary": "Esempio. Nessun modello è stato chiamato.",
   "aiSampleCardTitle": "Scheda di esempio",
   "aiSampleCardInsight": "Questa scheda mostra dove compare un’osservazione del tuo modello.",
-  "aiSampleCardAction": "Aggiungi il tuo modello nelle Impostazioni per analizzare i tuoi dati."
+  "aiSampleCardAction": "Aggiungi il tuo modello nelle Impostazioni per analizzare i tuoi dati.",
+  "goalsRewordOptional": "Facoltativo",
+  "goalsRewordTitle": "Riformula con l’IA",
+  "goalsRewordInfo": "Il modello ridice questa decisione con parole semplici. Non cambia nessun numero, obiettivo né la regola.",
+  "goalsRewordSends": "Va a {host}: la decisione qui sopra e i suoi numeri. Nient’altro dei tuoi dati.",
+  "goalsRewordSending": "In attesa della riformulazione da {host}. Il testo della regola qui sopra resta com’è.",
+  "goalsRewordBy": "Riformulato da {model}",
+  "goalsRewordSeeRule": "Vedi la regola",
+  "goalsRewordHideRule": "Nascondi la regola",
+  "goalsRewordRecord": "Il testo della regola qui sopra è quello che vale. La riformulazione è un altro modo di leggere la stessa decisione e non cambia nulla nel piano.",
+  "goalsRewordDropped": "Riformulazione scartata",
+  "goalsRewordDroppedNumber": "La riformulazione di {model} ha usato un numero che non è nella regola, quindi resta solo il testo della regola qui sopra.",
+  "goalsRewordDroppedOther": "La riformulazione di {model} non ha superato i controlli dell’app, quindi resta solo il testo della regola qui sopra."
 }

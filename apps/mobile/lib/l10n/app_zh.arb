@@ -2798,5 +2798,17 @@
   "aiSampleSummary": "示例。没有调用任何模型。",
   "aiSampleCardTitle": "示例卡片",
   "aiSampleCardInsight": "这张卡片显示你的模型给出的见解会出现在哪里。",
-  "aiSampleCardAction": "在设置中添加你自己的模型，即可分析你的数据。"
+  "aiSampleCardAction": "在设置中添加你自己的模型，即可分析你的数据。",
+  "goalsRewordOptional": "可选",
+  "goalsRewordTitle": "用 AI 换个说法",
+  "goalsRewordInfo": "模型会用简单的话把这个决定再说一遍。它不会改变任何数字、目标或规则。",
+  "goalsRewordSends": "发送到 {host}：上面的决定及其数字。不会发送你的其他数据。",
+  "goalsRewordSending": "正在等待 {host} 的改写。上面的规则文字保持不变。",
+  "goalsRewordBy": "由 {model} 改写",
+  "goalsRewordSeeRule": "查看规则",
+  "goalsRewordHideRule": "隐藏规则",
+  "goalsRewordRecord": "上面的规则文字才是正式记录。改写只是理解同一决定的另一种方式，不会改变计划中的任何内容。",
+  "goalsRewordDropped": "改写已舍弃",
+  "goalsRewordDroppedNumber": "{model} 的改写用了规则中没有的数字，因此只保留上面的规则文字。",
+  "goalsRewordDroppedOther": "{model} 的改写未通过应用的检查，因此只保留上面的规则文字。"
 }

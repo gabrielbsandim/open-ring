@@ -2798,5 +2798,17 @@
   "aiSampleSummary": "Beispiel. Es wurde kein Modell aufgerufen.",
   "aiSampleCardTitle": "Beispielkarte",
   "aiSampleCardInsight": "Diese Karte zeigt, wo eine Erkenntnis deines Modells erscheint.",
-  "aiSampleCardAction": "Füge in den Einstellungen dein eigenes Modell hinzu, um deine Daten auszuwerten."
+  "aiSampleCardAction": "Füge in den Einstellungen dein eigenes Modell hinzu, um deine Daten auszuwerten.",
+  "goalsRewordOptional": "Optional",
+  "goalsRewordTitle": "Mit KI umformulieren",
+  "goalsRewordInfo": "Das Modell sagt diese Entscheidung noch einmal in einfachen Worten. Es ändert keine Zahl, kein Ziel und nicht die Regel.",
+  "goalsRewordSends": "Geht an {host}: die Entscheidung oben und ihre Zahlen. Sonst nichts aus deinen Daten.",
+  "goalsRewordSending": "Warte auf die Umformulierung von {host}. Der Regeltext oben bleibt, wie er ist.",
+  "goalsRewordBy": "Umformuliert von {model}",
+  "goalsRewordSeeRule": "Regel ansehen",
+  "goalsRewordHideRule": "Regel ausblenden",
+  "goalsRewordRecord": "Der Regeltext oben ist maßgeblich. Die Umformulierung ist nur eine andere Art, dieselbe Entscheidung zu lesen, und ändert nichts am Plan.",
+  "goalsRewordDropped": "Umformulierung verworfen",
+  "goalsRewordDroppedNumber": "Die Umformulierung von {model} enthielt eine Zahl, die nicht in der Regel steht. Deshalb bleibt nur der Regeltext oben.",
+  "goalsRewordDroppedOther": "Die Umformulierung von {model} hat die Prüfungen der App nicht bestanden. Deshalb bleibt nur der Regeltext oben."
 }

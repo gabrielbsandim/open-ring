@@ -50,13 +50,15 @@ part 'app_database.g.dart';
     GoalScreenings,
     Meals,
     AiReports,
+    MealAnalyses,
+    MealItems,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -132,6 +134,14 @@ class AppDatabase extends _$AppDatabase {
       from17To18: (migrator, schema) async {
         await migrator.createTable(schema.aiReports);
         await migrator.createIndex(schema.aiReportsCacheKey);
+      },
+      from18To19: (migrator, schema) async {
+        await migrator.addColumn(schema.meals, schema.meals.keepOnPhone);
+        await migrator.createTable(schema.mealAnalyses);
+        await migrator.createTable(schema.mealItems);
+        await migrator.createIndex(schema.mealAnalysesCacheKey);
+        await migrator.createIndex(schema.mealAnalysesStatus);
+        await migrator.createIndex(schema.mealItemsAnalysis);
       },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),

@@ -36,6 +36,8 @@ void main() {
     'goal_screenings',
     'meals',
     'ai_reports',
+    'meal_analyses',
+    'meal_items',
   };
 
   test('creates every table listed in the plan', () async {
@@ -75,6 +77,7 @@ void main() {
         'last_meal',
         'photo',
         'created_at_utc_ms',
+        'keep_on_phone',
       });
       expect(
         {

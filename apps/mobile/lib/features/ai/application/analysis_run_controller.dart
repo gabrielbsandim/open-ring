@@ -17,7 +17,6 @@ import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/analysis_model.dart';
 import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
-import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/domain/openai_wire_codec.dart';
 import 'package:open_ring/features/ai/domain/sample_analysis_model.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
@@ -25,6 +24,7 @@ import 'package:open_ring/features/ai/infrastructure/http_analysis_model.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 
 const int aiAutoRetryMaxSeconds = 20;
+const Duration aiRunAbortWait = Duration(seconds: 5);
 const Duration aiProgressInterval = Duration(milliseconds: 250);
 
 const _cancelled = AnalysisFailure(kind: AnalysisFailureKind.cancelled);
@@ -69,7 +69,8 @@ analysisRunControllerProvider =
 
 class AnalysisRunController extends Notifier<AnalysisRunState> {
   bool _busy = false;
-  Completer<void>? _cancel;
+  bool _dead = false;
+  Completer<void> _cancel = Completer<void>();
   Completer<AnalysisCompleted>? _done;
   StreamSubscription<AnalysisEvent>? _sub;
   KeepAliveLink? _link;
@@ -83,15 +84,25 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     return const AnalysisIdle();
   }
 
-  // The notifier outlives an invalidation, so a run checks its own link.
+  // The notifier and a listened Ref outlive an invalidation, so the run keeps
+  // its own flag and checks it before every request and every write.
   void _dispose() {
-    _link = null;
+    _dead = true;
     cancel();
   }
 
-  Future<void> send({bool force = false}) async {
-    if (_busy || !ref.read(aiEnabledProvider)) return;
+  /// Settles when the run in flight, if any, has finished or aborted.
+  Future<void> idle = Future.value();
+
+  Future<void> send({bool force = false}) {
+    if (_busy || !ref.read(aiEnabledProvider)) return Future.value();
     _busy = true;
+    _dead = false;
+    _cancel = Completer<void>();
+    return idle = _run(force: force);
+  }
+
+  Future<void> _run({required bool force}) async {
     try {
       await _prepare(force: force);
     } on Object catch (error) {
@@ -104,35 +115,37 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
 
   void cancel() {
     _throttle?.cancel();
-    if (_cancel?.isCompleted ?? true) return;
-    _cancel!.complete();
+    if (_cancel.isCompleted) return;
+    _cancel.complete();
     unawaited(_sub?.cancel());
     _settle(_done, _cancelled);
   }
 
   Future<void> _prepare({required bool force}) async {
     await ref.read(aiRunRecoveryProvider.future).catchError((Object _) {});
-    if (!ref.mounted) return;
+    if (_dead) return;
     final result = await ref.read(aiPayloadProvider.future);
-    if (!ref.mounted) return;
+    if (_dead) return;
     final config = await ref.read(aiConfigProvider.future);
-    if (!ref.mounted) return;
+    if (_dead) return;
     if (result is AiPayloadNotEnoughData) {
       return _fail(RunNotEnoughData(result.days));
     }
     if (result is! AiPayloadReady) return;
     final clock = ref.read(clockProvider);
     final store = ref.read(aiReportStoreProvider);
+    _RunBase base(String host) =>
+        (ready: result, config: config, at: clock(), host: host);
     if (ref.read(demoModeProvider)) {
-      final draft = _draft(result, config, clock(), aiSampleProviderHost);
       final sample = SampleAnalysisModel(result.payload.facts.firstOrNull?.id);
-      return await _execute(sample, result, draft, config);
+      return await _execute(sample, base(aiSampleProviderHost));
     }
     final host = config.hostKey;
     if (host == null || config.trimmedModel.isEmpty) return;
-    final draft = _draft(result, config, clock(), host);
-    final cached = force ? null : await store.newestDone(draft.cacheKey);
-    if (!ref.mounted) return;
+    final run = base(host);
+    final key = _report(run).cacheKey;
+    final cached = force ? null : await store.newestDone(key);
+    if (_dead) return;
     if (cached != null) {
       state = AnalysisDone(cached, fromCache: true);
       return;
@@ -146,16 +159,13 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
       return _fail(RunCeilingReached(used: used, cap: cap));
     }
     final model = await ref.read(analysisModelFactoryProvider)(config);
-    if (!ref.mounted) return;
     final profile = await ref
         .read(aiConfigStoreProvider)
         .readCapabilityProfile(host, config.trimmedModel);
-    if (!ref.mounted) return;
+    if (_dead) return;
     await _execute(
       model,
-      result,
-      draft,
-      config,
+      run,
       profile: profile ?? AiCapabilityProfile.defaults,
       store: store,
       markers: markers,
@@ -165,20 +175,19 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
   // Demo mode passes no store and no markers, so nothing is persisted.
   Future<void> _execute(
     AnalysisModel model,
-    AiPayloadReady ready,
-    AiReport draft,
-    AiConfig config, {
+    _RunBase base, {
     AiCapabilityProfile profile = AiCapabilityProfile.defaults,
     AiReportStore? store,
     AiRunMarkerStore? markers,
   }) async {
     final clock = ref.read(clockProvider);
     final startedAt = clock();
-    _cancel = Completer<void>();
+    final config = base.config;
+    final payload = base.ready.payload;
+    final draft = _report(base);
     _completed = null;
-    final link = _link = ref.keepAlive();
+    _link = ref.keepAlive();
     state = AnalysisSending(receivedChars: 0, startedAt: startedAt);
-    final payload = ready.payload;
     final request = AnalysisRequest(
       systemPrompt: payload.systemPrompt,
       userContent: AiTextContent(payload.userMessage),
@@ -193,13 +202,13 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
         final completed = _completed = await _generate(model, request);
         _throttle?.cancel();
         _set(const AnalysisValidating());
-        final report = _validated(draft, payload, completed, elapsed());
+        final report = _validated(base, completed, elapsed());
         return (report, AnalysisDone(report));
       } on Object catch (error) {
         final failure = _asFailure(error);
         // fromWire maps every kind but cancelled to failed.
-        final report = finishAiReport(
-          draft,
+        final report = _report(
+          base,
           status: AiReportStatus.fromWire(failure.kind.name),
           completed: _completed,
           durationMs: elapsed(),
@@ -217,10 +226,11 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     try {
       await markers?.write(draft);
       final (report, next) = await attempt();
-      if (!identical(link, _link)) return;
+      if (_dead) return;
       await store?.insert(report);
       final tokens =
           (report.promptTokens ?? 0) + (report.completionTokens ?? 0);
+      if (_dead) return;
       await markers?.addMonthTokens(aiMonthKey(startedAt), tokens);
       _set(next);
     } finally {
@@ -233,13 +243,14 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     AnalysisModel model,
     AnalysisRequest request,
   ) async {
+    if (_cancel.isCompleted) throw _cancelled;
     try {
       return await _stream(model, request);
     } on AnalysisFailure catch (failure) {
       final wait = _autoRetryWait(failure);
-      if (wait == null || _cancel!.isCompleted) rethrow;
-      await Future.any([Future<void>.delayed(wait), _cancel!.future]);
-      if (_cancel!.isCompleted) throw _cancelled;
+      if (wait == null || _cancel.isCompleted) rethrow;
+      await Future.any([Future<void>.delayed(wait), _cancel.future]);
+      if (_cancel.isCompleted) throw _cancelled;
       return await _stream(model, request);
     }
   }
@@ -250,7 +261,7 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
   ) {
     final done = _done = Completer<AnalysisCompleted>();
     _sub = model
-        .generate(request, cancel: _cancel!.future)
+        .generate(request, cancel: _cancel.future)
         .listen(
           (event) => _onEvent(done, event),
           onError: (Object error) => _settle(done, error),
@@ -288,14 +299,13 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
   }
 
   AnalysisFailure _asFailure(Object error) {
-    if (_cancel?.isCompleted ?? false) return _cancelled;
+    if (_cancel.isCompleted) return _cancelled;
     if (error is AnalysisFailure) return error;
     return _unreadable;
   }
 
   AiReport _validated(
-    AiReport draft,
-    BuiltAiPayload payload,
+    _RunBase base,
     AnalysisCompleted completed,
     int durationMs,
   ) {
@@ -303,9 +313,9 @@ class AnalysisRunController extends Notifier<AnalysisRunState> {
     if (raw == null) {
       throw _unreadable;
     }
-    final valid = AiReportValidator.validateForPayload(raw, payload);
-    return finishAiReport(
-      draft,
+    final valid = AiReportValidator.validateForPayload(raw, base.ready.payload);
+    return _report(
+      base,
       status: AiReportStatus.done,
       completed: completed,
       durationMs: durationMs,
@@ -334,53 +344,39 @@ Duration? _autoRetryWait(AnalysisFailure f) {
 String aiMonthKey(DateTime now) =>
     now.toLocal().toIso8601String().substring(0, 7);
 
-AiReport _draft(
+typedef _RunBase = ({
   AiPayloadReady ready,
   AiConfig config,
-  DateTime now,
+  DateTime at,
   String host,
-) {
-  final payload = ready.payload;
-  return AiReport(
-    createdAtUtc: now.toUtc(),
-    offsetMin: now.timeZoneOffset.inMinutes,
-    kind: ready.kind.wireName,
-    contextSchema: aiContextSchemaVersion,
-    contextSha256: payload.cacheKey,
-    detailLevel: config.detailLevel.wireName,
-    promptVersion: 'v$aiPromptVersion',
-    providerHost: host,
-    model: config.trimmedModel,
-    status: AiReportStatus.failed,
-    payloadJson: jsonEncode({
-      'system': payload.systemPrompt,
-      'user': payload.userMessage,
-    }),
-  );
-}
+});
 
-AiReport finishAiReport(
-  AiReport d, {
-  required AiReportStatus status,
+AiReport _report(
+  _RunBase b, {
+  AiReportStatus status = AiReportStatus.failed,
   AnalysisCompleted? completed,
   int? durationMs,
   int droppedCards = 0,
   String? cardsJson,
   String? errorKind,
 }) {
+  final payload = b.ready.payload;
   final usage = completed?.usage;
   return AiReport(
-    createdAtUtc: d.createdAtUtc,
-    offsetMin: d.offsetMin,
-    kind: d.kind,
-    contextSchema: d.contextSchema,
-    contextSha256: d.contextSha256,
-    detailLevel: d.detailLevel,
-    promptVersion: d.promptVersion,
-    providerHost: d.providerHost,
-    model: d.model,
+    createdAtUtc: b.at.toUtc(),
+    offsetMin: b.at.timeZoneOffset.inMinutes,
+    kind: b.ready.kind.wireName,
+    contextSchema: aiContextSchemaVersion,
+    contextSha256: payload.cacheKey,
+    detailLevel: b.config.detailLevel.wireName,
+    promptVersion: 'v$aiPromptVersion',
+    providerHost: b.host,
+    model: b.config.trimmedModel,
     status: status,
-    payloadJson: d.payloadJson,
+    payloadJson: jsonEncode({
+      'system': payload.systemPrompt,
+      'user': payload.userMessage,
+    }),
     cardsJson: cardsJson,
     rawText: completed?.text,
     droppedCards: droppedCards,

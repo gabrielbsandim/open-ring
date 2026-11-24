@@ -13,6 +13,7 @@ import 'package:open_ring/features/ai/application/ai_report_providers.dart';
 import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/ai/application/health_context_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
+import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/analysis_model.dart';
 import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
@@ -138,63 +139,123 @@ void main() {
     expect(await c.read(celebrationClosedProvider.future), isNull);
   });
 
-  test('Delete all data aborts a run so nothing is written back', () async {
-    SharedPreferencesAsyncPlatform.instance =
-        InMemorySharedPreferencesAsync.empty();
-    final reports = InMemoryAiReportStore();
-    final events = StreamController<AnalysisEvent>();
-    final c = container(
-      FakeLocalDataEraser(
-        onErase: () async {
-          await reports.deleteAll();
-          await SharedPreferencesAsync().clear(
-            allowList: SharedPreferencesAiRunMarkerStore.keys,
-          );
-        },
-      ),
-      [
-        aiEnabledProvider.overrideWithValue(true),
-        aiPayloadProvider.overrideWith(
-          (ref) async => const AiPayloadReady(_payload),
-        ),
-        aiConfigStoreProvider.overrideWithValue(
-          InMemoryAiConfigStore()
-            ..config = const AiConfig(
-              baseUrl: 'https://api.example.com/v1',
-              model: 'm',
-            ),
-        ),
-        aiReportStoreProvider.overrideWithValue(reports),
-        aiRunMarkerStoreProvider.overrideWithValue(
-          SharedPreferencesAiRunMarkerStore(),
-        ),
-        analysisModelFactoryProvider.overrideWithValue(
-          (config) async => _HeldModel(events.stream),
-        ),
-      ],
-    );
-    final sub = c.listen(analysisRunControllerProvider, (_, _) {});
-    addTearDown(sub.close);
-    final run = c.read(analysisRunControllerProvider.notifier).send();
-    await pumpEventQueue();
-    expect(c.read(analysisRunControllerProvider), isA<AnalysisSending>());
+  group('Delete all data during an AI run', () {
+    late _GatedReports reports;
+    late StreamController<AnalysisEvent> events;
+    late int requests;
+    late Completer<void>? factoryGate;
 
-    expect(await c.read(deleteAllDataProvider.notifier).delete(), isTrue);
-    events.add(
+    setUp(() {
+      SharedPreferencesAsyncPlatform.instance =
+          InMemorySharedPreferencesAsync.empty();
+      reports = _GatedReports();
+      events = StreamController<AnalysisEvent>();
+      requests = 0;
+      factoryGate = null;
+    });
+
+    ProviderContainer aiContainer() {
+      final c = container(
+        FakeLocalDataEraser(
+          onErase: () async {
+            await reports.deleteAll();
+            await SharedPreferencesAsync().clear(
+              allowList: SharedPreferencesAiRunMarkerStore.keys,
+            );
+          },
+        ),
+        [
+          aiEnabledProvider.overrideWithValue(true),
+          aiPayloadProvider.overrideWith(
+            (ref) async => const AiPayloadReady(_payload),
+          ),
+          aiConfigStoreProvider.overrideWithValue(
+            InMemoryAiConfigStore()
+              ..config = const AiConfig(
+                baseUrl: 'https://api.example.com/v1',
+                model: 'm',
+              ),
+          ),
+          aiReportStoreProvider.overrideWithValue(reports),
+          aiRunMarkerStoreProvider.overrideWithValue(
+            SharedPreferencesAiRunMarkerStore(),
+          ),
+          analysisModelFactoryProvider.overrideWithValue((config) async {
+            await factoryGate?.future;
+            return _HeldModel(events.stream, () => requests++);
+          }),
+        ],
+      );
+      final sub = c.listen(analysisRunControllerProvider, (_, _) {});
+      addTearDown(sub.close);
+      return c;
+    }
+
+    void answer() => events.add(
       const AnalysisCompleted(
         text: '{"summary":"ok","cards":[]}',
         finishReason: 'stop',
         usage: AiTokenUsage(promptTokens: 100, completionTokens: 50),
       ),
     );
-    await run;
-    await pumpEventQueue();
 
-    expect(reports.reports, isEmpty);
-    expect(
-      await SharedPreferencesAsync().getKeys(),
-      isNot(contains(SharedPreferencesAiRunMarkerStore.monthKey)),
-    );
+    Future<void> expectNothingWritten() async {
+      expect(reports.inner.reports, isEmpty);
+      expect(
+        await SharedPreferencesAsync().getKeys(),
+        isNot(contains(SharedPreferencesAiRunMarkerStore.monthKey)),
+      );
+    }
+
+    test('mid stream: the run is aborted and writes nothing back', () async {
+      final c = aiContainer();
+      final run = c.read(analysisRunControllerProvider.notifier).send();
+      await pumpEventQueue();
+      expect(c.read(analysisRunControllerProvider), isA<AnalysisSending>());
+
+      expect(await c.read(deleteAllDataProvider.notifier).delete(), isTrue);
+      answer();
+      await run;
+      await pumpEventQueue();
+
+      await expectNothingWritten();
+    });
+
+    test('while send is still preparing: no request goes out', () async {
+      factoryGate = Completer<void>();
+      final c = aiContainer();
+      final run = c.read(analysisRunControllerProvider.notifier).send();
+      await pumpEventQueue();
+
+      final deleting = c.read(deleteAllDataProvider.notifier).delete();
+      await pumpEventQueue();
+      factoryGate!.complete();
+      expect(await deleting, isTrue);
+      await run;
+      await pumpEventQueue();
+
+      expect(requests, 0);
+      await expectNothingWritten();
+    });
+
+    test('while the report insert is pending: the erase waits', () async {
+      reports.gate = Completer<void>();
+      final c = aiContainer();
+      final run = c.read(analysisRunControllerProvider.notifier).send();
+      await pumpEventQueue();
+      answer();
+      await pumpEventQueue();
+      expect(reports.pending, 1);
+
+      final deleting = c.read(deleteAllDataProvider.notifier).delete();
+      await pumpEventQueue();
+      reports.gate!.complete();
+      expect(await deleting, isTrue);
+      await run;
+      await pumpEventQueue();
+
+      await expectNothingWritten();
+    });
   });
 
   test('a failed erase reports failure and keeps the settings', () async {
@@ -240,19 +301,49 @@ const _payload = BuiltAiPayload(
 );
 
 final class _HeldModel implements AnalysisModel {
-  new(this.events);
+  new(this.events, this.onGenerate);
 
   final Stream<AnalysisEvent> events;
+  final void Function() onGenerate;
 
   @override
   Stream<AnalysisEvent> generate(
     AnalysisRequest request, {
     required Future<void> cancel,
-  }) => events;
+  }) {
+    onGenerate();
+    return events;
+  }
 
   @override
   Future<List<String>> listModels() => throw UnimplementedError();
 
   @override
   Future<ConnectionProbe> probe() => throw UnimplementedError();
+}
+
+final class _GatedReports implements AiReportStore {
+  final InMemoryAiReportStore inner = InMemoryAiReportStore();
+  Completer<void>? gate;
+  int pending = 0;
+
+  @override
+  Future<int> insert(AiReport report) async {
+    pending++;
+    await gate?.future;
+    return await inner.insert(report);
+  }
+
+  @override
+  Future<AiReport?> newestDone(AiReportCacheKey key) => inner.newestDone(key);
+
+  @override
+  Future<List<AiReport>> recent({int limit = aiReportKeepCount}) =>
+      inner.recent(limit: limit);
+
+  @override
+  Future<void> deleteAll() => inner.deleteAll();
+
+  @override
+  Future<void> applyRetention(DateTime nowUtc) => inner.applyRetention(nowUtc);
 }

@@ -259,6 +259,7 @@ final class InMemoryAiRunMarkerStore implements AiRunMarkerStore {
   @override
   Future<void> write(AiReport draft) async {
     writes++;
+    await writeGate?.future;
     if (writeError != null) throw writeError!;
     value = draft;
   }
@@ -273,6 +274,7 @@ final class InMemoryAiRunMarkerStore implements AiRunMarkerStore {
   int monthSum = 0;
   Completer<void>? readGate;
   Exception? writeError;
+  Completer<void>? writeGate;
   Exception? clearError;
 
   @override

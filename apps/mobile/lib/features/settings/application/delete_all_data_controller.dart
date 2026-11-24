@@ -44,7 +44,9 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
     if (state == DeletionStatus.deleting) return false;
     state = DeletionStatus.deleting;
     final alive = ref.keepAlive();
+    final run = ref.read(analysisRunControllerProvider.notifier).idle;
     ref.invalidate(analysisRunControllerProvider);
+    await run.timeout(aiRunAbortWait, onTimeout: () {});
     try {
       await ref.read(localDataEraserProvider).eraseAll();
       await _resetInMemoryState();

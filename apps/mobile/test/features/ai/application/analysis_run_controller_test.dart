@@ -116,6 +116,7 @@ void main() {
   late InMemoryAiReportStore reports;
   late AiReportStore reportStore;
   late Exception? factoryError;
+  late Completer<void>? factoryGate;
   late InMemoryAiRunMarkerStore markers;
   late _FakeModel model;
   late int factoryCalls;
@@ -132,6 +133,7 @@ void main() {
     reports = InMemoryAiReportStore();
     reportStore = reports;
     factoryError = null;
+    factoryGate = null;
     markers = InMemoryAiRunMarkerStore();
     model = _FakeModel([_ok]);
     factoryCalls = 0;
@@ -154,6 +156,7 @@ void main() {
         clockProvider.overrideWithValue(() => _now),
         analysisModelFactoryProvider.overrideWithValue((config) async {
           factoryCalls++;
+          await factoryGate?.future;
           if (factoryError != null) throw factoryError!;
           return model;
         }),
@@ -305,6 +308,59 @@ void main() {
     expect(reports.reports, isEmpty);
     expect(markers.month, isNull);
     expect(markers.value, isNull);
+  });
+
+  group('invalidated mid run', () {
+    Future<void> invalidateWhile(
+      ProviderContainer c,
+      Completer<void> gate,
+    ) async {
+      final run = notifier(c).send();
+      await pumpEventQueue();
+      c.invalidate(analysisRunControllerProvider);
+      gate.complete();
+      await run;
+      await pumpEventQueue();
+    }
+
+    test('while preparing: no request, no write', () async {
+      factoryGate = Completer<void>();
+      final c = container();
+      listenState(c);
+      await invalidateWhile(c, factoryGate!);
+      expect(model.calls, 0);
+      expect(markers.writes, 0);
+      expect(reports.reports, isEmpty);
+    });
+
+    test('during the marker write: no request goes out', () async {
+      markers.writeGate = Completer<void>();
+      final c = container();
+      listenState(c);
+      await invalidateWhile(c, markers.writeGate!);
+      expect(model.calls, 0);
+      expect(reports.reports, isEmpty);
+    });
+
+    test('a later send after the abort runs normally', () async {
+      factoryGate = Completer<void>();
+      final c = container();
+      listenState(c);
+      await invalidateWhile(c, factoryGate!);
+      await notifier(c).send();
+      expect(c.read(analysisRunControllerProvider), isA<AnalysisDone>());
+      expect(model.calls, 1);
+    });
+
+    test('while the insert is pending: no month total', () async {
+      final gated = _GatedInsertStore(reports);
+      reportStore = gated;
+      final c = container();
+      listenState(c);
+      await invalidateWhile(c, gated.gate);
+      expect(model.calls, 1);
+      expect(markers.month, isNull);
+    });
   });
 
   test('closing the last listener while sending does not cancel', () async {
@@ -610,4 +666,30 @@ final class _FailingInsertStore implements AiReportStore {
 
   @override
   Future<void> applyRetention(DateTime nowUtc) async {}
+}
+
+final class _GatedInsertStore implements AiReportStore {
+  new(this.inner);
+
+  final InMemoryAiReportStore inner;
+  final Completer<void> gate = Completer<void>();
+
+  @override
+  Future<int> insert(AiReport report) async {
+    await gate.future;
+    return await inner.insert(report);
+  }
+
+  @override
+  Future<AiReport?> newestDone(AiReportCacheKey key) => inner.newestDone(key);
+
+  @override
+  Future<List<AiReport>> recent({int limit = aiReportKeepCount}) =>
+      inner.recent(limit: limit);
+
+  @override
+  Future<void> deleteAll() => inner.deleteAll();
+
+  @override
+  Future<void> applyRetention(DateTime nowUtc) => inner.applyRetention(nowUtc);
 }

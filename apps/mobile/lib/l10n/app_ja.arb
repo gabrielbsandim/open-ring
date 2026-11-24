@@ -2696,5 +2696,22 @@
   "aiDetailHelp": "{level, select, minimal{スコアと傾向のみ。性別、身長、時刻、SpO2、個々のワークアウトは含みません。} standard{日ごと・週ごとの合計、15分単位に丸めた時刻、5歳刻みの年齢、昨日や一昨日のような日付表現。} other{さらにカレンダーの日付、正確な年齢、分単位の時刻も含みます。}}詳細を減らすほどスマートフォンから出るデータは少なくなり、回答はあいまいになります。それでもサービスは送信内容をあなたのアカウントと結びつけることができます。",
   "aiImportedTitle": "他のアプリの睡眠とワークアウト",
   "aiImportedBody": "他のアプリがHealth Connectに保存したものです。オフのときは、リングとOpenRingが記録したものだけが要約に含まれます。",
-  "aiDemoLocked": "デモモードです。ここでは接続とキーを編集できません。"
+  "aiDemoLocked": "デモモードです。ここでは接続とキーを編集できません。",
+  "aiAdvancedTitle": "詳細設定",
+  "aiAdvancedCaption": "出力上限、タイムアウト、形式、料金",
+  "aiAdvancedMaxTokens": "最大出力トークン数",
+  "aiAdvancedTimeout": "リクエストのタイムアウト",
+  "aiAdvancedStructuredTitle": "構造化出力",
+  "aiAdvancedStructured": "{mode, select, auto{自動} jsonSchema{JSONスキーマ} jsonObject{JSONオブジェクト} other{オフ}}",
+  "aiAdvancedStreamingTitle": "ストリーミング",
+  "aiAdvancedReasoningTitle": "推論の強度",
+  "aiAdvancedReasoning": "{effort, select, low{低} medium{中} high{高} other{送信しない}}",
+  "aiAdvancedPriceIn": "入力100万トークンあたりの料金",
+  "aiAdvancedPriceOut": "出力100万トークンあたりの料金",
+  "aiAdvancedCurrency": "通貨",
+  "aiAdvancedPriceHelp": "料金を入力しない場合、読み取りにはトークン数だけが表示されます。入力すると、その料金から計算したおおよその費用が表示されます。",
+  "aiAdvancedTokenCap": "月間トークン上限",
+  "aiAdvancedTokenCapNone": "空欄は上限なしを意味します。サービス側で利用額の上限を設定するほうが安全です。",
+  "aiAdvancedInvalid": "{kind, select, tokens{256から32,000までの整数を入力してください。} cap{0より大きい整数を入力するか、空欄のままにしてください。} price{0より大きい数値を入力するか、空欄のままにしてください。} other{USDなどの通貨を入力してください。}}",
+  "aiLocalSoftnote": "ローカルモデル。要約は7日分のコンパクトなサイズで送られます。Ollamaではコンテキストを8192トークン以上に設定してください。"
 }

@@ -2696,5 +2696,22 @@
   "aiDetailHelp": "{level, select, minimal{Scores et tendances uniquement. Ni sexe, ni taille, ni horaires, ni SpO2, ni séances une par une.} standard{Totaux par jour et par semaine, horaires arrondis à 15 minutes, âge par tranche de 5 ans, jours comme hier ou avant hier.} other{Aussi les dates du calendrier, l'âge exact et les horaires à la minute.}} Moins de détail signifie moins de données qui quittent le téléphone et des réponses plus vagues. Le service peut tout de même relier ce que vous envoyez à votre compte.",
   "aiImportedTitle": "Sommeil et séances d'autres apps",
   "aiImportedBody": "Ceux que d'autres apps ont enregistrés dans Health Connect. Désactivé, seul ce que la bague et OpenRing ont enregistré entre dans le résumé.",
-  "aiDemoLocked": "Mode démo. La connexion et la clé ne peuvent pas être modifiées ici."
+  "aiDemoLocked": "Mode démo. La connexion et la clé ne peuvent pas être modifiées ici.",
+  "aiAdvancedTitle": "Avancé",
+  "aiAdvancedCaption": "Limite de sortie, délai, format, prix",
+  "aiAdvancedMaxTokens": "Tokens de sortie maximum",
+  "aiAdvancedTimeout": "Délai d'attente de la requête",
+  "aiAdvancedStructuredTitle": "Sortie structurée",
+  "aiAdvancedStructured": "{mode, select, auto{Automatique} jsonSchema{Schéma JSON} jsonObject{Objet JSON} other{Désactivée}}",
+  "aiAdvancedStreamingTitle": "Streaming",
+  "aiAdvancedReasoningTitle": "Effort de raisonnement",
+  "aiAdvancedReasoning": "{effort, select, low{Faible} medium{Moyen} high{Élevé} other{Non envoyé}}",
+  "aiAdvancedPriceIn": "Prix par million de tokens en entrée",
+  "aiAdvancedPriceOut": "Prix par million de tokens en sortie",
+  "aiAdvancedCurrency": "Devise",
+  "aiAdvancedPriceHelp": "Sans prix, les lectures n'affichent que les tokens. Avec un prix, elles affichent un coût approximatif calculé à partir du prix que vous avez saisi.",
+  "aiAdvancedTokenCap": "Limite mensuelle de tokens",
+  "aiAdvancedTokenCapNone": "Vide signifie aucune limite. Une limite de dépenses fixée auprès du service est plus sûre.",
+  "aiAdvancedInvalid": "{kind, select, tokens{Saisissez un nombre entier de 256 à 32 000.} cap{Saisissez un nombre entier supérieur à 0, ou laissez vide.} price{Saisissez un nombre supérieur à 0, ou laissez vide.} other{Saisissez une devise, par exemple USD.}}",
+  "aiLocalSoftnote": "Modèle local. Le résumé part au format compact de 7 jours. Dans Ollama, réglez le contexte sur 8192 tokens ou plus."
 }

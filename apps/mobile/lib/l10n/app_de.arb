@@ -2696,5 +2696,22 @@
   "aiDetailHelp": "{level, select, minimal{Nur Werte und Trends. Kein Geschlecht, keine Größe, keine Uhrzeiten, kein SpO2 und keine einzelnen Trainings.} standard{Tages und Wochensummen, Uhrzeiten auf 15 Minuten gerundet, Alter in 5 Jahres Spannen, Tage als gestern oder vorgestern.} other{Zusätzlich Kalenderdaten, genaues Alter und minutengenaue Uhrzeiten.}} Weniger Details heißt weniger Daten, die das Telefon verlassen, und vagere Antworten. Der Dienst kann das Gesendete trotzdem deinem Konto zuordnen.",
   "aiImportedTitle": "Schlaf und Trainings aus anderen Apps",
   "aiImportedBody": "Die Einträge, die andere Apps in Health Connect gespeichert haben. Wenn aus, geht nur in die Zusammenfassung ein, was der Ring und OpenRing aufgezeichnet haben.",
-  "aiDemoLocked": "Demomodus. Verbindung und Schlüssel können hier nicht bearbeitet werden."
+  "aiDemoLocked": "Demomodus. Verbindung und Schlüssel können hier nicht bearbeitet werden.",
+  "aiAdvancedTitle": "Erweitert",
+  "aiAdvancedCaption": "Ausgabelimit, Zeitlimit, Format, Preise",
+  "aiAdvancedMaxTokens": "Maximale Ausgabe-Tokens",
+  "aiAdvancedTimeout": "Zeitlimit der Anfrage",
+  "aiAdvancedStructuredTitle": "Strukturierte Ausgabe",
+  "aiAdvancedStructured": "{mode, select, auto{Automatisch} jsonSchema{JSON-Schema} jsonObject{JSON-Objekt} other{Aus}}",
+  "aiAdvancedStreamingTitle": "Streaming",
+  "aiAdvancedReasoningTitle": "Reasoning-Aufwand",
+  "aiAdvancedReasoning": "{effort, select, low{Niedrig} medium{Mittel} high{Hoch} other{Nicht gesendet}}",
+  "aiAdvancedPriceIn": "Preis pro 1 Mio. Eingabe-Tokens",
+  "aiAdvancedPriceOut": "Preis pro 1 Mio. Ausgabe-Tokens",
+  "aiAdvancedCurrency": "Währung",
+  "aiAdvancedPriceHelp": "Ohne Preis zeigen Auswertungen nur Tokens. Mit Preis zeigen sie ungefähre Kosten, berechnet aus dem Preis, den du eingegeben hast.",
+  "aiAdvancedTokenCap": "Monatliches Token-Limit",
+  "aiAdvancedTokenCapNone": "Leer bedeutet kein Limit. Ein Ausgabenlimit beim Dienst ist sicherer.",
+  "aiAdvancedInvalid": "{kind, select, tokens{Gib eine ganze Zahl von 256 bis 32.000 ein.} cap{Gib eine ganze Zahl über 0 ein oder lass das Feld leer.} price{Gib eine Zahl über 0 ein oder lass das Feld leer.} other{Gib eine Währung ein, zum Beispiel USD.}}",
+  "aiLocalSoftnote": "Lokales Modell. Die Zusammenfassung geht in der kompakten Größe mit 7 Tagen raus. Stelle in Ollama den Kontext auf 8192 Tokens oder mehr."
 }

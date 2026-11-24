@@ -2696,5 +2696,22 @@
   "aiDetailHelp": "{level, select, minimal{Solo punteggi e tendenze. Niente sesso, altezza, orari, SpO2 né allenamenti uno per uno.} standard{Totali giornalieri e settimanali, orari arrotondati a 15 minuti, età in fasce di 5 anni, giorni come ieri o l'altro ieri.} other{Anche date del calendario, età esatta e orari al minuto.}} Meno dettaglio significa meno dati che lasciano il telefono e risposte più vaghe. Il servizio può comunque collegare ciò che invii al tuo account.",
   "aiImportedTitle": "Sonno e allenamenti da altre app",
   "aiImportedBody": "Quelli che altre app hanno salvato in Health Connect. Se disattivato, nel riepilogo entra solo ciò che hanno registrato l'anello e OpenRing.",
-  "aiDemoLocked": "Modalità demo. La connessione e la chiave non si possono modificare qui."
+  "aiDemoLocked": "Modalità demo. La connessione e la chiave non si possono modificare qui.",
+  "aiAdvancedTitle": "Avanzate",
+  "aiAdvancedCaption": "Limite di output, timeout, formato, prezzi",
+  "aiAdvancedMaxTokens": "Token di output massimi",
+  "aiAdvancedTimeout": "Timeout della richiesta",
+  "aiAdvancedStructuredTitle": "Output strutturato",
+  "aiAdvancedStructured": "{mode, select, auto{Automatico} jsonSchema{Schema JSON} jsonObject{Oggetto JSON} other{Disattivato}}",
+  "aiAdvancedStreamingTitle": "Streaming",
+  "aiAdvancedReasoningTitle": "Sforzo di ragionamento",
+  "aiAdvancedReasoning": "{effort, select, low{Basso} medium{Medio} high{Alto} other{Non inviato}}",
+  "aiAdvancedPriceIn": "Prezzo per 1 milione di token in input",
+  "aiAdvancedPriceOut": "Prezzo per 1 milione di token in output",
+  "aiAdvancedCurrency": "Valuta",
+  "aiAdvancedPriceHelp": "Senza prezzo, le letture mostrano solo i token. Con un prezzo, mostrano un costo approssimativo calcolato dal prezzo che hai inserito.",
+  "aiAdvancedTokenCap": "Limite mensile di token",
+  "aiAdvancedTokenCapNone": "Vuoto significa nessun limite. Un limite di spesa impostato sul servizio è più sicuro.",
+  "aiAdvancedInvalid": "{kind, select, tokens{Inserisci un numero intero da 256 a 32.000.} cap{Inserisci un numero intero maggiore di 0, oppure lascia vuoto.} price{Inserisci un numero maggiore di 0, oppure lascia vuoto.} other{Inserisci una valuta, ad esempio USD.}}",
+  "aiLocalSoftnote": "Modello locale. Il riepilogo parte nel formato compatto di 7 giorni. In Ollama, imposta il contesto a 8192 token o più."
 }

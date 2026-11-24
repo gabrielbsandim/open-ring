@@ -15,7 +15,6 @@ abstract interface class MealAnalysisStore {
 
   Future<List<MealAnalysis>> byMeal(int mealId);
 
-  /// The oldest queued row.
   Future<MealAnalysis?> next();
 
   /// Queued to sending, counting the attempt.
@@ -31,7 +30,6 @@ abstract interface class MealAnalysisStore {
   /// Queued or sending to failed.
   Future<bool> fail(int id, String errorKind, {required DateTime now});
 
-  /// Queued to skipped.
   Future<bool> skip(int id, String reason, {required DateTime now});
 
   /// Skipped rows excluded.

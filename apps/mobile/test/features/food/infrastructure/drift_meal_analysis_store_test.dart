@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/core/database/app_database.dart';
+import 'package:open_ring/core/database/app_database_provider.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
@@ -168,6 +169,51 @@ void main() {
       expect(cached.status, MealAnalysisStatus.done);
       expect(cached.attempts, 1);
       expect(cached.items.single.name, 'rice');
+    });
+
+    test('a not_food row comes back cached without a new queue', () async {
+      final id = await _analysisAt(store, mealId, _target, _now);
+      await store.markSending(id, now: _now);
+      await store.complete(id, (
+        status: MealAnalysisStatus.notFood,
+        sent: _sent,
+        suggestion: null,
+        confidence: null,
+        rawText: '{"is_food":"no"}',
+        usage: null,
+        cost: null,
+        errorKind: null,
+      ), now: _now);
+
+      final cached = await store.enqueue(
+        mealId,
+        'meal_1.jpg',
+        _target,
+        now: _now.add(const Duration(hours: 1)),
+      );
+
+      expect(cached.id, id);
+      expect(cached.status, MealAnalysisStatus.notFood);
+      expect(cached.queuedAt, _now);
+      expect(await store.next(), isNull);
+    });
+
+    test('a different photo name resets a done row to queued', () async {
+      final id = await _doneRow(store, mealId);
+      final later = _now.add(const Duration(hours: 1));
+
+      final reset = await store.enqueue(
+        mealId,
+        'meal_9.jpg',
+        _target,
+        now: later,
+      );
+
+      expect(reset.id, id);
+      expect(reset.status, MealAnalysisStatus.queued);
+      expect(reset.photoName, 'meal_9.jpg');
+      expect(reset.queuedAt, later);
+      expect(reset.items, isEmpty);
     });
 
     for (final (label, target, again) in [
@@ -378,6 +424,31 @@ void main() {
       );
     });
 
+    test('skipOffTarget skips a queued row of another host with the same '
+        'model', () async {
+      const otherHost = (
+        providerHost: 'other.example.com',
+        model: 'vision-1',
+        promptVersion: 1,
+        outputSchema: 1,
+      );
+      final id = await _analysisAt(store, mealId, otherHost, _now);
+
+      final skipped = await store.skipOffTarget(
+        'api.example.com',
+        'vision-1',
+        now: _now,
+      );
+
+      final row = (await store.byMeal(mealId)).single;
+      expect(skipped, 1);
+      expect(row.id, id);
+      expect(
+        (row.status, row.errorKind),
+        (MealAnalysisStatus.skipped, 'target_changed'),
+      );
+    });
+
     test('recoverInterrupted fails sending rows as interrupted', () async {
       final second = await _meal(db, photo: 'meal_2.jpg');
       final sending = await _analysisAt(store, mealId, _target, _now);
@@ -475,16 +546,12 @@ void main() {
     });
   });
 
-  test('analysis writes bump their own revision, never dataRevision', () async {
+  test('the production wiring bumps the analysis revision on each write, '
+      'never dataRevision', () async {
     final container = ProviderContainer(
       overrides: [
-        mealAnalysisStoreProvider.overrideWith(
-          (ref) => DriftMealAnalysisStore(
-            db,
-            onWrite: () =>
-                ref.read(mealAnalysisRevisionProvider.notifier).bump(),
-          ),
-        ),
+        appDatabaseProvider.overrideWithValue(db),
+        driftMealAnalysisStoreOverride,
       ],
     );
     addTearDown(container.dispose);

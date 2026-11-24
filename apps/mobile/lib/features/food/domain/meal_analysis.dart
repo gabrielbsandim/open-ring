@@ -26,14 +26,12 @@ enum MealAnalysisStatus {
 
 enum MealItemOrigin { model, user }
 
-/// The `error_kind` values the store itself writes.
 abstract final class MealAnalysisErrorKind {
   static const String expired = 'expired';
   static const String targetChanged = 'target_changed';
   static const String interrupted = 'interrupted';
 }
 
-/// The cache key plus the output schema the answer must follow.
 typedef MealAnalysisTarget = ({
   String providerHost,
   String model,

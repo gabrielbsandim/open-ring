@@ -172,6 +172,38 @@ void main() {
     expect(find.text(l10n.foodAiChecked), findsOneWidget);
   });
 
+  testWidgets('Confirm all keeps the tags the person set before', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      tags: const MealEdit()
+          .withFlag(MealFlag.caffeine, true)
+          .withPlace(MealPlace.home),
+    );
+    await tester.tap(find.byKey(MealAnalysisKeys.confirmAll));
+    await tester.pumpAndSettle();
+
+    final meal = await stored();
+    expect(bumps, 1);
+    expect(meal.kind, MealKind.main);
+    expect(meal.tags.protein, isTrue);
+    expect(meal.tags.veg, MealVeg.some);
+    expect(meal.tags.caffeine, isTrue);
+    expect(meal.tags.place, MealPlace.home);
+  });
+
+  testWidgets('a dashed chip keeps the 48 dp tap target', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pump(tester);
+
+    expect(dashed(MealSavedSheetKeys.kind(MealKind.main)), findsOneWidget);
+    final size = tester.getSize(dashed(MealSavedSheetKeys.kind(MealKind.main)));
+    expect(size.height, greaterThanOrEqualTo(kMinInteractiveDimension));
+    await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+    semantics.dispose();
+  });
+
   testWidgets('a group the person set and a flag already on show no dashed '
       'chip', (tester) async {
     await pump(

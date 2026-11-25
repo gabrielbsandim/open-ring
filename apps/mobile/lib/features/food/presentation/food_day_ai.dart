@@ -50,15 +50,8 @@ foodDayAnalysesProvider = FutureProvider.family((ref, day) async {
   };
 });
 
-const Set<MealAnalysisStatus> _settled = {
-  MealAnalysisStatus.queued,
-  MealAnalysisStatus.sending,
-  MealAnalysisStatus.done,
-  MealAnalysisStatus.notFood,
-};
-
-/// The photo meals a batch would send: keep off and no row of the current
-/// target waiting or answered. Failed and rejected rows stay a single tap.
+/// The photo meals a batch would send: keep off and no unskipped row of the
+/// current target. Failed and rejected rows stay a single Try again tap.
 List<int> mealsToAnalyze(
   List<Meal> meals,
   Map<int, FoodDayAnalysis> analyses, {
@@ -71,7 +64,9 @@ List<int> mealsToAnalyze(
   bool open(FoodDayAnalysis? a) =>
       a != null &&
       !a.keep &&
-      !a.rows.any((row) => current(row) && _settled.contains(row.status));
+      !a.rows.any(
+        (row) => current(row) && row.status != MealAnalysisStatus.skipped,
+      );
   return [
     for (final meal in meals)
       if (open(analyses[meal.id])) meal.id,
@@ -167,8 +162,8 @@ class FoodDayAiBadge extends ConsumerWidget {
   }
 }
 
-/// "Analyze N photos" under the add row, with the paused queue card above
-/// it while a pause holds.
+/// "Analyze N photos" under the add row, and the paused queue card above it
+/// whenever a pause holds, with or without photos to send.
 class FoodDayAiBatch extends ConsumerStatefulWidget {
   const new({required this.date, required this.meals, super.key});
 
@@ -188,39 +183,43 @@ class _FoodDayAiBatchState extends ConsumerState<FoodDayAiBatch> {
     if (mounted) setState(() => _busy = false);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (!_aiOn(ref)) return const SizedBox.shrink();
+  List<int> _ids() {
     final config = ref.watch(aiConfigProvider).value;
     final analyses = ref.watch(foodDayAnalysesProvider(widget.date)).value;
-    if (config == null || analyses == null) return const SizedBox.shrink();
-    final ids = mealsToAnalyze(
+    if (config == null || analyses == null) return const [];
+    return mealsToAnalyze(
       widget.meals,
       analyses,
       host: config.hostKey ?? '',
       model: aiPhotoTarget(config),
     );
-    if (ids.isEmpty) return const SizedBox.shrink();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_aiOn(ref)) return const SizedBox.shrink();
     final paused = ref.watch(aiPhotoQueuePauseProvider).value != null;
+    final ids = _ids();
+    if (!paused && ids.isEmpty) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: cardGap),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (paused) ...[
+          if (paused)
             MealPhotoPauseCard(
               onTest: () => unawaited(
                 GoRouter.maybeOf(context)?.push(AppPaths.settingsAiPhotos),
               ),
             ),
-            const SizedBox(height: cardGap),
-          ],
-          SecondaryButton(
-            buttonKey: FoodDayAiKeys.batch,
-            label: l10n.foodAiBatch(ids.length),
-            onPressed: _busy ? null : () => unawaited(_analyze(ids)),
-          ),
+          if (paused && ids.isNotEmpty) const SizedBox(height: cardGap),
+          if (ids.isNotEmpty)
+            SecondaryButton(
+              buttonKey: FoodDayAiKeys.batch,
+              label: l10n.foodAiBatch(ids.length),
+              onPressed: _busy ? null : () => unawaited(_analyze(ids)),
+            ),
         ],
       ),
     );

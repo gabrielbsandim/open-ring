@@ -415,8 +415,8 @@ class _TagChip extends StatelessWidget {
   }
 }
 
-// The dashes trace the chip itself, so it drops the padded tap margin and a
-// box keeps the 48 dp row height around it.
+// The chip keeps its padded tap target, and its shape draws the dashes
+// around the visible chip only.
 class _SuggestedChip extends StatelessWidget {
   const new({
     required this.text,
@@ -432,30 +432,40 @@ class _SuggestedChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
     final onSelected = this.onSelected;
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
-      child: Center(
-        widthFactor: 1,
-        child: CustomPaint(
-          foregroundPainter: DashedBorderPainter(
-            color: colors.textLabel,
-            radius: 8,
-          ),
-          child: ActionChip(
-            avatar: Icon(Icons.auto_awesome_outlined, color: colors.textLabel),
-            label: Text(
-              text,
-              semanticsLabel: semanticsLabel,
-              style: TextStyle(color: colors.textSecondary),
-            ),
-            side: BorderSide.none,
-            backgroundColor: Colors.transparent,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            onPressed: onSelected == null ? null : () => onSelected(true),
-          ),
-        ),
+    return ActionChip(
+      avatar: Icon(Icons.auto_awesome_outlined, color: colors.textLabel),
+      label: Text(
+        text,
+        semanticsLabel: semanticsLabel,
+        style: TextStyle(color: colors.textSecondary),
       ),
+      shape: _DashedChipBorder(color: colors.textLabel),
+      backgroundColor: Colors.transparent,
+      onPressed: onSelected == null ? null : () => onSelected(true),
     );
+  }
+}
+
+class _DashedChipBorder extends RoundedRectangleBorder {
+  const new({required this.color})
+    : super(borderRadius: const BorderRadius.all(Radius.circular(8)));
+
+  final Color color;
+
+  // The chip resolves its side through copyWith, which must keep the dashes.
+  @override
+  RoundedRectangleBorder copyWith({
+    BorderSide? side,
+    BorderRadiusGeometry? borderRadius,
+  }) => this;
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    canvas
+      ..save()
+      ..translate(rect.left, rect.top);
+    DashedBorderPainter(color: color, radius: 8).paint(canvas, rect.size);
+    canvas.restore();
   }
 }
 

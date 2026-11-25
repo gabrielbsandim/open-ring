@@ -202,6 +202,7 @@ class _FoodDayBodyState extends ConsumerState<_FoodDayBody> {
         _EmptyDay(isToday: isToday),
         const SizedBox(height: cardGap),
         addRow,
+        FoodDayAiBatch(date: date, meals: const []),
       ];
     }
     final now = ref.watch(clockProvider)().toLocal();

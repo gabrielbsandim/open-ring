@@ -50,16 +50,20 @@ void main() {
         h.container.read(mealAnalysisRevisionProvider.notifier).bump();
   });
 
-  Future<int> sending(int id) async {
-    final row = await h.queued(id);
+  Future<int> sending(int id, {MealAnalysisTarget target = photoTarget}) async {
+    final row = await h.queued(id, target: target);
     await h.analyses.markSending(row, now: h.now);
     return row;
   }
 
-  Future<void> done(int id) async {
-    final row = await sending(id);
+  Future<void> done(
+    int id, {
+    MealAnalysisStatus status = MealAnalysisStatus.done,
+    MealAnalysisTarget target = photoTarget,
+  }) async {
+    final row = await sending(id, target: target);
     await h.analyses.complete(row, (
-      status: MealAnalysisStatus.done,
+      status: status,
       sent: (sha256: 'abc', width: 768, height: 576, bytes: 4100),
       suggestion: _suggestion,
       confidence: MealPhotoConfidence.medium,
@@ -140,6 +144,16 @@ void main() {
       expect(badge(failed, 'failed'), findsOneWidget);
     });
 
+    testWidgets('a kept meal with a done row shows no badge', (tester) async {
+      await h.start();
+      final id = await h.meal();
+      await done(id);
+      await h.analyses.setKeepOnPhone(id, keep: true);
+      await pump(tester);
+
+      expect(find.byKey(FoodDayAiKeys.badge(id)), findsNothing);
+    });
+
     test('a kept meal and a meal with no row have no badge', () {
       final meal = Meal(
         id: 1,
@@ -177,6 +191,76 @@ void main() {
       for (final id in fresh) {
         expect((await h.row(id)).status, MealAnalysisStatus.done);
       }
+      expect(find.byKey(FoodDayAiKeys.batch), findsNothing);
+    });
+
+    testWidgets('a failed meal stays out of the batch and spends no use', (
+      tester,
+    ) async {
+      await h.start();
+      final failed = await h.meal();
+      final fresh = await h.meal(photo: 'meal_2.jpg');
+      await h.analyses.fail(await sending(failed), 'timeout', now: h.now);
+      await pump(tester);
+
+      expect(find.text(l10n.foodAiBatch(1)), findsOneWidget);
+      await tester.tap(find.byKey(FoodDayAiKeys.batch));
+      await tester.pumpAndSettle();
+
+      expect(await h.markers.photoUses(aiPhotoDayKey(h.now)), 1);
+      expect((await h.row(failed)).status, MealAnalysisStatus.failed);
+      expect(await h.analyses.byMeal(fresh), hasLength(1));
+      await drain(tester);
+    });
+
+    testWidgets('waiting and answered rows of the current target leave the '
+        'batch; an older target counts', (tester) async {
+      await h.start();
+      final notFood = await h.meal();
+      final queued = await h.meal(photo: 'meal_2.jpg');
+      final sent = await h.meal(photo: 'meal_3.jpg');
+      final rejected = await h.meal(photo: 'meal_4.jpg');
+      final older = await h.meal(photo: 'meal_5.jpg');
+      await done(notFood, status: MealAnalysisStatus.notFood);
+      await h.queued(queued);
+      await sending(sent);
+      await done(rejected, status: MealAnalysisStatus.rejected);
+      await done(
+        older,
+        target: (
+          providerHost: hostKey,
+          model: 'old-m',
+          promptVersion: photoTarget.promptVersion,
+          outputSchema: photoTarget.outputSchema,
+        ),
+      );
+      final container = h.container;
+      final ids = mealsToAnalyze(
+        await container.read(foodDayMealsProvider(foodDay(h.now)).future),
+        await container.read(foodDayAnalysesProvider(foodDay(h.now)).future),
+        host: hostKey,
+        model: photoModel,
+      );
+
+      expect(ids, [older]);
+    });
+
+    testWidgets('a holding pause shows its card with nothing left to send', (
+      tester,
+    ) async {
+      await h.start();
+      await h.queued(await h.meal());
+      await h.queued(await h.meal(photo: 'meal_2.jpg'));
+      h.configStore.photoQueuePause = AiPhotoQueuePause(
+        reason: AiPhotoQueuePauseReason.noCredit,
+        hostKey: hostKey,
+        model: photoModel,
+        keyLastFour: testedConfig.keyLastFour,
+        atUtcMs: 0,
+      );
+      await pump(tester);
+
+      expect(find.byKey(MealPhotoPauseKeys.card), findsOneWidget);
       expect(find.byKey(FoodDayAiKeys.batch), findsNothing);
     });
 

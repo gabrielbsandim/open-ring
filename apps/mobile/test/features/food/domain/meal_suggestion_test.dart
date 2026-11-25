@@ -58,6 +58,19 @@ void main() {
       });
     });
 
+    test('each flag alone maps only to its own chip', () {
+      const yes = MealPhotoFlag.yes;
+      final cases = {
+        _suggestion(protein: yes): MealFlag.protein,
+        _suggestion(caffeine: yes): MealFlag.caffeine,
+        _suggestion(fried: yes): MealFlag.fried,
+        _suggestion(sugaryDrink: yes): MealFlag.sugar,
+      };
+      for (final MapEntry(key: s, value: flag) in cases.entries) {
+        expect(suggestedTags(s, _blank), {flag}, reason: flag.name);
+      }
+    });
+
     test('no and unsure flags give no chip', () {
       for (final flag in [MealPhotoFlag.no, MealPhotoFlag.unsure]) {
         final s = _suggestion(

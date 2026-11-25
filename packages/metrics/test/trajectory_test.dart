@@ -1,35 +1,12 @@
 import 'package:metrics/metrics.dart';
 import 'package:test/test.dart';
 
-const series0 = LocalDate(2026, 11, 16);
-const today = LocalDate(2026, 12, 10);
-const skipped = {-30, -22, -13, -4, 5, 12, 19};
-
-const protoRate = WeightRateReady(
-  perWeek: -0.348097,
-  low: -0.434510,
-  high: -0.261684,
-);
-
-double wobble(int d) => (((d + 35) * 7919 + 13) % 101 / 101 - 0.5) * 0.8;
-
-double round1(double value) => (value * 10).round() / 10;
-
-List<DailyValue> prototypeSeries(double slope) => [
-  for (var d = -35; d <= 24; d++)
-    if (!skipped.contains(d))
-      (
-        date: series0.addDays(d),
-        value: round1(78.4 - (d > 0 ? slope * d : 0) + wobble(d)),
-      ),
-];
-
-WeightRateReady ready(WeightRate rate) => rate as WeightRateReady;
+import 'trajectory_series.dart';
 
 LossRate lossOf(double slope) {
   final series = prototypeSeries(slope);
   final trend = weightTrend(series).last.value;
-  return lossRate(ready(weightRate(series, today: today)), trend);
+  return lossRate(ready(weightRate(series, today: seriesToday)), trend);
 }
 
 void main() {
@@ -93,7 +70,7 @@ void main() {
     test('the series has 25 weigh-ins in the 28 day rate window', () {
       final inWindow = [
         for (final day in prototypeSeries(0.05))
-          if (today.daysSince(day.date) < weightRateWindowDays) day,
+          if (seriesToday.daysSince(day.date) < weightRateWindowDays) day,
       ];
       expect(inWindow, hasLength(25));
     });
@@ -101,7 +78,7 @@ void main() {
     test('through the existing APIs the 84 day band is 72.6 to 75.1', () {
       final series = prototypeSeries(0.05);
       final trend = weightTrend(series).last.value;
-      final rate = ready(weightRate(series, today: today));
+      final rate = ready(weightRate(series, today: seriesToday));
       final noise = weightNoise(series);
       expect(trend, closeTo(77.60447, 0.001));
       expect(rate.perWeek, closeTo(-0.348097, 0.001));
@@ -172,7 +149,7 @@ void main() {
     test('the zero rate of the prototype series spans its trend', () {
       final series = prototypeSeries(0);
       final trend = weightTrend(series).last.value;
-      final rate = ready(weightRate(series, today: today));
+      final rate = ready(weightRate(series, today: seriesToday));
       final band = weightScenario(
         trend,
         rate,

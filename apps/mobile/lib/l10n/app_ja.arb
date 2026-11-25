@@ -2994,5 +2994,16 @@
   "privacyAiProvider": "サービスは、送った内容、設定した場合はキー、スマートフォンのIPアドレスを受け取り、独自の規約に従って保存することがあります。OpenRing はそこにあるものを削除できません。",
   "privacyAiLocal": "自分のネットワーク上のサービスは、暗号化されない http を使うことがあります。アプリが http を許可するのはプライベートアドレスとローカルネットワークのアドレスだけで、送信に同意するときにそのことを示します。",
   "privacyDeleteAi": "AI分析モジュールのキーと読み解きを削除で、AIのキー、設定、読み解き、写真の分析を削除する、または同意を取り消す、",
-  "moduleAiTurnedOn": "AI分析がオンになりました。読み解きを依頼するには、サービスを接続してください。"
+  "moduleAiTurnedOn": "AI分析がオンになりました。読み解きを依頼するには、サービスを接続してください。",
+  "moduleTrajectoryName": "推移",
+  "moduleBothOnTitle": "{required}もオンにしますか？",
+  "moduleBothOnBody": "{module}には{required}が必要です。両方オンにすると、それぞれの表示が加わります。",
+  "moduleBothOnConfirm": "両方オンにする",
+  "moduleBothOnCancel": "今はしない",
+  "moduleBothOffTitle": "{module}をオフにしますか？",
+  "moduleBothOffBody": "{dependent}は{module}を使うため、一緒にオフになります。データはこのスマートフォンに残り、再びオンにすると戻ります。",
+  "moduleBothOffConfirm": "両方オフにする",
+  "moduleBothOffCancel": "キャンセル",
+  "moduleBothOnDone": "{first}と{second}をオンにしました。",
+  "moduleBothOffDone": "{first}と{second}をオフにしました。データはこのスマートフォンに残ります。"
 }

@@ -2994,5 +2994,16 @@
   "privacyAiProvider": "服务会收到您发送的内容、您设置的密钥（如有）和手机的 IP 地址，并可能按其自身条款保留。OpenRing 无法删除那里的任何内容。",
   "privacyAiLocal": "您自己网络中的服务可能使用不加密的 http。应用只允许对私有地址和局域网地址使用 http，并会在您同意发送时说明这一点。",
   "privacyDeleteAi": "在 AI 分析模块中用移除密钥和解读删除 AI 密钥、设置、解读和照片分析，或撤回同意；",
-  "moduleAiTurnedOn": "AI 分析已开启。连接一个服务即可请求解读。"
+  "moduleAiTurnedOn": "AI 分析已开启。连接一个服务即可请求解读。",
+  "moduleTrajectoryName": "趋势",
+  "moduleBothOnTitle": "也开启{required}吗？",
+  "moduleBothOnBody": "{module}需要{required}才能使用。两个都开启会加入各自显示的内容。",
+  "moduleBothOnConfirm": "两个都开启",
+  "moduleBothOnCancel": "暂不",
+  "moduleBothOffTitle": "关闭{module}吗？",
+  "moduleBothOffBody": "{dependent}使用{module}，会一起关闭。数据保留在这部手机上，再次开启时会恢复。",
+  "moduleBothOffConfirm": "两个都关闭",
+  "moduleBothOffCancel": "取消",
+  "moduleBothOnDone": "{first}和{second}已开启。",
+  "moduleBothOffDone": "{first}和{second}已关闭。数据保留在这部手机上。"
 }

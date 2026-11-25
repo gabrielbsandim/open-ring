@@ -85,7 +85,7 @@ Future<void> _openBodyOffDialog(
   await _tap(tester, ModulesKeys.bodySwitch);
 }
 
-final _bothOn = {ModuleId.body, ModuleId.trajectory};
+final Set<ModuleId> _bothOn = {ModuleId.body, ModuleId.trajectory};
 
 Future<void> _pumpHost(
   WidgetTester tester,

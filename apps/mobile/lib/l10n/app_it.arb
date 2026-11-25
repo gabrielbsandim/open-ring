@@ -2994,5 +2994,16 @@
   "privacyAiProvider": "Il servizio riceve ciò che invii, la tua chiave se ne hai impostata una e l’indirizzo IP del tuo telefono, e può conservarli secondo i propri termini. OpenRing non può eliminare nulla lì.",
   "privacyAiLocal": "Un servizio sulla tua rete può usare http, che non è cifrato. L’app consente http solo per indirizzi privati e di rete locale, e lo segnala quando acconsenti all’invio.",
   "privacyDeleteAi": "rimuovere la chiave, le impostazioni, le letture e le analisi delle foto dell’IA con Rimuovi la chiave e le letture nel modulo Analisi IA, o revocare un consenso;",
-  "moduleAiTurnedOn": "Analisi IA è attivo. Collega un servizio per chiedere una lettura."
+  "moduleAiTurnedOn": "Analisi IA è attivo. Collega un servizio per chiedere una lettura.",
+  "moduleTrajectoryName": "Traiettoria",
+  "moduleBothOnTitle": "Attivare anche {required}?",
+  "moduleBothOnBody": "{module} ha bisogno di {required} per funzionare. Attivandoli entrambi si aggiunge ciò che ciascuno mostra.",
+  "moduleBothOnConfirm": "Attiva entrambi",
+  "moduleBothOnCancel": "Non ora",
+  "moduleBothOffTitle": "Disattivare {module}?",
+  "moduleBothOffBody": "{dependent} usa {module} e si disattiva con esso. I dati restano su questo telefono e tornano quando li riattivi.",
+  "moduleBothOffConfirm": "Disattiva entrambi",
+  "moduleBothOffCancel": "Annulla",
+  "moduleBothOnDone": "{first} e {second} sono attivi.",
+  "moduleBothOffDone": "{first} e {second} sono disattivati. I dati restano su questo telefono."
 }

@@ -2994,5 +2994,16 @@
   "privacyAiProvider": "Layanan menerima apa yang Anda kirim, kunci Anda jika Anda mengaturnya, dan alamat IP ponsel Anda, dan dapat menyimpannya menurut ketentuannya sendiri. OpenRing tidak dapat menghapus apa pun di sana.",
   "privacyAiLocal": "Layanan di jaringan Anda sendiri dapat memakai http, yang tidak terenkripsi. Aplikasi hanya mengizinkan http untuk alamat privat dan jaringan lokal, dan memberi tahu hal itu saat Anda menyetujui pengiriman.",
   "privacyDeleteAi": "menghapus kunci, pengaturan, bacaan, dan analisis foto AI dengan Hapus kunci dan bacaan di modul Analisis AI, atau menarik persetujuan;",
-  "moduleAiTurnedOn": "Analisis AI aktif. Hubungkan layanan agar Anda dapat meminta bacaan."
+  "moduleAiTurnedOn": "Analisis AI aktif. Hubungkan layanan agar Anda dapat meminta bacaan.",
+  "moduleTrajectoryName": "Lintasan",
+  "moduleBothOnTitle": "Aktifkan {required} juga?",
+  "moduleBothOnBody": "{module} memerlukan {required} agar berfungsi. Mengaktifkan keduanya menambah apa yang ditampilkan masing-masing.",
+  "moduleBothOnConfirm": "Aktifkan keduanya",
+  "moduleBothOnCancel": "Nanti saja",
+  "moduleBothOffTitle": "Matikan {module}?",
+  "moduleBothOffBody": "{dependent} memakai {module} dan ikut mati. Datanya tetap di ponsel ini dan kembali saat Anda mengaktifkannya lagi.",
+  "moduleBothOffConfirm": "Matikan keduanya",
+  "moduleBothOffCancel": "Batal",
+  "moduleBothOnDone": "{first} dan {second} aktif.",
+  "moduleBothOffDone": "{first} dan {second} mati. Datanya tetap di ponsel ini."
 }

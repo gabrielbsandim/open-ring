@@ -2,7 +2,7 @@ import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
 
 final class SpyModuleStore implements ModuleStore {
-  SpyModuleStore([Set<ModuleId> enabled = const {}])
+  new([Set<ModuleId> enabled = const {}])
     : _inner = InMemoryModuleStore(enabled);
 
   final InMemoryModuleStore _inner;

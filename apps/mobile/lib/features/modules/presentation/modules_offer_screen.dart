@@ -9,6 +9,7 @@ import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/presentation/module_change.dart';
 import 'package:open_ring/features/modules/presentation/offered_module.dart';
 import 'package:open_ring/features/onboarding/presentation/onboarding_page.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -59,12 +60,18 @@ class _ModulesOfferScreenState extends ConsumerState<ModulesOfferScreen> {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
-    final modules = ref.read(enabledModulesProvider.notifier);
     try {
       for (final module in offered) {
-        await (on.contains(module)
-            ? modules.enable(module.id)
-            : modules.disable(module.id));
+        if (!mounted) return;
+        final change = await changeModule(
+          context,
+          ref,
+          module.id,
+          on: on.contains(module),
+        );
+        if (change != ModuleChange.cancelled) continue;
+        if (mounted) setState(() => _busy = false);
+        return;
       }
     } on Object {
       if (mounted) setState(() => _busy = false);

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +13,7 @@ import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/ai/application/health_context_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_prompt.dart';
+import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/analysis_model.dart';
 import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
@@ -93,10 +93,39 @@ final class _HeldModel implements AnalysisModel {
   Object? noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// Runs [afterDelete] once the rows are gone, so a run that was not aborted
+/// first would write its report back after the delete.
+final class _HookedReports implements AiReportStore {
+  new(this.inner);
+
+  final AiReportStore inner;
+  Future<void> Function()? afterDelete;
+
+  @override
+  Future<int> insert(AiReport report) => inner.insert(report);
+
+  @override
+  Future<AiReport?> newestDone(AiReportCacheKey key) => inner.newestDone(key);
+
+  @override
+  Future<List<AiReport>> recent({int limit = aiReportKeepCount}) =>
+      inner.recent(limit: limit);
+
+  @override
+  Future<void> deleteAll() async {
+    await inner.deleteAll();
+    await afterDelete?.call();
+  }
+
+  @override
+  Future<void> applyRetention(DateTime nowUtc) => inner.applyRetention(nowUtc);
+}
+
 void main() {
   late AppDatabase db;
   late SecretStore secrets;
   late int built;
+  late String? lastKey;
   late int requests;
   late StreamController<AnalysisEvent> events;
 
@@ -106,6 +135,7 @@ void main() {
     db = await pairedDatabase();
     secrets = InMemorySecretStore()..values[aiApiKeySecretName] = 'sk-ab3X';
     built = 0;
+    lastKey = null;
     requests = 0;
     events = StreamController<AnalysisEvent>();
     addTearDown(() => unawaited(events.close()));
@@ -159,7 +189,10 @@ void main() {
     await SharedPreferencesModuleStore().write({ModuleId.ai, ModuleId.food});
   });
 
-  ProviderContainer container([List<Override> extra = const []]) {
+  ProviderContainer container([
+    List<Override> extra = const [],
+    AiReportStore? reports,
+  ]) {
     final c = ProviderContainer(
       overrides: [
         aiConfigStoreProvider.overrideWithValue(
@@ -170,10 +203,13 @@ void main() {
         ),
         moduleStoreProvider.overrideWithValue(SharedPreferencesModuleStore()),
         secretStoreProvider.overrideWithValue(secrets),
-        aiReportStoreProvider.overrideWithValue(DriftAiReportStore(db)),
+        aiReportStoreProvider.overrideWithValue(
+          reports ?? DriftAiReportStore(db),
+        ),
         mealAnalysisStoreProvider.overrideWithValue(DriftMealAnalysisStore(db)),
         keyedAnalysisModelFactoryProvider.overrideWithValue((config, key) {
           built++;
+          lastKey = key;
           return _HeldModel(events.stream, () => requests++);
         }),
         ...extra,
@@ -277,11 +313,12 @@ void main() {
     expect(built, 0);
   });
 
-  test('a keystore failure returns false after the data is gone', () async {
-    secrets = FailingSecretStore(
-      failDelete: true,
-      error: PlatformException(code: 'keystore'),
-    );
+  test('a keystore failure keeps the config and the key, and a retry '
+      'clears everything', () async {
+    final flaky = FlakySecretStore()
+      ..values[aiApiKeySecretName] = 'sk-ab3X'
+      ..failDeletes = 1;
+    secrets = flaky;
     await DriftAiReportStore(db).insert(sampleAiReport(at: _at));
     await seedMeal();
     final keptBefore = await keptPrefs();
@@ -289,39 +326,72 @@ void main() {
 
     expect(await c.read(aiDataEraserProvider).clear(), isFalse);
 
-    expect((secrets as FailingSecretStore).deleteCalls, 1);
+    expect(flaky.deleteCalls, 1);
     expect(await rowCount(db, 'ai_reports'), 0);
     expect(await rowCount(db, 'meal_analyses'), 0);
     expect(await rowCount(db, 'meal_items'), 0);
-    final keys = await SharedPreferencesAsync().getKeys();
+    var keys = await SharedPreferencesAsync().getKeys();
+    expect(keys, containsAll(SharedPreferencesAiConfigStore.keys));
+    expect(keys, isNot(contains(SharedPreferencesAiRunMarkerStore.key)));
+    expect(await keptPrefs(), keptBefore);
+    expect(flaky.values[aiApiKeySecretName], 'sk-ab3X');
+    final kept = await c.read(aiConfigProvider.future);
+    expect(kept.hostKey, _hostKey);
+    expect(kept.keyLastFour, 'ab3X');
+
+    expect(await c.read(aiDataEraserProvider).clear(), isTrue);
+
+    keys = await SharedPreferencesAsync().getKeys();
     expect(keys.intersection(_removed), isEmpty);
     expect(await keptPrefs(), keptBefore);
+    expect(flaky.values, isEmpty);
     expect(await c.read(aiConfigProvider.future), AiConfig.defaults);
   });
 
   test(
-    'a reading in flight is aborted first and writes nothing back',
+    'a host change after a failed Remove cannot reach the old key',
     () async {
-      await SharedPreferencesAsync().remove(
-        SharedPreferencesAiRunMarkerStore.key,
-      );
-      final c = container([
-        aiEnabledProvider.overrideWithValue(true),
-        aiPayloadProvider.overrideWith(
-          (ref, _) async => const AiPayloadReady(_payload),
-        ),
-      ]);
-      final sub = c.listen(analysisRunControllerProvider, (_, _) {});
-      addTearDown(sub.close);
-      final tokensBefore = await SharedPreferencesAiRunMarkerStore()
-          .monthTokens('2026-11');
+      final flaky = FlakySecretStore()
+        ..values[aiApiKeySecretName] = 'sk-ab3X'
+        ..failDeletes = 1;
+      secrets = flaky;
+      final c = container();
+      expect(await c.read(aiDataEraserProvider).clear(), isFalse);
 
-      final run = c.read(analysisRunControllerProvider.notifier).send();
-      await pumpEventQueue();
-      expect(c.read(analysisRunControllerProvider), isA<AnalysisSending>());
-      expect(requests, 1);
+      await c
+          .read(aiConfigProvider.notifier)
+          .save(
+            const AiConfig(baseUrl: 'https://other.example.com/v1', model: 'm'),
+          );
+      final config = await c.read(aiConfigProvider.future);
+      await c.read(analysisModelFactoryProvider)(config);
 
-      expect(await c.read(aiDataEraserProvider).clear(), isTrue);
+      expect(flaky.values, isEmpty);
+      expect(config.keyLastFour, isNull);
+      expect(built, 1);
+      expect(lastKey, isNull);
+      expect(requests, 0);
+    },
+  );
+
+  test('a reading in flight is aborted before the delete: an answer that '
+      'lands right after the rows go writes nothing', () async {
+    await SharedPreferencesAsync().remove(
+      SharedPreferencesAiRunMarkerStore.key,
+    );
+    final reports = _HookedReports(DriftAiReportStore(db));
+    final c = container([
+      aiEnabledProvider.overrideWithValue(true),
+      aiPayloadProvider.overrideWith(
+        (ref, _) async => const AiPayloadReady(_payload),
+      ),
+    ], reports);
+    final sub = c.listen(analysisRunControllerProvider, (_, _) {});
+    addTearDown(sub.close);
+    final tokensBefore = await SharedPreferencesAiRunMarkerStore().monthTokens(
+      '2026-11',
+    );
+    reports.afterDelete = () async {
       events.add(
         const AnalysisCompleted(
           text: '{"summary":"ok","cards":[]}',
@@ -329,22 +399,26 @@ void main() {
           usage: AiTokenUsage(promptTokens: 100, completionTokens: 50),
         ),
       );
-      await run;
       await pumpEventQueue();
+    };
 
-      expect(await rowCount(db, 'ai_reports'), 0);
-      expect(
-        await SharedPreferencesAsync().getKeys(),
-        isNot(contains(SharedPreferencesAiRunMarkerStore.key)),
-      );
-      expect(
-        await SharedPreferencesAiRunMarkerStore().monthTokens('2026-11'),
-        tokensBefore,
-      );
-      expect(await secrets.read(aiApiKeySecretName), isNull);
-      expect(requests, 1);
-    },
-  );
+    final run = c.read(analysisRunControllerProvider.notifier).send();
+    await pumpEventQueue();
+    expect(c.read(analysisRunControllerProvider), isA<AnalysisSending>());
+    expect(requests, 1);
+
+    expect(await c.read(aiDataEraserProvider).clear(), isTrue);
+    await run;
+    await pumpEventQueue();
+
+    expect(await rowCount(db, 'ai_reports'), 0);
+    expect(
+      await SharedPreferencesAiRunMarkerStore().monthTokens('2026-11'),
+      tokensBefore,
+    );
+    expect(await secrets.read(aiApiKeySecretName), isNull);
+    expect(requests, 1);
+  });
 
   test('a photo send in flight is aborted: one request, no row and no '
       'tokens after Remove', () async {

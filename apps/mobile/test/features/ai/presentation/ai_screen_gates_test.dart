@@ -6,6 +6,7 @@ import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/ai/application/health_context_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
+import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
@@ -147,6 +148,40 @@ void main() {
       });
     });
   }
+
+  testWidgets('with AI off a saved report still shows the exact sent text', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      AiContextPreviewScreen(
+        report: AiReport(
+          createdAtUtc: DateTime.utc(2026, 11, 20, 12),
+          offsetMin: 0,
+          kind: 'daily',
+          contextSchema: 'health_context_v2',
+          contextSha256: 'sha',
+          detailLevel: 'standard',
+          promptVersion: 'v1',
+          providerHost: 'https://api.example.com:443',
+          model: 'm',
+          status: AiReportStatus.done,
+          payloadJson: '{"system":"stored system","user":"stored user"}',
+        ),
+      ),
+    );
+
+    expect(find.text(l10n.aiReadingSent), findsWidgets);
+    expect(
+      tester.widget<SelectableText>(find.byKey(AiPreviewKeys.system)).data,
+      'stored system',
+    );
+    expect(
+      tester.widget<SelectableText>(find.byKey(AiPreviewKeys.user)).data,
+      'stored user',
+    );
+    expect(built, 0);
+  });
 
   testWidgets('with AI on the connection shows its form and the guide its '
       'button', (tester) async {

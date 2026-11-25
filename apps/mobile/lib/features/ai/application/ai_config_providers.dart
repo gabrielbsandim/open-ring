@@ -116,10 +116,12 @@ class AiConfigController extends AsyncNotifier<AiConfig> {
   });
 
   /// Queued behind any edit, so a host change cannot land after the clear.
+  /// The key goes first: if the keystore throws, the config and its host stay,
+  /// so Remove can be retried and a later host change still deletes the key.
   Future<void> clearAll() => _serial(() async {
     try {
-      await ref.read(aiConfigStoreProvider).clearAll();
       await ref.read(secretStoreProvider).delete(aiApiKeySecretName);
+      await ref.read(aiConfigStoreProvider).clearAll();
     } finally {
       ref.invalidateSelf();
     }

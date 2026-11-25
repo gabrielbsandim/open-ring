@@ -648,9 +648,12 @@ void main() {
       expect(factoryCalls, 0);
     });
 
-    testWidgets('a keystore failure shows the failure line', (tester) async {
-      secrets = FailingSecretStore(failDelete: true)
-        ..values[aiApiKeySecretName] = 'sk-ab3X';
+    testWidgets('a keystore failure keeps the config and Remove, and a retry '
+        'clears everything', (tester) async {
+      final flaky = FlakySecretStore()
+        ..values[aiApiKeySecretName] = 'sk-ab3X'
+        ..failDeletes = 1;
+      secrets = flaky;
       reports.reports.add(_report(at: _now));
       await pump(tester);
       await openDialog(tester);
@@ -659,6 +662,23 @@ void main() {
 
       expect(find.text(l10n.moduleAiDeleteFailed), findsOneWidget);
       expect(reports.reports, isEmpty);
+      expect(configs.config, _tested());
+      expect(flaky.values[aiApiKeySecretName], 'sk-ab3X');
+      expect(
+        dataLine(tester),
+        '0 readings on this phone. Key saved, ends in ab3X.',
+      );
+
+      await openDialog(tester);
+      await tester.tap(find.byKey(AiModuleKeys.deleteConfirm));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.moduleAiDeleted), findsOneWidget);
+      expect(flaky.values, isEmpty);
+      expect(configs.config, AiConfig.defaults);
+      expect(dataLine(tester), l10n.moduleAiDataEmpty);
+      expect(find.byKey(AiModuleKeys.delete), findsNothing);
+      expect(factoryCalls, 0);
     });
   });
 }

@@ -6,17 +6,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart' show LocalDate;
 import 'package:open_ring/features/export/domain/export_kind.dart';
 import 'package:open_ring/features/export/domain/export_request.dart';
+import 'package:open_ring/features/export/domain/export_values.dart';
 import 'package:open_ring/features/export/infrastructure/drift_data_exporter.dart';
 import 'package:open_ring/features/trajectory/domain/trajectory_projection.dart';
 import 'package:open_ring/features/trajectory/infrastructure/drift_projection_store.dart';
 
 import '../../helpers/database.dart';
 
-const _trendFixture = 81.6173;
-const _rateFixture = -0.4729;
-const _lowFixture = 77.3141;
-const _midFixture = 78.2718;
-const _highFixture = 79.1618;
+const _trendFixture = 81.37;
+const _rateFixture = -0.83;
+const _lowFixture = 77.19;
+const _midFixture = 78.26;
+const _highFixture = 79.43;
 const _createdFixture = 1795597313579;
 
 String _text(String path) {
@@ -66,6 +67,16 @@ void main() {
                 format: format,
               ),
             );
+
+        for (final kg in [
+          _trendFixture,
+          _rateFixture,
+          _lowFixture,
+          _midFixture,
+          _highFixture,
+        ]) {
+          expect(formatDecimal(kg), '$kg');
+        }
 
         final text = result.files.map((f) => _text(f.path)).join('\n');
         for (final fixture in [

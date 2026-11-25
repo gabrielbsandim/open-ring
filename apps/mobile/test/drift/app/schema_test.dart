@@ -19,6 +19,7 @@ import 'generated/schema_v18.dart' as v18;
 import 'generated/schema_v19.dart' as v19;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v20.dart' as v20;
+import 'generated/schema_v21.dart' as v21;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
 import 'generated/schema_v5.dart' as v5;
@@ -627,8 +628,8 @@ void main() {
     },
   );
 
-  test('the code schema is v20', () {
-    expect(memoryDatabase().schemaVersion, 20);
+  test('the code schema is v21', () {
+    expect(memoryDatabase().schemaVersion, 21);
   });
 
   test('v16 migrates to v17, a finished workout keeps its end and has no '
@@ -864,6 +865,107 @@ void main() {
               confirmed: origin == 'user' ? 1 : 0,
             ),
         ]);
+      },
+    );
+  });
+
+  test('the latest dumped schema is v21', () {
+    expect(GeneratedHelper.versions.last, 21);
+  });
+
+  test('v20 migrates to v21, a weigh-in, a goal week and a meal item stay '
+      'and trajectory_projections starts empty', () async {
+    const weighIn = v20.WeighInsData(
+      id: 1,
+      atUtcMs: 1762765200000,
+      offsetMinutes: -180,
+      kilograms: 80.4,
+      source: 'manual',
+    );
+    const goal = v20.GoalsData(
+      id: 1,
+      kind: 'lose',
+      startedOn: '2026-11-02',
+      blockStartedOn: '2026-11-02',
+      phase: 'active',
+      phaseSince: '2026-11-02',
+      levers: '{}',
+    );
+    const goalWeek = v20.GoalWeeksData(
+      goalId: 1,
+      monday: '2026-11-09',
+      inputs: '{}',
+      rule: 'hold',
+      action: 'none',
+    );
+    const meal = v20.MealsData(
+      id: 1,
+      atUtcMs: 1762758000000,
+      offsetMinutes: -180,
+      kind: 'main',
+      protein: 1,
+      caffeine: 0,
+      heavy: 0,
+      fried: 0,
+      sugar: 0,
+      veg: 'some',
+      alcohol: 'none',
+      processed: 'notMostly',
+      place: 'home',
+      lastMeal: 0,
+      photo: 'meal_1.jpg',
+      createdAtUtcMs: 1762758001000,
+      keepOnPhone: 0,
+    );
+    const analysis = v20.MealAnalysesData(
+      id: 1,
+      mealId: 1,
+      photoName: 'meal_1.jpg',
+      status: 'done',
+      providerHost: 'https://api.example.com:443',
+      model: 'vision-m',
+      promptVersion: 1,
+      outputSchema: 2,
+      resultJson: '{"is_food":"yes"}',
+      attempts: 1,
+      hiddenOil: 1,
+      hiddenSauce: 0,
+      hiddenSugar: 0,
+      queuedAtUtcMs: 1762758002000,
+      updatedAtUtcMs: 1762758003000,
+    );
+    const item = v20.MealItemsData(
+      id: 1,
+      analysisId: 1,
+      position: 0,
+      name: 'Rice',
+      measure: 'serving_spoon',
+      countX2: 4,
+      grams: 120,
+      origin: 'model',
+      confirmed: 0,
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 20,
+      newVersion: 21,
+      createOld: v20.DatabaseAtV20.new,
+      createNew: v21.DatabaseAtV21.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch
+        ..insert(oldDb.weighIns, weighIn)
+        ..insert(oldDb.goals, goal)
+        ..insert(oldDb.goalWeeks, goalWeek)
+        ..insert(oldDb.meals, meal)
+        ..insert(oldDb.mealAnalyses, analysis)
+        ..insert(oldDb.mealItems, item),
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.weighIns).get(), hasLength(1));
+        final weeks = await newDb.select(newDb.goalWeeks).get();
+        expect(weeks.map((w) => (w.goalId, w.monday)), [(1, '2026-11-09')]);
+        final items = await newDb.select(newDb.mealItems).get();
+        expect(items.map((i) => (i.id, i.name, i.grams)), [(1, 'Rice', 120)]);
+        expect(await newDb.select(newDb.trajectoryProjections).get(), isEmpty);
       },
     );
   });

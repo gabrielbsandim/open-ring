@@ -322,9 +322,20 @@ final class GatedAnalysisStore implements MealAnalysisStore {
   Future<bool> setHidden(int id, {bool? oil, bool? sauce, bool? sugar}) =>
       inner.setHidden(id, oil: oil, sauce: sauce, sugar: sugar);
 
+  /// Thrown once by the next setItemCount.
+  Error? failNextItemCount;
+
+  /// Holds every setItemCount until completed.
+  Completer<void>? itemCountGate;
+
   @override
-  Future<bool> setItemCount(int itemId, int countX2) =>
-      inner.setItemCount(itemId, countX2);
+  Future<bool> setItemCount(int itemId, int countX2) async {
+    await itemCountGate?.future;
+    final error = failNextItemCount;
+    failNextItemCount = null;
+    if (error != null) throw error;
+    return await inner.setItemCount(itemId, countX2);
+  }
 
   @override
   Future<bool> keepOnPhone(int mealId) => inner.keepOnPhone(mealId);

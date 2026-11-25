@@ -60,8 +60,18 @@ class _MealItemsCardState extends ConsumerState<MealItemsCard> {
       _counts[item.id] = next;
       if (next == 0) _removed[item.id] = (index, item);
     });
-    _writes = _writes.then<void>((_) => _store.setItemCount(item.id, next));
+    // Each link catches its own failure, so later taps still land, and the
+    // store is taken now, so a write queued before the screen closes still runs.
+    final store = _store;
+    _writes = _writes
+        .then<void>((_) => store.setItemCount(item.id, next))
+        .catchError((Object _) => _reset(item.id));
     unawaited(_writes);
+  }
+
+  void _reset(int itemId) {
+    if (!mounted) return;
+    setState(() => _counts.remove(itemId));
   }
 
   int _count(MealAnalysisItem item) => _counts[item.id] ?? item.countX2;

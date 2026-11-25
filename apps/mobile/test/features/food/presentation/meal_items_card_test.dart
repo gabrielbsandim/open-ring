@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -146,6 +148,43 @@ void main() {
     final stepped = await item('Rice');
     expect((stepped.countX2, stepped.grams), (5, 225));
     expect(find.text('2.5 × serving spoon, about 225 g'), findsOneWidget);
+  });
+
+  testWidgets('a failed step shows the stored count and the next step still '
+      'lands', (tester) async {
+    await pump(tester);
+    final rice = await item('Rice');
+    final more = find.byKey(MealItemsKeys.more(rice.id));
+    h.analyses.failNextItemCount = StateError('disk full');
+
+    await tester.tap(more);
+    await tester.pumpAndSettle();
+
+    expect((await item('Rice')).countX2, 3);
+    expect(find.text('1.5 × serving spoon, about 135 g'), findsOneWidget);
+
+    await tester.tap(more);
+    await tester.pumpAndSettle();
+
+    expect((await item('Rice')).countX2, 4);
+    expect(find.text('2 × serving spoon, about 180 g'), findsOneWidget);
+  });
+
+  testWidgets('steps queued before the screen closes all land', (tester) async {
+    await pump(tester);
+    final rice = await item('Rice');
+    final gate = h.analyses.itemCountGate = Completer<void>();
+
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.byKey(MealItemsKeys.more(rice.id)));
+    }
+    await tester.pumpWidget(const SizedBox());
+    gate.complete();
+    for (var i = 0; i < 10; i++) {
+      await tester.pump();
+    }
+
+    expect((await item('Rice')).countX2, 6);
   });
 
   testWidgets('plus is disabled at 6', (tester) async {

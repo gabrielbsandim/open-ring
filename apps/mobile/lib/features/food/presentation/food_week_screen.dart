@@ -10,6 +10,7 @@ import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/food/application/food_day.dart';
+import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/application/food_week.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
@@ -36,6 +37,7 @@ abstract final class FoodWeekKeys {
   static const plateCard = Key('food_week_plate_card');
   static const softModeCard = Key('food_week_soft_mode_card');
   static const formulaLink = Key('food_week_formula_link');
+  static const energyTile = Key('food_week_energy_tile');
 
   static Key dayColumn(LocalDate day) => Key('food_week_day_${day.iso}');
   static Key dayDot(LocalDate day) => Key('food_week_dot_${day.iso}');
@@ -179,6 +181,8 @@ class _FoodWeekBodyState extends ConsumerState<_FoodWeekBody> {
         else
           _plateCard(view.plate, f, t, c, () => _push(AppPaths.foodPlate)),
         const SizedBox(height: cardGap),
+        if (!view.softMode)
+          _EnergyTile(onTap: () => _push(AppPaths.foodEnergy)),
         const FoodFormulaLink(buttonKey: FoodWeekKeys.formulaLink),
       ];
     }
@@ -576,6 +580,43 @@ Widget _plateCard(
     const SizedBox(height: 8),
     CaptionText(l.foodPlateNote),
   ], onTap: onTap);
+}
+
+/// Absent while Weekly energy is hidden or soft mode blocks it.
+class _EnergyTile extends ConsumerWidget {
+  const new({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final gate = ref.watch(foodEnergyGateProvider).value;
+    final shown = switch (gate) {
+      null || FoodEnergyHidden() => false,
+      FoodEnergyBlocked(block: FoodEnergyBlock.softMode) => false,
+      _ => true,
+    };
+    if (!shown) return const SizedBox.shrink();
+    final l = MetricFormat.of(context).l10n;
+    final c = AppColors.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: cardGap),
+      child: _card(FoodWeekKeys.energyTile, [
+        Row(
+          children: [
+            Expanded(
+              child: AccentTitle(title: l.foodEnergyTitle, accent: c.activity),
+            ),
+            Icon(Icons.chevron_right_rounded, size: 18, color: c.textLabel),
+          ],
+        ),
+        if (gate is! FoodEnergyOn) ...[
+          const SizedBox(height: 6),
+          CaptionText(l.foodEnergyTileOff),
+        ],
+      ], onTap: onTap),
+    );
+  }
 }
 
 class _DashedBoxPainter extends CustomPainter {

@@ -26,6 +26,7 @@ abstract final class AppPaths {
   static const foodPlate = '/today/food/plate';
   static const foodFormula = '/today/food/formula';
   static const foodComparisons = '/today/food/comparisons';
+  static const foodEnergy = '/today/food/energy';
 
   static String foodComparisonOf(FoodLink link) =>
       '$foodComparisons/${link.name}';
@@ -49,6 +50,7 @@ abstract final class AppPaths {
   static const goalsEnd = '/today/goals/end';
   static const goalsRefused = '/today/goals/refused';
   static const goalsScreening = '/today/goals/screening';
+  static const goalsScreeningForEnergy = '$goalsScreening?for=energy';
   static const goalsSetup = '/today/goals/setup';
   static const goalsRefusedPregnancy = '/today/goals/pregnancy';
 

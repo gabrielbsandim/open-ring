@@ -15,6 +15,7 @@ import 'package:open_ring/features/energy/presentation/energy_screen.dart';
 import 'package:open_ring/features/food/presentation/food_comparison_detail_screen.dart';
 import 'package:open_ring/features/food/presentation/food_comparisons_screen.dart';
 import 'package:open_ring/features/food/presentation/food_day_screen.dart';
+import 'package:open_ring/features/food/presentation/food_energy_screen.dart';
 import 'package:open_ring/features/food/presentation/food_formula_screen.dart';
 import 'package:open_ring/features/food/presentation/food_gallery_screen.dart';
 import 'package:open_ring/features/food/presentation/food_meal_screen.dart';
@@ -165,6 +166,7 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
         routes: [
           GoRoute(path: 'week', builder: (_, _) => const FoodWeekScreen()),
           GoRoute(path: 'plate', builder: (_, _) => const FoodPlateScreen()),
+          GoRoute(path: 'energy', builder: (_, _) => const FoodEnergyScreen()),
           GoRoute(
             path: 'formula',
             builder: (_, _) => const FoodFormulaScreen(),
@@ -206,7 +208,9 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
       ),
       GoRoute(
         path: 'goals/screening',
-        builder: (_, _) => const GoalScreeningScreen(),
+        builder: (_, state) => GoalScreeningScreen(
+          forEnergy: state.uri.queryParameters['for'] == 'energy',
+        ),
       ),
       GoRoute(path: 'goals/setup', builder: (_, _) => const GoalSetupScreen()),
       GoRoute(

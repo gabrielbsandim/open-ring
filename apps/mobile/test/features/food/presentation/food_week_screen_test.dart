@@ -11,6 +11,7 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/food/application/food_nights.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
@@ -1103,5 +1104,63 @@ void main() {
         expect(find.byKey(FoodWeekEvidenceKeys.sheet), findsOneWidget);
       },
     );
+  });
+
+  group('Weekly energy tile', () {
+    const off = 'Off. One range a week, never per meal.';
+
+    Future<void> pumpWith(WidgetTester tester, FoodEnergyGate gate) async {
+      await _pumpWeekScreen(
+        tester,
+        overrides: [
+          ..._weekOverrides(meals: TestMealStore()),
+          foodEnergyGateProvider.overrideWith((ref) async => gate),
+        ],
+      );
+      await tester.pumpAndSettle();
+    }
+
+    for (final gate in const <FoodEnergyGate>[
+      FoodEnergyOffered(LocalDate(2026, 11, 1)),
+      FoodEnergyNeedsScreening(),
+      FoodEnergyBlocked(FoodEnergyBlock.bodyOff),
+      FoodEnergyDemo(),
+    ]) {
+      testWidgets('${gate.runtimeType} shows the title and the off line', (
+        tester,
+      ) async {
+        await pumpWith(tester, gate);
+
+        expect(find.byKey(FoodWeekKeys.energyTile), findsOneWidget);
+        expect(find.text('Weekly energy'), findsOneWidget);
+        expect(find.text(off), findsOneWidget);
+      });
+    }
+
+    testWidgets('on shows the title without the off line', (tester) async {
+      await pumpWith(tester, const FoodEnergyOn(LocalDate(2026, 11, 1)));
+
+      expect(find.byKey(FoodWeekKeys.energyTile), findsOneWidget);
+      expect(find.text(off), findsNothing);
+    });
+
+    for (final gate in const <FoodEnergyGate>[
+      FoodEnergyHidden(),
+      FoodEnergyBlocked(FoodEnergyBlock.softMode),
+    ]) {
+      testWidgets('${gate.runtimeType} shows no tile', (tester) async {
+        await pumpWith(tester, gate);
+
+        expect(find.byKey(FoodWeekKeys.energyTile), findsNothing);
+        expect(find.byKey(FoodWeekKeys.plateCard), findsOneWidget);
+      });
+    }
+
+    testWidgets('AI off gives no tile from the real gate', (tester) async {
+      await _pumpWeekScreen(tester);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(FoodWeekKeys.energyTile), findsNothing);
+    });
   });
 }

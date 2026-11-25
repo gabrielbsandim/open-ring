@@ -43,24 +43,24 @@ const _building = WeightRateBuilding(daysMissing: 3, spanMissing: 2);
 
 void main() {
   group('1. a stable series is Ready, balanced and shown as -100 to 100', () {
-    final balance = readyOf(balanceAt(0, 24));
+    EnergyBalanceReady stable() => readyOf(balanceAt(0, 24));
 
     test('low, mid and high are -108.07, -14.44 and 79.19 kcal a day', () {
-      expect(balance.low, closeTo(-108.07, 0.01));
-      expect(balance.mid, closeTo(-14.44, 0.01));
-      expect(balance.high, closeTo(79.19, 0.01));
+      expect(stable().low, closeTo(-108.07, 0.01));
+      expect(stable().mid, closeTo(-14.44, 0.01));
+      expect(stable().high, closeTo(79.19, 0.01));
     });
 
     test('it counts the 25 weigh-ins of the window', () {
-      expect(balance.weighIns, 25);
+      expect(stable().weighIns, 25);
     });
 
     test('shown rounds each end to 50', () {
-      expect(balance.shown, (low: -100, high: 100));
+      expect(stable().shown, (low: -100, high: 100));
     });
 
     test('a range that spans zero is balanced', () {
-      expect(balance.balanced, isTrue);
+      expect(stable().balanced, isTrue);
     });
   });
 

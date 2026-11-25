@@ -27,4 +27,5 @@ export 'src/sleep_regularity.dart';
 export 'src/sleep_score.dart';
 export 'src/spo2.dart';
 export 'src/stress.dart';
+export 'src/trajectory.dart';
 export 'src/weight_trend.dart';

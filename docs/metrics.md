@@ -669,6 +669,9 @@ The weigh-ins used for the first trend value are counted again by the
 following steps, and the noise is measured around that same trend, so the band
 of a short series is rough. It is a drawing aid, not an interval.
 
+The same noise widens the Trajectory scenario band (section 25) on both
+edges.
+
 ## 14. Intensity minutes
 
 Functions: `heartRateIntensity(samples, maxHeartRate, maxHold)`,
@@ -2297,6 +2300,45 @@ Code: `apps/mobile/lib/features/ai/domain` (`health_context_v2.dart`, `health_co
 
 Status: the 5 and 10 day bands, 3 bytes per token, the 5 day minimum, the 6 card limit and the word lists are our choice, not a study's.
 
+## 25. Trajectory (weight scenario, band, fast loss guard)
+
+Code: `packages/metrics/lib/src/trajectory.dart`. The scenario reads the trend,
+the 28 day rate interval and the noise of section 13; it adds no rate of its
+own, so Body, Goals and Trajectory print the same rate for the same weigh-ins.
+
+**Bend.** The burn falls as weight changes, so the rate is not run on as a
+straight line. After `t` days the rate counts for
+
+`F(t) = 365 × (1 - e^(-t/365))` days
+
+which is 26.95 days at 4 weeks and 75.03 days at 12 weeks. A straight line
+would overstate the change by about 0.5 kg at 12 weeks.
+
+**Band.** With the weekly rate `perWeek` and its interval `low..high`:
+
+- middle: `trend + perWeek / 7 × F(t)`
+- lower edge: `trend + low / 7 × F(t) - noise`
+- upper edge: `trend + high / 7 × F(t) + noise`
+
+A stable rate still opens both ways, and a rising weight bends the same way.
+Worked example: trend 77.60 kg, rate -0.348 kg a week (-0.435 to -0.262),
+noise 0.35 kg give 75.58 to 76.95 kg at 4 weeks and 72.60 to 75.15 kg at 12.
+
+**Fast loss guard.** `fastLossGuard` is true while the slow end of the loss
+interval is over 1% of the trend a week, and then the caller does not draw the
+scenario; `weightScenario` itself returns a band at any rate. The guard reads
+the same `percentLow` Goals uses for its cap (section 20), and exactly 1% does
+not trip it.
+
+| Constant | Value | Status |
+| --- | --- | --- |
+| `trajectoryAdaptationDays` | 365 days | sourced: approximates the adaptation time constant of Hall 2011. |
+| `trajectoryFirmDays` | 28 days | **our choice**. The firm horizon. |
+| `trajectoryBandDays` | 84 days | **our choice**. The lighter band, nothing further. |
+| `trajectoryFastLossPercent` | 1.0% a week | **our choice**. |
+
+Negative days or a negative noise throw `ArgumentError`.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical
@@ -2322,6 +2364,8 @@ Status: the 5 and 10 day bands, 3 bytes per token, the 5 day minimum, the 6 card
   for developing and maintaining cardiorespiratory, musculoskeletal, and
   neuromotor fitness in apparently healthy adults: guidance for prescribing
   exercise. Med Sci Sports Exerc. 2011;43(7):1334-1359.
+- Hall KD, Sacks G, Chandramohan D, et al. Quantification of the effect of
+  energy imbalance on bodyweight. Lancet. 2011;378(9793):826-837.
 - Herrmann SD, Willis EA, Ainsworth BE, et al. 2024 Adult Compendium of
   Physical Activities: a third update of the energy costs of human activities.
   J Sport Health Sci. 2024;13(1):6-12.

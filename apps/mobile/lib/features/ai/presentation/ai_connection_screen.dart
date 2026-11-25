@@ -304,26 +304,28 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
         key: AiConnectionKeys.detailHelp,
         l10n.aiDetailHelp(config.detailLevel.name),
       ),
-      const SizedBox(height: 16),
-      MetricCard(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        child: SwitchListTile(
-          key: AiConnectionKeys.imported,
-          value: config.importedIncluded,
-          onChanged: _locked
-              ? null
-              : (on) => unawaited(
-                  _saveSetting((c) => c.copyWith(importedIncluded: on)),
-                ),
-          contentPadding: EdgeInsets.zero,
-          title: Text(l10n.aiImportedTitle),
-          subtitle: CaptionText(l10n.aiImportedBody),
-          activeThumbColor: colors.background,
-          activeTrackColor: colors.textPrimary,
-          inactiveThumbColor: colors.textSecondary,
-          inactiveTrackColor: colors.surfaceInner,
+      if (ref.watch(aiImportedOfferedProvider)) ...[
+        const SizedBox(height: 16),
+        MetricCard(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: SwitchListTile(
+            key: AiConnectionKeys.imported,
+            value: config.importedIncluded,
+            onChanged: _locked
+                ? null
+                : (on) => unawaited(
+                    _saveSetting((c) => c.copyWith(importedIncluded: on)),
+                  ),
+            contentPadding: EdgeInsets.zero,
+            title: Text(l10n.aiImportedTitle),
+            subtitle: CaptionText(l10n.aiImportedBody),
+            activeThumbColor: colors.background,
+            activeTrackColor: colors.textPrimary,
+            inactiveThumbColor: colors.textSecondary,
+            inactiveTrackColor: colors.surfaceInner,
+          ),
         ),
-      ),
+      ],
     ];
   }
 

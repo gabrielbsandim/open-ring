@@ -12,7 +12,7 @@ const List<int> aiAllowedTimeoutSeconds = [60, 180, 600];
 const int aiMinPhotoDailyLimit = 1;
 const int aiDefaultPhotoDailyLimit = 8;
 const int aiMaxPhotoDailyLimit = 30;
-const String aiCurrentPolicyEffectiveDate = '2026-11-22';
+const String aiCurrentPolicyEffectiveDate = '2026-11-25';
 
 enum AiStructuredOutputMode { auto, jsonSchema, jsonObject, off }
 

@@ -166,19 +166,31 @@ release that changes what the app touches.
 
 Answers derived from the privacy policy. Under Play's definitions, data is
 "collected" only when it is sent off the device by the app, and a transfer the
-user starts (sharing an export) is not "sharing". Recheck these against the
-form's current wording before each submission.
+user starts (sharing an export) is not "sharing".
+
+UNVERIFIED: these answers have not been checked against the current wording of
+Play's Data safety form, in particular how it treats data the user sends to a
+third party service the user chose and configured (the AI analysis module).
+Recheck every row against the form before each submission.
 
 | Question | Answer | Reason |
 | :--- | :--- | :--- |
-| Does your app collect or share any of the required user data types? | Yes, collected, not shared | Only the Shorebird update check. Everything else stays on the device. |
+| Does your app collect or share any of the required user data types? | Yes, collected, not shared | The Shorebird update check, and, only with the optional AI analysis module on, what the user sends to the AI service they chose. Everything else stays on the device. |
 | Device or other IDs | Collected, required, purpose App functionality | The random install identifier Shorebird creates and sends with each update check. Not linked to a person, no account exists. |
 | App info and performance | Not collected | The update check sends the version, patch number, platform and architecture, which Play does not list as a data type. Recheck against the form's wording. |
+| Health info, Fitness info | Collected, optional, user initiated, purpose App functionality; not shared | With the AI analysis module on, a summary of the user's data (sleep, heart, activity, workouts, and Body, Goals or Food figures when those modules are on) or a Goals review decision goes to the AI service the user chose, only on the user's tap and after consent. Energy, Effort load and Day Score stay out while imported records are not offered. The transfer goes to a service the user picks and configures, not to OpenRing or a partner of it. |
+| Photos | Collected, optional, user initiated, purpose App functionality; not shared | With the Food and AI analysis modules on, a meal photo the user chose with Analyze, resized to at most 768 px with Exif removed, after a separate consent. |
 | Data written to Health Connect | Not collection | Health Connect is on the device; the user grants each type and manages it there. |
-| CSV, JSON and GPX export | Not sharing | User initiated, through the Android share sheet. |
-| Location | Not collected | Used on the device during a workout only, stored locally, written to Health Connect only as the exercise route if the user allows it. |
-| Is all user data encrypted in transit? | Yes | The update check is the only transfer, and it uses HTTPS. |
-| Can users request that data be deleted? | Clear storage or uninstall deletes everything on the device, the install identifier included; Health Connect data is deleted in Health Connect. | |
+| Health Connect data read by the app | Not sent off the device | Sleep and workouts read from other apps never reach the AI summary while `aiImportedOfferedProvider` is false (A14d). |
+| CSV, JSON and GPX export | Not sharing | User initiated, through the Android share sheet. AI data is never exported. |
+| Location | Not collected | Used on the device during a workout only, stored locally, written to Health Connect only as the exercise route if the user allows it. Never part of an AI summary. |
+| Is all user data encrypted in transit? | No | The update check uses HTTPS, and so does any AI service on a public address. The AI module also allows http to a private or local network address (a service on the user's own network), which is not encrypted; the consent sheet says so. |
+| Can users request that data be deleted? | Clear storage or uninstall deletes everything on the device, the install identifier included; Delete all data and Remove key and readings delete the AI data on the device; Health Connect data is deleted in Health Connect. What an AI service received is deleted with that service's own tools. | |
+
+Before submitting a release in which the AI analysis module can be turned on
+(A14e and later), the owner updates the Data safety form with the rows above in
+Play Console (O13 in the A14 plan). Until then the published form still
+describes a build whose only network use is the update check.
 
 Other App content answers: no ads, no account (so no account deletion URL),
 not directed at children, content rating questionnaire with no objectionable
@@ -204,6 +216,12 @@ manifest requests and give a use for each:
 | Read sleep | Opt-in: show nights recorded by another device, off by default |
 | Read exercise | Opt-in: show workouts recorded by another app, off by default |
 | Read health data in the background | Asked only with no ring paired and a read on: the periodic sync imports those nights and workouts with the app closed |
+
+No Health Connect data goes to the AI service: imported sleep and workouts stay
+out of the AI summary while `aiImportedOfferedProvider` is false, and the
+records OpenRing writes come from the ring, not from Health Connect. Offering
+imports to the AI later needs a check of Play's rule on sending Health Connect
+data to a service the user chooses, a policy edit and an updated declaration.
 
 Requirements Google checks during review:
 

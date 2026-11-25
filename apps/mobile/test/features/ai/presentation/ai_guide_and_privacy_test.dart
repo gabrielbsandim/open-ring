@@ -54,6 +54,7 @@ void main() {
     WidgetTester tester, {
     bool demo = false,
     AiConfigStore? configStore,
+    bool importedOffered = true,
   }) async {
     tester.view
       ..devicePixelRatio = 1
@@ -77,6 +78,7 @@ void main() {
       ProviderScope(
         overrides: [
           aiEnabledProvider.overrideWithValue(true),
+          aiImportedOfferedProvider.overrideWithValue(importedOffered),
           aiConfigStoreProvider.overrideWithValue(configStore ?? store),
           secretStoreProvider.overrideWithValue(secrets),
           demoModeStoreProvider.overrideWithValue(
@@ -254,6 +256,19 @@ void main() {
   });
 
   group('imported data switch', () {
+    testWidgets('is not rendered while imports are not offered', (
+      tester,
+    ) async {
+      await withTestedTarget();
+      await pump(tester, importedOffered: false);
+
+      expect(find.byKey(AiConnectionKeys.imported), findsNothing);
+      expect(
+        find.byKey(AiConnectionKeys.detail(AiDetailLevel.standard)),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('is off by default and persists when turned on', (
       tester,
     ) async {

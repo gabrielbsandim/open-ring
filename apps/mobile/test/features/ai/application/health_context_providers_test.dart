@@ -6,6 +6,7 @@ import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/source_priority.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/features/ai/application/health_context_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
@@ -195,6 +196,7 @@ void main() {
     Override? dayScore,
     Override? food,
     Override? weighIns,
+    bool importedOffered = true,
   }) async {
     final s = scenario ?? fullDataScenario;
     ringSleep = _CountingSleep(s.spans);
@@ -214,6 +216,7 @@ void main() {
           InMemoryHideNumbersStore(hidden: hidden),
         ),
         aiConfigStoreProvider.overrideWithValue(configs),
+        aiImportedOfferedProvider.overrideWithValue(importedOffered),
         aiReplyLanguageProvider.overrideWithValue('pt-BR'),
         importedSleepReaderProvider.overrideWithValue(importedSleep),
         importedWorkoutReaderProvider.overrideWithValue(importedWorkouts),
@@ -444,6 +447,33 @@ void main() {
     expect(sleep.sublist(4, 9), everyElement(isNull));
     expect(p.contextMap.containsKey('workouts'), isFalse);
     expect((p.contextMap['coverage']! as Map)['imported_included'], isFalse);
+  });
+
+  test(
+    'a stored imported flag sends nothing imported while not offered',
+    () async {
+      flagOn();
+      final scenario = MetricsScenario(
+        nights: 3,
+        activityDays: 14,
+        ring: fullDataScenario.ring,
+      );
+      final p = await payload(
+        await container(scenario: scenario, importedOffered: false),
+      );
+
+      expect(importedSleep.calls, 0);
+      expect(importedWorkouts.calls, 0);
+      expect(p.contextMap.containsKey('workouts'), isFalse);
+      expect((p.contextMap['coverage']! as Map)['imported_included'], isFalse);
+    },
+  );
+
+  test('the imported records are not offered by default', () {
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+
+    expect(c.read(aiImportedOfferedProvider), isFalse);
   });
 
   test('imported flag on adds imported nights and workouts', () async {

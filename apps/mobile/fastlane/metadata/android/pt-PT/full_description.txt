@@ -3,8 +3,8 @@ O OpenRing é uma app gratuita e de código aberto para o anel inteligente COLMI
 SEM CONTA, SEM NUVEM
 • Sem registo, sem início de sessão, sem e-mail. Emparelhe o anel e comece.
 • Os seus dados ficam numa base de dados local no telemóvel, não num servidor.
-• Sem análise de utilização, sem anúncios, sem rastreio. A app só usa a internet para transferir atualizações da própria app.
-• Os dados só saem do telemóvel quando escolher: para o Health Connect, ou num ficheiro CSV, JSON ou GPX que exportar.
+• Sem análise de utilização, sem anúncios, sem rastreio. A app usa a internet para as próprias atualizações e, apenas se ativar a Análise com IA, para o serviço de IA escolhido.
+• Os dados só saem do telemóvel quando escolher: para o Health Connect, num ficheiro CSV, JSON ou GPX que exportar, numa transferência para um telemóvel novo que iniciar ou, com a Análise com IA ativa, para o serviço de IA escolhido.
 
 O QUE VÊ
 • O sono numa linha temporal com leve, profundo, REM e acordado.

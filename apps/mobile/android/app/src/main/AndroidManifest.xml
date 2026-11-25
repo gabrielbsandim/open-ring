@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <!-- Shorebird update check and, only with the AI analysis module on, requests the user starts to the address they set (https, or http to a private or local network address only, see BaseUrlPolicy). No other code opens a connection. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
 

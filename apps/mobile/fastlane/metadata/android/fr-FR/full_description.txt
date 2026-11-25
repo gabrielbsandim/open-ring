@@ -3,8 +3,8 @@ OpenRing est une application gratuite et open source pour la bague connectée CO
 SANS COMPTE, SANS CLOUD
 • Pas d'inscription, pas de connexion, pas d'e-mail. Associez la bague et c'est parti.
 • Vos données sont dans une base locale sur votre téléphone, pas sur un serveur.
-• Pas de statistiques d'usage, pas de publicité, pas de pistage. L'application n'utilise internet que pour télécharger ses propres mises à jour.
-• Les données ne quittent le téléphone que si vous le décidez : vers Health Connect, ou dans un fichier CSV, JSON ou GPX que vous exportez.
+• Pas de statistiques d'usage, pas de publicité, pas de pistage. L'application utilise internet pour ses propres mises à jour et, seulement si vous activez Analyse IA, pour le service d'IA que vous choisissez.
+• Les données ne quittent le téléphone que si vous le décidez : vers Health Connect, dans un fichier CSV, JSON ou GPX que vous exportez, lors d'un transfert vers un nouveau téléphone que vous lancez ou, avec Analyse IA activé, vers le service d'IA que vous choisissez.
 
 CE QUE VOUS VOYEZ
 • Le sommeil sur une frise : léger, profond, paradoxal (REM) et éveil.

@@ -2209,6 +2209,94 @@ The approved prototype's 90 nights: alcohol 3 or more, 12 pairs, heart rate +5.0
 
 Status: matched pairs, the 99% interval and the smallest meaningful differences are our choice, carried from the approved prototype; a pattern describes these nights and is never a cause.
 
+## 23. Weekly energy (Food with AI analysis)
+
+Code: `packages/metrics/lib/src/food_energy.dart` (pure functions) and `apps/mobile/lib/features/food/application/food_energy.dart` (the provider). It runs only with the Food and AI analysis modules on and the Weekly energy opt in given. The model never returns energy: per item it picks one of 23 food groups and a weight in grams, and the app turns those into a log value with a fixed table. The log is never shown as kcal; a per person factor calibrated against weight change and ring energy turns it into a range.
+
+**Food groups** (kcal per 100 g, `FoodGroup.kcalPer100g`):
+
+| Group | kcal | Source |
+| :--- | ---: | :--- |
+| grainCooked | 128 | TACO 3, Arroz, tipo 1, cozido |
+| bread | 300 | TACO 53, Pão, trigo, francês |
+| legumeCooked | 76 | TACO 561, Feijão, carioca, cozido |
+| rootCooked | 77 | TACO 88, Batata, doce, cozida |
+| vegetable | 25 | TACO 100, Brócolis, cozido |
+| leafySalad | 15 | TACO 157, Tomate, com semente, cru |
+| fruit | 56 | TACO 222, Maçã, Fuji, com casca, crua |
+| poultry | 159 | TACO 410, Frango, peito, sem pele, grelhado |
+| redMeat | 219 | TACO 377, Carne, bovina, patinho, sem gordura, grelhado |
+| processedMeat | 296 | TACO 423, Lingüiça, porco, grelhada |
+| fish | 122 | TACO 301, Merluza, filé, assado |
+| egg | 146 | TACO 488, Ovo, de galinha, inteiro, cozido |
+| cheese | 330 | TACO 463, Queijo, mozarela |
+| milkYogurt | 61 | FDC SR Legacy 171265, Milk, whole, 3.25% |
+| friedSnack | 283 | TACO 386, Coxinha de frango, frita |
+| mixedDish | 150 | ours, stews and casseroles |
+| pizzaSandwich | 260 | ours, from FDC pizza and sandwiches |
+| sweet | 400 | ours |
+| nutsSeeds | 606 | TACO 558, Amendoim, torrado, salgado |
+| fatSauce | 400 | ours |
+| sugaryDrink | 40 | ours, soda and juice |
+| alcoholicDrink | 60 | ours |
+| plainDrink | 0 | ours, water, plain coffee and tea |
+| other | 150 | ours |
+
+**Meal, in log units.** `mealLogKcal = sum(grams × kcalPer100g / 100)`, plus 88 for the hidden oil chip (10 g soybean oil, TACO 884), 60 for sauce (15 g at 400) and 39 for sugar (10 g refined sugar, TACO 387). Prototype lunch M1, oil on: rice 90 g, beans 80 g, chicken 100 g, salad 30 g gives `115.2 + 60.8 + 159 + 4.5 + 88 = 427.5`.
+
+**Day.** A food day (section 21) counts only when it is complete and every meal that opens the window has confirmed items; plain drinks with no items count 0. The day log is the sum of its meals. Each day carries the set of analysis targets (`host|model|prompt|schema`) behind its logs.
+
+**Week.** For the closed week ending Sunday `S`, the window is `S-34` to `S` (`foodEnergyWindowDays` 35) and the shown week is `S-6` to `S`.
+
+- `Lc`: mean day log over the window; `Lw`: over the shown week; `Lp`: over the window days before that Monday.
+- `slope`: least squares fit of the daily mean weight (`dailyWeights`) on days since `S-34`, in kg a day.
+- `E`: mean of the ring energy day totals in the window that are on record (`energyDayOnRecord`, section 18).
+
+```
+balance  = slope × 7700                       (foodEnergyKcalPerKg)
+expLog   = Lc - balance
+kLow     = 0.85 × E / expLog,  kHigh = 1.15 × E / expLog   (energyDayMargin 0.15)
+range    = energyRange(Lw × E / expLog, 0.15), each end rounded to 50
+gap      = (1 - 1/k) × 100 for kLow and kHigh: under if both > 0, over if both < 0, else none
+change   = (Lw - Lp) × kLow and × kHigh, widened by 150 on each side (foodEnergyChangeBand)
+           less if the top < 0, more if the bottom > 0, else no clear difference; shown rounded to 10
+```
+
+**Hold.** No new range is computed, in this order, when the window mixes more than one analysis target (model changed); a weight goal block started under 14 days ago (`foodEnergyGoalHoldDays`); fewer than 20 days with a weigh-in (`foodEnergyMinWeighIns`); fewer than 28 energy days in the window (`foodEnergyMinDays`) or 5 in the shown week (`foodEnergyMinWeekDays`); fewer than 20 ring days (`foodEnergyMinRingDays`); or `expLog` or `E` under 800 kcal (`foodEnergyMinExpenditure`, implausible). A held week still shows the newest ready week among the 4 Sundays before it (`foodEnergyLookbackWeeks`).
+
+**Worked examples** (`foodEnergyFigures`, pinned in `packages/metrics/test/food_energy_test.dart`):
+
+| # | slope | Lc | Lw | Lp | E | kLow to kHigh | range | gap | change shown |
+| :- | -: | -: | -: | -: | -: | :- | :- | :- | :- |
+| F1 | -0.03 | 1780 | 1700 | 1800 | 2500 | 1.056688 to 1.429637 | 1800 to 2450 | under, 5 to 30 | -290 to 40, none |
+| F2 | -0.03 | 1730 | 1450 | 1800 | 2500 | 1.083631 to 1.466089 | 1550 to 2150 | under, 8 to 32 | -660 to -230, less |
+| F3 | -0.0315 | 1720 | 1680 | 1745 | 2560 | 1.108762 to 1.500089 | 1850 to 2500 | under, 10 to 33 | -250 to 80, none |
+| F4 | 0 | 2600 | 2600 | 2600 | 2000 | 0.653846 to 0.884615 | 1700 to 2300 | over, 13 to 53 | -150 to 150, none |
+| F5 | 0 | 2400 | 2400 | 2400 | 2400 | 0.85 to 1.15 | 2050 to 2750 | none | -150 to 150, none |
+| F6 | 0 | 2000 | 2100 | 1800 | 2400 | 1.02 to 1.38 | 2150 to 2900 | under, 2 to 28 | 160 to 560, more |
+
+F3 is the approved prototype's week. The range is kcal a day on average for the week; no meal or day ever gets a calorie number.
+
+Status: the 23 group densities marked ours, the chip additions, the 35 day window, the minimum counts and the 150 kcal change band are our choice; 7700 kcal per kg is the usual energy content of body weight change and the 0.15 margin is the ring energy margin of the Energy module.
+
+## 24. AI readings (summary, facts, checks, confidence, cost)
+
+Code: `apps/mobile/lib/features/ai/domain` (`health_context_v2.dart`, `health_context_assembly.dart`, `ai_report_validator.dart`, `ai_prompt.dart`, `ai_cost.dart`). The model writes words; every number it may show comes from this app and is checked on the phone. The formula screen (`/heart/trends/ai/formula`) prints the same rules with these constants.
+
+**Summary.** One row per day and one per week, computed from the data already on the phone; scores go as the app shows them and missing data goes empty, never as zero. The window is compact (7 days, 4 weeks), standard (14 days, 12 weeks, the default) or extended (28 days, 26 weeks); only the Full detail level can use extended, any other level falls back to standard (`AiContextWindow`). A reading needs at least 5 days with data (`aiMinDaysWithData`). Minimal sends relative days, age in a 10 year band and weight only as a change; Standard adds stages, times rounded to 15 minutes and age in a 5 year band; Full sends calendar dates, exact age and times to the minute. GPS routes, the ring's name and address, raw samples, phone identifiers and the Goals questionnaire never enter it, and imported Health Connect records stay out while `aiImportedOfferedProvider` is false.
+
+**Facts.** The app numbers the facts it sends (latest value, baseline, averages, trends). A fact with fewer than 3 days of data (`aiMinFactDays`) is left out. The model may use a number only by citing a fact.
+
+**Checks.** A card is dropped unless all six hold: it cites existing facts; its theme matches a cited fact; every number is a cited fact (as is or rounded), the difference or percent change of two, or a count up to the days sent or one of 7, 12, 14 or 28 (`aiCitablePeriods`); the suggestion carries numbers only with a time or activity unit; it has no word of diagnosis, disease, medicine, supplement or dose; it has no link. At most 6 cards are kept (`aiMaxReportCards`).
+
+**Confidence.** Coverage is the fewest days of data among a card's cited facts: high from 10 (`aiCoverageHighDays`), medium from 5 (`aiCoverageMediumDays`), low below. The shown confidence is the lower of coverage and the model's own word.
+
+**Tokens and cost.** Before a send, tokens are estimated as the UTF-8 bytes of the text divided by 3, rounded up (`aiBytesPerToken`). Cost is what the service reports or, failing that, input tokens ÷ 1,000,000 × the input price plus output tokens ÷ 1,000,000 × the output price you entered (`aiPriceTokens`). Usage the service does not report shows as not reported, never as zero.
+
+**Keeping.** Each time a reading is saved, only the newest 60 are kept (`aiReportKeepCount`) and readings older than 30 days (`aiReportPayloadDays`) lose the summary that was sent and the raw answer, keeping their cards. Nothing trims them between saves.
+
+Status: the 5 and 10 day bands, 3 bytes per token, the 5 day minimum, the 6 card limit and the word lists are our choice, not a study's.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

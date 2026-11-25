@@ -7,3 +7,7 @@ final aiEnabledProvider = Provider<bool>(
   (ref) =>
       ref.watch(enabledModulesProvider).value?.contains(ModuleId.ai) ?? false,
 );
+
+/// Whether imported Health Connect records may reach an AI summary. Off until
+/// the Play rule on sending them to a chosen service is checked.
+final aiImportedOfferedProvider = Provider<bool>((_) => false);

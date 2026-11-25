@@ -5,6 +5,7 @@ export 'src/effort.dart';
 export 'src/energy.dart';
 export 'src/fitness_estimate.dart';
 export 'src/food_compare.dart';
+export 'src/food_energy.dart';
 export 'src/food_week.dart';
 export 'src/goal_baseline.dart';
 export 'src/goal_progress.dart';

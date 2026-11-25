@@ -47,6 +47,9 @@ abstract interface class MealAnalysisStore {
   /// Skipped rows excluded.
   Future<int> countQueuedSince(DateTime since);
 
+  /// Rows waiting to be sent, whatever their target.
+  Future<int> countQueued();
+
   Future<int> expireBefore(DateTime cutoff, {required DateTime now});
 
   Future<int> skipOffTarget(

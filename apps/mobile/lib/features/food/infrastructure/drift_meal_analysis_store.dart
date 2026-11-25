@@ -179,6 +179,11 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
       .getSingle();
 
   @override
+  Future<int> countQueued() => _db.mealAnalyses
+      .count(where: (r) => r.status.equals(MealAnalysisStatus.queued.wire))
+      .getSingle();
+
+  @override
   Future<int> expireBefore(DateTime cutoff, {required DateTime now}) => _write(
     () => _move(
       _queued,

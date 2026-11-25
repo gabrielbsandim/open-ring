@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/application/weight_summary.dart';
+import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/goals/application/goal_intake_providers.dart';
 import 'package:open_ring/features/goals/domain/review_inputs.dart';
@@ -31,6 +33,9 @@ final trajectoryViewProvider = FutureProvider<TrajectoryView>((ref) async {
     final summary = await ref.watch(weightSummaryProvider.future);
     final view = _view(today, summary);
     if (view is! TrajectoryReady || ref.watch(demoModeProvider)) return view;
+    // Leaving demo flips the flag before the cached weigh-ins are refreshed.
+    final entries = await ref.watch(weighInsProvider.future);
+    if (entries.any((entry) => entry.source == WeighInSource.demo)) return view;
     await _storeMonday(ref, today, summary!.daily);
     return view;
   } on Object catch (error) {
@@ -45,7 +50,8 @@ Future<TrajectoryRefusal?> _refusal(Ref ref, LocalDate today) async {
   if (await ref.watch(newestPregnancyProvider.future) ?? false) {
     return TrajectoryRefusal.pregnancy;
   }
-  // Without a height the BMI floor of the scenario cannot be checked.
+  // Height is required up front for the BMI floor the drawn scenario will
+  // apply; that floor is not built yet.
   if (profile?.heightCentimeters == null) return TrajectoryRefusal.noHeight;
   return null;
 }

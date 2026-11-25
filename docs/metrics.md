@@ -2402,8 +2402,9 @@ the card is ready, opening it stores the 28 day band of the current ISO week
 once, computed from the weigh-ins up to that Monday only (trend, rate and
 noise as of the Monday). A Monday that was still building or over the fast
 loss guard stores nothing, a stored row is never edited, no earlier Monday is
-filled in, and demo mode never writes. Missing height refuses the module,
-since the BMI floor of the scenario cannot be checked without it.
+filled in, and no band is stored from demo weigh-ins, in demo mode or while
+leaving it. Missing height refuses the module up front: the BMI floor the
+drawn scenario will apply needs it, and that floor is not built yet.
 
 ### Ring levers (Theil-Sen over 90 days)
 

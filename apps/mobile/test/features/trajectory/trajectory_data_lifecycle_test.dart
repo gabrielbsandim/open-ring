@@ -4,6 +4,8 @@ import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/settings/infrastructure/device_local_data_eraser.dart';
 import 'package:open_ring/features/trajectory/domain/trajectory_projection.dart';
 import 'package:open_ring/features/trajectory/infrastructure/drift_projection_store.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../helpers/ai_fakes.dart';
 import '../../helpers/database.dart';
@@ -19,6 +21,11 @@ TrajectoryProjection _projection(LocalDate monday) => TrajectoryProjection(
 );
 
 void main() {
+  setUp(() {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+  });
+
   test('Delete all data empties trajectory_projections', () async {
     final db = await pairedDatabase();
     final store = DriftProjectionStore(db);

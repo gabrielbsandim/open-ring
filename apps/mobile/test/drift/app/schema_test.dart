@@ -628,8 +628,8 @@ void main() {
     },
   );
 
-  test('the code schema is v20', () {
-    expect(memoryDatabase().schemaVersion, 20);
+  test('the code schema is v21', () {
+    expect(memoryDatabase().schemaVersion, 21);
   });
 
   test('v16 migrates to v17, a finished workout keeps its end and has no '
@@ -869,8 +869,8 @@ void main() {
     );
   });
 
-  test('the code schema is v21', () {
-    expect(memoryDatabase().schemaVersion, 21);
+  test('the latest dumped schema is v21', () {
+    expect(GeneratedHelper.versions.last, 21);
   });
 
   test('v20 migrates to v21, a weigh-in, a goal week and a meal item stay '

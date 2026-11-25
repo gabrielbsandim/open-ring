@@ -464,7 +464,11 @@ class _LegendItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [mark, const SizedBox(width: 6), CaptionText(label)],
+      children: [
+        mark,
+        const SizedBox(width: 6),
+        Flexible(child: CaptionText(label)),
+      ],
     );
   }
 }

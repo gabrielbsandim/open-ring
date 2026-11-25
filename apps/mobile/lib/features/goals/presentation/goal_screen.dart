@@ -21,6 +21,7 @@ import 'package:open_ring/features/goals/presentation/goal_evidence_sheet.dart';
 import 'package:open_ring/features/goals/presentation/goal_path_chart.dart';
 import 'package:open_ring/features/goals/presentation/goal_week_card.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
+import 'package:open_ring/features/trajectory/presentation/trajectory_entry_row.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class GoalScreenKeys {
@@ -188,8 +189,10 @@ class GoalScreen extends ConsumerWidget {
         key: GoalScreenKeys.noWeight,
         child: BodyText(l10n.goalsScreenNoWeight),
       ),
-    if (goal.kind == GoalKind.loseFat)
+    if (goal.kind == GoalKind.loseFat) ...[
       _PathCard(stage: stage, maintenance: goal.phase == GoalPhase.maintenance),
+      const TrajectoryEntryRow(from: TrajectoryEntry.goal),
+    ],
     const SizedBox(height: cardGap),
     const GoalWeekCard(onToday: false),
   ];

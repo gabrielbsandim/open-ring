@@ -17,6 +17,7 @@ class TrajectoryChart extends StatelessWidget {
     required this.daily,
     required this.line,
     required this.units,
+    this.hidden = false,
     super.key,
   });
 
@@ -26,6 +27,9 @@ class TrajectoryChart extends StatelessWidget {
   final List<DailyValue> daily;
   final List<DailyValue> line;
   final UnitFormat units;
+
+  /// Hidden numbers keep the shape: no dots and no weight labels.
+  final bool hidden;
 
   List<_Point> _past(List<DailyValue> days) => [
     for (final day in days)
@@ -52,7 +56,7 @@ class TrajectoryChart extends StatelessWidget {
     final low = edge((band) => band.low);
     final mid = edge((band) => band.mid);
     final high = edge((band) => band.high);
-    final dots = _past(daily);
+    final dots = hidden ? const <_Point>[] : _past(daily);
     final trend = _past(line);
     final axis = weightAxis([
       now,
@@ -66,7 +70,9 @@ class TrajectoryChart extends StatelessWidget {
     return Semantics(
       container: true,
       image: true,
-      label: l10n.trajectoryChartLabel(units.weightUnit),
+      label: hidden
+          ? l10n.trajectoryChartHiddenLabel
+          : l10n.trajectoryChartLabel(units.weightUnit),
       child: SizedBox(
         height: _height,
         width: double.infinity,
@@ -79,10 +85,11 @@ class TrajectoryChart extends StatelessWidget {
             middle: [start, mid.at28, mid.at84],
             axis: axis,
             ticks: [
-              for (var v = axis.low; v <= axis.high + 1e-9; v += axis.step)
-                units.format.decimal(v, digits: axis.step < 1 ? 1 : 0),
+              if (!hidden)
+                for (var v = axis.low; v <= axis.high + 1e-9; v += axis.step)
+                  units.format.decimal(v, digits: axis.step < 1 ? 1 : 0),
             ],
-            unit: units.weightUnit,
+            unit: hidden ? '' : units.weightUnit,
             days: [
               units.format.monthDay(view.asOf.addDays(-_pastDays)),
               l10n.bodyChartToday,

@@ -19,6 +19,7 @@ import 'package:open_ring/features/body/presentation/hidden_numbers.dart';
 import 'package:open_ring/features/body/presentation/weigh_in_sheet.dart';
 import 'package:open_ring/features/body/presentation/weight_chart.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
+import 'package:open_ring/features/trajectory/presentation/trajectory_entry_row.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class BodyKeys {
@@ -152,6 +153,7 @@ class _BodyScreenState extends ConsumerState<BodyScreen> {
         range: _range,
         onRange: (range) => setState(() => _range = range),
       ),
+      const TrajectoryEntryRow(from: TrajectoryEntry.body),
       const SizedBox(height: cardGap),
       ActionButton(
         key: BodyKeys.log,

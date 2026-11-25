@@ -74,4 +74,5 @@ class MealItems extends Table {
   IntColumn get grams => integer()();
   TextColumn get origin => text()();
   BoolColumn get confirmed => boolean().withDefault(const Constant(false))();
+  TextColumn get foodGroup => text().nullable()();
 }

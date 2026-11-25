@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:metrics/metrics.dart' show FoodGroup;
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/core/database/app_database_provider.dart';
 import 'package:open_ring/core/records/data_revision.dart';
@@ -788,5 +789,110 @@ void main() {
 
     expect(container.read(mealAnalysisRevisionProvider), 6);
     expect(container.read(dataRevisionProvider), 0);
+  });
+
+  group('food group, confirmItems and byMeals', () {
+    const chicken = MealPhotoItem(
+      name: 'chicken',
+      measure: MealPhotoMeasure.fillet,
+      countX2: 2,
+      grams: 120,
+      group: FoodGroup.poultry,
+    );
+    const beans = MealPhotoItem(
+      name: 'beans',
+      measure: MealPhotoMeasure.ladle,
+      countX2: 2,
+      grams: 140,
+      group: FoodGroup.legumeCooked,
+    );
+
+    Future<int> grouped() async {
+      final id = await _analysisAt(store, mealId, _withItems, _now);
+      await store.markSending(id, now: _now);
+      await store.complete(
+        id,
+        _done(suggestion: _suggestion.withItems([chicken, beans])),
+        now: _now,
+      );
+      return id;
+    }
+
+    test('complete writes each group and a step keeps it', () async {
+      final id = await grouped();
+      final items = (await store.byId(id))!.items;
+      expect(items.map((i) => (i.name, i.group)), [
+        ('chicken', FoodGroup.poultry),
+        ('beans', FoodGroup.legumeCooked),
+      ]);
+
+      await store.setItemCount(items.first.id, 4);
+
+      final stepped = (await store.byId(id))!.items.first;
+      expect((stepped.countX2, stepped.group), (4, FoodGroup.poultry));
+    });
+
+    test('an item with no stored group reads as other', () async {
+      final id = await grouped();
+      await _userItem(db, id, 'juice');
+
+      final juice = (await store.byId(id))!.items.last;
+
+      expect((juice.name, juice.group), ('juice', FoodGroup.other));
+    });
+
+    test('confirmItems confirms every item of the row only', () async {
+      final id = await grouped();
+      final otherMeal = await _meal(db, photo: 'meal_2.jpg');
+      final other = await _doneRow(store, otherMeal);
+
+      expect(await store.confirmItems(id), isTrue);
+
+      expect((await store.byId(id))!.items.map((i) => i.confirmed), [
+        true,
+        true,
+      ]);
+      expect((await store.byId(other))!.items.single.confirmed, isFalse);
+    });
+
+    test('confirmItems is false for a row with no items', () async {
+      final id = await _analysisAt(store, mealId, _target, _now);
+
+      expect(await store.confirmItems(id), isFalse);
+      expect(await store.confirmItems(999), isFalse);
+    });
+
+    test('confirmItems bumps only the analysis revision', () async {
+      final container = ProviderContainer(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          driftMealAnalysisStoreOverride,
+        ],
+      );
+      addTearDown(container.dispose);
+      final id = await grouped();
+
+      await container.read(mealAnalysisStoreProvider).confirmItems(id);
+
+      expect(container.read(mealAnalysisRevisionProvider), 1);
+      expect(container.read(dataRevisionProvider), 0);
+    });
+
+    test('byMeals groups every row by meal and leaves out meals with '
+        'none', () async {
+      final second = await _meal(db, photo: 'meal_2.jpg');
+      final empty = await _meal(db, photo: 'meal_3.jpg');
+      final a = await _analysisAt(store, mealId, _target, _now);
+      final b = await _analysisAt(store, mealId, _otherModel, _now);
+      final c = await _doneRow(store, second);
+
+      final rows = await store.byMeals({mealId, second, empty});
+
+      expect(rows.keys, unorderedEquals([mealId, second]));
+      expect(rows[mealId]!.map((r) => r.id), [a, b]);
+      expect(rows[second]!.single.id, c);
+      expect(rows[second]!.single.items.single.name, 'rice');
+      expect(await store.byMeals({}), isEmpty);
+    });
   });
 }

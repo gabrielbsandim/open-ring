@@ -22,6 +22,7 @@ import 'package:open_ring/features/ai/domain/meal_photo_validator.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_wire.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
+import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/application/meal_analysis_failure_policy.dart';
 import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
@@ -94,14 +95,19 @@ typedef _Ready = ({
   String model,
   String? key,
   AiCapabilityProfile profile,
+  bool items,
 });
 
 MealAnalysisTarget _targetOf(_Ready gate) => (
   providerHost: gate.host,
   model: gate.model,
   promptVersion: aiMealPromptVersion,
-  outputSchema: mealPhotoOutputSchemaVersion(withItems: false),
+  outputSchema: mealPhotoOutputSchemaVersion(withItems: gate.items),
 );
+
+// Each row is sent and read with the schema it was queued with.
+bool _withItems(MealAnalysis row) =>
+    row.target.outputSchema == mealPhotoOutputSchemaVersion(withItems: true);
 
 /// Sends queued meal photos one at a time while the app is in the
 /// foreground. A pass in the background starts no new request.
@@ -503,7 +509,7 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     );
     final request = buildMealPhotoRequest(
       base64Encode(wire.bytes),
-      withItems: false,
+      withItems: _withItems(row),
       replyLanguage: language,
       maxOutputTokens: config.maxOutputTokens,
       profile: fresh.profile,
@@ -532,7 +538,7 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
       outcome = MealPhotoValidator.read(
         done.text,
         shortEdgePx: wire.shortEdge,
-        withItems: false,
+        withItems: _withItems(row),
         replyLanguage: language,
       );
       final again = outcome is MealPhotoRejected && sent < aiPhotoMaxRequests;
@@ -601,6 +607,7 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     final profile =
         await store.readCapabilityProfile(host, model) ??
         AiCapabilityProfile.defaults;
+    final items = await _items();
     return switch (profile.vision) {
       AiVisionSupport.yes => (
         config: config,
@@ -608,10 +615,21 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
         model: model,
         key: key,
         profile: profile,
+        items: items,
       ),
       AiVisionSupport.no => EnqueueOutcome.visionNo,
       AiVisionSupport.unknown => EnqueueOutcome.visionUntested,
     };
+  }
+
+  // The flag reads false while the gate loads, so the gate is awaited first.
+  Future<bool> _items() async {
+    try {
+      await ref.read(foodEnergyGateProvider.future);
+    } on Object {
+      return false;
+    }
+    return ref.read<bool>(mealPhotoItemsEnabledProvider);
   }
 
   // Mirrors the store: it writes, and so moves queued_at, unless the row is

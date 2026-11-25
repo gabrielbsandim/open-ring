@@ -2887,5 +2887,8 @@
   "foodAiHiddenOil": "Frittiert oder fettig",
   "foodAiHiddenSauce": "Soße oder Dressing",
   "foodAiHiddenSugar": "Zucker im Getränk",
-  "foodAiItemsNote": "Keine Kalorien für diese Mahlzeit. Die Bestandteile fließen nur als Spanne in den Wochendurchschnitt ein."
+  "foodAiItemsNote": "Keine Kalorien für diese Mahlzeit. Die Bestandteile fließen nur als Spanne in den Wochendurchschnitt ein.",
+  "foodAiItemsConfirm": "Diese Bestandteile stimmen",
+  "foodAiItemsCheck": "Prüfe die Bestandteile und die Chips unten und bestätige dann. Nur bestätigte Mahlzeiten zählen in der Wochenenergie.",
+  "foodAiItemsDone": "Geprüft. Diese Mahlzeit zählt in der Wochenenergie."
 }

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:open_ring/core/database/app_database_provider.dart';
+import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
 import 'package:open_ring/features/food/domain/meal_analysis_store.dart';
 import 'package:open_ring/features/food/infrastructure/drift_meal_analysis_store.dart';
@@ -43,8 +44,7 @@ final FutureProviderFamily<bool, int> mealKeepOnPhoneProvider =
       return ref.watch(mealAnalysisStoreProvider).keepOnPhone(mealId);
     });
 
-// A13 overrides it from the Weekly Energy opt in; until then requests ask for
-// no items, so no real row has any.
+/// True exactly when Weekly energy is on; false while the gate loads.
 final Provider<bool> mealPhotoItemsEnabledProvider = Provider<bool>(
-  (ref) => false,
+  (ref) => ref.watch(foodEnergyGateProvider).value is FoodEnergyOn,
 );

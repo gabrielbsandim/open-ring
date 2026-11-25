@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:metrics/metrics.dart' show LocalDate;
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
@@ -17,18 +18,25 @@ import 'package:open_ring/features/ai/domain/meal_photo_wire.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/demo/domain/demo_mode_store.dart';
+import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
 import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
+import 'package:open_ring/features/food/domain/food_energy_store.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
 import 'package:open_ring/features/food/domain/meal_analysis_store.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/food/infrastructure/drift_meal_analysis_store.dart';
 import 'package:open_ring/features/food/infrastructure/drift_meal_store.dart';
+import 'package:open_ring/features/goals/application/goal_store_providers.dart';
+import 'package:open_ring/features/goals/domain/goal.dart';
+import 'package:open_ring/features/goals/domain/goal_store.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
+import 'package:open_ring/features/settings/application/user_profile_providers.dart';
+import 'package:open_ring/features/settings/domain/user_profile.dart';
 
 import '../../../helpers/ai_fakes.dart';
 import '../../../helpers/database.dart';
@@ -64,6 +72,27 @@ String mealAnswer({String isFood = 'yes'}) => jsonEncode({
   'alcohol': 'none',
   'processed': 'not_mostly',
   'confidence': 'high',
+});
+
+/// A tags answer with two grouped items, as an items request is answered.
+String itemsAnswer() => jsonEncode({
+  ...jsonDecode(mealAnswer()) as Map<String, Object?>,
+  'items': [
+    {
+      'name': 'rice',
+      'measure': 'serving_spoon',
+      'count': 2,
+      'grams': 180,
+      'group': 'grain_cooked',
+    },
+    {
+      'name': 'chicken',
+      'measure': 'fillet',
+      'count': 1,
+      'grams': 120,
+      'group': 'poultry',
+    },
+  ],
 });
 
 AnalysisEvent completed([String? text]) => AnalysisCompleted(
@@ -142,6 +171,42 @@ final class MealQueueHarness {
 
   late final ProviderContainer container = _container();
 
+  final InMemoryFoodEnergyStore energy = InMemoryFoodEnergyStore();
+
+  /// Body on, an adult profile and a screening without soft mode, so Weekly
+  /// energy is offered; call before [container] is first read.
+  Future<void> eligible() async {
+    modules = {ModuleId.ai, ModuleId.food, ModuleId.body};
+    final goals = InMemoryGoalStore();
+    await goals.addScreening(
+      const GoalScreening(
+        on: LocalDate(2026, 11, 20),
+        softMode: false,
+        pregnantOrBreastfeeding: null,
+      ),
+    );
+    extraOverrides = [
+      ...extraOverrides,
+      userProfileStoreProvider.overrideWithValue(
+        InMemoryUserProfileStore(
+          const UserProfile(
+            birthYear: 1990,
+            sex: Sex.female,
+            heightCentimeters: 168,
+          ),
+        ),
+      ),
+      goalStoreProvider.overrideWithValue(goals),
+    ];
+  }
+
+  Future<bool> optIn() async {
+    await start();
+    return await container
+        .read(foodEnergyOptInControllerProvider.notifier)
+        .turnOn();
+  }
+
   ProviderContainer _container() {
     final c = ProviderContainer(
       overrides: [
@@ -167,6 +232,7 @@ final class MealQueueHarness {
     mealStoreProvider.overrideWithValue(meals),
     photoStoreProvider.overrideWithValue(photos),
     mealAnalysisStoreProvider.overrideWithValue(analyses),
+    foodEnergyStoreProvider.overrideWithValue(energy),
     wirePhotoEncoderProvider.overrideWithValue((stored) async {
       await encodeGate?.future;
       return prepareWirePhoto(stored);
@@ -258,6 +324,10 @@ final class GatedAnalysisStore implements MealAnalysisStore {
   }
 
   @override
+  Future<Map<int, List<MealAnalysis>>> byMeals(Set<int> mealIds) =>
+      inner.byMeals(mealIds);
+
+  @override
   Future<MealAnalysis?> byId(int id) => inner.byId(id);
 
   @override
@@ -335,6 +405,17 @@ final class GatedAnalysisStore implements MealAnalysisStore {
     failNextItemCount = null;
     if (error != null) throw error;
     return await inner.setItemCount(itemId, countX2);
+  }
+
+  /// Thrown once by the next confirmItems.
+  Error? failNextConfirm;
+
+  @override
+  Future<bool> confirmItems(int analysisId) async {
+    final error = failNextConfirm;
+    failNextConfirm = null;
+    if (error != null) throw error;
+    return await inner.confirmItems(analysisId);
   }
 
   @override

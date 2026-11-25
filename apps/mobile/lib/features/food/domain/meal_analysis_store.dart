@@ -15,6 +15,9 @@ abstract interface class MealAnalysisStore {
 
   Future<List<MealAnalysis>> byMeal(int mealId);
 
+  /// Every row of each meal, keyed by meal id; a meal with none is absent.
+  Future<Map<int, List<MealAnalysis>>> byMeals(Set<int> mealIds);
+
   Future<MealAnalysis?> byId(int id);
 
   Future<MealAnalysis?> next();
@@ -74,6 +77,9 @@ abstract interface class MealAnalysisStore {
   /// Makes the item the person's own, confirmed, with the model's grams
   /// scaled to the count; 0 removes it.
   Future<bool> setItemCount(int itemId, int countX2);
+
+  /// Marks every item of the row confirmed; false when it has none.
+  Future<bool> confirmItems(int analysisId);
 
   Future<bool> keepOnPhone(int mealId);
 

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:drift/drift.dart';
+import 'package:metrics/metrics.dart' show FoodGroup;
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_result.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
@@ -78,6 +79,17 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
   @override
   Future<List<MealAnalysis>> byMeal(int mealId) =>
       _read((r) => r.mealId.equals(mealId));
+
+  @override
+  Future<Map<int, List<MealAnalysis>>> byMeals(Set<int> mealIds) async {
+    if (mealIds.isEmpty) return {};
+    final rows = await _read((r) => r.mealId.isIn(mealIds));
+    final byMeal = <int, List<MealAnalysis>>{};
+    for (final row in rows) {
+      (byMeal[row.mealId] ??= []).add(row);
+    }
+    return byMeal;
+  }
 
   @override
   Future<MealAnalysis?> byId(int id) async =>
@@ -163,6 +175,7 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
             countX2: item.countX2,
             grams: item.grams,
             origin: MealItemOrigin.model.name,
+            foodGroup: Value(mealWireName(item.group)),
           ),
       ]),
     );
@@ -297,6 +310,15 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
         ) >
         0;
   });
+
+  @override
+  Future<bool> confirmItems(int analysisId) => _write(
+    () async =>
+        await (_db.update(_db.mealItems)
+              ..where((i) => i.analysisId.equals(analysisId)))
+            .write(const MealItemsCompanion(confirmed: Value(true))) >
+        0,
+  );
 
   static (String, String) _itemKey(String name, String measure) =>
       (name.toLowerCase(), measure);
@@ -459,6 +481,7 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
     grams: row.grams,
     origin: MealItemOrigin.values.byName(row.origin),
     confirmed: row.confirmed,
+    group: mealEnumFromWire(FoodGroup.values, row.foodGroup) ?? FoodGroup.other,
   );
 
   static DateTime _utc(int ms) =>

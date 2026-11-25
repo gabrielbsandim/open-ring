@@ -2887,5 +2887,8 @@
   "foodAiHiddenOil": "Digoreng atau berminyak",
   "foodAiHiddenSauce": "Saus atau dressing",
   "foodAiHiddenSugar": "Gula dalam minuman",
-  "foodAiItemsNote": "Tidak ada kalori untuk makanan ini. Item hanya masuk ke rata-rata mingguan, sebagai rentang."
+  "foodAiItemsNote": "Tidak ada kalori untuk makanan ini. Item hanya masuk ke rata-rata mingguan, sebagai rentang.",
+  "foodAiItemsConfirm": "Item ini sudah benar",
+  "foodAiItemsCheck": "Periksa item dan chip di bawah, lalu konfirmasi. Hanya makanan yang kamu konfirmasi yang dihitung dalam energi mingguan.",
+  "foodAiItemsDone": "Sudah diperiksa. Makanan ini dihitung dalam energi mingguan."
 }

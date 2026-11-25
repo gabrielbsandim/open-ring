@@ -2359,7 +2359,8 @@ of each group of equal values:
 
 the low end is slope number `max(round((N - 1.645 sigma) / 2) - 1, 0)` and the
 high end slope number `min(round((N + 1.645 sigma) / 2), N - 1)`, counted from
-0 and rounded half away from zero, as in `scipy.stats.theilslopes`.
+0, the index form of `scipy.stats.theilslopes`; rounding half away from zero
+is **our choice**.
 
 **Direction.** Rising when the whole interval is above zero and the change is
 at least the lever's minimum; falling the same way below zero; otherwise

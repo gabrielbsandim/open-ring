@@ -421,6 +421,11 @@ void main() {
       expect(isValidStepDay(quarterHours(41), sleep: sleep), isTrue);
     });
 
+    test('sleep inside a bucket removes only its own minutes', () {
+      final sleep = [sleepSpan(10, 20)];
+      expect(isValidStepDay(quarterHours(41), sleep: sleep), isTrue);
+    });
+
     test('two overlapping sleep spans remove the same minutes once', () {
       final sleep = [sleepSpan(0, 15), sleepSpan(0, 15)];
       expect(isValidStepDay(quarterHours(41), sleep: sleep), isTrue);
@@ -443,6 +448,27 @@ void main() {
       ];
       expect(isValidStepDay(crossing), isTrue);
     });
+  });
+
+  test('a bucket across midnight counts in full', () {
+    final midnight = DateTime.utc(2026, 11, 25);
+    final crossing = <StepBucket>[
+      for (var i = 0; i < 40; i++)
+        (
+          start: midnight.add(Duration(minutes: (i - 20) * 15 + 7)),
+          duration: const Duration(minutes: 15),
+          steps: 3,
+        ),
+    ];
+    expect(isValidStepDay(crossing), isTrue);
+  });
+
+  test('days are counted from the window start, not the first valid day', () {
+    final trend = trendOf(series(54, (x) => 100 + 10.0 * x, from: 36));
+    expect(trend.centerDay, closeTo(62.5, tolerance));
+    final fan = trend.fan(RingLever.steps)!;
+    expect(fan.low, closeTo(1890, tolerance));
+    expect(fan.high, closeTo(1890, tolerance));
   });
 
   test('the interval is a sorted pair of slopes', () {

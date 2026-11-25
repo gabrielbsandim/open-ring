@@ -5397,5 +5397,20 @@
   "aiPhotosPausedBody": "No more photos are sent while the queue is paused. Your meals, the tags you set and the times stay in the diary.",
   "aiPhotosResume": "{count, plural, =0{Resume} one{Resume (sends 1 photo)} other{Resume (sends {count} photos)}}",
   "@aiPhotosResume": {"placeholders": {"count": {"type": "int"}}},
-  "aiPhotosExpiry": "A photo queued more than 7 days ago leaves the queue unsent: an intent from a week ago is not consent to send today."
+  "aiPhotosExpiry": "A photo queued more than 7 days ago leaves the queue unsent: an intent from a week ago is not consent to send today.",
+  "foodAiSuggestedHint": "The dashed tags came from the model. Tap one to confirm it, or confirm them all.",
+  "foodAiConfirmAll": "{count, plural, one{Confirm 1} other{Confirm all {count}}}",
+  "@foodAiConfirmAll": {"placeholders": {"count": {"type": "int"}}},
+  "foodAiChecked": "Suggestions checked. Only what you confirm counts in the Plate pattern and the comparisons.",
+  "foodAiSuggestedChip": "{tag}, suggested by the model. Tap to confirm.",
+  "@foodAiSuggestedChip": {"placeholders": {"tag": {"type": "String"}}},
+  "foodAiConfirmed": "Tags confirmed. They now count in the Plate pattern and the comparisons.",
+  "foodAiBatch": "{count, plural, one{Analyze 1 photo} other{Analyze {count} photos}}",
+  "@foodAiBatch": {"placeholders": {"count": {"type": "int"}}},
+  "foodAiBatchQueued": "{count, plural, one{Queued: 1 photo. It goes while the app is open.} other{Queued: {count} photos. They go one at a time while the app is open.}}",
+  "@foodAiBatchQueued": {"placeholders": {"count": {"type": "int"}}},
+  "foodAiBatchPartial": "{count, plural, one{1 queued. The daily limit stopped the rest.} other{{count} queued. The daily limit stopped the rest.}}",
+  "@foodAiBatchPartial": {"placeholders": {"count": {"type": "int"}}},
+  "foodAiBadge": "{state, select, suggestions{Suggestions} queued{Queued} sending{Sending} failed{Failed} other{Checked}}",
+  "@foodAiBadge": {"placeholders": {"state": {"type": "String"}}}
 }

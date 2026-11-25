@@ -36,6 +36,7 @@ abstract final class MealAnalysisKeys {
   static const again = Key('meal_ai_again');
   static const link = Key('meal_ai_link');
   static const ceiling = Key('meal_ai_ceiling');
+  static const confirmAll = Key('meal_ai_confirm_all');
 }
 
 final FutureProvider<int> _monthTokensProvider =
@@ -48,9 +49,18 @@ final FutureProvider<int> _monthTokensProvider =
 /// The photo analysis card of one meal; the screen builds it only with AI and
 /// Food on and a photo on the meal.
 class MealAnalysisSection extends ConsumerWidget {
-  const new({required this.mealId, super.key});
+  const new({
+    required this.mealId,
+    this.pending = const {},
+    this.onConfirmAll,
+    super.key,
+  });
 
   final int mealId;
+
+  /// The suggestions of the done row the person has not confirmed yet.
+  final Set<Object> pending;
+  final VoidCallback? onConfirmAll;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -153,6 +163,17 @@ class MealAnalysisSection extends ConsumerWidget {
       ],
       (MealAnalysisViewKind.done, final row?) => [
         CaptionText(_tagged(context, l10n, row)),
+        const SizedBox(height: 10),
+        if (pending.isEmpty)
+          BodyText(l10n.foodAiChecked)
+        else ...[
+          BodyText(l10n.foodAiSuggestedHint),
+          _button(
+            MealAnalysisKeys.confirmAll,
+            l10n.foodAiConfirmAll(pending.length),
+            onConfirmAll,
+          ),
+        ],
       ],
       (MealAnalysisViewKind.notFood, _) => [
         _Notice(Icons.no_food_outlined, l10n.foodAiNotFood),
@@ -254,7 +275,7 @@ class MealAnalysisSection extends ConsumerWidget {
   }
 }
 
-Widget _button(Key key, String label, VoidCallback onPressed) => Padding(
+Widget _button(Key key, String label, VoidCallback? onPressed) => Padding(
   padding: const EdgeInsets.only(top: 12),
   child: SecondaryButton(buttonKey: key, label: label, onPressed: onPressed),
 );

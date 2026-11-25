@@ -15,6 +15,7 @@ import 'package:open_ring/features/food/application/food_day.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/application/meal_capture.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
+import 'package:open_ring/features/food/presentation/food_day_ai.dart';
 import 'package:open_ring/features/food/presentation/food_week_screen.dart';
 import 'package:open_ring/features/food/presentation/meal_capture_presenter.dart';
 import 'package:open_ring/features/food/presentation/meal_saved_sheet.dart';
@@ -201,6 +202,7 @@ class _FoodDayBodyState extends ConsumerState<_FoodDayBody> {
         _EmptyDay(isToday: isToday),
         const SizedBox(height: cardGap),
         addRow,
+        FoodDayAiBatch(date: date, meals: const []),
       ];
     }
     final now = ref.watch(clockProvider)().toLocal();
@@ -211,10 +213,12 @@ class _FoodDayBodyState extends ConsumerState<_FoodDayBody> {
         const SizedBox(height: cardGap),
       ],
       addRow,
+      FoodDayAiBatch(date: date, meals: meals),
       const SizedBox(height: cardGap),
       for (final meal in meals) ...[
         _MealCard(
           meal: meal,
+          date: date,
           onTap: () {
             final router = GoRouter.maybeOf(context);
             if (router == null) return;
@@ -455,9 +459,10 @@ class _EmptyDay extends StatelessWidget {
 }
 
 class _MealCard extends StatelessWidget {
-  const new({required this.meal, required this.onTap});
+  const new({required this.meal, required this.date, required this.onTap});
 
   final Meal meal;
+  final LocalDate date;
   final VoidCallback onTap;
 
   @override
@@ -503,6 +508,7 @@ class _MealCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 CaptionText(tags),
+                FoodDayAiBadge(meal: meal, date: date),
               ],
             ),
           ),

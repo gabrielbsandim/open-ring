@@ -6,6 +6,7 @@ import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/food/application/meal_photo_saver.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
+import 'package:open_ring/features/open_score/presentation/day_tag_sheet.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class MealSavedSheetKeys {
@@ -178,10 +179,18 @@ class MealNoSpaceSheet extends StatelessWidget {
 /// The kind and the nine tag groups, in the prototype's order, none chosen
 /// by default.
 class MealTagsEditor extends StatelessWidget {
-  const new({required this.value, required this.onChanged, super.key});
+  const new({
+    required this.value,
+    required this.onChanged,
+    this.suggested,
+    super.key,
+  });
 
   final MealEdit value;
   final ValueChanged<MealEdit>? onChanged;
+
+  /// Drawn dashed while not chosen; a tap sets it through [onChanged].
+  final Set<Object>? suggested;
 
   @override
   Widget build(BuildContext context) {
@@ -189,6 +198,9 @@ class MealTagsEditor extends StatelessWidget {
     final colors = AppColors.of(context);
     final edit = value;
     final onChanged = this.onChanged;
+    final suggested = this.suggested ?? const <Object>{};
+    String? hint(Object value, String text) =>
+        suggested.contains(value) ? l10n.foodAiSuggestedChip(text) : null;
     ValueChanged<T?>? maybe<T extends Enum>(MealEdit Function(T?) apply) =>
         onChanged == null ? null : (picked) => onChanged(apply(picked));
     Widget flag(MealFlag flag, String label, String text) => _Group(
@@ -198,6 +210,7 @@ class MealTagsEditor extends StatelessWidget {
           key: MealSavedSheetKeys.flag(flag),
           text: text,
           selected: edit.flag(flag),
+          suggestedLabel: hint(flag, text),
           filter: true,
           onSelected: onChanged == null
               ? null
@@ -225,6 +238,7 @@ class MealTagsEditor extends StatelessWidget {
               MealKind.snack => l10n.foodKindSnack,
               MealKind.drink => l10n.foodKindDrink,
             },
+            hint: hint,
             onChanged: maybe(edit.withKind),
           ),
           flag(MealFlag.protein, l10n.foodProteinLabel, l10n.foodProtein),
@@ -237,6 +251,7 @@ class MealTagsEditor extends StatelessWidget {
               MealVeg.some => l10n.foodVegSome,
               MealVeg.halfOrMore => l10n.foodVegHalf,
             },
+            hint: hint,
             onChanged: maybe(edit.withVeg),
           ),
           _OneOf(
@@ -248,6 +263,7 @@ class MealTagsEditor extends StatelessWidget {
               MealAlcohol.oneToTwo => l10n.foodAlcoholOneToTwo,
               MealAlcohol.threeOrMore => l10n.foodAlcoholThreeOrMore,
             },
+            hint: hint,
             onChanged: maybe(edit.withAlcohol),
           ),
           flag(MealFlag.caffeine, l10n.foodCaffeineLabel, l10n.foodCaffeine),
@@ -263,6 +279,7 @@ class MealTagsEditor extends StatelessWidget {
               MealProcessed.mostly => l10n.foodProcessedMostly,
               MealProcessed.unsure => l10n.foodProcessedUnsure,
             },
+            hint: hint,
             onChanged: maybe(edit.withProcessed),
           ),
           _OneOf(
@@ -292,6 +309,7 @@ class _OneOf<T extends Enum> extends StatelessWidget {
     required this.keyOf,
     required this.text,
     required this.onChanged,
+    this.hint,
   });
 
   final String label;
@@ -300,6 +318,9 @@ class _OneOf<T extends Enum> extends StatelessWidget {
   final Key Function(T value) keyOf;
   final String Function(T value) text;
   final ValueChanged<T?>? onChanged;
+
+  /// The suggested chip's semantics label, null when it is no suggestion.
+  final String? Function(T value, String text)? hint;
 
   @override
   Widget build(BuildContext context) {
@@ -312,6 +333,7 @@ class _OneOf<T extends Enum> extends StatelessWidget {
             key: keyOf(value),
             text: text(value),
             selected: value == selected,
+            suggestedLabel: hint?.call(value, text(value)),
             onSelected: onChanged == null
                 ? null
                 : (on) => onChanged(on ? value : null),
@@ -351,6 +373,7 @@ class _TagChip extends StatelessWidget {
     required this.selected,
     required this.onSelected,
     this.filter = false,
+    this.suggestedLabel,
     super.key,
   });
 
@@ -361,9 +384,20 @@ class _TagChip extends StatelessWidget {
   /// A yes or no tag, rather than one choice of a group.
   final bool filter;
 
+  /// Set while the model suggests this chip; it is read in place of [text].
+  final String? suggestedLabel;
+
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
+    final suggestedLabel = this.suggestedLabel;
+    if (suggestedLabel != null && !selected) {
+      return _SuggestedChip(
+        text: text,
+        semanticsLabel: suggestedLabel,
+        onSelected: onSelected,
+      );
+    }
     final label = Text(
       text,
       style: TextStyle(
@@ -378,6 +412,60 @@ class _TagChip extends StatelessWidget {
       );
     }
     return ChoiceChip(label: label, selected: selected, onSelected: onSelected);
+  }
+}
+
+// The chip keeps its padded tap target, and its shape draws the dashes
+// around the visible chip only.
+class _SuggestedChip extends StatelessWidget {
+  const new({
+    required this.text,
+    required this.semanticsLabel,
+    required this.onSelected,
+  });
+
+  final String text;
+  final String semanticsLabel;
+  final ValueChanged<bool>? onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final onSelected = this.onSelected;
+    return ActionChip(
+      avatar: Icon(Icons.auto_awesome_outlined, color: colors.textLabel),
+      label: Text(
+        text,
+        semanticsLabel: semanticsLabel,
+        style: TextStyle(color: colors.textSecondary),
+      ),
+      shape: _DashedChipBorder(color: colors.textLabel),
+      backgroundColor: Colors.transparent,
+      onPressed: onSelected == null ? null : () => onSelected(true),
+    );
+  }
+}
+
+class _DashedChipBorder extends RoundedRectangleBorder {
+  const new({required this.color})
+    : super(borderRadius: const BorderRadius.all(Radius.circular(8)));
+
+  final Color color;
+
+  // The chip resolves its side through copyWith, which must keep the dashes.
+  @override
+  RoundedRectangleBorder copyWith({
+    BorderSide? side,
+    BorderRadiusGeometry? borderRadius,
+  }) => this;
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    canvas
+      ..save()
+      ..translate(rect.left, rect.top);
+    DashedBorderPainter(color: color, radius: 8).paint(canvas, rect.size);
+    canvas.restore();
   }
 }
 

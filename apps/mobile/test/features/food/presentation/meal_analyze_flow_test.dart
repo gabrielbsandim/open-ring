@@ -268,7 +268,7 @@ void main() {
     await tester.pump();
     await tester.tap(find.byKey(MealPhotoConsentKeys.proceed));
     await tester.pumpAndSettle();
-    expect(find.text(l10n.foodAiLimit(2)), findsOneWidget);
+    expect(find.text(l10n.foodAiBatchPartial(2)), findsOneWidget);
     await drain(tester);
     await drain(tester);
 

@@ -2867,5 +2867,14 @@
   "aiPhotosPausedTitle": "{count, plural, =0{La cola de fotos está en pausa.} one{1 foto en espera. La cola está en pausa.} other{{count} fotos en espera. La cola está en pausa.}}",
   "aiPhotosPausedBody": "No se envían más fotos mientras la cola esté en pausa. Tus comidas, las etiquetas que marcaste y las horas siguen en el diario.",
   "aiPhotosResume": "{count, plural, =0{Reanudar} one{Reanudar (envía 1 foto)} other{Reanudar (envía {count} fotos)}}",
-  "aiPhotosExpiry": "Una foto que entró en la cola hace más de 7 días sale de ella sin enviarse: una intención de hace una semana no es consentimiento para enviar hoy."
+  "aiPhotosExpiry": "Una foto que entró en la cola hace más de 7 días sale de ella sin enviarse: una intención de hace una semana no es consentimiento para enviar hoy.",
+  "foodAiSuggestedHint": "Las etiquetas con borde discontinuo vienen del modelo. Toca una para confirmarla, o confírmalas todas.",
+  "foodAiConfirmAll": "{count, plural, one{Confirmar 1} other{Confirmar las {count}}}",
+  "foodAiChecked": "Sugerencias revisadas. Solo lo que confirmas cuenta en el Patrón del plato y en las comparaciones.",
+  "foodAiSuggestedChip": "{tag}: sugerencia del modelo. Toca para confirmar.",
+  "foodAiConfirmed": "Etiquetas confirmadas. Ahora cuentan en el Patrón del plato y en las comparaciones.",
+  "foodAiBatch": "{count, plural, one{Analizar 1 foto} other{Analizar {count} fotos}}",
+  "foodAiBatchQueued": "{count, plural, one{En cola: 1 foto. Se envía mientras la app esté abierta.} other{En cola: {count} fotos. Se envían de una en una mientras la app esté abierta.}}",
+  "foodAiBatchPartial": "{count, plural, one{1 en cola. El límite diario detuvo el resto.} other{{count} en cola. El límite diario detuvo el resto.}}",
+  "foodAiBadge": "{state, select, suggestions{Sugerencias} queued{En cola} sending{Enviando} failed{Falló} other{Revisada}}"
 }

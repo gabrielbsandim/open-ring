@@ -7,8 +7,12 @@ import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/features/body/domain/hide_numbers_store.dart';
+import 'package:open_ring/features/food/application/food_energy.dart';
+import 'package:open_ring/features/food/application/food_energy_gate.dart';
+import 'package:open_ring/features/food/presentation/food_energy_screen.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
+import 'package:open_ring/features/goals/domain/goal_store.dart';
 import 'package:open_ring/features/goals/presentation/goal_pick_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_refusal_screen.dart';
 import 'package:open_ring/features/goals/presentation/goal_screening_screen.dart';
@@ -617,5 +621,114 @@ void main() {
         });
       }
     }
+  });
+
+  group('energy mode', () {
+    const energyModules = {ModuleId.ai, ModuleId.food, ModuleId.body};
+    const sexed = UserProfile(
+      birthYear: 1990,
+      heightCentimeters: 178,
+      sex: Sex.female,
+    );
+
+    Future<(GoalSetup, GoRouter)> openForEnergy(WidgetTester tester) async {
+      final setup = await setupPicker(modules: energyModules, profile: sexed);
+      final router = await pumpGoals(
+        tester,
+        setup,
+        at: AppPaths.goalsScreeningForEnergy,
+      );
+      tester.view.physicalSize = const Size(360, 6000) * 3;
+      await tester.pumpAndSettle();
+      return (setup, router);
+    }
+
+    testWidgets('asks the five questions with Goals off, without the '
+        'goals way out', (tester) async {
+      await openForEnergy(tester);
+
+      for (final text in _questions) {
+        expect(find.text(text), findsOneWidget, reason: text);
+      }
+      expect(find.byKey(GoalScreeningKeys.back), findsNothing);
+      expect(find.text(_skip), findsNothing);
+    });
+
+    testWidgets('five no answers store one result and offer Weekly energy', (
+      tester,
+    ) async {
+      final (setup, router) = await openForEnergy(tester);
+
+      await _answerAll(tester, List.filled(5, false));
+      await tapKey(tester, GoalScreeningKeys.continueButton);
+
+      expect(whereIs(router), AppPaths.foodEnergy);
+      final rows = await setup.store.screenings();
+      expect(rows, hasLength(1));
+      expect(rows.single.softMode, isFalse);
+      expect(rows.single.pregnantOrBreastfeeding, isNull);
+      expect(
+        await setup.container.read(foodEnergyGateProvider.future),
+        isA<FoodEnergyOffered>(),
+      );
+    });
+
+    testWidgets('two yes answers block it for soft mode', (tester) async {
+      final (setup, router) = await openForEnergy(tester);
+
+      await _answerAll(tester, _twoYes);
+      await tapKey(tester, GoalScreeningKeys.continueButton);
+
+      expect(whereIs(router), AppPaths.foodEnergy);
+      expect(
+        await setup.container.read(foodEnergyGateProvider.future),
+        isA<FoodEnergyBlocked>().having(
+          (gate) => gate.block,
+          'block',
+          FoodEnergyBlock.softMode,
+        ),
+      );
+    });
+
+    testWidgets('once answered it shows the energy screen instead', (
+      tester,
+    ) async {
+      final store = InMemoryGoalStore();
+      await store.addScreening(
+        const GoalScreening(
+          on: LocalDate(2026, 12, 1),
+          softMode: false,
+          pregnantOrBreastfeeding: null,
+        ),
+      );
+      final setup = await setupPicker(
+        modules: energyModules,
+        profile: sexed,
+        store: store,
+        extraOverrides: [
+          foodEnergyProvider.overrideWith(
+            (ref) async => FoodEnergyView(
+              gate: await ref.watch(foodEnergyGateProvider.future),
+            ),
+          ),
+        ],
+      );
+      await pumpGoals(tester, setup, at: AppPaths.goalsScreeningForEnergy);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FoodEnergyScreen), findsOneWidget);
+      expect(find.byKey(GoalScreeningKeys.continueButton), findsNothing);
+    });
+
+    testWidgets('without the energy flag Goals off still shows nothing', (
+      tester,
+    ) async {
+      final setup = await setupPicker(modules: energyModules, profile: sexed);
+      await pumpGoals(tester, setup, at: AppPaths.goalsScreening);
+      await tester.pumpAndSettle();
+
+      expect(find.text(_title), findsOneWidget);
+      expect(find.byKey(GoalScreeningKeys.continueButton), findsNothing);
+    });
   });
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
@@ -34,6 +35,7 @@ import 'goal_fixtures.dart';
 const todayStub = 'today stub';
 const settingsStub = 'settings stub';
 const bodyModuleStub = 'body module stub';
+const foodEnergyStub = 'food energy stub';
 
 // Born in 1990 and 178 cm: every intake check passes at a trend of 70 kg.
 const okProfile = UserProfile(birthYear: 1990, heightCentimeters: 178);
@@ -130,6 +132,7 @@ Future<GoalSetup> setupPicker({
   InMemoryGoalStore? store,
   GoalStore Function(InMemoryGoalStore memory)? readStoreOf,
   bool demo = false,
+  List<Override> extraOverrides = const [],
 }) {
   final memory = store ?? InMemoryGoalStore();
   return setupGoals(
@@ -152,6 +155,7 @@ Future<GoalSetup> setupPicker({
       demoModeStoreProvider.overrideWithValue(
         InMemoryDemoModeStore(enabled: demo),
       ),
+      ...extraOverrides,
     ],
   );
 }
@@ -179,7 +183,13 @@ GoRouter goalsRouter(String initial) => GoRouter(
     ),
     GoRoute(
       path: AppPaths.goalsScreening,
-      builder: (_, _) => const GoalScreeningScreen(),
+      builder: (_, state) => GoalScreeningScreen(
+        forEnergy: state.uri.queryParameters['for'] == 'energy',
+      ),
+    ),
+    GoRoute(
+      path: AppPaths.foodEnergy,
+      builder: (_, _) => const Scaffold(body: Text(foodEnergyStub)),
     ),
     GoRoute(
       path: AppPaths.goalsSetup,

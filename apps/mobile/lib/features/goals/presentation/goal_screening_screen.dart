@@ -10,6 +10,8 @@ import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/food/application/food_energy_gate.dart';
+import 'package:open_ring/features/food/presentation/food_energy_screen.dart';
 import 'package:open_ring/features/goals/application/goal_intake_providers.dart';
 import 'package:open_ring/features/goals/application/goals_gate.dart';
 import 'package:open_ring/features/goals/domain/goal_intake.dart';
@@ -27,7 +29,10 @@ abstract final class GoalScreeningKeys {
 }
 
 class GoalScreeningScreen extends ConsumerStatefulWidget {
-  const new({super.key});
+  const new({this.forEnergy = false, super.key});
+
+  /// Asked for Weekly energy: works with Goals off and returns to it.
+  final bool forEnergy;
 
   @override
   ConsumerState<GoalScreeningScreen> createState() =>
@@ -43,7 +48,7 @@ class _GoalScreeningScreenState extends ConsumerState<GoalScreeningScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final empty = AppPage(title: l10n.goalsScreeningTitle, children: const []);
-    if (!ref.watch(goalsEnabledProvider)) return empty;
+    if (!ref.watch(goalsEnabledProvider) && !widget.forEnergy) return empty;
     final instead = _submitting ? null : _instead(l10n, empty);
     if (instead != null) return instead;
     final done = _answers.nonNulls.length;
@@ -112,15 +117,17 @@ class _GoalScreeningScreenState extends ConsumerState<GoalScreeningScreen> {
                 ),
               ),
             ],
-            const SizedBox(height: 16),
-            CaptionText(l10n.goalsScreeningSkip),
-            const SizedBox(height: 10),
-            SecondaryButton(
-              buttonKey: GoalScreeningKeys.back,
-              label: l10n.goalsRefusalSeeNoWeight,
-              onPressed: () =>
-                  context.go(AppPaths.goalsPickWith(GoalKind.getFitter)),
-            ),
+            if (!widget.forEnergy) ...[
+              const SizedBox(height: 16),
+              CaptionText(l10n.goalsScreeningSkip),
+              const SizedBox(height: 10),
+              SecondaryButton(
+                buttonKey: GoalScreeningKeys.back,
+                label: l10n.goalsRefusalSeeNoWeight,
+                onPressed: () =>
+                    context.go(AppPaths.goalsPickWith(GoalKind.getFitter)),
+              ),
+            ],
           ],
         ),
       ],
@@ -130,6 +137,7 @@ class _GoalScreeningScreenState extends ConsumerState<GoalScreeningScreen> {
   // Skipped during a submit: the write flips the facts before the screen
   // leaves, and the check would swap in the picker under the person.
   Widget? _instead(AppLocalizations l10n, Widget empty) {
+    if (widget.forEnergy) return _insteadForEnergy(empty);
     final facts = ref.watch(intakeFactsProvider);
     if (facts.hasError) {
       return AppPage(
@@ -142,6 +150,13 @@ class _GoalScreeningScreenState extends ConsumerState<GoalScreeningScreen> {
     if (_asks(current)) return null;
     return const GoalPickScreen(initial: GoalKind.loseFat);
   }
+
+  Widget? _insteadForEnergy(Widget empty) =>
+      switch (ref.watch(foodEnergyGateProvider)) {
+        AsyncValue(value: FoodEnergyNeedsScreening()) => null,
+        AsyncValue(hasValue: true) || AsyncError() => const FoodEnergyScreen(),
+        _ => empty,
+      };
 
   bool _asks(IntakeFacts facts) => switch (pickStep(GoalKind.loseFat, facts)) {
     PickWeight(next: IntakeNext.screening) => true,
@@ -171,11 +186,11 @@ class _GoalScreeningScreenState extends ConsumerState<GoalScreeningScreen> {
     try {
       final soft = await ref.read(screeningControllerProvider).submit(answers);
       if (!mounted) return;
-      context.go(
-        soft
-            ? AppPaths.goalsRefusedFor(IntakeBlock.softMode)
-            : AppPaths.goalsSetup,
-      );
+      context.go(switch ((widget.forEnergy, soft)) {
+        (true, _) => AppPaths.foodEnergy,
+        (false, true) => AppPaths.goalsRefusedFor(IntakeBlock.softMode),
+        (false, false) => AppPaths.goalsSetup,
+      });
     } on Object {
       if (!mounted) return;
       setState(() {

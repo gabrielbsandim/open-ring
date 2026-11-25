@@ -47,8 +47,13 @@ abstract interface class MealAnalysisStore {
   /// Skipped rows excluded.
   Future<int> countQueuedSince(DateTime since);
 
-  /// Rows waiting to be sent, whatever their target.
-  Future<int> countQueued();
+  /// Queued rows for this host and model queued at or after [since]: the
+  /// ones the next pass would send rather than skip.
+  Future<int> countQueued(
+    String providerHost,
+    String model, {
+    required DateTime since,
+  });
 
   Future<int> expireBefore(DateTime cutoff, {required DateTime now});
 

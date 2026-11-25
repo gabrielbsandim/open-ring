@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
-import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
@@ -33,8 +32,6 @@ class MealPhotoPauseCard extends ConsumerWidget {
     if (pause == null) return const SizedBox.shrink();
     final count = ref.watch(mealPhotoQueuedCountProvider).value ?? 0;
     final l10n = AppLocalizations.of(context);
-    final colors = AppColors.of(context);
-    final noVision = pause.reason == AiPhotoQueuePauseReason.noVision;
     final detail = switch (pause.reason) {
       AiPhotoQueuePauseReason.unauthorized => l10n.aiErrorKey,
       AiPhotoQueuePauseReason.noCredit => l10n.aiErrorNoCredit,
@@ -44,28 +41,18 @@ class MealPhotoPauseCard extends ConsumerWidget {
         pause.model,
       ),
     };
-    final router = GoRouter.maybeOf(context);
     final queue = ref.read(mealAnalysisQueueProvider.notifier);
     return MetricCard(
       key: MealPhotoPauseKeys.card,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.pause_circle_outline_rounded, color: colors.heart),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Semantics(
-                  header: true,
-                  child: Text(
-                    l10n.aiPhotosPausedTitle(count),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-              ),
-            ],
+          Semantics(
+            header: true,
+            child: Text(
+              l10n.aiPhotosPausedTitle(count),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
           const SizedBox(height: 8),
           BodyText(l10n.aiPhotosPausedBody),
@@ -75,12 +62,12 @@ class MealPhotoPauseCard extends ConsumerWidget {
           ActionButton(
             buttonKey: MealPhotoPauseKeys.connection,
             label: l10n.aiGuideOpen,
-            onPressed: router == null
-                ? null
-                : () => unawaited(router.push(AppPaths.settingsAiConnection)),
+            onPressed: () => unawaited(
+              GoRouter.maybeOf(context)?.push(AppPaths.settingsAiConnection),
+            ),
           ),
           const SizedBox(height: 8),
-          if (noVision)
+          if (pause.reason == AiPhotoQueuePauseReason.noVision)
             SecondaryButton(
               buttonKey: MealPhotoPauseKeys.test,
               label: l10n.aiPhotosVisionTest,

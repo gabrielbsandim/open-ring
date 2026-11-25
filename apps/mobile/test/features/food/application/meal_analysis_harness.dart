@@ -294,7 +294,11 @@ final class GatedAnalysisStore implements MealAnalysisStore {
   Future<int> countQueuedSince(DateTime since) => inner.countQueuedSince(since);
 
   @override
-  Future<int> countQueued() => inner.countQueued();
+  Future<int> countQueued(
+    String providerHost,
+    String model, {
+    required DateTime since,
+  }) => inner.countQueued(providerHost, model, since: since);
 
   @override
   Future<int> expireBefore(DateTime cutoff, {required DateTime now}) =>

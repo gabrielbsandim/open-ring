@@ -1,8 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
+import 'package:open_ring/features/ai/application/vision_probe_controller.dart';
 import 'package:open_ring/features/ai/application/vision_probe_runner.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
+import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
 import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
@@ -13,6 +17,7 @@ enum MealAnalysisViewKind {
   none,
   queued,
   paused,
+  closed,
   sending,
   done,
   notFood,
@@ -43,6 +48,14 @@ const Map<String, String> _reasonCases = {
   MealAnalysisErrorKind.unexpected: 'unexpected',
 };
 
+// A closed gate the queued line would misstate; the other closings skip the
+// row on the next pass, which then shows its own line.
+const Set<EnqueueOutcome> _shownClosed = {
+  EnqueueOutcome.unavailable,
+  EnqueueOutcome.visionUntested,
+  EnqueueOutcome.visionNo,
+};
+
 const Set<String> _photoStops = {
   MealAnalysisErrorKind.cancelled,
   MealAnalysisErrorKind.interrupted,
@@ -66,6 +79,7 @@ MealAnalysisView mealAnalysisViewOf(
   required int? sendingId,
   required bool capReached,
   required bool demo,
+  EnqueueOutcome? closed,
 }) {
   MealAnalysisView view(
     MealAnalysisViewKind kind, [
@@ -87,6 +101,10 @@ MealAnalysisView mealAnalysisViewOf(
     MealAnalysisStatus.queued when pause != null => view(
       MealAnalysisViewKind.paused,
       pause.reason.name,
+    ),
+    MealAnalysisStatus.queued when _shownClosed.contains(closed) => view(
+      MealAnalysisViewKind.closed,
+      closed?.name ?? 'other',
     ),
     MealAnalysisStatus.queued => view(MealAnalysisViewKind.queued),
     MealAnalysisStatus.sending => view(MealAnalysisViewKind.sending),
@@ -124,7 +142,24 @@ final aiPhotoQueuePauseProvider = FutureProvider<AiPhotoQueuePause?>((
   return holds ? pause : null;
 });
 
-final mealPhotoQueuedCountProvider = FutureProvider<int>((ref) {
+/// The queue gate, read again whenever an input of it may have changed.
+final mealPhotoGateProvider = FutureProvider<EnqueueOutcome?>((ref) async {
+  ref
+    ..watch(mealAnalysisQueueProvider)
+    ..watch(aiEnabledProvider)
+    ..watch(foodEnabledProvider)
+    ..watch(aiMealPhotoConsentProvider);
+  await ref.watch(aiConfigProvider.future);
+  await ref.watch(aiPhotoVisionProvider.future);
+  return await ref.read(mealAnalysisQueueProvider.notifier).closedReason();
+});
+
+/// Only rows the next pass would send: in date and for the current target.
+final mealPhotoQueuedCountProvider = FutureProvider<int>((ref) async {
   ref.watch(mealAnalysisRevisionProvider);
-  return ref.watch(mealAnalysisStoreProvider).countQueued();
+  final config = await ref.watch(aiConfigProvider.future);
+  final since = ref.read(clockProvider)().subtract(aiPhotoQueueExpiry);
+  return await ref
+      .read(mealAnalysisStoreProvider)
+      .countQueued(config.hostKey ?? '', aiPhotoTarget(config), since: since);
 });

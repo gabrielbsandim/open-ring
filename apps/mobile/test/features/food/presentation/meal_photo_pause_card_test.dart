@@ -137,6 +137,35 @@ void main() {
     expect(h.requests, isEmpty);
   });
 
+  testWidgets('a row the next pass would skip is not counted for Resume', (
+    tester,
+  ) async {
+    h.configStore.photoQueuePause = _pause(AiPhotoQueuePauseReason.noCredit);
+    await pump(tester, queued: 0);
+    final old = await h.meal(photo: 'meal_old.jpg');
+    await h.queued(old, at: h.now.subtract(const Duration(days: 8)));
+    final other = await h.meal(photo: 'meal_other.jpg');
+    await h.queued(
+      other,
+      target: (
+        providerHost: hostKey,
+        model: 'text-m',
+        promptVersion: photoTarget.promptVersion,
+        outputSchema: photoTarget.outputSchema,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.aiPhotosPausedTitle(0)), findsOneWidget);
+    expect(find.text(l10n.aiPhotosResume(0)), findsOneWidget);
+    expect(find.text('Resume (sends 1 photo)'), findsNothing);
+
+    await h.queued(await h.meal(photo: 'meal_new.jpg'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Resume (sends 1 photo)'), findsOneWidget);
+  });
+
   testWidgets('with no pause the card is absent', (tester) async {
     await pump(tester);
 

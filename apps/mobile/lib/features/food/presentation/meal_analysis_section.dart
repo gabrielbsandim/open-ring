@@ -10,6 +10,7 @@ import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
+import 'package:open_ring/features/ai/application/vision_probe_runner.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
@@ -33,7 +34,7 @@ abstract final class MealAnalysisKeys {
   static const cancel = Key('meal_ai_cancel');
   static const retry = Key('meal_ai_retry');
   static const again = Key('meal_ai_again');
-  static const photos = Key('meal_ai_photos');
+  static const link = Key('meal_ai_link');
   static const ceiling = Key('meal_ai_ceiling');
 }
 
@@ -67,6 +68,7 @@ class MealAnalysisSection extends ConsumerWidget {
       sendingId: queue.sendingId,
       capReached: queue.capReached,
       demo: ref.watch(demoModeProvider),
+      closed: ref.watch(mealPhotoGateProvider).value,
     );
     final l10n = AppLocalizations.of(context);
     final host = config.normalizedUrl?.asciiHost ?? '';
@@ -110,13 +112,10 @@ class MealAnalysisSection extends ConsumerWidget {
     final queue = ref.read(mealAnalysisQueueProvider.notifier);
     final host = config.normalizedUrl?.asciiHost ?? config.baseUrl;
     void analyze() => unawaited(analyzeMealPhotos(context, ref, [mealId]));
-    Widget button(Key key, String label, VoidCallback onPressed) => Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: SecondaryButton(
-        buttonKey: key,
-        label: label,
-        onPressed: onPressed,
-      ),
+    Widget cancel(MealAnalysis row) => _button(
+      MealAnalysisKeys.cancel,
+      l10n.settingsDeleteCancel,
+      () => unawaited(queue.cancel(row.id)),
     );
     return switch ((view.kind, view.row)) {
       (MealAnalysisViewKind.demo, _) => [
@@ -142,28 +141,13 @@ class MealAnalysisSection extends ConsumerWidget {
       (MealAnalysisViewKind.queued, final row?) => [
         _Notice(Icons.schedule_rounded, l10n.foodAiWaiting),
         if (view.capReached) _Ceiling(cap: config.monthlyTokenCap ?? 0),
-        button(
-          MealAnalysisKeys.cancel,
-          l10n.settingsDeleteCancel,
-          () => unawaited(queue.cancel(row.id)),
-        ),
+        cancel(row),
       ],
-      (MealAnalysisViewKind.paused, _) => [
-        _Notice(
-          Icons.pause_circle_outline_rounded,
-          l10n.foodAiPaused(view.reason),
-        ),
-        button(MealAnalysisKeys.photos, l10n.foodAiOpenPhotos, () {
-          unawaited(GoRouter.maybeOf(context)?.push(AppPaths.settingsAiPhotos));
-        }),
-      ],
+      (MealAnalysisViewKind.paused || MealAnalysisViewKind.closed, _) =>
+        _blocked(context, l10n, config, view),
       (MealAnalysisViewKind.sending, final row?) => [
         _Notice(Icons.send_outlined, l10n.foodAiSending(host)),
-        button(
-          MealAnalysisKeys.cancel,
-          l10n.settingsDeleteCancel,
-          () => unawaited(queue.cancel(row.id)),
-        ),
+        cancel(row),
         const SizedBox(height: 8),
         CaptionText(l10n.foodAiMayBill),
       ],
@@ -173,27 +157,61 @@ class MealAnalysisSection extends ConsumerWidget {
       (MealAnalysisViewKind.notFood, _) => [
         _Notice(Icons.no_food_outlined, l10n.foodAiNotFood),
       ],
-      (MealAnalysisViewKind.rejected, final row?) => [
-        _Notice(Icons.warning_amber_rounded, l10n.foodAiRejected),
-        button(
-          MealAnalysisKeys.retry,
-          l10n.foodRetry,
-          () => unawaited(queue.retry(row.id)),
-        ),
-      ],
-      (MealAnalysisViewKind.failed, final row?) => [
-        _Notice(Icons.warning_amber_rounded, _failed(l10n, config, view, row)),
-        button(
-          MealAnalysisKeys.retry,
-          l10n.foodRetry,
-          () => unawaited(queue.retry(row.id)),
-        ),
-      ],
+      (
+        MealAnalysisViewKind.rejected || MealAnalysisViewKind.failed,
+        final row?,
+      ) =>
+        [
+          _Notice(
+            Icons.warning_amber_rounded,
+            view.kind == MealAnalysisViewKind.rejected
+                ? l10n.foodAiRejected
+                : _failed(l10n, config, view, row),
+          ),
+          _button(
+            MealAnalysisKeys.retry,
+            l10n.foodRetry,
+            () => unawaited(queue.retry(row.id)),
+          ),
+        ],
       (MealAnalysisViewKind.skipped, _) => [
         _Notice(Icons.block_rounded, l10n.foodAiSkipped(view.reason)),
-        button(MealAnalysisKeys.again, l10n.foodAiAnalyzeAgain, analyze),
+        _button(MealAnalysisKeys.again, l10n.foodAiAnalyzeAgain, analyze),
       ],
     };
+  }
+
+  List<Widget> _blocked(
+    BuildContext context,
+    AppLocalizations l10n,
+    AiConfig config,
+    MealAnalysisView view,
+  ) {
+    final model = aiPhotoTarget(config);
+    final photos = (l10n.foodAiOpenPhotos, AppPaths.settingsAiPhotos);
+    final (line, (label, path)) = switch ((view.kind, view.reason)) {
+      (MealAnalysisViewKind.paused, _) => (
+        l10n.foodAiPaused(view.reason),
+        photos,
+      ),
+      (_, 'visionUntested') => (
+        l10n.aiPhotosVisionState('unknown', model),
+        photos,
+      ),
+      (_, 'visionNo') => (l10n.foodAiProbeTextOnly(model), photos),
+      _ => (
+        l10n.foodAiUnavailable,
+        (l10n.aiGuideOpen, AppPaths.settingsAiConnection),
+      ),
+    };
+    return [
+      _Notice(Icons.pause_circle_outline_rounded, line),
+      _button(
+        MealAnalysisKeys.link,
+        label,
+        () => unawaited(GoRouter.maybeOf(context)?.push(path)),
+      ),
+    ];
   }
 
   Widget _sample(AppLocalizations l10n) => Wrap(
@@ -235,6 +253,11 @@ class MealAnalysisSection extends ConsumerWidget {
     return line ?? l10n.foodAiStopped(view.reason);
   }
 }
+
+Widget _button(Key key, String label, VoidCallback onPressed) => Padding(
+  padding: const EdgeInsets.only(top: 12),
+  child: SecondaryButton(buttonKey: key, label: label, onPressed: onPressed),
+);
 
 class _Ceiling extends ConsumerWidget {
   const new({required this.cap});

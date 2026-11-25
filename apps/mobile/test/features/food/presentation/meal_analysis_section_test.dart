@@ -8,10 +8,12 @@ import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_result.dart';
+import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/ai/presentation/ai_failure_message.dart';
 import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
 import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/food/application/meal_analysis_view.dart';
+import 'package:open_ring/features/food/domain/meal.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
 import 'package:open_ring/features/food/presentation/food_meal_screen.dart';
 import 'package:open_ring/features/food/presentation/meal_analysis_section.dart';
@@ -170,7 +172,7 @@ void main() {
         await pump(tester, seed: queued);
 
         expectView(MealAnalysisViewKind.paused, l10n.foodAiPaused(reason.name));
-        expect(find.byKey(MealAnalysisKeys.photos), findsOneWidget);
+        expect(find.byKey(MealAnalysisKeys.link), findsOneWidget);
       });
     }
 
@@ -260,7 +262,66 @@ void main() {
     }
   });
 
+  group('closed gate', () {
+    final cases =
+        <String, (void Function(), String Function(AppLocalizations))>{
+          'vision unknown': (
+            () => h.configStore.profiles.clear(),
+            (l) => l.aiPhotosVisionState('unknown', photoModel),
+          ),
+          'vision no': (
+            () =>
+                h.configStore.profiles[aiCapabilityProfileKey(
+                  hostKey,
+                  photoModel,
+                )] = const AiCapabilityProfile(
+                  vision: AiVisionSupport.no,
+                ),
+            (l) => l.foodAiProbeTextOnly(photoModel),
+          ),
+          'no key': (
+            () => h.secrets.values.remove(aiApiKeySecretName),
+            (l) => l.foodAiUnavailable,
+          ),
+        };
+    for (final MapEntry(key: name, value: (close, line)) in cases.entries) {
+      testWidgets('a queued row with $name says so, not that it goes', (
+        tester,
+      ) async {
+        close();
+        await pump(tester, seed: queued);
+        await h.queue.drain();
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.foodAiWaiting), findsNothing);
+        expectView(MealAnalysisViewKind.closed, line(l10n));
+        expect(find.byKey(MealAnalysisKeys.link), findsOneWidget);
+        expect(h.requests, isEmpty);
+        expect((await h.row(mealId)).status, MealAnalysisStatus.queued);
+      });
+    }
+  });
+
   group('taps', () {
+    testWidgets('Try again on rejected requeues without a new daily use', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        seed: (id) =>
+            answered(id, MealAnalysisStatus.rejected, errorKind: 'schema'),
+      );
+      final day = aiPhotoDayKey(h.now);
+      final uses = await h.markers.photoUses(day);
+      h.queue.toBackground();
+      await tester.tap(find.byKey(MealAnalysisKeys.retry));
+      await tester.pumpAndSettle();
+
+      expect((await h.row(mealId)).status, MealAnalysisStatus.queued);
+      expect(await h.markers.photoUses(day), uses);
+      expect(h.requests, isEmpty);
+    });
+
     testWidgets('Cancel on queued skips the row, which reads as none', (
       tester,
     ) async {
@@ -360,6 +421,24 @@ void main() {
   });
 
   group('meal screen', () {
+    testWidgets('a meal without a photo has no section', (tester) async {
+      await pump(tester, screen: (_) => const SizedBox.shrink());
+      final bare = await h.meals.add(
+        MealDraft(at: h.now, offsetMinutes: -180),
+        now: h.now,
+      );
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: h.container,
+          child: screenHost(FoodMealScreen(mealId: bare.id)),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(FoodMealKeys.noPhoto), findsOneWidget);
+      expect(find.byKey(MealAnalysisKeys.section), findsNothing);
+    });
+
     testWidgets('with AI off it has no section and no analysis text', (
       tester,
     ) async {

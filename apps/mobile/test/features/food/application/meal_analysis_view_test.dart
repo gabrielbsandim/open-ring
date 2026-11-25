@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
+import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/food/application/meal_analysis_view.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
 
@@ -93,6 +94,57 @@ void main() {
     expect(_view(row, demo: true, keep: true).kind, MealAnalysisViewKind.demo);
     expect(_view(row, keep: true).kind, MealAnalysisViewKind.kept);
     expect(_view(null, keep: true).kind, MealAnalysisViewKind.kept);
+    final queued = _row(MealAnalysisStatus.queued);
+    expect(_view(queued, keep: true).kind, MealAnalysisViewKind.kept);
+    expect(
+      _view(queued, keep: true, sendingId: queued.id).kind,
+      MealAnalysisViewKind.kept,
+    );
+    final sending = _row(MealAnalysisStatus.sending);
+    expect(_view(sending, keep: true).kind, MealAnalysisViewKind.kept);
+  });
+
+  test('a queued row behind a closed gate names why, unless paused', () {
+    final row = _row(MealAnalysisStatus.queued);
+    for (final closed in [
+      EnqueueOutcome.unavailable,
+      EnqueueOutcome.visionUntested,
+      EnqueueOutcome.visionNo,
+    ]) {
+      final view = mealAnalysisViewOf(
+        row,
+        keep: false,
+        pause: null,
+        sendingId: null,
+        capReached: false,
+        demo: false,
+        closed: closed,
+      );
+      expect(
+        (view.kind, view.reason),
+        (MealAnalysisViewKind.closed, closed.name),
+      );
+    }
+    final paused = mealAnalysisViewOf(
+      row,
+      keep: false,
+      pause: _pause(AiPhotoQueuePauseReason.noVision),
+      sendingId: null,
+      capReached: false,
+      demo: false,
+      closed: EnqueueOutcome.visionNo,
+    );
+    expect(paused.kind, MealAnalysisViewKind.paused);
+    final done = mealAnalysisViewOf(
+      _row(MealAnalysisStatus.done),
+      keep: false,
+      pause: null,
+      sendingId: null,
+      capReached: false,
+      demo: false,
+      closed: EnqueueOutcome.unavailable,
+    );
+    expect(done.kind, MealAnalysisViewKind.done);
   });
 
   test('no row, or a skip the person asked for, reads as not analyzed', () {

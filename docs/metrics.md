@@ -2412,9 +2412,9 @@ Code: `scenarioFloored` in `packages/metrics/lib/src/trajectory.dart`. The
 12 week band that is drawn holds every edge at the weight of BMI 18.5
 (`bmiFloor`) for the profile height, `18.5 * m^2`, unrounded, unlike the Goals
 reference floor. When today's trend is already under that weight the floor is
-the trend, so the band is never pushed up. The 4 week band and the stored
-Monday band are not floored, so a stored band near BMI 18.5 can sit under the
-one that was drawn. **our choice**.
+the trend, so no edge is pushed above the trend. The 4 week band and the stored
+Monday band are not floored, so near BMI 18.5 they can go under the floor
+that holds the 12 week band. **our choice**.
 
 ### Ring levers (Theil-Sen over 90 days)
 

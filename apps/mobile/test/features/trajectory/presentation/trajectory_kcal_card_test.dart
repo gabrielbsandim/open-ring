@@ -327,4 +327,93 @@ void main() {
       });
     }
   });
+
+  group('TR10a review round 1: wording and near zero balance', () {
+    KcalReady withBalance(EnergyBalanceReady balance) => KcalReady(
+      resting: (low: 1550, high: 1900),
+      restChange12: -40,
+      dayChange12: -90,
+      balance: balance,
+    );
+
+    void expectNoMinus(String text) {
+      expect(RegExp('[-\u2212]\\s?[0-9]').hasMatch(text), isFalse);
+    }
+
+    testWidgets('F1: a range ending near zero below reads Below, unsigned', (
+      tester,
+    ) async {
+      const balance = EnergyBalanceReady(
+        low: -300,
+        mid: -160,
+        high: -20,
+        weighIns: 20,
+      );
+      await _pump(tester, kcal: withBalance(balance));
+
+      final text = _cardText(tester);
+      expect(text, contains('Below what you spent'));
+      expect(text, isNot(contains('Above')));
+      expectNoMinus(text);
+    });
+
+    testWidgets('F3: the near balance state reads in balance', (tester) async {
+      const balance = EnergyBalanceReady(
+        low: -108,
+        mid: 0,
+        high: 79,
+        weighIns: 25,
+      );
+      await _pump(tester, kcal: withBalance(balance));
+
+      final text = _cardText(tester);
+      expect(text, contains('in balance'));
+      expect(text, contains('Near balance'));
+      expect(text, isNot(contains('Below')));
+      expect(text, isNot(contains('Above')));
+    });
+
+    testWidgets('F4: a losing trend reads Less at rest', (tester) async {
+      await _pump(tester);
+
+      final text = _cardText(tester);
+      expect(text, contains('Less at rest'));
+      expect(text, isNot(contains('More at rest')));
+    });
+
+    testWidgets('F4: a gaining trend reads More at rest', (tester) async {
+      final view = readyView(
+        rate: const WeightRateReady(perWeek: 0.3, low: 0.2, high: 0.4),
+        band: const ScenarioBand(days: 84, low: 77, mid: 81.3, high: 82),
+      );
+      await _pump(tester, view: view);
+
+      final text = _cardText(tester);
+      expect(text, contains('More at rest'));
+      expect(text, isNot(contains('Less at rest')));
+    });
+
+    testWidgets('F4: a deficit balance reads Below, with no minus sign', (
+      tester,
+    ) async {
+      await _pump(tester, kcal: _fullKcal);
+
+      final text = _cardText(tester);
+      expect(text, contains('Below what you spent'));
+      expect(text, isNot(contains('Above')));
+      expectNoMinus(text);
+    });
+
+    testWidgets('F4: a surplus balance reads Above', (tester) async {
+      const balance = EnergyBalanceReady(
+        low: 120,
+        mid: 200,
+        high: 280,
+        weighIns: 25,
+      );
+      await _pump(tester, kcal: withBalance(balance));
+
+      expect(_cardText(tester), contains('Above what you spent'));
+    });
+  });
 }

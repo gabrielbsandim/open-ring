@@ -2324,9 +2324,11 @@ A stable rate still opens both ways, and a rising weight bends the same way.
 Worked example: trend 77.60 kg, rate -0.348 kg a week (-0.435 to -0.262),
 noise 0.35 kg give 75.58 to 76.95 kg at 4 weeks and 72.60 to 75.15 kg at 12.
 
-**Fast loss guard.** The scenario is not drawn while the slow end of the loss
-interval is over 1% of the trend a week, the same `percentLow` reading Goals
-uses for its cap (section 20). Exactly 1% does not trip it.
+**Fast loss guard.** `fastLossGuard` is true while the slow end of the loss
+interval is over 1% of the trend a week, and then the caller does not draw the
+scenario; `weightScenario` itself returns a band at any rate. The guard reads
+the same `percentLow` Goals uses for its cap (section 20), and exactly 1% does
+not trip it.
 
 | Constant | Value | Status |
 | --- | --- | --- |

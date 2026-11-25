@@ -25,6 +25,31 @@ final class InMemorySecretStore implements SecretStore {
   }
 }
 
+/// Fails the next [failDeletes] deletes, then works, so a retry can succeed.
+final class FlakySecretStore implements SecretStore {
+  final Map<String, String> values = {};
+  int failDeletes = 0;
+  int deleteCalls = 0;
+
+  @override
+  Future<String?> read(String name) async => values[name];
+
+  @override
+  Future<void> write(String name, String value) async {
+    values[name] = value;
+  }
+
+  @override
+  Future<void> delete(String name) async {
+    deleteCalls++;
+    if (failDeletes > 0) {
+      failDeletes--;
+      throw StateError('keystore failure');
+    }
+    values.remove(name);
+  }
+}
+
 final class FailingSecretStore implements SecretStore {
   new({
     this.failRead = false,

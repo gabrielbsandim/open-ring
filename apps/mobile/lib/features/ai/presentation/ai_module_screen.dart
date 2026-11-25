@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
+import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_data_eraser.dart';
 import 'package:open_ring/features/ai/application/ai_report_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_report.dart';
@@ -36,6 +38,10 @@ abstract final class AiModuleKeys {
   static const guide = Key('ai_module_guide');
   static const formula = Key('ai_module_formula');
   static const toggle = Key('ai_module_toggle');
+  static const data = Key('ai_module_data');
+  static const delete = Key('ai_module_delete');
+  static const deleteConfirm = Key('ai_module_delete_confirm');
+  static const deleteCancel = Key('ai_module_delete_cancel');
 }
 
 class AiModuleScreen extends ConsumerStatefulWidget {
@@ -47,6 +53,7 @@ class AiModuleScreen extends ConsumerStatefulWidget {
 
 class _AiModuleScreenState extends ConsumerState<AiModuleScreen> {
   var _toggling = false;
+  var _deleting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +88,7 @@ class _AiModuleScreenState extends ConsumerState<AiModuleScreen> {
           path: AppPaths.aiFormula,
           push: true,
         ),
+        ..._data(l10n),
         const SizedBox(height: 12),
         CaptionText(l10n.moduleBodyFoot),
         const SizedBox(height: 24),
@@ -243,6 +251,103 @@ class _AiModuleScreenState extends ConsumerState<AiModuleScreen> {
     return format.l10n.moduleAiUsage(summary.readings, tokens);
   }
 
+  List<Widget> _data(AppLocalizations l10n) {
+    final config = ref.watch(aiConfigProvider).value;
+    final count = ref.watch(aiRecentReportsProvider).value?.length;
+    final consent = ref.watch(aiConsentProvider).value;
+    final photo = ref.watch(aiMealPhotoConsentProvider).value;
+    final stored =
+        config != null &&
+        count != null &&
+        (count > 0 ||
+            consent != null ||
+            photo != null ||
+            config != AiConfig.defaults);
+    final line = switch ((config, count)) {
+      (final AiConfig c, final int n) when stored => _dataLine(
+        l10n,
+        c,
+        n,
+        consent,
+      ),
+      (AiConfig(), int()) => l10n.moduleAiDataEmpty,
+      _ => '',
+    };
+    return [
+      SectionHeader(l10n.moduleAiDataTitle),
+      BodyText(key: AiModuleKeys.data, line),
+      if (stored && !ref.watch(demoModeProvider)) ...[
+        const SizedBox(height: 12),
+        OutlinedButton(
+          key: AiModuleKeys.delete,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.of(context).heart,
+            minimumSize: const Size.fromHeight(48),
+          ),
+          onPressed: _deleting ? null : () => unawaited(_delete(config, count)),
+          child: Text(l10n.moduleAiDelete, textAlign: TextAlign.center),
+        ),
+      ],
+    ];
+  }
+
+  String _dataLine(
+    AppLocalizations l10n,
+    AiConfig config,
+    int count,
+    AiConsent? consent,
+  ) {
+    final last4 = config.keyLastFour;
+    final keyState = switch (last4) {
+      null => 'none',
+      '' => 'hidden',
+      _ => 'saved',
+    };
+    final at = consent?.consentedAtUtcMs;
+    final host = config.normalizedUrl?.asciiHost ?? consent?.hostKey ?? '';
+    return [
+      l10n.moduleAiDataReadings(count),
+      l10n.moduleAiDataKey(keyState, last4 ?? ''),
+      if (at != null)
+        l10n.aiConsentGiven(
+          host,
+          MaterialLocalizations.of(context)
+              .formatMediumDate(DateTime.fromMillisecondsSinceEpoch(at)),
+        ),
+    ].join(' ');
+  }
+
+  // Remove stays disabled until the clear returns, so a second tap cannot
+  // open a second dialog while the first runs.
+  Future<void> _delete(AiConfig config, int count) async {
+    if (_deleting) return;
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _deleting = true);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => _DeleteDialog(
+        count: count,
+        host: config.normalizedUrl?.asciiHost,
+        hasKey: config.keyLastFour != null,
+      ),
+    );
+    final removed = confirmed == true && mounted
+        ? await ref.read(aiDataEraserProvider).clear()
+        : null;
+    if (mounted) setState(() => _deleting = false);
+    if (removed == null || !mounted) return;
+    messenger
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            removed ? l10n.moduleAiDeleted : l10n.moduleAiDeleteFailed,
+          ),
+        ),
+      );
+  }
+
   // Calls the module list directly until OfferedModule.ai exists (A14e),
   // so the module is not listed before the privacy text changes.
   Future<void> _toggle({required bool on}) async {
@@ -260,5 +365,55 @@ class _AiModuleScreenState extends ConsumerState<AiModuleScreen> {
     } finally {
       if (mounted) setState(() => _toggling = false);
     }
+  }
+}
+
+class _DeleteDialog extends StatelessWidget {
+  const new({required this.count, required this.host, required this.hasKey});
+
+  final int count;
+  final String? host;
+  final bool hasKey;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = AppColors.of(context);
+    final notes = [
+      if (host case final host?) l10n.moduleAiDeleteNotes('received', host),
+      if (hasKey) l10n.moduleAiDeleteNotes('key', ''),
+      l10n.moduleAiDeleteNotes('module', ''),
+    ];
+    return AlertDialog(
+      scrollable: true,
+      title: Text(l10n.moduleAiDeleteTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.moduleAiDeleteBody(count)),
+          for (final note in notes) ...[
+            const SizedBox(height: 12),
+            CaptionText(note),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          key: AiModuleKeys.deleteCancel,
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l10n.settingsDeleteCancel),
+        ),
+        FilledButton(
+          key: AiModuleKeys.deleteConfirm,
+          style: FilledButton.styleFrom(
+            backgroundColor: colors.heart,
+            foregroundColor: colors.onAccent,
+          ),
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(l10n.moduleAiDeleteConfirm),
+        ),
+      ],
+    );
   }
 }

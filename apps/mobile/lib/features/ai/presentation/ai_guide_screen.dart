@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class AiGuideKeys {
@@ -14,11 +16,11 @@ abstract final class AiGuideKeys {
   static Key step(int number) => Key('ai_guide_step_$number');
 }
 
-class AiGuideScreen extends StatelessWidget {
+class AiGuideScreen extends ConsumerWidget {
   const new({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = AppColors.of(context);
     final steps = [
@@ -68,13 +70,17 @@ class AiGuideScreen extends StatelessWidget {
             Expanded(child: BodyText(l10n.aiGuideCost)),
           ],
         ),
-        const SizedBox(height: 24),
-        FilledButton(
-          key: AiGuideKeys.open,
-          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          onPressed: () => context.go(AppPaths.settingsAiConnection),
-          child: Text(l10n.aiGuideOpen),
-        ),
+        if (ref.watch(aiEnabledProvider)) ...[
+          const SizedBox(height: 24),
+          FilledButton(
+            key: AiGuideKeys.open,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+            ),
+            onPressed: () => context.go(AppPaths.settingsAiConnection),
+            child: Text(l10n.aiGuideOpen),
+          ),
+        ],
       ],
     );
   }

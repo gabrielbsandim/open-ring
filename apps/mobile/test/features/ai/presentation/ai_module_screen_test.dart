@@ -9,6 +9,7 @@ import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_data_eraser.dart';
 import 'package:open_ring/features/ai/application/ai_report_providers.dart';
 import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
@@ -20,6 +21,8 @@ import 'package:open_ring/features/ai/presentation/ai_module_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_reading_sheets.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/demo/domain/demo_mode_store.dart';
+import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
+import 'package:open_ring/features/food/infrastructure/drift_meal_analysis_store.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
@@ -29,6 +32,7 @@ import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 import '../../../helpers/ai_fakes.dart';
 import '../../../helpers/ble_fakes.dart';
+import '../../../helpers/database.dart';
 import '../../../helpers/layout_harness.dart';
 import '../../../helpers/onboarding_app.dart';
 import '../../../helpers/onboarding_fakes.dart';
@@ -94,10 +98,21 @@ AiConfig _tested({int? cap}) => AiConfig(
   monthlyTokenCap: cap,
 );
 
+final class _CountingEraser implements AiDataEraser {
+  int calls = 0;
+
+  @override
+  Future<bool> clear() async {
+    calls++;
+    return true;
+  }
+}
+
 void main() {
   final l10n = lookupAppLocalizations(const Locale('en'));
   late InMemoryAiConfigStore configs;
-  late InMemorySecretStore secrets;
+  late SecretStore secrets;
+  _CountingEraser? eraser;
   late InMemoryAiReportStore reports;
   late ModuleStore modules;
   late bool demo;
@@ -110,6 +125,7 @@ void main() {
     modules = InMemoryModuleStore({ModuleId.ai});
     demo = false;
     factoryCalls = 0;
+    eraser = null;
   });
 
   Future<void> pump(
@@ -146,6 +162,14 @@ void main() {
             keyedAnalysisModelFactoryProvider.overrideWithValue(
               (config, apiKey) => throw StateError('built ${++factoryCalls}'),
             ),
+            aiRunMarkerStoreProvider.overrideWithValue(
+              InMemoryAiRunMarkerStore(),
+            ),
+            mealAnalysisStoreProvider.overrideWithValue(
+              DriftMealAnalysisStore(memoryDatabase()),
+            ),
+            if (eraser case final fake?)
+              aiDataEraserProvider.overrideWithValue(fake),
           ],
           child: MaterialApp.router(
             theme: AppTheme.light(),
@@ -371,6 +395,7 @@ void main() {
 
     final toggle = find.byKey(AiModuleKeys.toggle);
     await tester.ensureVisible(toggle);
+    await tester.pumpAndSettle();
     await tester.tap(toggle);
     await tester.pump();
     await tester.tap(toggle, warnIfMissed: false);
@@ -397,6 +422,7 @@ void main() {
 
     final toggle = find.byKey(AiModuleKeys.toggle);
     await tester.ensureVisible(toggle);
+    await tester.pumpAndSettle();
     await tester.tap(toggle);
     await tester.pumpAndSettle();
 
@@ -459,5 +485,200 @@ void main() {
     );
     expect(find.byKey(AiModuleKeys.connection), findsOneWidget);
     expect(factoryCalls, 0);
+  });
+
+  group('AI data', () {
+    const consent = AiConsent(
+      consentedAtUtcMs: 0,
+      policyEffectiveDate: aiCurrentPolicyEffectiveDate,
+      hostKey: _hostKey,
+      detailLevel: AiDetailLevel.standard,
+      contextSchemaVersion: aiContextSchemaVersion,
+    );
+
+    String dataLine(WidgetTester tester) => tester
+        .widget<Text>(
+          find.descendant(
+            of: find.byKey(AiModuleKeys.data),
+            matching: find.byType(Text),
+          ),
+        )
+        .data!;
+
+    Future<void> openDialog(WidgetTester tester) async {
+      await reach(tester, find.byKey(AiModuleKeys.delete));
+      await tester.tap(find.byKey(AiModuleKeys.delete));
+      await expectNoLayoutOverflow(tester.pumpAndSettle);
+    }
+
+    testWidgets('lists readings, key and consent', (tester) async {
+      configs.consent = consent;
+      reports.reports
+        ..add(_report(at: _now))
+        ..add(
+          _report(
+            at: _now.subtract(const Duration(hours: 1)),
+            status: AiReportStatus.failed,
+          ),
+        );
+      await pump(tester);
+      await reach(tester, find.byKey(AiModuleKeys.data));
+
+      expect(
+        dataLine(tester),
+        startsWith(
+          '2 readings on this phone. Key saved, ends in ab3X. '
+          'Consent given for api.example.com on ',
+        ),
+      );
+    });
+
+    testWidgets('a hidden key reads as saved', (tester) async {
+      configs.config = _tested().copyWith(keyLastFour: '');
+      await pump(tester);
+      await reach(tester, find.byKey(AiModuleKeys.data));
+
+      expect(
+        dataLine(tester),
+        '0 readings on this phone. ${l10n.moduleAiDataKey('hidden', '')}',
+      );
+    });
+
+    testWidgets('nothing stored shows the empty line and no Remove', (
+      tester,
+    ) async {
+      configs.config = AiConfig.defaults;
+      secrets = InMemorySecretStore();
+      await pump(tester);
+      await reach(tester, find.byKey(AiModuleKeys.data));
+
+      expect(dataLine(tester), l10n.moduleAiDataEmpty);
+      expect(find.byKey(AiModuleKeys.delete), findsNothing);
+    });
+
+    testWidgets('demo shows no Remove and never calls the eraser', (
+      tester,
+    ) async {
+      demo = true;
+      eraser = _CountingEraser();
+      reports.reports.add(_report(at: _now));
+      await pump(tester);
+      await reach(tester, find.text(l10n.moduleAiTurnOffNote));
+
+      expect(find.byKey(AiModuleKeys.data), findsOneWidget);
+      expect(find.byKey(AiModuleKeys.delete), findsNothing);
+      expect(eraser!.calls, 0);
+    });
+
+    testWidgets('Remove shows with the module off', (tester) async {
+      modules = InMemoryModuleStore();
+      await pump(tester);
+      await reach(tester, find.byKey(AiModuleKeys.delete));
+
+      expect(find.byKey(AiModuleKeys.delete), findsOneWidget);
+      expect(find.byKey(AiModuleKeys.readings), findsNothing);
+    });
+
+    for (final scale in const [1.0, 2.0]) {
+      testWidgets('cancel at ${scale}x shows the notes and writes nothing', (
+        tester,
+      ) async {
+        eraser = _CountingEraser();
+        configs.consent = consent;
+        reports.reports.add(_report(at: _now));
+        await pump(tester, scale: scale, size: const Size(360, 720));
+        await openDialog(tester);
+
+        expect(find.text(l10n.moduleAiDeleteTitle), findsOneWidget);
+        for (final text in [
+          l10n.moduleAiDeleteBody(1),
+          l10n.moduleAiDeleteNotes('received', 'api.example.com'),
+          l10n.moduleAiDeleteNotes('key', ''),
+          l10n.moduleAiDeleteNotes('module', ''),
+        ]) {
+          await tester.scrollUntilVisible(
+            find.text(text),
+            100,
+            scrollable: find
+                .descendant(
+                  of: find.byType(AlertDialog),
+                  matching: find.byType(Scrollable),
+                )
+                .first,
+          );
+          expect(find.text(text), findsOneWidget);
+        }
+        await tester.tap(find.byKey(AiModuleKeys.deleteCancel));
+        await tester.pumpAndSettle();
+
+        expect(eraser!.calls, 0);
+        expect(configs.config, _tested());
+        expect(configs.consent, consent);
+        expect(await secrets.read(aiApiKeySecretName), 'sk-ab3X');
+        expect(reports.reports, hasLength(1));
+        expect(find.byType(SnackBar), findsNothing);
+      });
+    }
+
+    testWidgets('confirm removes everything and the tiles read empty', (
+      tester,
+    ) async {
+      configs.consent = consent;
+      reports.reports.add(_report(at: _now));
+      await pump(tester);
+      await openDialog(tester);
+      await tester.tap(find.byKey(AiModuleKeys.deleteConfirm));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.moduleAiDeleted), findsOneWidget);
+      expect(configs.config, AiConfig.defaults);
+      expect(configs.consent, isNull);
+      expect(await secrets.read(aiApiKeySecretName), isNull);
+      expect(reports.reports, isEmpty);
+      expect(await modules.read(), {ModuleId.ai});
+      expect(dataLine(tester), l10n.moduleAiDataEmpty);
+      expect(find.byKey(AiModuleKeys.delete), findsNothing);
+      await tester.scrollUntilVisible(
+        find.byKey(AiModuleKeys.readings),
+        -300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(detail(tester, AiModuleKeys.readings), l10n.moduleAiReadingsNone);
+      expect(detail(tester, AiModuleKeys.connection), 'Not connected');
+      expect(factoryCalls, 0);
+    });
+
+    testWidgets('a keystore failure keeps the config and Remove, and a retry '
+        'clears everything', (tester) async {
+      final flaky = FlakySecretStore()
+        ..values[aiApiKeySecretName] = 'sk-ab3X'
+        ..failDeletes = 1;
+      secrets = flaky;
+      reports.reports.add(_report(at: _now));
+      await pump(tester);
+      await openDialog(tester);
+      await tester.tap(find.byKey(AiModuleKeys.deleteConfirm));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.moduleAiDeleteFailed), findsOneWidget);
+      expect(reports.reports, isEmpty);
+      expect(configs.config, _tested());
+      expect(flaky.values[aiApiKeySecretName], 'sk-ab3X');
+      expect(
+        dataLine(tester),
+        '0 readings on this phone. Key saved, ends in ab3X.',
+      );
+
+      await openDialog(tester);
+      await tester.tap(find.byKey(AiModuleKeys.deleteConfirm));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.moduleAiDeleted), findsOneWidget);
+      expect(flaky.values, isEmpty);
+      expect(configs.config, AiConfig.defaults);
+      expect(dataLine(tester), l10n.moduleAiDataEmpty);
+      expect(find.byKey(AiModuleKeys.delete), findsNothing);
+      expect(factoryCalls, 0);
+    });
   });
 }

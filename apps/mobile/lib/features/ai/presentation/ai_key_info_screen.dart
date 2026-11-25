@@ -6,6 +6,7 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
@@ -31,10 +32,11 @@ class _AiKeyInfoScreenState extends ConsumerState<AiKeyInfoScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final config = ref.watch(aiConfigProvider).value;
+    final on = ref.watch(aiEnabledProvider);
     return AppPage(
       title: l10n.aiKeyInfoTitle,
       subtitle: l10n.aiKeyInfoLead,
-      children: config == null ? const [] : _body(l10n, config),
+      children: config == null || !on ? const [] : _body(l10n, config),
     );
   }
 

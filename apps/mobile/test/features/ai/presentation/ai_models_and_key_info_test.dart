@@ -10,6 +10,7 @@ import 'package:http/testing.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_provider_preset.dart';
@@ -112,6 +113,7 @@ void main() {
 
   Widget scope(Widget child) => ProviderScope(
     overrides: [
+      aiEnabledProvider.overrideWithValue(true),
       aiConfigStoreProvider.overrideWithValue(store),
       secretStoreProvider.overrideWithValue(secrets),
       keyedAnalysisModelFactoryProvider.overrideWithValue(

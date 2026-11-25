@@ -8,6 +8,7 @@ import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/features/ai/application/health_context_providers.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_consent_scope.dart';
@@ -63,10 +64,12 @@ class _AiContextPreviewScreenState
     final result = ref.watch(aiPayloadProvider(kind)).value;
     final consent = ref.watch(aiConsentProvider).value;
     final host = config?.normalizedUrl?.asciiHost ?? '';
+    final on = ref.watch(aiEnabledProvider);
     return AppPage(
       title: l10n.aiPreviewTitle,
       subtitle: l10n.aiPreviewLead(host),
       children: switch ((config, result)) {
+        _ when !on => const [],
         (final AiConfig c, AiPayloadReady(:final payload)) => _body(
           l10n,
           c,

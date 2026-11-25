@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_provider_preset.dart';
 import 'package:open_ring/features/ai/presentation/ai_connection_screen.dart';
@@ -28,6 +29,7 @@ void main() {
           brightness: c.brightness,
           locale: c.locale,
           overrides: [
+            aiEnabledProvider.overrideWithValue(true),
             aiConfigStoreProvider.overrideWithValue(store),
             secretStoreProvider.overrideWithValue(InMemorySecretStore()),
           ],

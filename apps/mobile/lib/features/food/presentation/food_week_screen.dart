@@ -21,6 +21,7 @@ import 'package:open_ring/features/food/presentation/food_formula_screen.dart';
 import 'package:open_ring/features/food/presentation/food_timing_chart.dart';
 import 'package:open_ring/features/food/presentation/food_week_evidence_sheet.dart';
 import 'package:open_ring/features/food/presentation/meal_saved_sheet.dart';
+import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 enum FoodSection { day, week, comparisons }
 
@@ -205,7 +206,7 @@ class _FoodWeekBodyState extends ConsumerState<_FoodWeekBody> {
       f.monthDay(view.sunday),
     );
     return _card(FoodWeekKeys.contactSheet, [
-      _header(
+      cardHeader(
         Text(range, style: t.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
         l.foodWeekLast,
       ),
@@ -363,23 +364,6 @@ Widget _card(Key key, List<Widget> children, {VoidCallback? onTap}) =>
       ),
     );
 
-Widget _header(Widget leading, String tag, {Widget? trailing}) => Wrap(
-  alignment: WrapAlignment.spaceBetween,
-  crossAxisAlignment: WrapCrossAlignment.center,
-  spacing: 8,
-  runSpacing: 4,
-  children: [
-    leading,
-    Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(child: CaptionText(tag)),
-        ?trailing,
-      ],
-    ),
-  ],
-);
-
 Widget _dot(bool complete, AppColors c, {Key? key}) => SizedBox(
   key: key,
   width: 6,
@@ -411,7 +395,7 @@ Widget _timingCard(
 ) {
   final l = f.l10n;
   return _card(FoodWeekKeys.timingCard, [
-    _header(
+    cardHeader(
       AccentTitle(title: l.foodTimingTitle, accent: c.activity),
       l.foodTimingCompleteDays(view.stats.completeDays),
     ),
@@ -573,7 +557,7 @@ Widget _plateCard(
     ],
   };
   return _card(FoodWeekKeys.plateCard, [
-    _header(
+    cardHeader(
       AccentTitle(title: l.foodPlateTitle, accent: c.activity),
       l.foodPlateTag,
       trailing: Icon(Icons.chevron_right_rounded, size: 18, color: c.textLabel),
@@ -629,7 +613,7 @@ class _EnergyTile extends ConsumerWidget {
               chevron,
             ],
           )
-        : _header(title, l.foodEnergyTag(tag), trailing: chevron);
+        : cardHeader(title, l.foodEnergyTag(tag), trailing: chevron);
     final rows = switch (result) {
       final FoodEnergyReady ready => [
         if (gate is FoodEnergyDemo) CaptionText(l.foodEnergySample),
@@ -648,20 +632,7 @@ class _EnergyTile extends ConsumerWidget {
           style: numberStyle(t.titleMedium, color: c.textLabel),
         ),
       ],
-      final FoodEnergyHold hold => [
-        Row(
-          children: [
-            Expanded(
-              child: CaptionText(l.foodEnergyNeed(FoodEnergyNeed.days.name)),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              l.foodEnergyNeedCount(hold.counts.days, foodEnergyMinDays),
-              style: numberStyle(t.bodyMedium),
-            ),
-          ],
-        ),
-      ],
+      final FoodEnergyHold hold => [_buildingRow(hold, l, t)],
       null when gate is FoodEnergyOn => const <Widget>[],
       null => [CaptionText(l.foodEnergyTileOff)],
     };
@@ -673,6 +644,36 @@ class _EnergyTile extends ConsumerWidget {
       ], onTap: onTap),
     );
   }
+}
+
+/// The building row names the rule that holds: a count for weigh-ins or
+/// days, the hold line for every other reason.
+Widget _buildingRow(FoodEnergyHold hold, AppLocalizations l, TextTheme t) {
+  final need = switch (hold.reason) {
+    FoodEnergyHoldReason.weighIns => (
+      FoodEnergyNeed.weighIns,
+      hold.counts.weighIns,
+      foodEnergyMinWeighIns,
+    ),
+    FoodEnergyHoldReason.days => (
+      FoodEnergyNeed.days,
+      hold.counts.days,
+      foodEnergyMinDays,
+    ),
+    _ => null,
+  };
+  if (need == null) return CaptionText(l.foodEnergyHold(hold.reason.name));
+  final (row, count, total) = need;
+  return Row(
+    children: [
+      Expanded(child: CaptionText(l.foodEnergyNeed(row.name))),
+      const SizedBox(width: 8),
+      Text(
+        l.foodEnergyNeedCount(count, total),
+        style: numberStyle(t.bodyMedium),
+      ),
+    ],
+  );
 }
 
 class _DashedBoxPainter extends CustomPainter {

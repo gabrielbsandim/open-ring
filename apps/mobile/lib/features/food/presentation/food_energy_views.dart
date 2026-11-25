@@ -72,9 +72,9 @@ String foodEnergyGapText(MetricFormat f, FoodEnergyFigures x) {
 String foodEnergyWeekDates(MetricFormat f, LocalDate sunday) =>
     f.l10n.metricTimeRange(f.monthDay(sunday.addDays(-6)), f.monthDay(sunday));
 
-/// A title on the left and a lowercase state tag on the right, wrapping at
-/// large text.
-Widget foodEnergyHeader(Widget title, String tag, {Widget? trailing}) => Wrap(
+/// A card title on the left and a state tag on the right, wrapping at large
+/// text; shared by the Week screen cards and the Weekly energy cards.
+Widget cardHeader(Widget title, String tag, {Widget? trailing}) => Wrap(
   alignment: WrapAlignment.spaceBetween,
   crossAxisAlignment: WrapCrossAlignment.center,
   spacing: 8,
@@ -138,7 +138,7 @@ class FoodEnergyReadyView extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _card(FoodEnergyViewKeys.rangeCard, [
-          foodEnergyHeader(
+          cardHeader(
             AccentTitle(
               title: foodEnergyWeekDates(f, counts.sunday),
               accent: c.activity,
@@ -254,7 +254,7 @@ class FoodEnergyHoldView extends StatelessWidget {
     final t = Theme.of(context).textTheme;
     final last = hold.last;
     return _card(FoodEnergyViewKeys.holdCard, [
-      foodEnergyHeader(
+      cardHeader(
         AccentTitle(title: l.foodEnergyHoldTitle, accent: c.activity),
         l.foodEnergyTag('holding'),
       ),

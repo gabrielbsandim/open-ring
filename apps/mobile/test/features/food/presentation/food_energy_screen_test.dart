@@ -125,16 +125,25 @@ final class _NoAnalyses implements MealAnalysisStore {
       throw StateError('unexpected: ${invocation.memberName}');
 }
 
-final class _UntouchedMeals implements MealStore {
+/// Counts every call, so a read the provider swallows still shows.
+final class _CountingMeals implements MealStore {
+  int calls = 0;
+
   @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw StateError('unexpected: ${invocation.memberName}');
+  dynamic noSuchMethod(Invocation invocation) {
+    calls++;
+    throw StateError('unexpected: ${invocation.memberName}');
+  }
 }
 
-final class _UntouchedAnalyses implements MealAnalysisStore {
+final class _CountingAnalyses implements MealAnalysisStore {
+  int calls = 0;
+
   @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw StateError('unexpected: ${invocation.memberName}');
+  dynamic noSuchMethod(Invocation invocation) {
+    calls++;
+    throw StateError('unexpected: ${invocation.memberName}');
+  }
 }
 
 void _sees(List<String> texts) {
@@ -194,13 +203,15 @@ void main() {
 
       testWidgets('demo shows the labelled F1 sample, no switch and no '
           'store call', (tester) async {
+        final meals = _CountingMeals();
+        final analyses = _CountingAnalyses();
         final store = await _pump(
           tester,
           const FoodEnergyDemo(),
           scale: scale,
           data: [
-            mealStoreProvider.overrideWithValue(_UntouchedMeals()),
-            mealAnalysisStoreProvider.overrideWithValue(_UntouchedAnalyses()),
+            mealStoreProvider.overrideWithValue(meals),
+            mealAnalysisStoreProvider.overrideWithValue(analyses),
           ],
         );
 
@@ -218,6 +229,8 @@ void main() {
         expect(find.byKey(FoodEnergyKeys.toggle), findsNothing);
         expect(find.byKey(FoodEnergyKeys.turnOn), findsNothing);
         expect(store.writes + store.clears, 0);
+        expect(meals.calls, 0);
+        expect(analyses.calls, 0);
       });
 
       testWidgets('needs screening asks for the five questions', (

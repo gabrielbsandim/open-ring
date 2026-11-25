@@ -24,6 +24,34 @@ Iterable<File> _files(String root) =>
         .whereType<File>()
         .where((f) => RegExp(r'\.(dart|kt|java|xml)$').hasMatch(f.path));
 
+final _foodImport = RegExp("import 'package:open_ring/(features/food/[^']+)'");
+
+// The queue reads the Weekly energy gate to pick the items schema (DECIDED
+// 22); a provider may name the gate but must never reach its strings.
+final _energyText = RegExp(r'\.foodEnergy[A-Z]');
+
+bool _isFoodLogic(File file) =>
+    file.path.startsWith('lib/features/food/') &&
+    !file.path.startsWith('lib/features/food/presentation/');
+
+/// The food files [entry] imports, and the files those food widgets import in
+/// turn, so whatever Today or a widget renders from Food is scanned. Imports
+/// of food providers are scanned but not followed into the queue and stores.
+List<File> _foodImports(List<File> entry) {
+  final seen = <String>{};
+  final queue = [...entry];
+  while (queue.isNotEmpty) {
+    final file = queue.removeLast();
+    if (!file.path.endsWith('.dart')) continue;
+    if (_isFoodLogic(file)) continue;
+    for (final m in _foodImport.allMatches(file.readAsStringSync())) {
+      final path = 'lib/${m.group(1)}';
+      if (seen.add(path)) queue.add(File(path));
+    }
+  }
+  return [for (final path in seen) File(path)];
+}
+
 void main() {
   test('every scanned root exists', () {
     for (final root in _roots) {
@@ -37,14 +65,25 @@ void main() {
         .listSync(recursive: true)
         .whereType<File>()
         .where((f) => f.path.toLowerCase().contains('notif'));
-    final files = [
+    final entry = [
       for (final root in _roots) ..._files(root),
       ...notificationFiles,
     ];
+    final food = _foodImports(entry);
+    expect(
+      food.map((f) => f.path),
+      containsAll([
+        'lib/features/food/presentation/food_row.dart',
+        'lib/features/food/application/today_meals.dart',
+      ]),
+    );
+    final files = [...entry, ...food];
     expect(files, isNotEmpty);
     for (final file in files) {
       expect(
-        file.readAsStringSync().contains(_energy),
+        file.readAsStringSync().contains(
+          _isFoodLogic(file) ? _energyText : _energy,
+        ),
         isFalse,
         reason: file.path,
       );

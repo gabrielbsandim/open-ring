@@ -1255,6 +1255,50 @@ void main() {
         expect(find.text('12 of 28'), findsOneWidget);
         expect(find.textContaining('kcal'), findsNothing);
       });
+
+      testWidgets('on and building on weigh-ins shows the weigh-in count at '
+          '${scale}x', (tester) async {
+        await pumpWith(
+          tester,
+          on,
+          result: const FoodEnergyHold(
+            FoodEnergyCounts(
+              sunday: LocalDate(2026, 12, 6),
+              days: 30,
+              weekDays: 6,
+              weighIns: 19,
+              ringDays: 35,
+            ),
+            FoodEnergyHoldReason.weighIns,
+          ),
+          scale: scale,
+        );
+
+        expect(find.text('building'), findsOneWidget);
+        expect(find.text('Weigh-ins in the last 35 days'), findsOneWidget);
+        expect(find.text('19 of 20'), findsOneWidget);
+        expect(find.text('30 of 28'), findsNothing);
+      });
+
+      testWidgets('on and building on ring days shows the hold line and no '
+          'count at ${scale}x', (tester) async {
+        await pumpWith(
+          tester,
+          on,
+          result: const FoodEnergyHold(counts, FoodEnergyHoldReason.ringDays),
+          scale: scale,
+        );
+
+        expect(find.text('building'), findsOneWidget);
+        expect(
+          find.text(
+            'Fewer than 20 days with the ring in the last 35, so the '
+            'expenditure is not known well enough.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.textContaining(' of 2'), findsNothing);
+      });
     }
 
     for (final gate in const <FoodEnergyGate>[

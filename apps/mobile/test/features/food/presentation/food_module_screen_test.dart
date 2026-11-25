@@ -10,11 +10,16 @@ import 'package:open_ring/app/router/app_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
+import 'package:open_ring/features/ai/domain/ai_config.dart';
+import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/food/application/meal_photo_saver.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
 import 'package:open_ring/features/food/domain/meal_store.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
+import 'package:open_ring/features/food/presentation/food_energy_screen.dart';
 import 'package:open_ring/features/food/presentation/food_formula_screen.dart';
 import 'package:open_ring/features/food/presentation/food_module_screen.dart';
 import 'package:open_ring/features/food/presentation/food_storage_screen.dart';
@@ -22,9 +27,11 @@ import 'package:open_ring/features/modules/application/enabled_modules_controlle
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/modules/presentation/module_widgets.dart';
+import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
+import '../../../helpers/ai_fakes.dart';
 import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/layout_harness.dart';
 import '../../../helpers/onboarding_app.dart';
@@ -430,6 +437,172 @@ void main() {
       await tester.pumpAndSettle();
       final l10n = lookupAppLocalizations(const Locale('en'));
       expect(find.text(l10n.moduleFoodTurnedOn(l10n.tabToday)), findsOneWidget);
+    });
+
+    group('with AI analysis', () {
+      const hostKey = 'https://api.example.com:443';
+      late InMemoryAiConfigStore configs;
+      late InMemorySecretStore secrets;
+      late int built;
+      final l10n = lookupAppLocalizations(const Locale('en'));
+
+      setUp(() {
+        built = 0;
+        configs = InMemoryAiConfigStore()
+          ..config = const AiConfig(
+            baseUrl: 'https://api.example.com/v1',
+            model: 'vision-m',
+            keyLastFour: 'ab3X',
+          )
+          ..mealPhotoConsent = const AiMealPhotoConsent(
+            consentedAtUtcMs: 0,
+            policyEffectiveDate: aiCurrentPolicyEffectiveDate,
+            hostKey: hostKey,
+          );
+        secrets = InMemorySecretStore()..values[aiApiKeySecretName] = 'sk-ab3X';
+      });
+
+      List<Override> aiOverrides() => [
+        aiConfigStoreProvider.overrideWithValue(configs),
+        secretStoreProvider.overrideWithValue(secrets),
+        keyedAnalysisModelFactoryProvider.overrideWithValue(
+          (config, key) => throw StateError('built ${++built}'),
+        ),
+      ];
+
+      Future<void> pumpScreen(
+        WidgetTester tester, {
+        required Set<ModuleId> modules,
+        double scale = 1,
+      }) => pumpScaled(
+        tester,
+        screenHost(const FoodModuleScreen()),
+        textScaler: TextScaler.linear(scale),
+        brightness: Brightness.light,
+        locale: const Locale('en'),
+        overrides: [
+          moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
+          clockProvider.overrideWithValue(() => _now),
+          mealStoreProvider.overrideWithValue(TestMealStore()),
+          photoStoreProvider.overrideWithValue(InMemoryPhotoStore()),
+          ...aiOverrides(),
+        ],
+      );
+
+      Future<void> reach(WidgetTester tester, Finder finder) =>
+          expectNoLayoutOverflow(
+            () => tester.scrollUntilVisible(
+              finder,
+              200,
+              scrollable: find.byType(Scrollable).first,
+            ),
+          );
+
+      String? detail(WidgetTester tester, Key key) =>
+          tester.widget<SettingsTile>(find.byKey(key)).detail;
+
+      for (final scale in const [1.0, 2.0]) {
+        testWidgets('AI and Food on at ${scale}x: facts, photo card, Weekly '
+            'energy row and the AI formula caption', (tester) async {
+          await pumpScreen(
+            tester,
+            modules: {ModuleId.ai, ModuleId.food},
+            scale: scale,
+          );
+
+          for (final finder in [
+            find.text(l10n.moduleFoodAddsAi('on')),
+            find.text(l10n.moduleFoodStoresAi),
+            find.text(l10n.moduleFoodNeverCalories),
+            find.byKey(FoodModuleKeys.aiPhotos),
+            find.byKey(FoodModuleKeys.aiWithdraw),
+            find.byKey(FoodModuleKeys.energy),
+            find.text(l10n.moduleFoodFormulaCaptionAi),
+          ]) {
+            await reach(tester, finder);
+            expect(finder, findsOneWidget);
+          }
+          expect(
+            detail(tester, FoodModuleKeys.aiPhotos),
+            startsWith(
+              '${l10n.moduleFoodAiPhotos('api.example.com')} '
+              'Consent given for api.example.com on ',
+            ),
+          );
+          expect(built, 0);
+        });
+      }
+
+      testWidgets('AI off renders as before: no AI fact, card or caption', (
+        tester,
+      ) async {
+        await pumpScreen(tester, modules: {ModuleId.food});
+
+        await reach(tester, find.byKey(FoodModuleKeys.toggle));
+        for (final finder in [
+          find.text(l10n.moduleFoodAddsAi('on')),
+          find.text(l10n.moduleFoodStoresAi),
+          find.byKey(FoodModuleKeys.aiPhotos),
+          find.byKey(FoodModuleKeys.energy),
+          find.text(l10n.moduleFoodFormulaCaptionAi),
+        ]) {
+          expect(finder, findsNothing);
+        }
+        expect(find.text(l10n.moduleFoodFormulaCaption), findsOneWidget);
+      });
+
+      testWidgets('withdraw clears the photo consent and sends nothing', (
+        tester,
+      ) async {
+        await pumpScreen(tester, modules: {ModuleId.ai, ModuleId.food});
+        await reach(tester, find.byKey(FoodModuleKeys.energy));
+        await tester.ensureVisible(find.byKey(FoodModuleKeys.aiWithdraw));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byKey(FoodModuleKeys.aiWithdraw));
+        await tester.pumpAndSettle();
+
+        expect(configs.mealPhotoConsent, isNull);
+        expect(find.byKey(FoodModuleKeys.aiWithdraw), findsNothing);
+        expect(
+          detail(tester, FoodModuleKeys.aiPhotos),
+          '${l10n.moduleFoodAiPhotos('api.example.com')} '
+          '${l10n.aiPhotosConsentNone}',
+        );
+        expect(configs.config.keyLastFour, 'ab3X');
+        expect(built, 0);
+      });
+
+      testWidgets('no address reads Not connected', (tester) async {
+        configs.config = AiConfig.defaults;
+        await pumpScreen(tester, modules: {ModuleId.ai, ModuleId.food});
+        await reach(tester, find.byKey(FoodModuleKeys.aiPhotos));
+
+        expect(detail(tester, FoodModuleKeys.aiPhotos), 'Not connected');
+        expect(find.byKey(FoodModuleKeys.aiWithdraw), findsNothing);
+      });
+
+      testWidgets('the Weekly energy row opens the energy screen', (
+        tester,
+      ) async {
+        await _pumpModule(
+          tester,
+          moduleStore: InMemoryModuleStore({ModuleId.ai, ModuleId.food}),
+          extra: aiOverrides(),
+        );
+        await tester.scrollUntilVisible(
+          find.byKey(FoodModuleKeys.energy),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(detail(tester, FoodModuleKeys.energy), l10n.foodEnergyTileOff);
+
+        await tester.tap(find.byKey(FoodModuleKeys.energy));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(FoodEnergyScreen), findsOneWidget);
+        expect(built, 0);
+      });
     });
   });
 }

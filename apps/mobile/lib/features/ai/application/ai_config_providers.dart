@@ -115,6 +115,16 @@ class AiConfigController extends AsyncNotifier<AiConfig> {
     ref.invalidate(aiMealPhotoConsentProvider);
   });
 
+  /// Queued behind any edit, so a host change cannot land after the clear.
+  Future<void> clearAll() => _serial(() async {
+    try {
+      await ref.read(aiConfigStoreProvider).clearAll();
+      await ref.read(secretStoreProvider).delete(aiApiKeySecretName);
+    } finally {
+      ref.invalidateSelf();
+    }
+  });
+
   Future<void> _serial(Future<void> Function() action) {
     final run = _queue.then((_) => action());
     _queue = run.catchError((Object _) {});

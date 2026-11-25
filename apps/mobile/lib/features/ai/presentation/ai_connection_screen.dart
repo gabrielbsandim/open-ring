@@ -158,11 +158,12 @@ class _AiConnectionScreenState extends ConsumerState<AiConnectionScreen> {
     final l10n = AppLocalizations.of(context);
     final config = ref.watch(aiConfigProvider);
     _demo = ref.watch(demoModeProvider);
-    _photos = ref.watch(aiEnabledProvider) && ref.watch(foodEnabledProvider);
+    final on = ref.watch(aiEnabledProvider);
+    _photos = on && ref.watch(foodEnabledProvider);
     return AppPage(
       title: l10n.aiConnectionTitle,
       subtitle: l10n.aiConnectionLead,
-      children: _body(l10n, config),
+      children: on ? _body(l10n, config) : const [],
     );
   }
 

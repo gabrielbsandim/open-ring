@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_provider_preset.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
@@ -75,6 +76,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          aiEnabledProvider.overrideWithValue(true),
           aiConfigStoreProvider.overrideWithValue(configStore ?? store),
           secretStoreProvider.overrideWithValue(secrets),
           demoModeStoreProvider.overrideWithValue(

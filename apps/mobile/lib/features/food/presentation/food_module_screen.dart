@@ -2,13 +2,19 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
+import 'package:open_ring/features/ai/domain/ai_config.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/food/application/food_data.dart';
+import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/food/application/food_photo_storage.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
@@ -29,6 +35,9 @@ abstract final class FoodModuleKeys {
   static const deleteConfirm = Key('food_module_delete_confirm');
   static const deleteCancel = Key('food_module_delete_cancel');
   static const toggle = Key('food_module_toggle');
+  static const aiPhotos = Key('food_module_ai_photos');
+  static const aiWithdraw = Key('food_module_ai_withdraw');
+  static const energy = Key('food_module_energy');
 }
 
 class FoodModuleScreen extends ConsumerStatefulWidget {
@@ -53,6 +62,8 @@ class _FoodModuleScreenState extends ConsumerState<FoodModuleScreen> {
     final count = ref.watch(foodDataCountProvider);
     final hasData = count.value?.hasData ?? false;
     final toggleAction = _toggling ? null : () => unawaited(_toggle(on: !on));
+    final aiOn = ref.watch(aiEnabledProvider);
+    final ai = aiOn && on;
     return AppPage(
       title: l10n.foodTitle,
       subtitle: l10n.moduleFoodDetail,
@@ -77,13 +88,18 @@ class _FoodModuleScreenState extends ConsumerState<FoodModuleScreen> {
           facts: [
             l10n.moduleFoodAddsToday(l10n.tabToday),
             l10n.moduleFoodAddsPatterns,
+            if (ai) l10n.moduleFoodAddsAi('on'),
           ],
         ),
         const SizedBox(height: cardGap),
         ModuleFactsCard(
           title: l10n.moduleBodyStoresTitle,
           icon: Icons.smartphone_rounded,
-          facts: [l10n.moduleFoodStoresMeals, l10n.moduleBodyStoresLocal],
+          facts: [
+            l10n.moduleFoodStoresMeals,
+            if (ai) l10n.moduleFoodStoresAi,
+            l10n.moduleBodyStoresLocal,
+          ],
         ),
         const SizedBox(height: cardGap),
         ModuleFactsCard(
@@ -92,6 +108,7 @@ class _FoodModuleScreenState extends ConsumerState<FoodModuleScreen> {
           facts: [l10n.moduleFoodNeverCalories, l10n.moduleFoodNeverUploads],
         ),
         const SizedBox(height: cardGap),
+        if (ai) ...[_aiCard(l10n), const SizedBox(height: cardGap)],
         DayScoreLink(
           key: FoodModuleKeys.photos,
           title: l10n.foodPhotosTitle,
@@ -103,7 +120,10 @@ class _FoodModuleScreenState extends ConsumerState<FoodModuleScreen> {
         DayScoreLink(
           key: FoodModuleKeys.formula,
           title: l10n.formulaLink,
-          caption: l10n.moduleFoodFormulaCaption,
+          // The formula screen adds its AI cards whenever AI is on.
+          caption: aiOn
+              ? l10n.moduleFoodFormulaCaptionAi
+              : l10n.moduleFoodFormulaCaption,
           path: AppPaths.foodFormula,
           push: true,
         ),
@@ -140,6 +160,77 @@ class _FoodModuleScreenState extends ConsumerState<FoodModuleScreen> {
         CaptionText(
           on ? l10n.moduleBodyTurnOffNote : l10n.moduleBodyTurnOnNote,
           textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget _aiCard(AppLocalizations l10n) {
+    final config = ref.watch(aiConfigProvider).value;
+    final consent = ref.watch(aiMealPhotoConsentProvider).value;
+    final demo = ref.watch(demoModeProvider);
+    final host = config?.normalizedUrl?.asciiHost;
+    final hostKey = config?.hostKey;
+    final at = consent?.consentedAtUtcMs;
+    final given =
+        at != null &&
+        hostKey != null &&
+        consent!.covers(
+          hostKey: hostKey,
+          policyEffectiveDate: aiCurrentPolicyEffectiveDate,
+        );
+    final consentLine = given
+        ? l10n.aiConsentGiven(
+            host ?? hostKey,
+            MaterialLocalizations.of(context)
+                .formatMediumDate(DateTime.fromMillisecondsSinceEpoch(at)),
+          )
+        : l10n.aiPhotosConsentNone;
+    final energy = switch (ref.watch(foodEnergyGateProvider).value) {
+      null => null,
+      FoodEnergyOn() => l10n.modulesOn,
+      FoodEnergyDemo() => l10n.foodEnergySample,
+      _ => l10n.foodEnergyTileOff,
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TileGroup(
+          children: [
+            SettingsTile(
+              key: FoodModuleKeys.aiPhotos,
+              leading: const Icon(Icons.image_outlined),
+              title: l10n.foodAiSectionTitle,
+              detail: host == null
+                  ? l10n.moduleAiConnection('none', '', '')
+                  : '${l10n.moduleFoodAiPhotos(host)} $consentLine',
+            ),
+          ],
+        ),
+        if (given)
+          TextButton(
+            key: FoodModuleKeys.aiWithdraw,
+            onPressed: demo
+                ? null
+                : () => unawaited(
+                    ref
+                        .read(aiConfigProvider.notifier)
+                        .withdrawMealPhotoConsent(),
+                  ),
+            child: Text(l10n.aiConsentWithdraw),
+          ),
+        const SizedBox(height: cardGap),
+        TileGroup(
+          children: [
+            SettingsTile(
+              key: FoodModuleKeys.energy,
+              leading: const Icon(Icons.local_fire_department_outlined),
+              title: l10n.foodEnergyTitle,
+              detail: energy,
+              chevron: true,
+              onTap: () => unawaited(context.push(AppPaths.foodEnergy)),
+            ),
+          ],
         ),
       ],
     );

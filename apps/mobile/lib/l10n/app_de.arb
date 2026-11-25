@@ -3021,7 +3021,7 @@
   "trajectoryPlaceholder": "Das Gewichtsszenario wird gerade nicht angezeigt.",
   "trajectoryChartLabel": "Gewichtstrend und Messungen der letzten 5 Wochen und das Szenarioband für die nächsten 12 Wochen, in {unit}.",
   "trajectoryBuildingTitle": "Noch zu wenige Wiegungen",
-  "trajectoryBuildingCount": "{count, plural, =1{1 Tag mit Wiegung, am {first}.} other{{count} Tage mit Wiegung, vom {first} bis {last}.}}",
+  "trajectoryBuildingCount": "{count, plural, =1{1 Tag mit Wiegung in den letzten 4 Wochen, am {first}.} other{{count} Tage mit Wiegung in den letzten 4 Wochen, vom {first} bis {last}.}}",
   "trajectoryNoneText": "Trag eine Wiegung ein, dann entsteht das Szenario aus dem Tempo von Körper.",
   "trajectoryGuardTitle": "Kein Szenario bei diesem Tempo",
   "trajectoryGuardRate": "Dein Gewicht sinkt um {low} % bis {high} % pro Woche.",
@@ -3029,13 +3029,13 @@
   "trajectoryGuardAdvice": "Bei diesem Tempo würde eine Kurve täuschen, daher wird keine gezeichnet. Ist das Tempo nicht geplant, sprich mit einer Fachperson.",
   "trajectoryRefusedTitle": "Vorerst kein Szenario",
   "trajectoryRefusedUnderage": "Verlauf ist für Erwachsene. Ein wachsender Körper folgt anderen Regeln.",
-  "trajectoryRefusedPregnancy": "Deine Antwort in Ziele sagt, dass du schwanger bist. Das Gewicht in der Schwangerschaft folgt seinem eigenen Verlauf, daher wird kein Szenario gezeichnet.",
+  "trajectoryRefusedPregnancy": "Deine Antwort in Ziele sagt, dass du schwanger bist oder stillst. Das Gewicht folgt in diesen Phasen seinem eigenen Verlauf, daher wird kein Szenario gezeichnet.",
   "trajectoryRefusedNoHeight": "Verlauf braucht deine Größe, um das Szenario über einer gesunden Untergrenze zu halten. Trag sie in deinem Profil ein.",
   "trajectoryRetry": "Erneut versuchen",
   "trajectoryHiddenNote": "Die Zahlen sind ausgeblendet. Das Szenario zeigt nur Form und Richtung.",
   "trajectoryChartHiddenLabel": "Diagramm des Gewichtsszenarios, Zahlen ausgeblendet.",
   "trajectoryRowReady": "{weeks} Wochen: {low} bis {high} {unit}",
   "trajectoryRowGeneric": "Wohin dein Gewicht in den nächsten Wochen gehen könnte",
-  "trajectoryMissingDays": "Es fehlen noch {count} Tage mit Wiegung.",
-  "trajectoryMissingSpan": "Es fehlen noch {count} Tage zwischen der ersten und der letzten Wiegung."
+  "trajectoryMissingDays": "{count, plural, =1{Es fehlt noch 1 Tag mit Wiegung.} other{Es fehlen noch {count} Tage mit Wiegung.}}",
+  "trajectoryMissingSpan": "{count, plural, =1{Es fehlt noch 1 Tag zwischen der ersten und der letzten Wiegung.} other{Es fehlen noch {count} Tage zwischen der ersten und der letzten Wiegung.}}"
 }

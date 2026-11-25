@@ -5610,7 +5610,7 @@
   "trajectoryChartLabel": "Weight trend and daily weigh-ins over the last 5 weeks, and the scenario band for the next 12 weeks, in {unit}.",
   "@trajectoryChartLabel": {"placeholders": {"unit": {"type": "String"}}},
   "trajectoryBuildingTitle": "Not enough weigh-ins yet",
-  "trajectoryBuildingCount": "{count, plural, =1{1 day with a weigh-in, on {first}.} other{{count} days with a weigh-in, from {first} to {last}.}}",
+  "trajectoryBuildingCount": "{count, plural, =1{1 day with a weigh-in in the last 4 weeks, on {first}.} other{{count} days with a weigh-in in the last 4 weeks, from {first} to {last}.}}",
   "@trajectoryBuildingCount": {"placeholders": {"count": {"type": "int"}, "first": {"type": "String"}, "last": {"type": "String"}}},
   "trajectoryNoneText": "Log a weigh-in and the scenario starts building from Body's rate.",
   "trajectoryGuardTitle": "No scenario at this pace",
@@ -5620,7 +5620,7 @@
   "trajectoryGuardAdvice": "At this pace a curve would mislead, so none is drawn. If the pace is not planned, talk to a health professional.",
   "trajectoryRefusedTitle": "No scenario for now",
   "trajectoryRefusedUnderage": "Trajectory is for adults. A growing body follows other rules.",
-  "trajectoryRefusedPregnancy": "Your Goals answer says you are pregnant. Weight in pregnancy follows its own course, so no scenario is drawn.",
+  "trajectoryRefusedPregnancy": "Your Goals answer says you are pregnant or breastfeeding. Weight in these phases follows its own course, so no scenario is drawn.",
   "trajectoryRefusedNoHeight": "Trajectory needs your height to keep the scenario above a healthy floor. Add it to your profile.",
   "trajectoryRetry": "Try again",
   "trajectoryHiddenNote": "Numbers are hidden. The scenario shows only its shape and direction.",
@@ -5628,8 +5628,8 @@
   "trajectoryRowReady": "{weeks} weeks: {low} to {high} {unit}",
   "@trajectoryRowReady": {"placeholders": {"weeks": {"type": "int"}, "low": {"type": "String"}, "high": {"type": "String"}, "unit": {"type": "String"}}},
   "trajectoryRowGeneric": "Where your weight could go in the next weeks",
-  "trajectoryMissingDays": "Still needed: {count} more days with a weigh-in.",
+  "trajectoryMissingDays": "{count, plural, =1{Still needed: 1 more day with a weigh-in.} other{Still needed: {count} more days with a weigh-in.}}",
   "@trajectoryMissingDays": {"placeholders": {"count": {"type": "int"}}},
-  "trajectoryMissingSpan": "Still needed: {count} more days between the first and the last weigh-in.",
+  "trajectoryMissingSpan": "{count, plural, =1{Still needed: 1 more day between the first and the last weigh-in.} other{Still needed: {count} more days between the first and the last weigh-in.}}",
   "@trajectoryMissingSpan": {"placeholders": {"count": {"type": "int"}}}
 }

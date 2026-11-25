@@ -35,7 +35,7 @@ class TrajectoryNone extends StatelessWidget {
   }
 }
 
-class TrajectoryBuildingCard extends StatelessWidget {
+class TrajectoryBuildingCard extends ConsumerWidget {
   const new({
     required this.rate,
     required this.summary,
@@ -50,9 +50,14 @@ class TrajectoryBuildingCard extends StatelessWidget {
   final bool hidden;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = units.l10n;
-    final days = summary.daily;
+    final today = ref.watch(currentDateProvider);
+    // The missing counts come from the 28 day rate window, so the count does.
+    final days = [
+      for (final day in summary.daily)
+        if (today.daysSince(day.date) < weightRateWindowDays) day,
+    ];
     final missing = rate;
     return _StateCard(
       key: TrajectoryKeys.building,
@@ -67,14 +72,16 @@ class TrajectoryBuildingCard extends StatelessWidget {
               l10n.trajectoryMissingSpan(missing.spanMissing),
           ].join(' '),
         ),
-        const SizedBox(height: 6),
-        CaptionText(
-          l10n.trajectoryBuildingCount(
-            days.length,
-            units.format.monthDay(days.first.date),
-            units.format.monthDay(days.last.date),
+        if (days.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          CaptionText(
+            l10n.trajectoryBuildingCount(
+              days.length,
+              units.format.monthDay(days.first.date),
+              units.format.monthDay(days.last.date),
+            ),
           ),
-        ),
+        ],
         const SizedBox(height: 14),
         _WeighInChart(summary: summary, units: units, hidden: hidden),
       ],

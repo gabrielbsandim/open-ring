@@ -84,6 +84,7 @@ final class InMemoryGoalStore implements GoalStore {
   final _goals = <int, Goal>{};
   final _weeks = <GoalWeek>[];
   final _screenings = <GoalScreening>[];
+  int _screeningIds = 0;
   var _lastId = 0;
 
   @override
@@ -205,8 +206,14 @@ final class InMemoryGoalStore implements GoalStore {
   ]..sort((a, b) => a.monday.compareTo(b.monday));
 
   @override
-  Future<void> addScreening(GoalScreening screening) async =>
-      _screenings.add(screening);
+  Future<void> addScreening(GoalScreening screening) async => _screenings.add(
+    GoalScreening(
+      id: ++_screeningIds,
+      on: screening.on,
+      softMode: screening.softMode,
+      pregnantOrBreastfeeding: screening.pregnantOrBreastfeeding,
+    ),
+  );
 
   @override
   Future<List<GoalScreening>> screenings() async {

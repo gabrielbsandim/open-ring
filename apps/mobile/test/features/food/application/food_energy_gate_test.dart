@@ -12,12 +12,14 @@ import 'package:open_ring/features/food/domain/food_energy_store.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_store.dart';
+import 'package:open_ring/features/goals/infrastructure/drift_goal_store.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 
+import '../../../helpers/database.dart';
 import '../../goals/goal_fixtures.dart';
 
 const _today = LocalDate(2026, 11, 24);
@@ -43,7 +45,9 @@ final class _Setup {
     bool demo = false,
     WeightSummary? weight,
     FoodEnergyOptIn? optIn,
-  }) : store = InMemoryFoodEnergyStore(optIn),
+    GoalStore? goalStore,
+  }) : goals = goalStore ?? InMemoryGoalStore(),
+       store = InMemoryFoodEnergyStore(optIn),
        demoStore = InMemoryDemoModeStore(enabled: demo) {
     screenings.forEach(goals.addScreening);
     container = ProviderContainer.test(
@@ -61,7 +65,7 @@ final class _Setup {
     );
   }
 
-  final InMemoryGoalStore goals = InMemoryGoalStore();
+  final GoalStore goals;
   final InMemoryFoodEnergyStore store;
   final InMemoryDemoModeStore demoStore;
   late final ProviderContainer container;
@@ -219,7 +223,10 @@ void main() {
 
       expect(await setup.controller.turnOn(), isTrue);
 
-      expect(setup.store.optIn, (on: _today, softSeen: 1));
+      expect(setup.store.optIn, (
+        on: _today,
+        soft: (id: 1, on: const LocalDate(2026, 11, 3)),
+      ));
       expect(
         await setup.gate(),
         isA<FoodEnergyOn>().having((gate) => gate.since, 'since', _today),
@@ -245,14 +252,36 @@ void main() {
       expect(setup.container.read(mealPhotoItemsEnabledProvider), isFalse);
     });
 
-    test('a stored opt in with a stale soft count reads offered', () async {
-      final setup = _Setup(
-        screenings: [_screening(10, soft: false)],
-        optIn: (on: _today, softSeen: 1),
-      );
+    test('a Goals wipe, a new soft screening and leaving soft mode never '
+        'turn it back on', () async {
+      final db = memoryDatabase();
+      addTearDown(db.close);
+      final setup = _Setup(goalStore: DriftGoalStore(db));
+      await setup.screen(soft: true, day: 3);
+      await setup.screen(soft: false, day: 10);
+      expect(await setup.gate(), isA<FoodEnergyOffered>());
+      expect(await setup.controller.turnOn(), isTrue);
+      expect(await setup.gate(), isA<FoodEnergyOn>());
+
+      await setup.goals.clear();
+      setup.container.read(dataRevisionProvider.notifier).bump();
+      await setup.screen(soft: true, day: 3);
+      await setup.screen(soft: false, day: 10);
 
       expect(await setup.gate(), isA<FoodEnergyOffered>());
     });
+
+    test(
+      'a stored opt in naming another soft screening reads offered',
+      () async {
+        final setup = _Setup(
+          screenings: [_screening(10, soft: false)],
+          optIn: (on: _today, soft: (id: 9, on: const LocalDate(2026, 11, 1))),
+        );
+
+        expect(await setup.gate(), isA<FoodEnergyOffered>());
+      },
+    );
 
     test('turnOn writes nothing unless the gate offers it', () async {
       for (final setup in [
@@ -280,7 +309,7 @@ void main() {
     test('turnOff removes the opt in and the gate offers it again', () async {
       final setup = _Setup(
         screenings: [_screening(10, soft: false)],
-        optIn: (on: _today, softSeen: 0),
+        optIn: (on: _today, soft: null),
       );
       expect(await setup.gate(), isA<FoodEnergyOn>());
 
@@ -294,7 +323,7 @@ void main() {
       final setup = _Setup(
         modules: {ModuleId.food, ModuleId.body},
         screenings: [_screening(10, soft: false)],
-        optIn: (on: _today, softSeen: 0),
+        optIn: (on: _today, soft: null),
       );
 
       expect(await setup.gate(), isA<FoodEnergyHidden>());
@@ -305,7 +334,7 @@ void main() {
   test('items are off while the gate loads', () {
     final setup = _Setup(
       screenings: [_screening(10, soft: false)],
-      optIn: (on: _today, softSeen: 0),
+      optIn: (on: _today, soft: null),
     );
 
     expect(setup.container.read(mealPhotoItemsEnabledProvider), isFalse);

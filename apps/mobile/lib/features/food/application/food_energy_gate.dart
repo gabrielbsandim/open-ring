@@ -83,14 +83,17 @@ final foodEnergyGateProvider = FutureProvider<FoodEnergyGate>((ref) async {
   if (facts.softMode == null) return const FoodEnergyNeedsScreening();
   final screenings = await ref.watch(goalStoreProvider).screenings();
   final optIn = await ref.watch(foodEnergyStoreProvider).read();
-  if (optIn != null && optIn.softSeen == _softCount(screenings)) {
+  if (optIn != null && optIn.soft == _newestSoft(screenings)) {
     return FoodEnergyOn(optIn.on);
   }
   return FoodEnergyOffered(screenings.firstWhere((s) => s.softMode != null).on);
 });
 
-int _softCount(List<GoalScreening> screenings) =>
-    screenings.where((s) => s.softMode == true).length;
+SoftScreeningIdentity? _newestSoft(List<GoalScreening> newestFirst) =>
+    switch (newestFirst.where((s) => s.softMode == true).firstOrNull) {
+      null => null,
+      final s => (id: s.id, on: s.on),
+    };
 
 final foodEnergyOptInControllerProvider =
     AsyncNotifierProvider<FoodEnergyOptInController, void>(
@@ -101,7 +104,7 @@ class FoodEnergyOptInController extends AsyncNotifier<void> {
   @override
   Future<void> build() async {}
 
-  /// Stores today and the soft mode count. False, writing nothing, in demo
+  /// Stores today and the newest soft mode screening. False, writing nothing, in demo
   /// mode or unless the gate offers it.
   Future<bool> turnOn() async {
     if (ref.read(demoModeProvider)) return false;
@@ -110,7 +113,7 @@ class FoodEnergyOptInController extends AsyncNotifier<void> {
     final screenings = await ref.read(goalStoreProvider).screenings();
     await ref.read(foodEnergyStoreProvider).write((
       on: ref.read(currentDateProvider),
-      softSeen: _softCount(screenings),
+      soft: _newestSoft(screenings),
     ));
     if (ref.mounted) ref.invalidate(foodEnergyGateProvider);
     return true;

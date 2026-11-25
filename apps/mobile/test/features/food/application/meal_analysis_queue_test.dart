@@ -12,6 +12,7 @@ import 'package:open_ring/features/ai/domain/meal_photo_prompt.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_result.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_wire.dart';
 import 'package:open_ring/features/ai/domain/openai_wire_codec.dart';
+import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
@@ -855,6 +856,28 @@ void main() {
         ('rice', FoodGroup.grainCooked),
         ('chicken', FoodGroup.poultry),
       ]);
+    });
+
+    test('a failing gate leaves items off and enqueue still works', () async {
+      await h.eligible();
+      h.extraOverrides = [
+        ...h.extraOverrides,
+        foodEnergyGateProvider.overrideWith(
+          (ref) => throw StateError('profile unreadable'),
+        ),
+      ];
+      final mealId = await h.meal();
+      await h.start();
+
+      expect(await h.queue.enqueue(mealId), EnqueueOutcome.queued);
+      await h.queue.drain();
+
+      final row = await h.row(mealId);
+      expect(
+        (row.status, row.target.outputSchema),
+        (MealAnalysisStatus.done, 1),
+      );
+      expect(asksItems(h.requests.single), isFalse);
     });
 
     test('acceptance 3: a row queued with schema 1 before the opt in is '

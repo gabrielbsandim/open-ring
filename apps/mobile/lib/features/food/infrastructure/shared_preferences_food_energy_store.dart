@@ -20,7 +20,13 @@ final class SharedPreferencesFoodEnergyStore implements FoodEnergyStore {
   @override
   Future<void> write(FoodEnergyOptIn optIn) => _store.setString(
     key,
-    jsonEncode({'on': optIn.on.iso, 'soft_seen': optIn.softSeen}),
+    jsonEncode({
+      'on': optIn.on.iso,
+      'soft': switch (optIn.soft) {
+        null => null,
+        (:final id, :final on) => {'id': id, 'on': on.iso},
+      },
+    }),
   );
 
   @override
@@ -34,13 +40,18 @@ final class SharedPreferencesFoodEnergyStore implements FoodEnergyStore {
     } on FormatException {
       return null;
     }
-    if (json is! Map<String, Object?>) return null;
-    final on = LocalDate.tryParse(switch (json['on']) {
-      final String iso => iso,
-      _ => null,
-    });
-    final seen = json['soft_seen'];
-    if (on == null || seen is! int || seen < 0) return null;
-    return (on: on, softSeen: seen);
+    if (json is! Map<String, Object?> || !json.containsKey('soft')) return null;
+    final on = _date(json['on']);
+    if (on == null) return null;
+    final soft = json['soft'];
+    if (soft == null) return (on: on, soft: null);
+    if (soft is! Map<String, Object?>) return null;
+    final id = soft['id'];
+    final softOn = _date(soft['on']);
+    if (softOn == null || id is! int?) return null;
+    return (on: on, soft: (id: id, on: softOn));
   }
+
+  static LocalDate? _date(Object? iso) =>
+      iso is String ? LocalDate.tryParse(iso) : null;
 }

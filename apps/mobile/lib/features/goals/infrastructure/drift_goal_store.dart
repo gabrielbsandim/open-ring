@@ -238,6 +238,7 @@ final class DriftGoalStore implements GoalStore {
       for (final row in rows)
         if (LocalDate.tryParse(row.askedOn) case final on?)
           GoalScreening(
+            id: row.id,
             on: on,
             softMode: row.softMode,
             pregnantOrBreastfeeding: row.pregnantOrBreastfeeding,

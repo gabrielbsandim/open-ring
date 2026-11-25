@@ -1,8 +1,10 @@
 import 'package:metrics/metrics.dart' show LocalDate;
 
-/// The day Weekly energy was turned on and how many soft mode screenings
-/// existed then; any newer one ends it.
-typedef FoodEnergyOptIn = ({LocalDate on, int softSeen});
+typedef SoftScreeningIdentity = ({int? id, LocalDate on});
+
+/// The day Weekly energy was turned on and the newest soft mode screening
+/// then, null if none; any other newest soft row ends it.
+typedef FoodEnergyOptIn = ({LocalDate on, SoftScreeningIdentity? soft});
 
 abstract interface class FoodEnergyStore {
   /// Null when it was never turned on or the stored value is unreadable.

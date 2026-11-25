@@ -2889,6 +2889,6 @@
   "foodAiHiddenSugar": "Zucchero nella bevanda",
   "foodAiItemsNote": "Nessuna caloria per questo pasto. Gli elementi entrano solo nella media settimanale, come intervallo.",
   "foodAiItemsConfirm": "Questi elementi sono giusti",
-  "foodAiItemsCheck": "Controlla gli elementi e le etichette qui sotto, poi conferma. Solo i pasti che confermi contano nell’energia settimanale.",
+  "foodAiItemsCheck": "Controlla gli elementi e le opzioni qui sotto, poi conferma. Solo i pasti che confermi contano nell’energia settimanale.",
   "foodAiItemsDone": "Controllato. Questo pasto conta nell’energia settimanale."
 }

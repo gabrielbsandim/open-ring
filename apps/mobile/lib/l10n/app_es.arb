@@ -2889,6 +2889,6 @@
   "foodAiHiddenSugar": "Azúcar en la bebida",
   "foodAiItemsNote": "Sin calorías para esta comida. Los elementos solo entran en la media semanal, como un rango.",
   "foodAiItemsConfirm": "Estos elementos están bien",
-  "foodAiItemsCheck": "Revisa los elementos y las etiquetas de abajo y luego confirma. Solo las comidas que confirmes cuentan en la energía semanal.",
+  "foodAiItemsCheck": "Revisa los elementos y las opciones de abajo y luego confirma. Solo las comidas que confirmes cuentan en la energía semanal.",
   "foodAiItemsDone": "Revisado. Esta comida cuenta en la energía semanal."
 }

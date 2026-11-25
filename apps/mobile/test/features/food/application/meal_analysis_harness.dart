@@ -410,8 +410,12 @@ final class GatedAnalysisStore implements MealAnalysisStore {
   /// Thrown once by the next confirmItems.
   Error? failNextConfirm;
 
+  /// How many confirmItems calls reached the store.
+  int confirmCalls = 0;
+
   @override
   Future<bool> confirmItems(int analysisId) async {
+    confirmCalls++;
     final error = failNextConfirm;
     failNextConfirm = null;
     if (error != null) throw error;

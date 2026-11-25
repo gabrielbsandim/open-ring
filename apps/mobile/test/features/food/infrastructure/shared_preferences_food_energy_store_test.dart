@@ -11,7 +11,10 @@ import 'package:shared_preferences_platform_interface/shared_preferences_async_p
 import '../../../helpers/ai_fakes.dart';
 import '../../../helpers/database.dart';
 
-const FoodEnergyOptIn _optIn = (on: LocalDate(2026, 11, 24), softSeen: 2);
+const FoodEnergyOptIn _optIn = (
+  on: LocalDate(2026, 11, 24),
+  soft: (id: 3, on: LocalDate(2026, 11, 3)),
+);
 
 void main() {
   setUp(() {
@@ -33,8 +36,15 @@ void main() {
     expect(await SharedPreferencesFoodEnergyStore().read(), _optIn);
     expect(
       await SharedPreferencesAsync().getString('food_energy_opt_in'),
-      '{"on":"2026-11-24","soft_seen":2}',
+      '{"on":"2026-11-24","soft":{"id":3,"on":"2026-11-03"}}',
     );
+  });
+
+  test('an opt in with no soft screening round trips', () async {
+    const none = (on: LocalDate(2026, 11, 24), soft: null);
+    await SharedPreferencesFoodEnergyStore().write(none);
+
+    expect(await SharedPreferencesFoodEnergyStore().read(), none);
   });
 
   test('clear removes the key', () async {
@@ -51,10 +61,12 @@ void main() {
     'not json',
     '[]',
     '{"on":"2026-11-24"}',
-    '{"on":"2026-02-30","soft_seen":0}',
-    '{"on":20261124,"soft_seen":0}',
-    '{"on":"2026-11-24","soft_seen":-1}',
-    '{"on":"2026-11-24","soft_seen":"1"}',
+    '{"on":"2026-11-24","soft_seen":0}',
+    '{"on":"2026-02-30","soft":null}',
+    '{"on":20261124,"soft":null}',
+    '{"on":"2026-11-24","soft":5}',
+    '{"on":"2026-11-24","soft":{"id":3}}',
+    '{"on":"2026-11-24","soft":{"id":"3","on":"2026-11-03"}}',
   ]) {
     test('a corrupt value reads as null: $raw', () async {
       await SharedPreferencesAsync().setString('food_energy_opt_in', raw);

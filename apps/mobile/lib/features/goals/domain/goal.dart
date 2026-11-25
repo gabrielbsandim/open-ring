@@ -176,8 +176,11 @@ final class GoalScreening {
     required this.on,
     required this.softMode,
     required this.pregnantOrBreastfeeding,
+    this.id,
   });
 
+  /// The stored row id; ids are never reused, even after a Goals wipe.
+  final int? id;
   final LocalDate on;
   final bool? softMode;
   final bool? pregnantOrBreastfeeding;

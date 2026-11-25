@@ -70,4 +70,18 @@ void main() {
       expect(pt[key] as String, isNot(contains(informal)), reason: key);
     }
   });
+
+  test('id addresses the reader as Anda, like the other foodAi strings', () {
+    final text = _arb('id')['foodAiItemsCheck'] as String;
+    expect(text, contains('Anda'));
+    expect(text, isNot(contains(RegExp(r'\bkamu\b', caseSensitive: false))));
+  });
+
+  test('es, it and ru call the chips options, not the meal tag word', () {
+    const tagWords = {'es': 'etiqueta', 'it': 'etichett', 'ru': 'метк'};
+    for (final MapEntry(key: locale, value: tag) in tagWords.entries) {
+      final text = _arb(locale)['foodAiItemsCheck'] as String;
+      expect(text.toLowerCase(), isNot(contains(tag)), reason: locale);
+    }
+  });
 }

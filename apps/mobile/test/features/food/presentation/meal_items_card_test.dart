@@ -364,6 +364,29 @@ void main() {
       expect(find.text(en.foodAiItemsDone), findsNothing);
     });
 
+    testWidgets('Confirm waits for a pending step to land', (tester) async {
+      await pump(tester);
+      final rice = await item('Rice');
+      final gate = Completer<void>();
+      h.analyses.itemCountGate = gate;
+
+      await tester.tap(find.byKey(MealItemsKeys.more(rice.id)));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(MealItemsKeys.confirm));
+      await tester.tap(find.byKey(MealItemsKeys.confirm));
+      await tester.pump();
+
+      expect(h.analyses.confirmCalls, 0);
+      expect(await confirmed(), everyElement(isFalse));
+
+      gate.complete();
+      await tester.pumpAndSettle();
+
+      expect(h.analyses.confirmCalls, 1);
+      expect((await item('Rice')).countX2, 4);
+      expect(await confirmed(), [true, true, true, true]);
+    });
+
     testWidgets('a failed Confirm leaves the button and shows no '
         'snackbar', (tester) async {
       await pump(tester);

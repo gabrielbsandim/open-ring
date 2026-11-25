@@ -3,8 +3,8 @@ OpenRing è un'app gratuita e open source per l'anello smart COLMI R09. Tiene l'
 NESSUN ACCOUNT, NESSUN CLOUD
 • Nessuna registrazione, nessun accesso, nessuna email. Associa l'anello e inizia.
 • I tuoi dati restano in un database locale sul telefono, non su un server.
-• Nessuna analisi d'uso, nessuna pubblicità, nessun tracciamento. L'app usa internet solo per scaricare i propri aggiornamenti.
-• I dati escono dal telefono solo quando lo decidi tu: verso Health Connect, oppure in un file CSV, JSON o GPX che esporti.
+• Nessuna analisi d'uso, nessuna pubblicità, nessun tracciamento. L'app usa internet per i propri aggiornamenti e, solo se attivi Analisi IA, per il servizio di IA che scegli.
+• I dati escono dal telefono solo quando lo decidi tu: verso Health Connect, in un file CSV, JSON o GPX che esporti, in un trasferimento a un nuovo telefono che avvii tu oppure, con Analisi IA attivo, verso il servizio di IA che scegli.
 
 COSA VEDI
 • Il sonno su una linea del tempo con leggero, profondo, REM e sveglio.

@@ -194,7 +194,8 @@ void main() {
         expect(pill.on, isFalse);
         expect(pill.label, l10n.modulesOff);
         expect(find.byKey(FoodModuleKeys.kept), findsOneWidget);
-        expect(find.textContaining('AI'), findsNothing);
+        expect(find.text(l10n.moduleFoodStoresAi), findsNothing);
+        expect(find.byKey(FoodModuleKeys.aiPhotos), findsNothing);
         expect(find.textContaining('Weekly energy'), findsNothing);
 
         await tester.scrollUntilVisible(
@@ -202,6 +203,8 @@ void main() {
           150,
           scrollable: find.byType(Scrollable).first,
         );
+        await tester.ensureVisible(find.byKey(FoodModuleKeys.toggle));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(FoodModuleKeys.toggle));
         await tester.pumpAndSettle();
 
@@ -258,6 +261,8 @@ void main() {
         150,
         scrollable: find.byType(Scrollable).first,
       );
+      await tester.ensureVisible(find.byKey(FoodModuleKeys.toggle));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(FoodModuleKeys.toggle));
       await tester.pumpAndSettle();
 
@@ -382,6 +387,8 @@ void main() {
           150,
           scrollable: find.byType(Scrollable).first,
         );
+        await tester.ensureVisible(find.byKey(FoodModuleKeys.toggle));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(FoodModuleKeys.toggle));
         await tester.pump();
 
@@ -407,6 +414,8 @@ void main() {
           150,
           scrollable: find.byType(Scrollable).first,
         );
+        await tester.ensureVisible(find.byKey(FoodModuleKeys.toggle));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(FoodModuleKeys.toggle));
         await tester.pumpAndSettle();
         final l10n = lookupAppLocalizations(const Locale('en'));
@@ -433,6 +442,8 @@ void main() {
         150,
         scrollable: find.byType(Scrollable).first,
       );
+      await tester.ensureVisible(find.byKey(FoodModuleKeys.toggle));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(FoodModuleKeys.toggle));
       await tester.pumpAndSettle();
       final l10n = lookupAppLocalizations(const Locale('en'));

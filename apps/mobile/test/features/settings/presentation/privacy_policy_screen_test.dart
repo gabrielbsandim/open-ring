@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
+import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/onboarding/presentation/welcome_screen.dart';
 import 'package:open_ring/features/settings/presentation/privacy_policy_screen.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
@@ -117,6 +118,12 @@ void main() {
       l.privacyStoresGoalsWhy,
       l.privacyStoresFood,
       l.privacyStoresFoodWhy,
+      l.privacyStoresAi,
+      l.privacyStoresAiWhy,
+      l.privacyStoresAiKey,
+      l.privacyStoresAiKeyWhy,
+      l.privacyStoresMealAi,
+      l.privacyStoresMealAiWhy,
       l.privacyStoresSettings,
       l.privacyStoresSettingsWhy,
       l.privacyStoresSummary,
@@ -126,10 +133,18 @@ void main() {
       l.privacyHealthReads,
       l.privacyHealthReadsWhy,
       l.privacyHealthShare,
+      l.privacyAiHeading,
+      l.privacyAiSends,
+      l.privacyAiNever,
+      l.privacyAiPhotos,
+      l.privacyAiProvider,
+      l.privacyAiLocal,
+      l.aiKeyInfoShorebird,
       l.privacyDeleteHeading,
       l.privacyDeleteKept,
       l.privacyDeleteWorkout,
       l.privacyDeleteFood,
+      l.privacyDeleteAi,
       l.privacyDeleteAll,
       l.privacyDeleteHealthConnect,
       l.privacyRevoke,
@@ -394,5 +409,90 @@ void main() {
     final manifest = File(_manifest).readAsStringSync();
     expect(manifest, isNot(contains('android.permission.CAMERA')));
     expect(manifest, isNot(contains('android.permission.READ_MEDIA_IMAGES')));
+  });
+
+  test('the app, the policy and AI consents carry one effective date', () {
+    final policy = File('../../docs/privacy-policy.md').readAsStringSync();
+
+    expect(policy, contains('Effective $aiCurrentPolicyEffectiveDate.'));
+    for (final locale in AppLocalizations.supportedLocales) {
+      final l = lookupAppLocalizations(locale);
+      expect(l.privacyEffective, contains(aiCurrentPolicyEffectiveDate));
+    }
+  });
+
+  testWidgets('the privacy screen shows the AI rows, section and delete line', (
+    tester,
+  ) async {
+    await pumpScaled(
+      tester,
+      screenHost(const PrivacyPolicyScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: settingsOverrides(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+
+    for (final text in [
+      l.privacyStoresAi,
+      l.privacyStoresAiKeyWhy,
+      l.privacyStoresMealAi,
+      l.privacyAiHeading,
+      l.privacyAiSends,
+      l.privacyAiNever,
+      l.privacyAiPhotos,
+      l.privacyAiProvider,
+      l.privacyAiLocal,
+      l.aiKeyInfoShorebird,
+      l.privacyDeleteAi,
+    ]) {
+      await reveal(tester, find.text(text));
+      expect(find.text(text), findsOneWidget, reason: text);
+    }
+  });
+
+  test('the policy document has the three AI rows in the stored table', () {
+    final policy = _normalized(
+      File('../../docs/privacy-policy.md').readAsStringSync(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+
+    for (final (data, why) in [
+      (l.privacyStoresAi, l.privacyStoresAiWhy),
+      (l.privacyStoresAiKey, l.privacyStoresAiKeyWhy),
+      (l.privacyStoresMealAi, l.privacyStoresMealAiWhy),
+    ]) {
+      final row = '| $data |';
+      expect(policy, contains(row));
+      expect(policy.indexOf(row), lessThan(policy.indexOf('## Permissions')));
+      expect(policy, contains('$why |'));
+    }
+    expect(policy, contains('- ${l.privacyDeleteAi}'));
+  });
+
+  test('no surface still says the internet is only for updates', () {
+    final surfaces = [
+      File('../../docs/privacy-policy.md'),
+      File('../../README.md'),
+      File('../../site/index.html'),
+      File('../../site/pt/index.html'),
+      File('fastlane/metadata/android/en-US/full_description.txt'),
+      for (final locale in AppLocalizations.supportedLocales)
+        File('lib/l10n/app_${locale.toLanguageTag().replaceAll('-', '_')}.arb'),
+    ];
+
+    for (final file in surfaces) {
+      final text = file.readAsStringSync();
+      for (final old in [
+        'for one thing only',
+        'only uses the internet to download its own updates',
+        'used only to fetch the app',
+        'only part of the app that opens a network connection',
+        'serve só para buscar atualizações',
+      ]) {
+        expect(text, isNot(contains(old)), reason: '${file.path}: $old');
+      }
+    }
   });
 }

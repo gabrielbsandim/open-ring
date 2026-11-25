@@ -196,8 +196,16 @@ void main() {
           finder,
           300,
           scrollable: find.byType(Scrollable).first,
+          maxScrolls: 200,
         ),
       );
+
+  // The longer privacy facts can leave a button under the bottom edge.
+  Future<void> reachToTap(WidgetTester tester, Finder finder) async {
+    await reach(tester, finder);
+    await tester.ensureVisible(finder);
+    await tester.pumpAndSettle();
+  }
 
   String? detail(WidgetTester tester, Key key) =>
       tester.widget<SettingsTile>(find.byKey(key)).detail;
@@ -394,8 +402,7 @@ void main() {
     await pump(tester);
 
     final toggle = find.byKey(AiModuleKeys.toggle);
-    await tester.ensureVisible(toggle);
-    await tester.pumpAndSettle();
+    await reachToTap(tester, toggle);
     await tester.tap(toggle);
     await tester.pump();
     await tester.tap(toggle, warnIfMissed: false);
@@ -421,8 +428,7 @@ void main() {
     await pump(tester);
 
     final toggle = find.byKey(AiModuleKeys.toggle);
-    await tester.ensureVisible(toggle);
-    await tester.pumpAndSettle();
+    await reachToTap(tester, toggle);
     await tester.tap(toggle);
     await tester.pumpAndSettle();
 
@@ -506,7 +512,7 @@ void main() {
         .data!;
 
     Future<void> openDialog(WidgetTester tester) async {
-      await reach(tester, find.byKey(AiModuleKeys.delete));
+      await reachToTap(tester, find.byKey(AiModuleKeys.delete));
       await tester.tap(find.byKey(AiModuleKeys.delete));
       await expectNoLayoutOverflow(tester.pumpAndSettle);
     }

@@ -80,7 +80,8 @@ Future<AiContextSources> _readSources(Ref ref, AiConfig config) async {
   ref.watch(dataRevisionProvider);
   final today = ref.watch(currentDateProvider);
   final now = ref.watch(clockProvider)();
-  final imported = config.importedIncluded;
+  final imported =
+      config.importedIncluded && ref.watch(aiImportedOfferedProvider);
   final days = _historyDays(config.contextWindow);
   final from = now.subtract(Duration(days: days + 2));
   final (modules, profile, hidden, remMeasured, ring) = await (

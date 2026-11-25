@@ -166,7 +166,11 @@ void main() {
 
       expect(await modules.read(), {ModuleId.effort});
       expect(find.text('Turn Effort off'), findsOneWidget);
-      await tester.drag(find.byType(Scrollable).first, const Offset(0, 5000));
+      await tester.scrollUntilVisible(
+        find.byKey(EffortModuleKeys.state),
+        -200,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.pumpAndSettle();
       expect(_inState('On'), findsOneWidget);
       tester

@@ -232,3 +232,19 @@ Exports are written into a fresh folder under the app's temporary directory
 (`openring-export-*`), streamed page by page from drift, and the returned paths
 are handed to the system share sheet. The OS may clear that directory at any
 time after sharing; OpenRing does not keep a copy.
+
+## Never exported
+
+The AI analysis module keeps its data out of every CSV, JSON and GPX file, and
+adding it changed no format, so the JSON `schema_version` stays 1:
+
+- the AI service key, which lives in the phone's secure storage, outside the
+  database;
+- the AI settings and consents (service address, model, detail level, prices,
+  limits and the consent dates);
+- AI readings (`ai_reports`), with the summaries that were sent and the raw
+  answers;
+- meal photo analyses (`meal_analyses`) and their items (`meal_items`).
+
+Tests pin it: `test/features/ai/infrastructure/ai_export_exclusion_test.dart`
+and `test/features/food/infrastructure/meal_analysis_export_exclusion_test.dart`.

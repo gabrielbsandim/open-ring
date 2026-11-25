@@ -3,8 +3,8 @@ OpenRing is a free, open-source companion app for the COLMI R09 smart ring. It k
 NO ACCOUNT, NO CLOUD
 • No sign-up, no login, no email. Pair the ring and start.
 • Your data lives in a local database on your phone, not on a server.
-• No analytics, no ads, no tracking. The app only uses the internet to download its own updates.
-• Data leaves the phone only when you choose: to Health Connect, or in a CSV, JSON or GPX file you export.
+• No analytics, no ads, no tracking. The app uses the internet for its own updates and, only if you turn on AI analysis, for the AI service you choose.
+• Data leaves the phone only when you choose: to Health Connect, in a CSV, JSON or GPX file you export, in a transfer to a new phone you start, or, with AI analysis on, to the AI service you choose.
 
 WHAT YOU SEE
 • Sleep as a timeline of light, deep, REM and awake.

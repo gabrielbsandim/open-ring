@@ -3005,5 +3005,19 @@
   "moduleBothOffConfirm": "Desligar os dois",
   "moduleBothOffCancel": "Cancelar",
   "moduleBothOnDone": "{first} e {second} estão ativados.",
-  "moduleBothOffDone": "{first} e {second} estão desligados. Os dados ficam neste celular."
+  "moduleBothOffDone": "{first} e {second} estão desligados. Os dados ficam neste celular.",
+  "trajectoryTitle": "Trajetória",
+  "trajectoryLead": "Para onde os seus dados apontam se nada mudar. Cenário com faixa, nunca previsão.",
+  "trajectoryCardTitle": "Peso, se nada mudar",
+  "trajectoryCardSubtitle": "com as pesagens até hoje",
+  "trajectoryNow": "Agora · {date}",
+  "trajectoryWeeksAt": "{weeks} semanas · {date}",
+  "trajectoryRange": "{low} a {high} {unit}",
+  "trajectoryLegendBand": "Linha: tendência. Pontos: pesagens. Sombra: a faixa do cenário, mais escura em 4 semanas. Tracejado: o meio dela.",
+  "trajectoryAssumption": "Supõe que comida, movimento e sono sigam como nas últimas 4 semanas.",
+  "trajectoryStableNote": "Com o peso parado, a faixa só abre com o tempo.",
+  "trajectoryBendNote": "A curva entorta porque o gasto cai junto com o peso.",
+  "trajectoryNotForecast": "É um cenário, não uma previsão.",
+  "trajectoryPlaceholder": "O cenário do peso não aparece agora.",
+  "trajectoryChartLabel": "Tendência do peso e pesagens das últimas 5 semanas, e a faixa do cenário para as próximas 12 semanas, em {unit}."
 }

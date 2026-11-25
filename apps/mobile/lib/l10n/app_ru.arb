@@ -3005,5 +3005,19 @@
   "moduleBothOffConfirm": "Выключить оба",
   "moduleBothOffCancel": "Отмена",
   "moduleBothOnDone": "{first} и {second} включены.",
-  "moduleBothOffDone": "{first} и {second} выключены. Данные остаются на этом телефоне."
+  "moduleBothOffDone": "{first} и {second} выключены. Данные остаются на этом телефоне.",
+  "trajectoryTitle": "Траектория",
+  "trajectoryLead": "Куда указывают ваши данные, если ничего не изменится. Сценарий с диапазоном, а не прогноз.",
+  "trajectoryCardTitle": "Вес, если ничего не изменится",
+  "trajectoryCardSubtitle": "по взвешиваниям до сегодня",
+  "trajectoryNow": "Сейчас · {date}",
+  "trajectoryWeeksAt": "{weeks} нед. · {date}",
+  "trajectoryRange": "от {low} до {high} {unit}",
+  "trajectoryLegendBand": "Линия: тренд. Точки: взвешивания. Заливка: диапазон сценария, темнее на 4 недели. Пунктир: его середина.",
+  "trajectoryAssumption": "Предполагается, что питание, движение и сон останутся как за последние 4 недели.",
+  "trajectoryStableNote": "При стабильном весе диапазон только расширяется со временем.",
+  "trajectoryBendNote": "Кривая изгибается, потому что расход падает вместе с весом.",
+  "trajectoryNotForecast": "Это сценарий, а не прогноз.",
+  "trajectoryPlaceholder": "Сценарий веса сейчас не показывается.",
+  "trajectoryChartLabel": "Тренд веса и взвешивания за последние 5 недель и диапазон сценария на следующие 12 недель, в {unit}."
 }

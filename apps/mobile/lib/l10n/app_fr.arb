@@ -3005,5 +3005,19 @@
   "moduleBothOffConfirm": "Désactiver les deux",
   "moduleBothOffCancel": "Annuler",
   "moduleBothOnDone": "{first} et {second} sont activés.",
-  "moduleBothOffDone": "{first} et {second} sont désactivés. Leurs données restent sur ce téléphone."
+  "moduleBothOffDone": "{first} et {second} sont désactivés. Leurs données restent sur ce téléphone.",
+  "trajectoryTitle": "Trajectoire",
+  "trajectoryLead": "Là où vos données mènent si rien ne change. Un scénario avec une bande, jamais une prévision.",
+  "trajectoryCardTitle": "Poids, si rien ne change",
+  "trajectoryCardSubtitle": "avec les pesées jusqu'à aujourd'hui",
+  "trajectoryNow": "Maintenant · {date}",
+  "trajectoryWeeksAt": "{weeks} semaines · {date}",
+  "trajectoryRange": "{low} à {high} {unit}",
+  "trajectoryLegendBand": "Ligne : tendance. Points : pesées. Zone ombrée : la bande du scénario, plus foncée sur 4 semaines. Pointillés : son milieu.",
+  "trajectoryAssumption": "Suppose que l'alimentation, le mouvement et le sommeil restent comme ces 4 dernières semaines.",
+  "trajectoryStableNote": "Avec un poids stable, la bande ne s'ouvre qu'avec le temps.",
+  "trajectoryBendNote": "La courbe s'infléchit car la dépense baisse avec le poids.",
+  "trajectoryNotForecast": "C'est un scénario, pas une prévision.",
+  "trajectoryPlaceholder": "Le scénario du poids n'est pas affiché pour l'instant.",
+  "trajectoryChartLabel": "Tendance du poids et pesées des 5 dernières semaines, et bande du scénario pour les 12 prochaines semaines, en {unit}."
 }

@@ -670,34 +670,38 @@ void main() {
       },
     );
 
-    test('4. A short profile with a falling trend gets a floored band, '
-        'the stored row stays unfloored', () async {
-      final store = InMemoryProjectionStore();
-      final container = await _open(
-        store: store,
-        profile: const UserProfile(birthYear: 1990, heightCentimeters: 150),
-        weighIns: await _weighIns(_series(start: 44, perDay: -0.04)),
-      );
-      const floor = 18.5 * 1.5 * 1.5;
+    test(
+      '4. A short profile with a falling trend gets a floored firm and band, '
+      'the stored row stays unfloored',
+      () async {
+        final store = InMemoryProjectionStore();
+        final container = await _open(
+          store: store,
+          profile: const UserProfile(birthYear: 1990, heightCentimeters: 150),
+          weighIns: await _weighIns(_series(start: 44, perDay: -0.04)),
+        );
+        const floor = 18.5 * 1.5 * 1.5;
 
-      final view = await _view(container) as TrajectoryReady;
-      final rows = await _rows(store);
+        final view = await _view(container) as TrajectoryReady;
+        final rows = await _rows(store);
 
-      expect(view.band.low, closeTo(floor, 1e-9));
-      expect(view.band.mid, greaterThanOrEqualTo(floor));
-      expect(view.band.high, greaterThanOrEqualTo(floor));
-      expect(view.trendKg, greaterThan(floor));
-      expect(rows.single.lowKg, lessThan(floor));
-      expect(
-        view.firm.low,
-        weightScenario(
+        expect(view.band.low, closeTo(floor, 1e-9));
+        expect(view.band.mid, greaterThanOrEqualTo(floor));
+        expect(view.band.high, greaterThanOrEqualTo(floor));
+        expect(view.trendKg, greaterThan(floor));
+        expect(rows.single.lowKg, lessThan(floor));
+        final unfloored = weightScenario(
           view.trendKg,
           view.rate,
           view.noiseKg,
           trajectoryFirmDays,
-        ).low,
-      );
-    });
+        );
+        expect(unfloored.low, lessThan(floor));
+        expect(view.firm.low, closeTo(floor, 1e-9));
+        expect(view.firm.mid, greaterThanOrEqualTo(floor));
+        expect(view.firm.high, greaterThanOrEqualTo(floor));
+      },
+    );
 
     test('Recomputes when the data revision changes', () async {
       final store = InMemoryProjectionStore();

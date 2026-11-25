@@ -3005,5 +3005,19 @@
   "moduleBothOffConfirm": "両方オフにする",
   "moduleBothOffCancel": "キャンセル",
   "moduleBothOnDone": "{first}と{second}をオンにしました。",
-  "moduleBothOffDone": "{first}と{second}をオフにしました。データはこのスマートフォンに残ります。"
+  "moduleBothOffDone": "{first}と{second}をオフにしました。データはこのスマートフォンに残ります。",
+  "trajectoryTitle": "推移",
+  "trajectoryLead": "何も変わらなければデータが向かう先。幅のあるシナリオで、予測ではありません。",
+  "trajectoryCardTitle": "何も変わらない場合の体重",
+  "trajectoryCardSubtitle": "今日までの測定にもとづく",
+  "trajectoryNow": "現在 · {date}",
+  "trajectoryWeeksAt": "{weeks}週間後 · {date}",
+  "trajectoryRange": "{low}〜{high} {unit}",
+  "trajectoryLegendBand": "線: トレンド。点: 毎日の測定。塗り: シナリオの幅（4週間は濃い色）。破線: その中央。",
+  "trajectoryAssumption": "食事、運動、睡眠がこの4週間と同じだと仮定しています。",
+  "trajectoryStableNote": "体重が横ばいなので、幅は時間とともに広がるだけです。",
+  "trajectoryBendNote": "体重とともに消費も下がるため、曲線は曲がります。",
+  "trajectoryNotForecast": "これはシナリオで、予測ではありません。",
+  "trajectoryPlaceholder": "体重のシナリオは今は表示されません。",
+  "trajectoryChartLabel": "過去5週間の体重トレンドと毎日の測定、今後12週間のシナリオの幅（{unit}）。"
 }

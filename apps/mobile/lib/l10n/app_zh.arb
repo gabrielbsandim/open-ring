@@ -3005,5 +3005,19 @@
   "moduleBothOffConfirm": "两个都关闭",
   "moduleBothOffCancel": "取消",
   "moduleBothOnDone": "{first}和{second}已开启。",
-  "moduleBothOffDone": "{first}和{second}已关闭。数据保留在这部手机上。"
+  "moduleBothOffDone": "{first}和{second}已关闭。数据保留在这部手机上。",
+  "trajectoryTitle": "轨迹",
+  "trajectoryLead": "如果一切不变，你的数据会指向哪里。这是带区间的情景，绝不是预测。",
+  "trajectoryCardTitle": "体重，如果一切不变",
+  "trajectoryCardSubtitle": "基于截至今天的称重",
+  "trajectoryNow": "现在 · {date}",
+  "trajectoryWeeksAt": "{weeks} 周 · {date}",
+  "trajectoryRange": "{low} 至 {high} {unit}",
+  "trajectoryLegendBand": "线：趋势。点：每日称重。阴影：情景区间，4 周内颜色更深。虚线：区间中点。",
+  "trajectoryAssumption": "假设饮食、活动和睡眠与过去 4 周相同。",
+  "trajectoryStableNote": "体重持平时，区间只会随时间变宽。",
+  "trajectoryBendNote": "曲线会弯曲，因为消耗随体重一起下降。",
+  "trajectoryNotForecast": "这是情景，不是预测。",
+  "trajectoryPlaceholder": "体重情景目前不显示。",
+  "trajectoryChartLabel": "过去 5 周的体重趋势和每日称重，以及未来 12 周的情景区间，单位为 {unit}。"
 }

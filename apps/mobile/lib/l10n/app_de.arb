@@ -3005,5 +3005,19 @@
   "moduleBothOffConfirm": "Beide ausschalten",
   "moduleBothOffCancel": "Abbrechen",
   "moduleBothOnDone": "{first} und {second} sind an.",
-  "moduleBothOffDone": "{first} und {second} sind aus. Die Daten bleiben auf diesem Handy."
+  "moduleBothOffDone": "{first} und {second} sind aus. Die Daten bleiben auf diesem Handy.",
+  "trajectoryTitle": "Verlauf",
+  "trajectoryLead": "Wohin deine Daten zeigen, wenn sich nichts ändert. Ein Szenario mit Band, nie eine Prognose.",
+  "trajectoryCardTitle": "Gewicht, wenn sich nichts ändert",
+  "trajectoryCardSubtitle": "mit den Messungen bis heute",
+  "trajectoryNow": "Jetzt · {date}",
+  "trajectoryWeeksAt": "{weeks} Wochen · {date}",
+  "trajectoryRange": "{low} bis {high} {unit}",
+  "trajectoryLegendBand": "Linie: Trend. Punkte: Messungen. Fläche: das Szenarioband, dunkler für 4 Wochen. Gestrichelt: seine Mitte.",
+  "trajectoryAssumption": "Nimmt an, dass Essen, Bewegung und Schlaf wie in den letzten 4 Wochen bleiben.",
+  "trajectoryStableNote": "Bei stabilem Gewicht wird das Band nur mit der Zeit breiter.",
+  "trajectoryBendNote": "Die Kurve flacht ab, weil der Verbrauch mit dem Gewicht sinkt.",
+  "trajectoryNotForecast": "Es ist ein Szenario, keine Prognose.",
+  "trajectoryPlaceholder": "Das Gewichtsszenario wird gerade nicht angezeigt.",
+  "trajectoryChartLabel": "Gewichtstrend und Messungen der letzten 5 Wochen und das Szenarioband für die nächsten 12 Wochen, in {unit}."
 }

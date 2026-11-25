@@ -3005,5 +3005,19 @@
   "moduleBothOffConfirm": "Matikan keduanya",
   "moduleBothOffCancel": "Batal",
   "moduleBothOnDone": "{first} dan {second} aktif.",
-  "moduleBothOffDone": "{first} dan {second} mati. Datanya tetap di ponsel ini."
+  "moduleBothOffDone": "{first} dan {second} mati. Datanya tetap di ponsel ini.",
+  "trajectoryTitle": "Lintasan",
+  "trajectoryLead": "Ke mana data Anda mengarah jika tidak ada yang berubah. Skenario dengan rentang, bukan ramalan.",
+  "trajectoryCardTitle": "Berat, jika tidak ada yang berubah",
+  "trajectoryCardSubtitle": "dengan penimbangan sampai hari ini",
+  "trajectoryNow": "Sekarang · {date}",
+  "trajectoryWeeksAt": "{weeks} minggu · {date}",
+  "trajectoryRange": "{low} sampai {high} {unit}",
+  "trajectoryLegendBand": "Garis: tren. Titik: penimbangan. Arsiran: rentang skenario, lebih gelap untuk 4 minggu. Putus-putus: titik tengahnya.",
+  "trajectoryAssumption": "Mengasumsikan makan, gerak, dan tidur tetap seperti 4 minggu terakhir.",
+  "trajectoryStableNote": "Dengan berat yang stabil, rentangnya hanya melebar seiring waktu.",
+  "trajectoryBendNote": "Kurvanya melengkung karena pembakaran turun bersama berat.",
+  "trajectoryNotForecast": "Ini skenario, bukan ramalan.",
+  "trajectoryPlaceholder": "Skenario berat tidak ditampilkan saat ini.",
+  "trajectoryChartLabel": "Tren berat dan penimbangan 5 minggu terakhir, serta rentang skenario untuk 12 minggu ke depan, dalam {unit}."
 }

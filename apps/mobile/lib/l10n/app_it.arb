@@ -3005,5 +3005,19 @@
   "moduleBothOffConfirm": "Disattiva entrambi",
   "moduleBothOffCancel": "Annulla",
   "moduleBothOnDone": "{first} e {second} sono attivi.",
-  "moduleBothOffDone": "{first} e {second} sono disattivati. I dati restano su questo telefono."
+  "moduleBothOffDone": "{first} e {second} sono disattivati. I dati restano su questo telefono.",
+  "trajectoryTitle": "Traiettoria",
+  "trajectoryLead": "Dove puntano i tuoi dati se nulla cambia. Uno scenario con una fascia, mai una previsione.",
+  "trajectoryCardTitle": "Peso, se nulla cambia",
+  "trajectoryCardSubtitle": "con le pesate fino a oggi",
+  "trajectoryNow": "Ora · {date}",
+  "trajectoryWeeksAt": "{weeks} settimane · {date}",
+  "trajectoryRange": "da {low} a {high} {unit}",
+  "trajectoryLegendBand": "Linea: tendenza. Punti: pesate. Area: la fascia dello scenario, più scura per 4 settimane. Tratteggio: il suo centro.",
+  "trajectoryAssumption": "Presuppone che cibo, movimento e sonno restino come nelle ultime 4 settimane.",
+  "trajectoryStableNote": "Con il peso stabile, la fascia si allarga solo col tempo.",
+  "trajectoryBendNote": "La curva si piega perché il consumo cala insieme al peso.",
+  "trajectoryNotForecast": "È uno scenario, non una previsione.",
+  "trajectoryPlaceholder": "Lo scenario del peso non è mostrato ora.",
+  "trajectoryChartLabel": "Tendenza del peso e pesate delle ultime 5 settimane, e fascia dello scenario per le prossime 12 settimane, in {unit}."
 }

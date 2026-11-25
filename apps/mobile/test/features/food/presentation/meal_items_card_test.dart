@@ -231,7 +231,7 @@ void main() {
         text.data ?? '',
     ];
     expect(texts, contains(en.foodAiItemsNote));
-    final energy = RegExp(r'kcal|kJ|calor|energ', caseSensitive: false);
+    final energy = RegExp('kcal|kJ|calor|energ', caseSensitive: false);
     for (final text in texts) {
       expect(
         text.contains(energy) && text.contains(RegExp(r'\d')),

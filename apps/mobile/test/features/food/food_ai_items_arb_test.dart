@@ -40,7 +40,7 @@ const _placeholders = {
 };
 
 // Every measure but unit, which the select reads as other.
-final _cases = {
+final Map<String, List<String>> _cases = {
   'foodAiMeasure': [
     for (final m in MealPhotoMeasure.values)
       if (m != MealPhotoMeasure.unit) m.name,

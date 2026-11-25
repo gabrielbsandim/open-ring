@@ -140,7 +140,7 @@ void main() {
     );
 
     test('percentLow exactly 1.0 is false', () {
-      expect(fastLossGuard(atPercentLow(1.0)), isFalse);
+      expect(fastLossGuard(atPercentLow(1)), isFalse);
     });
 
     test('percentLow just above 1.0 is true', () {
@@ -154,7 +154,7 @@ void main() {
         kgHigh: 1,
         percent: 1.5,
         percentLow: 0.9,
-        percentHigh: 2.0,
+        percentHigh: 2,
       );
       expect(fastLossGuard(lowEdgeBelow), isFalse);
     });

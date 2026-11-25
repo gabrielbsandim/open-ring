@@ -2867,5 +2867,14 @@
   "aiPhotosPausedTitle": "{count, plural, =0{照片队列已暂停。} other{{count} 张照片在等待。队列已暂停。}}",
   "aiPhotosPausedBody": "队列暂停期间不会再发送照片。你的餐食、你设置的标签和时间都保留在饮食日记中。",
   "aiPhotosResume": "{count, plural, =0{恢复} other{恢复（发送 {count} 张照片）}}",
-  "aiPhotosExpiry": "加入队列超过 7 天的照片会未经发送就离开队列：一周前的意图不等于今天发送的同意。"
+  "aiPhotosExpiry": "加入队列超过 7 天的照片会未经发送就离开队列：一周前的意图不等于今天发送的同意。",
+  "foodAiSuggestedHint": "虚线标签来自模型。点按其中一个即可确认，也可以全部确认。",
+  "foodAiConfirmAll": "{count, plural, =1{确认 1 个} other{全部确认（{count} 个）}}",
+  "foodAiChecked": "建议已核对。只有你确认的内容才会计入餐盘模式和对比。",
+  "foodAiSuggestedChip": "{tag}，模型建议。点按即可确认。",
+  "foodAiConfirmed": "标签已确认。现在它们会计入餐盘模式和对比。",
+  "foodAiBatch": "{count, plural, other{分析 {count} 张照片}}",
+  "foodAiBatchQueued": "{count, plural, =1{已排队：1 张照片。应用打开时发送。} other{已排队：{count} 张照片。应用打开时逐张发送。}}",
+  "foodAiBatchPartial": "{count, plural, other{已排队 {count} 张。每日上限阻止了其余照片。}}",
+  "foodAiBadge": "{state, select, suggestions{有建议} queued{已排队} sending{发送中} failed{失败} other{已核对}}"
 }

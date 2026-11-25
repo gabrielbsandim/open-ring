@@ -2867,5 +2867,14 @@
   "aiPhotosPausedTitle": "{count, plural, =0{Die Fotowarteschlange ist pausiert.} one{1 Foto wartet. Die Warteschlange ist pausiert.} other{{count} Fotos warten. Die Warteschlange ist pausiert.}}",
   "aiPhotosPausedBody": "Solange die Warteschlange pausiert ist, werden keine weiteren Fotos gesendet. Deine Mahlzeiten, die von dir gesetzten Markierungen und die Uhrzeiten bleiben im Tagebuch.",
   "aiPhotosResume": "{count, plural, =0{Fortsetzen} one{Fortsetzen (sendet 1 Foto)} other{Fortsetzen (sendet {count} Fotos)}}",
-  "aiPhotosExpiry": "Ein Foto, das vor mehr als 7 Tagen eingereiht wurde, verlässt die Warteschlange ungesendet: Eine Absicht von vor einer Woche ist keine Einwilligung, heute zu senden."
+  "aiPhotosExpiry": "Ein Foto, das vor mehr als 7 Tagen eingereiht wurde, verlässt die Warteschlange ungesendet: Eine Absicht von vor einer Woche ist keine Einwilligung, heute zu senden.",
+  "foodAiSuggestedHint": "Die gestrichelten Markierungen kommen vom Modell. Tippe auf eine, um sie zu bestätigen, oder bestätige alle.",
+  "foodAiConfirmAll": "{count, plural, one{1 bestätigen} other{Alle {count} bestätigen}}",
+  "foodAiChecked": "Vorschläge geprüft. Nur was du bestätigst, zählt im Tellermuster und in den Vergleichen.",
+  "foodAiSuggestedChip": "{tag}, vom Modell vorgeschlagen. Zum Bestätigen tippen.",
+  "foodAiConfirmed": "Markierungen bestätigt. Sie zählen jetzt im Tellermuster und in den Vergleichen.",
+  "foodAiBatch": "{count, plural, one{1 Foto analysieren} other{{count} Fotos analysieren}}",
+  "foodAiBatchQueued": "{count, plural, one{In der Warteschlange: 1 Foto. Es wird gesendet, solange die App geöffnet ist.} other{In der Warteschlange: {count} Fotos. Sie werden nacheinander gesendet, solange die App geöffnet ist.}}",
+  "foodAiBatchPartial": "{count, plural, one{1 eingereiht. Das Tageslimit hat den Rest gestoppt.} other{{count} eingereiht. Das Tageslimit hat den Rest gestoppt.}}",
+  "foodAiBadge": "{state, select, suggestions{Vorschläge} queued{In der Warteschlange} sending{Wird gesendet} failed{Fehlgeschlagen} other{Geprüft}}"
 }

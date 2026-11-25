@@ -22,7 +22,7 @@ const Set<EnqueueOutcome> _goesOn = {
 
 /// Sends [mealIds] to the queue on a tap. The consent and probe steps run
 /// once, for the first meal; the rest are enqueued without a sheet and stop
-/// at the daily limit.
+/// at the daily limit, and a batch reports how many it queued.
 Future<void> analyzeMealPhotos(
   BuildContext context,
   WidgetRef ref,
@@ -56,14 +56,37 @@ Future<void> analyzeMealPhotos(
     outcome = await queue.enqueue(first);
     if (!context.mounted) return;
   }
-  _report(context, config, outcome);
-  if (!_goesOn.contains(outcome)) return;
-  for (final id in mealIds.skip(1)) {
-    final next = await queue.enqueue(id);
-    if (next != EnqueueOutcome.dailyLimit) continue;
-    if (context.mounted) _report(context, config, next);
+  if (mealIds.length == 1 || !_goesOn.contains(outcome)) {
+    _report(context, config, outcome);
     return;
   }
+  var queued = outcome == EnqueueOutcome.queued ? 1 : 0;
+  var limited = false;
+  for (final id in mealIds.skip(1)) {
+    final next = await queue.enqueue(id);
+    if (next == EnqueueOutcome.queued) queued++;
+    limited = next == EnqueueOutcome.dailyLimit;
+    if (limited) break;
+  }
+  if (context.mounted) _reportBatch(context, config, queued, limited: limited);
+}
+
+void _reportBatch(
+  BuildContext context,
+  AiConfig config,
+  int queued, {
+  required bool limited,
+}) {
+  final l10n = AppLocalizations.of(context);
+  if (queued == 0 && limited) {
+    _report(context, config, EnqueueOutcome.dailyLimit);
+    return;
+  }
+  if (queued == 0) return;
+  final text = limited
+      ? l10n.foodAiBatchPartial(queued)
+      : l10n.foodAiBatchQueued(queued);
+  _snack(context, text);
 }
 
 void _report(BuildContext context, AiConfig config, EnqueueOutcome outcome) {

@@ -2867,5 +2867,14 @@
   "aiPhotosPausedTitle": "{count, plural, =0{写真の送信待ちリストは一時停止中です。} other{{count}枚の写真が待機中です。送信待ちリストは一時停止中です。}}",
   "aiPhotosPausedBody": "送信待ちリストが一時停止している間、写真はこれ以上送りません。食事、付けたタグ、時刻は記録に残ります。",
   "aiPhotosResume": "{count, plural, =0{再開} other{再開（{count}枚の写真を送信）}}",
-  "aiPhotosExpiry": "7日より前に送信待ちになった写真は、送信されないままリストから外れます。1週間前の意図は、今日送ることへの同意ではないためです。"
+  "aiPhotosExpiry": "7日より前に送信待ちになった写真は、送信されないままリストから外れます。1週間前の意図は、今日送ることへの同意ではないためです。",
+  "foodAiSuggestedHint": "点線のタグはモデルからの提案です。1つずつタップして確定するか、まとめて確定できます。",
+  "foodAiConfirmAll": "{count, plural, =1{1件を確定} other{{count}件すべて確定}}",
+  "foodAiChecked": "提案は確認済みです。プレートパターンと比較に入るのは、あなたが確定したものだけです。",
+  "foodAiSuggestedChip": "{tag}、モデルによる提案。タップで確定します。",
+  "foodAiConfirmed": "タグを確定しました。プレートパターンと比較に入るようになりました。",
+  "foodAiBatch": "{count, plural, other{{count}枚の写真を分析}}",
+  "foodAiBatchQueued": "{count, plural, =1{送信待ち：1枚。アプリが開いている間に送ります。} other{送信待ち：{count}枚。アプリが開いている間に1枚ずつ送ります。}}",
+  "foodAiBatchPartial": "{count, plural, other{{count}枚を送信待ちにしました。残りは1日の上限で止まりました。}}",
+  "foodAiBadge": "{state, select, suggestions{提案あり} queued{送信待ち} sending{送信中} failed{失敗} other{確認済み}}"
 }

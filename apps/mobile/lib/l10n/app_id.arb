@@ -2867,5 +2867,14 @@
   "aiPhotosPausedTitle": "{count, plural, =0{Antrean foto dijeda.} one{1 foto menunggu. Antrean dijeda.} other{{count} foto menunggu. Antrean dijeda.}}",
   "aiPhotosPausedBody": "Tidak ada foto lain yang dikirim selama antrean dijeda. Makanan Anda, tag yang Anda pasang, dan waktunya tetap ada di catatan harian.",
   "aiPhotosResume": "{count, plural, =0{Lanjutkan} one{Lanjutkan (mengirim 1 foto)} other{Lanjutkan (mengirim {count} foto)}}",
-  "aiPhotosExpiry": "Foto yang masuk antrean lebih dari 7 hari lalu keluar dari antrean tanpa dikirim: niat dari seminggu lalu bukan persetujuan untuk mengirim hari ini."
+  "aiPhotosExpiry": "Foto yang masuk antrean lebih dari 7 hari lalu keluar dari antrean tanpa dikirim: niat dari seminggu lalu bukan persetujuan untuk mengirim hari ini.",
+  "foodAiSuggestedHint": "Tag bergaris putus-putus berasal dari model. Ketuk salah satu untuk mengonfirmasinya, atau konfirmasi semuanya.",
+  "foodAiConfirmAll": "{count, plural, one{Konfirmasi 1} other{Konfirmasi semua {count}}}",
+  "foodAiChecked": "Saran sudah diperiksa. Hanya yang Anda konfirmasi yang dihitung dalam Pola piring dan perbandingan.",
+  "foodAiSuggestedChip": "{tag}, disarankan oleh model. Ketuk untuk mengonfirmasi.",
+  "foodAiConfirmed": "Tag dikonfirmasi. Sekarang tag tersebut dihitung dalam Pola piring dan perbandingan.",
+  "foodAiBatch": "{count, plural, one{Analisis 1 foto} other{Analisis {count} foto}}",
+  "foodAiBatchQueued": "{count, plural, one{Dalam antrean: 1 foto. Foto dikirim selama aplikasi terbuka.} other{Dalam antrean: {count} foto. Foto dikirim satu per satu selama aplikasi terbuka.}}",
+  "foodAiBatchPartial": "{count, plural, one{1 masuk antrean. Batas harian menghentikan sisanya.} other{{count} masuk antrean. Batas harian menghentikan sisanya.}}",
+  "foodAiBadge": "{state, select, suggestions{Saran} queued{Dalam antrean} sending{Mengirim} failed{Gagal} other{Diperiksa}}"
 }

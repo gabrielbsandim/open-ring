@@ -10,9 +10,13 @@ import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/ai/application/ai_gate.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/food/application/food_day.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
+import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
+import 'package:open_ring/features/food/domain/meal_analysis.dart';
+import 'package:open_ring/features/food/domain/meal_suggestion.dart';
 import 'package:open_ring/features/food/presentation/food_day_screen.dart';
 import 'package:open_ring/features/food/presentation/meal_analysis_section.dart';
 import 'package:open_ring/features/food/presentation/meal_saved_sheet.dart';
@@ -215,6 +219,24 @@ class _MealBodyState extends ConsumerState<_MealBody> {
     if (router != null && router.canPop()) router.pop();
   }
 
+  void _confirmAll(Set<Object> values) {
+    _onEditChanged(applySuggested(_edit, values));
+    _snack(MetricFormat.of(context).l10n.foodAiConfirmed);
+  }
+
+  // Demo draws its own read only sample, so its chips stay plain.
+  Set<Object> _suggested(int mealId) {
+    if (ref.watch(demoModeProvider)) return const {};
+    final keep = ref.watch(mealKeepOnPhoneProvider(mealId)).value ?? true;
+    final row = ref.watch(mealAnalysesProvider(mealId)).value?.firstOrNull;
+    if (keep || row == null || row.status != MealAnalysisStatus.done) {
+      return const {};
+    }
+    final suggestion = row.suggestion;
+    if (suggestion == null) return const {};
+    return suggestedTags(suggestion, _edit);
+  }
+
   void _snack(String text) => ScaffoldMessenger.of(context)
     ..clearSnackBars()
     ..showSnackBar(SnackBar(content: Text(text)));
@@ -227,6 +249,8 @@ class _MealBodyState extends ConsumerState<_MealBody> {
     final meal = _persisted;
     final locked = _deleting || _changingTime;
     final ai = ref.watch(aiEnabledProvider) && ref.watch(foodEnabledProvider);
+    final analyzed = ai && meal.photo != null;
+    final suggested = analyzed ? _suggested(meal.id) : const <Object>{};
     return AppPage(
       title: mealSlotLabel(l10n, meal),
       children: [
@@ -259,13 +283,18 @@ class _MealBodyState extends ConsumerState<_MealBody> {
               MealTagsEditor(
                 value: _edit,
                 onChanged: locked ? null : _onEditChanged,
+                suggested: suggested,
               ),
             ],
           ),
         ),
-        if (ai && meal.photo != null) ...[
+        if (analyzed) ...[
           const SizedBox(height: cardGap),
-          MealAnalysisSection(mealId: meal.id),
+          MealAnalysisSection(
+            mealId: meal.id,
+            pending: suggested,
+            onConfirmAll: locked ? null : () => _confirmAll(suggested),
+          ),
         ],
         const SizedBox(height: cardGap),
         MetricCard(

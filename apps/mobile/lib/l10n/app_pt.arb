@@ -2867,5 +2867,14 @@
   "aiPhotosPausedTitle": "{count, plural, =0{A fila de fotos está pausada.} one{1 foto esperando. A fila está pausada.} other{{count} fotos esperando. A fila está pausada.}}",
   "aiPhotosPausedBody": "Nenhuma outra foto é enviada enquanto a fila estiver pausada. Suas refeições, as marcas que você pôs e os horários continuam no diário.",
   "aiPhotosResume": "{count, plural, =0{Retomar} one{Retomar (envia 1 foto)} other{Retomar (envia {count} fotos)}}",
-  "aiPhotosExpiry": "Uma foto que entrou na fila há mais de 7 dias sai dela sem ser enviada: uma intenção de uma semana atrás não é consentimento para enviar hoje."
+  "aiPhotosExpiry": "Uma foto que entrou na fila há mais de 7 dias sai dela sem ser enviada: uma intenção de uma semana atrás não é consentimento para enviar hoje.",
+  "foodAiSuggestedHint": "As marcas tracejadas vieram do modelo. Toque em uma para confirmar, ou confirme todas.",
+  "foodAiConfirmAll": "{count, plural, one{Confirmar 1} other{Confirmar as {count}}}",
+  "foodAiChecked": "Sugestões conferidas. Só o que você confirma conta no Padrão do prato e nas comparações.",
+  "foodAiSuggestedChip": "{tag}: sugestão do modelo. Toque para confirmar.",
+  "foodAiConfirmed": "Marcas confirmadas. Agora elas contam no Padrão do prato e nas comparações.",
+  "foodAiBatch": "{count, plural, one{Analisar 1 foto} other{Analisar {count} fotos}}",
+  "foodAiBatchQueued": "{count, plural, one{Na fila: 1 foto. Ela sai enquanto o app estiver aberto.} other{Na fila: {count} fotos. Elas saem uma por vez enquanto o app estiver aberto.}}",
+  "foodAiBatchPartial": "{count, plural, one{1 na fila. O limite diário parou o resto.} other{{count} na fila. O limite diário parou o resto.}}",
+  "foodAiBadge": "{state, select, suggestions{Sugestões} queued{Na fila} sending{Enviando} failed{Falhou} other{Conferida}}"
 }

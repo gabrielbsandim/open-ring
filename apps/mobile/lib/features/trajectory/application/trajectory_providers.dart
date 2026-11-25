@@ -30,8 +30,9 @@ final trajectoryViewProvider = FutureProvider<TrajectoryView>((ref) async {
     if (!modules.contains(ModuleId.body)) return const TrajectoryOff();
     final refusal = await _refusal(ref, today);
     if (refusal != null) return TrajectoryRefused(refusal);
+    final profile = await ref.watch(userProfileProvider.future);
     final summary = await ref.watch(weightSummaryProvider.future);
-    final view = _view(today, summary);
+    final view = _view(today, summary, profile!.heightCentimeters!);
     if (view is! TrajectoryReady || ref.watch(demoModeProvider)) return view;
     // Leaving demo flips the flag before the cached weigh-ins are refreshed.
     final entries = await ref.watch(weighInsProvider.future);
@@ -50,13 +51,12 @@ Future<TrajectoryRefusal?> _refusal(Ref ref, LocalDate today) async {
   if (await ref.watch(newestPregnancyProvider.future) ?? false) {
     return TrajectoryRefusal.pregnancy;
   }
-  // Height is required up front for the BMI floor the drawn scenario will
-  // apply; that floor is not built yet.
+  // Height is required up front for the BMI floor the drawn band applies.
   if (profile?.heightCentimeters == null) return TrajectoryRefusal.noHeight;
   return null;
 }
 
-TrajectoryView _view(LocalDate today, WeightSummary? summary) {
+TrajectoryView _view(LocalDate today, WeightSummary? summary, double heightCm) {
   if (summary == null) return const TrajectoryBuilding(null);
   final snapshot = weightSnapshot(daily: summary.daily, asOf: today);
   final rate = snapshot.rate;
@@ -73,7 +73,11 @@ TrajectoryView _view(LocalDate today, WeightSummary? summary) {
     rate: rate,
     noiseKg: summary.noise,
     firm: weightScenario(trendKg, rate, summary.noise, trajectoryFirmDays),
-    band: weightScenario(trendKg, rate, summary.noise, trajectoryBandDays),
+    band: scenarioFloored(
+      weightScenario(trendKg, rate, summary.noise, trajectoryBandDays),
+      trendKg: trendKg,
+      heightCm: heightCm,
+    ),
   );
 }
 

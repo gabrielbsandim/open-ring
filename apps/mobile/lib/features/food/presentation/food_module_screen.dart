@@ -89,6 +89,7 @@ class _FoodModuleScreenState extends ConsumerState<FoodModuleScreen> {
             l10n.moduleFoodAddsToday(l10n.tabToday),
             l10n.moduleFoodAddsPatterns,
             if (ai) l10n.moduleFoodAddsAi('on'),
+            if (on && !aiOn) l10n.moduleFoodAddsAi('other'),
           ],
         ),
         const SizedBox(height: cardGap),

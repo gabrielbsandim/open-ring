@@ -21,7 +21,8 @@ enum OfferedModule {
   ),
   effort(ModuleId.effort, Icons.bolt_rounded, AppPaths.settingsModuleEffort),
   goals(ModuleId.goals, Icons.flag_outlined, AppPaths.settingsModuleGoals),
-  food(ModuleId.food, Icons.restaurant_outlined, AppPaths.settingsModuleFood);
+  food(ModuleId.food, Icons.restaurant_outlined, AppPaths.settingsModuleFood),
+  ai(ModuleId.ai, Icons.chat_bubble_outline_rounded, AppPaths.settingsModuleAi);
 
   new(this.id, this.icon, this.path);
 
@@ -36,6 +37,7 @@ enum OfferedModule {
     OfferedModule.effort => l10n.effortTitle,
     OfferedModule.goals => l10n.moduleGoalsName,
     OfferedModule.food => l10n.foodTitle,
+    OfferedModule.ai => l10n.moduleAiName,
   };
 
   String detail(AppLocalizations l10n) => switch (this) {
@@ -45,6 +47,7 @@ enum OfferedModule {
     OfferedModule.effort => l10n.moduleEffortDetail,
     OfferedModule.goals => l10n.moduleGoalsDetail,
     OfferedModule.food => l10n.moduleFoodDetail,
+    OfferedModule.ai => l10n.moduleAiDetail,
   };
 
   String turnedOn(AppLocalizations l10n) => switch (this) {
@@ -54,12 +57,14 @@ enum OfferedModule {
     OfferedModule.effort => l10n.moduleEffortTurnedOn(l10n.tabToday),
     OfferedModule.goals => l10n.moduleGoalsTurnedOn,
     OfferedModule.food => l10n.moduleFoodTurnedOn(l10n.tabToday),
+    OfferedModule.ai => l10n.moduleAiTurnedOn,
   };
 
-  /// Where View goes after switching on: Goals shows nothing on Today until
-  /// a goal is chosen, so it opens the goal screen.
+  /// Where View goes after switching on: Goals and AI show nothing on Today
+  /// until a goal or a connection exists, so each opens its own screen.
   String get viewPath => switch (this) {
     OfferedModule.goals => AppPaths.goals,
+    OfferedModule.ai => AppPaths.settingsAiConnection,
     _ => AppTab.today.path,
   };
 }

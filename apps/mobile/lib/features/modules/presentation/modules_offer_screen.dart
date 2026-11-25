@@ -46,7 +46,7 @@ class _ModulesOfferScreenState extends ConsumerState<ModulesOfferScreen> {
   }
 
   bool _offers(OfferedModule module, {required bool adult}) => switch (module) {
-    OfferedModule.goals => false,
+    OfferedModule.goals || OfferedModule.ai => false,
     OfferedModule.energy => adult,
     _ => true,
   };

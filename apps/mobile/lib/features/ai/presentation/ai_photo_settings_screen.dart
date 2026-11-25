@@ -15,6 +15,7 @@ import 'package:open_ring/features/ai/presentation/ai_models_sheet.dart';
 import 'package:open_ring/features/ai/presentation/ai_vision_test_card.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
+import 'package:open_ring/features/food/presentation/meal_photo_pause_card.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -65,6 +66,10 @@ class _AiPhotoSettingsScreenState extends ConsumerState<AiPhotoSettingsScreen> {
       ),
       const SizedBox(height: 16),
     ],
+    MealPhotoPauseCard(
+      locked: _demo || _testOpen,
+      onTest: () => setState(() => _testOpen = true),
+    ),
     if (_testOpen) ...[
       AiVisionTestCard(config: config, locked: _demo),
       const SizedBox(height: 16),

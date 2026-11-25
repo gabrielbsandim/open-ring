@@ -228,6 +228,13 @@ class MealAnalysisQueue extends Notifier<MealAnalysisQueueState> {
     await _giveBack(row, now);
   }
 
+  /// Why nothing may be sent now, or null while the gate is open; reads only.
+  Future<EnqueueOutcome?> closedReason() async {
+    final gate = await _gate();
+    if (gate is _Ready) return null;
+    return gate is EnqueueOutcome ? gate : EnqueueOutcome.unavailable;
+  }
+
   /// Lifts a key, credit or access pause and sends what is queued. A noVision
   /// pause stays: only a passing vision probe lifts it.
   Future<void> resume() async {

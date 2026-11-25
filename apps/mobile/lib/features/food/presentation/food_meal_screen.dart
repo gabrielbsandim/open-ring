@@ -9,10 +9,12 @@ import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/features/food/application/food_day.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
 import 'package:open_ring/features/food/presentation/food_day_screen.dart';
+import 'package:open_ring/features/food/presentation/meal_analysis_section.dart';
 import 'package:open_ring/features/food/presentation/meal_saved_sheet.dart';
 
 abstract final class FoodMealKeys {
@@ -224,6 +226,7 @@ class _MealBodyState extends ConsumerState<_MealBody> {
     final colors = AppColors.of(context);
     final meal = _persisted;
     final locked = _deleting || _changingTime;
+    final ai = ref.watch(aiEnabledProvider) && ref.watch(foodEnabledProvider);
     return AppPage(
       title: mealSlotLabel(l10n, meal),
       children: [
@@ -260,6 +263,10 @@ class _MealBodyState extends ConsumerState<_MealBody> {
             ],
           ),
         ),
+        if (ai && meal.photo != null) ...[
+          const SizedBox(height: cardGap),
+          MealAnalysisSection(mealId: meal.id),
+        ],
         const SizedBox(height: cardGap),
         MetricCard(
           child: Column(

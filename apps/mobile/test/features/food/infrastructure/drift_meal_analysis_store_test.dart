@@ -533,6 +533,38 @@ void main() {
 
       expect(await store.countQueuedSince(midnight), 1);
     });
+
+    test(
+      'countQueued counts queued rows of this target since the cutoff',
+      () async {
+        final ids = [
+          mealId,
+          for (final n in [2, 3, 4, 5, 6, 7])
+            await _meal(db, photo: 'meal_$n.jpg'),
+        ];
+        await _doneRow(store, ids[0]);
+        final sending = await _analysisAt(store, ids[1], _target, _now);
+        await store.markSending(sending, now: _now);
+        final failed = await _analysisAt(store, ids[2], _target, _now);
+        await store.fail(failed, 'timeout', now: _now);
+        final skipped = await _analysisAt(store, ids[3], _target, _now);
+        await store.skip(skipped, 'cancelled', now: _now);
+        await _analysisAt(store, ids[4], _target, _now);
+        await _analysisAt(store, ids[5], _otherModel, _now);
+        final week = _now.subtract(const Duration(days: 7));
+        await _analysisAt(
+          store,
+          ids[6],
+          _target,
+          week.subtract(const Duration(minutes: 1)),
+        );
+        final count = store.countQueued;
+
+        expect(await count('api.example.com', 'vision-1', since: week), 1);
+        expect(await count('api.example.com', 'vision-2', since: week), 1);
+        expect(await count('other.example.com', 'vision-1', since: week), 0);
+      },
+    );
   });
 
   group('keep on phone', () {

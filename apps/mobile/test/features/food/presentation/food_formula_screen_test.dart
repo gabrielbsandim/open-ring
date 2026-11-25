@@ -176,12 +176,69 @@ void main() {
       expect(find.text(l10n.foodFormulaCannot1), findsOneWidget);
       expect(find.text(l10n.metricEstimateNote), findsOneWidget);
 
-      // Zero AI photo or Weekly energy copy belongs in F10b.
+      expect(find.byKey(FoodFormulaKeys.ai), findsNothing);
+      expect(find.byKey(FoodFormulaKeys.energy), findsNothing);
+      // With AI off there is no AI photo or Weekly energy copy.
       for (final t in tester.widgetList<Text>(find.byType(Text))) {
         final s = (t.data ?? '').toLowerCase();
         expect(s, isNot(contains('7,700')));
         expect(s, isNot(contains('weekly energy')));
         expect(s, isNot(contains('taco')));
+      }
+    });
+
+    testWidgets('with AI on, the photo analysis and Weekly energy cards '
+        'show', (tester) async {
+      final l10n = lookupAppLocalizations(const Locale('en'));
+      for (final scale in [1.0, 2.0]) {
+        await pumpScaled(
+          tester,
+          screenHost(const FoodFormulaScreen()),
+          textScaler: TextScaler.linear(scale),
+          brightness: Brightness.dark,
+          locale: const Locale('en'),
+          size: const Size(360, 12000),
+          overrides: [
+            ...bleOverrides(),
+            ...ringOverrides(),
+            moduleStoreProvider.overrideWithValue(
+              InMemoryModuleStore({ModuleId.food, ModuleId.ai}),
+            ),
+          ],
+        );
+
+        final ai = find.byKey(FoodFormulaKeys.ai);
+        final energy = find.byKey(FoodFormulaKeys.energy);
+        expect(
+          find.descendant(of: ai, matching: find.text('Photo analysis')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: ai, matching: find.text(l10n.foodFormulaAiBody)),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: energy, matching: find.text('Weekly energy')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: energy,
+            matching: find.text(l10n.foodFormulaEnergyExpr('7,700')),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: energy,
+            matching: find.text(
+              '7,700 kcal per kilogram is a rough rule. Items become energy '
+              'through a table of 23 food groups taken from TACO and '
+              'FoodData Central.',
+            ),
+          ),
+          findsOneWidget,
+        );
       }
     });
   });

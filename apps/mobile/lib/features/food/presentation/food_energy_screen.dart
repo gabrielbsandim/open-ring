@@ -13,6 +13,7 @@ import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/food/application/food_energy.dart';
 import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/food/presentation/food_energy_sheet.dart';
+import 'package:open_ring/features/food/presentation/food_energy_views.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class FoodEnergyKeys {
@@ -68,7 +69,13 @@ class FoodEnergyScreen extends ConsumerWidget {
     final counts = value.result?.counts;
     return switch (value.gate) {
       FoodEnergyHidden() => const [],
-      FoodEnergyDemo() => [_never(l)],
+      FoodEnergyDemo() => [
+        CaptionText(l.foodEnergySample, key: FoodEnergyViewKeys.sample),
+        const SizedBox(height: 12),
+        FoodEnergyReadyView(foodEnergySample),
+        const SizedBox(height: 16),
+        _never(l),
+      ],
       FoodEnergyBlocked(:final block) => _blocked(context, block, l),
       FoodEnergyNeedsScreening() => [
         MetricCard(
@@ -111,18 +118,29 @@ class FoodEnergyScreen extends ConsumerWidget {
         _never(l),
       ],
       FoodEnergyOn() => [
-        if (value.result case FoodEnergyHold(last: null)) ...[
-          MetricCard(
-            key: FoodEnergyKeys.building,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: _needs(context, counts, l),
+        ...switch (value.result) {
+          FoodEnergyHold(last: null) => [
+            MetricCard(
+              key: FoodEnergyKeys.building,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: _needs(context, counts, l),
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          CaptionText(l.foodEnergyFirst, key: FoodEnergyKeys.first),
-          const SizedBox(height: 16),
-        ],
+            const SizedBox(height: 12),
+            CaptionText(l.foodEnergyFirst, key: FoodEnergyKeys.first),
+            const SizedBox(height: 16),
+          ],
+          final FoodEnergyHold hold => [
+            FoodEnergyHoldView(hold),
+            const SizedBox(height: 16),
+          ],
+          final FoodEnergyReady ready => [
+            FoodEnergyReadyView(ready),
+            const SizedBox(height: 16),
+          ],
+          null => const <Widget>[],
+        },
         const FoodEnergySwitch(),
       ],
     };

@@ -15,8 +15,10 @@ import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/domain/food_energy_store.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
 import 'package:open_ring/features/food/domain/meal_analysis_store.dart';
+import 'package:open_ring/features/food/domain/meal_store.dart';
 import 'package:open_ring/features/food/presentation/food_energy_screen.dart';
 import 'package:open_ring/features/food/presentation/food_energy_sheet.dart';
+import 'package:open_ring/features/food/presentation/food_energy_views.dart';
 import 'package:open_ring/features/goals/application/goal_providers.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/domain/goal_store.dart';
@@ -123,6 +125,18 @@ final class _NoAnalyses implements MealAnalysisStore {
       throw StateError('unexpected: ${invocation.memberName}');
 }
 
+final class _UntouchedMeals implements MealStore {
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw StateError('unexpected: ${invocation.memberName}');
+}
+
+final class _UntouchedAnalyses implements MealAnalysisStore {
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw StateError('unexpected: ${invocation.memberName}');
+}
+
 void _sees(List<String> texts) {
   for (final text in texts) {
     expect(find.text(text), findsOneWidget, reason: text);
@@ -178,12 +192,29 @@ void main() {
         expect(find.byKey(FoodEnergyKeys.toggle), findsNothing);
       });
 
-      testWidgets('demo shows the lead and the never line, no switch', (
-        tester,
-      ) async {
-        final store = await _pump(tester, const FoodEnergyDemo(), scale: scale);
+      testWidgets('demo shows the labelled F1 sample, no switch and no '
+          'store call', (tester) async {
+        final store = await _pump(
+          tester,
+          const FoodEnergyDemo(),
+          scale: scale,
+          data: [
+            mealStoreProvider.overrideWithValue(_UntouchedMeals()),
+            mealAnalysisStoreProvider.overrideWithValue(_UntouchedAnalyses()),
+          ],
+        );
 
-        _sees([_title, _lead, _never]);
+        _sees([
+          _title,
+          _lead,
+          _never,
+          'Sample with invented numbers. Nothing of yours was used.',
+          'Nov 30 to Dec 6',
+          '1,800 to 2,450 kcal a day, on average',
+          '5% to 30% under',
+          'No clear difference',
+        ]);
+        expect(find.byKey(FoodEnergyViewKeys.rangeCard), findsOneWidget);
         expect(find.byKey(FoodEnergyKeys.toggle), findsNothing);
         expect(find.byKey(FoodEnergyKeys.turnOn), findsNothing);
         expect(store.writes + store.clears, 0);
@@ -227,7 +258,7 @@ void main() {
         expect(find.byKey(FoodEnergyKeys.turnOn), findsNothing);
       });
 
-      testWidgets('on with a range shows only the switch until A13d', (
+      testWidgets('on with a range shows the range views and the switch', (
         tester,
       ) async {
         await _pump(
@@ -237,14 +268,19 @@ void main() {
           scale: scale,
         );
 
+        expect(find.byKey(FoodEnergyViewKeys.rangeCard), findsOneWidget);
+        expect(find.byKey(FoodEnergyViewKeys.gapCard), findsOneWidget);
+        expect(find.byKey(FoodEnergyViewKeys.mathCard), findsOneWidget);
+        expect(find.byKey(FoodEnergyViewKeys.limits), findsOneWidget);
+        expect(find.byKey(FoodEnergyViewKeys.sample), findsNothing);
+        _sees(['1,800 to 2,450 kcal a day, on average', _switchLine]);
         expect(find.byKey(FoodEnergyKeys.toggle), findsOneWidget);
         expect(find.byKey(FoodEnergyKeys.building), findsNothing);
         expect(find.text(_first), findsNothing);
       });
 
-      testWidgets('on and holding with a last range shows only the switch', (
-        tester,
-      ) async {
+      testWidgets('on and holding with a last range shows the hold and the '
+          'switch', (tester) async {
         await _pump(
           tester,
           const FoodEnergyOn(_screenedOn),
@@ -256,6 +292,10 @@ void main() {
           scale: scale,
         );
 
+        expect(find.byKey(FoodEnergyViewKeys.holdCard), findsOneWidget);
+        expect(find.byKey(FoodEnergyViewKeys.lastRange), findsOneWidget);
+        expect(find.byKey(FoodEnergyViewKeys.rangeCard), findsNothing);
+        _sees(['No new range this week', 'Last range, Nov 30 to Dec 6']);
         expect(find.byKey(FoodEnergyKeys.toggle), findsOneWidget);
         expect(find.byKey(FoodEnergyKeys.building), findsNothing);
       });

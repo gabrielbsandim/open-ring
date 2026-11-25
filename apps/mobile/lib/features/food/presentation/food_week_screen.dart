@@ -10,10 +10,13 @@ import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/food/application/food_day.dart';
+import 'package:open_ring/features/food/application/food_energy.dart';
 import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/application/food_week.dart';
 import 'package:open_ring/features/food/domain/meal.dart';
+import 'package:open_ring/features/food/presentation/food_energy_screen.dart';
+import 'package:open_ring/features/food/presentation/food_energy_views.dart';
 import 'package:open_ring/features/food/presentation/food_formula_screen.dart';
 import 'package:open_ring/features/food/presentation/food_timing_chart.dart';
 import 'package:open_ring/features/food/presentation/food_week_evidence_sheet.dart';
@@ -582,7 +585,8 @@ Widget _plateCard(
   ], onTap: onTap);
 }
 
-/// Absent while Weekly energy is hidden or soft mode blocks it.
+/// Absent while Weekly energy is hidden or soft mode blocks it. Demo shows
+/// the sample; on shows the range, the last range or the building count.
 class _EnergyTile extends ConsumerWidget {
   const new({required this.onTap});
 
@@ -597,23 +601,75 @@ class _EnergyTile extends ConsumerWidget {
       _ => true,
     };
     if (!shown) return const SizedBox.shrink();
-    final l = MetricFormat.of(context).l10n;
+    final result = switch (gate) {
+      FoodEnergyDemo() => foodEnergySample,
+      FoodEnergyOn() => ref.watch(foodEnergyProvider).value?.result,
+      _ => null,
+    };
+    final f = MetricFormat.of(context);
+    final l = f.l10n;
     final c = AppColors.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: cardGap),
-      child: _card(FoodWeekKeys.energyTile, [
+    final t = Theme.of(context).textTheme;
+    final title = AccentTitle(title: l.foodEnergyTitle, accent: c.activity);
+    final chevron = Icon(
+      Icons.chevron_right_rounded,
+      size: 18,
+      color: c.textLabel,
+    );
+    final tag = switch (result) {
+      FoodEnergyReady() => 'range',
+      FoodEnergyHold(last: null) => 'building',
+      FoodEnergyHold() => 'holding',
+      null => null,
+    };
+    final header = tag == null
+        ? Row(
+            children: [
+              Expanded(child: title),
+              chevron,
+            ],
+          )
+        : _header(title, l.foodEnergyTag(tag), trailing: chevron);
+    final rows = switch (result) {
+      final FoodEnergyReady ready => [
+        if (gate is FoodEnergyDemo) CaptionText(l.foodEnergySample),
+        Text(
+          foodEnergyRangeText(f, ready.figures),
+          style: numberStyle(t.titleMedium),
+        ),
+        CaptionText(foodEnergyGapText(f, ready.figures)),
+      ],
+      FoodEnergyHold(:final FoodEnergyReady last) => [
+        CaptionText(
+          l.foodEnergyLastRange(foodEnergyWeekDates(f, last.counts.sunday)),
+        ),
+        Text(
+          foodEnergyRangeText(f, last.figures),
+          style: numberStyle(t.titleMedium, color: c.textLabel),
+        ),
+      ],
+      final FoodEnergyHold hold => [
         Row(
           children: [
             Expanded(
-              child: AccentTitle(title: l.foodEnergyTitle, accent: c.activity),
+              child: CaptionText(l.foodEnergyNeed(FoodEnergyNeed.days.name)),
             ),
-            Icon(Icons.chevron_right_rounded, size: 18, color: c.textLabel),
+            const SizedBox(width: 8),
+            Text(
+              l.foodEnergyNeedCount(hold.counts.days, foodEnergyMinDays),
+              style: numberStyle(t.bodyMedium),
+            ),
           ],
         ),
-        if (gate is! FoodEnergyOn) ...[
-          const SizedBox(height: 6),
-          CaptionText(l.foodEnergyTileOff),
-        ],
+      ],
+      null when gate is FoodEnergyOn => const <Widget>[],
+      null => [CaptionText(l.foodEnergyTileOff)],
+    };
+    return Padding(
+      padding: const EdgeInsets.only(bottom: cardGap),
+      child: _card(FoodWeekKeys.energyTile, [
+        header,
+        for (final row in rows) ...[const SizedBox(height: 6), row],
       ], onTap: onTap),
     );
   }

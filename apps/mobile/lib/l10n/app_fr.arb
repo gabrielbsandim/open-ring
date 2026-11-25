@@ -2887,5 +2887,8 @@
   "foodAiHiddenOil": "Frit ou gras",
   "foodAiHiddenSauce": "Sauce ou vinaigrette",
   "foodAiHiddenSugar": "Sucre dans la boisson",
-  "foodAiItemsNote": "Pas de calories pour ce repas. Les éléments n’entrent que dans la moyenne de la semaine, sous forme de fourchette."
+  "foodAiItemsNote": "Pas de calories pour ce repas. Les éléments n’entrent que dans la moyenne de la semaine, sous forme de fourchette.",
+  "foodAiItemsConfirm": "Ces éléments sont corrects",
+  "foodAiItemsCheck": "Vérifiez les éléments et les puces ci-dessous, puis confirmez. Seuls les repas que vous confirmez comptent dans l’énergie de la semaine.",
+  "foodAiItemsDone": "Vérifié. Ce repas compte dans l’énergie de la semaine."
 }

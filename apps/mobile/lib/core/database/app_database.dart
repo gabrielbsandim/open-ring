@@ -58,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 20;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -142,6 +142,9 @@ class AppDatabase extends _$AppDatabase {
         await migrator.createIndex(schema.mealAnalysesCacheKey);
         await migrator.createIndex(schema.mealAnalysesStatus);
         await migrator.createIndex(schema.mealItemsAnalysis);
+      },
+      from19To20: (migrator, schema) async {
+        await migrator.addColumn(schema.mealItems, schema.mealItems.foodGroup);
       },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),

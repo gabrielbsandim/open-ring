@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
+import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
 import 'package:open_ring/features/food/domain/meal_analysis_store.dart';
@@ -11,6 +12,7 @@ import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class MealItemsKeys {
   static const card = Key('meal_ai_items');
+  static const confirm = Key('meal_ai_items_confirm');
   static Key less(int itemId) => Key('meal_ai_item_less_$itemId');
   static Key more(int itemId) => Key('meal_ai_item_more_$itemId');
   static Key hidden(MealHiddenChip chip) => Key('meal_ai_hidden_${chip.name}');
@@ -76,10 +78,21 @@ class _MealItemsCardState extends ConsumerState<MealItemsCard> {
 
   int _count(MealAnalysisItem item) => _counts[item.id] ?? item.countX2;
 
+  // After any pending step; a failed write leaves the button for another tap.
+  void _confirm() {
+    final store = _store;
+    final id = widget.row.id;
+    _writes = _writes
+        .then<void>((_) => store.confirmItems(id))
+        .catchError((Object _) {});
+    unawaited(_writes);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final row = widget.row;
+    final open = row.items.any((item) => !item.confirmed);
     final hidden = {
       MealHiddenChip.oil: (l10n.foodAiHiddenOil, row.hiddenOil),
       MealHiddenChip.sauce: (l10n.foodAiHiddenSauce, row.hiddenSauce),
@@ -91,6 +104,7 @@ class _MealItemsCardState extends ConsumerState<MealItemsCard> {
       children: [
         const SizedBox(height: 16),
         _Title(l10n.foodAiItemsTitle),
+        if (open) CaptionText(l10n.foodAiItemsCheck),
         for (final (index, (item, removed)) in _rows().indexed)
           _ItemRow(
             item: item,
@@ -115,6 +129,15 @@ class _MealItemsCardState extends ConsumerState<MealItemsCard> {
         ),
         const SizedBox(height: 8),
         CaptionText(l10n.foodAiItemsNote),
+        const SizedBox(height: 8),
+        if (open)
+          SecondaryButton(
+            buttonKey: MealItemsKeys.confirm,
+            label: l10n.foodAiItemsConfirm,
+            onPressed: _confirm,
+          )
+        else if (row.items.isNotEmpty)
+          BodyText(l10n.foodAiItemsDone),
       ],
     );
   }

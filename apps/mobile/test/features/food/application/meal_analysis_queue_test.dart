@@ -3,13 +3,16 @@ import 'dart:convert';
 
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:metrics/metrics.dart' show FoodGroup;
 import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
+import 'package:open_ring/features/ai/domain/analysis_model.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_prompt.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_result.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_wire.dart';
 import 'package:open_ring/features/ai/domain/openai_wire_codec.dart';
+import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
@@ -803,6 +806,96 @@ void main() {
 
       expect(h.requests, isEmpty);
       expect(await statusOf(mealId), (MealAnalysisStatus.failed, 'cancelled'));
+    });
+  });
+
+  group('A13b: items follow the Weekly energy opt in', () {
+    bool asksItems(AnalysisRequest request) =>
+        (request.jsonSchema!['properties']! as Map).containsKey('items');
+
+    test(
+      'acceptance 1: offered but not opted in, a row asks no items',
+      () async {
+        await h.eligible();
+        final mealId = await h.meal();
+        await h.start();
+
+        await h.queue.enqueue(mealId);
+        await h.queue.drain();
+
+        expect((await h.row(mealId)).target.outputSchema, 1);
+        expect(asksItems(h.requests.single), isFalse);
+        expect((await h.row(mealId)).items, isEmpty);
+      },
+    );
+
+    test('acceptance 2: opted in, the row is schema 3, the request asks '
+        'items with a group and the items keep it', () async {
+      await h.eligible();
+      h.respond = () => completed(itemsAnswer());
+      final mealId = await h.meal();
+      expect(await h.optIn(), isTrue);
+
+      await h.queue.enqueue(mealId);
+      await h.queue.drain();
+
+      final row = await h.row(mealId);
+      expect(row.target.outputSchema, 3);
+      final request = h.requests.single;
+      expect(asksItems(request), isTrue);
+      final items = (request.jsonSchema!['properties']! as Map)['items'] as Map;
+      expect(((items['items']! as Map)['properties']! as Map).keys, [
+        'name',
+        'measure',
+        'count',
+        'grams',
+        'group',
+      ]);
+      expect(row.status, MealAnalysisStatus.done);
+      expect(row.items.map((i) => (i.name, i.group)), [
+        ('rice', FoodGroup.grainCooked),
+        ('chicken', FoodGroup.poultry),
+      ]);
+    });
+
+    test('a failing gate leaves items off and enqueue still works', () async {
+      await h.eligible();
+      h.extraOverrides = [
+        ...h.extraOverrides,
+        foodEnergyGateProvider.overrideWith(
+          (ref) => throw StateError('profile unreadable'),
+        ),
+      ];
+      final mealId = await h.meal();
+      await h.start();
+
+      expect(await h.queue.enqueue(mealId), EnqueueOutcome.queued);
+      await h.queue.drain();
+
+      final row = await h.row(mealId);
+      expect(
+        (row.status, row.target.outputSchema),
+        (MealAnalysisStatus.done, 1),
+      );
+      expect(asksItems(h.requests.single), isFalse);
+    });
+
+    test('acceptance 3: a row queued with schema 1 before the opt in is '
+        'sent and read as schema 1', () async {
+      await h.eligible();
+      final mealId = await h.meal();
+      await h.queued(mealId);
+      expect(await h.optIn(), isTrue);
+
+      await h.queue.drain();
+
+      final row = await h.row(mealId);
+      expect(asksItems(h.requests.single), isFalse);
+      expect(
+        (row.status, row.target.outputSchema),
+        (MealAnalysisStatus.done, 1),
+      );
+      expect(row.items, isEmpty);
     });
   });
 }

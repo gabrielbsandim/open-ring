@@ -5427,5 +5427,8 @@
   "foodAiHiddenOil": "Fried or oily",
   "foodAiHiddenSauce": "Sauce or dressing",
   "foodAiHiddenSugar": "Sugar in the drink",
-  "foodAiItemsNote": "No calories for this meal. Items only enter the weekly average, as a range."
+  "foodAiItemsNote": "No calories for this meal. Items only enter the weekly average, as a range.",
+  "foodAiItemsConfirm": "These items look right",
+  "foodAiItemsCheck": "Check the items and the chips below, then confirm. Only meals you confirm count in the weekly energy.",
+  "foodAiItemsDone": "Checked. This meal counts in the weekly energy."
 }

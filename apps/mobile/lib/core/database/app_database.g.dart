@@ -16314,6 +16314,17 @@ class $MealItemsTable extends MealItems
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _foodGroupMeta = const VerificationMeta(
+    'foodGroup',
+  );
+  @override
+  late final GeneratedColumn<String> foodGroup = GeneratedColumn<String>(
+    'food_group',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -16325,6 +16336,7 @@ class $MealItemsTable extends MealItems
     grams,
     origin,
     confirmed,
+    foodGroup,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -16403,6 +16415,12 @@ class $MealItemsTable extends MealItems
         confirmed.isAcceptableOrUnknown(data['confirmed']!, _confirmedMeta),
       );
     }
+    if (data.containsKey('food_group')) {
+      context.handle(
+        _foodGroupMeta,
+        foodGroup.isAcceptableOrUnknown(data['food_group']!, _foodGroupMeta),
+      );
+    }
     return context;
   }
 
@@ -16448,6 +16466,10 @@ class $MealItemsTable extends MealItems
         DriftSqlType.bool,
         data['${effectivePrefix}confirmed'],
       )!,
+      foodGroup: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}food_group'],
+      ),
     );
   }
 
@@ -16467,6 +16489,7 @@ class MealItemRow extends DataClass implements Insertable<MealItemRow> {
   final int grams;
   final String origin;
   final bool confirmed;
+  final String? foodGroup;
   const MealItemRow({
     required this.id,
     required this.analysisId,
@@ -16477,6 +16500,7 @@ class MealItemRow extends DataClass implements Insertable<MealItemRow> {
     required this.grams,
     required this.origin,
     required this.confirmed,
+    this.foodGroup,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -16490,6 +16514,9 @@ class MealItemRow extends DataClass implements Insertable<MealItemRow> {
     map['grams'] = Variable<int>(grams);
     map['origin'] = Variable<String>(origin);
     map['confirmed'] = Variable<bool>(confirmed);
+    if (!nullToAbsent || foodGroup != null) {
+      map['food_group'] = Variable<String>(foodGroup);
+    }
     return map;
   }
 
@@ -16504,6 +16531,9 @@ class MealItemRow extends DataClass implements Insertable<MealItemRow> {
       grams: Value(grams),
       origin: Value(origin),
       confirmed: Value(confirmed),
+      foodGroup: foodGroup == null && nullToAbsent
+          ? const Value.absent()
+          : Value(foodGroup),
     );
   }
 
@@ -16522,6 +16552,7 @@ class MealItemRow extends DataClass implements Insertable<MealItemRow> {
       grams: serializer.fromJson<int>(json['grams']),
       origin: serializer.fromJson<String>(json['origin']),
       confirmed: serializer.fromJson<bool>(json['confirmed']),
+      foodGroup: serializer.fromJson<String?>(json['foodGroup']),
     );
   }
   @override
@@ -16537,6 +16568,7 @@ class MealItemRow extends DataClass implements Insertable<MealItemRow> {
       'grams': serializer.toJson<int>(grams),
       'origin': serializer.toJson<String>(origin),
       'confirmed': serializer.toJson<bool>(confirmed),
+      'foodGroup': serializer.toJson<String?>(foodGroup),
     };
   }
 
@@ -16550,6 +16582,7 @@ class MealItemRow extends DataClass implements Insertable<MealItemRow> {
     int? grams,
     String? origin,
     bool? confirmed,
+    Value<String?> foodGroup = const Value.absent(),
   }) => MealItemRow(
     id: id ?? this.id,
     analysisId: analysisId ?? this.analysisId,
@@ -16560,6 +16593,7 @@ class MealItemRow extends DataClass implements Insertable<MealItemRow> {
     grams: grams ?? this.grams,
     origin: origin ?? this.origin,
     confirmed: confirmed ?? this.confirmed,
+    foodGroup: foodGroup.present ? foodGroup.value : this.foodGroup,
   );
   MealItemRow copyWithCompanion(MealItemsCompanion data) {
     return MealItemRow(
@@ -16574,6 +16608,7 @@ class MealItemRow extends DataClass implements Insertable<MealItemRow> {
       grams: data.grams.present ? data.grams.value : this.grams,
       origin: data.origin.present ? data.origin.value : this.origin,
       confirmed: data.confirmed.present ? data.confirmed.value : this.confirmed,
+      foodGroup: data.foodGroup.present ? data.foodGroup.value : this.foodGroup,
     );
   }
 
@@ -16588,7 +16623,8 @@ class MealItemRow extends DataClass implements Insertable<MealItemRow> {
           ..write('countX2: $countX2, ')
           ..write('grams: $grams, ')
           ..write('origin: $origin, ')
-          ..write('confirmed: $confirmed')
+          ..write('confirmed: $confirmed, ')
+          ..write('foodGroup: $foodGroup')
           ..write(')'))
         .toString();
   }
@@ -16604,6 +16640,7 @@ class MealItemRow extends DataClass implements Insertable<MealItemRow> {
     grams,
     origin,
     confirmed,
+    foodGroup,
   );
   @override
   bool operator ==(Object other) =>
@@ -16617,7 +16654,8 @@ class MealItemRow extends DataClass implements Insertable<MealItemRow> {
           other.countX2 == this.countX2 &&
           other.grams == this.grams &&
           other.origin == this.origin &&
-          other.confirmed == this.confirmed);
+          other.confirmed == this.confirmed &&
+          other.foodGroup == this.foodGroup);
 }
 
 class MealItemsCompanion extends UpdateCompanion<MealItemRow> {
@@ -16630,6 +16668,7 @@ class MealItemsCompanion extends UpdateCompanion<MealItemRow> {
   final Value<int> grams;
   final Value<String> origin;
   final Value<bool> confirmed;
+  final Value<String?> foodGroup;
   const MealItemsCompanion({
     this.id = const Value.absent(),
     this.analysisId = const Value.absent(),
@@ -16640,6 +16679,7 @@ class MealItemsCompanion extends UpdateCompanion<MealItemRow> {
     this.grams = const Value.absent(),
     this.origin = const Value.absent(),
     this.confirmed = const Value.absent(),
+    this.foodGroup = const Value.absent(),
   });
   MealItemsCompanion.insert({
     this.id = const Value.absent(),
@@ -16651,6 +16691,7 @@ class MealItemsCompanion extends UpdateCompanion<MealItemRow> {
     required int grams,
     required String origin,
     this.confirmed = const Value.absent(),
+    this.foodGroup = const Value.absent(),
   }) : analysisId = Value(analysisId),
        position = Value(position),
        name = Value(name),
@@ -16668,6 +16709,7 @@ class MealItemsCompanion extends UpdateCompanion<MealItemRow> {
     Expression<int>? grams,
     Expression<String>? origin,
     Expression<bool>? confirmed,
+    Expression<String>? foodGroup,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -16679,6 +16721,7 @@ class MealItemsCompanion extends UpdateCompanion<MealItemRow> {
       if (grams != null) 'grams': grams,
       if (origin != null) 'origin': origin,
       if (confirmed != null) 'confirmed': confirmed,
+      if (foodGroup != null) 'food_group': foodGroup,
     });
   }
 
@@ -16692,6 +16735,7 @@ class MealItemsCompanion extends UpdateCompanion<MealItemRow> {
     Value<int>? grams,
     Value<String>? origin,
     Value<bool>? confirmed,
+    Value<String?>? foodGroup,
   }) {
     return MealItemsCompanion(
       id: id ?? this.id,
@@ -16703,6 +16747,7 @@ class MealItemsCompanion extends UpdateCompanion<MealItemRow> {
       grams: grams ?? this.grams,
       origin: origin ?? this.origin,
       confirmed: confirmed ?? this.confirmed,
+      foodGroup: foodGroup ?? this.foodGroup,
     );
   }
 
@@ -16736,6 +16781,9 @@ class MealItemsCompanion extends UpdateCompanion<MealItemRow> {
     if (confirmed.present) {
       map['confirmed'] = Variable<bool>(confirmed.value);
     }
+    if (foodGroup.present) {
+      map['food_group'] = Variable<String>(foodGroup.value);
+    }
     return map;
   }
 
@@ -16750,7 +16798,8 @@ class MealItemsCompanion extends UpdateCompanion<MealItemRow> {
           ..write('countX2: $countX2, ')
           ..write('grams: $grams, ')
           ..write('origin: $origin, ')
-          ..write('confirmed: $confirmed')
+          ..write('confirmed: $confirmed, ')
+          ..write('foodGroup: $foodGroup')
           ..write(')'))
         .toString();
   }

@@ -2887,5 +2887,8 @@
   "foodAiHiddenOil": "揚げ物や油っぽい",
   "foodAiHiddenSauce": "ソースやドレッシング",
   "foodAiHiddenSugar": "飲み物に砂糖",
-  "foodAiItemsNote": "この食事のカロリーは出しません。品目は週の平均に幅として入るだけです。"
+  "foodAiItemsNote": "この食事のカロリーは出しません。品目は週の平均に幅として入るだけです。",
+  "foodAiItemsConfirm": "この品目で合っています",
+  "foodAiItemsCheck": "下の品目とチップを確認してから、確定してください。確定した食事だけが週のエネルギーに入ります。",
+  "foodAiItemsDone": "確認済みです。この食事は週のエネルギーに入ります。"
 }

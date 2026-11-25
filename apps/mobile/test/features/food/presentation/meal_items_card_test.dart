@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:metrics/metrics.dart' show FoodGroup;
 import 'package:open_ring/app/theme/app_theme.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_result.dart';
@@ -326,5 +327,131 @@ void main() {
     await pump(tester);
 
     await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+  });
+
+  group('A13b: Confirm', () {
+    Future<List<bool>> confirmed() async => [
+      for (final i in (await h.row(mealId)).items) i.confirmed,
+    ];
+
+    testWidgets('the check line and the button show while an item is '
+        'unconfirmed; Confirm confirms all and shows Done', (tester) async {
+      await pump(tester);
+      expect(find.text(en.foodAiItemsCheck), findsOneWidget);
+      expect(find.text(en.foodAiItemsDone), findsNothing);
+
+      await tester.ensureVisible(find.byKey(MealItemsKeys.confirm));
+      await tester.tap(find.byKey(MealItemsKeys.confirm));
+      await tester.pumpAndSettle();
+
+      expect(await confirmed(), [true, true, true, true]);
+      expect(find.byKey(MealItemsKeys.confirm), findsNothing);
+      expect(find.text(en.foodAiItemsCheck), findsNothing);
+      expect(find.text(en.foodAiItemsDone), findsOneWidget);
+      expect(h.container.read(dataRevisionProvider), 0);
+    });
+
+    testWidgets('a step confirms one item and the button stays for the '
+        'rest', (tester) async {
+      await pump(tester);
+      final rice = await item('Rice');
+
+      await tester.tap(find.byKey(MealItemsKeys.more(rice.id)));
+      await tester.pumpAndSettle();
+
+      expect(await confirmed(), [true, false, false, false]);
+      expect(find.byKey(MealItemsKeys.confirm), findsOneWidget);
+      expect(find.text(en.foodAiItemsDone), findsNothing);
+    });
+
+    testWidgets('Confirm waits for a pending step to land', (tester) async {
+      await pump(tester);
+      final rice = await item('Rice');
+      final gate = Completer<void>();
+      h.analyses.itemCountGate = gate;
+
+      await tester.tap(find.byKey(MealItemsKeys.more(rice.id)));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(MealItemsKeys.confirm));
+      await tester.tap(find.byKey(MealItemsKeys.confirm));
+      await tester.pump();
+
+      expect(h.analyses.confirmCalls, 0);
+      expect(await confirmed(), everyElement(isFalse));
+
+      gate.complete();
+      await tester.pumpAndSettle();
+
+      expect(h.analyses.confirmCalls, 1);
+      expect((await item('Rice')).countX2, 4);
+      expect(await confirmed(), [true, true, true, true]);
+    });
+
+    testWidgets('a failed Confirm leaves the button and shows no '
+        'snackbar', (tester) async {
+      await pump(tester);
+      h.analyses.failNextConfirm = StateError('disk full');
+
+      await tester.ensureVisible(find.byKey(MealItemsKeys.confirm));
+      await tester.tap(find.byKey(MealItemsKeys.confirm));
+      await tester.pumpAndSettle();
+
+      expect(await confirmed(), everyElement(isFalse));
+      expect(find.byKey(MealItemsKeys.confirm), findsOneWidget);
+      expect(find.byType(SnackBar), findsNothing);
+
+      await tester.tap(find.byKey(MealItemsKeys.confirm));
+      await tester.pumpAndSettle();
+
+      expect(find.text(en.foodAiItemsDone), findsOneWidget);
+    });
+  });
+
+  testWidgets('end to end: opt in, enqueue, the model returns grouped '
+      'items, the card shows them, Confirm confirms all', (tester) async {
+    tester.view
+      ..devicePixelRatio = 1
+      ..physicalSize = const Size(800, 2400);
+    addTearDown(tester.view.reset);
+    await h.eligible();
+    h.respond = () => completed(itemsAnswer());
+    final id = await tester.runAsync(() async {
+      final meal = await h.meal();
+      expect(await h.optIn(), isTrue);
+      await h.queue.enqueue(meal);
+      await h.queue.drain();
+      return meal;
+    });
+    final row = await h.row(id!);
+    expect(row.target.outputSchema, 3);
+    expect(row.items.map((i) => (i.name, i.group)), [
+      ('rice', FoodGroup.grainCooked),
+      ('chicken', FoodGroup.poultry),
+    ]);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: h.container,
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: Scaffold(
+            body: ListView(children: [MealAnalysisSection(mealId: id)]),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(MealItemsKeys.card), findsOneWidget);
+    expect(find.text('rice'), findsOneWidget);
+    expect(find.text('chicken'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(MealItemsKeys.confirm));
+    await tester.tap(find.byKey(MealItemsKeys.confirm));
+    await tester.pumpAndSettle();
+
+    expect((await h.row(id)).items.map((i) => i.confirmed), [true, true]);
+    expect(find.text(en.foodAiItemsDone), findsOneWidget);
   });
 }

@@ -18,6 +18,7 @@ import 'generated/schema_v17.dart' as v17;
 import 'generated/schema_v18.dart' as v18;
 import 'generated/schema_v19.dart' as v19;
 import 'generated/schema_v2.dart' as v2;
+import 'generated/schema_v20.dart' as v20;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
 import 'generated/schema_v5.dart' as v5;
@@ -626,8 +627,8 @@ void main() {
     },
   );
 
-  test('the code schema is v19', () {
-    expect(memoryDatabase().schemaVersion, 19);
+  test('the code schema is v20', () {
+    expect(memoryDatabase().schemaVersion, 20);
   });
 
   test('v16 migrates to v17, a finished workout keeps its end and has no '
@@ -774,6 +775,95 @@ void main() {
             )
             .get();
         expect(indexes, hasLength(3));
+      },
+    );
+  });
+
+  test('v19 migrates to v20, every meal, analysis and item row stays and '
+      'items have no food group', () async {
+    const meal = v19.MealsData(
+      id: 1,
+      atUtcMs: 1762758000000,
+      offsetMinutes: -180,
+      kind: 'main',
+      protein: 1,
+      caffeine: 0,
+      heavy: 0,
+      fried: 0,
+      sugar: 0,
+      veg: 'some',
+      alcohol: 'none',
+      processed: 'notMostly',
+      place: 'home',
+      lastMeal: 0,
+      photo: 'meal_1.jpg',
+      createdAtUtcMs: 1762758001000,
+      keepOnPhone: 0,
+    );
+    const analysis = v19.MealAnalysesData(
+      id: 1,
+      mealId: 1,
+      photoName: 'meal_1.jpg',
+      status: 'done',
+      providerHost: 'https://api.example.com:443',
+      model: 'vision-m',
+      promptVersion: 1,
+      outputSchema: 2,
+      resultJson: '{"is_food":"yes"}',
+      attempts: 1,
+      hiddenOil: 1,
+      hiddenSauce: 0,
+      hiddenSugar: 0,
+      queuedAtUtcMs: 1762758002000,
+      updatedAtUtcMs: 1762758003000,
+    );
+    v19.MealItemsData item(int id, {required String origin}) =>
+        v19.MealItemsData(
+          id: id,
+          analysisId: 1,
+          position: id - 1,
+          name: 'Rice',
+          measure: 'serving_spoon',
+          countX2: 4,
+          grams: 120,
+          origin: origin,
+          confirmed: origin == 'user' ? 1 : 0,
+        );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 19,
+      newVersion: 20,
+      createOld: v19.DatabaseAtV19.new,
+      createNew: v20.DatabaseAtV20.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch
+        ..insert(oldDb.meals, meal)
+        ..insert(oldDb.mealAnalyses, analysis)
+        ..insertAll(oldDb.mealItems, [
+          item(1, origin: 'model'),
+          item(2, origin: 'user'),
+        ]),
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.meals).get(), hasLength(1));
+        final analyses = await newDb.select(newDb.mealAnalyses).get();
+        expect(
+          analyses.map((a) => (a.id, a.status, a.outputSchema, a.hiddenOil)),
+          [(1, 'done', 2, 1)],
+        );
+        expect(await newDb.select(newDb.mealItems).get(), [
+          for (final (id, origin) in [(1, 'model'), (2, 'user')])
+            v20.MealItemsData(
+              id: id,
+              analysisId: 1,
+              position: id - 1,
+              name: 'Rice',
+              measure: 'serving_spoon',
+              countX2: 4,
+              grams: 120,
+              origin: origin,
+              confirmed: origin == 'user' ? 1 : 0,
+            ),
+        ]);
       },
     );
   });

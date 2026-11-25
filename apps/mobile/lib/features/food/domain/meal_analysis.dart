@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:metrics/metrics.dart' show FoodGroup;
 import 'package:open_ring/features/ai/domain/ai_cost.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_result.dart';
@@ -55,6 +56,7 @@ typedef MealAnalysisItem = ({
   int grams,
   MealItemOrigin origin,
   bool confirmed,
+  FoodGroup group,
 });
 
 /// What one finished request wrote: `done`, `not_food` or `rejected`.

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -67,12 +68,14 @@ class GoalsDataEraser {
 
   final Ref _ref;
 
-  /// Empties the goals, their weeks and the screenings. Weigh-ins and the
-  /// profile step goal belong to other features and stay. False, with the
+  /// Empties the goals, their weeks and the screenings, and ends the Weekly
+  /// energy opt in, since no row could show a soft episode any more.
+  /// Weigh-ins and the profile step goal stay. False, with the
   /// error logged and nothing bumped, when the store throws.
   Future<bool> clear() async {
     try {
       await _ref.read(goalStoreProvider).clear();
+      await _ref.read(foodEnergyStoreProvider).clear();
     } on Object catch (error) {
       debugPrint('Goals data was not deleted: $error');
       return false;

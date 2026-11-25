@@ -2879,5 +2879,8 @@
   "foodAiHiddenOil": "Frito ou com óleo",
   "foodAiHiddenSauce": "Molho ou tempero",
   "foodAiHiddenSugar": "Açúcar na bebida",
-  "foodAiItemsNote": "Sem calorias nesta refeição. Os itens só entram na média da semana, como intervalo."
+  "foodAiItemsNote": "Sem calorias nesta refeição. Os itens só entram na média da semana, como intervalo.",
+  "foodAiItemsConfirm": "Estes itens estão certos",
+  "foodAiItemsCheck": "Verifique os itens e as opções abaixo e depois confirme. Só as refeições que confirmar entram na Energia da semana.",
+  "foodAiItemsDone": "Verificado. Esta refeição entra na Energia da semana."
 }

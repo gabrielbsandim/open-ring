@@ -2887,5 +2887,8 @@
   "foodAiHiddenOil": "油炸或多油",
   "foodAiHiddenSauce": "酱汁或调料",
   "foodAiHiddenSugar": "饮料加糖",
-  "foodAiItemsNote": "这一餐不显示卡路里。食物项只以区间形式计入每周平均值。"
+  "foodAiItemsNote": "这一餐不显示卡路里。食物项只以区间形式计入每周平均值。",
+  "foodAiItemsConfirm": "这些食物项没问题",
+  "foodAiItemsCheck": "请检查下方的食物项和选项，然后确认。只有你确认过的餐食才会计入每周能量。",
+  "foodAiItemsDone": "已确认。这一餐会计入每周能量。"
 }

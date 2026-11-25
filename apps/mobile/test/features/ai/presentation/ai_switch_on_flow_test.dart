@@ -87,6 +87,8 @@ void main() {
       textScaler: TextScaler.noScaling,
       brightness: Brightness.light,
       locale: const Locale('en'),
+      // Short enough that Today scrolls even with no data.
+      size: const Size(360, 400),
       overrides: [
         ...bleOverrides(),
         ...ringOverrides(),
@@ -141,13 +143,31 @@ void main() {
     await tester.tap(find.byKey(AppNavigationBar.destinationKey(AppTab.today)));
     await tester.pumpAndSettle();
     expect(find.byType(TodayScreen), findsOneWidget);
-    for (final text in [
-      l10n.moduleAiName,
-      l10n.aiHistoryRow,
-      _host,
-      'gpt-test',
-    ]) {
-      expect(find.textContaining(text), findsNothing, reason: text);
+    // Today builds lazily, so each step checks the cards built so far.
+    final today = find
+        .descendant(
+          of: find.byType(TodayScreen),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    final position = tester.state<ScrollableState>(today).position;
+    var steps = 0;
+    while (true) {
+      for (final text in [
+        l10n.moduleAiName,
+        l10n.aiHistoryRow,
+        _host,
+        'gpt-test',
+      ]) {
+        expect(find.textContaining(text), findsNothing, reason: text);
+      }
+      final before = position.pixels;
+      await tester.drag(today, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      steps++;
+      if (position.pixels == before) break;
     }
+    expect(position.pixels, position.maxScrollExtent);
+    expect(steps, greaterThan(1), reason: 'Today must scroll');
   });
 }

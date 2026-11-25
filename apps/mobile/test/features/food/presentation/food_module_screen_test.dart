@@ -533,6 +533,7 @@ void main() {
             await reach(tester, finder);
             expect(finder, findsOneWidget);
           }
+          expect(find.text(l10n.moduleFoodAddsAi('other')), findsNothing);
           expect(
             detail(tester, FoodModuleKeys.aiPhotos),
             startsWith(

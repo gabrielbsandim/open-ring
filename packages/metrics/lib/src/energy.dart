@@ -42,10 +42,13 @@ double? restingEnergy({
 }
 
 /// [value] less and plus [margin], each end rounded to [energyRangeStep].
-EnergyRange energyRange(double value, double margin) =>
-    (low: _stepped(value * (1 - margin)), high: _stepped(value * (1 + margin)));
+EnergyRange energyRange(double value, double margin) => (
+  low: energyStepped(value * (1 - margin)),
+  high: energyStepped(value * (1 + margin)),
+);
 
-int _stepped(double value) =>
+/// [value] rounded to [energyRangeStep], half away from zero.
+int energyStepped(double value) =>
     (value / energyRangeStep).round() * energyRangeStep;
 
 /// The share of a day's base burn spent after [elapsed] of its 24 hours.
@@ -62,10 +65,13 @@ double stepEnergy({
   required double kilograms,
   required double centimeters,
 }) {
-  final kilometers =
-      math.max(steps, 0) * energyStepLengthFactor * centimeters / 100000;
+  final kilometers = stepKilometers(steps: steps, centimeters: centimeters);
   return energyWalkCostPerKgKm * kilograms * kilometers;
 }
+
+/// The distance of [steps], with the step length taken from the height.
+double stepKilometers({required int steps, required double centimeters}) =>
+    math.max(steps, 0) * energyStepLengthFactor * centimeters / 100000;
 
 /// The kcal above rest of [elapsed] at an intensity of [met].
 double workoutEnergy({

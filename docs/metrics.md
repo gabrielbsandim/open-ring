@@ -1093,7 +1093,7 @@ of a given size, never a measurement and never a target for eating.
 | --- | --- | --- |
 | Resting | `9.99 * kg + 6.25 * cm - 4.92 * age + 5` for men, `- 161` for women, in kcal a day | Mifflin 1990, written from memory and not checked against the paper |
 | Base | resting times `energyBaseFactor` (1.3), spread evenly over the 24 hours | **our choice**: resting plus the small movements of a day without exercise; the factor is not sourced |
-| Steps | steps times `energyStepLengthFactor` (0.415) times height gives the distance; `energyWalkCostPerKgKm` (0.5) kcal per kg per km above rest | both constants are common rules of thumb, **not sourced** |
+| Steps | steps times `energyStepLengthFactor` (0.415) times height gives the distance (`stepKilometers`); `energyWalkCostPerKgKm` (0.5) kcal per kg per km above rest | both constants are common rules of thumb, **not sourced** |
 | Workout | `(MET - 1) * kg * hours`, never below zero | the rule of section 11 (Ainsworth 2011) |
 
 The owner decided on 2026-11-15 that the step distance always comes from the
@@ -2300,7 +2300,7 @@ Code: `apps/mobile/lib/features/ai/domain` (`health_context_v2.dart`, `health_co
 
 Status: the 5 and 10 day bands, 3 bytes per token, the 5 day minimum, the 6 card limit and the word lists are our choice, not a study's.
 
-## 25. Trajectory (weight scenario, band, fast loss guard)
+## 25. Trajectory (weight scenario, band, fast loss guard, balance, what if, grading)
 
 Code: `packages/metrics/lib/src/trajectory.dart`. The scenario reads the trend,
 the 28 day rate interval and the noise of section 13; it adds no rate of its
@@ -2338,6 +2338,62 @@ not trip it.
 | `trajectoryFastLossPercent` | 1.0% a week | **our choice**. |
 
 Negative days or a negative noise throw `ArgumentError`.
+
+### Energy balance (28 days)
+
+Code: `packages/metrics/lib/src/trajectory_balance.dart`. The weight change of
+the 28 day rate window, read as kcal a day: `perWeek / 7 × 7,700`, with the low
+and high ends of the rate interval giving the ends of the range. Below zero
+means less was eaten than spent. The checks run in this order:
+
+1. No rate yet (section 13): no balance.
+2. Fewer than 20 days with a weigh-in in the window (`foodEnergyMinWeighIns`):
+   the count is shown instead.
+3. A goal block started 0 to 40 days ago: the balance waits until day 41
+   (`trajectoryBalanceHoldDays`), the first day whose 28 day window holds none
+   of the block's first 14 days (`foodEnergyGoalHoldDays`), when water and
+   glycogen move faster than tissue. A start after today does not hold it.
+
+Each end is shown rounded to 50 kcal, half away from zero (`energyStepped`).
+When the range contains zero it is `balanced`.
+
+### Steps what if
+
+Code: `packages/metrics/lib/src/trajectory_steps.dart`. For a number of extra
+steps a day above the typical steps:
+
+- distance and kcal a day come from `stepKilometers` and `stepEnergy`
+  (section 18);
+- the weight it would move after `t` days is
+  `kcal / 24 × F(t) / 365`, with `F` the bend above, since the burn falls by
+  about 24 kcal a day per kilogram (`trajectoryKcalPerKgDay`) and settles in
+  365 days;
+- the cohort words compare the hazard at the typical and at the new steps,
+  `1 - hazard(new) / hazard(typical)`.
+
+The hazard follows Paluch 2022, the quartile medians against the lowest group:
+3,553 steps 1.00, 5,801 steps 0.60, 7,842 steps 0.55, 10,901 steps 0.47. It is
+log linear between them, 1.00 below the first and 0.47 above the last, so steps
+above 10,901 add nothing and the result is marked `clamped`. Under 5% lower reads as about
+the same, under 15% as slightly lower, under 30% as a fifth to a quarter lower,
+and more as much lower. The percentage feeds only these words.
+
+Worked example: 8,700 typical steps, 77.6 kg, 178 cm, 2,000 more steps give
+1.48 km, 57 kcal a day, 0.49 kg in 12 weeks and 9.8% lower, slightly lower.
+
+### Projection grading
+
+Code: `packages/metrics/lib/src/trajectory_grade.dart`. A band stored on a
+Monday is graded 28 days later against the last trend value (section 13) on or
+before that day: below the band, inside it (both ends count as inside) or
+above it. Before that day, or with no weigh-in by then, there is no grade.
+
+| Constant | Value | Status |
+| --- | --- | --- |
+| `trajectoryBalanceHoldDays` | 41 days | follows from the 28 day rate window (section 13) and the 14 day hold (section 23). |
+| `trajectoryKcalPerKgDay` | 24 kcal a day per kg | sourced: approximates Hall 2011. With 7,700 kcal per kg over 365 days it is a little higher than 21; **our choice** of a round value. |
+| `paluchAnchors` | 3,553 to 10,901 steps | sourced: Paluch 2022, read from the abstract, **not yet checked against the full paper**. |
+| Cohort word cuts | 5, 15 and 30% | **our choice**. |
 
 ### Ring levers (Theil-Sen over 90 days)
 
@@ -2436,6 +2492,9 @@ papers.
   quantitative sleep parameters from childhood to old age in healthy
   individuals: developing normative sleep values across the human lifespan.
   Sleep. 2004;27(7):1255-1273.
+- Paluch AE, Bajpai S, Bassett DR, et al. Daily steps and all-cause
+  mortality: a meta-analysis of 15 international cohorts. Lancet Public Health.
+  2022;7(3):e219-e228.
 - Plews DJ, Laursen PB, Le Meur Y, Hausswirth C, Kilding AE, Buchheit M.
   Monitoring training with heart rate variability: how much compliance is
   needed for valid assessment? Int J Sports Physiol Perform.

@@ -6,6 +6,7 @@ import 'package:open_ring/features/ai/application/vision_probe_controller.dart';
 import 'package:open_ring/features/ai/application/vision_probe_runner.dart';
 import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
 import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
@@ -48,8 +49,7 @@ const Map<String, String> _reasonCases = {
   MealAnalysisErrorKind.unexpected: 'unexpected',
 };
 
-// A closed gate the queued line would misstate; the other closings skip the
-// row on the next pass, which then shows its own line.
+// Gates the queued line would misstate; the others skip the row next pass.
 const Set<EnqueueOutcome> _shownClosed = {
   EnqueueOutcome.unavailable,
   EnqueueOutcome.visionUntested,
@@ -148,7 +148,8 @@ final mealPhotoGateProvider = FutureProvider<EnqueueOutcome?>((ref) async {
     ..watch(mealAnalysisQueueProvider)
     ..watch(aiEnabledProvider)
     ..watch(foodEnabledProvider)
-    ..watch(aiMealPhotoConsentProvider);
+    ..watch(aiMealPhotoConsentProvider)
+    ..watch(demoModeProvider);
   await ref.watch(aiConfigProvider.future);
   await ref.watch(aiPhotoVisionProvider.future);
   return await ref.read(mealAnalysisQueueProvider.notifier).closedReason();

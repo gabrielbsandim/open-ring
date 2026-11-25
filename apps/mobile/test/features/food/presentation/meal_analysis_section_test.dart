@@ -10,6 +10,8 @@ import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_result.dart';
 import 'package:open_ring/features/ai/domain/secret_store.dart';
 import 'package:open_ring/features/ai/presentation/ai_failure_message.dart';
+import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
+import 'package:open_ring/features/demo/domain/demo_mode_store.dart';
 import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
 import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/food/application/meal_analysis_view.dart';
@@ -300,6 +302,28 @@ void main() {
         expect((await h.row(mealId)).status, MealAnalysisStatus.queued);
       });
     }
+  });
+
+  testWidgets('leaving demo rereads the gate, so a queued row behind an '
+      'untested model shows the closed view', (tester) async {
+    h.demo = true;
+    h.configStore.profiles.clear();
+    await pump(tester, seed: queued);
+    expect(
+      find.byKey(MealAnalysisKeys.view(MealAnalysisViewKind.demo)),
+      findsOneWidget,
+    );
+
+    (h.container.read(demoModeStoreProvider) as InMemoryDemoModeStore).enabled =
+        false;
+    h.container.invalidate(demoModeProvider);
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.foodAiWaiting), findsNothing);
+    expectView(
+      MealAnalysisViewKind.closed,
+      l10n.aiPhotosVisionState('unknown', photoModel),
+    );
   });
 
   group('taps', () {

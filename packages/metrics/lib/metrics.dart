@@ -15,6 +15,7 @@ export 'src/heart_rate_zones.dart';
 export 'src/intensity_minutes.dart';
 export 'src/level.dart';
 export 'src/level_goal.dart';
+export 'src/lever_trend.dart';
 export 'src/local_date.dart';
 export 'src/overall_score.dart';
 export 'src/overall_window.dart';

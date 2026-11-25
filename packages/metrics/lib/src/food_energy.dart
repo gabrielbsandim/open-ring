@@ -189,6 +189,12 @@ FoodEnergyFigures foodEnergyFigures({
 }) {
   final balance = slopeKgPerDay * foodEnergyKcalPerKg;
   final expenditureLog = logMean - balance;
+  if (!_plausible(expenditureLog, ringMean)) {
+    throw ArgumentError(
+      'expenditure log $expenditureLog and ring mean $ringMean must each be '
+      'at least $foodEnergyMinExpenditure',
+    );
+  }
   final factorLow = (1 - energyDayMargin) * ringMean / expenditureLog;
   final factorHigh = (1 + energyDayMargin) * ringMean / expenditureLog;
   final week = energyRange(
@@ -318,22 +324,26 @@ FoodEnergyResult foodEnergyWeek({
     goalDays: goalBlockStart == null ? null : sunday.daysSince(goalBlockStart),
   );
   if (reason != null) return FoodEnergyHold(counts, reason);
+  final slope = _slope(weights, start);
+  final logMean = _logMean(window);
   final ringMean = _mean(ringDays);
+  final expenditureLog = logMean - slope * foodEnergyKcalPerKg;
+  if (!_plausible(expenditureLog, ringMean)) {
+    return FoodEnergyHold(counts, FoodEnergyHoldReason.implausible);
+  }
   final figures = foodEnergyFigures(
-    slopeKgPerDay: _slope(weights, start),
-    logMean: _logMean(window),
+    slopeKgPerDay: slope,
+    logMean: logMean,
     weekMean: _logMean(week),
     previousMean: _logMean(before),
     ringMean: ringMean,
   );
-  final plausible =
-      figures.expenditureLog >= foodEnergyMinExpenditure &&
-      ringMean >= foodEnergyMinExpenditure;
-  if (!plausible) {
-    return FoodEnergyHold(counts, FoodEnergyHoldReason.implausible);
-  }
   return FoodEnergyReady(counts, figures);
 }
+
+bool _plausible(double expenditureLog, double ringMean) =>
+    expenditureLog >= foodEnergyMinExpenditure &&
+    ringMean >= foodEnergyMinExpenditure;
 
 /// The week ending [latestSunday]; when it holds, the newest ready week of
 /// the [foodEnergyLookbackWeeks] Sundays before it rides along as `last`.

@@ -246,6 +246,21 @@ void main() {
       });
     }
 
+    test('rejects a ring mean or expenditure log under 800', () {
+      FoodEnergyFigures figures({double logMean = 2000, double ring = 2500}) =>
+          foodEnergyFigures(
+            slopeKgPerDay: 0,
+            logMean: logMean,
+            weekMean: 2000,
+            previousMean: 2000,
+            ringMean: ring,
+          );
+      expect(() => figures(ring: 0), throwsArgumentError);
+      expect(() => figures(ring: 799), throwsArgumentError);
+      expect(() => figures(logMean: 799), throwsArgumentError);
+      expect(figures(logMean: 800, ring: 800).factorLow, closeTo(0.85, 1e-6));
+    });
+
     test('stays finite for every expenditure log of 800 or more', () {
       for (final logMean in [800.0, 801.0, 1500.0, 4000.0]) {
         for (final slope in [-0.2, 0.0, 0.2]) {
@@ -285,6 +300,12 @@ void main() {
       expect(mealLogKcal(const []), 0);
       expect(mealLogKcal(const [], oil: true, sauce: true, sugar: true), 187);
       expect(mealLogKcal(const [(group: FoodGroup.plainDrink, grams: 300)]), 0);
+    });
+
+    test('sauce and sugar each add their own amount alone', () {
+      expect(mealLogKcal(const [], sauce: true), 60);
+      expect(mealLogKcal(const [], sugar: true), 39);
+      expect(mealLogKcal(const [], oil: true), 88);
     });
 
     test('densities match the verified table', () {
@@ -420,6 +441,18 @@ void main() {
       expect(result.counts.ringDays, 19);
     });
 
+    test('a ring mean under 800 is implausible with expLog over 800', () {
+      final result = _week(ring: _w1Ring(value: 799));
+      expect(_reason(result), FoodEnergyHoldReason.implausible);
+    });
+
+    test('the slope is fitted on daily mean weights', () {
+      final weighIns = [(date: _start, value: 79.0), ..._w1Weights()];
+      final result = _week(weighIns: weighIns) as FoodEnergyReady;
+      expect(result.counts.weighIns, 28);
+      expect(result.figures.slopeKgPerDay, closeTo(-0.027089947090, 1e-9));
+    });
+
     test('H7 an expenditure log under 800 is implausible', () {
       final result = _week(
         days: _w1Days(weeks: 600, shown: 600),
@@ -504,6 +537,31 @@ void main() {
       );
       expect(result, isA<FoodEnergyReady>());
       expect(result.counts.sunday, _sunday);
+    });
+
+    FoodEnergyResult latestWithW1Back(int weeks) {
+      LocalDate moved(LocalDate date) => date.addDays(-7 * weeks);
+      return foodEnergyLatest(
+        latestSunday: _sunday,
+        days: [for (final d in _w1Days()) _day(moved(d.date), d.logKcal)],
+        weighIns: [
+          for (final w in _w1Weights()) (date: moved(w.date), value: w.value),
+        ],
+        ring: [
+          for (final r in _w1Ring()) (date: moved(r.date), value: r.value),
+        ],
+      );
+    }
+
+    test('the only ready week exactly 4 Sundays back is found', () {
+      final result = latestWithW1Back(4) as FoodEnergyHold;
+      expect(result.last!.counts.sunday, _sunday.addDays(-28));
+      _expectRow(result.last!.figures, _rows['F1']!);
+    });
+
+    test('a ready week 5 Sundays back is out of reach', () {
+      final result = latestWithW1Back(5) as FoodEnergyHold;
+      expect(result.last, isNull);
     });
 
     test('with no ready week in the 4 before, last is null', () {

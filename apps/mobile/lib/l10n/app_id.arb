@@ -948,7 +948,7 @@
   "privacyShortNoAccount": "OpenRing tidak memiliki akun, server sendiri, maupun analitik. Tidak ada pihak di balik OpenRing yang menerima data kesehatan Anda.",
   "privacyShortStored": "Data Anda disimpan di ponsel, di penyimpanan pribadi aplikasi.",
   "privacyShortInternet": "Aplikasi memakai internet untuk dua hal: memeriksa dan mengunduh pembaruan aplikasi dan, hanya saat Analisis AI aktif, menghubungi layanan AI yang Anda pilih, yang hanya menerima apa yang Anda setujui: ringkasan data Anda, keputusan tinjauan Target, atau foto makan. Data kesehatan Anda tidak melewati jaringan dengan cara lain.",
-  "privacyShortLeaves": "Data kesehatan hanya keluar dari ponsel saat Anda mengirimnya: ke Health Connect, jika Anda mengizinkan, dalam file yang Anda ekspor dan bagikan, atau ke layanan AI yang Anda pilih, setelah Anda setuju.",
+  "privacyShortLeaves": "Data kesehatan hanya keluar dari ponsel saat Anda mengirimnya: ke Health Connect, jika Anda mengizinkan, dalam file yang Anda ekspor dan bagikan, dalam transfer ke ponsel baru yang Anda mulai, atau ke layanan AI yang Anda pilih, setelah Anda melihat apa yang dikirim dan setuju.",
   "privacyStoresHeading": "Yang disimpan aplikasi, dan alasannya",
   "privacyStoresRing": "Nama cincin, alamat Bluetooth, dan level baterai",
   "privacyStoresRingWhy": "Untuk menghubungkan kembali cincin dan menampilkan baterainya",

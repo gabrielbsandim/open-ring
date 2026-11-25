@@ -948,7 +948,7 @@
   "privacyShortNoAccount": "OpenRing n'a ni compte, ni serveur propre, ni outil d'analyse. Personne derrière OpenRing ne reçoit vos données de santé.",
   "privacyShortStored": "Vos données sont stockées sur votre téléphone, dans le stockage privé de l'application.",
   "privacyShortInternet": "L’application utilise internet pour deux choses : rechercher et télécharger ses mises à jour et, seulement avec Analyse IA activé, joindre le service d’IA que vous avez choisi, qui ne reçoit que ce que vous avez approuvé : un résumé de vos données, une décision du bilan d’Objectifs ou une photo de repas. Vos données de santé ne passent par le réseau d’aucune autre façon.",
-  "privacyShortLeaves": "Les données de santé ne quittent votre téléphone que lorsque vous les envoyez : vers Health Connect, si vous l’autorisez, dans un fichier que vous exportez et partagez, ou vers le service d’IA que vous avez choisi, après votre accord.",
+  "privacyShortLeaves": "Les données de santé ne quittent votre téléphone que lorsque vous les envoyez : vers Health Connect, si vous l’autorisez, dans un fichier que vous exportez et partagez, lors d’un transfert vers un nouveau téléphone que vous lancez, ou vers le service d’IA que vous avez choisi, après avoir vu ce qui part et donné votre accord.",
   "privacyStoresHeading": "Ce que l'application stocke, et pourquoi",
   "privacyStoresRing": "Nom de la bague, adresse Bluetooth et niveau de batterie",
   "privacyStoresRingWhy": "Pour se reconnecter à votre bague et afficher sa batterie",

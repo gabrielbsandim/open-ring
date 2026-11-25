@@ -69,9 +69,9 @@ Code:
   height on anything that holds text.
 - Every new screen gets widget tests at text scale 1.0, 1.3 and 2.0, in dark
   and light.
-- No network access beyond the Shorebird updater, and no analytics. A change
-  that needs the network is a plan decision first, and the privacy policy
-  changes with it.
+- No network access beyond the Shorebird updater and the opt-in AI client (D6),
+  and no analytics. A change that needs the network is a plan decision first,
+  and the privacy policy changes with it.
 
 Commits and pull requests:
 

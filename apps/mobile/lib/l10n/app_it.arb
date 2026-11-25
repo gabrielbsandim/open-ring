@@ -948,7 +948,7 @@
   "privacyShortNoAccount": "OpenRing non ha account, server propri né analisi di utilizzo. Nessuno dietro OpenRing riceve i tuoi dati sanitari.",
   "privacyShortStored": "I tuoi dati sono memorizzati sul telefono, nello spazio privato dell'app.",
   "privacyShortInternet": "L’app usa internet per due cose: cercare e scaricare gli aggiornamenti dell’app e, solo con Analisi IA attivo, raggiungere il servizio di IA che hai scelto, che riceve solo ciò che hai approvato: un riepilogo dei tuoi dati, una decisione della revisione di Obiettivi o una foto del pasto. I tuoi dati sanitari non passano dalla rete in nessun altro modo.",
-  "privacyShortLeaves": "I dati sanitari lasciano il telefono solo quando li invii tu: a Health Connect, se lo consenti, in un file che esporti e condividi, o al servizio di IA che hai scelto, dopo il tuo consenso.",
+  "privacyShortLeaves": "I dati sanitari lasciano il telefono solo quando li invii tu: a Health Connect, se lo consenti, in un file che esporti e condividi, in un trasferimento a un nuovo telefono che avvii tu, o al servizio di IA che hai scelto, dopo aver visto cosa parte e aver dato il consenso.",
   "privacyStoresHeading": "Cosa memorizza l'app e perché",
   "privacyStoresRing": "Nome dell'anello, indirizzo Bluetooth e livello della batteria",
   "privacyStoresRingWhy": "Per ricollegarsi all'anello e mostrare la batteria",

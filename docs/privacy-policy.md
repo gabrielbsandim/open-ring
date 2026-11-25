@@ -9,7 +9,7 @@ Effective 2026-11-25. Applies to the OpenRing Android app, package
   OpenRing receives your health data.
 - Your data is stored on your phone, in the app's private storage.
 - The app uses the internet for two things: checking for and downloading app updates and, only with AI analysis on, reaching the AI service you chose, which receives only what you approved: a summary of your data, a Goals review decision or a meal photo. Your health data goes over the network in no other way.
-- Health data leaves your phone only when you send it: to Health Connect, if you allow it, in a file you export and share, or to the AI service you chose, after you agree.
+- Health data leaves your phone only when you send it: to Health Connect, if you allow it, in a file you export and share, in a transfer to a new phone you start, or to the AI service you chose, after you see what goes and agree.
 
 ## Who we are
 

@@ -475,6 +475,7 @@ void main() {
     final surfaces = [
       File('../../docs/privacy-policy.md'),
       File('../../README.md'),
+      File('../../CONTRIBUTING.md'),
       File('../../site/index.html'),
       File('../../site/pt/index.html'),
       File('fastlane/metadata/android/en-US/full_description.txt'),
@@ -490,6 +491,7 @@ void main() {
         'used only to fetch the app',
         'only part of the app that opens a network connection',
         'serve só para buscar atualizações',
+        'beyond the Shorebird updater, and no analytics',
       ]) {
         expect(text, isNot(contains(old)), reason: '${file.path}: $old');
       }

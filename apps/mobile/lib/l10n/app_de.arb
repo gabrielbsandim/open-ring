@@ -2994,5 +2994,16 @@
   "privacyAiProvider": "Der Dienst erhält, was du sendest, deinen Schlüssel, falls du einen festgelegt hast, und die IP-Adresse deines Telefons und kann sie nach seinen eigenen Bedingungen aufbewahren. OpenRing kann dort nichts löschen.",
   "privacyAiLocal": "Ein Dienst in deinem eigenen Netzwerk kann http nutzen, das nicht verschlüsselt ist. Die App erlaubt http nur für private und lokale Netzwerkadressen und weist darauf hin, wenn du dem Senden zustimmst.",
   "privacyDeleteAi": "mit „Schlüssel und Auswertungen entfernen“ im Modul KI-Analyse den KI-Schlüssel, die Einstellungen, die Auswertungen und die Fotoanalysen löschen oder eine Zustimmung widerrufen;",
-  "moduleAiTurnedOn": "KI-Analyse ist an. Verbinde einen Dienst, um eine Auswertung anzufordern."
+  "moduleAiTurnedOn": "KI-Analyse ist an. Verbinde einen Dienst, um eine Auswertung anzufordern.",
+  "moduleTrajectoryName": "Verlauf",
+  "moduleBothOnTitle": "{required} auch einschalten?",
+  "moduleBothOnBody": "{module} braucht {required}. Schaltest du beide ein, kommt hinzu, was jedes zeigt.",
+  "moduleBothOnConfirm": "Beide einschalten",
+  "moduleBothOnCancel": "Nicht jetzt",
+  "moduleBothOffTitle": "{module} ausschalten?",
+  "moduleBothOffBody": "{dependent} nutzt {module} und wird mit ausgeschaltet. Die Daten bleiben auf diesem Handy und kommen zurück, wenn du sie wieder einschaltest.",
+  "moduleBothOffConfirm": "Beide ausschalten",
+  "moduleBothOffCancel": "Abbrechen",
+  "moduleBothOnDone": "{first} und {second} sind an.",
+  "moduleBothOffDone": "{first} und {second} sind aus. Die Daten bleiben auf diesem Handy."
 }

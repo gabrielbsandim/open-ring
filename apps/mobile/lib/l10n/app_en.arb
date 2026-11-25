@@ -5573,5 +5573,22 @@
   "privacyAiProvider": "The service receives what you send, your key if you set one and your phone's IP address, and may keep them under its own terms. OpenRing cannot delete anything there.",
   "privacyAiLocal": "A service on your own network may use http, which is not encrypted. The app allows http only for private and local network addresses, and says so when you agree to send.",
   "privacyDeleteAi": "remove the AI key, settings, readings and meal photo analyses with Remove key and readings in the AI analysis module, or withdraw a consent;",
-  "moduleAiTurnedOn": "AI analysis is on. Connect a service to ask for a reading."
+  "moduleAiTurnedOn": "AI analysis is on. Connect a service to ask for a reading.",
+  "moduleTrajectoryName": "Trajectory",
+  "moduleBothOnTitle": "Turn on {required} too?",
+  "@moduleBothOnTitle": {"placeholders": {"required": {"type": "String"}}},
+  "moduleBothOnBody": "{module} needs {required} to work. Turning on both adds what each one shows.",
+  "@moduleBothOnBody": {"placeholders": {"module": {"type": "String"}, "required": {"type": "String"}}},
+  "moduleBothOnConfirm": "Turn on both",
+  "moduleBothOnCancel": "Not now",
+  "moduleBothOffTitle": "Turn off {module}?",
+  "@moduleBothOffTitle": {"placeholders": {"module": {"type": "String"}}},
+  "moduleBothOffBody": "{dependent} uses {module} and turns off with it. Their data stays on this phone and comes back when you turn them on again.",
+  "@moduleBothOffBody": {"placeholders": {"dependent": {"type": "String"}, "module": {"type": "String"}}},
+  "moduleBothOffConfirm": "Turn off both",
+  "moduleBothOffCancel": "Cancel",
+  "moduleBothOnDone": "{first} and {second} are on.",
+  "@moduleBothOnDone": {"placeholders": {"first": {"type": "String"}, "second": {"type": "String"}}},
+  "moduleBothOffDone": "{first} and {second} are off. Their data stays on this phone.",
+  "@moduleBothOffDone": {"placeholders": {"first": {"type": "String"}, "second": {"type": "String"}}}
 }

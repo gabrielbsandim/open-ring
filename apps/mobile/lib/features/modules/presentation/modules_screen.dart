@@ -7,7 +7,7 @@ import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/energy/application/energy_gate.dart';
-import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/presentation/module_change.dart';
 import 'package:open_ring/features/modules/presentation/module_widgets.dart';
 import 'package:open_ring/features/modules/presentation/offered_module.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
@@ -35,15 +35,15 @@ Future<void> setModule(
   final l10n = AppLocalizations.of(context);
   final messenger = ScaffoldMessenger.of(context);
   final router = GoRouter.maybeOf(context);
-  final modules = ref.read(enabledModulesProvider.notifier);
   // With numbers hidden Energy shows nothing, so saying where it is would
   // be false.
   final silent =
       on &&
       module == OfferedModule.energy &&
       ref.read(profileWeightHiddenProvider);
+  final ModuleChange change;
   try {
-    await (on ? modules.enable(module.id) : modules.disable(module.id));
+    change = await changeModule(context, ref, module.id, on: on);
   } on Object {
     if (!context.mounted) return;
     messenger
@@ -51,6 +51,7 @@ Future<void> setModule(
       ..showSnackBar(SnackBar(content: Text(l10n.syncErrorSaving)));
     return;
   }
+  if (change != ModuleChange.done) return;
   if (!on || !context.mounted || silent) return;
   messenger
     ..clearSnackBars()

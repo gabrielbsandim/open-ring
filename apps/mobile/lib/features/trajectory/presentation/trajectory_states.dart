@@ -56,7 +56,9 @@ class TrajectoryBuildingCard extends ConsumerWidget {
     // The missing counts come from the 28 day rate window, so the count does.
     final days = [
       for (final day in summary.daily)
-        if (today.daysSince(day.date) < weightRateWindowDays) day,
+        if (today.daysSince(day.date) case final age
+            when age >= 0 && age < weightRateWindowDays)
+          day,
     ];
     final missing = rate;
     return _StateCard(

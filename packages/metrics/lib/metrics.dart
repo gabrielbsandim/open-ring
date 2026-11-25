@@ -29,4 +29,7 @@ export 'src/sleep_score.dart';
 export 'src/spo2.dart';
 export 'src/stress.dart';
 export 'src/trajectory.dart';
+export 'src/trajectory_balance.dart';
+export 'src/trajectory_grade.dart';
+export 'src/trajectory_steps.dart';
 export 'src/weight_trend.dart';

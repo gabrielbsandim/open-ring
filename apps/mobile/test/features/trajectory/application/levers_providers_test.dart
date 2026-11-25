@@ -405,6 +405,38 @@ void main() {
       );
     });
 
+    test('2. the steps read starts exactly 89 days before yesterday', () async {
+      final rig = _Rig(slots: _validDays(_yesterday, 54));
+
+      await rig.view();
+
+      final calls = rig.activity.calls;
+      expect(calls, isNotEmpty);
+      expect(
+        calls.every((call) => call.from == _yesterday.addDays(-89)),
+        isTrue,
+      );
+    });
+
+    test(
+      '2. a valid step day 90 days before yesterday is not counted',
+      () async {
+        final rig = _Rig(slots: _day(_yesterday.addDays(-90), stepsEach: 100));
+
+        final steps = (await rig.levers())[RingLever.steps]!;
+
+        expect(steps.validDays, 0);
+      },
+    );
+
+    test('2. a valid step day 89 days before yesterday is counted', () async {
+      final rig = _Rig(slots: _day(_yesterday.addDays(-89), stepsEach: 100));
+
+      final steps = (await rig.levers())[RingLever.steps]!;
+
+      expect(steps.validDays, 1);
+    });
+
     test('2. a valid day today is not counted, it is partial', () async {
       final slots = [
         ..._validDays(_yesterday, 53),
@@ -534,6 +566,49 @@ void main() {
         expect(reading.validDays, 52);
       },
     );
+
+    test(
+      '3. a regularity pair dated 89 days before yesterday counts',
+      () async {
+        final worn = [_yesterday.addDays(-90), _yesterday.addDays(-89)];
+        final rig = _Rig(sleep: _nights(100), heart: _worn(worn));
+
+        final reading = (await rig.levers())[RingLever.sleepRegularity]!;
+
+        expect(reading.validDays, 1);
+      },
+    );
+
+    test(
+      '3. a regularity pair dated 90 days before yesterday is out',
+      () async {
+        final worn = [_yesterday.addDays(-91), _yesterday.addDays(-90)];
+        final rig = _Rig(sleep: _nights(100), heart: _worn(worn));
+
+        final reading = (await rig.levers())[RingLever.sleepRegularity]!;
+
+        expect(reading.validDays, 0);
+      },
+    );
+
+    test('4. two worn days with no sleep recorded give no pair', () async {
+      final worn = [_yesterday.addDays(-1), _yesterday];
+      final rig = _Rig(heart: _worn(worn));
+
+      final reading = (await rig.levers())[RingLever.sleepRegularity]!;
+
+      expect(reading.validDays, 0);
+      expect(reading.trend, isNull);
+    });
+
+    test('4. a long worn run with no sleep recorded gives no pair', () async {
+      final rig = _Rig(heart: _worn(_daysEnding(_yesterday, 60)));
+
+      final reading = (await rig.levers())[RingLever.sleepRegularity]!;
+
+      expect(reading.validDays, 0);
+      expect(reading.trend, isNull);
+    });
 
     test('6. an activity reader that throws gives Error and logs it', () async {
       final failure = StateError('activity unreadable');

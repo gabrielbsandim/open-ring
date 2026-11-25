@@ -101,10 +101,44 @@ void main() {
     expect(mean, closeTo(sleepRegularity(spans, days: days)!.index, 1e-9));
   });
 
-  test('3. a day with no sleep that is in days still gives a value', () {
-    final values = byDate(dailySleepRegularity(const [], days: run(3)));
+  test('4. a pair where only one day has sleep still gives a value', () {
+    final spans = [span(first, 12, 0, const Duration(hours: 2))];
+    final values = byDate(dailySleepRegularity(spans, days: run(3)));
 
-    expect(values, {first.addDays(1): 100, first.addDays(2): 100});
+    expect(values.keys.toSet(), {first.addDays(1)});
+    expect(values[first.addDays(1)], lessThan(100));
+  });
+
+  test('4. days with no asleep epochs give no values, not 100', () {
+    expect(dailySleepRegularity(const [], days: run(3)), isEmpty);
+    expect(
+      dailySleepRegularity(const [], days: {first, first.addDays(1)}),
+      isEmpty,
+    );
+  });
+
+  test('4. a pair of days without sleep is skipped between pairs with it', () {
+    final spans = [
+      for (final i in [-1, 0, 1, 5, 6])
+        span(first.addDays(i), 23, 0, const Duration(hours: 8)),
+    ];
+    final values = byDate(dailySleepRegularity(spans, days: run(8)));
+
+    expect(values.keys.toSet(), {
+      first.addDays(1),
+      first.addDays(2),
+      first.addDays(3),
+      first.addDays(5),
+      first.addDays(6),
+      first.addDays(7),
+    });
+  });
+
+  test('4. a night crossing midnight covers both dates of its pair', () {
+    final spans = [span(first.addDays(-1), 23, 0, const Duration(hours: 4))];
+    final values = byDate(dailySleepRegularity(spans, days: run(3)));
+
+    expect(values.keys.toSet(), {first.addDays(1)});
   });
 
   test('3. time awake is not sleep', () {
@@ -142,6 +176,44 @@ void main() {
       byDate(dailySleepRegularity(spans, days: run(4))).values,
       everyElement(100),
     );
+  });
+
+  test('3. nights at one local time are regular across an offset change', () {
+    final spans = [
+      for (var i = -1; i < 4; i++)
+        span(
+          first.addDays(i),
+          23,
+          0,
+          const Duration(hours: 8),
+          utcOffset: i <= 1 ? const Duration(hours: -3) : Duration.zero,
+        ),
+    ];
+    final values = byDate(dailySleepRegularity(spans, days: run(4)));
+
+    expect(values, {
+      first.addDays(1): 100,
+      first.addDays(2): 100,
+      first.addDays(3): 100,
+    });
+  });
+
+  test('3. a night that moves an hour in local time scores below 100', () {
+    final spans = [
+      for (var i = -1; i < 4; i++)
+        span(
+          first.addDays(i),
+          i == 2 ? 22 : 23,
+          0,
+          const Duration(hours: 8),
+          utcOffset: i <= 1 ? const Duration(hours: -3) : Duration.zero,
+        ),
+    ];
+    final values = byDate(dailySleepRegularity(spans, days: run(4)));
+
+    expect(values[first.addDays(1)], 100);
+    expect(values[first.addDays(2)], lessThan(100));
+    expect(values[first.addDays(3)], lessThan(100));
   });
 
   test('4. a day missing from days breaks both pairs it belongs to', () {

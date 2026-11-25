@@ -2939,7 +2939,7 @@
   "aiFormulaFactsTitle": "模型可以引用的数据",
   "aiFormulaFactsBody": "应用会生成一份带编号的数据列表：最新值、基线、平均值和趋势。模型只有在引用数据时才能使用数字。数据不足 {min} 天的项目不会列入。",
   "aiFormulaCheckTitle": "每张卡片如何检查",
-  "aiFormulaRule": "{rule, select, cited{卡片引用 1 到 {maxCited} 条数据，且每条都在已发送的摘要中。} theme{卡片的主题至少与一条引用的数据相符，例如睡眠对应睡眠数据。关于整体情况的卡片可以引用任何数据。} numbers{标题和正文中的每个数字都必须是引用的数据（原值或取整），或两条引用数据之间的差值或百分比变化，或天数、夜数或周数：不超过发送的天数，或 {periods}。钟点时间和 W2 这类标签不做检查。} action{建议中只能出现带时间或活动单位（分钟、小时、天、晚、周、步）的数字。带 bpm、ms、%、kg、kcal 或 mg 的数字会使卡片被移除。} words{涉及诊断、疾病、药物、补充剂或剂量的词语会使卡片被移除。} other{以 http 或 www 开头的地址或 Markdown 链接会使卡片被移除。}}",
+  "aiFormulaRule": "{rule, select, cited{卡片引用 1 到 {maxCited} 条数据，且每条都在已发送的摘要中。} theme{卡片的主题至少与一条引用的数据相符，例如睡眠对应睡眠数据。关于整体情况的卡片可以引用任何数据。} numbers{标题和正文中的每个数字都必须是引用的数据（原值或取整），或两条引用数据之间的差值或百分比变化，或天数、夜数、周数或早上的次数：不超过发送的天数，或 {periods}。钟点时间和 W2 这类标签不做检查。} action{建议中只能出现带时间或活动单位（分钟、小时、天、晚、周、步）的数字。带 bpm、ms、%、kg、kcal 或 mg 的数字会使卡片被移除。} words{涉及诊断、疾病、药物、补充剂或剂量的词语会使卡片被移除。} other{以 http 或 www 开头的地址或 Markdown 链接会使卡片被移除。}}",
   "aiFormulaThousands": "逗号后跟三位数字表示千位分隔：“9,316”就是九千三百一十六。",
   "aiFormulaConfidenceExpr": "覆盖度 = 所引用数据中\n天数最少的那条的天数\n{high} 天及以上：高 · {medium} 到 {mediumTop} 天：中\n少于 {medium} 天：低\n显示 = 覆盖度与模型给出的\n两者中较低的一个",
   "aiFormulaTokensTitle": "令牌与费用",

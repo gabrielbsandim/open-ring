@@ -36,6 +36,11 @@ class _MealItemsCardState extends ConsumerState<MealItemsCard> {
   // until the screen closes.
   final Map<int, (int, MealAnalysisItem)> _removed = {};
 
+  // Each tap steps from the last count asked for, and writes go one at a
+  // time, so quick taps all land in order.
+  final Map<int, int> _counts = {};
+  Future<void> _writes = Future.value();
+
   MealAnalysisStore get _store => ref.read(mealAnalysisStoreProvider);
 
   List<(MealAnalysisItem, bool)> _rows() {
@@ -49,10 +54,17 @@ class _MealItemsCardState extends ConsumerState<MealItemsCard> {
   }
 
   void _step(MealAnalysisItem item, int index, int delta) {
-    final next = item.countX2 + delta;
-    if (next <= 0) setState(() => _removed[item.id] = (index, item));
-    unawaited(_store.setItemCount(item.id, next));
+    final next = _count(item) + delta;
+    if (next < 0 || next > _maxCountX2) return;
+    setState(() {
+      _counts[item.id] = next;
+      if (next == 0) _removed[item.id] = (index, item);
+    });
+    _writes = _writes.then<void>((_) => _store.setItemCount(item.id, next));
+    unawaited(_writes);
   }
+
+  int _count(MealAnalysisItem item) => _counts[item.id] ?? item.countX2;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +85,7 @@ class _MealItemsCardState extends ConsumerState<MealItemsCard> {
           _ItemRow(
             item: item,
             removed: removed,
+            countX2: _count(item),
             onStep: (delta) => _step(item, index, delta),
           ),
         const SizedBox(height: 12),
@@ -122,16 +135,22 @@ class _Title extends StatelessWidget {
 }
 
 class _ItemRow extends StatelessWidget {
-  const new({required this.item, required this.removed, required this.onStep});
+  const new({
+    required this.item,
+    required this.removed,
+    required this.countX2,
+    required this.onStep,
+  });
 
   final MealAnalysisItem item;
   final bool removed;
+  final int countX2;
   final ValueChanged<int> onStep;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final count = NumberFormat('0.#', l10n.localeName).format(item.countX2 / 2);
+    final count = NumberFormat('0.#', l10n.localeName).format(countX2 / 2);
     // The wire names are snake case and the select cases camelCase; the enum
     // name is the camelCase one, and unit falls to other.
     final measure = l10n.foodAiMeasure(item.measure.name);
@@ -157,9 +176,7 @@ class _ItemRow extends StatelessWidget {
           key: MealItemsKeys.more(item.id),
           tooltip: l10n.foodAiItemMore(item.name),
           icon: const Icon(Icons.add_rounded),
-          onPressed: removed || item.countX2 >= _maxCountX2
-              ? null
-              : () => onStep(1),
+          onPressed: removed || countX2 >= _maxCountX2 ? null : () => onStep(1),
         ),
       ],
     );

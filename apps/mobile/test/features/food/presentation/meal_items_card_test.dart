@@ -68,6 +68,7 @@ void main() {
     WidgetTester tester, {
     bool gate = true,
     Locale locale = const Locale('en'),
+    MealPhotoSuggestion suggestion = _suggestion,
   }) async {
     tester.view
       ..devicePixelRatio = 1
@@ -85,7 +86,7 @@ void main() {
     await h.analyses.complete(rowId, (
       status: MealAnalysisStatus.done,
       sent: (sha256: 'abc', width: 768, height: 576, bytes: 4100),
-      suggestion: _suggestion,
+      suggestion: suggestion,
       confidence: MealPhotoConfidence.medium,
       rawText: '{}',
       usage: null,
@@ -122,6 +123,46 @@ void main() {
     expect(find.text('Rice'), findsNothing);
     expect(find.text(en.foodAiHiddenOil), findsNothing);
     expect(find.text(en.foodAiItemsNote), findsNothing);
+  });
+
+  testWidgets('with the gate on, a done row with no items shows no card', (
+    tester,
+  ) async {
+    await pump(tester, suggestion: _suggestion.withItems(const []));
+
+    expect(find.byKey(MealAnalysisKeys.section), findsOneWidget);
+    expect(find.byKey(MealItemsKeys.card), findsNothing);
+    expect(find.text(en.foodAiHiddenOil), findsNothing);
+  });
+
+  testWidgets('two quick taps on plus both land', (tester) async {
+    await pump(tester);
+    final rice = await item('Rice');
+
+    await tester.tap(find.byKey(MealItemsKeys.more(rice.id)));
+    await tester.tap(find.byKey(MealItemsKeys.more(rice.id)));
+    await tester.pumpAndSettle();
+
+    final stepped = await item('Rice');
+    expect((stepped.countX2, stepped.grams), (5, 225));
+    expect(find.text('2.5 × serving spoon, about 225 g'), findsOneWidget);
+  });
+
+  testWidgets('plus is disabled at 6', (tester) async {
+    await pump(tester);
+    final rice = await item('Rice');
+    final more = find.byKey(MealItemsKeys.more(rice.id));
+
+    for (var i = 0; i < 9; i++) {
+      await tester.tap(more);
+      await tester.pumpAndSettle();
+    }
+
+    expect((await item('Rice')).countX2, 12);
+    expect(tester.widget<IconButton>(more).onPressed, isNull);
+    await tester.tap(more);
+    await tester.pumpAndSettle();
+    expect((await item('Rice')).countX2, 12);
   });
 
   testWidgets('the 4 items render with locale formatted halves', (

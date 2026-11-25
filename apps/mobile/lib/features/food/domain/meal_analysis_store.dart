@@ -71,7 +71,8 @@ abstract interface class MealAnalysisStore {
   /// User set chips; a null one is left as it is.
   Future<bool> setHidden(int id, {bool? oil, bool? sauce, bool? sugar});
 
-  /// Scales grams with the count and confirms the item; 0 removes it.
+  /// Makes the item the person's own, confirmed, with the model's grams
+  /// scaled to the count; 0 removes it.
   Future<bool> setItemCount(int itemId, int countX2);
 
   Future<bool> keepOnPhone(int mealId);

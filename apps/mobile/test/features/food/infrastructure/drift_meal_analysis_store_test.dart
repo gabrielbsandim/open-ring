@@ -638,7 +638,71 @@ void main() {
       final stepped = (await store.byId(id))!.items.single;
       expect((stepped.id, stepped.countX2, stepped.grams), (item.id, 5, 225));
       expect(stepped.confirmed, isTrue);
-      expect(stepped.origin, MealItemOrigin.model);
+      expect(stepped.origin, MealItemOrigin.user);
+    });
+
+    Future<MealAnalysisItem> answered(
+      String name,
+      int countX2,
+      int grams,
+    ) async {
+      final id = await _analysisAt(store, mealId, _target, _now);
+      await store.markSending(id, now: _now);
+      final item = MealPhotoItem(
+        name: name,
+        measure: MealPhotoMeasure.tongs,
+        countX2: countX2,
+        grams: grams,
+      );
+      await store.complete(
+        id,
+        _done(suggestion: _suggestion.withItems([item])),
+        now: _now,
+      );
+      return (await store.byId(id))!.items.single;
+    }
+
+    Future<int> grams(int itemId, int countX2) async {
+      await store.setItemCount(itemId, countX2);
+      final rows = await store.byMeal(mealId);
+      return rows.single.items.single.grams;
+    }
+
+    test('grams scale from the model item, so steps never drift', () async {
+      final salad = await answered('salad', 2, 15);
+
+      expect(await grams(salad.id, 1), 8);
+      expect(await grams(salad.id, 2), 15);
+    });
+
+    test('a count that does not divide evenly rounds once', () async {
+      final beans = await answered('beans', 3, 50);
+
+      expect(await grams(beans.id, 4), 67);
+      expect(await grams(beans.id, 5), 83);
+    });
+
+    test('an edited item survives again and the next answer adds no '
+        'duplicate', () async {
+      final id = await _doneRow(store, mealId);
+      final rice = (await store.byId(id))!.items.single;
+      await store.setItemCount(rice.id, 6);
+
+      await store.enqueue(
+        mealId,
+        'meal_1.jpg',
+        _target,
+        now: _now,
+        again: true,
+      );
+      await store.markSending(id, now: _now);
+      await store.complete(id, _done(), now: _now);
+
+      final items = (await store.byId(id))!.items;
+      expect(items.map((i) => (i.name, i.countX2, i.grams, i.origin)), [
+        ('rice', 6, 270, MealItemOrigin.user),
+      ]);
+      expect(items.single.confirmed, isTrue);
     });
 
     test(

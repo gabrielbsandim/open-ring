@@ -84,7 +84,11 @@ List<MealAnalysisItem> _itemsFor(LocalDate day, {bool ok = true}) =>
     : [_item(1, FoodGroup.other, 800), _item(2, FoodGroup.sweet, 125, ok: ok)];
 
 final class _W1 {
-  new({Set<LocalDate> stepless = const {}}) {
+  new({
+    Set<LocalDate> stepless = const {},
+    bool weighInsFail = false,
+    LocalDate? failingRingDay,
+  }) {
     for (var i = 0; i < foodEnergyWindowDays; i++) {
       final day = _start.addDays(i);
       if (i % 7 == 6) continue;
@@ -103,9 +107,13 @@ final class _W1 {
         foodEnergyGateProvider.overrideWith((ref) async => gate),
         mealStoreProvider.overrideWithValue(meals),
         mealAnalysisStoreProvider.overrideWithValue(analyses),
-        weighInsProvider.overrideWith((ref) async => _weighIns()),
+        weighInsProvider.overrideWith((ref) async {
+          if (weighInsFail) throw StateError('weigh-in read');
+          return _weighIns();
+        }),
         energyDayProvider.overrideWith((ref, date) async {
           ringReads.add(date);
+          if (date == failingRingDay) throw StateError('ring read');
           final steps = stepless.contains(date) ? 0.0 : 500.0;
           return EnergyDayEstimate(
             resting: 1500,
@@ -310,4 +318,26 @@ void main() {
       expect(w.analyses.reads, 0);
     });
   }
+
+  test(
+    'offered with a failed weigh-in read keeps the gate, no result',
+    () async {
+      final w = _W1(weighInsFail: true)
+        ..gate = const FoodEnergyOffered(_sunday);
+
+      final view = await w.read();
+
+      expect(view.gate, isA<FoodEnergyOffered>());
+      expect(view.result, isNull);
+    },
+  );
+
+  test('on with one failed ring day keeps the gate, no result', () async {
+    final w = _W1(failingRingDay: const LocalDate(2026, 11, 20));
+
+    final view = await w.read();
+
+    expect(view.gate, isA<FoodEnergyOn>());
+    expect(view.result, isNull);
+  });
 }

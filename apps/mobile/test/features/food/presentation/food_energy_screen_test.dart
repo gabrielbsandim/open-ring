@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
+import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/demo/domain/demo_mode_store.dart';
+import 'package:open_ring/features/energy/application/energy_providers.dart';
+import 'package:open_ring/features/energy/domain/energy_day.dart';
 import 'package:open_ring/features/food/application/food_energy.dart';
 import 'package:open_ring/features/food/application/food_energy_gate.dart';
+import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
+import 'package:open_ring/features/food/application/meal_store_providers.dart';
 import 'package:open_ring/features/food/domain/food_energy_store.dart';
+import 'package:open_ring/features/food/domain/meal_analysis.dart';
+import 'package:open_ring/features/food/domain/meal_analysis_store.dart';
 import 'package:open_ring/features/food/presentation/food_energy_screen.dart';
 import 'package:open_ring/features/food/presentation/food_energy_sheet.dart';
+import 'package:open_ring/features/goals/application/goal_providers.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/domain/goal_store.dart';
 
 import '../../../helpers/layout_harness.dart';
+import '../food_fakes.dart';
 
 const _title = 'Weekly energy';
 const _lead =
@@ -74,6 +84,7 @@ Future<CountingEnergyStore> _pump(
   FoodEnergyGate gate, {
   FoodEnergyResult? result,
   double scale = 1,
+  List<Override>? data,
 }) async {
   final store = CountingEnergyStore();
   await pumpScaled(
@@ -85,9 +96,12 @@ Future<CountingEnergyStore> _pump(
     size: const Size(360, 2400),
     overrides: [
       clockProvider.overrideWithValue(() => DateTime(2026, 12, 8, 12)),
-      foodEnergyProvider.overrideWith(
-        (ref) async => FoodEnergyView(gate: gate, result: result),
-      ),
+      ...data ??
+          [
+            foodEnergyProvider.overrideWith(
+              (ref) async => FoodEnergyView(gate: gate, result: result),
+            ),
+          ],
       foodEnergyGateProvider.overrideWith((ref) async => gate),
       foodEnergyStoreProvider.overrideWithValue(store),
       demoModeStoreProvider.overrideWithValue(
@@ -98,6 +112,15 @@ Future<CountingEnergyStore> _pump(
   );
   await tester.pumpAndSettle();
   return store;
+}
+
+final class _NoAnalyses implements MealAnalysisStore {
+  @override
+  Future<Map<int, List<MealAnalysis>>> byMeals(Set<int> mealIds) async => {};
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw StateError('unexpected: ${invocation.memberName}');
 }
 
 void _sees(List<String> texts) {
@@ -322,5 +345,60 @@ void main() {
       find.text('Weekly energy off. The checked items stay saved.'),
       findsOneWidget,
     );
+  });
+
+  group('a failed data read keeps the controls', () {
+    const failingDay = LocalDate(2026, 11, 20);
+
+    List<Override> reads({bool weighInsFail = false}) => [
+      mealStoreProvider.overrideWithValue(TestMealStore()),
+      mealAnalysisStoreProvider.overrideWithValue(_NoAnalyses()),
+      weighInsProvider.overrideWith((ref) async {
+        if (weighInsFail) throw StateError('weigh-in read');
+        return const [];
+      }),
+      energyDayProvider.overrideWith((ref, date) async {
+        if (date == failingDay) throw StateError('ring read');
+        return const EnergyDayEstimate(
+          resting: 1500,
+          base: 2000,
+          steps: 500,
+          workouts: 0,
+        );
+      }),
+      activeGoalProvider.overrideWith((ref) async => null),
+    ];
+
+    testWidgets('offered with a throwing weigh-in read still turns on', (
+      tester,
+    ) async {
+      final store = await _pump(
+        tester,
+        const FoodEnergyOffered(_screenedOn),
+        data: reads(weighInsFail: true),
+      );
+
+      expect(find.text('Weigh-ins in the last 35 days'), findsOneWidget);
+      expect(find.textContaining(' of 20'), findsNothing);
+      expect(find.text('Off'), findsOneWidget);
+      await tester.tap(find.byKey(FoodEnergyKeys.turnOn));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(FoodEnergySheetKeys.on));
+      await tester.pumpAndSettle();
+
+      expect(store.writes, 1);
+      expect(find.text('Weekly energy on.'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox());
+    });
+
+    testWidgets('on with one throwing ring day still shows the switch', (
+      tester,
+    ) async {
+      await _pump(tester, const FoodEnergyOn(_screenedOn), data: reads());
+
+      expect(find.byKey(FoodEnergyKeys.toggle), findsOneWidget);
+      expect(find.textContaining('Could not read'), findsNothing);
+      await tester.pumpWidget(const SizedBox());
+    });
   });
 }

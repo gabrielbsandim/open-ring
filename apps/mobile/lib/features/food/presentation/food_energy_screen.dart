@@ -170,23 +170,25 @@ class FoodEnergyScreen extends ConsumerWidget {
     FoodEnergyCounts? counts,
     AppLocalizations l,
   ) {
-    final rows = <(FoodEnergyNeed, String?)>[
-      (FoodEnergyNeed.ai, null),
-      (FoodEnergyNeed.body, null),
-      (FoodEnergyNeed.screening, null),
-      (
-        FoodEnergyNeed.weighIns,
-        l.foodEnergyNeedCount(counts?.weighIns ?? 0, foodEnergyMinWeighIns),
-      ),
-      (
-        FoodEnergyNeed.days,
-        l.foodEnergyNeedCount(counts?.days ?? 0, foodEnergyMinDays),
-      ),
-    ];
     final c = AppColors.of(context);
     final t = Theme.of(context).textTheme;
+    final met = Icon(Icons.check_rounded, size: 20, color: c.activity);
+    // Without counts (a failed read) the two count rows show no figure.
+    Widget? count(int? value, int total) => value == null
+        ? null
+        : Text(
+            l.foodEnergyNeedCount(value, total),
+            style: numberStyle(t.bodyMedium),
+          );
+    final rows = <(FoodEnergyNeed, Widget?)>[
+      (FoodEnergyNeed.ai, met),
+      (FoodEnergyNeed.body, met),
+      (FoodEnergyNeed.screening, met),
+      (FoodEnergyNeed.weighIns, count(counts?.weighIns, foodEnergyMinWeighIns)),
+      (FoodEnergyNeed.days, count(counts?.days, foodEnergyMinDays)),
+    ];
     return [
-      for (final (need, count) in rows)
+      for (final (need, trailing) in rows)
         Padding(
           key: FoodEnergyKeys.need(need),
           padding: const EdgeInsets.symmetric(vertical: 6),
@@ -194,10 +196,7 @@ class FoodEnergyScreen extends ConsumerWidget {
             children: [
               Expanded(child: BodyText(l.foodEnergyNeed(need.name))),
               const SizedBox(width: 8),
-              if (count == null)
-                Icon(Icons.check_rounded, size: 20, color: c.activity)
-              else
-                Text(count, style: numberStyle(t.bodyMedium)),
+              ?trailing,
             ],
           ),
         ),

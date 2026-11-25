@@ -24,7 +24,7 @@ final class FoodEnergyView {
 
   final FoodEnergyGate gate;
 
-  /// Null unless the gate is offered or on.
+  /// Null unless the gate is offered or on and every data read succeeded.
   final FoodEnergyResult? result;
 }
 
@@ -69,6 +69,15 @@ final foodEnergyProvider = FutureProvider<FoodEnergyView>((ref) async {
   ref
     ..watch(dataRevisionProvider)
     ..watch(mealAnalysisRevisionProvider);
+  try {
+    return FoodEnergyView(gate: gate, result: await _latest(ref));
+  } on Object {
+    // A failed read must not take the switch or Turn on away with it.
+    return FoodEnergyView(gate: gate);
+  }
+});
+
+Future<FoodEnergyResult> _latest(Ref ref) async {
   final latestSunday = mondayOf(ref.watch(currentFoodDayProvider)).addDays(-1);
   final from = latestSunday.addDays(1 - foodEnergyReadDays);
   final dates = [for (var i = 0; i < foodEnergyReadDays; i++) from.addDays(i)];
@@ -84,7 +93,7 @@ final foodEnergyProvider = FutureProvider<FoodEnergyView>((ref) async {
     for (final date in dates) ref.watch(energyDayProvider(date).future),
   ]);
   final goal = await ref.watch(activeGoalProvider.future);
-  final result = foodEnergyLatest(
+  return foodEnergyLatest(
     latestSunday: latestSunday,
     days: [for (final date in dates) ?foodEnergyDay(date, logged)],
     weighIns: weight?.daily ?? const [],
@@ -95,8 +104,7 @@ final foodEnergyProvider = FutureProvider<FoodEnergyView>((ref) async {
     ],
     goalBlockStart: _blockStart(goal),
   );
-  return FoodEnergyView(gate: gate, result: result);
-});
+}
 
 LocalDate? _blockStart(Goal? goal) {
   if (goal == null || goal.phase != GoalPhase.block) return null;

@@ -814,6 +814,127 @@ void main() {
     }
   });
 
+  group('review regressions', () {
+    int paragraphsDrawn(WidgetTester tester) {
+      final paint = find.descendant(
+        of: find.byKey(TrajectoryKeys.chart),
+        matching: find.byType(CustomPaint),
+      );
+      final canvas = TestRecordingCanvas();
+      tester
+          .renderObject<RenderBox>(paint)
+          .paint(TestRecordingPaintingContext(canvas), Offset.zero);
+      return canvas.invocations
+          .where((call) => call.invocation.memberName == #drawParagraph)
+          .length;
+    }
+
+    testWidgets('F1: the hidden chart names no kg or lb to a screen reader', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpTrajectory(tester, view: readyView(), hidden: true);
+
+      final labelled = find.descendant(
+        of: find.byKey(TrajectoryKeys.chart),
+        matching: find.bySemanticsLabel(RegExp('kg|lb')),
+      );
+      expect(find.byKey(TrajectoryKeys.chart), findsOneWidget);
+      expect(labelled, findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('F1: the hidden chart paints fewer text runs than the shown', (
+      tester,
+    ) async {
+      await pumpTrajectory(tester, view: readyView());
+      final shown = paragraphsDrawn(tester);
+
+      await tester.pumpWidget(const SizedBox());
+      await pumpTrajectory(tester, view: readyView(), hidden: true);
+      final hiddenCount = paragraphsDrawn(tester);
+
+      expect(hiddenCount, greaterThan(0), reason: 'day labels stay');
+      expect(hiddenCount, lessThan(shown));
+    });
+
+    testWidgets('F2: the building card counts only the 28 day rate window', (
+      tester,
+    ) async {
+      final units = _units(UnitSystem.metric);
+      final old = [november.addDays(-60), november.addDays(-45)];
+      final recent = [november.addDays(-20), november.addDays(-10), november];
+      await pumpTrajectory(
+        tester,
+        view: const TrajectoryBuilding(
+          WeightRateBuilding(daysMissing: 4, spanMissing: 0),
+        ),
+        summaryLoad: () async => summaryOn([...old, ...recent]),
+      );
+
+      final text = _allText(tester, TrajectoryKeys.building);
+      final sentence = _l10n.trajectoryBuildingCount(
+        3,
+        units.format.monthDay(recent.first),
+        units.format.monthDay(recent.last),
+      );
+      expect(text, contains(sentence));
+      for (final day in old) {
+        expect(text, isNot(contains(units.format.monthDay(day))));
+      }
+    });
+
+    testWidgets('F2: weigh-ins all older than the window give no count', (
+      tester,
+    ) async {
+      final units = _units(UnitSystem.metric);
+      final old = [
+        for (final offset in [-60, -50, -45, -35]) november.addDays(offset),
+      ];
+      await pumpTrajectory(
+        tester,
+        view: const TrajectoryBuilding(
+          WeightRateBuilding(daysMissing: 7, spanMissing: 14),
+        ),
+        summaryLoad: () async => summaryOn(old),
+      );
+
+      final text = _allText(tester, TrajectoryKeys.building);
+      expect(find.byKey(TrajectoryKeys.building), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      for (final day in old) {
+        expect(text, isNot(contains(units.format.monthDay(day))));
+      }
+    });
+
+    testWidgets('F6: one missing day reads in the singular', (tester) async {
+      await pumpTrajectory(
+        tester,
+        view: const TrajectoryBuilding(
+          WeightRateBuilding(daysMissing: 1, spanMissing: 1),
+        ),
+      );
+
+      final text = _allText(tester, TrajectoryKeys.building);
+      expect(text, isNot(contains('1 more days')));
+      expect(text, isNot(contains('1 days')));
+    });
+
+    testWidgets('F5: the pregnancy refusal also names breastfeeding', (
+      tester,
+    ) async {
+      await pumpTrajectory(
+        tester,
+        view: const TrajectoryRefused(TrajectoryRefusal.pregnancy),
+      );
+
+      expect(
+        _allText(tester, TrajectoryKeys.refused),
+        contains('breastfeeding'),
+      );
+    });
+  });
+
   group('TR8 acceptance 6: no overflow', () {
     for (final layout in layoutMatrix()) {
       testWidgets('Ready at $layout', (tester) async {

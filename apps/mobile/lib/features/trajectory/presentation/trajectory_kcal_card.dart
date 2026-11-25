@@ -98,7 +98,8 @@ class TrajectoryKcalCard extends ConsumerWidget {
         l10n.trajectoryKcalBalanced,
         l10n.trajectoryKcalBalancedWhy,
       ),
-      EnergyBalanceReady(:final shown) when shown.high < 0 => (
+      // The side comes from the raw ends; a stepped end can round to zero.
+      EnergyBalanceReady(:final shown, :final high) when high < 0 => (
         range(-shown.high, -shown.low),
         l10n.trajectoryKcalBelowWhy,
       ),

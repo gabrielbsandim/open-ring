@@ -16,6 +16,7 @@ import '../../../helpers/layout_harness.dart';
 import 'trajectory_screen_fixtures.dart';
 
 const _en = Locale('en');
+const _tall = Size(360, 4000);
 
 const _prototypeDay = EnergyDayEstimate(
   resting: 1725,
@@ -59,6 +60,7 @@ Future<void> _pump(
   double scale = 1,
   Brightness brightness = Brightness.light,
   Locale locale = _en,
+  Size size = _tall,
 }) async {
   final shown = view ?? readyView();
   await pumpScaled(
@@ -67,6 +69,7 @@ Future<void> _pump(
     textScaler: TextScaler.linear(scale),
     brightness: brightness,
     locale: locale,
+    size: size,
     overrides: [
       ...trajectoryOverrides(view: shown),
       energyGateProvider.overrideWithValue(gate),
@@ -77,6 +80,15 @@ Future<void> _pump(
     ],
   );
 }
+
+Future<void> _reveal(WidgetTester tester) => expectNoLayoutOverflow(() async {
+  await tester.scrollUntilVisible(
+    _card,
+    300,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.pumpAndSettle();
+});
 
 Future<TrajectoryKcal> _provided(WidgetTester tester) {
   final container = ProviderScope.containerOf(
@@ -270,7 +282,9 @@ void main() {
           scale: layout.scale,
           brightness: layout.brightness,
           locale: layout.locale,
+          size: phoneSize,
         );
+        await _reveal(tester);
 
         expect(_card, findsOneWidget);
       });
@@ -284,7 +298,14 @@ void main() {
           dayChange12: -90,
           balance: EnergyBalanceBlock(LocalDate(2026, 12, 27)),
         );
-        await _pump(tester, kcal: block, scale: 2, locale: locale);
+        await _pump(
+          tester,
+          kcal: block,
+          scale: 2,
+          locale: locale,
+          size: phoneSize,
+        );
+        await _reveal(tester);
         expect(_card, findsOneWidget);
 
         await tester.pumpWidget(const SizedBox());
@@ -294,7 +315,14 @@ void main() {
           dayChange12: -90,
           balance: EnergyBalanceCount(12),
         );
-        await _pump(tester, kcal: count, scale: 2, locale: locale);
+        await _pump(
+          tester,
+          kcal: count,
+          scale: 2,
+          locale: locale,
+          size: phoneSize,
+        );
+        await _reveal(tester);
         expect(_card, findsOneWidget);
       });
     }

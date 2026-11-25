@@ -137,7 +137,8 @@ class _ScenarioCard extends StatelessWidget {
             [
               l10n.trajectoryAssumption,
               if (view.rate.stable) l10n.trajectoryStableNote,
-              if (!view.rate.stable) l10n.trajectoryBendNote,
+              if (!view.rate.stable && view.rate.perWeek < 0)
+                l10n.trajectoryBendNote,
               l10n.trajectoryNotForecast,
             ].join(' '),
           ),

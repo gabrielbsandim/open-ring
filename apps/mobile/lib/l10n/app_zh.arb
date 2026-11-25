@@ -3018,6 +3018,6 @@
   "trajectoryStableNote": "体重持平时，区间只会随时间变宽。",
   "trajectoryBendNote": "曲线会弯曲，因为消耗随体重一起下降。",
   "trajectoryNotForecast": "这是情景，不是预测。",
-  "trajectoryPlaceholder": "称重足够后，体重情景会显示在这里。",
+  "trajectoryPlaceholder": "体重情景目前不显示。",
   "trajectoryChartLabel": "过去 5 周的体重趋势和每日称重，以及未来 12 周的情景区间，单位为 {unit}。"
 }

@@ -3018,6 +3018,6 @@
   "trajectoryStableNote": "Con el peso estable, la banda solo se abre con el tiempo.",
   "trajectoryBendNote": "La curva se dobla porque el gasto baja junto con el peso.",
   "trajectoryNotForecast": "Es un escenario, no una predicción.",
-  "trajectoryPlaceholder": "El escenario del peso aparece aquí cuando tus pesajes lo permitan.",
+  "trajectoryPlaceholder": "El escenario del peso no se muestra ahora.",
   "trajectoryChartLabel": "Tendencia del peso y pesajes de las últimas 5 semanas, y la banda del escenario para las próximas 12 semanas, en {unit}."
 }

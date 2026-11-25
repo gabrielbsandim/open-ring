@@ -3018,6 +3018,6 @@
   "trajectoryStableNote": "Com o peso parado, a faixa só abre com o tempo.",
   "trajectoryBendNote": "A curva entorta porque o gasto cai junto com o peso.",
   "trajectoryNotForecast": "É um cenário, não uma previsão.",
-  "trajectoryPlaceholder": "O cenário do peso aparece aqui quando as pesagens permitirem.",
+  "trajectoryPlaceholder": "O cenário do peso não aparece agora.",
   "trajectoryChartLabel": "Tendência do peso e pesagens das últimas 5 semanas, e a faixa do cenário para as próximas 12 semanas, em {unit}."
 }

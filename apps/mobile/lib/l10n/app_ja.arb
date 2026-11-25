@@ -3018,6 +3018,6 @@
   "trajectoryStableNote": "体重が横ばいなので、幅は時間とともに広がるだけです。",
   "trajectoryBendNote": "体重とともに消費も下がるため、曲線は曲がります。",
   "trajectoryNotForecast": "これはシナリオで、予測ではありません。",
-  "trajectoryPlaceholder": "測定がそろうと、ここに体重のシナリオが表示されます。",
+  "trajectoryPlaceholder": "体重のシナリオは今は表示されません。",
   "trajectoryChartLabel": "過去5週間の体重トレンドと毎日の測定、今後12週間のシナリオの幅（{unit}）。"
 }

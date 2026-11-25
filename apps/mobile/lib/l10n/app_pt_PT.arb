@@ -3010,6 +3010,6 @@
   "trajectoryStableNote": "Com o peso estável, a faixa só alarga com o tempo.",
   "trajectoryBendNote": "A curva dobra porque o gasto desce juntamente com o peso.",
   "trajectoryNotForecast": "É um cenário, não uma previsão.",
-  "trajectoryPlaceholder": "O cenário do peso aparece aqui quando as pesagens o permitirem.",
+  "trajectoryPlaceholder": "O cenário do peso não é mostrado agora.",
   "trajectoryChartLabel": "Tendência do peso e pesagens das últimas 5 semanas, e a faixa do cenário para as próximas 12 semanas, em {unit}."
 }

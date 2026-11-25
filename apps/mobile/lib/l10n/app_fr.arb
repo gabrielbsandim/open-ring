@@ -3018,6 +3018,6 @@
   "trajectoryStableNote": "Avec un poids stable, la bande ne s'ouvre qu'avec le temps.",
   "trajectoryBendNote": "La courbe s'infléchit car la dépense baisse avec le poids.",
   "trajectoryNotForecast": "C'est un scénario, pas une prévision.",
-  "trajectoryPlaceholder": "Le scénario du poids apparaît ici dès que vos pesées le permettent.",
+  "trajectoryPlaceholder": "Le scénario du poids n'est pas affiché pour l'instant.",
   "trajectoryChartLabel": "Tendance du poids et pesées des 5 dernières semaines, et bande du scénario pour les 12 prochaines semaines, en {unit}."
 }

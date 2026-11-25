@@ -3018,6 +3018,6 @@
   "trajectoryStableNote": "Con il peso stabile, la fascia si allarga solo col tempo.",
   "trajectoryBendNote": "La curva si piega perché il consumo cala insieme al peso.",
   "trajectoryNotForecast": "È uno scenario, non una previsione.",
-  "trajectoryPlaceholder": "Lo scenario del peso compare qui quando le pesate lo permettono.",
+  "trajectoryPlaceholder": "Lo scenario del peso non è mostrato ora.",
   "trajectoryChartLabel": "Tendenza del peso e pesate delle ultime 5 settimane, e fascia dello scenario per le prossime 12 settimane, in {unit}."
 }

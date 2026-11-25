@@ -86,6 +86,7 @@ class TrajectoryChart extends StatelessWidget {
             days: [
               units.format.monthDay(view.asOf.addDays(-_pastDays)),
               l10n.bodyChartToday,
+              units.format.monthDay(view.asOf.addDays(view.firm.days)),
               units.format.monthDay(view.asOf.addDays(view.band.days)),
             ],
             style:
@@ -206,10 +207,17 @@ class _ScenarioPainter extends CustomPainter {
       today - dayLabels[1].width / 2,
     );
     dayLabels[1].paint(canvas, Offset(middleLeft, labelTop));
-    dayLabels[2].paint(
-      canvas,
-      Offset(left + width - dayLabels[2].width, labelTop),
+    final endLeft = left + width - dayLabels[3].width;
+    dayLabels[3].paint(canvas, Offset(endLeft, labelTop));
+    // The 4 week date is dropped when large text leaves no room between its
+    // neighbours, so labels never overlap.
+    final firmLeft = math.max(
+      middleLeft + dayLabels[1].width + _gap,
+      at((day: trajectoryFirmDays.toDouble(), value: axis.low)).dx -
+          dayLabels[2].width / 2,
     );
+    if (firmLeft + dayLabels[2].width + _gap > endLeft) return;
+    dayLabels[2].paint(canvas, Offset(firmLeft, labelTop));
   }
 
   Paint _stroke(double width) => Paint()

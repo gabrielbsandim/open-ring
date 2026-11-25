@@ -3018,6 +3018,6 @@
   "trajectoryStableNote": "Dengan berat yang stabil, rentangnya hanya melebar seiring waktu.",
   "trajectoryBendNote": "Kurvanya melengkung karena pembakaran turun bersama berat.",
   "trajectoryNotForecast": "Ini skenario, bukan ramalan.",
-  "trajectoryPlaceholder": "Skenario berat muncul di sini setelah penimbangan Anda cukup.",
+  "trajectoryPlaceholder": "Skenario berat tidak ditampilkan saat ini.",
   "trajectoryChartLabel": "Tren berat dan penimbangan 5 minggu terakhir, serta rentang skenario untuk 12 minggu ke depan, dalam {unit}."
 }

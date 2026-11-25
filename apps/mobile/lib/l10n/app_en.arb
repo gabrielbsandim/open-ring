@@ -5606,7 +5606,7 @@
   "trajectoryStableNote": "With the weight flat, the band only widens with time.",
   "trajectoryBendNote": "The curve bends because the burn falls along with the weight.",
   "trajectoryNotForecast": "It is a scenario, not a forecast.",
-  "trajectoryPlaceholder": "The weight scenario appears here once your weigh-ins allow it.",
+  "trajectoryPlaceholder": "The weight scenario is not shown right now.",
   "trajectoryChartLabel": "Weight trend and daily weigh-ins over the last 5 weeks, and the scenario band for the next 12 weeks, in {unit}.",
   "@trajectoryChartLabel": {"placeholders": {"unit": {"type": "String"}}}
 }

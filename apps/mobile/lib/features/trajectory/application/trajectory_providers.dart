@@ -72,7 +72,11 @@ TrajectoryView _view(LocalDate today, WeightSummary? summary, double heightCm) {
     trendKg: trendKg,
     rate: rate,
     noiseKg: summary.noise,
-    firm: weightScenario(trendKg, rate, summary.noise, trajectoryFirmDays),
+    firm: scenarioFloored(
+      weightScenario(trendKg, rate, summary.noise, trajectoryFirmDays),
+      trendKg: trendKg,
+      heightCm: heightCm,
+    ),
     band: scenarioFloored(
       weightScenario(trendKg, rate, summary.noise, trajectoryBandDays),
       trendKg: trendKg,

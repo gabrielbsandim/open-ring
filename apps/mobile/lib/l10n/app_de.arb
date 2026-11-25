@@ -3018,6 +3018,6 @@
   "trajectoryStableNote": "Bei stabilem Gewicht wird das Band nur mit der Zeit breiter.",
   "trajectoryBendNote": "Die Kurve flacht ab, weil der Verbrauch mit dem Gewicht sinkt.",
   "trajectoryNotForecast": "Es ist ein Szenario, keine Prognose.",
-  "trajectoryPlaceholder": "Das Gewichtsszenario erscheint hier, sobald deine Messungen es erlauben.",
+  "trajectoryPlaceholder": "Das Gewichtsszenario wird gerade nicht angezeigt.",
   "trajectoryChartLabel": "Gewichtstrend und Messungen der letzten 5 Wochen und das Szenarioband für die nächsten 12 Wochen, in {unit}."
 }

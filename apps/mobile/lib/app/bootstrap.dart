@@ -100,6 +100,8 @@ import 'package:open_ring/features/sleep/infrastructure/drift_rem_reporting_read
 import 'package:open_ring/features/sleep/infrastructure/drift_sleep_history_reader.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/today/infrastructure/drift_ring_status_reader.dart';
+import 'package:open_ring/features/trajectory/application/trajectory_providers.dart';
+import 'package:open_ring/features/trajectory/infrastructure/drift_projection_store.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
 import 'package:open_ring/features/widgets/infrastructure/home_widget_plugin_gateway.dart';
 import 'package:open_ring/features/widgets/infrastructure/shared_preferences_today_widget_config_store.dart';
@@ -190,6 +192,9 @@ Future<void> bootstrap() async {
       ),
       goalStoreProvider.overrideWith(
         (ref) => DriftGoalStore(ref.watch(appDatabaseProvider)),
+      ),
+      projectionStoreProvider.overrideWith(
+        (ref) => DriftProjectionStore(ref.watch(appDatabaseProvider)),
       ),
       mealStoreProvider.overrideWith(
         (ref) => DriftMealStore(ref.watch(appDatabaseProvider)),

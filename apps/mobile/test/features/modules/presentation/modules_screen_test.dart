@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/app_navigation_bar.dart';
+import 'package:open_ring/features/ai/presentation/ai_connection_screen.dart';
+import 'package:open_ring/features/ai/presentation/ai_module_screen.dart';
 import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/body/domain/weigh_in_store.dart';
@@ -555,16 +557,18 @@ void main() {
     expect(find.byType(DayScoreFormulaScreen), findsOneWidget);
   });
 
-  testWidgets('criterion 1: the Modules screen lists six rows', (tester) async {
+  testWidgets('criterion 1: the Modules screen lists seven rows', (
+    tester,
+  ) async {
     await _pump(tester, modules: InMemoryModuleStore());
     await _openModules(tester);
 
-    expect(OfferedModule.values, hasLength(6));
+    expect(OfferedModule.values, hasLength(7));
     for (final module in OfferedModule.values) {
       await reveal(tester, find.byKey(ModulesKeys.row(module)));
       expect(find.byKey(ModulesKeys.row(module)), findsOneWidget);
     }
-    expect(find.byType(Switch), findsNWidgets(6));
+    expect(find.byType(Switch), findsNWidgets(7));
     expect(
       find.descendant(
         of: find.byKey(ModulesKeys.row(OfferedModule.effort)),
@@ -797,5 +801,51 @@ void main() {
     await reveal(tester, find.byKey(SettingsScreen.modulesKey));
 
     expect(find.text('On: 6'), findsOneWidget);
+  });
+
+  testWidgets('A14e: AI analysis is the last row and opens its module screen', (
+    tester,
+  ) async {
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openModules(tester);
+    final row = ModulesKeys.row(OfferedModule.ai);
+    await reveal(tester, find.byKey(row));
+
+    expect(
+      find.descendant(of: find.byKey(row), matching: find.text('AI analysis')),
+      findsOneWidget,
+    );
+    expect(
+      tester.getTopLeft(find.byKey(row)).dy,
+      greaterThan(
+        tester.getTopLeft(find.byKey(ModulesKeys.row(OfferedModule.food))).dy,
+      ),
+    );
+
+    await _tap(tester, row);
+    expect(find.byType(AiModuleScreen), findsOneWidget);
+  });
+
+  testWidgets('A14e: the AI switch needs nothing, says it is on and View '
+      'opens the connection', (tester) async {
+    final modules = InMemoryModuleStore();
+    await _pump(tester, modules: modules);
+    await _openModules(tester);
+    final toggle = ModulesKeys.toggle(OfferedModule.ai);
+    await reveal(tester, find.byKey(toggle));
+
+    expect(_on(tester, toggle), isFalse);
+    await _tap(tester, toggle);
+
+    expect(await modules.read(), {ModuleId.ai});
+    expect(_on(tester, toggle), isTrue);
+    final l10n = lookupAppLocalizations(const Locale('en'));
+    expect(find.text(l10n.moduleAiTurnedOn), findsOneWidget);
+
+    await tester.tap(find.text('View'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AiConnectionScreen), findsOneWidget);
+    expect(find.byType(TodayScreen), findsNothing);
   });
 }

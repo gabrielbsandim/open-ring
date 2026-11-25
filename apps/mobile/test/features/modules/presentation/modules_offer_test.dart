@@ -304,6 +304,40 @@ void main() {
       expect(find.text('Continue with 1 module'), findsNothing);
     });
 
+    testWidgets('A14e: does not offer AI analysis, five modules in all', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        at: AppPaths.onboardingModules,
+        profile: InMemoryUserProfileStore(_aged(30)),
+      );
+
+      expect(
+        find.byKey(ModulesOfferKeys.module(OfferedModule.ai)),
+        findsNothing,
+      );
+      expect(find.byType(SwitchListTile), findsNWidgets(5));
+      expect(find.text('AI analysis'), findsNothing);
+    });
+
+    testWidgets('A14e: finishing keeps a stored AI on and it is no pick', (
+      tester,
+    ) async {
+      final store = await _pump(
+        tester,
+        at: AppPaths.onboardingModules,
+        modules: InMemoryModuleStore({ModuleId.ai}),
+        profile: InMemoryUserProfileStore(_aged(30)),
+      );
+
+      expect(find.text('Skip for now'), findsOneWidget);
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.body));
+      await tapAndSettle(tester, find.byKey(ModulesOfferKeys.done));
+
+      expect(await store.read(), {ModuleId.body, ModuleId.ai});
+    });
+
     testWidgets('offers Energy with no profile', (tester) async {
       await _pump(tester, at: AppPaths.onboardingModules);
 

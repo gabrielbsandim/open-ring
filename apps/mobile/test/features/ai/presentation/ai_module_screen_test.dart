@@ -393,9 +393,8 @@ void main() {
     );
   });
 
-  testWidgets('turning on writes the module once and guards a double tap', (
-    tester,
-  ) async {
+  testWidgets('turning on writes the module once, guards a double tap and '
+      'says it is on', (tester) async {
     final gate = Completer<void>();
     final store = _GatedModuleStore(gate: gate);
     modules = store;
@@ -416,7 +415,8 @@ void main() {
     expect(await store.read(), {ModuleId.ai});
     await reach(tester, find.text(l10n.moduleAiTurnOff));
     expect(find.text(l10n.moduleAiTurnOff), findsOneWidget);
-    expect(find.byType(SnackBar), findsNothing);
+    expect(find.text(l10n.moduleAiTurnedOn), findsOneWidget);
+    expect(find.text(l10n.modulesView), findsOneWidget);
     expect(factoryCalls, 0);
   });
 

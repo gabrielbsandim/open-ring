@@ -2993,5 +2993,6 @@
   "privacyAiPhotos": "Wenn auch das Modul Ernährung aktiv ist, geht ein Mahlzeitenfoto nur an diesen Dienst, nachdem du es mit Analysieren ausgewählt und separat zugestimmt hast, mit höchstens 768 px und ohne Standort- oder Kameradaten. Ein noch wartendes Foto wird gesendet, wenn die App das nächste Mal läuft.",
   "privacyAiProvider": "Der Dienst erhält, was du sendest, deinen Schlüssel, falls du einen festgelegt hast, und die IP-Adresse deines Telefons und kann sie nach seinen eigenen Bedingungen aufbewahren. OpenRing kann dort nichts löschen.",
   "privacyAiLocal": "Ein Dienst in deinem eigenen Netzwerk kann http nutzen, das nicht verschlüsselt ist. Die App erlaubt http nur für private und lokale Netzwerkadressen und weist darauf hin, wenn du dem Senden zustimmst.",
-  "privacyDeleteAi": "mit „Schlüssel und Auswertungen entfernen“ im Modul KI-Analyse den KI-Schlüssel, die Einstellungen, die Auswertungen und die Fotoanalysen löschen oder eine Zustimmung widerrufen;"
+  "privacyDeleteAi": "mit „Schlüssel und Auswertungen entfernen“ im Modul KI-Analyse den KI-Schlüssel, die Einstellungen, die Auswertungen und die Fotoanalysen löschen oder eine Zustimmung widerrufen;",
+  "moduleAiTurnedOn": "KI-Analyse ist an. Verbinde einen Dienst, um eine Auswertung anzufordern."
 }

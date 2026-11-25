@@ -16,8 +16,8 @@ void main() {
       expect(AppPaths.settingsModuleGoals, '/ring/settings/modules/goals');
     });
 
-    test('the modules are the six, Goals and Food among them once', () {
-      expect(OfferedModule.values, hasLength(6));
+    test('the modules are the seven, Goals and Food among them once', () {
+      expect(OfferedModule.values, hasLength(7));
       expect(
         OfferedModule.values.where((module) => module.id == ModuleId.goals),
         [OfferedModule.goals],
@@ -41,14 +41,35 @@ void main() {
     });
   });
 
+  group('AI module', () {
+    test('has its module id, icon and route', () {
+      expect(OfferedModule.ai.id, ModuleId.ai);
+      expect(OfferedModule.ai.icon, Icons.chat_bubble_outline_rounded);
+      expect(OfferedModule.ai.path, AppPaths.settingsModuleAi);
+    });
+
+    test('comes last, after Food, and only once', () {
+      expect(OfferedModule.values.last, OfferedModule.ai);
+      expect(OfferedModule.values.where((module) => module.id == ModuleId.ai), [
+        OfferedModule.ai,
+      ]);
+    });
+  });
+
   group('4. where View leads', () {
     test('Goals leads to the goal screen', () {
       expect(OfferedModule.goals.viewPath, AppPaths.goals);
     });
 
+    test('AI leads to the connection screen', () {
+      expect(OfferedModule.ai.viewPath, AppPaths.settingsAiConnection);
+    });
+
     test('every other module leads to Today', () {
       for (final module in OfferedModule.values) {
-        if (module == OfferedModule.goals) continue;
+        if (module == OfferedModule.goals || module == OfferedModule.ai) {
+          continue;
+        }
         expect(module.viewPath, AppTab.today.path, reason: module.name);
       }
     });

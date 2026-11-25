@@ -544,11 +544,12 @@ void main() {
         });
       }
 
-      testWidgets('AI off renders as before: no AI fact, card or caption', (
-        tester,
-      ) async {
+      testWidgets('AI off shows the AI off line and no AI fact, card or '
+          'caption', (tester) async {
         await pumpScreen(tester, modules: {ModuleId.food});
 
+        await reach(tester, find.text(l10n.moduleFoodAddsAi('other')));
+        expect(find.text(l10n.moduleFoodAddsAi('other')), findsOneWidget);
         await reach(tester, find.byKey(FoodModuleKeys.toggle));
         for (final finder in [
           find.text(l10n.moduleFoodAddsAi('on')),
@@ -561,6 +562,21 @@ void main() {
         }
         expect(find.text(l10n.moduleFoodFormulaCaption), findsOneWidget);
       });
+
+      for (final modules in const [
+        <ModuleId>{},
+        {ModuleId.ai},
+      ]) {
+        testWidgets('Food off with $modules shows no AI off line', (
+          tester,
+        ) async {
+          await pumpScreen(tester, modules: modules);
+          await reach(tester, find.byKey(FoodModuleKeys.toggle));
+
+          expect(find.text(l10n.moduleFoodAddsAi('other')), findsNothing);
+          expect(find.text(l10n.moduleFoodAddsAi('on')), findsNothing);
+        });
+      }
 
       testWidgets('withdraw clears the photo consent and sends nothing', (
         tester,

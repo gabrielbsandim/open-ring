@@ -21,6 +21,8 @@ import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/presentation/module_widgets.dart';
+import 'package:open_ring/features/modules/presentation/modules_screen.dart';
+import 'package:open_ring/features/modules/presentation/offered_module.dart';
 import 'package:open_ring/features/open_score/presentation/day_score_receipt_screen.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -348,20 +350,11 @@ class _AiModuleScreenState extends ConsumerState<AiModuleScreen> {
       );
   }
 
-  // Calls the module list directly until OfferedModule.ai exists (A14e),
-  // so the module is not listed before the privacy text changes.
   Future<void> _toggle({required bool on}) async {
     if (_toggling) return;
-    final messenger = ScaffoldMessenger.of(context);
-    final l10n = AppLocalizations.of(context);
-    final modules = ref.read(enabledModulesProvider.notifier);
     setState(() => _toggling = true);
     try {
-      await (on ? modules.enable(ModuleId.ai) : modules.disable(ModuleId.ai));
-    } on Object {
-      messenger
-        ..clearSnackBars()
-        ..showSnackBar(SnackBar(content: Text(l10n.syncErrorSaving)));
+      await setModule(context, ref, OfferedModule.ai, on: on);
     } finally {
       if (mounted) setState(() => _toggling = false);
     }

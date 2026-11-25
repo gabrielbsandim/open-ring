@@ -5572,5 +5572,6 @@
   "privacyAiPhotos": "With the Food module also on, a meal photo goes to that service only after you choose it with Analyze and give a separate consent, at most 768 px and without location or camera data. A photo still waiting is sent the next time the app runs.",
   "privacyAiProvider": "The service receives what you send, your key if you set one and your phone's IP address, and may keep them under its own terms. OpenRing cannot delete anything there.",
   "privacyAiLocal": "A service on your own network may use http, which is not encrypted. The app allows http only for private and local network addresses, and says so when you agree to send.",
-  "privacyDeleteAi": "remove the AI key, settings, readings and meal photo analyses with Remove key and readings in the AI analysis module, or withdraw a consent;"
+  "privacyDeleteAi": "remove the AI key, settings, readings and meal photo analyses with Remove key and readings in the AI analysis module, or withdraw a consent;",
+  "moduleAiTurnedOn": "AI analysis is on. Connect a service to ask for a reading."
 }

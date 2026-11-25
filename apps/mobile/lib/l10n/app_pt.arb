@@ -2993,5 +2993,6 @@
   "privacyAiPhotos": "Com o módulo Alimentação também ligado, uma foto de refeição vai para esse serviço só depois que você a escolhe em Analisar e dá um consentimento separado, com no máximo 768 px e sem dados de localização nem da câmera. Uma foto ainda na fila é enviada da próxima vez que o app rodar.",
   "privacyAiProvider": "O serviço recebe o que você envia, a sua chave se você definiu uma e o endereço IP do seu celular, e pode guardar tudo isso pelos termos dele. O OpenRing não consegue apagar nada lá.",
   "privacyAiLocal": "Um serviço na sua própria rede pode usar http, que não é criptografado. O app só permite http para endereços privados e de rede local, e avisa disso quando você concorda com o envio.",
-  "privacyDeleteAi": "remover a chave, as configurações, as leituras e as análises de fotos da IA com Remover chave e leituras no módulo Análise com IA, ou retirar um consentimento;"
+  "privacyDeleteAi": "remover a chave, as configurações, as leituras e as análises de fotos da IA com Remover chave e leituras no módulo Análise com IA, ou retirar um consentimento;",
+  "moduleAiTurnedOn": "Análise com IA ativada. Conecte um serviço para pedir uma leitura."
 }

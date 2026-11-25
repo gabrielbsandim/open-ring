@@ -56,15 +56,19 @@ SleepRegularity? sleepRegularity(
 }
 
 /// One index per pair of consecutive days in [days], dated by the second day,
-/// so a trend reads pairs that never overlap.
+/// so each day enters at most two values; a pair with no sleep on either day
+/// is left out.
 List<DailyValue> dailySleepRegularity(
   Iterable<SleepSpan> spans, {
   required Set<LocalDate> days,
 }) {
   final asleep = _asleepEpochs(spans);
+  final slept = {for (final epoch in asleep) epoch.date};
   final seconds = [
     for (final day in days)
-      if (days.contains(day.addDays(-1))) day,
+      if (days.contains(day.addDays(-1)) &&
+          (slept.contains(day) || slept.contains(day.addDays(-1))))
+        day,
   ]..sort((a, b) => a.compareTo(b));
   return [
     for (final day in seconds)

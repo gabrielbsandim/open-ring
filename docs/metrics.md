@@ -2447,9 +2447,11 @@ minutes inside sleep are taken out.
 Steps are the sum of a valid day's buckets, each bucket dated on its own wall
 clock, and only asleep spans count as sleep. Sleep regularity is one index per
 pair of consecutive worn days (a day with ring heart rate, as in section 17),
-dated by the second day (`dailySleepRegularity`); pairs never overlap, so the
-interval is not narrowed by repeated nights, and their mean equals the index
-over the same days. Steps and regularity end yesterday, because today is
+dated by the second day (`dailySleepRegularity`). Each day enters at most two
+pairs, against 28 in a trailing window, so neighbouring values share far less.
+A pair with no sleep on either day is left out, so a ring worn only by day
+never reads as perfectly regular; otherwise the mean of the values equals the
+index over the same days. Steps and regularity end yesterday, because today is
 partial; resting heart rate and sleep duration are the nightly values of the
 trends history and end today. **our choice**.
 

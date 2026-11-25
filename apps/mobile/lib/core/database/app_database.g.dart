@@ -16805,6 +16805,484 @@ class MealItemsCompanion extends UpdateCompanion<MealItemRow> {
   }
 }
 
+class $TrajectoryProjectionsTable extends TrajectoryProjections
+    with TableInfo<$TrajectoryProjectionsTable, TrajectoryProjectionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TrajectoryProjectionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _mondayMeta = const VerificationMeta('monday');
+  @override
+  late final GeneratedColumn<String> monday = GeneratedColumn<String>(
+    'monday',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _trendKgMeta = const VerificationMeta(
+    'trendKg',
+  );
+  @override
+  late final GeneratedColumn<double> trendKg = GeneratedColumn<double>(
+    'trend_kg',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rateKgPerWeekMeta = const VerificationMeta(
+    'rateKgPerWeek',
+  );
+  @override
+  late final GeneratedColumn<double> rateKgPerWeek = GeneratedColumn<double>(
+    'rate_kg_per_week',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lowKgMeta = const VerificationMeta('lowKg');
+  @override
+  late final GeneratedColumn<double> lowKg = GeneratedColumn<double>(
+    'low_kg',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _midKgMeta = const VerificationMeta('midKg');
+  @override
+  late final GeneratedColumn<double> midKg = GeneratedColumn<double>(
+    'mid_kg',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _highKgMeta = const VerificationMeta('highKg');
+  @override
+  late final GeneratedColumn<double> highKg = GeneratedColumn<double>(
+    'high_kg',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtUtcMsMeta = const VerificationMeta(
+    'createdAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> createdAtUtcMs = GeneratedColumn<int>(
+    'created_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    monday,
+    trendKg,
+    rateKgPerWeek,
+    lowKg,
+    midKg,
+    highKg,
+    createdAtUtcMs,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'trajectory_projections';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TrajectoryProjectionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('monday')) {
+      context.handle(
+        _mondayMeta,
+        monday.isAcceptableOrUnknown(data['monday']!, _mondayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mondayMeta);
+    }
+    if (data.containsKey('trend_kg')) {
+      context.handle(
+        _trendKgMeta,
+        trendKg.isAcceptableOrUnknown(data['trend_kg']!, _trendKgMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_trendKgMeta);
+    }
+    if (data.containsKey('rate_kg_per_week')) {
+      context.handle(
+        _rateKgPerWeekMeta,
+        rateKgPerWeek.isAcceptableOrUnknown(
+          data['rate_kg_per_week']!,
+          _rateKgPerWeekMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_rateKgPerWeekMeta);
+    }
+    if (data.containsKey('low_kg')) {
+      context.handle(
+        _lowKgMeta,
+        lowKg.isAcceptableOrUnknown(data['low_kg']!, _lowKgMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_lowKgMeta);
+    }
+    if (data.containsKey('mid_kg')) {
+      context.handle(
+        _midKgMeta,
+        midKg.isAcceptableOrUnknown(data['mid_kg']!, _midKgMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_midKgMeta);
+    }
+    if (data.containsKey('high_kg')) {
+      context.handle(
+        _highKgMeta,
+        highKg.isAcceptableOrUnknown(data['high_kg']!, _highKgMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_highKgMeta);
+    }
+    if (data.containsKey('created_at_utc_ms')) {
+      context.handle(
+        _createdAtUtcMsMeta,
+        createdAtUtcMs.isAcceptableOrUnknown(
+          data['created_at_utc_ms']!,
+          _createdAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtUtcMsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {monday};
+  @override
+  TrajectoryProjectionRow map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TrajectoryProjectionRow(
+      monday: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}monday'],
+      )!,
+      trendKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}trend_kg'],
+      )!,
+      rateKgPerWeek: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}rate_kg_per_week'],
+      )!,
+      lowKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}low_kg'],
+      )!,
+      midKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}mid_kg'],
+      )!,
+      highKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}high_kg'],
+      )!,
+      createdAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at_utc_ms'],
+      )!,
+    );
+  }
+
+  @override
+  $TrajectoryProjectionsTable createAlias(String alias) {
+    return $TrajectoryProjectionsTable(attachedDatabase, alias);
+  }
+}
+
+class TrajectoryProjectionRow extends DataClass
+    implements Insertable<TrajectoryProjectionRow> {
+  final String monday;
+  final double trendKg;
+  final double rateKgPerWeek;
+  final double lowKg;
+  final double midKg;
+  final double highKg;
+  final int createdAtUtcMs;
+  const TrajectoryProjectionRow({
+    required this.monday,
+    required this.trendKg,
+    required this.rateKgPerWeek,
+    required this.lowKg,
+    required this.midKg,
+    required this.highKg,
+    required this.createdAtUtcMs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['monday'] = Variable<String>(monday);
+    map['trend_kg'] = Variable<double>(trendKg);
+    map['rate_kg_per_week'] = Variable<double>(rateKgPerWeek);
+    map['low_kg'] = Variable<double>(lowKg);
+    map['mid_kg'] = Variable<double>(midKg);
+    map['high_kg'] = Variable<double>(highKg);
+    map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs);
+    return map;
+  }
+
+  TrajectoryProjectionsCompanion toCompanion(bool nullToAbsent) {
+    return TrajectoryProjectionsCompanion(
+      monday: Value(monday),
+      trendKg: Value(trendKg),
+      rateKgPerWeek: Value(rateKgPerWeek),
+      lowKg: Value(lowKg),
+      midKg: Value(midKg),
+      highKg: Value(highKg),
+      createdAtUtcMs: Value(createdAtUtcMs),
+    );
+  }
+
+  factory TrajectoryProjectionRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TrajectoryProjectionRow(
+      monday: serializer.fromJson<String>(json['monday']),
+      trendKg: serializer.fromJson<double>(json['trendKg']),
+      rateKgPerWeek: serializer.fromJson<double>(json['rateKgPerWeek']),
+      lowKg: serializer.fromJson<double>(json['lowKg']),
+      midKg: serializer.fromJson<double>(json['midKg']),
+      highKg: serializer.fromJson<double>(json['highKg']),
+      createdAtUtcMs: serializer.fromJson<int>(json['createdAtUtcMs']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'monday': serializer.toJson<String>(monday),
+      'trendKg': serializer.toJson<double>(trendKg),
+      'rateKgPerWeek': serializer.toJson<double>(rateKgPerWeek),
+      'lowKg': serializer.toJson<double>(lowKg),
+      'midKg': serializer.toJson<double>(midKg),
+      'highKg': serializer.toJson<double>(highKg),
+      'createdAtUtcMs': serializer.toJson<int>(createdAtUtcMs),
+    };
+  }
+
+  TrajectoryProjectionRow copyWith({
+    String? monday,
+    double? trendKg,
+    double? rateKgPerWeek,
+    double? lowKg,
+    double? midKg,
+    double? highKg,
+    int? createdAtUtcMs,
+  }) => TrajectoryProjectionRow(
+    monday: monday ?? this.monday,
+    trendKg: trendKg ?? this.trendKg,
+    rateKgPerWeek: rateKgPerWeek ?? this.rateKgPerWeek,
+    lowKg: lowKg ?? this.lowKg,
+    midKg: midKg ?? this.midKg,
+    highKg: highKg ?? this.highKg,
+    createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+  );
+  TrajectoryProjectionRow copyWithCompanion(
+    TrajectoryProjectionsCompanion data,
+  ) {
+    return TrajectoryProjectionRow(
+      monday: data.monday.present ? data.monday.value : this.monday,
+      trendKg: data.trendKg.present ? data.trendKg.value : this.trendKg,
+      rateKgPerWeek: data.rateKgPerWeek.present
+          ? data.rateKgPerWeek.value
+          : this.rateKgPerWeek,
+      lowKg: data.lowKg.present ? data.lowKg.value : this.lowKg,
+      midKg: data.midKg.present ? data.midKg.value : this.midKg,
+      highKg: data.highKg.present ? data.highKg.value : this.highKg,
+      createdAtUtcMs: data.createdAtUtcMs.present
+          ? data.createdAtUtcMs.value
+          : this.createdAtUtcMs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrajectoryProjectionRow(')
+          ..write('monday: $monday, ')
+          ..write('trendKg: $trendKg, ')
+          ..write('rateKgPerWeek: $rateKgPerWeek, ')
+          ..write('lowKg: $lowKg, ')
+          ..write('midKg: $midKg, ')
+          ..write('highKg: $highKg, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    monday,
+    trendKg,
+    rateKgPerWeek,
+    lowKg,
+    midKg,
+    highKg,
+    createdAtUtcMs,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TrajectoryProjectionRow &&
+          other.monday == this.monday &&
+          other.trendKg == this.trendKg &&
+          other.rateKgPerWeek == this.rateKgPerWeek &&
+          other.lowKg == this.lowKg &&
+          other.midKg == this.midKg &&
+          other.highKg == this.highKg &&
+          other.createdAtUtcMs == this.createdAtUtcMs);
+}
+
+class TrajectoryProjectionsCompanion
+    extends UpdateCompanion<TrajectoryProjectionRow> {
+  final Value<String> monday;
+  final Value<double> trendKg;
+  final Value<double> rateKgPerWeek;
+  final Value<double> lowKg;
+  final Value<double> midKg;
+  final Value<double> highKg;
+  final Value<int> createdAtUtcMs;
+  final Value<int> rowid;
+  const TrajectoryProjectionsCompanion({
+    this.monday = const Value.absent(),
+    this.trendKg = const Value.absent(),
+    this.rateKgPerWeek = const Value.absent(),
+    this.lowKg = const Value.absent(),
+    this.midKg = const Value.absent(),
+    this.highKg = const Value.absent(),
+    this.createdAtUtcMs = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TrajectoryProjectionsCompanion.insert({
+    required String monday,
+    required double trendKg,
+    required double rateKgPerWeek,
+    required double lowKg,
+    required double midKg,
+    required double highKg,
+    required int createdAtUtcMs,
+    this.rowid = const Value.absent(),
+  }) : monday = Value(monday),
+       trendKg = Value(trendKg),
+       rateKgPerWeek = Value(rateKgPerWeek),
+       lowKg = Value(lowKg),
+       midKg = Value(midKg),
+       highKg = Value(highKg),
+       createdAtUtcMs = Value(createdAtUtcMs);
+  static Insertable<TrajectoryProjectionRow> custom({
+    Expression<String>? monday,
+    Expression<double>? trendKg,
+    Expression<double>? rateKgPerWeek,
+    Expression<double>? lowKg,
+    Expression<double>? midKg,
+    Expression<double>? highKg,
+    Expression<int>? createdAtUtcMs,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (monday != null) 'monday': monday,
+      if (trendKg != null) 'trend_kg': trendKg,
+      if (rateKgPerWeek != null) 'rate_kg_per_week': rateKgPerWeek,
+      if (lowKg != null) 'low_kg': lowKg,
+      if (midKg != null) 'mid_kg': midKg,
+      if (highKg != null) 'high_kg': highKg,
+      if (createdAtUtcMs != null) 'created_at_utc_ms': createdAtUtcMs,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TrajectoryProjectionsCompanion copyWith({
+    Value<String>? monday,
+    Value<double>? trendKg,
+    Value<double>? rateKgPerWeek,
+    Value<double>? lowKg,
+    Value<double>? midKg,
+    Value<double>? highKg,
+    Value<int>? createdAtUtcMs,
+    Value<int>? rowid,
+  }) {
+    return TrajectoryProjectionsCompanion(
+      monday: monday ?? this.monday,
+      trendKg: trendKg ?? this.trendKg,
+      rateKgPerWeek: rateKgPerWeek ?? this.rateKgPerWeek,
+      lowKg: lowKg ?? this.lowKg,
+      midKg: midKg ?? this.midKg,
+      highKg: highKg ?? this.highKg,
+      createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (monday.present) {
+      map['monday'] = Variable<String>(monday.value);
+    }
+    if (trendKg.present) {
+      map['trend_kg'] = Variable<double>(trendKg.value);
+    }
+    if (rateKgPerWeek.present) {
+      map['rate_kg_per_week'] = Variable<double>(rateKgPerWeek.value);
+    }
+    if (lowKg.present) {
+      map['low_kg'] = Variable<double>(lowKg.value);
+    }
+    if (midKg.present) {
+      map['mid_kg'] = Variable<double>(midKg.value);
+    }
+    if (highKg.present) {
+      map['high_kg'] = Variable<double>(highKg.value);
+    }
+    if (createdAtUtcMs.present) {
+      map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrajectoryProjectionsCompanion(')
+          ..write('monday: $monday, ')
+          ..write('trendKg: $trendKg, ')
+          ..write('rateKgPerWeek: $rateKgPerWeek, ')
+          ..write('lowKg: $lowKg, ')
+          ..write('midKg: $midKg, ')
+          ..write('highKg: $highKg, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $RingDevicesTable ringDevices = $RingDevicesTable(this);
@@ -16852,6 +17330,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AiReportsTable aiReports = $AiReportsTable(this);
   late final $MealAnalysesTable mealAnalyses = $MealAnalysesTable(this);
   late final $MealItemsTable mealItems = $MealItemsTable(this);
+  late final $TrajectoryProjectionsTable trajectoryProjections =
+      $TrajectoryProjectionsTable(this);
   late final Index aiReportsCacheKey = Index(
     'ai_reports_cache_key',
     'CREATE INDEX ai_reports_cache_key ON ai_reports (kind, context_sha256, prompt_version, provider_host, model, created_at_utc_ms)',
@@ -16905,6 +17385,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     aiReports,
     mealAnalyses,
     mealItems,
+    trajectoryProjections,
     aiReportsCacheKey,
     mealAnalysesCacheKey,
     mealAnalysesStatus,

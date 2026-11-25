@@ -118,7 +118,7 @@ void main() {
 
   test('lowKg above midKg throws ArgumentError and writes nothing', () async {
     await expectLater(
-      store.insertIfAbsent(_projection(lowKg: 79, midKg: 78.5)),
+      store.insertIfAbsent(_projection(lowKg: 79)),
       throwsArgumentError,
     );
     expect(await rowCount(db, 'trajectory_projections'), 0);
@@ -126,7 +126,7 @@ void main() {
 
   test('midKg above highKg throws ArgumentError and writes nothing', () async {
     await expectLater(
-      store.insertIfAbsent(_projection(midKg: 79.5, highKg: 79.2)),
+      store.insertIfAbsent(_projection(midKg: 79.5)),
       throwsArgumentError,
     );
     expect(await rowCount(db, 'trajectory_projections'), 0);
@@ -134,7 +134,7 @@ void main() {
 
   test('a band with low, mid and high equal is accepted', () async {
     expect(
-      await store.insertIfAbsent(_projection(lowKg: 78, midKg: 78, highKg: 78)),
+      await store.insertIfAbsent(_projection(midKg: 78, highKg: 78)),
       isTrue,
     );
   });

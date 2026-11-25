@@ -11,6 +11,7 @@ import 'package:open_ring/core/database/tables/open_score_tables.dart';
 import 'package:open_ring/core/database/tables/ring_tables.dart';
 import 'package:open_ring/core/database/tables/sample_tables.dart';
 import 'package:open_ring/core/database/tables/sleep_tables.dart';
+import 'package:open_ring/core/database/tables/trajectory_tables.dart';
 import 'package:open_ring/core/database/tables/workout_tables.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/core/records/record_kind.dart';
@@ -52,13 +53,14 @@ part 'app_database.g.dart';
     AiReports,
     MealAnalyses,
     MealItems,
+    TrajectoryProjections,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -145,6 +147,9 @@ class AppDatabase extends _$AppDatabase {
       },
       from19To20: (migrator, schema) async {
         await migrator.addColumn(schema.mealItems, schema.mealItems.foodGroup);
+      },
+      from20To21: (migrator, schema) async {
+        await migrator.createTable(schema.trajectoryProjections);
       },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),

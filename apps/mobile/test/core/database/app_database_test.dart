@@ -38,6 +38,7 @@ void main() {
     'ai_reports',
     'meal_analyses',
     'meal_items',
+    'trajectory_projections',
   };
 
   test('creates every table listed in the plan', () async {

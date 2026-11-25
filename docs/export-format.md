@@ -235,8 +235,9 @@ time after sharing; OpenRing does not keep a copy.
 
 ## Never exported
 
-The AI analysis module keeps its data out of every CSV, JSON and GPX file, and
-adding it changed no format, so the JSON `schema_version` stays 1:
+The AI analysis and Trajectory modules keep their data out of every CSV, JSON
+and GPX file, and adding them changed no format, so the JSON `schema_version`
+stays 1:
 
 - the AI service key, which lives in the phone's secure storage, outside the
   database;
@@ -244,7 +245,10 @@ adding it changed no format, so the JSON `schema_version` stays 1:
   limits and the consent dates);
 - AI readings (`ai_reports`), with the summaries that were sent and the raw
   answers;
-- meal photo analyses (`meal_analyses`) and their items (`meal_items`).
+- meal photo analyses (`meal_analyses`) and their items (`meal_items`);
+- Trajectory projections (`trajectory_projections`), the 4 week weight bands
+  stored each Monday.
 
-Tests pin it: `test/features/ai/infrastructure/ai_export_exclusion_test.dart`
-and `test/features/food/infrastructure/meal_analysis_export_exclusion_test.dart`.
+Tests pin it: `test/features/ai/infrastructure/ai_export_exclusion_test.dart`,
+`test/features/food/infrastructure/meal_analysis_export_exclusion_test.dart`
+and `test/features/trajectory/trajectory_projection_export_exclusion_test.dart`.

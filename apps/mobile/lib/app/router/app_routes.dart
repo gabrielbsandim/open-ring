@@ -86,6 +86,7 @@ abstract final class AppPaths {
   static const trends = '/heart/trends';
   static const aiReadings = '/heart/trends/ai';
   static const aiReadingsPreview = '/heart/trends/ai/preview';
+  static const aiFormula = '/heart/trends/ai/formula';
   static const pair = '/ring/pair';
   static const onboarding = '/onboarding';
   static const onboardingPermissions = '/onboarding/permissions';

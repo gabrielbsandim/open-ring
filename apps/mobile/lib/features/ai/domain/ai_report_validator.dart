@@ -4,6 +4,10 @@ import 'package:open_ring/features/ai/domain/ai_report_models.dart';
 import 'package:open_ring/features/ai/domain/ai_safety_lexicon.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 
+const int aiCoverageHighDays = 10;
+const int aiCoverageMediumDays = 5;
+const List<int> aiCitablePeriods = [7, 12, 14, 28];
+
 typedef _NumTok = ({int s, int e, String raw, String after, double? val});
 typedef _Drop = (AiCardDropReason reason, String detail);
 
@@ -270,8 +274,8 @@ final class _Validator {
   }
 
   static AiConfidence _coverageConfidence(int minDays) {
-    if (minDays >= 10) return AiConfidence.high;
-    if (minDays >= 5) return AiConfidence.medium;
+    if (minDays >= aiCoverageHighDays) return AiConfidence.high;
+    if (minDays >= aiCoverageMediumDays) return AiConfidence.medium;
     return AiConfidence.low;
   }
 
@@ -348,7 +352,7 @@ final class _Validator {
     }
     final v = whole.toInt();
     if (v >= 1 && v <= math.max(windowDays, 0)) return true;
-    if (const [7, 12, 14, 28].contains(v)) return true;
+    if (aiCitablePeriods.contains(v)) return true;
     return windowWeeks > 0 && v == windowWeeks;
   }
 

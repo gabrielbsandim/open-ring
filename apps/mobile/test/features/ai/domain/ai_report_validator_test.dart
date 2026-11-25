@@ -523,6 +523,28 @@ void main() {
         1,
       );
 
+      // An ASCII space is not a thousands group: 9 316 reads as 9 and 316.
+      final frAscii = AiReportValidator.validateReport(
+        RawAiReport(
+          summary: '',
+          cards: [
+            _card(
+              family: AiMetricFamily.activity,
+              title: 'Pas moyens',
+              insight: 'Moyenne de 9 316 pas.',
+              evidence: ['f1'],
+            ),
+          ],
+        ),
+        facts: facts,
+        replyLanguage: 'fr',
+      );
+      expect(frAscii.keptCount, 0);
+      expect(
+        frAscii.droppedCards.single.reason,
+        AiCardDropReason.unverifiedNumber,
+      );
+
       // English comma thousands and mixed separators: 9,316 + 1,234.5 + 0,125.
       final enGood = _card(
         family: AiMetricFamily.overall,

@@ -117,7 +117,10 @@ String _encodeMap(Map<Object?, Object?> map) {
   return '{${parts.join(',')}}';
 }
 
-int estimateAiTokens(String text) => (utf8.encode(text).length + 2) ~/ 3;
+const int aiBytesPerToken = 3;
+
+int estimateAiTokens(String text) =>
+    (utf8.encode(text).length + aiBytesPerToken - 1) ~/ aiBytesPerToken;
 
 String sha256Hex(String text) => sha256.convert(utf8.encode(text)).toString();
 

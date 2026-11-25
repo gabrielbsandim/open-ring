@@ -312,7 +312,7 @@
   "permissionsBluetoothNeeded": "Erlaube Geräte in der Nähe, um fortzufahren. Ohne diese Berechtigung kann die App nicht mit dem Ring sprechen.",
   "permissionsBluetoothLater": "Ohne Geräte in der Nähe kann die App keinen Ring koppeln. Du kannst es später erlauben oder ohne Ring fortfahren.",
   "profileTitle": "Über dich",
-  "profileIntro": "Damit berechnen wir deine Herzfrequenzzonen und schätzen Kalorien. Die Angaben bleiben auf deinem Handy.",
+  "profileIntro": "Damit berechnen wir deine Herzfrequenzzonen und schätzen Kalorien. Die Angaben bleiben auf deinem Handy; nur KI-Analyse kann sie, wenn du sie einschaltest, in eine Zusammenfassung aufnehmen, die du sendest.",
   "profileAge": "Alter",
   "profileHeight": "Größe",
   "profileWeight": "Gewicht",

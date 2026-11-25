@@ -916,7 +916,7 @@
   "permissionsBluetoothNeeded": "Allow Nearby devices to continue. Without it the app cannot talk to the ring.",
   "permissionsBluetoothLater": "Without Nearby devices the app cannot pair a ring. You can allow it later, or continue without a ring.",
   "profileTitle": "About you",
-  "profileIntro": "We use this to work out your heart rate zones and estimate calories. It stays on your phone.",
+  "profileIntro": "We use this to work out your heart rate zones and estimate calories. It stays on your phone; only AI analysis, if you turn it on, can include it in a summary you send.",
   "profileAge": "Age",
   "profileHeight": "Height",
   "profileWeight": "Weight",

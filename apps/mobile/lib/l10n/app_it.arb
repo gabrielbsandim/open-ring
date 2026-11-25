@@ -312,7 +312,7 @@
   "permissionsBluetoothNeeded": "Consenti Dispositivi nelle vicinanze per continuare. Senza, l'app non può parlare con l'anello.",
   "permissionsBluetoothLater": "Senza Dispositivi nelle vicinanze l'app non può associare un anello. Puoi consentirlo più tardi o continuare senza anello.",
   "profileTitle": "Su di te",
-  "profileIntro": "Ci serve per calcolare le tue zone di frequenza cardiaca e stimare le calorie. Resta sul tuo telefono.",
+  "profileIntro": "Ci serve per calcolare le tue zone di frequenza cardiaca e stimare le calorie. Resta sul tuo telefono; solo Analisi IA, se la attivi, può includerlo in un riepilogo che invii tu.",
   "profileAge": "Età",
   "profileHeight": "Altezza",
   "profileWeight": "Peso",

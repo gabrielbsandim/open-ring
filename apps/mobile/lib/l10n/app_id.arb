@@ -312,7 +312,7 @@
   "permissionsBluetoothNeeded": "Izinkan Perangkat di sekitar untuk melanjutkan. Tanpa itu, aplikasi tidak bisa berkomunikasi dengan cincin.",
   "permissionsBluetoothLater": "Tanpa Perangkat di sekitar, aplikasi tidak bisa memasangkan cincin. Kamu bisa mengizinkannya nanti, atau lanjut tanpa cincin.",
   "profileTitle": "Tentang kamu",
-  "profileIntro": "Kami memakainya untuk menghitung zona detak jantung dan memperkirakan kalori. Data ini tetap di ponselmu.",
+  "profileIntro": "Kami memakainya untuk menghitung zona detak jantung dan memperkirakan kalori. Data ini tetap di ponsel Anda; hanya Analisis AI, jika Anda mengaktifkannya, yang dapat memasukkannya ke ringkasan yang Anda kirim.",
   "profileAge": "Usia",
   "profileHeight": "Tinggi",
   "profileWeight": "Berat",

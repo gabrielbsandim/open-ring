@@ -97,6 +97,14 @@ void main() {
         final all = arb.values.whereType<String>();
         expect(all, isNot(contains(_internetBefore[locale])));
       });
+
+      test('$locale says the profile can reach an AI summary', () {
+        final arb = _arb(locale);
+        final text = arb['profileIntro'] as String;
+        expect(text, isNot(_profileBefore[locale]));
+        expect(text, contains(arb['moduleAiName'] as String));
+        expect(text.contains(_dashes), isFalse);
+      });
     }
   });
 }
@@ -129,4 +137,19 @@ const _photosBefore = {
   'pt_PT': 'As tuas fotos e etiquetas nunca saem deste telemóvel.',
   'ru': 'Фотографии еды и теги никогда не покидают этот телефон.',
   'zh': '你的餐食照片和标签永远不会离开这台手机。',
+};
+
+// The pre A14d profile intro; the AI summary sends age, sex and height.
+const _profileBefore = {
+  'en': 'We use this to work out your heart rate zones and estimate calories. It stays on your phone.',
+  'de': 'Damit berechnen wir deine Herzfrequenzzonen und schätzen Kalorien. Die Angaben bleiben auf deinem Handy.',
+  'es': 'Lo usamos para calcular tus zonas de frecuencia cardiaca y estimar calorías. Se queda en tu teléfono.',
+  'fr': "Nous l'utilisons pour calculer vos zones de fréquence cardiaque et estimer les calories. Cela reste sur votre téléphone.",
+  'id': 'Kami memakainya untuk menghitung zona detak jantung dan memperkirakan kalori. Data ini tetap di ponselmu.',
+  'it': 'Ci serve per calcolare le tue zone di frequenza cardiaca e stimare le calorie. Resta sul tuo telefono.',
+  'ja': '心拍ゾーンの計算と消費カロリーの推定に使います。データはスマートフォンにだけ保存されます。',
+  'pt': 'Usamos isso para calcular suas zonas de FC e estimar calorias. Fica só no seu celular.',
+  'pt_PT': 'Usamos isto para calcular as suas zonas de frequência cardíaca e estimar calorias. Fica apenas no seu telemóvel.',
+  'ru': 'По этим данным мы рассчитываем зоны пульса и оцениваем калории. Они остаются на телефоне.',
+  'zh': '我们用这些信息计算心率区间并估算卡路里。数据只保存在你的手机上。',
 };

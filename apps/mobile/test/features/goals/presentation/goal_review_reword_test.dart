@@ -159,6 +159,7 @@ Future<_Model> _pump(
   AiAvailability availability = AiAvailability.ready,
   Set<AiDataCategory> categories = const {AiDataCategory.goals},
   bool demo = false,
+  bool importedOffered = true,
 }) async {
   _held = week ?? _week();
   _review = review;
@@ -196,6 +197,7 @@ Future<_Model> _pump(
       ),
       hideNumbersStoreProvider.overrideWithValue(InMemoryHideNumbersStore()),
       aiEnabledProvider.overrideWith((ref) => true),
+      aiImportedOfferedProvider.overrideWithValue(importedOffered),
       aiAvailabilityProvider.overrideWith((ref) async => availability),
       aiConfigStoreProvider.overrideWithValue(store),
       aiRunMarkerStoreProvider.overrideWithValue(InMemoryAiRunMarkerStore()),
@@ -262,6 +264,67 @@ void main() {
       },
       {'plan.fit': 1, 'plan.levers': 1, 'plan.from': 9000, 'plan.to': 10000},
     );
+  });
+
+  testWidgets('a week built only from imported nights sends no count of them', (
+    tester,
+  ) async {
+    final nights = ReviewInputs(
+      kind: GoalKind.loseFat,
+      week: 4,
+      levers: const [
+        LeverWeek(
+          lever: Lever(kind: LeverKind.sleepWindow, target: 7),
+          achieved: 5,
+        ),
+        LeverWeek(lever: _steps, achieved: 0),
+      ],
+      adherencePrevious: f1.adherencePrevious,
+      baseline: f1.baseline,
+      effortRaisesInRow: f1.effortRaisesInRow,
+      rate: null,
+      targetPercent: 0.5,
+      capPercent: f1.capPercent,
+      previousPercentLow: f1.previousPercentLow,
+      bmi: f1.bmi,
+      pregnantOrBreastfeeding: false,
+      screeningPositive: false,
+      bodyOn: true,
+      readiness: f1.readiness,
+      recoveryPrevious: false,
+      energy: null,
+      energyPrevious: null,
+      foodOrWeight: null,
+      foodOrWeightPrevious: null,
+    );
+    final model = await _pump(
+      tester,
+      importedOffered: false,
+      week: GoalWeek(
+        goalId: 1,
+        monday: _monday,
+        inputs: nights,
+        rule: ReviewRule.build,
+        action: ReviewAction.nextStep,
+        change: _stepsUp,
+        answer: null,
+      ),
+    );
+    expect(find.byKey(GoalReviewScreenKeys.decision), findsOneWidget);
+    await _tap(tester, GoalRewordKeys.send);
+    final sent = _sent(model);
+    final ids = [
+      for (final f in sent['facts']! as List<Object?>)
+        (f! as Map<String, Object?>)['id'],
+    ];
+    expect(ids, ['plan.levers', 'plan.from', 'plan.to']);
+    final fit = nights.levers.where(leverFits).length;
+    expect(fit, 1);
+    expect([
+      for (final f in sent['facts']! as List<Object?>) (f! as Map)['v'],
+    ], isNot(contains(fit)));
+    final plan = sent['plan']! as Map<String, Object?>;
+    expect('${plan['decision']} ${plan['line']}', isNot(contains('$fit')));
   });
 
   testWidgets('only a pause week sends its pause length', (tester) async {

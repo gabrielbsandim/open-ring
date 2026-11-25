@@ -143,6 +143,9 @@ class _GoalReviewScreenState extends ConsumerState<GoalReviewScreen> {
     final levers = week.inputs.levers;
     final (head, line) = _words(format, week, view.review);
     final pause = week.action == ReviewAction.pause;
+    // The fit count comes from sleep and workouts that merge imported records,
+    // so it is sent only once those records are offered to AI.
+    final fitSent = levers.isNotEmpty && ref.watch(aiImportedOfferedProvider);
     return buildGoalRewordPayload(
       replyLanguage: aiLanguageTag(Localizations.localeOf(context)),
       rule: week.rule.number,
@@ -152,7 +155,7 @@ class _GoalReviewScreenState extends ConsumerState<GoalReviewScreen> {
       changeText: change == null
           ? null
           : '${leverName(format.l10n, change.kind)}: ${_fromTo(format, change)}',
-      fit: levers.isEmpty ? null : levers.where(leverFits).length,
+      fit: fitSent ? levers.where(leverFits).length : null,
       levers: levers.isEmpty ? null : levers.length,
       pauseDays: pause ? view.review.pauseDays : null,
     );

@@ -312,7 +312,7 @@
   "permissionsBluetoothNeeded": "Autorisez Appareils à proximité pour continuer. Sans cela, l'app ne peut pas parler à la bague.",
   "permissionsBluetoothLater": "Sans Appareils à proximité, l'app ne peut pas associer de bague. Vous pouvez l'autoriser plus tard ou continuer sans bague.",
   "profileTitle": "À propos de vous",
-  "profileIntro": "Nous l'utilisons pour calculer vos zones de fréquence cardiaque et estimer les calories. Cela reste sur votre téléphone.",
+  "profileIntro": "Nous l'utilisons pour calculer vos zones de fréquence cardiaque et estimer les calories. Cela reste sur votre téléphone ; seul Analyse IA, si vous l’activez, peut l’inclure dans un résumé que vous envoyez.",
   "profileAge": "Âge",
   "profileHeight": "Taille",
   "profileWeight": "Poids",

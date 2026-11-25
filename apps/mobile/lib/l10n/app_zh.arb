@@ -312,7 +312,7 @@
   "permissionsBluetoothNeeded": "请允许“附近的设备”后继续。没有它，应用无法与戒指通信。",
   "permissionsBluetoothLater": "没有“附近的设备”权限，应用无法配对戒指。你可以稍后允许，或不使用戒指继续。",
   "profileTitle": "关于你",
-  "profileIntro": "我们用这些信息计算心率区间并估算卡路里。数据只保存在你的手机上。",
+  "profileIntro": "我们用这些信息计算心率区间并估算卡路里。数据保存在你的手机上；只有 AI 分析在你开启后，才可能把它包含在你发送的摘要中。",
   "profileAge": "年龄",
   "profileHeight": "身高",
   "profileWeight": "体重",

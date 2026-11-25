@@ -2357,6 +2357,14 @@ means less was eaten than spent. The checks run in this order:
 Each end is shown rounded to 50 kcal, half away from zero (`energyStepped`).
 When the range contains zero it is `balanced`.
 
+The trajectory screen shows the balance in its kcal card
+(`trajectoryKcalProvider`), with resting burn today (the Energy day's range)
+and the 12 week change: `(band middle minus trend) × 9.99` at rest and `× 24` for
+the whole day, each rounded to 10 kcal. The card exists only on a Ready
+scenario while the Energy gate is on; with Energy off, under 18 or numbers
+hidden there is no kcal anywhere on the screen. The goal block start counts
+only in the block phase with an anchor weight (`energyBlockStart`).
+
 ### Steps what if
 
 Code: `packages/metrics/lib/src/trajectory_steps.dart`. For a number of extra

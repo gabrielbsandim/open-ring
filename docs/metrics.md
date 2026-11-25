@@ -2395,6 +2395,16 @@ above it. Before that day, or with no weigh-in by then, there is no grade.
 | `paluchAnchors` | 3,553 to 10,901 steps | sourced: Paluch 2022, read from the abstract, **not yet checked against the full paper**. |
 | Cohort word cuts | 5, 15 and 30% | **our choice**. |
 
+### Stored Monday band
+
+Code: `apps/mobile/lib/features/trajectory/domain/monday_projection.dart`. When
+the card is ready, opening it stores the 28 day band of the current ISO week
+once, computed from the weigh-ins up to that Monday only (trend, rate and
+noise as of the Monday). A Monday that was still building or over the fast
+loss guard stores nothing, a stored row is never edited, no earlier Monday is
+filled in, and demo mode never writes. Missing height refuses the module,
+since the BMI floor of the scenario cannot be checked without it.
+
 ### Ring levers (Theil-Sen over 90 days)
 
 Code: `packages/metrics/lib/src/lever_trend.dart`. Steps, sleep regularity,

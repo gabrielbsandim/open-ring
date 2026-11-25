@@ -646,8 +646,8 @@ class _EnergyTile extends ConsumerWidget {
   }
 }
 
-/// The building row names the rule that holds: a count for weigh-ins or
-/// days, the hold line for every other reason.
+/// The building row names the rule that holds: a count for weigh-ins or the
+/// 35 day window, the hold line for the week shortfall and every other reason.
 Widget _buildingRow(FoodEnergyHold hold, AppLocalizations l, TextTheme t) {
   final need = switch (hold.reason) {
     FoodEnergyHoldReason.weighIns => (
@@ -655,7 +655,7 @@ Widget _buildingRow(FoodEnergyHold hold, AppLocalizations l, TextTheme t) {
       hold.counts.weighIns,
       foodEnergyMinWeighIns,
     ),
-    FoodEnergyHoldReason.days => (
+    FoodEnergyHoldReason.days when hold.counts.days < foodEnergyMinDays => (
       FoodEnergyNeed.days,
       hold.counts.days,
       foodEnergyMinDays,

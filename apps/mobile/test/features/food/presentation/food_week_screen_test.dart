@@ -1280,6 +1280,36 @@ void main() {
         expect(find.text('30 of 28'), findsNothing);
       });
 
+      testWidgets('on and building on a week shortfall shows the hold line '
+          'and no count at ${scale}x', (tester) async {
+        await pumpWith(
+          tester,
+          on,
+          result: const FoodEnergyHold(
+            FoodEnergyCounts(
+              sunday: LocalDate(2026, 12, 6),
+              days: 30,
+              weekDays: 3,
+              weighIns: 28,
+              ringDays: 35,
+            ),
+            FoodEnergyHoldReason.days,
+          ),
+          scale: scale,
+        );
+
+        expect(find.text('building'), findsOneWidget);
+        expect(
+          find.text(
+            'Fewer than 28 of the last 35 days, or fewer than 5 days this '
+            'week, are complete with checked items.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('30 of 28'), findsNothing);
+        expect(find.textContaining(' of 2'), findsNothing);
+      });
+
       testWidgets('on and building on ring days shows the hold line and no '
           'count at ${scale}x', (tester) async {
         await pumpWith(

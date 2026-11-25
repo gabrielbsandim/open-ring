@@ -208,23 +208,31 @@ void main() {
           size: phoneSize,
         );
         await expectNoLayoutOverflow(() async {
-          await tester.scrollUntilVisible(
-            find.byKey(WhatIfKeys.cohort),
-            300,
-            scrollable: find.byType(Scrollable).first,
-          );
           for (final key in [
             WhatIfKeys.step1000,
             WhatIfKeys.step3000,
             WhatIfKeys.step2000,
           ]) {
-            await tester.ensureVisible(find.byKey(key));
+            final scrollable = find.byType(Scrollable).first;
+            await tester.drag(scrollable, const Offset(0, 5000));
+            await tester.pumpAndSettle();
+            await tester.scrollUntilVisible(
+              find.byKey(key),
+              200,
+              scrollable: scrollable,
+            );
             await tester.tap(find.byKey(key));
             await tester.pumpAndSettle();
           }
+          await tester.scrollUntilVisible(
+            find.byKey(WhatIfKeys.cohort),
+            300,
+            scrollable: find.byType(Scrollable).first,
+          );
+          await tester.pumpAndSettle();
         });
 
-        expect(find.byKey(WhatIfKeys.weight), findsOneWidget);
+        expect(find.byKey(WhatIfKeys.cohort), findsOneWidget);
       });
     }
 

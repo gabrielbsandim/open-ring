@@ -28,13 +28,15 @@ List<Override> whatIfOverrides({
   double? height = 178,
   bool hidden = false,
   EnergyGate gate = EnergyGate.on,
+  bool withProfile = true,
 }) => [
   ...trajectoryOverrides(view: view ?? readyView(), hidden: hidden),
   leversProvider.overrideWith(
     (ref) async => levers ?? leversWith(trend: stepsTrend(typical)),
   ),
-  userProfileStoreProvider.overrideWithValue(
-    InMemoryUserProfileStore(UserProfile(heightCentimeters: height)),
-  ),
+  if (withProfile)
+    userProfileStoreProvider.overrideWithValue(
+      InMemoryUserProfileStore(UserProfile(heightCentimeters: height)),
+    ),
   energyGateProvider.overrideWithValue(gate),
 ];

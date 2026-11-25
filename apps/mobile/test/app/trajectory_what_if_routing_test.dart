@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/router/app_routes.dart';
+import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_screen.dart';
 import 'package:open_ring/features/trajectory/presentation/what_if_screen.dart';
 
@@ -23,8 +24,12 @@ void main() {
       overrides: [
         ...bleOverrides(),
         ...ringOverrides(),
-        ...onboardingOverrides(),
-        ...whatIfOverrides(),
+        ...onboardingOverrides(
+          profileStore: InMemoryUserProfileStore(
+            const UserProfile(heightCentimeters: 178),
+          ),
+        ),
+        ...whatIfOverrides(withProfile: false),
       ],
       at: AppPaths.trajectoryWhatIf,
     );
@@ -42,8 +47,12 @@ void main() {
       overrides: [
         ...bleOverrides(),
         ...ringOverrides(),
-        ...onboardingOverrides(),
-        ...whatIfOverrides(),
+        ...onboardingOverrides(
+          profileStore: InMemoryUserProfileStore(
+            const UserProfile(heightCentimeters: 178),
+          ),
+        ),
+        ...whatIfOverrides(withProfile: false),
       ],
       at: AppPaths.trajectory,
     );

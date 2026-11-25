@@ -319,6 +319,14 @@ final class GatedAnalysisStore implements MealAnalysisStore {
   Future<int> purgeRawBefore(DateTime cutoff) => inner.purgeRawBefore(cutoff);
 
   @override
+  Future<bool> setHidden(int id, {bool? oil, bool? sauce, bool? sugar}) =>
+      inner.setHidden(id, oil: oil, sauce: sauce, sugar: sugar);
+
+  @override
+  Future<bool> setItemCount(int itemId, int countX2) =>
+      inner.setItemCount(itemId, countX2);
+
+  @override
   Future<bool> keepOnPhone(int mealId) => inner.keepOnPhone(mealId);
 
   @override

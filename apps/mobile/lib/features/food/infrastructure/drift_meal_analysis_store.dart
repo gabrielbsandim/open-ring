@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:drift/drift.dart';
 import 'package:open_ring/core/database/app_database.dart';
@@ -240,6 +241,49 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
   );
 
   @override
+  Future<bool> setHidden(int id, {bool? oil, bool? sauce, bool? sugar}) {
+    if (oil == null && sauce == null && sugar == null) {
+      return Future.value(false);
+    }
+    return _write(
+      () async =>
+          await (_db.update(_db.mealAnalyses)..where(_id(id))).write(
+            MealAnalysesCompanion(
+              hiddenOil: Value.absentIfNull(oil),
+              hiddenSauce: Value.absentIfNull(sauce),
+              hiddenSugar: Value.absentIfNull(sugar),
+            ),
+          ) >
+          0,
+    );
+  }
+
+  @override
+  Future<bool> setItemCount(int itemId, int countX2) => _write(() async {
+    final item = await (_db.select(
+      _db.mealItems,
+    )..where((i) => i.id.equals(itemId))).getSingleOrNull();
+    if (item == null) return false;
+    if (countX2 <= 0) {
+      return await (_db.delete(
+            _db.mealItems,
+          )..where((i) => i.id.equals(itemId))).go() >
+          0;
+    }
+    final grams = (item.grams * countX2 / max(1, item.countX2)).round();
+    return await (_db.update(
+          _db.mealItems,
+        )..where((i) => i.id.equals(itemId))).write(
+          MealItemsCompanion(
+            countX2: Value(countX2),
+            grams: Value(grams),
+            confirmed: const Value(true),
+          ),
+        ) >
+        0;
+  });
+
+  @override
   Future<bool> keepOnPhone(int mealId) async {
     final query = _db.select(_db.meals)..where((m) => m.id.equals(mealId));
     return (await query.getSingleOrNull())?.keepOnPhone ?? false;
@@ -388,6 +432,7 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
   );
 
   static MealAnalysisItem _item(MealItemRow row) => (
+    id: row.id,
     name: row.name,
     measure:
         mealEnumFromWire(MealPhotoMeasure.values, row.measure) ??

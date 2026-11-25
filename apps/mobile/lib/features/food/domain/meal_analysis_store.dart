@@ -68,6 +68,12 @@ abstract interface class MealAnalysisStore {
   /// By the time each row was last written.
   Future<int> purgeRawBefore(DateTime cutoff);
 
+  /// User set chips; a null one is left as it is.
+  Future<bool> setHidden(int id, {bool? oil, bool? sauce, bool? sugar});
+
+  /// Scales grams with the count and confirms the item; 0 removes it.
+  Future<bool> setItemCount(int itemId, int countX2);
+
   Future<bool> keepOnPhone(int mealId);
 
   Future<bool> setKeepOnPhone(int mealId, {required bool keep});

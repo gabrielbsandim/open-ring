@@ -2876,5 +2876,16 @@
   "foodAiBatch": "{count, plural, one{1 Foto analysieren} other{{count} Fotos analysieren}}",
   "foodAiBatchQueued": "{count, plural, one{In der Warteschlange: 1 Foto. Es wird gesendet, solange die App geöffnet ist.} other{In der Warteschlange: {count} Fotos. Sie werden nacheinander gesendet, solange die App geöffnet ist.}}",
   "foodAiBatchPartial": "{count, plural, one{1 eingereiht. Das Tageslimit hat den Rest gestoppt.} other{{count} eingereiht. Das Tageslimit hat den Rest gestoppt.}}",
-  "foodAiBadge": "{state, select, suggestions{Vorschläge} queued{In der Warteschlange} sending{Wird gesendet} failed{Fehlgeschlagen} other{Geprüft}}"
+  "foodAiBadge": "{state, select, suggestions{Vorschläge} queued{In der Warteschlange} sending{Wird gesendet} failed{Fehlgeschlagen} other{Geprüft}}",
+  "foodAiItemsTitle": "Bestandteile, für die Wochenenergie",
+  "foodAiMeasure": "{measure, select, slice{Scheibe} teaspoon{Teelöffel} tablespoon{Esslöffel} servingSpoon{Servierlöffel} ladle{Kelle} tongs{Zange} cup{Tasse} glass{Glas} bowl{Schale} handful{Handvoll} fillet{Filet} other{Stück}}",
+  "foodAiItemLine": "{count} × {measure}, etwa {grams} g",
+  "foodAiItemRemoved": "Entfernt",
+  "foodAiItemLess": "Weniger {name}",
+  "foodAiItemMore": "Mehr {name}",
+  "foodAiHiddenTitle": "Was die Kamera nicht sieht",
+  "foodAiHiddenOil": "Frittiert oder fettig",
+  "foodAiHiddenSauce": "Soße oder Dressing",
+  "foodAiHiddenSugar": "Zucker im Getränk",
+  "foodAiItemsNote": "Keine Kalorien für diese Mahlzeit. Die Bestandteile fließen nur als Spanne in den Wochendurchschnitt ein."
 }

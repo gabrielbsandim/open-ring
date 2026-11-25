@@ -2876,5 +2876,16 @@
   "foodAiBatch": "{count, plural, one{Analizza 1 foto} other{Analizza {count} foto}}",
   "foodAiBatchQueued": "{count, plural, one{In coda: 1 foto. Parte mentre l’app è aperta.} other{In coda: {count} foto. Partono una alla volta mentre l’app è aperta.}}",
   "foodAiBatchPartial": "{count, plural, one{1 in coda. Il limite giornaliero ha fermato le altre.} other{{count} in coda. Il limite giornaliero ha fermato le altre.}}",
-  "foodAiBadge": "{state, select, suggestions{Suggerimenti} queued{In coda} sending{Invio in corso} failed{Non riuscita} other{Controllata}}"
+  "foodAiBadge": "{state, select, suggestions{Suggerimenti} queued{In coda} sending{Invio in corso} failed{Non riuscita} other{Controllata}}",
+  "foodAiItemsTitle": "Elementi, per l’energia settimanale",
+  "foodAiMeasure": "{measure, select, slice{fetta} teaspoon{cucchiaino} tablespoon{cucchiaio} servingSpoon{cucchiaio da portata} ladle{mestolo} tongs{pinza} cup{tazza} glass{bicchiere} bowl{ciotola} handful{manciata} fillet{filetto} other{unità}}",
+  "foodAiItemLine": "{count} × {measure}, circa {grams} g",
+  "foodAiItemRemoved": "Rimosso",
+  "foodAiItemLess": "Meno {name}",
+  "foodAiItemMore": "Più {name}",
+  "foodAiHiddenTitle": "Ciò che la fotocamera non vede",
+  "foodAiHiddenOil": "Fritto o unto",
+  "foodAiHiddenSauce": "Salsa o condimento",
+  "foodAiHiddenSugar": "Zucchero nella bevanda",
+  "foodAiItemsNote": "Nessuna caloria per questo pasto. Gli elementi entrano solo nella media settimanale, come intervallo."
 }

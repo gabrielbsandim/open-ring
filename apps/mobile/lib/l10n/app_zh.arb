@@ -2876,5 +2876,16 @@
   "foodAiBatch": "{count, plural, other{分析 {count} 张照片}}",
   "foodAiBatchQueued": "{count, plural, =1{已排队：1 张照片。应用打开时发送。} other{已排队：{count} 张照片。应用打开时逐张发送。}}",
   "foodAiBatchPartial": "{count, plural, other{已排队 {count} 张。每日上限阻止了其余照片。}}",
-  "foodAiBadge": "{state, select, suggestions{有建议} queued{已排队} sending{发送中} failed{失败} other{已核对}}"
+  "foodAiBadge": "{state, select, suggestions{有建议} queued{已排队} sending{发送中} failed{失败} other{已核对}}",
+  "foodAiItemsTitle": "食物项（用于每周能量）",
+  "foodAiMeasure": "{measure, select, slice{片} teaspoon{茶匙} tablespoon{汤匙} servingSpoon{公勺} ladle{汤勺} tongs{夹} cup{杯} glass{玻璃杯} bowl{碗} handful{把} fillet{块} other{个}}",
+  "foodAiItemLine": "{count} × {measure}，约 {grams} 克",
+  "foodAiItemRemoved": "已移除",
+  "foodAiItemLess": "减少{name}",
+  "foodAiItemMore": "增加{name}",
+  "foodAiHiddenTitle": "相机看不到的部分",
+  "foodAiHiddenOil": "油炸或多油",
+  "foodAiHiddenSauce": "酱汁或调料",
+  "foodAiHiddenSugar": "饮料加糖",
+  "foodAiItemsNote": "这一餐不显示卡路里。食物项只以区间形式计入每周平均值。"
 }

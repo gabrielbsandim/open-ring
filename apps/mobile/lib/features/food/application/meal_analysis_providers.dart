@@ -42,3 +42,9 @@ final FutureProviderFamily<bool, int> mealKeepOnPhoneProvider =
       ref.watch(mealAnalysisRevisionProvider);
       return ref.watch(mealAnalysisStoreProvider).keepOnPhone(mealId);
     });
+
+// A13 overrides it from the Weekly Energy opt in; until then requests ask for
+// no items, so no real row has any.
+final Provider<bool> mealPhotoItemsEnabledProvider = Provider<bool>(
+  (ref) => false,
+);

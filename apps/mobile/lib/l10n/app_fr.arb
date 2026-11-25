@@ -2876,5 +2876,16 @@
   "foodAiBatch": "{count, plural, one{Analyser 1 photo} other{Analyser {count} photos}}",
   "foodAiBatchQueued": "{count, plural, one{En file d’attente : 1 photo. Elle part tant que l’app est ouverte.} other{En file d’attente : {count} photos. Elles partent une par une tant que l’app est ouverte.}}",
   "foodAiBatchPartial": "{count, plural, one{{count} en file d’attente. La limite quotidienne a arrêté le reste.} other{{count} en file d’attente. La limite quotidienne a arrêté le reste.}}",
-  "foodAiBadge": "{state, select, suggestions{Suggestions} queued{En file d’attente} sending{Envoi en cours} failed{Échec} other{Vérifié}}"
+  "foodAiBadge": "{state, select, suggestions{Suggestions} queued{En file d’attente} sending{Envoi en cours} failed{Échec} other{Vérifié}}",
+  "foodAiItemsTitle": "Éléments, pour l’énergie de la semaine",
+  "foodAiMeasure": "{measure, select, slice{tranche} teaspoon{cuillère à café} tablespoon{cuillère à soupe} servingSpoon{cuillère de service} ladle{louche} tongs{pince} cup{tasse} glass{verre} bowl{bol} handful{poignée} fillet{filet} other{unité}}",
+  "foodAiItemLine": "{count} × {measure}, environ {grams} g",
+  "foodAiItemRemoved": "Retiré",
+  "foodAiItemLess": "Moins de {name}",
+  "foodAiItemMore": "Plus de {name}",
+  "foodAiHiddenTitle": "Ce que l’appareil photo ne voit pas",
+  "foodAiHiddenOil": "Frit ou gras",
+  "foodAiHiddenSauce": "Sauce ou vinaigrette",
+  "foodAiHiddenSugar": "Sucre dans la boisson",
+  "foodAiItemsNote": "Pas de calories pour ce repas. Les éléments n’entrent que dans la moyenne de la semaine, sous forme de fourchette."
 }

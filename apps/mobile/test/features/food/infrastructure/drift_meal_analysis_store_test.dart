@@ -627,6 +627,77 @@ void main() {
     });
   });
 
+  group('items and hidden chips', () {
+    test('setItemCount steps the count, scales grams and confirms', () async {
+      final id = await _doneRow(store, mealId);
+      final item = (await store.byId(id))!.items.single;
+      expect(item.confirmed, isFalse);
+
+      expect(await store.setItemCount(item.id, 5), isTrue);
+
+      final stepped = (await store.byId(id))!.items.single;
+      expect((stepped.id, stepped.countX2, stepped.grams), (item.id, 5, 225));
+      expect(stepped.confirmed, isTrue);
+      expect(stepped.origin, MealItemOrigin.model);
+    });
+
+    test(
+      'setItemCount at 0 removes the item; a missing item is false',
+      () async {
+        final id = await _doneRow(store, mealId);
+        final item = (await store.byId(id))!.items.single;
+
+        expect(await store.setItemCount(item.id, 0), isTrue);
+
+        expect((await store.byId(id))!.items, isEmpty);
+        expect(await rowCount(db, 'meal_items'), 0);
+        expect(await store.setItemCount(item.id, 2), isFalse);
+      },
+    );
+
+    test('setHidden writes only the chips given and survives again', () async {
+      final id = await _doneRow(store, mealId);
+
+      expect(await store.setHidden(id, oil: true, sugar: true), isTrue);
+      expect(await store.setHidden(id, sugar: false), isTrue);
+      expect(await store.setHidden(id), isFalse);
+      expect(await store.setHidden(999, oil: true), isFalse);
+      final reset = await store.enqueue(
+        mealId,
+        'meal_1.jpg',
+        _target,
+        now: _now.add(const Duration(hours: 1)),
+        again: true,
+      );
+
+      expect(reset.status, MealAnalysisStatus.queued);
+      expect(
+        (reset.hiddenOil, reset.hiddenSauce, reset.hiddenSugar),
+        (true, false, false),
+      );
+    });
+
+    test('both bump the analysis revision, never dataRevision', () async {
+      final container = ProviderContainer(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          driftMealAnalysisStoreOverride,
+        ],
+      );
+      addTearDown(container.dispose);
+      final id = await _doneRow(store, mealId);
+      final item = (await store.byId(id))!.items.single;
+      final analyses = container.read(mealAnalysisStoreProvider);
+
+      await analyses.setHidden(id, sauce: true);
+      await analyses.setItemCount(item.id, 3);
+      await analyses.setItemCount(item.id, 0);
+
+      expect(container.read(mealAnalysisRevisionProvider), 3);
+      expect(container.read(dataRevisionProvider), 0);
+    });
+  });
+
   test('the production wiring bumps the analysis revision on each write, '
       'never dataRevision', () async {
     final container = ProviderContainer(

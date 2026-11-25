@@ -48,6 +48,7 @@ typedef MealAnalysisTarget = ({
 typedef MealSentPhoto = ({String sha256, int width, int height, int bytes});
 
 typedef MealAnalysisItem = ({
+  int id,
   String name,
   MealPhotoMeasure measure,
   int countX2,

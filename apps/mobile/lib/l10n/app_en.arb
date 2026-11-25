@@ -5412,5 +5412,20 @@
   "foodAiBatchPartial": "{count, plural, one{1 queued. The daily limit stopped the rest.} other{{count} queued. The daily limit stopped the rest.}}",
   "@foodAiBatchPartial": {"placeholders": {"count": {"type": "int"}}},
   "foodAiBadge": "{state, select, suggestions{Suggestions} queued{Queued} sending{Sending} failed{Failed} other{Checked}}",
-  "@foodAiBadge": {"placeholders": {"state": {"type": "String"}}}
+  "@foodAiBadge": {"placeholders": {"state": {"type": "String"}}},
+  "foodAiItemsTitle": "Items, for the weekly energy",
+  "foodAiMeasure": "{measure, select, slice{slice} teaspoon{teaspoon} tablespoon{tablespoon} servingSpoon{serving spoon} ladle{ladle} tongs{tongs} cup{cup} glass{glass} bowl{bowl} handful{handful} fillet{fillet} other{unit}}",
+  "@foodAiMeasure": {"placeholders": {"measure": {"type": "String"}}},
+  "foodAiItemLine": "{count} × {measure}, about {grams} g",
+  "@foodAiItemLine": {"placeholders": {"count": {"type": "String"}, "measure": {"type": "String"}, "grams": {"type": "int"}}},
+  "foodAiItemRemoved": "Removed",
+  "foodAiItemLess": "Less {name}",
+  "@foodAiItemLess": {"placeholders": {"name": {"type": "String"}}},
+  "foodAiItemMore": "More {name}",
+  "@foodAiItemMore": {"placeholders": {"name": {"type": "String"}}},
+  "foodAiHiddenTitle": "What the camera cannot see",
+  "foodAiHiddenOil": "Fried or oily",
+  "foodAiHiddenSauce": "Sauce or dressing",
+  "foodAiHiddenSugar": "Sugar in the drink",
+  "foodAiItemsNote": "No calories for this meal. Items only enter the weekly average, as a range."
 }

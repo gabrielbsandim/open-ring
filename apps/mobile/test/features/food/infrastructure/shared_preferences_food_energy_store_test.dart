@@ -1,8 +1,11 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/food/domain/food_energy_store.dart';
 import 'package:open_ring/features/food/domain/photo_store.dart';
 import 'package:open_ring/features/food/infrastructure/shared_preferences_food_energy_store.dart';
+import 'package:open_ring/features/goals/application/goals_data.dart';
 import 'package:open_ring/features/settings/infrastructure/device_local_data_eraser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
@@ -93,6 +96,24 @@ void main() {
       isNot(contains('food_energy_opt_in')),
     );
     expect(await SharedPreferencesFoodEnergyStore().read(), isNull);
+  });
+
+  test('the Goals data eraser removes food_energy_opt_in', () async {
+    await SharedPreferencesFoodEnergyStore().write(_optIn);
+    final container = ProviderContainer.test(
+      overrides: [
+        foodEnergyStoreProvider.overrideWithValue(
+          SharedPreferencesFoodEnergyStore(),
+        ),
+      ],
+    );
+
+    expect(await container.read(goalsDataEraserProvider).clear(), isTrue);
+
+    expect(
+      await SharedPreferencesAsync().getKeys(),
+      isNot(contains('food_energy_opt_in')),
+    );
   });
 
   test('the in-memory store keeps what was written until cleared', () async {

@@ -10,6 +10,7 @@ import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
 import 'package:open_ring/features/food/domain/food_energy_store.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
+import 'package:open_ring/features/goals/application/goals_data.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
 import 'package:open_ring/features/goals/domain/goal_store.dart';
 import 'package:open_ring/features/goals/infrastructure/drift_goal_store.dart';
@@ -303,6 +304,24 @@ void main() {
       setup.container.invalidate(demoModeProvider);
 
       expect(await setup.controller.turnOn(), isFalse);
+      expect(setup.store.optIn, isNull);
+    });
+
+    test('an opt in with no soft row, then soft mode, a Goals wipe and '
+        'leaving soft mode reads offered', () async {
+      final setup = _Setup(screenings: [_screening(10, soft: false)]);
+      expect(await setup.gate(), isA<FoodEnergyOffered>());
+      expect(await setup.controller.turnOn(), isTrue);
+      expect(setup.store.optIn?.soft, isNull);
+
+      await setup.screen(soft: true, day: 20);
+      expect(
+        await setup.container.read(goalsDataEraserProvider).clear(),
+        isTrue,
+      );
+      await setup.screen(soft: false, day: 21);
+
+      expect(await setup.gate(), isA<FoodEnergyOffered>());
       expect(setup.store.optIn, isNull);
     });
 

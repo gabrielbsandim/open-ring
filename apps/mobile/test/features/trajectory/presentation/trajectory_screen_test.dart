@@ -114,6 +114,8 @@ void main() {
       final losingText = _allText(tester, TrajectoryKeys.rate);
       expect(stableRate.stable, isTrue);
 
+      // A new ProviderScope in the same slot keeps the first overrides.
+      await tester.pumpWidget(const SizedBox());
       await pumpTrajectory(tester, view: readyView(rate: stableRate));
       final stableText = _allText(tester, TrajectoryKeys.rate);
 

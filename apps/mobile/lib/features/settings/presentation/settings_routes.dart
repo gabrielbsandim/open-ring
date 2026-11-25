@@ -3,6 +3,7 @@ import 'package:open_ring/features/ai/presentation/ai_connection_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_context_preview_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_guide_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_key_info_screen.dart';
+import 'package:open_ring/features/ai/presentation/ai_module_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_photo_settings_screen.dart';
 import 'package:open_ring/features/body/presentation/body_module_screen.dart';
 import 'package:open_ring/features/effort/presentation/effort_module_screen.dart';
@@ -62,6 +63,7 @@ GoRoute settingsRoute() => GoRoute(
         GoRoute(path: 'effort', builder: (_, _) => const EffortModuleScreen()),
         GoRoute(path: 'goals', builder: (_, _) => const GoalsModuleScreen()),
         GoRoute(path: 'food', builder: (_, _) => const FoodModuleScreen()),
+        GoRoute(path: 'ai', builder: (_, _) => const AiModuleScreen()),
       ],
     ),
     GoRoute(

@@ -283,7 +283,7 @@ void main() {
   group('TR9 acceptance 1: building', () {
     const missing = WeightRateBuilding(daysMissing: 6, spanMissing: 4);
     final dates = [
-      for (final offset in [-29, -26, -22, -19, -15, -8, 0])
+      for (final offset in [-27, -26, -22, -19, -15, -8, 0])
         november.addDays(offset),
     ];
 

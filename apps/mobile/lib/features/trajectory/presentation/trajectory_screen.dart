@@ -12,6 +12,7 @@ import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/features/trajectory/application/trajectory_providers.dart';
 import 'package:open_ring/features/trajectory/domain/trajectory_view.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_chart.dart';
+import 'package:open_ring/features/trajectory/presentation/trajectory_kcal_card.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_states.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -31,6 +32,7 @@ abstract final class TrajectoryKeys {
   static const retry = Key('trajectory_retry');
   static const hidden = Key('trajectory_hidden');
   static const direction = Key('trajectory_direction');
+  static const kcal = Key('trajectory_kcal');
 }
 
 class TrajectoryScreen extends ConsumerWidget {
@@ -114,6 +116,7 @@ class TrajectoryScreen extends ConsumerWidget {
           units: units,
           hidden: hidden,
         ),
+        TrajectoryKcalCard(format: units.format),
       ],
     };
   }

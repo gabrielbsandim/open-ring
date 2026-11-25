@@ -102,11 +102,11 @@ Future<FoodEnergyResult> _latest(Ref ref) async {
         if (day is EnergyDayEstimate && energyDayOnRecord(day))
           (date: dates[i], value: day.total),
     ],
-    goalBlockStart: _blockStart(goal),
+    goalBlockStart: energyBlockStart(goal),
   );
 }
 
-LocalDate? _blockStart(Goal? goal) {
+LocalDate? energyBlockStart(Goal? goal) {
   if (goal == null || goal.phase != GoalPhase.block) return null;
   if (goal.blockAnchorKg == null) return null;
   return goal.blockStartedOn;

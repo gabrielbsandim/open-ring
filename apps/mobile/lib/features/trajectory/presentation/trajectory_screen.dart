@@ -5,11 +5,15 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/application/weight_summary.dart';
+import 'package:open_ring/features/body/presentation/hidden_numbers.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/features/trajectory/application/trajectory_providers.dart';
 import 'package:open_ring/features/trajectory/domain/trajectory_view.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_chart.dart';
+import 'package:open_ring/features/trajectory/presentation/trajectory_states.dart';
+import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 abstract final class TrajectoryKeys {
   static const card = Key('trajectory_card');
@@ -19,6 +23,14 @@ abstract final class TrajectoryKeys {
   static const band = Key('trajectory_band');
   static const rate = Key('trajectory_rate');
   static const placeholder = Key('trajectory_placeholder');
+  static const building = Key('trajectory_building');
+  static const none = Key('trajectory_none');
+  static const guard = Key('trajectory_guard');
+  static const refused = Key('trajectory_refused');
+  static const error = Key('trajectory_error');
+  static const retry = Key('trajectory_retry');
+  static const hidden = Key('trajectory_hidden');
+  static const direction = Key('trajectory_direction');
 }
 
 class TrajectoryScreen extends ConsumerWidget {
@@ -36,38 +48,89 @@ class TrajectoryScreen extends ConsumerWidget {
       children: [
         CaptionText(l10n.trajectoryLead),
         const SizedBox(height: 16),
-        ...switch ((view, summary)) {
-          (AsyncError(), _) || (_, AsyncError()) => [
-            BodyText(key: TrajectoryKeys.placeholder, l10n.metricLoadError),
-          ],
-          (AsyncData(value: TrajectoryError()), _) => [
-            BodyText(key: TrajectoryKeys.placeholder, l10n.metricLoadError),
-          ],
-          (
-            AsyncData(value: final TrajectoryReady ready),
-            AsyncData(value: final WeightSummary weights),
-          )
-              when !hidden =>
-            [_ScenarioCard(view: ready, summary: weights, units: units)],
-          (AsyncData(), AsyncData()) => [
-            BodyText(
-              key: TrajectoryKeys.placeholder,
-              l10n.trajectoryPlaceholder,
-            ),
-          ],
-          _ => const <Widget>[],
-        },
+        ..._content(ref, units, view, summary, hidden: hidden),
       ],
     );
+  }
+
+  List<Widget> _content(
+    WidgetRef ref,
+    UnitFormat units,
+    AsyncValue<TrajectoryView> view,
+    AsyncValue<WeightSummary?> summary, {
+    required bool hidden,
+  }) {
+    final error = TrajectoryErrorCard(
+      onRetry: () {
+        ref
+          ..invalidate(weighInsProvider)
+          ..invalidate(weightSummaryProvider)
+          ..invalidate(trajectoryViewProvider);
+      },
+    );
+    if (view.hasError || summary.hasError) return [error];
+    if (!view.hasValue || !summary.hasValue) return const [];
+    final weights = summary.value;
+    return switch (view.requireValue) {
+      TrajectoryError() => [error],
+      TrajectoryOff() => [
+        BodyText(
+          key: TrajectoryKeys.placeholder,
+          units.l10n.trajectoryPlaceholder,
+        ),
+      ],
+      TrajectoryRefused(:final reason) => [
+        TrajectoryRefusedCard(reason: reason),
+      ],
+      TrajectoryGuard(:final loss) => [
+        TrajectoryGuardCard(
+          loss: loss,
+          summary: weights,
+          units: units,
+          hidden: hidden,
+        ),
+      ],
+      TrajectoryBuilding() ||
+      TrajectoryReady() when weights == null => [const TrajectoryNone()],
+      TrajectoryBuilding(:final rate) => [
+        TrajectoryBuildingCard(
+          rate: rate,
+          summary: weights!,
+          units: units,
+          hidden: hidden,
+        ),
+      ],
+      final TrajectoryReady ready => [
+        if (hidden) ...[
+          HiddenNumbersLabel(
+            key: TrajectoryKeys.hidden,
+            units.l10n.trajectoryHiddenNote,
+          ),
+          const SizedBox(height: 12),
+        ],
+        _ScenarioCard(
+          view: ready,
+          summary: weights!,
+          units: units,
+          hidden: hidden,
+        ),
+      ],
+    };
   }
 }
 
 class _ScenarioCard extends StatelessWidget {
-  const new({required this.view, required this.summary, required this.units});
+  const new({
+    required this.view,
+    required this.summary,
+    required this.units,
+    required this.hidden,
+  });
 
   final TrajectoryReady view;
   final WeightSummary summary;
   final UnitFormat units;
+  final bool hidden;
 
   @override
   Widget build(BuildContext context) {
@@ -97,41 +160,49 @@ class _ScenarioCard extends StatelessWidget {
           ),
           CaptionText(l10n.trajectoryCardSubtitle),
           const SizedBox(height: 14),
-          Wrap(
-            spacing: 16,
-            runSpacing: 12,
-            children: [
-              _Tile(
-                key: TrajectoryKeys.now,
-                caption: l10n.trajectoryNow(units.format.monthDay(view.asOf)),
-                value: units.bodyWeight(view.trendKg),
-              ),
-              _Tile(
-                key: TrajectoryKeys.firm,
-                caption: weeks(view.firm),
-                value: range(view.firm),
-              ),
-              _Tile(
-                key: TrajectoryKeys.band,
-                caption: weeks(view.band),
-                value: range(view.band),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
+          if (!hidden) ...[
+            Wrap(
+              spacing: 16,
+              runSpacing: 12,
+              children: [
+                _Tile(
+                  key: TrajectoryKeys.now,
+                  caption: l10n.trajectoryNow(units.format.monthDay(view.asOf)),
+                  value: units.bodyWeight(view.trendKg),
+                ),
+                _Tile(
+                  key: TrajectoryKeys.firm,
+                  caption: weeks(view.firm),
+                  value: range(view.firm),
+                ),
+                _Tile(
+                  key: TrajectoryKeys.band,
+                  caption: weeks(view.band),
+                  value: range(view.band),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+          ],
           TrajectoryChart(
             key: TrajectoryKeys.chart,
             view: view,
             daily: summary.daily,
             line: summary.line,
             units: units,
+            hidden: hidden,
           ),
-          const SizedBox(height: 8),
-          CaptionText(l10n.trajectoryLegendBand),
+          if (!hidden) ...[
+            const SizedBox(height: 8),
+            CaptionText(l10n.trajectoryLegendBand),
+          ],
           const SizedBox(height: 14),
           Divider(height: 1, color: colors.surfaceBorder),
           const SizedBox(height: 14),
-          _Rate(rate: view.rate, units: units),
+          if (hidden)
+            _Direction(rate: view.rate, l10n: l10n)
+          else
+            _Rate(rate: view.rate, units: units),
           const SizedBox(height: 10),
           CaptionText(
             [
@@ -205,6 +276,37 @@ class _Rate extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           CaptionText(why),
+        ],
+      ),
+    );
+  }
+}
+
+class _Direction extends StatelessWidget {
+  const new({required this.rate, required this.l10n});
+
+  final WeightRateReady rate;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return MergeSemantics(
+      key: TrajectoryKeys.direction,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CaptionText(l10n.bodyDirectionTitle),
+          const SizedBox(height: 2),
+          Text(
+            weightDirection(l10n, rate),
+            style: numberStyle(Theme.of(context).textTheme.titleMedium),
+          ),
+          const SizedBox(height: 4),
+          CaptionText(
+            rate.stable
+                ? l10n.bodyDirectionStableWhy
+                : l10n.bodyDirectionMovingWhy,
+          ),
         ],
       ),
     );

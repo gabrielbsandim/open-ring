@@ -9,6 +9,7 @@ import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_result.dart';
 import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
+import 'package:open_ring/features/food/presentation/food_meal_screen.dart';
 import 'package:open_ring/features/food/presentation/meal_analysis_section.dart';
 import 'package:open_ring/features/food/presentation/meal_items_card.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -72,6 +73,7 @@ void main() {
     bool gate = true,
     Locale locale = const Locale('en'),
     MealPhotoSuggestion suggestion = _suggestion,
+    bool mealScreen = false,
   }) async {
     tester.view
       ..devicePixelRatio = 1
@@ -104,9 +106,13 @@ void main() {
           locale: locale,
           supportedLocales: AppLocalizations.supportedLocales,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
-          home: Scaffold(
-            body: ListView(children: [MealAnalysisSection(mealId: mealId)]),
-          ),
+          home: mealScreen
+              ? FoodMealScreen(mealId: mealId)
+              : Scaffold(
+                  body: ListView(
+                    children: [MealAnalysisSection(mealId: mealId)],
+                  ),
+                ),
         ),
       ),
     );
@@ -321,6 +327,21 @@ void main() {
       );
       expect(text.toLowerCase(), isNot(contains('kcal')), reason: text);
     }
+  });
+
+  testWidgets('the meal screen with items shows no kcal anywhere', (
+    tester,
+  ) async {
+    await pump(tester, mealScreen: true);
+
+    expect(find.byType(FoodMealScreen), findsOneWidget);
+    expect(find.byKey(MealItemsKeys.card), findsOneWidget);
+    expect(find.text('Rice'), findsOneWidget);
+    for (final text in tester.widgetList<Text>(find.byType(Text))) {
+      final data = text.data ?? text.textSpan?.toPlainText() ?? '';
+      expect(data.toLowerCase(), isNot(contains('kcal')), reason: data);
+    }
+    expect(find.textContaining('kcal'), findsNothing);
   });
 
   testWidgets('steppers and chips keep 48 dp tap targets', (tester) async {

@@ -11,6 +11,7 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/food/application/food_energy.dart';
 import 'package:open_ring/features/food/application/food_energy_gate.dart';
 import 'package:open_ring/features/food/application/food_nights.dart';
 import 'package:open_ring/features/food/application/meal_store_providers.dart';
@@ -134,11 +135,12 @@ Future<ProviderContainer> _pumpWeekScreen(
   GoalStore? goals,
   List<FoodNight> nights = const [],
   List<Override>? overrides,
+  double scale = 1,
 }) async {
   await pumpScaled(
     tester,
     screenHost(const FoodWeekScreen()),
-    textScaler: TextScaler.noScaling,
+    textScaler: TextScaler.linear(scale),
     brightness: Brightness.dark,
     locale: const Locale('en'),
     size: const Size(360, 2000),
@@ -1108,13 +1110,47 @@ void main() {
 
   group('Weekly energy tile', () {
     const off = 'Off. One range a week, never per meal.';
+    const on = FoodEnergyOn(LocalDate(2026, 11, 1));
+    const counts = FoodEnergyCounts(
+      sunday: LocalDate(2026, 12, 6),
+      days: 12,
+      weekDays: 4,
+      weighIns: 9,
+      ringDays: 30,
+    );
+    final ready = FoodEnergyReady(
+      const FoodEnergyCounts(
+        sunday: LocalDate(2026, 11, 29),
+        days: 30,
+        weekDays: 6,
+        weighIns: 28,
+        ringDays: 35,
+      ),
+      foodEnergyFigures(
+        slopeKgPerDay: -0.03,
+        logMean: 1780,
+        weekMean: 1700,
+        previousMean: 1800,
+        ringMean: 2500,
+      ),
+    );
 
-    Future<void> pumpWith(WidgetTester tester, FoodEnergyGate gate) async {
+    Future<void> pumpWith(
+      WidgetTester tester,
+      FoodEnergyGate gate, {
+      FoodEnergyResult? result,
+      double scale = 1,
+    }) async {
       await _pumpWeekScreen(
         tester,
+        scale: scale,
         overrides: [
           ..._weekOverrides(meals: TestMealStore()),
           foodEnergyGateProvider.overrideWith((ref) async => gate),
+          if (result != null)
+            foodEnergyProvider.overrideWith(
+              (ref) async => FoodEnergyView(gate: gate, result: result),
+            ),
         ],
       );
       await tester.pumpAndSettle();
@@ -1124,7 +1160,6 @@ void main() {
       FoodEnergyOffered(LocalDate(2026, 11, 1)),
       FoodEnergyNeedsScreening(),
       FoodEnergyBlocked(FoodEnergyBlock.bodyOff),
-      FoodEnergyDemo(),
     ]) {
       testWidgets('${gate.runtimeType} shows the title and the off line', (
         tester,
@@ -1137,12 +1172,164 @@ void main() {
       });
     }
 
-    testWidgets('on shows the title without the off line', (tester) async {
-      await pumpWith(tester, const FoodEnergyOn(LocalDate(2026, 11, 1)));
+    testWidgets('on with a failed read shows the title without the off '
+        'line', (tester) async {
+      await pumpWith(tester, on);
 
       expect(find.byKey(FoodWeekKeys.energyTile), findsOneWidget);
       expect(find.text(off), findsNothing);
     });
+
+    // Each card renders at 1x and 2x text with no overflow: the layout golden.
+    for (final scale in [1.0, 2.0]) {
+      testWidgets('demo shows the labelled sample range at ${scale}x', (
+        tester,
+      ) async {
+        await pumpWith(tester, const FoodEnergyDemo(), scale: scale);
+
+        final tile = find.byKey(FoodWeekKeys.energyTile);
+        for (final text in [
+          'Weekly energy',
+          'range',
+          'Sample with invented numbers. Nothing of yours was used.',
+          '1,800 to 2,450 kcal a day, on average',
+          '5% to 30% under',
+        ]) {
+          expect(
+            find.descendant(of: tile, matching: find.text(text)),
+            findsOneWidget,
+            reason: text,
+          );
+        }
+        expect(find.text(off), findsNothing);
+      });
+
+      testWidgets('on with a range shows the range and the gap at ${scale}x', (
+        tester,
+      ) async {
+        await pumpWith(tester, on, result: ready, scale: scale);
+
+        expect(find.text('range'), findsOneWidget);
+        expect(find.text('1,800 to 2,450 kcal a day, on average'), findsOne);
+        expect(find.text('5% to 30% under'), findsOneWidget);
+        expect(
+          find.text('Sample with invented numbers. Nothing of yours was used.'),
+          findsNothing,
+        );
+      });
+
+      testWidgets('on and holding shows the last range at ${scale}x', (
+        tester,
+      ) async {
+        await pumpWith(
+          tester,
+          on,
+          result: FoodEnergyHold(
+            counts,
+            FoodEnergyHoldReason.weighIns,
+            last: ready,
+          ),
+          scale: scale,
+        );
+
+        expect(find.text('holding'), findsOneWidget);
+        expect(find.text('Last range, Nov 23 to Nov 29'), findsOneWidget);
+        expect(find.text('1,800 to 2,450 kcal a day, on average'), findsOne);
+      });
+
+      testWidgets('on and building shows the days count at ${scale}x', (
+        tester,
+      ) async {
+        await pumpWith(
+          tester,
+          on,
+          result: const FoodEnergyHold(counts, FoodEnergyHoldReason.days),
+          scale: scale,
+        );
+
+        expect(find.text('building'), findsOneWidget);
+        expect(
+          find.text('Days with checked items in the last 35 days'),
+          findsOneWidget,
+        );
+        expect(find.text('12 of 28'), findsOneWidget);
+        expect(find.textContaining('kcal'), findsNothing);
+      });
+
+      testWidgets('on and building on weigh-ins shows the weigh-in count at '
+          '${scale}x', (tester) async {
+        await pumpWith(
+          tester,
+          on,
+          result: const FoodEnergyHold(
+            FoodEnergyCounts(
+              sunday: LocalDate(2026, 12, 6),
+              days: 30,
+              weekDays: 6,
+              weighIns: 19,
+              ringDays: 35,
+            ),
+            FoodEnergyHoldReason.weighIns,
+          ),
+          scale: scale,
+        );
+
+        expect(find.text('building'), findsOneWidget);
+        expect(find.text('Weigh-ins in the last 35 days'), findsOneWidget);
+        expect(find.text('19 of 20'), findsOneWidget);
+        expect(find.text('30 of 28'), findsNothing);
+      });
+
+      testWidgets('on and building on a week shortfall shows the hold line '
+          'and no count at ${scale}x', (tester) async {
+        await pumpWith(
+          tester,
+          on,
+          result: const FoodEnergyHold(
+            FoodEnergyCounts(
+              sunday: LocalDate(2026, 12, 6),
+              days: 30,
+              weekDays: 3,
+              weighIns: 28,
+              ringDays: 35,
+            ),
+            FoodEnergyHoldReason.days,
+          ),
+          scale: scale,
+        );
+
+        expect(find.text('building'), findsOneWidget);
+        expect(
+          find.text(
+            'Fewer than 28 of the last 35 days, or fewer than 5 days this '
+            'week, are complete with checked items.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('30 of 28'), findsNothing);
+        expect(find.textContaining(' of 2'), findsNothing);
+      });
+
+      testWidgets('on and building on ring days shows the hold line and no '
+          'count at ${scale}x', (tester) async {
+        await pumpWith(
+          tester,
+          on,
+          result: const FoodEnergyHold(counts, FoodEnergyHoldReason.ringDays),
+          scale: scale,
+        );
+
+        expect(find.text('building'), findsOneWidget);
+        expect(
+          find.text(
+            'Fewer than 20 days with the ring in the last 35, so the '
+            'expenditure is not known well enough.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.textContaining(' of 2'), findsNothing);
+      });
+    }
 
     for (final gate in const <FoodEnergyGate>[
       FoodEnergyHidden(),

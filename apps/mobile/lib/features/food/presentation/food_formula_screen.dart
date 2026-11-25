@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/router/app_routes.dart';
@@ -8,6 +9,7 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
+import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/features/food/presentation/food_plate_screen.dart';
 import 'package:open_ring/features/modules/presentation/module_widgets.dart';
 
@@ -23,6 +25,8 @@ abstract final class FoodFormulaKeys {
   static const unchecked = Key('food_formula_unchecked');
   static const cannot = Key('food_formula_cannot');
   static const estimate = Key('food_formula_estimate');
+  static const ai = Key('food_formula_ai');
+  static const energy = Key('food_formula_energy');
 }
 
 class FoodFormulaLink extends StatelessWidget {
@@ -51,12 +55,13 @@ class FoodFormulaLink extends StatelessWidget {
 String _clockOfMinute(MetricFormat f, int minute) =>
     f.clock(DateTime.utc(2026, 1, 1, minute ~/ 60, minute % 60), Duration.zero);
 
-class FoodFormulaScreen extends StatelessWidget {
+class FoodFormulaScreen extends ConsumerWidget {
   const new({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final f = MetricFormat.of(context);
+    final perKg = f.integer(foodEnergyKcalPerKg);
     final l = f.l10n;
     final t = Theme.of(context).textTheme;
     final c = AppColors.of(context);
@@ -125,6 +130,25 @@ class FoodFormulaScreen extends StatelessWidget {
               '${l.foodPlateRuleNote}',
         ),
         const SizedBox(height: cardGap),
+        if (ref.watch(aiEnabledProvider)) ...[
+          _formulaCard(
+            FoodFormulaKeys.ai,
+            l.foodAiSectionTitle,
+            t,
+            c,
+            body: l.foodFormulaAiBody,
+          ),
+          const SizedBox(height: cardGap),
+          _formulaCard(
+            FoodFormulaKeys.energy,
+            l.foodEnergyTitle,
+            t,
+            c,
+            expr: l.foodFormulaEnergyExpr(perKg),
+            note: l.foodEnergyMathNote(perKg),
+          ),
+          const SizedBox(height: cardGap),
+        ],
         ModuleFactsCard(
           key: FoodFormulaKeys.sources,
           title: l.effortFormulaSourcesTitle,

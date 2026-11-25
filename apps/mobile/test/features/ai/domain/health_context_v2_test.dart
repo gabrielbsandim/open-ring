@@ -1372,4 +1372,44 @@ void main() {
       expect((factJson[1]! as Map)['id'], 'f2');
     });
   });
+  test('the context carries no Weekly energy field: food holds only the '
+      'four timing and plate keys, energy only the ring estimate', () {
+    for (final detail in AiDetailLevel.values) {
+      final built = HealthContextBuilder.build(
+        _sampleInput(detail: detail, window: AiContextWindow.extended),
+      );
+      final m = built.contextMap;
+      final food = m['food'] as Map?;
+      if (food != null) {
+        expect(
+          food.keys.toSet().difference(const {
+            'complete_days',
+            'plate_score',
+            'window_median_min',
+            'last_meal_to_sleep_min',
+          }),
+          isEmpty,
+        );
+      }
+      final energy = m['energy'] as Map?;
+      if (energy != null) {
+        expect(energy.keys.toSet(), const {
+          'bmr_kcal',
+          'tdee_kcal_avg7',
+          'formula',
+        });
+      }
+      expect(
+        built.canonicalContextJson,
+        isNot(
+          contains(
+            RegExp(
+              'food_energy|weekly_energy|intake|log_kcal|meal_kcal',
+              caseSensitive: false,
+            ),
+          ),
+        ),
+      );
+    }
+  });
 }

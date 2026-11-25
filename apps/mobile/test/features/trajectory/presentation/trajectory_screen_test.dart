@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
+import 'package:open_ring/features/trajectory/application/trajectory_providers.dart';
 import 'package:open_ring/features/trajectory/domain/trajectory_view.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_screen.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -12,6 +16,9 @@ import '../../../helpers/layout_harness.dart';
 import 'trajectory_screen_fixtures.dart';
 
 const _en = Locale('en');
+const _gaining = WeightRateReady(perWeek: 0.3, low: 0.2, high: 0.4);
+
+AppLocalizations get _l10n => lookupAppLocalizations(_en);
 
 UnitFormat _units(UnitSystem system) => UnitFormat(
   MetricFormat(lookupAppLocalizations(_en), _en.toString()),
@@ -122,6 +129,117 @@ void main() {
       expect(find.byKey(TrajectoryKeys.rate), findsOneWidget);
       expect(stableText, isNotEmpty);
       expect(stableText, isNot(losingText));
+    });
+
+    testWidgets('a stable rate shows the stable title and the stable note', (
+      tester,
+    ) async {
+      await pumpTrajectory(tester, view: readyView(rate: stableRate));
+
+      expect(
+        _inside(TrajectoryKeys.rate, find.text(_l10n.bodyRateStableTitle)),
+        findsOneWidget,
+      );
+      expect(find.textContaining(_l10n.trajectoryStableNote), findsOneWidget);
+    });
+
+    testWidgets('a losing rate shows neither the stable title nor note', (
+      tester,
+    ) async {
+      await pumpTrajectory(tester, view: readyView());
+
+      expect(
+        _inside(TrajectoryKeys.rate, find.text(_l10n.bodyRateStableTitle)),
+        findsNothing,
+      );
+      expect(find.textContaining(_l10n.trajectoryStableNote), findsNothing);
+    });
+  });
+
+  group('acceptance 3b: chart unit', () {
+    Finder chartLabel(RegExp unit) => find.descendant(
+      of: find.byKey(TrajectoryKeys.chart),
+      matching: find.bySemanticsLabel(unit),
+    );
+
+    testWidgets('imperial chart label names lb and not kg', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpTrajectory(
+        tester,
+        view: readyView(),
+        units: UnitSystem.imperial,
+      );
+
+      expect(chartLabel(RegExp(r'\blb\b')), findsOneWidget);
+      expect(chartLabel(RegExp(r'\bkg\b')), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('metric chart label names kg and not lb', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpTrajectory(tester, view: readyView());
+
+      expect(chartLabel(RegExp(r'\bkg\b')), findsOneWidget);
+      expect(chartLabel(RegExp(r'\blb\b')), findsNothing);
+      handle.dispose();
+    });
+  });
+
+  group('bend note only where the burn falls', () {
+    testWidgets('a gaining non stable rate shows no bend note', (tester) async {
+      expect(_gaining.stable, isFalse);
+      await pumpTrajectory(tester, view: readyView(rate: _gaining));
+
+      expect(find.byKey(TrajectoryKeys.card), findsOneWidget);
+      expect(find.textContaining(_l10n.trajectoryBendNote), findsNothing);
+    });
+
+    testWidgets('a losing rate shows the bend note', (tester) async {
+      await pumpTrajectory(tester, view: readyView());
+
+      expect(find.textContaining(_l10n.trajectoryBendNote), findsOneWidget);
+    });
+  });
+
+  group('reload keeps the card', () {
+    testWidgets('a pending reload still shows the previous card', (
+      tester,
+    ) async {
+      final pending = Completer<TrajectoryView>();
+      var builds = 0;
+      await pumpScaled(
+        tester,
+        screenHost(const TrajectoryScreen()),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.light,
+        locale: _en,
+        overrides: [
+          ...trajectoryOverrides(
+            view: readyView(),
+            load: () {
+              builds++;
+              return builds == 1 ? Future.value(readyView()) : pending.future;
+            },
+          ),
+        ],
+      );
+      expect(find.byKey(TrajectoryKeys.card), findsOneWidget);
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(TrajectoryScreen)),
+      )..invalidate(trajectoryViewProvider);
+      await tester.pump();
+      await tester.pump();
+
+      expect(builds, 2);
+      expect(container.read(trajectoryViewProvider).isLoading, isTrue);
+      expect(container.read(trajectoryViewProvider).hasValue, isTrue);
+      expect(find.byKey(TrajectoryKeys.card), findsOneWidget);
+
+      pending.complete(readyView());
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(TrajectoryKeys.card), findsOneWidget);
     });
   });
 

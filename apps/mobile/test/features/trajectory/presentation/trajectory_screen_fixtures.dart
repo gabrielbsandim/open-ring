@@ -72,11 +72,14 @@ List<Override> trajectoryOverrides({
   LocalDate asOf = november,
   UnitSystem units = UnitSystem.metric,
   bool hidden = false,
+  Future<TrajectoryView> Function()? load,
 }) => [
   clockProvider.overrideWithValue(
     () => DateTime(asOf.year, asOf.month, asOf.day, 12),
   ),
-  trajectoryViewProvider.overrideWith((ref) async => view),
+  trajectoryViewProvider.overrideWith(
+    (ref) => load?.call() ?? Future.value(view),
+  ),
   weightSummaryProvider.overrideWith((ref) async => summaryEnding(asOf)),
   unitSystemStoreProvider.overrideWithValue(InMemoryUnitSystemStore(units)),
   hideNumbersStoreProvider.overrideWithValue(

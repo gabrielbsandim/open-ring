@@ -2876,5 +2876,16 @@
   "foodAiBatch": "{count, plural, other{{count}枚の写真を分析}}",
   "foodAiBatchQueued": "{count, plural, =1{送信待ち：1枚。アプリが開いている間に送ります。} other{送信待ち：{count}枚。アプリが開いている間に1枚ずつ送ります。}}",
   "foodAiBatchPartial": "{count, plural, other{{count}枚を送信待ちにしました。残りは1日の上限で止まりました。}}",
-  "foodAiBadge": "{state, select, suggestions{提案あり} queued{送信待ち} sending{送信中} failed{失敗} other{確認済み}}"
+  "foodAiBadge": "{state, select, suggestions{提案あり} queued{送信待ち} sending{送信中} failed{失敗} other{確認済み}}",
+  "foodAiItemsTitle": "品目（週のエネルギー用）",
+  "foodAiMeasure": "{measure, select, slice{切れ} teaspoon{小さじ} tablespoon{大さじ} servingSpoon{取り分けスプーン} ladle{お玉} tongs{トング} cup{カップ} glass{コップ} bowl{お椀} handful{ひとつかみ} fillet{切り身} other{個}}",
+  "foodAiItemLine": "{count} × {measure}、約{grams} g",
+  "foodAiItemRemoved": "削除済み",
+  "foodAiItemLess": "{name}を減らす",
+  "foodAiItemMore": "{name}を増やす",
+  "foodAiHiddenTitle": "カメラに写らないもの",
+  "foodAiHiddenOil": "揚げ物や油っぽい",
+  "foodAiHiddenSauce": "ソースやドレッシング",
+  "foodAiHiddenSugar": "飲み物に砂糖",
+  "foodAiItemsNote": "この食事のカロリーは出しません。品目は週の平均に幅として入るだけです。"
 }

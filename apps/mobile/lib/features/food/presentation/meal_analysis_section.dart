@@ -22,6 +22,7 @@ import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
 import 'package:open_ring/features/food/application/meal_analysis_view.dart';
 import 'package:open_ring/features/food/domain/meal_analysis.dart';
 import 'package:open_ring/features/food/presentation/meal_analyze_flow.dart';
+import 'package:open_ring/features/food/presentation/meal_items_card.dart';
 import 'package:open_ring/features/food/presentation/meal_keep_switch.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -174,6 +175,8 @@ class MealAnalysisSection extends ConsumerWidget {
             onConfirmAll,
           ),
         ],
+        if (ref.watch(mealPhotoItemsEnabledProvider) && _hasItems(row))
+          MealItemsCard(key: ValueKey(row.id), row: row),
       ],
       (MealAnalysisViewKind.notFood, _) => [
         _Notice(Icons.no_food_outlined, l10n.foodAiNotFood),
@@ -234,6 +237,10 @@ class MealAnalysisSection extends ConsumerWidget {
       ),
     ];
   }
+
+  // An answer with items keeps the card after the last one is removed.
+  static bool _hasItems(MealAnalysis row) =>
+      row.items.isNotEmpty || (row.suggestion?.items.isNotEmpty ?? false);
 
   Widget _sample(AppLocalizations l10n) => Wrap(
     key: MealAnalysisKeys.sample,

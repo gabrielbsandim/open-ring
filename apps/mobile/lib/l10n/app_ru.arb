@@ -2876,5 +2876,16 @@
   "foodAiBatch": "{count, plural, one{Анализировать {count} фото} few{Анализировать {count} фото} many{Анализировать {count} фото} other{Анализировать {count} фото}}",
   "foodAiBatchQueued": "{count, plural, one{В очереди: {count} фото. Отправка идёт по одному, пока приложение открыто.} few{В очереди: {count} фото. Отправка идёт по одному, пока приложение открыто.} many{В очереди: {count} фото. Отправка идёт по одному, пока приложение открыто.} other{В очереди: {count} фото. Отправка идёт по одному, пока приложение открыто.}}",
   "foodAiBatchPartial": "{count, plural, one{{count} в очереди. Дневной лимит остановил остальные.} few{{count} в очереди. Дневной лимит остановил остальные.} many{{count} в очереди. Дневной лимит остановил остальные.} other{{count} в очереди. Дневной лимит остановил остальные.}}",
-  "foodAiBadge": "{state, select, suggestions{Предложения} queued{В очереди} sending{Отправляется} failed{Ошибка} other{Проверено}}"
+  "foodAiBadge": "{state, select, suggestions{Предложения} queued{В очереди} sending{Отправляется} failed{Ошибка} other{Проверено}}",
+  "foodAiItemsTitle": "Продукты для недельной энергии",
+  "foodAiMeasure": "{measure, select, slice{ломтик} teaspoon{чайная ложка} tablespoon{столовая ложка} servingSpoon{сервировочная ложка} ladle{половник} tongs{щипцы} cup{чашка} glass{стакан} bowl{миска} handful{горсть} fillet{филе} other{штука}}",
+  "foodAiItemLine": "{count} × {measure}, около {grams} г",
+  "foodAiItemRemoved": "Удалено",
+  "foodAiItemLess": "Меньше: {name}",
+  "foodAiItemMore": "Больше: {name}",
+  "foodAiHiddenTitle": "Чего не видит камера",
+  "foodAiHiddenOil": "Жареное или жирное",
+  "foodAiHiddenSauce": "Соус или заправка",
+  "foodAiHiddenSugar": "Сахар в напитке",
+  "foodAiItemsNote": "Без калорий для этого приёма пищи. Продукты входят только в среднее за неделю, в виде диапазона."
 }

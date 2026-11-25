@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:drift/drift.dart';
 import 'package:open_ring/core/database/app_database.dart';
@@ -140,7 +141,17 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
     final written = await _move(_sending, _answer(answer, now), _id(id));
     if (written == 0) return false;
     await _deleteModelItems(id);
-    final items = answer.suggestion?.items ?? const <MealPhotoItem>[];
+    final kept = {
+      for (final k in await (_db.select(
+        _db.mealItems,
+      )..where((i) => i.analysisId.equals(id))).get())
+        _itemKey(k.name, k.measure),
+    };
+    final items = [
+      for (final item in answer.suggestion?.items ?? const <MealPhotoItem>[])
+        if (!kept.contains(_itemKey(item.name, mealWireName(item.measure))))
+          item,
+    ];
     await _db.batch(
       (batch) => batch.insertAll(_db.mealItems, [
         for (final (i, item) in items.indexed)
@@ -238,6 +249,57 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
       updates: {_db.mealAnalyses},
     ),
   );
+
+  @override
+  Future<bool> setHidden(int id, {bool? oil, bool? sauce, bool? sugar}) {
+    if (oil == null && sauce == null && sugar == null) {
+      return Future.value(false);
+    }
+    return _write(
+      () async =>
+          await (_db.update(_db.mealAnalyses)..where(_id(id))).write(
+            MealAnalysesCompanion(
+              hiddenOil: Value.absentIfNull(oil),
+              hiddenSauce: Value.absentIfNull(sauce),
+              hiddenSugar: Value.absentIfNull(sugar),
+            ),
+          ) >
+          0,
+    );
+  }
+
+  @override
+  Future<bool> setItemCount(int itemId, int countX2) => _write(() async {
+    final item = await (_db.select(
+      _db.mealItems,
+    )..where((i) => i.id.equals(itemId))).getSingleOrNull();
+    if (item == null) return false;
+    final one = _db.mealItems.id.equals(itemId);
+    if (countX2 <= 0) {
+      return await (_db.delete(_db.mealItems)..where((_) => one)).go() > 0;
+    }
+    // Scaled from the model's own item each time, so steps never drift.
+    final answer = (await _load(item.analysisId)).suggestion?.items ?? [];
+    final key = _itemKey(item.name, item.measure);
+    final base = answer
+        .where((a) => _itemKey(a.name, mealWireName(a.measure)) == key)
+        .map((a) => (grams: a.grams, countX2: a.countX2))
+        .firstOrNull;
+    final (:grams, countX2: baseX2) =
+        base ?? (grams: item.grams, countX2: item.countX2);
+    return await (_db.update(_db.mealItems)..where((_) => one)).write(
+          MealItemsCompanion(
+            countX2: Value(countX2),
+            grams: Value((grams * countX2 / max(1, baseX2)).round()),
+            origin: Value(MealItemOrigin.user.name),
+            confirmed: const Value(true),
+          ),
+        ) >
+        0;
+  });
+
+  static (String, String) _itemKey(String name, String measure) =>
+      (name.toLowerCase(), measure);
 
   @override
   Future<bool> keepOnPhone(int mealId) async {
@@ -388,6 +450,7 @@ final class DriftMealAnalysisStore implements MealAnalysisStore {
   );
 
   static MealAnalysisItem _item(MealItemRow row) => (
+    id: row.id,
     name: row.name,
     measure:
         mealEnumFromWire(MealPhotoMeasure.values, row.measure) ??

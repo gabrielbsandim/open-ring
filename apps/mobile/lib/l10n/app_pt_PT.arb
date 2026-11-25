@@ -2868,5 +2868,16 @@
   "foodAiBatch": "{count, plural, one{Analisar 1 fotografia} other{Analisar {count} fotografias}}",
   "foodAiBatchQueued": "{count, plural, one{Na fila: 1 fotografia. Sai enquanto a app estiver aberta.} other{Na fila: {count} fotografias. Saem uma de cada vez enquanto a app estiver aberta.}}",
   "foodAiBatchPartial": "{count, plural, one{1 na fila. O limite diário parou as restantes.} other{{count} na fila. O limite diário parou as restantes.}}",
-  "foodAiBadge": "{state, select, suggestions{Sugestões} queued{Na fila} sending{A enviar} failed{Falhou} other{Verificada}}"
+  "foodAiBadge": "{state, select, suggestions{Sugestões} queued{Na fila} sending{A enviar} failed{Falhou} other{Verificada}}",
+  "foodAiItemsTitle": "Itens, para a Energia da semana",
+  "foodAiMeasure": "{measure, select, slice{fatia} teaspoon{colher de chá} tablespoon{colher de sopa} servingSpoon{colher de servir} ladle{concha} tongs{pinça} cup{chávena} glass{copo} bowl{taça} handful{mão-cheia} fillet{filete} other{unidade}}",
+  "foodAiItemLine": "{count} × {measure}, cerca de {grams} g",
+  "foodAiItemRemoved": "Removido",
+  "foodAiItemLess": "Menos {name}",
+  "foodAiItemMore": "Mais {name}",
+  "foodAiHiddenTitle": "O que a câmara não vê",
+  "foodAiHiddenOil": "Frito ou com óleo",
+  "foodAiHiddenSauce": "Molho ou tempero",
+  "foodAiHiddenSugar": "Açúcar na bebida",
+  "foodAiItemsNote": "Sem calorias nesta refeição. Os itens só entram na média da semana, como intervalo."
 }

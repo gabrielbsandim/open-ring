@@ -2876,5 +2876,16 @@
   "foodAiBatch": "{count, plural, one{Analizar 1 foto} other{Analizar {count} fotos}}",
   "foodAiBatchQueued": "{count, plural, one{En cola: 1 foto. Se envía mientras la app esté abierta.} other{En cola: {count} fotos. Se envían de una en una mientras la app esté abierta.}}",
   "foodAiBatchPartial": "{count, plural, one{1 en cola. El límite diario detuvo el resto.} other{{count} en cola. El límite diario detuvo el resto.}}",
-  "foodAiBadge": "{state, select, suggestions{Sugerencias} queued{En cola} sending{Enviando} failed{Falló} other{Revisada}}"
+  "foodAiBadge": "{state, select, suggestions{Sugerencias} queued{En cola} sending{Enviando} failed{Falló} other{Revisada}}",
+  "foodAiItemsTitle": "Elementos, para la energía semanal",
+  "foodAiMeasure": "{measure, select, slice{rebanada} teaspoon{cucharadita} tablespoon{cucharada} servingSpoon{cuchara de servir} ladle{cucharón} tongs{pinza} cup{taza} glass{vaso} bowl{tazón} handful{puñado} fillet{filete} other{unidad}}",
+  "foodAiItemLine": "{count} × {measure}, unos {grams} g",
+  "foodAiItemRemoved": "Quitado",
+  "foodAiItemLess": "Menos {name}",
+  "foodAiItemMore": "Más {name}",
+  "foodAiHiddenTitle": "Lo que la cámara no ve",
+  "foodAiHiddenOil": "Frito o con aceite",
+  "foodAiHiddenSauce": "Salsa o aliño",
+  "foodAiHiddenSugar": "Azúcar en la bebida",
+  "foodAiItemsNote": "Sin calorías para esta comida. Los elementos solo entran en la media semanal, como un rango."
 }

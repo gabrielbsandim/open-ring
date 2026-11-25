@@ -2876,5 +2876,16 @@
   "foodAiBatch": "{count, plural, one{Analisis 1 foto} other{Analisis {count} foto}}",
   "foodAiBatchQueued": "{count, plural, one{Dalam antrean: 1 foto. Foto dikirim selama aplikasi terbuka.} other{Dalam antrean: {count} foto. Foto dikirim satu per satu selama aplikasi terbuka.}}",
   "foodAiBatchPartial": "{count, plural, one{1 masuk antrean. Batas harian menghentikan sisanya.} other{{count} masuk antrean. Batas harian menghentikan sisanya.}}",
-  "foodAiBadge": "{state, select, suggestions{Saran} queued{Dalam antrean} sending{Mengirim} failed{Gagal} other{Diperiksa}}"
+  "foodAiBadge": "{state, select, suggestions{Saran} queued{Dalam antrean} sending{Mengirim} failed{Gagal} other{Diperiksa}}",
+  "foodAiItemsTitle": "Item, untuk energi mingguan",
+  "foodAiMeasure": "{measure, select, slice{iris} teaspoon{sendok teh} tablespoon{sendok makan} servingSpoon{sendok saji} ladle{centong} tongs{capitan} cup{cangkir} glass{gelas} bowl{mangkuk} handful{genggam} fillet{filet} other{buah}}",
+  "foodAiItemLine": "{count} × {measure}, sekitar {grams} g",
+  "foodAiItemRemoved": "Dihapus",
+  "foodAiItemLess": "Kurangi {name}",
+  "foodAiItemMore": "Tambah {name}",
+  "foodAiHiddenTitle": "Yang tidak terlihat oleh kamera",
+  "foodAiHiddenOil": "Digoreng atau berminyak",
+  "foodAiHiddenSauce": "Saus atau dressing",
+  "foodAiHiddenSugar": "Gula dalam minuman",
+  "foodAiItemsNote": "Tidak ada kalori untuk makanan ini. Item hanya masuk ke rata-rata mingguan, sebagai rentang."
 }

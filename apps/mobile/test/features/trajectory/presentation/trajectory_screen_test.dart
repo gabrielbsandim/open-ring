@@ -756,8 +756,8 @@ void main() {
 
   group('TR9 acceptance 9: new states do not overflow', () {
     final states = <String, _State>{
-      'building': _State(
-        view: const TrajectoryBuilding(
+      'building': const _State(
+        view: TrajectoryBuilding(
           WeightRateBuilding(daysMissing: 6, spanMissing: 4),
         ),
         key: TrajectoryKeys.building,
@@ -767,22 +767,22 @@ void main() {
         key: TrajectoryKeys.none,
         summary: () async => null,
       ),
-      'guard': _State(view: guardView, key: TrajectoryKeys.guard),
-      'guard hidden': _State(
+      'guard': const _State(view: guardView, key: TrajectoryKeys.guard),
+      'guard hidden': const _State(
         view: guardView,
         key: TrajectoryKeys.guard,
         hidden: true,
       ),
-      'underage': _State(
-        view: const TrajectoryRefused(TrajectoryRefusal.underage),
+      'underage': const _State(
+        view: TrajectoryRefused(TrajectoryRefusal.underage),
         key: TrajectoryKeys.refused,
       ),
-      'pregnancy': _State(
-        view: const TrajectoryRefused(TrajectoryRefusal.pregnancy),
+      'pregnancy': const _State(
+        view: TrajectoryRefused(TrajectoryRefusal.pregnancy),
         key: TrajectoryKeys.refused,
       ),
-      'no height': _State(
-        view: const TrajectoryRefused(TrajectoryRefusal.noHeight),
+      'no height': const _State(
+        view: TrajectoryRefused(TrajectoryRefusal.noHeight),
         key: TrajectoryKeys.refused,
       ),
       'error': _State(

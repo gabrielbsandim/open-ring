@@ -12,6 +12,8 @@ import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/body/domain/weigh_in_store.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
+import 'package:open_ring/features/demo/domain/demo_data.dart';
+import 'package:open_ring/features/demo/domain/demo_data_store.dart';
 import 'package:open_ring/features/demo/domain/demo_mode_store.dart';
 import 'package:open_ring/features/goals/application/goal_store_providers.dart';
 import 'package:open_ring/features/goals/domain/goal.dart';
@@ -19,6 +21,8 @@ import 'package:open_ring/features/goals/domain/goal_store.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
+import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
+import 'package:open_ring/features/onboarding/domain/onboarding_store.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/trajectory/application/trajectory_providers.dart';
@@ -70,10 +74,43 @@ final class _GatedProfileStore implements UserProfileStore {
   Future<void> save(UserProfile profile, {required DateTime at}) async {}
 }
 
-WeighInDraft _draft(LocalDate day, double kilograms) => WeighInDraft(
+final class _WipingDemoStore implements DemoDataStore {
+  new(this.weighIns);
+
+  final InMemoryWeighInStore weighIns;
+
+  @override
+  Future<void> replace(DemoData data) async {}
+
+  @override
+  Future<void> wipe() async {
+    await weighIns.deleteAll();
+  }
+}
+
+final class _SlowOnboardingStore implements OnboardingStore {
+  @override
+  bool completed = true;
+
+  @override
+  Future<void> complete() async {}
+
+  @override
+  Future<void> reset() async {
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    completed = false;
+  }
+}
+
+WeighInDraft _draft(
+  LocalDate day,
+  double kilograms, {
+  WeighInSource source = WeighInSource.manual,
+}) => WeighInDraft(
   at: DateTime.utc(day.year, day.month, day.day, 8),
   offsetMinutes: 0,
   kilograms: kilograms,
+  source: source,
 );
 
 List<WeighInDraft> _series({
@@ -83,11 +120,13 @@ List<WeighInDraft> _series({
   double perDay = -0.05,
   double wobble = 0.3,
   double shift = 0,
+  WeighInSource source = WeighInSource.manual,
 }) => [
   for (var i = 0; from.addDays(i).compareTo(to) <= 0; i++)
     _draft(
       from.addDays(i),
       start + shift + perDay * i + (i.isEven ? wobble : -wobble),
+      source: source,
     ),
 ];
 
@@ -484,6 +523,46 @@ void main() {
       final view = await _view(container);
 
       expect(view, isNot(isA<TrajectoryError>()));
+      expect(await _rows(store), isEmpty);
+    });
+
+    test('Leaving demo mode stores no band from demo weigh-ins', () async {
+      final store = InMemoryProjectionStore();
+      final weighIns = await _weighIns(_series(source: WeighInSource.demo));
+      final container = await _open(
+        store: store,
+        weighIns: weighIns,
+        demo: true,
+        extra: [
+          demoDataStoreProvider.overrideWithValue(_WipingDemoStore(weighIns)),
+          onboardingStoreProvider.overrideWithValue(_SlowOnboardingStore()),
+        ],
+      );
+      final subscription = container.listen(
+        trajectoryViewProvider,
+        (previous, next) {},
+      );
+      addTearDown(subscription.close);
+      await _view(container);
+
+      final left = await container.read(demoModeProvider.notifier).leave();
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+
+      expect(left, isTrue);
+      expect(container.read(demoModeProvider), isFalse);
+      expect(await _rows(store), isEmpty);
+    });
+
+    test('A band is never stored from demo weigh-ins', () async {
+      final store = InMemoryProjectionStore();
+      final container = await _open(
+        store: store,
+        weighIns: await _weighIns(_series(source: WeighInSource.demo)),
+      );
+
+      final view = await _view(container);
+
+      expect(view, isA<TrajectoryReady>());
       expect(await _rows(store), isEmpty);
     });
 

@@ -907,6 +907,33 @@ void main() {
       }
     });
 
+    testWidgets('F2: a weigh-in dated after today is not counted', (
+      tester,
+    ) async {
+      final units = _units(UnitSystem.metric);
+      final inside = [
+        for (final offset in [-25, -20, -15, -10, -5, 0])
+          november.addDays(offset),
+      ];
+      final future = november.addDays(1);
+      await pumpTrajectory(
+        tester,
+        view: const TrajectoryBuilding(
+          WeightRateBuilding(daysMissing: 1, spanMissing: 0),
+        ),
+        summaryLoad: () async => summaryOn([...inside, future]),
+      );
+
+      final text = _allText(tester, TrajectoryKeys.building);
+      final sentence = _l10n.trajectoryBuildingCount(
+        6,
+        units.format.monthDay(inside.first),
+        units.format.monthDay(inside.last),
+      );
+      expect(text, contains(sentence));
+      expect(text, isNot(contains(units.format.monthDay(future))));
+    });
+
     testWidgets('F6: one missing day reads in the singular', (tester) async {
       await pumpTrajectory(
         tester,

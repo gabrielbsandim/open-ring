@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
@@ -315,7 +314,7 @@ void main() {
     test(
       '2. the value of a valid day is the sum of its bucket steps',
       () async {
-        final rig = _Rig(slots: _validDays(_yesterday, 54, stepsEach: 100));
+        final rig = _Rig(slots: _validDays(_yesterday, 54));
 
         final steps = (await rig.levers())[RingLever.steps]!;
 

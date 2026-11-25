@@ -1,3 +1,4 @@
+import 'package:metrics/src/baseline.dart';
 import 'package:metrics/src/local_date.dart';
 import 'package:metrics/src/sleep_night.dart';
 
@@ -48,13 +49,43 @@ SleepRegularity? sleepRegularity(
   final asleep = _asleepEpochs(spans);
   var same = 0;
   for (final day in firsts) {
-    final next = day.addDays(1);
-    for (var slot = 0; slot < sleepRegularityEpochsPerDay; slot++) {
-      final now = asleep.contains((date: day, slot: slot));
-      final later = asleep.contains((date: next, slot: slot));
-      if (now == later) same++;
-    }
+    same += _sameEpochs(asleep, day);
   }
   final total = firsts.length * sleepRegularityEpochsPerDay;
   return (index: -100 + 200 * same / total, pairs: firsts.length);
+}
+
+/// One index per pair of consecutive days in [days], dated by the second day,
+/// so a trend reads pairs that never overlap.
+List<DailyValue> dailySleepRegularity(
+  Iterable<SleepSpan> spans, {
+  required Set<LocalDate> days,
+}) {
+  final asleep = _asleepEpochs(spans);
+  final seconds = [
+    for (final day in days)
+      if (days.contains(day.addDays(-1))) day,
+  ]..sort((a, b) => a.compareTo(b));
+  return [
+    for (final day in seconds)
+      (
+        date: day,
+        value:
+            -100 +
+            200 *
+                _sameEpochs(asleep, day.addDays(-1)) /
+                sleepRegularityEpochsPerDay,
+      ),
+  ];
+}
+
+int _sameEpochs(Set<_Epoch> asleep, LocalDate day) {
+  final next = day.addDays(1);
+  var same = 0;
+  for (var slot = 0; slot < sleepRegularityEpochsPerDay; slot++) {
+    final now = asleep.contains((date: day, slot: slot));
+    final later = asleep.contains((date: next, slot: slot));
+    if (now == later) same++;
+  }
+  return same;
 }

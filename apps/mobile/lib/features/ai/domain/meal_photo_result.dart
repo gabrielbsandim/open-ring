@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:metrics/metrics.dart' show FoodGroup;
 
 enum MealPhotoFlag { yes, no, unsure }
 
@@ -47,6 +48,7 @@ final class MealPhotoItem {
     required this.measure,
     required this.countX2,
     required this.grams,
+    this.group = FoodGroup.other,
   });
 
   final String name;
@@ -55,6 +57,7 @@ final class MealPhotoItem {
   /// Halves of [measure], so 3 means one and a half.
   final int countX2;
   final int grams;
+  final FoodGroup group;
 
   static MealPhotoItem? fromJson(Object? json) {
     if (json is! Map<String, Object?>) return null;
@@ -69,6 +72,8 @@ final class MealPhotoItem {
       measure: measure,
       countX2: countX2,
       grams: grams,
+      group:
+          mealEnumFromWire(FoodGroup.values, json['group']) ?? FoodGroup.other,
     );
   }
 
@@ -77,6 +82,7 @@ final class MealPhotoItem {
     'measure': mealWireName(measure),
     'count_x2': countX2,
     'grams': grams,
+    'group': mealWireName(group),
   };
 
   MealPhotoItem plus(MealPhotoItem other) => MealPhotoItem(
@@ -84,6 +90,7 @@ final class MealPhotoItem {
     measure: measure,
     countX2: countX2 + other.countX2,
     grams: grams + other.grams,
+    group: group,
   );
 
   @override
@@ -92,10 +99,11 @@ final class MealPhotoItem {
       other.name == name &&
       other.measure == measure &&
       other.countX2 == countX2 &&
-      other.grams == grams;
+      other.grams == grams &&
+      other.group == group;
 
   @override
-  int get hashCode => Object.hash(name, measure, countX2, grams);
+  int get hashCode => Object.hash(name, measure, countX2, grams, group);
 }
 
 /// The model's labels as suggestions; none of them is a user tag until the

@@ -1,3 +1,4 @@
+import 'package:metrics/metrics.dart' show FoodGroup;
 import 'package:open_ring/features/ai/domain/ai_prompt.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 import 'package:open_ring/features/ai/domain/analysis_model.dart';
@@ -9,9 +10,10 @@ const int aiMealPromptVersion = 1;
 const String aiMealPhotoTask = 'meal_photo';
 const String aiMealSchemaName = 'openring_meal';
 
-/// Output schema 1 is tags only, output schema 2 adds household items.
+/// Output schema 1 is tags only; 3 adds household items with a food group
+/// (2, items without a group, was never sent).
 int mealPhotoOutputSchemaVersion({required bool withItems}) =>
-    withItems ? 2 : 1;
+    withItems ? 3 : 1;
 
 const String aiMealSystemPromptV1 = '''
 You label one photo for a personal food diary inside OpenRing.
@@ -89,6 +91,7 @@ Map<String, Object?> mealPhotoOutputSchema({required bool withItems}) {
           'measure': _enumOf(MealPhotoMeasure.values),
           'count': {'type': 'number'},
           'grams': {'type': 'integer'},
+          'group': _enumOf(FoodGroup.values),
         }),
       },
   });
@@ -105,7 +108,8 @@ String buildMealPhotoUserText({
       'Output schema:\n'
       '${canonicalJsonEncode(mealPhotoOutputSchema(withItems: withItems))}';
   if (!withItems) return head;
-  return '$head\nWrite item names in ${sanitizeReplyLanguage(replyLanguage)}.';
+  return '$head\nWrite item names in ${sanitizeReplyLanguage(replyLanguage)}.'
+      '\nGive each item the food group from the list that fits it best.';
 }
 
 AnalysisRequest buildMealPhotoRequest(

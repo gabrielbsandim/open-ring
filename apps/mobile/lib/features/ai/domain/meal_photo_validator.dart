@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:meta/meta.dart';
+import 'package:metrics/metrics.dart' show FoodGroup;
 import 'package:open_ring/features/ai/domain/ai_output_extractor.dart';
 import 'package:open_ring/features/ai/domain/ai_safety_lexicon.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
@@ -47,6 +48,7 @@ typedef _RawItem = ({
   MealPhotoMeasure measure,
   num count,
   int grams,
+  FoodGroup group,
 });
 
 typedef _Sifted = ({List<MealPhotoItem> kept, int dropped, bool implausible});
@@ -78,7 +80,13 @@ abstract final class MealPhotoValidator {
     r'\p{M}|(?!\p{Script=Latin})\p{L}',
     unicode: true,
   );
-  static const Set<String> _itemKeys = {'name', 'measure', 'count', 'grams'};
+  static const Set<String> _itemKeys = {
+    'name',
+    'measure',
+    'count',
+    'grams',
+    'group',
+  };
   static const _offSchema = MealPhotoRejected(MealPhotoRejectReason.offSchema);
 
   static MealPhotoOutcome read(
@@ -167,9 +175,16 @@ abstract final class MealPhotoValidator {
     final measure = mealEnumFromWire(MealPhotoMeasure.values, entry['measure']);
     final count = entry['count'];
     final grams = entry['grams'];
-    if (name is! String || measure == null) return null;
+    final group = mealEnumFromWire(FoodGroup.values, entry['group']);
+    if (name is! String || measure == null || group == null) return null;
     if (count is! num || grams is! int) return null;
-    return (name: name, measure: measure, count: count, grams: grams);
+    return (
+      name: name,
+      measure: measure,
+      count: count,
+      grams: grams,
+      group: group,
+    );
   }
 
   static _Sifted _sift(List<_RawItem> raw, String replyLanguage) {
@@ -189,6 +204,7 @@ abstract final class MealPhotoValidator {
         measure: item.measure,
         countX2: (item.count * 2).round(),
         grams: item.grams,
+        group: item.group,
       );
       final key = '${name.toLowerCase()}|${item.measure.name}';
       merged[key] = merged[key]?.plus(next) ?? next;

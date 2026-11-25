@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:metrics/metrics.dart' show FoodGroup;
 import 'package:open_ring/features/ai/domain/meal_photo_result.dart';
 import 'package:open_ring/features/ai/domain/meal_photo_validator.dart';
 
@@ -33,7 +34,14 @@ Map<String, Object?> _item(
   String measure = 'serving_spoon',
   Object count = 2,
   Object grams = 100,
-}) => {'name': name, 'measure': measure, 'count': count, 'grams': grams};
+  String group = 'other',
+}) => {
+  'name': name,
+  'measure': measure,
+  'count': count,
+  'grams': grams,
+  'group': group,
+};
 
 MealPhotoOutcome _read(
   Object answer, {
@@ -142,6 +150,11 @@ void main() {
       'items not a list': 'rice',
       'item not an object': ['rice'],
       'item unknown measure': [_item('rice', measure: 'plate')],
+      'item unknown group': [_item('rice', group: 'grain')],
+      'item group not a string': [_item('rice')..['group'] = 1],
+      'item missing group': [
+        {..._item('rice')}..remove('group'),
+      ],
       'item string grams': [_item('rice', grams: '100')],
       'item fractional grams': [_item('rice', grams: 100.5)],
       'item string count': [_item('rice', count: 'two')],
@@ -284,6 +297,30 @@ void main() {
         ),
       ]);
       expect(done.droppedItems, 0);
+    });
+
+    test('the food group is read and a merge keeps the first group', () {
+      final done = _withItems([
+        _item('Rice', group: 'grain_cooked', grams: 120),
+        _item('Beans', measure: 'ladle', group: 'legume_cooked'),
+        _item('rice', group: 'mixed_dish', grams: 60),
+      ]);
+      expect(done.suggestion.items, const [
+        MealPhotoItem(
+          name: 'Rice',
+          measure: MealPhotoMeasure.servingSpoon,
+          countX2: 8,
+          grams: 180,
+          group: FoodGroup.grainCooked,
+        ),
+        MealPhotoItem(
+          name: 'Beans',
+          measure: MealPhotoMeasure.ladle,
+          countX2: 4,
+          grams: 100,
+          group: FoodGroup.legumeCooked,
+        ),
+      ]);
     });
 
     test('the same name with another measure stays a separate item', () {
@@ -593,6 +630,37 @@ void main() {
         }),
         isNull,
       );
+    });
+
+    test('a stored item with no or an unknown group reads as other', () {
+      final good = _done(_tags()).suggestion.toJson();
+      for (final group in <Object?>[null, 'grain', 3]) {
+        final back = MealPhotoSuggestion.fromJson({
+          ...good,
+          'items': [
+            {
+              'name': 'rice',
+              'measure': 'cup',
+              'count_x2': 2,
+              'grams': 150,
+              'group': ?group,
+            },
+          ],
+        });
+        expect(back!.items.single.group, FoodGroup.other, reason: '$group');
+      }
+    });
+
+    test('the group is written to result_json and read back', () {
+      const item = MealPhotoItem(
+        name: 'rice',
+        measure: MealPhotoMeasure.cup,
+        countX2: 2,
+        grams: 150,
+        group: FoodGroup.grainCooked,
+      );
+      expect(item.toJson()['group'], 'grain_cooked');
+      expect(MealPhotoItem.fromJson(item.toJson()), item);
     });
 
     test('wire names are snake case and read back', () {

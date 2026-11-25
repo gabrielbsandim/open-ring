@@ -18,6 +18,7 @@ import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/presentation/ai_context_preview_screen.dart';
+import 'package:open_ring/features/ai/presentation/ai_formula_screen.dart';
 import 'package:open_ring/features/ai/presentation/ai_reading_card.dart';
 import 'package:open_ring/features/ai/presentation/ai_reading_sheets.dart';
 import 'package:open_ring/features/ai/presentation/ai_readings_screen.dart';
@@ -153,6 +154,10 @@ void main() {
                 report: state.extra as AiReport?,
               ),
             ),
+            GoRoute(
+              path: 'formula',
+              builder: (_, _) => const AiFormulaScreen(),
+            ),
           ],
         ),
         GoRoute(
@@ -220,6 +225,25 @@ void main() {
     expect(inSheet(sheet, l10n.aiConfidenceFewest(3)), findsOne);
     expect(inSheet(sheet, l10n.aiConfidenceRule), findsOne);
   });
+
+  testWidgets(
+    'the confidence sheet opens the formula screen and back returns',
+    (tester) async {
+      await reports.insert(_report());
+      await pump(tester);
+      await open(tester, AiReadingKeys.confidence);
+
+      expect(inSheet(AiSheetKeys.confidence, l10n.formulaLink), findsOne);
+      await open(tester, AiSheetKeys.formula);
+      expect(find.byKey(AiFormulaKeys.intro), findsOneWidget);
+      expect(find.byType(AiReadingsScreen), findsNothing);
+
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.byKey(AiFormulaKeys.intro), findsNothing);
+      expect(find.byType(AiReadingsScreen), findsOneWidget);
+    },
+  );
 
   testWidgets('a low model word under high coverage shows low', (tester) async {
     await reports.insert(

@@ -2930,5 +2930,21 @@
   "foodEnergyLimits": "还没有人在过正常生活的人群中验证过这整条链（照片、核对、表格、体重秤）。每一环都有证据，整条链却没有。戒指估算的消耗向两个方向都可能偏差约 15%，范围也继承这一误差。它不知道你某一天吃了什么，所以没有每天的数字。",
   "foodEnergySample": "示例使用虚构的数字，没有使用你的任何数据。",
   "foodFormulaAiBody": "模型只收到照片，已缩小且不含位置信息。它只从封闭列表中作答，从不写句子：是否为食物、标签，以及在每周能量开启时，按家用量具给出的食物项及其食物类别。",
-  "foodFormulaEnergyExpr": "平衡 = 体重趋势线 × {perKg}\n根据记录的消耗 = 平均记录减去平衡\n系数 = 戒指估算的消耗 ÷ 根据记录的消耗\n（戒指 ± 15%，所以系数是一个范围）\n本周 = 本周记录 × 系数\n时段 35 天，20 次称重，28 天已核对"
+  "foodFormulaEnergyExpr": "平衡 = 体重趋势线 × {perKg}\n根据记录的消耗 = 平均记录减去平衡\n系数 = 戒指估算的消耗 ÷ 根据记录的消耗\n（戒指 ± 15%，所以系数是一个范围）\n本周 = 本周记录 × 系数\n时段 35 天，20 次称重，28 天已核对",
+  "aiFormulaIntro": "AI 只负责写文字。此页面上的每个数字、求和与规则都来自 OpenRing，并在你的手机上运行。",
+  "aiFormulaSummaryTitle": "摘要",
+  "aiFormulaSummaryBody": "每天一行（最多 {days} 天），每周一行（最多 {weeks} 周），由这部手机上已有的数据计算得出。不会为 AI 重新计算任何分数：分数按应用显示的原样发送。缺失的数据留空发送，绝不记为零。",
+  "aiFormulaLevel": "{level, select, minimal{分数、负荷、步数、每周平均、趋势和目标，日期为相对天数。年龄按 10 岁区间。体重只发送变化量。} standard{增加睡眠阶段和时间、心脏、训练、体重、能量、饮食和计划。年龄按 5 岁区间，时间取整到 15 分钟，日期为相对天数。} other{准确年龄、日历日期和精确到分钟的时间。只有这一级别可以使用长时段：最多 {days} 天和 {weeks} 周。}}",
+  "aiFormulaNever": "绝不发送：GPS 路线、戒指的名称或地址、原始采样、手机标识符、目标问卷。",
+  "aiFormulaFactsTitle": "模型可以引用的数据",
+  "aiFormulaFactsBody": "应用会生成一份带编号的数据列表：最新值、基线、平均值和趋势。模型只有在引用数据时才能使用数字。数据不足 {min} 天的项目不会列入。",
+  "aiFormulaCheckTitle": "每张卡片如何检查",
+  "aiFormulaRule": "{rule, select, cited{卡片引用 1 到 {maxCited} 条数据，且每条都在已发送的摘要中。} theme{卡片的主题至少与一条引用的数据相符，例如睡眠对应睡眠数据。关于整体情况的卡片可以引用任何数据。} numbers{标题和正文中的每个数字都必须是引用的数据（原值或取整），或两条引用数据之间的差值或百分比变化，或天数、夜数或周数：不超过发送的天数，或 {periods}。} action{建议中只能出现带时间或活动单位（分钟、小时、天、晚、周、步）的数字。带 bpm、ms、%、kg、kcal 或 mg 的数字会使卡片被移除。} words{涉及诊断、疾病、药物、补充剂或剂量的词语会使卡片被移除。} other{网址或 Markdown 链接会使卡片被移除。}}",
+  "aiFormulaThousands": "逗号后跟三位数字表示千位分隔：“9,316”就是九千三百一十六。",
+  "aiFormulaConfidenceExpr": "覆盖度 = 所引用数据中\n天数最少的那条的天数\n{high} 天及以上：高 · {medium} 到 {mediumTop} 天：中\n少于 {medium} 天：低\n显示 = 覆盖度与模型给出的\n两者中较低的一个",
+  "aiFormulaTokensTitle": "令牌与费用",
+  "aiFormulaTokensExpr": "估算 = 文本字节数 ÷ {bytes}，向上取整\n费用 = 服务报告的金额，或\n输入 ÷ {million} × 你填写的价格\n+ 输出 ÷ {million} × 你填写的价格",
+  "aiFormulaTokensNote": "没有报告费用、也没有填写价格时，页面只显示令牌数。服务未报告的用量显示为未报告，绝不显示为零。",
+  "aiFormulaOurs": "我们自己的选择，并非来自研究：{medium} 天和 {high} 天的置信度分界、每个令牌 {bytes} 字节、请求解读所需的至少 {minDays} 天、最多 {cards} 张卡片，以及词语列表。",
+  "aiFormulaUnchecked": "{item, select, keystore{密钥是否存放在 Android Keystore 中：该库说明会加密，但其页面没有说明主密钥存放在哪里。} cleartext{对于这类连接，Android 是否会在本地网络上阻止 http：需要在手机上测试。} other{Google Play 关于将 Health Connect 数据发送到用户自选服务的规定。}}"
 }

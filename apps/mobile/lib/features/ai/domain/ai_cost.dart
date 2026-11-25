@@ -3,6 +3,7 @@ import 'package:open_ring/features/ai/domain/ai_report.dart';
 import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
 
 const String aiProviderCostCurrency = 'credits';
+const int aiPriceTokens = 1000000;
 
 typedef AiCost = ({double cost, String currency, AiCostSource source});
 
@@ -26,7 +27,7 @@ AiCost? aiReportCost(AiTokenUsage? usage, AiConfig config) {
   if (inPrice == null || outPrice == null) return null;
   if (input == null || output == null) return null;
   return (
-    cost: input / 1e6 * inPrice + output / 1e6 * outPrice,
+    cost: input / aiPriceTokens * inPrice + output / aiPriceTokens * outPrice,
     currency: config.priceCurrency,
     source: AiCostSource.userPrice,
   );

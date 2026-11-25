@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/ai/domain/ai_cost.dart';
@@ -15,6 +19,7 @@ abstract final class AiSheetKeys {
   static const usage = Key('ai_sheet_usage');
   static const usage30 = Key('ai_sheet_usage30');
   static const cost = Key('ai_sheet_cost');
+  static const formula = Key('ai_sheet_formula');
 }
 
 /// The rule of decision 7 applied at display time, so a stored card whose
@@ -61,6 +66,18 @@ Future<void> showAiConfidenceSheet(BuildContext context, ValidatedAiCard card) {
     ),
     BodyText(l10n.aiConfidenceFewest(card.minEvidenceDays)),
     CaptionText(l10n.aiConfidenceRule),
+    Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: TextButton.icon(
+        key: AiSheetKeys.formula,
+        onPressed: () {
+          final router = GoRouter.maybeOf(context);
+          if (router != null) unawaited(router.push(AppPaths.aiFormula));
+        },
+        icon: const Icon(Icons.receipt_long_outlined),
+        label: Text(l10n.formulaLink),
+      ),
+    ),
   ]);
 }
 

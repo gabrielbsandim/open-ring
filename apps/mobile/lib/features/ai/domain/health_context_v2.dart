@@ -2,8 +2,9 @@ import 'package:metrics/metrics.dart';
 import 'package:open_ring/features/ai/domain/ai_prompt.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 
+const int aiMinFactDays = 3;
+
 abstract final class HealthContextBuilder {
-  static const int _minSampleDays = 3;
   static const double _kgToLb = 2.20462262185;
   static const double _kmToMi = 0.621371192;
 
@@ -74,7 +75,7 @@ abstract final class HealthContextBuilder {
     AiDetailLevel detail,
   ) => [
     for (final t in items)
-      if (t.n >= _minSampleDays &&
+      if (t.n >= aiMinFactDays &&
           (ring || !t.metric.requiresRing) &&
           (detail != AiDetailLevel.minimal || t.metric.minimalAllowed))
         t,
@@ -90,7 +91,7 @@ abstract final class HealthContextBuilder {
     final used = <String>{};
     var seq = 1;
     for (final f in items) {
-      if (f.days < _minSampleDays || (!ring && f.requiresRing)) continue;
+      if (f.days < aiMinFactDays || (!ring && f.requiresRing)) continue;
       if (detail == AiDetailLevel.minimal && !f.minimalAllowed) continue;
       var id = sanitizeSafeId(f.id, fallback: 'f${out.length + 1}');
       if (!used.add(id)) {
@@ -319,11 +320,11 @@ abstract final class HealthContextBuilder {
   static Map<String, Object?> _baselinesMap(AiBaselinesInput? b, bool ring) {
     if (b == null) return const {};
     return {
-      if (ring && b.rhr != null && b.rhr!.days >= _minSampleDays)
+      if (ring && b.rhr != null && b.rhr!.days >= aiMinFactDays)
         'rhr': {'value': b.rhr!.value, 'days': b.rhr!.days},
-      if (ring && b.hrv != null && b.hrv!.days >= _minSampleDays)
+      if (ring && b.hrv != null && b.hrv!.days >= aiMinFactDays)
         'hrv': {'value': b.hrv!.value, 'days': b.hrv!.days},
-      if (b.sleepMin != null && b.sleepMin!.days >= _minSampleDays)
+      if (b.sleepMin != null && b.sleepMin!.days >= aiMinFactDays)
         'sleep_min': {'value': b.sleepMin!.value, 'days': b.sleepMin!.days},
     };
   }

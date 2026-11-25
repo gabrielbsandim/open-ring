@@ -21,7 +21,6 @@ import 'package:open_ring/l10n/generated/app_localizations.dart';
 import '../../../helpers/layout_harness.dart';
 import '../application/meal_analysis_harness.dart';
 
-
 const _suggestion = MealPhotoSuggestion(
   isFood: MealPhotoFlag.yes,
   kind: MealPhotoKind.main,

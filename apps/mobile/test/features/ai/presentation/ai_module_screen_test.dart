@@ -28,7 +28,11 @@ import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 import '../../../helpers/ai_fakes.dart';
+import '../../../helpers/ble_fakes.dart';
 import '../../../helpers/layout_harness.dart';
+import '../../../helpers/onboarding_app.dart';
+import '../../../helpers/onboarding_fakes.dart';
+import '../../../helpers/ring_fakes.dart';
 
 const _url = 'https://api.example.com/v1';
 const _hostKey = 'https://api.example.com:443';
@@ -139,10 +143,9 @@ void main() {
               InMemoryDemoModeStore(enabled: demo),
             ),
             clockProvider.overrideWithValue(() => _now),
-            analysisModelFactoryProvider.overrideWithValue((config) async {
-              factoryCalls++;
-              throw StateError('the module screen must not build a model');
-            }),
+            keyedAnalysisModelFactoryProvider.overrideWithValue(
+              (config, apiKey) => throw StateError('built ${++factoryCalls}'),
+            ),
           ],
           child: MaterialApp.router(
             theme: AppTheme.light(),
@@ -388,7 +391,8 @@ void main() {
   testWidgets('a store failure shows the save error and stays off', (
     tester,
   ) async {
-    modules = _GatedModuleStore(fail: true);
+    final store = _GatedModuleStore(fail: true);
+    modules = store;
     await pump(tester);
 
     final toggle = find.byKey(AiModuleKeys.toggle);
@@ -402,6 +406,12 @@ void main() {
       tester.widget<ModuleStatePill>(find.byKey(AiModuleKeys.state)).on,
       isFalse,
     );
+    expect(store.writeCalls, 1);
+
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+
+    expect(store.writeCalls, 2, reason: 'a failure must release the guard');
   });
 
   testWidgets('opening the screen with AI on reads stores and sends nothing', (
@@ -412,5 +422,42 @@ void main() {
 
     expect(factoryCalls, 0);
     expect(find.byType(AiModuleScreen), findsOneWidget);
+  });
+
+  testWidgets('the real router opens the screen, and turning on builds no '
+      'model', (tester) async {
+    modules = InMemoryModuleStore();
+    final container = await pumpOnboardingApp(
+      tester,
+      store: InMemoryOnboardingStore(completed: true),
+      at: AppPaths.settingsModuleAi,
+      overrides: [
+        ...bleOverrides(),
+        ...ringOverrides(),
+        ...onboardingOverrides(),
+        moduleStoreProvider.overrideWithValue(modules),
+        aiConfigStoreProvider.overrideWithValue(configs),
+        secretStoreProvider.overrideWithValue(secrets),
+        aiReportStoreProvider.overrideWithValue(reports),
+        keyedAnalysisModelFactoryProvider.overrideWithValue(
+          (config, apiKey) => throw StateError('built ${++factoryCalls}'),
+        ),
+      ],
+    );
+
+    expect(find.byType(AiModuleScreen), findsOneWidget);
+    expect(factoryCalls, 0);
+
+    await tapAndSettle(tester, find.byKey(AiModuleKeys.toggle));
+
+    expect(await modules.read(), {ModuleId.ai});
+    expect(container.read(enabledModulesProvider).value, contains(ModuleId.ai));
+    await tester.scrollUntilVisible(
+      find.byKey(AiModuleKeys.connection),
+      -300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.byKey(AiModuleKeys.connection), findsOneWidget);
+    expect(factoryCalls, 0);
   });
 }

@@ -5523,7 +5523,7 @@
   "@moduleAiSends": {"placeholders": {"item": {"type": "String"}}},
   "moduleAiStores": "{item, select, config{The settings you enter (address, model, detail level, prices and limits) and your consent, with its date.} key{The key, encrypted on this phone, outside the database and every export.} other{The last {count} readings, each with the summary that was sent. After {days} days the sent summary and the raw text leave the reading.}}",
   "@moduleAiStores": {"placeholders": {"item": {"type": "String"}, "count": {"type": "int"}, "days": {"type": "int"}}},
-  "moduleAiNever": "{item, select, today{Never puts AI text on Today, in widgets or in notifications.} auto{Never sends by itself. Every send starts with your tap.} score{Never changes a score. Day Score, Level and Overall read nothing from the AI.} unchecked{Never shows a number from the model that fails the check against your data.} other{Never keeps a card with words of diagnosis, disease, medicine, supplements or dose.}}",
+  "moduleAiNever": "{item, select, today{Never puts AI text on Today, in widgets or in notifications.} auto{Never sends by itself. Every send starts with your tap.} score{Never changes a score. Day Score, Level and Overall read nothing from the AI.} unchecked{Never shows a number from the model in a reading if it fails the check against your data.} other{Never keeps a card with words of diagnosis, disease, medicine, supplements or dose.}}",
   "@moduleAiNever": {"placeholders": {"item": {"type": "String"}}},
   "moduleAiReadingsNone": "No reading yet",
   "moduleAiReadingsLast": "Last: {date}, {kind}",

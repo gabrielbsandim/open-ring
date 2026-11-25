@@ -2954,7 +2954,7 @@
   "moduleAiSendsTitle": "发送的内容",
   "moduleAiSends": "{item, select, summary{只发送页面事先展示给你的内容（摘要、回顾中的决定或餐食照片），只发送到你设置的地址，且只在你同意之后。} never{绝不发送：GPS 路线或任何位置信息、戒指的名称或地址、原始采样、手机标识符、目标问卷。} other{服务会收到发送的内容、你的密钥和手机的 IP 地址，并可能按其自身规则保留。}}",
   "moduleAiStores": "{item, select, config{你填写的设置（地址、模型、详细程度、价格和上限），以及带日期的同意记录。} key{密钥，在这部手机上加密保存，不在数据库中，也不在任何导出中。} other{最近 {count} 次解读，每次都附带发送的摘要。{days} 天后，发送的摘要和原始文本会从解读中删除。}}",
-  "moduleAiNever": "{item, select, today{绝不在“今天”、小组件或通知中显示 AI 文字。} auto{绝不自行发送。每次发送都由你的点按开始。} score{绝不改变分数。今日评分、等级和总评分不读取 AI 的任何内容。} unchecked{绝不显示未通过与你数据核对的模型数字。} other{绝不保留含有诊断、疾病、药物、补充剂或剂量词语的卡片。}}",
+  "moduleAiNever": "{item, select, today{绝不在“今天”、小组件或通知中显示 AI 文字。} auto{绝不自行发送。每次发送都由你的点按开始。} score{绝不改变分数。今日评分、等级和总评分不读取 AI 的任何内容。} unchecked{绝不在解读中显示未通过与你数据核对的模型数字。} other{绝不保留含有诊断、疾病、药物、补充剂或剂量词语的卡片。}}",
   "moduleAiReadingsNone": "还没有解读",
   "moduleAiReadingsLast": "上次：{date}，{kind}",
   "moduleAiConnection": "{state, select, none{未连接} untested{已设置，未测试 · {host}} other{就绪：{host} · {model}}}",

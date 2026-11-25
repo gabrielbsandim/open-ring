@@ -2339,6 +2339,56 @@ not trip it.
 
 Negative days or a negative noise throw `ArgumentError`.
 
+### Ring levers (Theil-Sen over 90 days)
+
+Code: `packages/metrics/lib/src/lever_trend.dart`. Steps, sleep regularity,
+resting heart rate and sleep duration each get a 90 day trend. Weight keeps
+the 28 day rate of section 13; Theil-Sen is only for the levers.
+
+**Window.** One value per date in the 90 days ending on the day read; a date
+seen twice keeps its last value, and a value that is not a finite number is
+dropped. Below 54 valid days (`leverTrendMinValidDays`) there is no trend.
+
+**Slope.** The median of the slopes between every pair of days. The change is
+the slope times 90, and the typical value is the median of the values.
+
+**Interval (90%).** With `n` days, `N` pairwise slopes sorted and `k` the size
+of each group of equal values:
+
+`sigma = sqrt((n(n - 1)(2n + 5) - sum k(k - 1)(2k + 5)) / 18)`
+
+the low end is slope number `max(round((N - 1.645 sigma) / 2) - 1, 0)` and the
+high end slope number `min(round((N + 1.645 sigma) / 2), N - 1)`, counted from
+0 and rounded half away from zero, as in `scipy.stats.theilslopes`.
+
+**Direction.** Rising when the whole interval is above zero and the change is
+at least the lever's minimum; falling the same way below zero; otherwise
+stable. A change smaller than the minimum is stable even when the interval
+excludes zero.
+
+**Steps fan.** Only steps get one: the line through the median day and the
+typical value, read at the last day of the window, plus the low and high
+change.
+
+**Valid step day.** A day counts for steps when the ring reported at least
+10 hours of buckets (`validStepDayWaking`) outside sleep. Overlapping and
+repeated buckets count once, a bucket with zero steps counts, and only the
+minutes inside sleep are taken out.
+
+| Constant | Value | Status |
+| --- | --- | --- |
+| `leverTrendWindowDays` | 90 days | **our choice**. |
+| `leverTrendMinValidDays` | 54 days (60%) | **our choice**. |
+| `leverTrendZ` | 1.645 (90%) | **our choice** of level; the form is Sen 1968, **not yet checked** against the paper. |
+| `RingLever.steps` | 500 steps | **our choice**. |
+| `RingLever.sleepRegularity` | 5 points | **our choice**. |
+| `RingLever.restingHeartRate` | 2 bpm | **our choice**. |
+| `RingLever.sleepDuration` | 20 min | **our choice**. |
+| `validStepDayWaking` | 10 h | **our choice**. |
+
+The estimator is Theil 1950 and Sen 1968, **not yet checked** against the
+papers.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical
@@ -2348,11 +2398,11 @@ Negative days or a negative noise throw `ArgumentError`.
   predicts cardiovascular disease-related mortality: the Osteoporotic Fractures
   in Men Study and the Sleep Heart Health Study. Eur Heart J.
   2019;40(14):1149-1157.
+- Buchheit M. Monitoring training status with HR measures: do all roads lead to
+  Rome? Front Physiol. 2014;5:73.
 - Bull FC, Al-Ansari SS, Biddle S, et al. World Health Organization 2020
   guidelines on physical activity and sedentary behaviour. Br J Sports Med.
   2020;54(24):1451-1462.
-- Buchheit M. Monitoring training status with HR measures: do all roads lead to
-  Rome? Front Physiol. 2014;5:73.
 - Fox SM, Naughton JP, Haskell WL. Physical activity and the prevention of
   coronary heart disease. Ann Clin Res. 1971;3(6):404-432.
 - Frankenfield D, Roth-Yousey L, Compher C. Comparison of predictive equations
@@ -2379,24 +2429,30 @@ Negative days or a negative noise throw `ArgumentError`.
   predictive equation for resting energy expenditure in healthy individuals.
   Am J Clin Nutr. 1990;51(2):241-247.
 - Moritz H. Geodetic Reference System 1980. J Geod. 2000;74(1):128-133.
+- Ohayon M, Wickwire EM, Hirshkowitz M, et al. National Sleep Foundation's
+  sleep quality recommendations: first report. Sleep Health. 2017;3(1):6-19.
 - Ohayon MM, Carskadon MA, Guilleminault C, Vitiello MV. Meta-analysis of
   quantitative sleep parameters from childhood to old age in healthy
   individuals: developing normative sleep values across the human lifespan.
   Sleep. 2004;27(7):1255-1273.
-- Ohayon M, Wickwire EM, Hirshkowitz M, et al. National Sleep Foundation's
-  sleep quality recommendations: first report. Sleep Health. 2017;3(1):6-19.
-- Plews DJ, Laursen PB, Stanley J, Kilding AE, Buchheit M. Training adaptation
-  and heart rate variability in elite endurance athletes: opening the door to
-  effective monitoring. Sports Med. 2013;43(9):773-781.
 - Plews DJ, Laursen PB, Le Meur Y, Hausswirth C, Kilding AE, Buchheit M.
   Monitoring training with heart rate variability: how much compliance is
   needed for valid assessment? Int J Sports Physiol Perform.
   2014;9(5):783-790.
+- Plews DJ, Laursen PB, Stanley J, Kilding AE, Buchheit M. Training adaptation
+  and heart rate variability in elite endurance athletes: opening the door to
+  effective monitoring. Sports Med. 2013;43(9):773-781.
+- Protocol slot sizes: `docs/protocols/realsil-colmi.md`, from Gadgetbridge
+  `YawellRingPacketHandler` (heart rate, HRV, stress and SpO2 logs).
 - Robergs RA, Landwehr R. The surprising history of the "HRmax = 220 - age"
   equation. J Exerc Physiol Online. 2002;5(2):1-10.
+- Sen PK. Estimates of the regression coefficient based on Kendall's tau. J
+  Am Stat Assoc. 1968;63(324):1379-1389.
 - Sinnott RW. Virtues of the haversine. Sky Telesc. 1984;68(2):159.
 - Tanaka H, Monahan KD, Seals DR. Age-predicted maximal heart rate revisited.
   J Am Coll Cardiol. 2001;37(1):153-156.
+- Theil H. A rank-invariant method of linear and polynomial regression
+  analysis. Proc K Ned Akad Wet. 1950;53:386-392.
 - Tudor-Locke C, Han H, Aguiar EJ, et al. How fast is fast enough? Walking
   cadence (steps/min) as a practical estimate of intensity in adults: a
   narrative review. Br J Sports Med. 2018;52(12):776-788.
@@ -2405,5 +2461,3 @@ Negative days or a negative noise throw `ArgumentError`.
 - Watson NF, Badr MS, Belenky G, et al. Recommended amount of sleep for a
   healthy adult: a joint consensus statement of the American Academy of Sleep
   Medicine and Sleep Research Society. Sleep. 2015;38(6):843-844.
-- Protocol slot sizes: `docs/protocols/realsil-colmi.md`, from Gadgetbridge
-  `YawellRingPacketHandler` (heart rate, HRV, stress and SpO2 logs).

@@ -401,7 +401,7 @@ void main() {
 
   group('review focus: overlapping buckets and sleep clipping', () {
     List<StepBucket> halfHourEveryQuarter(int count) => [
-      for (var i = 0; i < count; i++) bucket(i, minutes: 30, stepMinutes: 15),
+      for (var i = 0; i < count; i++) bucket(i, minutes: 30),
     ];
 
     test(

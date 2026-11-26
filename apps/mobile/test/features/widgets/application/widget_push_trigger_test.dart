@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,7 +22,9 @@ import 'package:open_ring/features/sleep/application/sleep_providers.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/today/domain/ring_status_reader.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
+import 'package:open_ring/features/widgets/application/widget_publisher.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
+import 'package:open_ring/features/widgets/domain/widget_gateway.dart';
 import 'package:open_ring/features/widgets/infrastructure/home_widget_plugin_gateway.dart';
 import 'package:open_ring/features/workout/application/workout_history_providers.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
@@ -559,4 +563,52 @@ void main() {
       ('setThisWeekAvailable', false),
     ]);
   });
+
+  test(
+    'setThisWeekAvailable serializes overlapping toggles in order',
+    () async {
+      final firstGate = Completer<void>();
+      final calls = <bool>[];
+      final publisher = WidgetPublisher(
+        _SlowAvailabilityGateway(calls, pauseFirst: firstGate),
+      );
+
+      final first = publisher.setThisWeekAvailable(available: true);
+      final dup = publisher.setThisWeekAvailable(available: true);
+      final drop = publisher.setThisWeekAvailable(available: false);
+      await pumpEventQueue();
+      expect(calls, [true]);
+
+      firstGate.complete();
+      await Future.wait([first, dup, drop]);
+
+      expect(calls, [true, false]);
+    },
+  );
+}
+
+final class _SlowAvailabilityGateway implements WidgetGateway {
+  new(this.calls, {required this.pauseFirst});
+
+  final List<bool> calls;
+  final Completer<void> pauseFirst;
+  var _first = true;
+
+  @override
+  Future<void> publish(String key, String json) async {}
+
+  @override
+  Future<bool> canPin() async => false;
+
+  @override
+  Future<void> pin(HomeWidgetKind kind) async {}
+
+  @override
+  Future<void> setThisWeekAvailable({required bool available}) async {
+    calls.add(available);
+    if (_first) {
+      _first = false;
+      await pauseFirst.future;
+    }
+  }
 }

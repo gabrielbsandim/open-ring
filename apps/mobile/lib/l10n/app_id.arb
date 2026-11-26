@@ -3271,5 +3271,14 @@
   "moduleTrajectoryTurnOnBoth": "Aktifkan {body} dan Lintasan",
   "moduleTrajectoryTurnOnBothNote": "{body} tidak meminta izin dan tidak mengirim apa pun. Anda bisa mematikan keduanya kapan saja.",
   "moduleTrajectoryTurnOff": "Matikan Lintasan",
-  "moduleTrajectoryTurnOffNote": "Proyeksi yang tersimpan tetap ada. {body} tetap aktif."
+  "moduleTrajectoryTurnOffNote": "Proyeksi yang tersimpan tetap ada. {body} tetap aktif.",
+  "widgetRingCharging": "sedang diisi · sinkron {time}",
+  "widgetRingLowBattery": "baterai lemah · sinkron {time}",
+  "widgetDayScoreAsOf": "per {time}",
+  "widgetDayScoreYesterdayFinal": "kemarin, final",
+  "widgetDayScoreFirstDaysDetail": "Perlu 60 poin. Hari ini {points}.",
+  "widgetDayScoreNoneCoverage": "Perlu 60 poin hari ini.",
+  "widgetEffortSummary": "dari {target} · kekuatan {done} dari {total}",
+  "widgetThisWeekOff": "Effort dan Target nonaktif. Ketuk untuk membuka Modul.",
+  "widgetThisWeekWaiting": "Menunggu data yang cukup untuk mulai."
 }

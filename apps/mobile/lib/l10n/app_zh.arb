@@ -3271,5 +3271,14 @@
   "moduleTrajectoryTurnOnBoth": "开启{body}和趋势",
   "moduleTrajectoryTurnOnBothNote": "{body}不请求权限，也不发送任何内容。你可以随时关闭两者。",
   "moduleTrajectoryTurnOff": "关闭趋势",
-  "moduleTrajectoryTurnOffNote": "已保存的预测会保留。{body}保持开启。"
+  "moduleTrajectoryTurnOffNote": "已保存的预测会保留。{body}保持开启。",
+  "widgetRingCharging": "正在充电 · 已同步 {time}",
+  "widgetRingLowBattery": "电量低 · 已同步 {time}",
+  "widgetDayScoreAsOf": "截至 {time}",
+  "widgetDayScoreYesterdayFinal": "昨日最终",
+  "widgetDayScoreFirstDaysDetail": "需要 60 分。今日已有 {points} 分。",
+  "widgetDayScoreNoneCoverage": "今日需要 60 分。",
+  "widgetEffortSummary": "共 {target} · 力量 {done} / {total}",
+  "widgetThisWeekOff": "努力和目标已关闭。点击打开模块。",
+  "widgetThisWeekWaiting": "正在等待足够的数据以开始。"
 }

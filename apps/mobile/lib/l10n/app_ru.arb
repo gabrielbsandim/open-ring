@@ -3271,5 +3271,14 @@
   "moduleTrajectoryTurnOnBoth": "Включить {body} и Траекторию",
   "moduleTrajectoryTurnOnBothNote": "{body} не просит разрешений и ничего не отправляет. Оба можно выключить когда угодно.",
   "moduleTrajectoryTurnOff": "Выключить Траекторию",
-  "moduleTrajectoryTurnOffNote": "Сохранённые прогнозы остаются. {body} остаётся включённым."
+  "moduleTrajectoryTurnOffNote": "Сохранённые прогнозы остаются. {body} остаётся включённым.",
+  "widgetRingCharging": "заряжается · синхр. {time}",
+  "widgetRingLowBattery": "низкий заряд · синхр. {time}",
+  "widgetDayScoreAsOf": "на {time}",
+  "widgetDayScoreYesterdayFinal": "вчера, итог",
+  "widgetDayScoreFirstDaysDetail": "Нужно 60 баллов. Сегодня {points}.",
+  "widgetDayScoreNoneCoverage": "Сегодня нужно 60 баллов.",
+  "widgetEffortSummary": "из {target} · силовые {done} из {total}",
+  "widgetThisWeekOff": "Усилие и Цели отключены. Нажмите, чтобы открыть Модули.",
+  "widgetThisWeekWaiting": "Ожидание достаточных данных для старта."
 }

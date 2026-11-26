@@ -3271,5 +3271,14 @@
   "moduleTrajectoryTurnOnBoth": "{body} und Verlauf einschalten",
   "moduleTrajectoryTurnOnBothNote": "{body} fragt nach keiner Berechtigung und sendet nichts. Du kannst beide jederzeit ausschalten.",
   "moduleTrajectoryTurnOff": "Verlauf ausschalten",
-  "moduleTrajectoryTurnOffNote": "Die gespeicherten Projektionen bleiben. {body} bleibt an."
+  "moduleTrajectoryTurnOffNote": "Die gespeicherten Projektionen bleiben. {body} bleibt an.",
+  "widgetRingCharging": "lädt · synchr. {time}",
+  "widgetRingLowBattery": "Akku schwach · synchr. {time}",
+  "widgetDayScoreAsOf": "Stand {time}",
+  "widgetDayScoreYesterdayFinal": "gestern, final",
+  "widgetDayScoreFirstDaysDetail": "Braucht 60 Punkte. Heute {points}.",
+  "widgetDayScoreNoneCoverage": "Braucht heute 60 Punkte.",
+  "widgetEffortSummary": "von {target} · Kraft {done} von {total}",
+  "widgetThisWeekOff": "Effort und Ziele sind aus. Tippen für Module.",
+  "widgetThisWeekWaiting": "Wartet auf genügend Daten zum Start."
 }

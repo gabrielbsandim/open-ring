@@ -3271,5 +3271,14 @@
   "moduleTrajectoryTurnOnBoth": "Attiva {body} e Traiettoria",
   "moduleTrajectoryTurnOnBothNote": "{body} non chiede permessi e non invia nulla. Puoi spegnerli entrambi quando vuoi.",
   "moduleTrajectoryTurnOff": "Spegni Traiettoria",
-  "moduleTrajectoryTurnOffNote": "Le proiezioni salvate restano. {body} resta attivo."
+  "moduleTrajectoryTurnOffNote": "Le proiezioni salvate restano. {body} resta attivo.",
+  "widgetRingCharging": "in carica · sincr. {time}",
+  "widgetRingLowBattery": "batteria scarica · sincr. {time}",
+  "widgetDayScoreAsOf": "alle {time}",
+  "widgetDayScoreYesterdayFinal": "ieri, finale",
+  "widgetDayScoreFirstDaysDetail": "Servono 60 punti. Oggi sono {points}.",
+  "widgetDayScoreNoneCoverage": "Servono 60 punti oggi.",
+  "widgetEffortSummary": "su {target} · forza {done} su {total}",
+  "widgetThisWeekOff": "Sforzo e Obiettivi sono spenti. Tocca per aprire Moduli.",
+  "widgetThisWeekWaiting": "In attesa di dati sufficienti per iniziare."
 }

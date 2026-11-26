@@ -3271,5 +3271,14 @@
   "moduleTrajectoryTurnOnBoth": "{body}と推移をオンにする",
   "moduleTrajectoryTurnOnBothNote": "{body}は許可を求めず、何も送信しません。いつでも両方オフにできます。",
   "moduleTrajectoryTurnOff": "推移をオフにする",
-  "moduleTrajectoryTurnOffNote": "保存された予測は残ります。{body}はオンのままです。"
+  "moduleTrajectoryTurnOffNote": "保存された予測は残ります。{body}はオンのままです。",
+  "widgetRingCharging": "充電中 · {time}に同期",
+  "widgetRingLowBattery": "電池残量低下 · {time}に同期",
+  "widgetDayScoreAsOf": "{time}時点",
+  "widgetDayScoreYesterdayFinal": "昨日確定",
+  "widgetDayScoreFirstDaysDetail": "60ポイント必要です。現在 {points}。",
+  "widgetDayScoreNoneCoverage": "今日60ポイント必要です。",
+  "widgetEffortSummary": "目標 {target} · 筋トレ {done} / {total}",
+  "widgetThisWeekOff": "エフォートと目標はオフです。タップしてモジュールを開く。",
+  "widgetThisWeekWaiting": "開始に必要なデータを待っています。"
 }

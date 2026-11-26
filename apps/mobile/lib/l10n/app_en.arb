@@ -5961,5 +5961,19 @@
   "@moduleTrajectoryTurnOnBothNote": {"placeholders": {"body": {"type": "String"}}},
   "moduleTrajectoryTurnOff": "Turn Trajectory off",
   "moduleTrajectoryTurnOffNote": "The stored projections stay. {body} stays on.",
-  "@moduleTrajectoryTurnOffNote": {"placeholders": {"body": {"type": "String"}}}
+  "@moduleTrajectoryTurnOffNote": {"placeholders": {"body": {"type": "String"}}},
+  "widgetRingCharging": "charging · synced {time}",
+  "@widgetRingCharging": {"placeholders": {"time": {"type": "String"}}},
+  "widgetRingLowBattery": "low battery · synced {time}",
+  "@widgetRingLowBattery": {"placeholders": {"time": {"type": "String"}}},
+  "widgetDayScoreAsOf": "as of {time}",
+  "@widgetDayScoreAsOf": {"placeholders": {"time": {"type": "String"}}},
+  "widgetDayScoreYesterdayFinal": "yesterday, final",
+  "widgetDayScoreFirstDaysDetail": "Needs 60 points. Today has {points}.",
+  "@widgetDayScoreFirstDaysDetail": {"placeholders": {"points": {"type": "String"}}},
+  "widgetDayScoreNoneCoverage": "Needs 60 points today.",
+  "widgetEffortSummary": "of {target} · strength {done} of {total}",
+  "@widgetEffortSummary": {"placeholders": {"target": {"type": "String"}, "done": {"type": "String"}, "total": {"type": "String"}}},
+  "widgetThisWeekOff": "Effort and Goals are off. Tap to open Modules.",
+  "widgetThisWeekWaiting": "Waiting for enough data to start."
 }

@@ -66,7 +66,7 @@ private fun ReadinessContent(data: WidgetData) {
                 if (prefersSingleColumn()) {
                     Label(scoreText, palette.textPrimary, 30.sp, bold = true)
                     Gap(6)
-                    Factors(snapshot, format, palette)
+                    Column(modifier = GlanceModifier.fillMaxWidth()) { Factors(snapshot, format, palette) }
                 } else {
                     Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Label(scoreText, palette.textPrimary, 34.sp, bold = true)

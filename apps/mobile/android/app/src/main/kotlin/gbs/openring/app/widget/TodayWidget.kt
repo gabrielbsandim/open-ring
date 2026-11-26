@@ -20,6 +20,7 @@ import androidx.glance.layout.ColumnScope
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.padding
 import androidx.glance.layout.width
 import es.antonborri.home_widget.HomeWidgetGlanceState
 import es.antonborri.home_widget.HomeWidgetGlanceStateDefinition
@@ -65,11 +66,14 @@ private fun TodayContent(data: WidgetData) {
     val sizeBucket = todaySizeBucket()
     val visible = data.appearance.todayMetrics.take(sizeBucket.maxFields)
     val nowMs = System.currentTimeMillis()
-    val status = todayFooterStatus(snapshot, visible, format, context, nowMs)
+    val status = todayFooterStatus(snapshot, format, context, nowMs)
     val title = listOfNotNull(
         context.getString(R.string.widget_today_name),
         snapshot?.date?.let(format::date),
     ).joinToString(" · ")
+    val noRingData = snapshot != null &&
+        !snapshot.hasHealthData &&
+        (snapshot.dayScore == null || Metric.DAY_SCORE !in visible)
     WidgetSurface(palette, WidgetLinks.TODAY) {
         when {
             visible.isEmpty() -> {
@@ -90,7 +94,7 @@ private fun TodayContent(data: WidgetData) {
                 Spacer(modifier = GlanceModifier.defaultWeight())
                 StatusLine(status, palette)
             }
-            !snapshot.hasHealthData && snapshot.dayScore == null && visible.all { it.requiresRing } -> {
+            noRingData && visible.all { it.requiresRing } -> {
                 HeaderRow(title, status, palette)
                 Gap(8)
                 Message(context.getString(R.string.widget_no_data), palette)
@@ -114,12 +118,11 @@ private fun TodayContent(data: WidgetData) {
 
 private fun todayFooterStatus(
     snapshot: Snapshot?,
-    visible: List<Metric>,
     format: WidgetFormat,
     context: Context,
     nowMs: Long,
 ): Status {
-    if (snapshot != null && !snapshot.paired && visible.any { !it.requiresRing }) {
+    if (snapshot != null && !snapshot.paired) {
         return Status(context.getString(R.string.widget_unpaired_short), false)
     }
     return format.status(snapshot, nowMs)
@@ -128,8 +131,10 @@ private fun todayFooterStatus(
 @Composable
 private fun HeaderRow(title: String, status: Status, palette: WidgetPalette) {
     if (prefersSingleColumn()) {
-        Label(title, palette.textPrimary, 13.sp, bold = true)
-        StatusLine(status, palette)
+        Column(modifier = GlanceModifier.fillMaxWidth()) {
+            Label(title, palette.textPrimary, 13.sp, bold = true)
+            StatusLine(status, palette)
+        }
         return
     }
     Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -163,7 +168,9 @@ private fun TodayMedium(
     stale: Boolean,
 ) {
     if (prefersSingleColumn()) {
-        metrics.forEach { MetricRow(it, snapshot, units, format, palette, stale) }
+        Column(modifier = GlanceModifier.fillMaxWidth()) {
+            metrics.forEach { MetricRow(it, snapshot, units, format, palette, stale) }
+        }
         return
     }
     Row(modifier = GlanceModifier.fillMaxWidth()) {
@@ -204,27 +211,30 @@ private fun TodayLarge(
     } else {
         metrics
     }
-    if (prefersSingleColumn()) {
-        rest.forEach { MetricRow(it, snapshot, units, format, palette, stale) }
-        return
-    }
-    rest.chunked(2).forEachIndexed { rowIndex, pair ->
-        if (rowIndex > 0) Gap(8)
-        Row(modifier = GlanceModifier.fillMaxWidth()) {
-            pair.forEachIndexed { colIndex, metric ->
-                if (colIndex > 0) Spacer(modifier = GlanceModifier.width(10.dp))
-                MetricBlock(
-                    metric = metric,
-                    snapshot = snapshot,
-                    units = units,
-                    format = format,
-                    palette = palette,
-                    valueSize = 16.sp,
-                    stale = stale,
-                    modifier = GlanceModifier.defaultWeight(),
-                )
+    if (rest.isEmpty()) return
+    Column(modifier = GlanceModifier.fillMaxWidth()) {
+        if (prefersSingleColumn()) {
+            rest.forEach { MetricRow(it, snapshot, units, format, palette, stale) }
+            return@Column
+        }
+        rest.chunked(2).forEachIndexed { rowIndex, pair ->
+            if (rowIndex > 0) Gap(8)
+            Row(modifier = GlanceModifier.fillMaxWidth()) {
+                pair.forEachIndexed { colIndex, metric ->
+                    if (colIndex > 0) Spacer(modifier = GlanceModifier.width(10.dp))
+                    MetricBlock(
+                        metric = metric,
+                        snapshot = snapshot,
+                        units = units,
+                        format = format,
+                        palette = palette,
+                        valueSize = 16.sp,
+                        stale = stale,
+                        modifier = GlanceModifier.defaultWeight(),
+                    )
+                }
+                if (pair.size == 1) Spacer(modifier = GlanceModifier.defaultWeight())
             }
-            if (pair.size == 1) Spacer(modifier = GlanceModifier.defaultWeight())
         }
     }
 }
@@ -232,25 +242,27 @@ private fun TodayLarge(
 @Composable
 private fun DayScoreHero(snapshot: Snapshot, format: WidgetFormat, palette: WidgetPalette, stale: Boolean) {
     val display = format.dayScore(snapshot, stale)
-    MetricHeading(Metric.DAY_SCORE, format, palette, GlanceModifier)
-    if (display.messageTitle != null) {
+    Column(modifier = GlanceModifier.fillMaxWidth()) {
+        MetricHeading(Metric.DAY_SCORE, format, palette, GlanceModifier)
+        if (display.messageTitle != null) {
+            Gap(4)
+            Label(display.messageTitle, palette.textPrimary, 13.sp, bold = true)
+            display.messageDetail?.let { Label(it, palette.textLabel, 10.sp, maxLines = 2) }
+            return@Column
+        }
         Gap(4)
-        Label(display.messageTitle, palette.textPrimary, 13.sp, bold = true)
-        display.messageDetail?.let { Label(it, palette.textLabel, 10.sp, maxLines = 2) }
-        return
-    }
-    Gap(4)
-    Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
-        Label(display.value, palette.textPrimary, 30.sp, bold = true)
-        Spacer(modifier = GlanceModifier.width(8.dp))
-        Label(display.detail, palette.textLabel, 11.sp, maxLines = 2, modifier = GlanceModifier.defaultWeight())
-    }
-    Gap(6)
-    PillarBar(display.pillarPoints, palette)
-    Gap(4)
-    Row(modifier = GlanceModifier.fillMaxWidth()) {
-        format.pillarShortLabels().forEach { short ->
-            Label(short, palette.textLabel, 9.sp, modifier = GlanceModifier.defaultWeight(), maxLines = 1)
+        Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+            Label(display.value, palette.textPrimary, 30.sp, bold = true)
+            Spacer(modifier = GlanceModifier.width(8.dp))
+            Label(display.detail, palette.textLabel, 11.sp, maxLines = 2, modifier = GlanceModifier.defaultWeight())
+        }
+        Gap(6)
+        PillarBar(display.pillarPoints, palette)
+        Gap(4)
+        Row(modifier = GlanceModifier.fillMaxWidth()) {
+            format.pillarShortLabels().forEach { short ->
+                Label(short, palette.textLabel, 9.sp, modifier = GlanceModifier.defaultWeight(), maxLines = 1)
+            }
         }
     }
 }
@@ -337,14 +349,15 @@ private fun MetricRow(
 ) {
     val text = if (metric == Metric.DAY_SCORE) {
         val ds = format.dayScore(snapshot, stale)
-        MetricText(ds.value, ds.messageTitle ?: ds.detail, null)
+        MetricText(ds.value, ds.messageDetail ?: ds.messageTitle ?: ds.detail, null)
     } else {
         format.metric(metric, snapshot, units)
     }
-    Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        MetricHeading(metric, format, palette, GlanceModifier.defaultWeight())
-        Label(text.value, palette.textPrimary, 14.sp, bold = true)
+    Column(modifier = GlanceModifier.fillMaxWidth().padding(bottom = 4.dp)) {
+        Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            MetricHeading(metric, format, palette, GlanceModifier.defaultWeight())
+            Label(text.value, palette.textPrimary, 14.sp, bold = true)
+        }
+        Label(text.detail, palette.textLabel, 10.sp)
     }
-    Label(text.detail, palette.textLabel, 10.sp)
-    Gap(4)
 }

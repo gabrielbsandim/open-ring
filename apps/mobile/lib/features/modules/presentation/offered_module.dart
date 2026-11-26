@@ -70,11 +70,11 @@ enum OfferedModule {
     ),
   };
 
-  /// Where View goes after switching on: Goals, AI and Trajectory show
-  /// nothing on Today, so each opens its own screen.
   /// Energy and Trajectory use equations built with adults only.
   bool get adultOnly => this == energy || this == trajectory;
 
+  /// Where View goes after switching on: Goals, AI and Trajectory show
+  /// nothing on Today, so each opens its own screen.
   String get viewPath => switch (this) {
     OfferedModule.goals => AppPaths.goals,
     OfferedModule.ai => AppPaths.settingsAiConnection,

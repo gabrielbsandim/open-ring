@@ -53,21 +53,33 @@ private fun ReadinessContent(data: WidgetData) {
             Label(context.getString(R.string.widget_estimate), palette.textLabel, 10.sp)
         }
         Gap(8)
-        if (prefersSingleColumn()) {
-            Label(scoreText, palette.textPrimary, 30.sp, bold = true)
-            Gap(6)
-            Factors(snapshot, format, palette)
-        } else {
-            Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Label(scoreText, palette.textPrimary, 34.sp, bold = true)
-                Spacer(modifier = GlanceModifier.width(12.dp))
-                Column(modifier = GlanceModifier.defaultWeight()) { Factors(snapshot, format, palette) }
+        when {
+            snapshot == null -> {
+                Message(context.getString(R.string.widget_no_snapshot), palette)
+            }
+            !snapshot.paired -> {
+                Message(context.getString(R.string.widget_unpaired), palette)
+                Spacer(modifier = GlanceModifier.defaultWeight())
+                StatusLine(Status(context.getString(R.string.widget_unpaired_short), false), palette)
+            }
+            else -> {
+                if (prefersSingleColumn()) {
+                    Label(scoreText, palette.textPrimary, 30.sp, bold = true)
+                    Gap(6)
+                    Column(modifier = GlanceModifier.fillMaxWidth()) { Factors(snapshot, format, palette) }
+                } else {
+                    Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Label(scoreText, palette.textPrimary, 34.sp, bold = true)
+                        Spacer(modifier = GlanceModifier.width(12.dp))
+                        Column(modifier = GlanceModifier.defaultWeight()) { Factors(snapshot, format, palette) }
+                    }
+                }
+                Gap(8)
+                WidgetFormat.share(score, 100)?.let { ProgressBar(it, palette.textPrimary, palette) }
+                Gap(6)
+                ReadinessFooter(snapshot, format, palette)
             }
         }
-        Gap(8)
-        WidgetFormat.share(score, 100)?.let { ProgressBar(it, palette.textPrimary, palette) }
-        Gap(6)
-        ReadinessFooter(snapshot, format, palette)
     }
 }
 

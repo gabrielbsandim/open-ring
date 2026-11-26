@@ -72,4 +72,18 @@
     <string name="widget_energy_range">%1$s sampai %2$s</string>
     <string name="widget_sub_energy">kkal, perkiraan</string>
     <string name="widget_sub_effort">dari %1$s · kekuatan %2$s dari %3$s</string>
+    <string name="widget_day_score_so_far">%1$s · sejauh ini %2$s</string>
+    <string name="widget_day_score_as_of">%1$s · per %2$s</string>
+    <string name="widget_day_score_partial">%1$s · %2$s dari 100</string>
+    <string name="widget_day_score_yesterday_final">%1$s · kemarin, final</string>
+    <string name="widget_day_score_first_days_title">Skor pertama sedang disiapkan</string>
+    <string name="widget_day_score_first_days_detail">Perlu 60 poin. Hari ini %1$s.</string>
+    <string name="widget_day_score_none_night">Data tidur malam tidak ada.</string>
+    <string name="widget_day_score_none_steps">Langkah hari ini belum ada.</string>
+    <string name="widget_day_score_none_coverage">Perlu 60 poin hari ini.</string>
+    <string name="widget_pillar_sleep_short">Tidur</string>
+    <string name="widget_pillar_move_short">Gerak</string>
+    <string name="widget_pillar_rec_short">Pulih</string>
+    <string name="widget_pillar_stress_short">Stres</string>
+    <string name="widget_pillar_spo2_short">O2</string>
 </resources>

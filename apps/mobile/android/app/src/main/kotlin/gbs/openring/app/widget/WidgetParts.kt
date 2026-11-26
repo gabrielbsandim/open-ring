@@ -160,3 +160,8 @@ internal fun Swatch(color: ColorProvider) {
 internal fun Gap(height: Int) {
     Spacer(modifier = GlanceModifier.height(height.dp))
 }
+
+@Composable
+internal fun Divider(palette: WidgetPalette) {
+    Box(modifier = GlanceModifier.fillMaxWidth().height(1.dp).background(palette.track)) {}
+}

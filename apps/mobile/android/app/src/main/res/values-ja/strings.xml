@@ -72,4 +72,18 @@
     <string name="widget_energy_range">%1$s〜%2$s</string>
     <string name="widget_sub_energy">kcal（推定）</string>
     <string name="widget_sub_effort">目標 %1$s · 筋トレ %2$s / %3$s</string>
+    <string name="widget_day_score_so_far">%1$s · 現在 %2$s</string>
+    <string name="widget_day_score_as_of">%1$s · %2$s時点</string>
+    <string name="widget_day_score_partial">%1$s · %2$s / 100</string>
+    <string name="widget_day_score_yesterday_final">%1$s · 昨日確定</string>
+    <string name="widget_day_score_first_days_title">最初のスコアを作成中</string>
+    <string name="widget_day_score_first_days_detail">60ポイント必要です。現在 %1$s。</string>
+    <string name="widget_day_score_none_night">昨夜の睡眠がありません。</string>
+    <string name="widget_day_score_none_steps">今日の歩数がありません。</string>
+    <string name="widget_day_score_none_coverage">今日60ポイント必要です。</string>
+    <string name="widget_pillar_sleep_short">睡眠</string>
+    <string name="widget_pillar_move_short">運動</string>
+    <string name="widget_pillar_rec_short">回復</string>
+    <string name="widget_pillar_stress_short">ストレス</string>
+    <string name="widget_pillar_spo2_short">O2</string>
 </resources>

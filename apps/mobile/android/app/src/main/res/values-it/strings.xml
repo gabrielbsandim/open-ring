@@ -72,4 +72,18 @@
     <string name="widget_energy_range">da %1$s a %2$s</string>
     <string name="widget_sub_energy">kcal, stima</string>
     <string name="widget_sub_effort">su %1$s · forza %2$s su %3$s</string>
+    <string name="widget_day_score_so_far">%1$s · finora %2$s</string>
+    <string name="widget_day_score_as_of">%1$s · alle %2$s</string>
+    <string name="widget_day_score_partial">%1$s · %2$s su 100</string>
+    <string name="widget_day_score_yesterday_final">%1$s · ieri, finale</string>
+    <string name="widget_day_score_first_days_title">Il primo voto è in arrivo</string>
+    <string name="widget_day_score_first_days_detail">Servono 60 punti. Oggi sono %1$s.</string>
+    <string name="widget_day_score_none_night">Manca la notte di sonno.</string>
+    <string name="widget_day_score_none_steps">Mancano i passi di oggi.</string>
+    <string name="widget_day_score_none_coverage">Servono 60 punti oggi.</string>
+    <string name="widget_pillar_sleep_short">Sonno</string>
+    <string name="widget_pillar_move_short">Mov.</string>
+    <string name="widget_pillar_rec_short">Rec.</string>
+    <string name="widget_pillar_stress_short">Stress</string>
+    <string name="widget_pillar_spo2_short">O2</string>
 </resources>

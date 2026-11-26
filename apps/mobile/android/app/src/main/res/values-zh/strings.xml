@@ -72,4 +72,18 @@
     <string name="widget_energy_range">%1$s 至 %2$s</string>
     <string name="widget_sub_energy">千卡，估算</string>
     <string name="widget_sub_effort">共 %1$s · 力量 %2$s / %3$s</string>
+    <string name="widget_day_score_so_far">%1$s · 截至目前 %2$s</string>
+    <string name="widget_day_score_as_of">%1$s · 截至 %2$s</string>
+    <string name="widget_day_score_partial">%1$s · %2$s / 100</string>
+    <string name="widget_day_score_yesterday_final">%1$s · 昨日最终</string>
+    <string name="widget_day_score_first_days_title">首次评分即将生成</string>
+    <string name="widget_day_score_first_days_detail">需要 60 分。今日已有 %1$s 分。</string>
+    <string name="widget_day_score_none_night">缺少夜间睡眠数据。</string>
+    <string name="widget_day_score_none_steps">缺少今日步数。</string>
+    <string name="widget_day_score_none_coverage">今日需要 60 分。</string>
+    <string name="widget_pillar_sleep_short">睡眠</string>
+    <string name="widget_pillar_move_short">活动</string>
+    <string name="widget_pillar_rec_short">恢复</string>
+    <string name="widget_pillar_stress_short">压力</string>
+    <string name="widget_pillar_spo2_short">血氧</string>
 </resources>

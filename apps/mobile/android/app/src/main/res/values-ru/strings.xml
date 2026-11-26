@@ -72,4 +72,18 @@
     <string name="widget_energy_range">от %1$s до %2$s</string>
     <string name="widget_sub_energy">ккал, оценка</string>
     <string name="widget_sub_effort">из %1$s · силовые %2$s из %3$s</string>
+    <string name="widget_day_score_so_far">%1$s · пока %2$s</string>
+    <string name="widget_day_score_as_of">%1$s · на %2$s</string>
+    <string name="widget_day_score_partial">%1$s · %2$s из 100</string>
+    <string name="widget_day_score_yesterday_final">%1$s · вчера, итог</string>
+    <string name="widget_day_score_first_days_title">Первая оценка скоро будет</string>
+    <string name="widget_day_score_first_days_detail">Нужно 60 баллов. Сегодня %1$s.</string>
+    <string name="widget_day_score_none_night">Нет данных ночного сна.</string>
+    <string name="widget_day_score_none_steps">Нет сегодняшних шагов.</string>
+    <string name="widget_day_score_none_coverage">Сегодня нужно 60 баллов.</string>
+    <string name="widget_pillar_sleep_short">Сон</string>
+    <string name="widget_pillar_move_short">Движ.</string>
+    <string name="widget_pillar_rec_short">Восст.</string>
+    <string name="widget_pillar_stress_short">Стресс</string>
+    <string name="widget_pillar_spo2_short">O2</string>
 </resources>

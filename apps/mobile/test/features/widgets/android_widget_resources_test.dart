@@ -77,6 +77,11 @@ void main() {
           isFalse,
           reason: '$dir $key dash',
         );
+        expect(
+          RegExp(r"(?<!\\)'").hasMatch(localized),
+          isFalse,
+          reason: '$dir $key unescaped apostrophe',
+        );
         final placeholders = RegExp(r'%\d\$[sd]');
         expect(
           placeholders.allMatches(localized).map((m) => m[0]).toList()..sort(),
@@ -91,6 +96,11 @@ void main() {
         value.contains('\u2013') || value.contains('\u2014'),
         isFalse,
         reason: 'en $key dash',
+      );
+      expect(
+        RegExp(r"(?<!\\)'").hasMatch(value),
+        isFalse,
+        reason: 'en $key unescaped apostrophe',
       );
     }
   });

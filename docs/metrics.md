@@ -2389,6 +2389,14 @@ and more as much lower. The percentage feeds only these words.
 Worked example: 8,700 typical steps, 77.6 kg, 178 cm, 2,000 more steps give
 1.48 km, 57 kcal a day, 0.49 kg in 12 weeks and 9.8% lower, slightly lower.
 
+The what if screen (`whatIfProvider`, route `/today/trajectory/what-if`) shows
++1,000, +2,000 or +3,000 steps, one at a time, above the typical steps of the
+Ring levers (section below, rounded to whole steps). The weight row needs a
+Ready scenario and uses its trend weight; it shows kg whether the Energy gate
+is on or off, because the weight comes from the scenario model, and the screen
+never shows kcal. Hidden numbers turn it into words. Building and Guard show
+the cohort words with no weight scenario; a refusal shows only the refusal.
+
 ### Projection grading
 
 Code: `packages/metrics/lib/src/trajectory_grade.dart`. A band stored on a

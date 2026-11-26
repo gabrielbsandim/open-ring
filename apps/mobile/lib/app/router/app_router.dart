@@ -56,6 +56,7 @@ import 'package:open_ring/features/today/presentation/formula_screen.dart';
 import 'package:open_ring/features/today/presentation/readiness_screen.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_screen.dart';
+import 'package:open_ring/features/trajectory/presentation/what_if_screen.dart';
 import 'package:open_ring/features/trends/presentation/trends_screen.dart';
 import 'package:open_ring/features/workout/presentation/workout_routes.dart';
 
@@ -142,7 +143,13 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
         routes: [_formulaRoute()],
       ),
       GoRoute(path: 'body', builder: (_, _) => const BodyScreen()),
-      GoRoute(path: 'trajectory', builder: (_, _) => const TrajectoryScreen()),
+      GoRoute(
+        path: 'trajectory',
+        builder: (_, _) => const TrajectoryScreen(),
+        routes: [
+          GoRoute(path: 'what-if', builder: (_, _) => const WhatIfScreen()),
+        ],
+      ),
       GoRoute(
         path: 'effort',
         builder: (_, _) => const EffortScreen(),

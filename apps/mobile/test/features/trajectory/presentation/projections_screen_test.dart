@@ -61,11 +61,13 @@ List<Override> _overrides(
   bool hidden = false,
   UnitSystem units = UnitSystem.metric,
   TrajectoryView? view,
+  bool noWeighIns = false,
 }) => [
   ...trajectoryOverrides(
     view: view ?? readyView(),
     hidden: hidden,
     units: units,
+    summaryLoad: noWeighIns ? () async => null : null,
   ),
   projectionStoreProvider.overrideWithValue(store),
 ];
@@ -80,6 +82,7 @@ Future<void> _pump(
   double scale = 1,
   Locale locale = const Locale('en'),
   Brightness brightness = Brightness.light,
+  bool noWeighIns = false,
 }) => pumpScaled(
   tester,
   screenHost(screen),
@@ -87,7 +90,13 @@ Future<void> _pump(
   brightness: brightness,
   locale: locale,
   size: const Size(360, 4000),
-  overrides: _overrides(store, hidden: hidden, units: units, view: view),
+  overrides: _overrides(
+    store,
+    hidden: hidden,
+    units: units,
+    view: view,
+    noWeighIns: noWeighIns,
+  ),
 );
 
 const _projectionsStub = 'projections stub';
@@ -231,6 +240,17 @@ void main() {
         ),
         findsOneWidget,
       );
+    });
+
+    testWidgets('due today with no weigh-in yet is still waiting', (
+      tester,
+    ) async {
+      final store = InMemoryProjectionStore();
+      await store.insertIfAbsent(_row(november.addDays(-28), 70, 85));
+      await _pump(tester, const ProjectionsScreen(), store, noWeighIns: true);
+
+      expect(find.text('not checked'), findsNothing);
+      expect(find.text('checks Nov 10'), findsOneWidget);
     });
 
     testWidgets('all inside reads the inside note', (tester) async {

@@ -34,7 +34,9 @@ abstract final class ProjectionsKeys {
     inside: count(ProjectionGrade.inside),
     below: count(ProjectionGrade.below),
     above: count(ProjectionGrade.above),
-    waiting: rows.where((row) => row.due.compareTo(today) > 0).length,
+    waiting: rows
+        .where((row) => row.grade == null && row.due.compareTo(today) >= 0)
+        .length,
   );
 }
 
@@ -223,7 +225,7 @@ class _Row extends StatelessWidget {
       units.weightUnit,
     );
     final actual = row.actualKg;
-    final pending = row.due.compareTo(today) > 0;
+    final pending = row.due.compareTo(today) >= 0;
     final text = switch (row.grade) {
       _ when hidden => l10n.trajectoryProjectionsRowHidden(due),
       null when !pending => l10n.trajectoryProjectionsRowUnchecked,

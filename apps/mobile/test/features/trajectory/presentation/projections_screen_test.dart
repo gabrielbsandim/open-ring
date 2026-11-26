@@ -339,10 +339,12 @@ void main() {
               brightness: brightness,
             );
 
-            expect(
-              find.byKey(TrajectoryFormulaKeys.protections),
-              findsOneWidget,
+            expect(find.byKey(TrajectoryFormulaKeys.scenario), findsOneWidget);
+            await tester.scrollUntilVisible(
+              find.byKey(TrajectoryFormulaKeys.whatIf),
+              300,
             );
+            expect(find.byKey(TrajectoryFormulaKeys.whatIf), findsOneWidget);
             await tester.scrollUntilVisible(
               find.byKey(TrajectoryFormulaKeys.cannot),
               300,
@@ -369,5 +371,124 @@ void main() {
     );
     expect(find.textContaining('BMI 18.5 floor'), findsOneWidget);
     expect(find.text('Adults only, from 18.'), findsOneWidget);
+  });
+
+  String cardText(WidgetTester tester, Key key) => tester
+      .widgetList<Text>(
+        find.descendant(of: find.byKey(key), matching: find.byType(Text)),
+      )
+      .map((text) => text.data ?? text.textSpan?.toPlainText() ?? '')
+      .join('\n');
+
+  Future<String> scrolledText(WidgetTester tester, Key key) async {
+    await tester.scrollUntilVisible(find.byKey(key), 300);
+    return cardText(tester, key);
+  }
+
+  testWidgets('formula screen states the scenario constants', (tester) async {
+    await _pump(
+      tester,
+      const TrajectoryFormulaScreen(),
+      InMemoryProjectionStore(),
+    );
+
+    final scenario = await scrolledText(tester, TrajectoryFormulaKeys.scenario);
+    expect(scenario, contains('last 28 days'));
+    expect(scenario, contains('8 days with a weigh-in over 14 days'));
+    expect(scenario, contains('τ = 365 days'));
+    expect(scenario, contains('horizons: 4 and 12 weeks'));
+    expect(scenario, contains('moves 75.0 days of rate, not 84'));
+    expect(scenario, contains('In 4 weeks, 27.0 days'));
+
+    final bend = await scrolledText(tester, TrajectoryFormulaKeys.bend);
+    expect(bend, contains('about 24 kcal a day'));
+    expect(bend, contains('9.99 kcal a day per kg'));
+
+    final balance = await scrolledText(tester, TrajectoryFormulaKeys.balance);
+    expect(balance, contains('The 28 day balance'));
+    expect(balance, contains('× 7,700 kcal/kg'));
+    expect(balance, contains('rounded to 50 kcal'));
+    expect(balance, contains('needs 20 weigh-ins in 28 days'));
+    expect(balance, contains('waits 41 days after a Goals block'));
+    expect(balance, contains('skips its first 2 weeks'));
+  });
+
+  testWidgets('formula screen states the lever and what if rules', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      const TrajectoryFormulaScreen(),
+      InMemoryProjectionStore(),
+    );
+
+    final levers = await scrolledText(tester, TrajectoryFormulaKeys.levers);
+    expect(levers, contains('Where the last 90 days point'));
+    expect(levers, contains('needs 54 of 90 valid days'));
+    expect(levers, contains('500 steps · 5 points'));
+    expect(levers, contains('2 bpm · 20 min'));
+    expect(levers, contains('the 28 day rate'));
+
+    final whatIf = await scrolledText(tester, TrajectoryFormulaKeys.whatIf);
+    expect(whatIf, contains('km = steps × 0.415 × height'));
+    expect(whatIf, contains('kcal = 0.5 × kg × km'));
+    expect(whatIf, contains('kcal ÷ 24'));
+    expect(whatIf, contains('in 12 weeks: × (1 - e^(-84/365))'));
+    expect(whatIf, contains('(3,553; 1.00) (5,801; 0.60)\n(7,842; 0.55)'));
+    expect(whatIf, contains('under 5%, about the same'));
+    expect(whatIf, contains('15 to 30%'));
+  });
+
+  testWidgets('formula screen lists sources, choices and open checks', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      const TrajectoryFormulaScreen(),
+      InMemoryProjectionStore(),
+    );
+
+    final published = await scrolledText(
+      tester,
+      TrajectoryFormulaKeys.published,
+    );
+    expect(published, contains('From published sources'));
+    expect(published, contains('Hall and colleagues, 2011'));
+    expect(published, contains('trend of 10% a day'));
+
+    final ours = await scrolledText(tester, TrajectoryFormulaKeys.ours);
+    expect(ours, contains('Our choice'));
+    expect(ours, contains('The 4 and 12 week horizons'));
+    expect(ours, contains('above 1% of body weight'));
+    expect(ours, contains('and the 54 of 90 days'));
+    expect(ours, contains('checking it at 4 weeks'));
+
+    final unchecked = await scrolledText(
+      tester,
+      TrajectoryFormulaKeys.unchecked,
+    );
+    expect(unchecked, contains('Not yet checked against the source'));
+    expect(unchecked, contains('About 7,700 kcal per kg: Wishnofsky, 1958.'));
+    expect(unchecked, contains('0.5 kcal per kg per km'));
+    for (final name in ['Mifflin', 'Theil', 'Zhang', 'Windred', 'Yin']) {
+      expect(unchecked, contains(name));
+    }
+  });
+
+  testWidgets('formula screen formats constants for the locale', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      const TrajectoryFormulaScreen(),
+      InMemoryProjectionStore(),
+      locale: const Locale('pt'),
+    );
+
+    final whatIf = await scrolledText(tester, TrajectoryFormulaKeys.whatIf);
+    expect(whatIf, contains('passos × 0,415 × altura'));
+    expect(whatIf, contains('(3.553; 1,00)'));
+    final bend = await scrolledText(tester, TrajectoryFormulaKeys.bend);
+    expect(bend, contains('9,99 kcal'));
   });
 }

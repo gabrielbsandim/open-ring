@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
@@ -33,6 +37,7 @@ abstract final class TrajectoryKeys {
   static const hidden = Key('trajectory_hidden');
   static const direction = Key('trajectory_direction');
   static const kcal = Key('trajectory_kcal');
+  static const whatIfLink = Key('trajectory_what_if_link');
 }
 
 class TrajectoryScreen extends ConsumerWidget {
@@ -91,9 +96,12 @@ class TrajectoryScreen extends ConsumerWidget {
           units: units,
           hidden: hidden,
         ),
+        const _WhatIfLink(),
       ],
-      TrajectoryBuilding() ||
-      TrajectoryReady() when weights == null => [const TrajectoryNone()],
+      TrajectoryBuilding() || TrajectoryReady() when weights == null => [
+        const TrajectoryNone(),
+        const _WhatIfLink(),
+      ],
       TrajectoryBuilding(:final rate) => [
         TrajectoryBuildingCard(
           rate: rate,
@@ -101,6 +109,7 @@ class TrajectoryScreen extends ConsumerWidget {
           units: units,
           hidden: hidden,
         ),
+        const _WhatIfLink(),
       ],
       final TrajectoryReady ready => [
         if (hidden) ...[
@@ -117,6 +126,7 @@ class TrajectoryScreen extends ConsumerWidget {
           hidden: hidden,
         ),
         TrajectoryKcalCard(format: units.format),
+        const _WhatIfLink(),
       ],
     };
   }
@@ -311,6 +321,47 @@ class _Direction extends StatelessWidget {
                 : l10n.bodyDirectionMovingWhy,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _WhatIfLink extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = AppColors.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: MetricCard(
+        key: TrajectoryKeys.whatIfLink,
+        onTap: () => unawaited(context.push(AppPaths.trajectoryWhatIf)),
+        child: MergeSemantics(
+          child: Semantics(
+            button: true,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.trajectoryWhatIfTitle,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 2),
+                      CaptionText(l10n.trajectoryWhatIfLinkBody),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(Icons.chevron_right_rounded, color: colors.textLabel),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

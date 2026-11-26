@@ -175,21 +175,29 @@ class _Heading extends StatelessWidget {
 class _MetricsCard extends ConsumerWidget {
   const new({required this.config});
 
+  // The current 3-column preview and copy stay capped at 3 until W7 ships
+  // the 6-field reorderable editor and S/M/L previews.
+  static const _uiMaxMetrics = 3;
+
   final TodayWidgetConfig config;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final selectedCount = config.metrics.length;
     final toggles = [
       for (final metric in WidgetMetric.values)
-        _MetricToggle(
-          metric: metric,
-          selected: config.contains(metric),
-          enabled: config.canPick(metric),
-          onTap: () => unawaited(
-            ref.read(todayWidgetConfigProvider.notifier).toggle(metric),
+        if (metric.module == null)
+          _MetricToggle(
+            metric: metric,
+            selected: config.contains(metric),
+            enabled: config.contains(metric) || selectedCount < _uiMaxMetrics,
+            onTap: () => unawaited(
+              ref
+                  .read(todayWidgetConfigProvider.notifier)
+                  .toggle(metric, maxMetrics: _uiMaxMetrics),
+            ),
           ),
-        ),
     ];
     return MetricCard(
       child: Column(
@@ -203,10 +211,7 @@ class _MetricsCard extends ConsumerWidget {
               Semantics(
                 liveRegion: true,
                 child: CaptionText(
-                  l10n.widgetMetricsCount(
-                    config.metrics.length,
-                    TodayWidgetConfig.maxMetrics,
-                  ),
+                  l10n.widgetMetricsCount(selectedCount, _uiMaxMetrics),
                 ),
               ),
             ],
@@ -214,16 +219,16 @@ class _MetricsCard extends ConsumerWidget {
           const SizedBox(height: 12),
           _grid(context, toggles),
           const SizedBox(height: 12),
-          CaptionText(_limitNote(l10n)),
+          CaptionText(_limitNote(l10n, selectedCount)),
         ],
       ),
     );
   }
 
-  String _limitNote(AppLocalizations l10n) {
-    if (config.isFull) return l10n.widgetLimitFull;
+  String _limitNote(AppLocalizations l10n, int selectedCount) {
+    if (selectedCount >= _uiMaxMetrics) return l10n.widgetLimitFull;
     if (config.isEmpty) return l10n.widgetLimitEmpty;
-    return l10n.widgetLimitSome(config.remaining);
+    return l10n.widgetLimitSome(_uiMaxMetrics - selectedCount);
   }
 
   Widget _grid(BuildContext context, List<Widget> toggles) {

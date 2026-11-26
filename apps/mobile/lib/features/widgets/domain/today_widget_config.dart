@@ -1,6 +1,24 @@
 import 'package:meta/meta.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
 
-enum WidgetMetric { readiness, sleep, steps, heartRate, spo2, stress, battery }
+enum WidgetMetric {
+  readiness,
+  sleep,
+  steps,
+  heartRate,
+  spo2,
+  stress,
+  battery,
+  dayScore(module: ModuleId.openScore),
+  weight(module: ModuleId.body, requiresRing: false),
+  energy(module: ModuleId.energy),
+  effort(module: ModuleId.effort);
+
+  new({this.module, this.requiresRing = true});
+
+  final ModuleId? module;
+  final bool requiresRing;
+}
 
 enum WidgetTheme { app, dark, light }
 
@@ -19,7 +37,7 @@ final class TodayWidgetConfig {
     theme: WidgetTheme.values.asNameMap()[json['theme']] ?? WidgetTheme.app,
   );
 
-  static const maxMetrics = 3;
+  static const maxMetrics = 6;
 
   static const List<WidgetMetric> defaultMetrics = [
     WidgetMetric.sleep,
@@ -40,15 +58,78 @@ final class TodayWidgetConfig {
 
   bool canPick(WidgetMetric metric) => contains(metric) || !isFull;
 
-  TodayWidgetConfig toggle(WidgetMetric metric) {
-    if (contains(metric)) {
-      return TodayWidgetConfig(
-        metrics: [...metrics.where((m) => m != metric)],
-        theme: theme,
-      );
-    }
-    if (isFull) return this;
+  TodayWidgetConfig add(WidgetMetric metric) {
+    if (contains(metric) || isFull) return this;
     return TodayWidgetConfig(metrics: [...metrics, metric], theme: theme);
+  }
+
+  TodayWidgetConfig remove(WidgetMetric metric) {
+    if (!contains(metric)) return this;
+    return TodayWidgetConfig(
+      metrics: [...metrics.where((m) => m != metric)],
+      theme: theme,
+    );
+  }
+
+  TodayWidgetConfig toggle(WidgetMetric metric) =>
+      contains(metric) ? remove(metric) : add(metric);
+
+  TodayWidgetConfig moveUp(int index) {
+    if (index <= 0 || index >= metrics.length) return this;
+    return _swap(index - 1, index);
+  }
+
+  TodayWidgetConfig moveDown(int index) {
+    if (index < 0 || index >= metrics.length - 1) return this;
+    return _swap(index, index + 1);
+  }
+
+  TodayWidgetConfig _swap(int first, int second) {
+    final next = [...metrics];
+    final held = next[first];
+    next[first] = next[second];
+    next[second] = held;
+    return TodayWidgetConfig(metrics: next, theme: theme);
+  }
+
+  TodayWidgetConfig removeForModule(ModuleId id) {
+    if (!metrics.any((metric) => metric.module == id)) return this;
+    return TodayWidgetConfig(
+      metrics: [
+        for (final metric in metrics)
+          if (metric.module != id) metric,
+      ],
+      theme: theme,
+    );
+  }
+
+  TodayWidgetConfig retainModules(Set<ModuleId> enabled) {
+    final keep = [
+      for (final metric in metrics)
+        if (metric.module == null || enabled.contains(metric.module)) metric,
+    ];
+    if (keep.length == metrics.length) return this;
+    return TodayWidgetConfig(metrics: keep, theme: theme);
+  }
+
+  List<WidgetMetric> effectiveMetrics({
+    required Set<ModuleId> enabled,
+    required bool hideNumbers,
+  }) => [
+    for (final metric in metrics)
+      if (_isVisible(metric, enabled: enabled, hideNumbers: hideNumbers))
+        metric,
+  ];
+
+  bool _isVisible(
+    WidgetMetric metric, {
+    required Set<ModuleId> enabled,
+    required bool hideNumbers,
+  }) {
+    final owner = metric.module;
+    if (owner != null && !enabled.contains(owner)) return false;
+    if (metric == WidgetMetric.energy && hideNumbers) return false;
+    return true;
   }
 
   TodayWidgetConfig withTheme(WidgetTheme value) =>

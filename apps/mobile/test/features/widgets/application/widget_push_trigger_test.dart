@@ -5,9 +5,16 @@ import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/body/domain/hide_numbers_store.dart';
 import 'package:open_ring/features/heart/application/heart_providers.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
+import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
+import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/sleep/application/sleep_providers.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/today/domain/ring_status_reader.dart';
@@ -19,6 +26,7 @@ import 'package:open_ring/features/workout/domain/workout_type.dart';
 
 import '../../../helpers/in_memory_theme_mode_store.dart';
 import '../../../helpers/metrics_fakes.dart';
+import '../../../helpers/settings_fakes.dart';
 import '../../../helpers/widget_fakes.dart';
 
 typedef Rig = ({
@@ -56,11 +64,17 @@ final class ListedWorkouts implements WorkoutHistoryReader {
   }) async => const [];
 }
 
-Rig rig({UnitSystem units = UnitSystem.metric}) {
+Rig rig({
+  UnitSystem units = UnitSystem.metric,
+  Set<ModuleId> modules = const {},
+  bool hideNumbers = false,
+  TodayWidgetConfig? config,
+  UserProfile? profile,
+}) {
   final scenario = fullDataScenario;
   final gateway = FakeWidgetGateway();
   final ring = MutableRingStatusReader(freshRing);
-  final configs = InMemoryTodayWidgetConfigStore();
+  final configs = InMemoryTodayWidgetConfigStore(config);
   final workouts = ListedWorkouts();
   final container = ProviderContainer.test(
     overrides: [
@@ -78,6 +92,13 @@ Rig rig({UnitSystem units = UnitSystem.metric}) {
       todayWidgetConfigStoreProvider.overrideWithValue(configs),
       workoutHistoryReaderProvider.overrideWithValue(workouts),
       unitSystemStoreProvider.overrideWithValue(InMemoryUnitSystemStore(units)),
+      moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
+      hideNumbersStoreProvider.overrideWithValue(
+        InMemoryHideNumbersStore(hidden: hideNumbers),
+      ),
+      userProfileStoreProvider.overrideWithValue(
+        InMemoryUserProfileStore(profile),
+      ),
     ],
   );
   return (
@@ -169,16 +190,18 @@ void main() {
       'dark',
       'dark',
       'dark',
+      'dark',
     ]);
     expect(r.gateway.appearances.last, {
       'appTheme': 'dark',
       'todayTheme': 'light',
-      'todayMetrics': ['steps', 'heartRate'],
+      'todayMetrics': ['steps', 'heartRate', 'spo2'],
       'units': 'metric',
     });
     expect(r.configs.saved?.metrics, [
       WidgetMetric.steps,
       WidgetMetric.heartRate,
+      WidgetMetric.spo2,
     ]);
     expect(r.gateway.snapshots, hasLength(1));
   });
@@ -230,4 +253,155 @@ void main() {
 
     expect(r.gateway.appearances.last['units'], 'metric');
   });
+
+  test(
+    'turning a module off removes its field permanently and republishes',
+    () async {
+      final r = rig(
+        modules: {ModuleId.openScore, ModuleId.body},
+        config: TodayWidgetConfig(
+          metrics: const [
+            WidgetMetric.dayScore,
+            WidgetMetric.steps,
+            WidgetMetric.weight,
+          ],
+        ),
+      );
+      startWidgetPush(r.container);
+      await r.container.read(enabledModulesProvider.future);
+      await settle(r.container);
+
+      expect(r.gateway.appearances.last['todayMetrics'], [
+        'dayScore',
+        'steps',
+        'weight',
+      ]);
+
+      await r.container
+          .read(enabledModulesProvider.notifier)
+          .disable(ModuleId.openScore);
+      await pumpEventQueue();
+
+      expect(r.configs.saved?.metrics, [
+        WidgetMetric.steps,
+        WidgetMetric.weight,
+      ]);
+      expect(r.gateway.appearances.last['todayMetrics'], ['steps', 'weight']);
+
+      // Re-enabling the module must not bring the removed field back.
+      await r.container
+          .read(enabledModulesProvider.notifier)
+          .enable(ModuleId.openScore);
+      await pumpEventQueue();
+
+      expect(r.configs.saved?.metrics, [
+        WidgetMetric.steps,
+        WidgetMetric.weight,
+      ]);
+      expect(r.gateway.appearances.last['todayMetrics'], ['steps', 'weight']);
+    },
+  );
+
+  test('hiding numbers drops energy from appearance without deleting it and restores it on unhide', () async {
+    final r = rig(
+      modules: {ModuleId.body, ModuleId.energy},
+      profile: fullProfile,
+      config: TodayWidgetConfig(
+        metrics: const [
+          WidgetMetric.weight,
+          WidgetMetric.energy,
+          WidgetMetric.steps,
+        ],
+      ),
+    );
+    startWidgetPush(r.container);
+    await r.container.read(enabledModulesProvider.future);
+    await r.container.read(hideNumbersProvider.future);
+    await r.container.read(userProfileProvider.future);
+    await settle(r.container);
+
+    expect(r.gateway.appearances.last['todayMetrics'], [
+      'weight',
+      'energy',
+      'steps',
+    ]);
+
+    await r.container.read(hideNumbersProvider.notifier).set(hidden: true);
+    await pumpEventQueue();
+
+    expect(r.gateway.appearances.last['todayMetrics'], ['weight', 'steps']);
+    expect(r.container.read(todayWidgetConfigProvider).metrics, [
+      WidgetMetric.weight,
+      WidgetMetric.energy,
+      WidgetMetric.steps,
+    ]);
+
+    await r.container.read(hideNumbersProvider.notifier).set(hidden: false);
+    await pumpEventQueue();
+
+    expect(r.gateway.appearances.last['todayMetrics'], [
+      'weight',
+      'energy',
+      'steps',
+    ]);
+  });
+
+  test('underage profile omits energy from published appearance while keeping stored config', () async {
+    final r = rig(
+      modules: {ModuleId.energy},
+      profile: fullProfile,
+      config: TodayWidgetConfig(
+        metrics: const [WidgetMetric.energy, WidgetMetric.steps],
+      ),
+    );
+    startWidgetPush(r.container);
+    await r.container.read(enabledModulesProvider.future);
+    await r.container.read(hideNumbersProvider.future);
+    await r.container.read(userProfileProvider.future);
+    await settle(r.container);
+
+    expect(r.gateway.appearances.last['todayMetrics'], ['energy', 'steps']);
+
+    await r.container
+        .read(userProfileProvider.notifier)
+        .save(const UserProfile(birthYear: 2012));
+    await pumpEventQueue();
+
+    expect(r.gateway.appearances.last['todayMetrics'], ['steps']);
+    expect(r.container.read(todayWidgetConfigProvider).metrics, [
+      WidgetMetric.energy,
+      WidgetMetric.steps,
+    ]);
+    expect(
+      r.configs.saved?.metrics ??
+          r.container.read(todayWidgetConfigProvider).metrics,
+      [WidgetMetric.energy, WidgetMetric.steps],
+    );
+
+    await r.container.read(userProfileProvider.notifier).save(fullProfile);
+    await pumpEventQueue();
+
+    expect(r.gateway.appearances.last['todayMetrics'], ['energy', 'steps']);
+  });
+
+  test(
+    'cold start strips metrics for modules already disabled in storage',
+    () async {
+      final r = rig(
+        config: TodayWidgetConfig(
+          metrics: const [
+            WidgetMetric.dayScore,
+            WidgetMetric.weight,
+            WidgetMetric.steps,
+          ],
+        ),
+      );
+      startWidgetPush(r.container);
+      await r.container.read(enabledModulesProvider.future);
+      await settle(r.container);
+
+      expect(r.configs.saved?.metrics, [WidgetMetric.steps]);
+      expect(r.gateway.appearances.last['todayMetrics'], ['steps']);
+    },
+  );
 }

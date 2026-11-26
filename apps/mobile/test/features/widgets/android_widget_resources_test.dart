@@ -92,4 +92,26 @@ void main() {
       );
     }
   });
+
+  test('lock screen category matches the privacy rule and icons exist', () {
+    final categories = {
+      'ring': 'home_screen|keyguard',
+      'workout': 'home_screen|keyguard',
+      'readiness': 'home_screen|not_keyguard',
+      'today': 'home_screen|not_keyguard',
+    };
+    for (final MapEntry(key: name, value: expected) in categories.entries) {
+      final info = XmlDocument.parse(
+        File('$_res/xml/widget_${name}_info.xml').readAsStringSync(),
+      );
+      final provider = info.findAllElements('appwidget-provider').single;
+      expect(
+        provider.getAttribute('android:widgetCategory'),
+        expected,
+        reason: name,
+      );
+    }
+    expect(File('$_res/drawable/ic_widget_warn.xml').existsSync(), isTrue);
+    expect(File('$_res/drawable/ic_widget_bolt.xml').existsSync(), isTrue);
+  });
 }

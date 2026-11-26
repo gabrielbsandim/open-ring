@@ -3,7 +3,7 @@
     <string name="widget_readiness_name">Kesiapan</string>
     <string name="widget_readiness_description">Skor dengan detak jantung istirahat, HRV, dan tidur</string>
     <string name="widget_today_name">Hari ini</string>
-    <string name="widget_today_description">Hingga 3 metrik pilihan Anda</string>
+    <string name="widget_today_description">Hingga 6 metrik pilihan Anda</string>
     <string name="widget_ring_name">Cincin</string>
     <string name="widget_ring_description">Baterai dan sinkronisasi terakhir</string>
     <string name="widget_workout_name">Mulai latihan</string>
@@ -51,4 +51,25 @@
     <string name="widget_workout_type_elliptical">elliptical</string>
     <string name="widget_workout_type_yoga">yoga</string>
     <string name="widget_workout_type_other">latihan</string>
+    <string name="widget_metric_day_score">Skor Hari</string>
+    <string name="widget_metric_weight">Berat</string>
+    <string name="widget_metric_energy">Energi</string>
+    <string name="widget_metric_effort">Effort</string>
+    <string name="widget_ring_charging">mengisi · sinkron %1$s</string>
+    <string name="widget_ring_low_battery">baterai lemah · sinkron %1$s</string>
+    <string name="widget_unpaired_short">Belum ada cincin terpasang</string>
+    <string name="widget_day_score_band_great">Hari yang hebat</string>
+    <string name="widget_day_score_band_good">Hari yang baik</string>
+    <string name="widget_day_score_band_mixed">Hari campuran</string>
+    <string name="widget_day_score_band_low">Hari jeda</string>
+    <string name="widget_weight_unit_kg">%1$s kg</string>
+    <string name="widget_weight_unit_lb">%1$s lb</string>
+    <string name="widget_weight_trend">tren 28 hari</string>
+    <string name="widget_weight_direction_falling">Menurun</string>
+    <string name="widget_weight_direction_rising">Naik</string>
+    <string name="widget_weight_direction_steady">Stabil</string>
+    <string name="widget_weight_direction_building">Belum ada arah</string>
+    <string name="widget_energy_range">%1$s sampai %2$s</string>
+    <string name="widget_sub_energy">kkal, perkiraan</string>
+    <string name="widget_sub_effort">dari %1$s · kekuatan %2$s dari %3$s</string>
 </resources>

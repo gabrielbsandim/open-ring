@@ -30,13 +30,14 @@ internal class WidgetPalette private constructor(
     val onAccent = ColorProvider(onAccent)
 
     fun accent(metric: Metric): ColorProvider = when (metric) {
-        Metric.READINESS -> textPrimary
+        Metric.READINESS, Metric.DAY_SCORE, Metric.EFFORT -> textPrimary
         Metric.SLEEP -> sleep
-        Metric.STEPS -> activity
+        Metric.STEPS, Metric.ENERGY -> activity
         Metric.HEART_RATE -> heart
         Metric.SPO2 -> oxygen
         Metric.STRESS -> stress
         Metric.BATTERY -> textSecondary
+        Metric.WEIGHT -> textLabel
     }
 
     companion object {

@@ -3,7 +3,7 @@
     <string name="widget_readiness_name">准备度</string>
     <string name="widget_readiness_description">评分、静息心率、心率变异性和睡眠</string>
     <string name="widget_today_name">今天</string>
-    <string name="widget_today_description">最多 3 项自选指标</string>
+    <string name="widget_today_description">最多 6 项自选指标</string>
     <string name="widget_ring_name">戒指</string>
     <string name="widget_ring_description">电量和上次同步</string>
     <string name="widget_workout_name">开始运动</string>
@@ -51,4 +51,25 @@
     <string name="widget_workout_type_elliptical">椭圆机</string>
     <string name="widget_workout_type_yoga">瑜伽</string>
     <string name="widget_workout_type_other">运动</string>
+    <string name="widget_metric_day_score">今日评分</string>
+    <string name="widget_metric_weight">体重</string>
+    <string name="widget_metric_energy">能量</string>
+    <string name="widget_metric_effort">努力</string>
+    <string name="widget_ring_charging">充电中 · 同步 %1$s</string>
+    <string name="widget_ring_low_battery">电量低 · 同步 %1$s</string>
+    <string name="widget_unpaired_short">未配对戒指</string>
+    <string name="widget_day_score_band_great">很棒的一天</string>
+    <string name="widget_day_score_band_good">不错的一天</string>
+    <string name="widget_day_score_band_mixed">一般的一天</string>
+    <string name="widget_day_score_band_low">休整的一天</string>
+    <string name="widget_weight_unit_kg">%1$s 公斤</string>
+    <string name="widget_weight_unit_lb">%1$s 磅</string>
+    <string name="widget_weight_trend">28天趋势</string>
+    <string name="widget_weight_direction_falling">下降</string>
+    <string name="widget_weight_direction_rising">上升</string>
+    <string name="widget_weight_direction_steady">稳定</string>
+    <string name="widget_weight_direction_building">还没有方向</string>
+    <string name="widget_energy_range">%1$s 至 %2$s</string>
+    <string name="widget_sub_energy">千卡，估算</string>
+    <string name="widget_sub_effort">共 %1$s · 力量 %2$s / %3$s</string>
 </resources>

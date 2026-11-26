@@ -16,6 +16,10 @@ internal data class MetricText(val value: String, val detail: String, val progre
 internal class WidgetFormat(private val context: Context) {
     private val locale = context.resources.configuration.locales[0]
     private val numbers = NumberFormat.getIntegerInstance(locale)
+    private val oneDecimal = NumberFormat.getNumberInstance(locale).apply {
+        minimumFractionDigits = 1
+        maximumFractionDigits = 1
+    }
     private val decimals = NumberFormat.getNumberInstance(locale).apply {
         minimumFractionDigits = 2
         maximumFractionDigits = 2
@@ -24,6 +28,8 @@ internal class WidgetFormat(private val context: Context) {
     val none: String = context.getString(R.string.widget_no_value)
 
     fun integer(value: Int): String = numbers.format(value)
+
+    fun decimal(value: Double): String = oneDecimal.format(value)
 
     fun percent(value: Int): String = context.getString(R.string.widget_percent, integer(value))
 
@@ -54,6 +60,21 @@ internal class WidgetFormat(private val context: Context) {
         }
     }
 
+    fun ringStatus(snapshot: Snapshot?, nowMs: Long, lowThreshold: Int): Status {
+        val synced = snapshot?.syncedAtMs ?: 0L
+        val freshness = snapshot?.freshness(nowMs)
+        val percent = snapshot?.batteryPercent
+        if (freshness == Freshness.FRESH && percent != null) {
+            if (snapshot.batteryCharging == true) {
+                return Status(context.getString(R.string.widget_ring_charging, clock(synced)), false)
+            }
+            if (percent <= lowThreshold) {
+                return Status(context.getString(R.string.widget_ring_low_battery, clock(synced)), false)
+            }
+        }
+        return status(snapshot, nowMs)
+    }
+
     fun label(metric: Metric): String = context.getString(
         when (metric) {
             Metric.READINESS -> R.string.widget_metric_readiness
@@ -63,10 +84,54 @@ internal class WidgetFormat(private val context: Context) {
             Metric.SPO2 -> R.string.widget_metric_spo2
             Metric.STRESS -> R.string.widget_metric_stress
             Metric.BATTERY -> R.string.widget_metric_battery
+            Metric.DAY_SCORE -> R.string.widget_metric_day_score
+            Metric.WEIGHT -> R.string.widget_metric_weight
+            Metric.ENERGY -> R.string.widget_metric_energy
+            Metric.EFFORT -> R.string.widget_metric_effort
         },
     )
 
-    fun metric(metric: Metric, snapshot: Snapshot): MetricText = when (metric) {
+    fun bandLabel(band: DayScoreBand): String = context.getString(
+        when (band) {
+            DayScoreBand.GREAT -> R.string.widget_day_score_band_great
+            DayScoreBand.GOOD -> R.string.widget_day_score_band_good
+            DayScoreBand.MIXED -> R.string.widget_day_score_band_mixed
+            DayScoreBand.LOW -> R.string.widget_day_score_band_low
+        },
+    )
+
+    fun directionLabel(direction: WeightDirection): String = context.getString(
+        when (direction) {
+            WeightDirection.FALLING -> R.string.widget_weight_direction_falling
+            WeightDirection.RISING -> R.string.widget_weight_direction_rising
+            WeightDirection.STEADY -> R.string.widget_weight_direction_steady
+            WeightDirection.BUILDING -> R.string.widget_weight_direction_building
+        },
+    )
+
+    fun weightValue(weight: WeightData?, units: Units, hideNumbers: Boolean): String {
+        if (weight == null) return none
+        val kg = weight.trendKilograms
+        if (hideNumbers || kg == null) return directionLabel(weight.direction)
+        return when (units) {
+            Units.METRIC -> context.getString(R.string.widget_weight_unit_kg, decimal(kg))
+            Units.IMPERIAL -> context.getString(
+                R.string.widget_weight_unit_lb,
+                decimal(kg / KILOGRAMS_PER_POUND),
+            )
+        }
+    }
+
+    fun energyRange(energy: EnergyData?): String = when (energy) {
+        null -> none
+        else -> context.getString(
+            R.string.widget_energy_range,
+            integer(energy.lowKcal),
+            integer(energy.highKcal),
+        )
+    }
+
+    fun metric(metric: Metric, snapshot: Snapshot, units: Units = Units.METRIC): MetricText = when (metric) {
         Metric.READINESS -> MetricText(
             show(snapshot.readiness, ::integer),
             context.getString(R.string.widget_estimate),
@@ -102,6 +167,37 @@ internal class WidgetFormat(private val context: Context) {
             context.getString(R.string.widget_sub_battery),
             share(snapshot.batteryPercent, 100),
         )
+        Metric.DAY_SCORE -> MetricText(
+            show(snapshot.dayScore?.score, ::integer),
+            snapshot.dayScore?.band?.let(::bandLabel) ?: context.getString(R.string.widget_estimate),
+            share(snapshot.dayScore?.score, 100),
+        )
+        Metric.WEIGHT -> MetricText(
+            weightValue(snapshot.weight, units, snapshot.hideNumbers),
+            context.getString(R.string.widget_weight_trend),
+            null,
+        )
+        Metric.ENERGY -> MetricText(
+            energyRange(snapshot.energy),
+            context.getString(R.string.widget_sub_energy),
+            null,
+        )
+        Metric.EFFORT -> {
+            val effort = snapshot.effort
+            MetricText(
+                show(effort?.points, ::integer),
+                when (effort) {
+                    null -> none
+                    else -> context.getString(
+                        R.string.widget_sub_effort,
+                        integer(effort.targetPoints),
+                        integer(effort.strengthDays),
+                        integer(effort.strengthTarget),
+                    )
+                },
+                share(effort?.points, effort?.targetPoints ?: 0),
+            )
+        }
     }
 
     fun show(value: Int?, text: (Int) -> String): String = value?.let(text) ?: none
@@ -146,6 +242,7 @@ internal class WidgetFormat(private val context: Context) {
     }
 
     companion object {
+        private const val KILOGRAMS_PER_POUND = 0.45359237
         private const val METERS_PER_KILOMETRE = 1000.0
         private const val METERS_PER_MILE = 1609.344
         private const val MIN_DISTANCE_METERS = 10.0

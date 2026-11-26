@@ -3,7 +3,7 @@
     <string name="widget_readiness_name">Preparación</string>
     <string name="widget_readiness_description">Puntuación con frecuencia cardíaca en reposo, VFC y sueño</string>
     <string name="widget_today_name">Hoy</string>
-    <string name="widget_today_description">Hasta 3 métricas a tu elección</string>
+    <string name="widget_today_description">Hasta 6 métricas a tu elección</string>
     <string name="widget_ring_name">Anillo</string>
     <string name="widget_ring_description">Batería y última sincronización</string>
     <string name="widget_workout_name">Iniciar entrenamiento</string>
@@ -51,4 +51,25 @@
     <string name="widget_workout_type_elliptical">elíptica</string>
     <string name="widget_workout_type_yoga">yoga</string>
     <string name="widget_workout_type_other">entrenamiento</string>
+    <string name="widget_metric_day_score">Nota del día</string>
+    <string name="widget_metric_weight">Peso</string>
+    <string name="widget_metric_energy">Energía</string>
+    <string name="widget_metric_effort">Esfuerzo</string>
+    <string name="widget_ring_charging">cargando · sinc. %1$s</string>
+    <string name="widget_ring_low_battery">batería baja · sinc. %1$s</string>
+    <string name="widget_unpaired_short">Sin anillo emparejado</string>
+    <string name="widget_day_score_band_great">Día excelente</string>
+    <string name="widget_day_score_band_good">Día bueno</string>
+    <string name="widget_day_score_band_mixed">Día mixto</string>
+    <string name="widget_day_score_band_low">Día de pausa</string>
+    <string name="widget_weight_unit_kg">%1$s kg</string>
+    <string name="widget_weight_unit_lb">%1$s lb</string>
+    <string name="widget_weight_trend">tendencia en 28 días</string>
+    <string name="widget_weight_direction_falling">Bajando</string>
+    <string name="widget_weight_direction_rising">Subiendo</string>
+    <string name="widget_weight_direction_steady">Estable</string>
+    <string name="widget_weight_direction_building">Aún sin dirección</string>
+    <string name="widget_energy_range">%1$s a %2$s</string>
+    <string name="widget_sub_energy">kcal, estimación</string>
+    <string name="widget_sub_effort">de %1$s · fuerza %2$s de %3$s</string>
 </resources>

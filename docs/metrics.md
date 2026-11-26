@@ -2520,6 +2520,17 @@ trends history and end today. **our choice**.
 The estimator is Theil 1950 and Sen 1968, **not yet checked** against the
 papers.
 
+**Card and sheets.** Code: `apps/mobile/lib/features/trajectory/presentation/trajectory_levers_card.dart`.
+The Trajectory screen shows the four levers on every state but off, with the
+typical value, the direction and the change in 90 days; under 54 valid days it
+reads not yet with the count. Steps round to the nearest hundred, the others
+to whole units, and the direction comes from the unrounded trend. Each lever
+opens a sheet with its interval; moving steps add the fan, the line through the
+median day carried 90 more days with the change interval around it. The levers
+ignore hidden numbers, which hide weight only. Sources on the sheets: Paluch
+2022 (steps), Windred 2024 and Cribb 2023 (regularity), Zhang 2016 (resting
+heart rate, **not yet checked**), Yin 2017 (duration). **our choice**.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

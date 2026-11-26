@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/background/background_widget_publish.dart';
@@ -19,7 +20,8 @@ import '../../helpers/widget_fakes.dart';
 
 final class _FailingModuleStore implements ModuleStore {
   @override
-  Future<Set<ModuleId>> read() => Future.error(StateError('prefs failed'));
+  Future<Set<ModuleId>> read() =>
+      Future.error(PlatformException(code: 'channel-error'));
 
   @override
   Future<void> write(Set<ModuleId> enabled) async {}
@@ -187,7 +189,7 @@ void main() {
         gateway,
         clock: () => DateTime.utc(2026, 11, 10, 9),
         modules: _FailingModuleStore(),
-      );
+      ).timeout(const Duration(seconds: 2));
 
       final snapshot = gateway.snapshots.single;
       expect(snapshot['paired'], isTrue);

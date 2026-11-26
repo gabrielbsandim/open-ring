@@ -40,6 +40,7 @@ Future<void> publishWidgetSnapshot(
   HideNumbersStore? hideNumbers,
 }) async {
   final container = ProviderContainer(
+    retry: (_, _) => null,
     overrides: [
       clockProvider.overrideWithValue(clock),
       moduleStoreProvider.overrideWithValue(modules ?? InMemoryModuleStore()),

@@ -35,8 +35,15 @@ class TodayWidgetConfigController extends Notifier<TodayWidgetConfig> {
   TodayWidgetConfig build() =>
       ref.watch(todayWidgetConfigStoreProvider).read() ?? TodayWidgetConfig();
 
-  Future<void> toggle(WidgetMetric metric) =>
-      _save((current) => current.toggle(metric));
+  Future<void> toggle(
+    WidgetMetric metric, {
+    int maxMetrics = TodayWidgetConfig.maxMetrics,
+  }) => _save((current) {
+    if (!current.contains(metric) && current.metrics.length >= maxMetrics) {
+      return current;
+    }
+    return current.toggle(metric);
+  });
 
   Future<void> add(WidgetMetric metric) =>
       _save((current) => current.add(metric));

@@ -299,6 +299,29 @@ void main() {
     expect(previewLabel(tester), isNot(contains('Sleep')));
   });
 
+  testWidgets('rapid taps without rebuild still enforce the 3-metric UI cap', (
+    tester,
+  ) async {
+    await pumpConfig(
+      tester,
+      config: TodayWidgetConfig(
+        metrics: const [WidgetMetric.sleep, WidgetMetric.steps],
+      ),
+    );
+
+    await tester.tap(
+      find.byKey(TodayWidgetConfigScreen.metricKey(WidgetMetric.heartRate)),
+    );
+    await tester.tap(
+      find.byKey(TodayWidgetConfigScreen.metricKey(WidgetMetric.spo2)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('3 of 3'), findsOneWidget);
+    expect(previewLabel(tester), contains('Heart rate'));
+    expect(previewLabel(tester), isNot(contains('SpO2')));
+  });
+
   testWidgets('a theme override changes the preview note', (tester) async {
     await pumpConfig(tester);
 

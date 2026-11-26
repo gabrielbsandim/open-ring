@@ -193,7 +193,9 @@ class _MetricsCard extends ConsumerWidget {
             selected: config.contains(metric),
             enabled: config.contains(metric) || selectedCount < _uiMaxMetrics,
             onTap: () => unawaited(
-              ref.read(todayWidgetConfigProvider.notifier).toggle(metric),
+              ref
+                  .read(todayWidgetConfigProvider.notifier)
+                  .toggle(metric, maxMetrics: _uiMaxMetrics),
             ),
           ),
     ];

@@ -15,7 +15,9 @@ import 'package:open_ring/features/body/domain/hide_numbers_store.dart';
 import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
+import 'package:open_ring/features/trajectory/application/levers_providers.dart';
 import 'package:open_ring/features/trajectory/application/trajectory_providers.dart';
+import 'package:open_ring/features/trajectory/domain/levers_view.dart';
 import 'package:open_ring/features/trajectory/domain/trajectory_view.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_screen.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -89,7 +91,9 @@ List<Override> trajectoryOverrides({
   Future<WeightSummary?> Function()? summaryLoad,
   Future<List<WeighIn>> Function()? weighIns,
   Future<TrajectoryView> Function(Ref ref)? read,
+  LeversView levers = const LeversOff(),
 }) => [
+  leversProvider.overrideWith((ref) async => levers),
   clockProvider.overrideWithValue(
     () => DateTime(asOf.year, asOf.month, asOf.day, 12),
   ),

@@ -20,6 +20,7 @@ import 'package:open_ring/features/trajectory/presentation/projections_screen.da
 import 'package:open_ring/features/trajectory/presentation/trajectory_chart.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_evidence_sheet.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_kcal_card.dart';
+import 'package:open_ring/features/trajectory/presentation/trajectory_levers_card.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_states.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -92,6 +93,7 @@ class TrajectoryScreen extends ConsumerWidget {
       ],
       TrajectoryRefused(:final reason) => [
         TrajectoryRefusedCard(reason: reason),
+        TrajectoryLeversCard(format: units.format),
         const _FormulaLink(),
       ],
       TrajectoryGuard(:final loss) => [
@@ -101,12 +103,14 @@ class TrajectoryScreen extends ConsumerWidget {
           units: units,
           hidden: hidden,
         ),
+        TrajectoryLeversCard(format: units.format),
         const TrajectoryProjectionsCard(),
         const _WhatIfLink(),
         const _FormulaLink(),
       ],
       TrajectoryBuilding() || TrajectoryReady() when weights == null => [
         const TrajectoryNone(),
+        TrajectoryLeversCard(format: units.format),
         const TrajectoryProjectionsCard(),
         const _WhatIfLink(),
         const _FormulaLink(),
@@ -118,6 +122,7 @@ class TrajectoryScreen extends ConsumerWidget {
           units: units,
           hidden: hidden,
         ),
+        TrajectoryLeversCard(format: units.format),
         const TrajectoryProjectionsCard(),
         const _WhatIfLink(),
         const _FormulaLink(),
@@ -137,6 +142,7 @@ class TrajectoryScreen extends ConsumerWidget {
           hidden: hidden,
         ),
         TrajectoryKcalCard(format: units.format),
+        TrajectoryLeversCard(format: units.format),
         const TrajectoryProjectionsCard(),
         const _WhatIfLink(),
         const _FormulaLink(),

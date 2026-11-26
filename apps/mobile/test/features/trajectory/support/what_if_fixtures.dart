@@ -5,7 +5,6 @@ import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
-import 'package:open_ring/features/trajectory/application/levers_providers.dart';
 import 'package:open_ring/features/trajectory/domain/levers_view.dart';
 import 'package:open_ring/features/trajectory/domain/trajectory_view.dart';
 
@@ -39,9 +38,7 @@ List<Override> whatIfOverrides({
     hidden: hidden,
     weighIns: weighIns,
     read: read,
-  ),
-  leversProvider.overrideWith(
-    (ref) async => levers ?? leversWith(trend: stepsTrend(typical)),
+    levers: levers ?? leversWith(trend: stepsTrend(typical)),
   ),
   if (withProfile)
     userProfileStoreProvider.overrideWithValue(

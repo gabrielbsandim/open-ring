@@ -3104,5 +3104,6 @@
   "trajectorySheetFirmOurs": "Comprobar siempre a las 4 semanas y sumar la variación del día a día a la franja.",
   "trajectorySheetBandOurs": "Los horizontes de 4 y 12 semanas, sumar la variación del día a día a la franja y parar por encima del {percent}% del peso por semana.",
   "trajectorySheetFirmLimits": "Cuatro semanas aún bastan para que un cambio de rutina saque la tendencia de la franja.",
-  "trajectorySheetBandLimits": "La app no sabe lo que comes. Si la comida, el entrenamiento o el sueño cambian, el escenario cambia con ellos. La báscula no separa grasa de agua o músculo."
+  "trajectorySheetBandLimits": "La app no sabe lo que comes. Si la comida, el entrenamiento o el sueño cambian, el escenario cambia con ellos. La báscula no separa grasa de agua o músculo.",
+  "trajectorySheetScenarioFloorTrend": "Tu tendencia ya está por debajo del peso de IMC {bmi} para tu altura, así que la franja se sostiene en la tendencia de hoy."
 }

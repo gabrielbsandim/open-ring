@@ -3104,5 +3104,6 @@
   "trajectorySheetFirmOurs": "Conferir sempre em 4 semanas e somar a variação do dia a dia à faixa.",
   "trajectorySheetBandOurs": "Os horizontes de 4 e 12 semanas, somar a variação do dia a dia à faixa e parar acima de {percent}% do peso por semana.",
   "trajectorySheetFirmLimits": "Quatro semanas ainda é o suficiente para uma mudança de rotina tirar a tendência da faixa.",
-  "trajectorySheetBandLimits": "O app não sabe o que você come. Se a comida, o treino ou o sono mudarem, o cenário muda junto. A balança não separa gordura de água ou músculo."
+  "trajectorySheetBandLimits": "O app não sabe o que você come. Se a comida, o treino ou o sono mudarem, o cenário muda junto. A balança não separa gordura de água ou músculo.",
+  "trajectorySheetScenarioFloorTrend": "A sua tendência já está abaixo do peso de IMC {bmi} para a sua altura, então a faixa fica presa na tendência de hoje."
 }

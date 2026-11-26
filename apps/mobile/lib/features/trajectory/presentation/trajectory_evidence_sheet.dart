@@ -114,8 +114,10 @@ String _scenarioYours(
   );
   final raw = weightScenario(view.trendKg, view.rate, view.noiseKg, band.days);
   if (band.low <= raw.low + _floorTolerance) return text;
-  final floor = l10n.trajectorySheetScenarioFloor(
-    format.decimal(bmiFloor, digits: 1),
-  );
+  final bmi = format.decimal(bmiFloor, digits: 1);
+  // scenarioFloored holds at the trend itself when it is already under BMI 18.5.
+  final floor = band.low == view.trendKg
+      ? l10n.trajectorySheetScenarioFloorTrend(bmi)
+      : l10n.trajectorySheetScenarioFloor(bmi);
   return '$text $floor';
 }

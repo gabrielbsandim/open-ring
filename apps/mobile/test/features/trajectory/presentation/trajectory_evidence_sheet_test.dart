@@ -164,6 +164,21 @@ void main() {
       expect(_yours(), contains(_l10n.trajectorySheetScenarioFloor('18.5')));
     });
 
+    testWidgets('a trend already under the floor is held at the trend', (
+      tester,
+    ) async {
+      final raw = weightScenario(50, losing, 0.35, 84);
+      final atTrend = ScenarioBand(days: 84, low: 50, mid: 50, high: raw.high);
+      await _pump(tester, view: readyView(trendKg: 50, band: atTrend));
+      await _open(tester, TrajectoryKeys.band);
+
+      expect(
+        _yours(),
+        contains(_l10n.trajectorySheetScenarioFloorTrend('18.5')),
+      );
+      expect(_yours(), isNot(contains('held at the weight of BMI')));
+    });
+
     testWidgets('imperial units show lb and never kg', (tester) async {
       final imperial = _units(UnitSystem.imperial);
       final view = readyView();

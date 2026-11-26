@@ -3104,5 +3104,6 @@
   "trajectorySheetFirmOurs": "Toujours vérifier à 4 semaines, et ajouter la variation d'un jour à l'autre à la fourchette.",
   "trajectorySheetBandOurs": "Les horizons de 4 et 12 semaines, ajouter la variation d'un jour à l'autre à la fourchette, et s'arrêter au dessus de {percent} % du poids par semaine.",
   "trajectorySheetFirmLimits": "Quatre semaines suffisent encore pour qu'un changement de routine sorte la tendance de la fourchette.",
-  "trajectorySheetBandLimits": "L'app ne sait pas ce que vous mangez. Si l'alimentation, l'entraînement ou le sommeil changent, le scénario change avec eux. La balance ne distingue pas la graisse de l'eau ou du muscle."
+  "trajectorySheetBandLimits": "L'app ne sait pas ce que vous mangez. Si l'alimentation, l'entraînement ou le sommeil changent, le scénario change avec eux. La balance ne distingue pas la graisse de l'eau ou du muscle.",
+  "trajectorySheetScenarioFloorTrend": "Votre tendance est déjà sous le poids d'un IMC de {bmi} pour votre taille, donc la fourchette est tenue à la tendance d'aujourd'hui."
 }

@@ -5724,5 +5724,7 @@
   "trajectorySheetBandOurs": "The 4 and 12 week horizons, adding the day to day noise to the band, and stopping above {percent}% of body weight a week.",
   "@trajectorySheetBandOurs": {"placeholders": {"percent": {"type": "String"}}},
   "trajectorySheetFirmLimits": "Four weeks is still enough for a change of routine to take the trend out of the band.",
-  "trajectorySheetBandLimits": "The app does not know what you eat. If food, training or sleep change, the scenario changes with them. The scale does not tell fat from water or muscle."
+  "trajectorySheetBandLimits": "The app does not know what you eat. If food, training or sleep change, the scenario changes with them. The scale does not tell fat from water or muscle.",
+  "trajectorySheetScenarioFloorTrend": "Your trend is already under the weight of BMI {bmi} for your height, so the band is held at today's trend.",
+  "@trajectorySheetScenarioFloorTrend": {"placeholders": {"bmi": {"type": "String"}}}
 }

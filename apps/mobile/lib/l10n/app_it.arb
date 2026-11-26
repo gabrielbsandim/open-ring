@@ -3104,5 +3104,6 @@
   "trajectorySheetFirmOurs": "Verificare sempre a 4 settimane e aggiungere alla fascia la variazione da un giorno all'altro.",
   "trajectorySheetBandOurs": "Gli orizzonti di 4 e 12 settimane, aggiungere alla fascia la variazione da un giorno all'altro e fermarsi sopra il {percent}% del peso a settimana.",
   "trajectorySheetFirmLimits": "Quattro settimane bastano ancora perché un cambio di routine porti la tendenza fuori dalla fascia.",
-  "trajectorySheetBandLimits": "L'app non sa cosa mangi. Se cibo, allenamento o sonno cambiano, lo scenario cambia con loro. La bilancia non distingue il grasso dall'acqua o dal muscolo."
+  "trajectorySheetBandLimits": "L'app non sa cosa mangi. Se cibo, allenamento o sonno cambiano, lo scenario cambia con loro. La bilancia non distingue il grasso dall'acqua o dal muscolo.",
+  "trajectorySheetScenarioFloorTrend": "La tua tendenza è già sotto il peso di un IMC di {bmi} per la tua altezza, quindi la fascia è tenuta alla tendenza di oggi."
 }

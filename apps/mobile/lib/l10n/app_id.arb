@@ -3104,5 +3104,6 @@
   "trajectorySheetFirmOurs": "Selalu memeriksa pada 4 minggu, dan menambahkan derau harian ke rentang.",
   "trajectorySheetBandOurs": "Cakrawala 4 dan 12 minggu, menambahkan derau harian ke rentang, dan berhenti di atas {percent}% berat badan per minggu.",
   "trajectorySheetFirmLimits": "Empat minggu masih cukup bagi perubahan rutinitas untuk membawa tren keluar dari rentang.",
-  "trajectorySheetBandLimits": "Aplikasi tidak tahu apa yang Anda makan. Jika makanan, latihan, atau tidur berubah, skenarionya ikut berubah. Timbangan tidak membedakan lemak dari air atau otot."
+  "trajectorySheetBandLimits": "Aplikasi tidak tahu apa yang Anda makan. Jika makanan, latihan, atau tidur berubah, skenarionya ikut berubah. Timbangan tidak membedakan lemak dari air atau otot.",
+  "trajectorySheetScenarioFloorTrend": "Tren Anda sudah di bawah berat IMT {bmi} untuk tinggi badan Anda, jadi rentang ditahan pada tren hari ini."
 }

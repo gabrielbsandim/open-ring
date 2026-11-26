@@ -3104,5 +3104,6 @@
   "trajectorySheetFirmOurs": "Immer nach 4 Wochen prüfen und das Rauschen von Tag zu Tag zum Band addieren.",
   "trajectorySheetBandOurs": "Die Horizonte von 4 und 12 Wochen, das Rauschen von Tag zu Tag zum Band addieren und über {percent}% des Gewichts pro Woche stoppen.",
   "trajectorySheetFirmLimits": "Vier Wochen reichen noch, damit eine geänderte Routine den Trend aus dem Band bringt.",
-  "trajectorySheetBandLimits": "Die App weiß nicht, was du isst. Ändern sich Essen, Training oder Schlaf, ändert sich das Szenario mit. Die Waage trennt Fett nicht von Wasser oder Muskeln."
+  "trajectorySheetBandLimits": "Die App weiß nicht, was du isst. Ändern sich Essen, Training oder Schlaf, ändert sich das Szenario mit. Die Waage trennt Fett nicht von Wasser oder Muskeln.",
+  "trajectorySheetScenarioFloorTrend": "Dein Trend liegt schon unter dem Gewicht eines BMI von {bmi} für deine Größe, also wird das Band beim heutigen Trend gehalten."
 }

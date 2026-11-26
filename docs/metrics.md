@@ -2439,7 +2439,8 @@ a Ready card the Now tile and the rate row open the rate sheet, the 4 and 12
 week tiles open a scenario sheet. "Your number" carries the math with the
 reader's values: trend, rate ends, `F(t)` with one decimal, middle, noise and
 the drawn range, plus a line when an edge sits more than 0.05 kg above the
-unfloored band, so the BMI floor is named. With numbers hidden no tile or rate
+unfloored band, naming the BMI floor, or the trend when it is already
+under that weight. With numbers hidden no tile or rate
 row is drawn, so no sheet opens. The sheets never show kcal. **our choice**.
 
 ### Ring levers (Theil-Sen over 90 days)

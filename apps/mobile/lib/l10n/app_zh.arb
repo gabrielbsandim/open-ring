@@ -3104,5 +3104,6 @@
   "trajectorySheetFirmOurs": "总是在 4 周时核对，并把每天的波动加到范围上。",
   "trajectorySheetBandOurs": "4 周和 12 周的期限，把每天的波动加到范围上，以及每周超过体重的 {percent}% 时停止。",
   "trajectorySheetFirmLimits": "四周仍足以让生活习惯的改变把趋势带出范围。",
-  "trajectorySheetBandLimits": "应用不知道你吃什么。如果饮食、训练或睡眠改变，情景也会随之改变。体重秤分不清脂肪、水分或肌肉。"
+  "trajectorySheetBandLimits": "应用不知道你吃什么。如果饮食、训练或睡眠改变，情景也会随之改变。体重秤分不清脂肪、水分或肌肉。",
+  "trajectorySheetScenarioFloorTrend": "你的趋势已经低于你身高对应 BMI {bmi} 的体重，所以范围停在今天的趋势。"
 }

@@ -1,9 +1,32 @@
+import 'package:flutter/material.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/features/goals/presentation/goal_evidence_sheet.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/features/trajectory/domain/trajectory_view.dart';
 
 enum TrajectoryEvidence { rate, firm, band }
+
+/// A row or tile that opens its evidence sheet.
+class EvidenceTap extends StatelessWidget {
+  const new({required this.onTap, required this.child, super.key});
+
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
 
 // An edge raised by less than this is a rounding difference, not the floor.
 const _floorTolerance = 0.05;

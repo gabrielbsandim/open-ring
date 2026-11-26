@@ -2443,6 +2443,13 @@ unfloored band, naming the BMI floor, or the trend when it is already
 under that weight. With numbers hidden no tile or rate
 row is drawn, so no sheet opens. The sheets never show kcal. **our choice**.
 
+The kcal card rows (resting burn, burn in the scenario, 28 day balance) and
+the what if rows (weight, cohort) open sheets too. The burn sheet multiplies
+the middle distance in kg by `mifflinPerKilogram` and by 24; the balance sheet
+shows the unrounded ends of rate times 7,700; a balance that is not ready
+repeats why. The what if weight sheet shows kcal only while Energy is on and no
+values while numbers are hidden; km and kg stay with Energy off. **our choice**.
+
 ### Ring levers (Theil-Sen over 90 days)
 
 Code: `packages/metrics/lib/src/lever_trend.dart`. Steps, sleep regularity,

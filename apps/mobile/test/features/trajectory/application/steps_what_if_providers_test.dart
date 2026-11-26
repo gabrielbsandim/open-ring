@@ -14,7 +14,7 @@ Future<WhatIfView> _read(
   TrajectoryView? view,
   EnergyGate gate = EnergyGate.on,
   bool hidden = false,
-}) async {
+}) {
   final container = ProviderContainer(
     overrides: whatIfOverrides(
       view: view,
@@ -116,9 +116,7 @@ void main() {
   group('TR10b acceptance 5: no steps trend', () {
     test('a null trend reports the valid day count', () async {
       final container = ProviderContainer(
-        overrides: whatIfOverrides(
-          levers: leversWith(trend: null, validDays: 31),
-        ),
+        overrides: whatIfOverrides(levers: leversWith(validDays: 31)),
       );
       addTearDown(container.dispose);
 
@@ -130,9 +128,7 @@ void main() {
 
     test('zero valid days reports zero', () async {
       final container = ProviderContainer(
-        overrides: whatIfOverrides(
-          levers: leversWith(trend: null, validDays: 0),
-        ),
+        overrides: whatIfOverrides(levers: leversWith(validDays: 0)),
       );
       addTearDown(container.dispose);
 
@@ -161,11 +157,11 @@ void main() {
     });
 
     test('typical 8900 reaching 10900 is not clamped', () async {
-      expect((_ready(await _read(2000, typical: 8900))).clamped, isFalse);
+      expect(_ready(await _read(2000, typical: 8900)).clamped, isFalse);
     });
 
     test('typical 8701 reaching 10701 is not clamped', () async {
-      expect((_ready(await _read(2000, typical: 8701))).clamped, isFalse);
+      expect(_ready(await _read(2000, typical: 8701)).clamped, isFalse);
     });
   });
 }

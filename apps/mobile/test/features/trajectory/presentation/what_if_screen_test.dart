@@ -33,7 +33,7 @@ Future<void> _pump(
     typical: typical,
     hidden: hidden,
     gate: gate,
-    levers: noSteps ? leversWith(trend: null, validDays: 31) : null,
+    levers: noSteps ? leversWith(validDays: 31) : null,
   ),
 );
 
@@ -76,7 +76,7 @@ void main() {
     });
 
     testWidgets('hidden with Energy on still shows no kcal', (tester) async {
-      await _pump(tester, hidden: true, gate: EnergyGate.on);
+      await _pump(tester, hidden: true);
 
       expect(find.textContaining('kcal'), findsNothing);
     });
@@ -146,7 +146,7 @@ void main() {
     testWidgets('a typical above 10901 reads differently from one below', (
       tester,
     ) async {
-      await _pump(tester, typical: 8700);
+      await _pump(tester);
       final below = _textOf(tester, find.byKey(WhatIfKeys.cohort));
 
       await tester.pumpWidget(const SizedBox());

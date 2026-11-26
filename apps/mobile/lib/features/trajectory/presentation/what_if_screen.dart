@@ -1,17 +1,23 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/application/weight_summary.dart';
+import 'package:open_ring/features/energy/application/energy_gate.dart';
+import 'package:open_ring/features/goals/presentation/goal_evidence_sheet.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/features/trajectory/application/levers_providers.dart';
 import 'package:open_ring/features/trajectory/application/steps_what_if_providers.dart';
 import 'package:open_ring/features/trajectory/application/trajectory_providers.dart';
+import 'package:open_ring/features/trajectory/presentation/trajectory_evidence_sheet.dart';
+import 'package:open_ring/features/trajectory/presentation/trajectory_more_evidence.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_states.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
@@ -169,6 +175,15 @@ class _WhatIfScreenState extends ConsumerState<WhatIfScreen> {
                   amount(weight.kgLess4),
                   units.weightUnit,
                 ),
+          onTap: () => _open(
+            WhatIfEvidence.weight,
+            whatIfWeightYours(
+              units,
+              weight,
+              hidden: hidden,
+              energy: ref.read(energyGateProvider) == EnergyGate.on,
+            ),
+          ),
         ),
         const SizedBox(height: 10),
         eatBack,
@@ -199,12 +214,24 @@ class _WhatIfScreenState extends ConsumerState<WhatIfScreen> {
           caption: l10n.trajectoryWhatIfMortality,
           value: _words(l10n, ready.words),
           why: why,
+          onTap: () => _open(
+            WhatIfEvidence.cohort,
+            whatIfCohortYours(format, ready, _words(l10n, ready.words)),
+          ),
         ),
         const SizedBox(height: 10),
         BodyText(l10n.trajectoryWhatIfCohortNote),
       ],
     );
   }
+
+  void _open(WhatIfEvidence kind, String yours) => unawaited(
+    showGoalEvidence(
+      context,
+      copy: whatIfEvidenceCopy(MetricFormat.of(context), kind),
+      yours: yours,
+    ),
+  );
 
   String _words(AppLocalizations l10n, CohortWords words) => switch (words) {
     CohortWords.aboutTheSame => l10n.trajectoryWhatIfWordsSame,
@@ -243,16 +270,19 @@ class _Row extends StatelessWidget {
     required this.caption,
     required this.value,
     required this.why,
+    required this.onTap,
     super.key,
   });
 
   final String caption;
   final String value;
   final String why;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return MergeSemantics(
+    return EvidenceTap(
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

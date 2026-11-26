@@ -262,7 +262,7 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _Tappable(
+    return EvidenceTap(
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,27 +274,6 @@ class _Tile extends StatelessWidget {
             style: numberStyle(Theme.of(context).textTheme.titleSmall),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _Tappable extends StatelessWidget {
-  const new({required this.onTap, required this.child, super.key});
-
-  final VoidCallback onTap;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return MergeSemantics(
-      child: Semantics(
-        button: true,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
-          child: child,
-        ),
       ),
     );
   }
@@ -321,7 +300,7 @@ class _Rate extends StatelessWidget {
             l10n.bodyWeightRatePerWeek(perWeek(rate.perWeek), unit),
             l10n.bodyRateInterval(low, high, unit),
           );
-    return _Tappable(
+    return EvidenceTap(
       key: TrajectoryKeys.rate,
       onTap: onTap,
       child: Column(

@@ -80,11 +80,6 @@ Future<void> publishWidgetSnapshot(
     ],
   );
   try {
-    await (
-      container.read(userProfileProvider.future),
-      container.read(enabledModulesProvider.future),
-      container.read(hideNumbersProvider.future),
-    ).wait;
     final snapshot = await container.read(widgetSnapshotProvider.future);
     await WidgetPublisher(gateway).snapshot(snapshot);
   } finally {

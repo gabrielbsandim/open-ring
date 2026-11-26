@@ -69,42 +69,39 @@ void main() {
     });
   });
 
-  test(
-    'a background sync publishes enabled module fields and respects hidden numbers',
-    () async {
-      final db = await pairedDatabase();
-      final now = DateTime.utc(2026, 11, 10, 9);
-      await DriftWeighInStore(db).add(
-        WeighInDraft(
-          at: now.subtract(const Duration(hours: 1)),
-          offsetMinutes: 0,
-          kilograms: 75.4,
-        ),
-      );
-      final gateway = FakeWidgetGateway();
+  test('a background sync publishes enabled module fields and respects hidden numbers', () async {
+    final db = await pairedDatabase();
+    final now = DateTime.utc(2026, 11, 10, 9);
+    await DriftWeighInStore(db).add(
+      WeighInDraft(
+        at: now.subtract(const Duration(hours: 1)),
+        offsetMinutes: 0,
+        kilograms: 75.4,
+      ),
+    );
+    final gateway = FakeWidgetGateway();
 
-      await publishWidgetSnapshot(
-        db,
-        gateway,
-        clock: () => now,
-        modules: InMemoryModuleStore({ModuleId.body, ModuleId.effort}),
-        hideNumbers: InMemoryHideNumbersStore(hidden: true),
-      );
+    await publishWidgetSnapshot(
+      db,
+      gateway,
+      clock: () => now,
+      modules: InMemoryModuleStore({ModuleId.body, ModuleId.effort}),
+      hideNumbers: InMemoryHideNumbersStore(hidden: true),
+    );
 
-      final snapshot = gateway.snapshots.single;
-      expect(snapshot['version'], 2);
-      expect(snapshot['enabledModules'], containsAll(['body', 'effort']));
-      expect(snapshot['hideNumbers'], isTrue);
-      expect(snapshot['weight'], {
-        'trendKilograms': null,
-        'direction': 'building',
-      });
-      expect(snapshot['effort'], {
-        'points': 0,
-        'targetPoints': effortWeekPoints,
-        'strengthDays': 0,
-        'strengthTarget': effortWeekStrengthDays,
-      });
-    },
-  );
+    final snapshot = gateway.snapshots.single;
+    expect(snapshot['version'], 2);
+    expect(snapshot['enabledModules'], containsAll(['body', 'effort']));
+    expect(snapshot['hideNumbers'], isTrue);
+    expect(snapshot['weight'], {
+      'trendKilograms': null,
+      'direction': 'building',
+    });
+    expect(snapshot['effort'], {
+      'points': 0,
+      'targetPoints': effortWeekPoints,
+      'strengthDays': 0,
+      'strengthTarget': effortWeekStrengthDays,
+    });
+  });
 }

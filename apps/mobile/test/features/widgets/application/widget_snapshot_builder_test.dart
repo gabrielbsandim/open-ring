@@ -89,10 +89,10 @@ Goal _goal({
   kind: kind,
   pace: kind == GoalKind.loseFat ? GoalPace.standard : null,
   startedOn: const LocalDate(2026, 11, 2),
-  anchorKg: 79.0,
+  anchorKg: 79,
   referenceKg: null,
   blockStartedOn: const LocalDate(2026, 11, 2),
-  blockAnchorKg: 79.0,
+  blockAnchorKg: 79,
   phase: phase,
   phaseSince: const LocalDate(2026, 11, 2),
   phaseUntil: phase == GoalPhase.paused ? const LocalDate(2026, 11, 16) : null,
@@ -337,17 +337,13 @@ void main() {
         enabledModules: {ModuleId.openScore},
         dayScoreHistory: DayScoreHistory(
           today: metricsToday,
-          days: {
-            metricsToday: const DayScoreInputs(
+          days: const {
+            metricsToday: DayScoreInputs(
               sleepScore: 80,
               steps: 9000,
               stepGoal: 10000,
               intensityMinutes: 150,
-              stress: const BaselineDeviation(
-                today: 30,
-                baseline: 30,
-                zScore: 0,
-              ),
+              stress: BaselineDeviation(today: 30, baseline: 30, zScore: 0),
             ),
           },
         ),
@@ -381,8 +377,8 @@ void main() {
         enabledModules: {ModuleId.openScore},
         dayScoreHistory: DayScoreHistory(
           today: metricsToday,
-          days: {
-            metricsToday: const DayScoreInputs(
+          days: const {
+            metricsToday: DayScoreInputs(
               sleepScore: 70,
               steps: 5000,
               stepGoal: 10000,
@@ -424,114 +420,120 @@ void main() {
       expect(staleSnap.dayScore?.asOf, offlineScenario.ring.lastSyncAt);
     });
 
-    test('weight maps directions and strips trendKilograms when hidden', () async {
-      final falling = await snapshotFor(
-        fullDataScenario,
-        enabledModules: {ModuleId.body},
-        weightSummary: _weightSummary(
-          const WeightRateReady(perWeek: -0.3, low: -0.4, high: -0.2),
-        ),
-      );
-      expect(falling.weight?.direction, WidgetWeightDirection.falling);
-      expect(falling.weight?.trendKilograms, 77.6);
-      expect(falling.toJson()['weight'], {
-        'trendKilograms': 77.6,
-        'direction': 'falling',
-      });
-
-      final rising = await snapshotFor(
-        fullDataScenario,
-        enabledModules: {ModuleId.body},
-        weightSummary: _weightSummary(
-          const WeightRateReady(perWeek: 0.3, low: 0.1, high: 0.5),
-        ),
-      );
-      expect(rising.weight?.direction, WidgetWeightDirection.rising);
-
-      final steady = await snapshotFor(
-        fullDataScenario,
-        enabledModules: {ModuleId.body},
-        weightSummary: _weightSummary(
-          const WeightRateReady(perWeek: 0.05, low: -0.1, high: 0.2),
-        ),
-      );
-      expect(steady.weight?.direction, WidgetWeightDirection.steady);
-
-      final building = await snapshotFor(
-        fullDataScenario,
-        enabledModules: {ModuleId.body},
-        weightSummary: _weightSummary(
-          const WeightRateBuilding(daysMissing: 2, spanMissing: 4),
-        ),
-      );
-      expect(building.weight?.direction, WidgetWeightDirection.building);
-
-      final hidden = await snapshotFor(
-        fullDataScenario,
-        enabledModules: {ModuleId.body},
-        hideNumbers: true,
-        weightSummary: _weightSummary(
-          const WeightRateReady(perWeek: -0.3, low: -0.4, high: -0.2),
-        ),
-      );
-      expect(hidden.weight?.direction, WidgetWeightDirection.falling);
-      expect(hidden.weight?.trendKilograms, isNull);
-      expect(hidden.toJson()['weight'], {
-        'trendKilograms': null,
-        'direction': 'falling',
-      });
-    });
-
-    test('energy respects floor, missing/underage states, and hideNumbers', () async {
-      final ready = await snapshotFor(
-        fullDataScenario,
-        enabledModules: {ModuleId.energy},
-        energyNow: (
-          day: const EnergyDayEstimate(
-            resting: 1600,
-            base: 1400,
-            steps: 300,
-            workouts: 200,
+    test(
+      'weight maps directions and strips trendKilograms when hidden',
+      () async {
+        final falling = await snapshotFor(
+          fullDataScenario,
+          enabledModules: {ModuleId.body},
+          weightSummary: _weightSummary(
+            const WeightRateReady(perWeek: -0.3, low: -0.4, high: -0.2),
           ),
-          asOf: metricsNow,
-        ),
-      );
-      expect(ready.energy?.lowKcal, 1600);
-      expect(ready.energy?.highKcal, 2200);
-      expect(ready.toJson()['energy'], {'lowKcal': 1600, 'highKcal': 2200});
+        );
+        expect(falling.weight?.direction, WidgetWeightDirection.falling);
+        expect(falling.weight?.trendKilograms, 77.6);
+        expect(falling.toJson()['weight'], {
+          'trendKilograms': 77.6,
+          'direction': 'falling',
+        });
 
-      final underFloor = await snapshotFor(
-        fullDataScenario,
-        enabledModules: {ModuleId.energy},
-        energyNow: (
-          day: const EnergyDayEstimate(
-            resting: 1600,
-            base: 60,
-            steps: 0,
-            workouts: 0,
+        final rising = await snapshotFor(
+          fullDataScenario,
+          enabledModules: {ModuleId.body},
+          weightSummary: _weightSummary(
+            const WeightRateReady(perWeek: 0.3, low: 0.1, high: 0.5),
           ),
-          asOf: metricsNow,
-        ),
-      );
-      expect(underFloor.energy, isNull);
+        );
+        expect(rising.weight?.direction, WidgetWeightDirection.rising);
 
-      final hidden = await snapshotFor(
-        fullDataScenario,
-        enabledModules: {ModuleId.energy},
-        hideNumbers: true,
-        energyNow: (
-          day: const EnergyDayEstimate(
-            resting: 1600,
-            base: 1400,
-            steps: 300,
-            workouts: 200,
+        final steady = await snapshotFor(
+          fullDataScenario,
+          enabledModules: {ModuleId.body},
+          weightSummary: _weightSummary(
+            const WeightRateReady(perWeek: 0.05, low: -0.1, high: 0.2),
           ),
-          asOf: metricsNow,
-        ),
-      );
-      expect(hidden.energy, isNull);
-      expect(hidden.toJson()['energy'], isNull);
-    });
+        );
+        expect(steady.weight?.direction, WidgetWeightDirection.steady);
+
+        final building = await snapshotFor(
+          fullDataScenario,
+          enabledModules: {ModuleId.body},
+          weightSummary: _weightSummary(
+            const WeightRateBuilding(daysMissing: 2, spanMissing: 4),
+          ),
+        );
+        expect(building.weight?.direction, WidgetWeightDirection.building);
+
+        final hidden = await snapshotFor(
+          fullDataScenario,
+          enabledModules: {ModuleId.body},
+          hideNumbers: true,
+          weightSummary: _weightSummary(
+            const WeightRateReady(perWeek: -0.3, low: -0.4, high: -0.2),
+          ),
+        );
+        expect(hidden.weight?.direction, WidgetWeightDirection.falling);
+        expect(hidden.weight?.trendKilograms, isNull);
+        expect(hidden.toJson()['weight'], {
+          'trendKilograms': null,
+          'direction': 'falling',
+        });
+      },
+    );
+
+    test(
+      'energy respects floor, missing/underage states, and hideNumbers',
+      () async {
+        final ready = await snapshotFor(
+          fullDataScenario,
+          enabledModules: {ModuleId.energy},
+          energyNow: (
+            day: const EnergyDayEstimate(
+              resting: 1600,
+              base: 1400,
+              steps: 300,
+              workouts: 200,
+            ),
+            asOf: metricsNow,
+          ),
+        );
+        expect(ready.energy?.lowKcal, 1600);
+        expect(ready.energy?.highKcal, 2200);
+        expect(ready.toJson()['energy'], {'lowKcal': 1600, 'highKcal': 2200});
+
+        final underFloor = await snapshotFor(
+          fullDataScenario,
+          enabledModules: {ModuleId.energy},
+          energyNow: (
+            day: const EnergyDayEstimate(
+              resting: 1600,
+              base: 60,
+              steps: 0,
+              workouts: 0,
+            ),
+            asOf: metricsNow,
+          ),
+        );
+        expect(underFloor.energy, isNull);
+
+        final hidden = await snapshotFor(
+          fullDataScenario,
+          enabledModules: {ModuleId.energy},
+          hideNumbers: true,
+          energyNow: (
+            day: const EnergyDayEstimate(
+              resting: 1600,
+              base: 1400,
+              steps: 300,
+              workouts: 200,
+            ),
+            asOf: metricsNow,
+          ),
+        );
+        expect(hidden.energy, isNull);
+        expect(hidden.toJson()['energy'], isNull);
+      },
+    );
 
     test('effort and goals serialize states and levers', () async {
       const monday = LocalDate(2026, 11, 9);

@@ -4,9 +4,11 @@ import 'package:open_ring/app/background/background_sync_alerts.dart';
 import 'package:open_ring/app/background/background_sync_runner.dart';
 import 'package:open_ring/app/background/background_widget_publish.dart';
 import 'package:open_ring/core/database/open_app_database.dart';
+import 'package:open_ring/features/body/infrastructure/shared_preferences_hide_numbers_store.dart';
 import 'package:open_ring/features/demo/infrastructure/shared_preferences_demo_mode_store.dart';
 import 'package:open_ring/features/health_sync/infrastructure/health_plugin_gateway.dart';
 import 'package:open_ring/features/health_sync/infrastructure/shared_preferences_health_write_preferences.dart';
+import 'package:open_ring/features/modules/infrastructure/shared_preferences_module_store.dart';
 import 'package:open_ring/features/ring/application/sync_alerts.dart';
 import 'package:open_ring/features/ring/application/sync_paired_ring.dart';
 import 'package:open_ring/features/ring/infrastructure/background_sync_signal.dart';
@@ -59,8 +61,12 @@ Future<bool> runBackgroundSync() {
       preferences: SharedPreferencesRingAlertPreferences(),
       notifier: const MethodChannelRingNotifier(),
     ),
-    publishWidgets: () =>
-        publishWidgetSnapshot(database, HomeWidgetPluginGateway.forPlatform()),
+    publishWidgets: () => publishWidgetSnapshot(
+      database,
+      HomeWidgetPluginGateway.forPlatform(),
+      modules: SharedPreferencesModuleStore(),
+      hideNumbers: SharedPreferencesHideNumbersStore(),
+    ),
     announceFinished: announceBackgroundSyncFinished,
     teardown: [driver.close, database.close, service.stop],
   );

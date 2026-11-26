@@ -16,8 +16,8 @@ void main() {
       expect(AppPaths.settingsModuleGoals, '/ring/settings/modules/goals');
     });
 
-    test('the modules are the seven, Goals and Food among them once', () {
-      expect(OfferedModule.values, hasLength(7));
+    test('the modules are the eight, Goals and Food among them once', () {
+      expect(OfferedModule.values, hasLength(8));
       expect(
         OfferedModule.values.where((module) => module.id == ModuleId.goals),
         [OfferedModule.goals],
@@ -48,10 +48,23 @@ void main() {
       expect(OfferedModule.ai.path, AppPaths.settingsModuleAi);
     });
 
-    test('comes last, after Food, and only once', () {
-      expect(OfferedModule.values.last, OfferedModule.ai);
+    test('comes after Food, before Trajectory, and only once', () {
+      const values = OfferedModule.values;
+      expect(values.indexOf(OfferedModule.ai), values.length - 2);
       expect(OfferedModule.values.where((module) => module.id == ModuleId.ai), [
         OfferedModule.ai,
+      ]);
+    });
+  });
+
+  group('Trajectory module', () {
+    test('comes last, needs adults and opens its module screen', () {
+      expect(OfferedModule.values.last, OfferedModule.trajectory);
+      expect(OfferedModule.trajectory.id, ModuleId.trajectory);
+      expect(OfferedModule.trajectory.path, AppPaths.settingsModuleTrajectory);
+      expect(OfferedModule.values.where((module) => module.adultOnly), [
+        OfferedModule.energy,
+        OfferedModule.trajectory,
       ]);
     });
   });
@@ -65,9 +78,17 @@ void main() {
       expect(OfferedModule.ai.viewPath, AppPaths.settingsAiConnection);
     });
 
+    test('Trajectory leads to its screen', () {
+      expect(OfferedModule.trajectory.viewPath, AppPaths.trajectory);
+    });
+
     test('every other module leads to Today', () {
       for (final module in OfferedModule.values) {
-        if (module == OfferedModule.goals || module == OfferedModule.ai) {
+        if ({
+          OfferedModule.goals,
+          OfferedModule.ai,
+          OfferedModule.trajectory,
+        }.contains(module)) {
           continue;
         }
         expect(module.viewPath, AppTab.today.path, reason: module.name);

@@ -2531,6 +2531,13 @@ ignore hidden numbers, which hide weight only. Sources on the sheets: Paluch
 2022 (steps), Windred 2024 and Cribb 2023 (regularity), Zhang 2016 (resting
 heart rate, **not yet checked**), Yin 2017 (duration). **our choice**.
 
+**Module.** Code: `apps/mobile/lib/features/trajectory/presentation/trajectory_module_screen.dart`.
+Trajectory is offered on the Modules screen to a known adult, like Energy, and
+needs Body; the onboarding offer leaves it out. Its screen lists what it adds,
+uses, stores and never does, and deletes the stored projections after one
+confirm. Weigh-ins stay in Body and the module stays on, so the next open of
+the Trajectory screen in a week with a rate stores that Monday again.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical

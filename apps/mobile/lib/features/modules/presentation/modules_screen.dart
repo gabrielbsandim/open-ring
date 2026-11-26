@@ -86,7 +86,7 @@ class ModulesScreen extends ConsumerWidget {
               _ModuleRow(
                 module: module,
                 on: enabled.contains(module.id),
-                available: module != OfferedModule.energy || adult,
+                available: !module.adultOnly || adult,
               ),
           ],
         ),

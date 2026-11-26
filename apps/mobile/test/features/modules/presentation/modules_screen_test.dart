@@ -557,18 +557,18 @@ void main() {
     expect(find.byType(DayScoreFormulaScreen), findsOneWidget);
   });
 
-  testWidgets('criterion 1: the Modules screen lists seven rows', (
+  testWidgets('criterion 1: the Modules screen lists eight rows', (
     tester,
   ) async {
     await _pump(tester, modules: InMemoryModuleStore());
     await _openModules(tester);
 
-    expect(OfferedModule.values, hasLength(7));
+    expect(OfferedModule.values, hasLength(8));
     for (final module in OfferedModule.values) {
       await reveal(tester, find.byKey(ModulesKeys.row(module)));
       expect(find.byKey(ModulesKeys.row(module)), findsOneWidget);
     }
-    expect(find.byType(Switch), findsNWidgets(7));
+    expect(find.byType(Switch), findsNWidgets(8));
     expect(
       find.descendant(
         of: find.byKey(ModulesKeys.row(OfferedModule.effort)),

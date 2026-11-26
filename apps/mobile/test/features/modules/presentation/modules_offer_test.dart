@@ -228,22 +228,27 @@ void main() {
       expect(find.text('Energy'), findsOneWidget);
     });
 
-    testWidgets('criterion 2: does not offer Goals, five modules in all', (
-      tester,
-    ) async {
-      await _pump(
-        tester,
-        at: AppPaths.onboardingModules,
-        profile: InMemoryUserProfileStore(_aged(30)),
-      );
+    testWidgets(
+      'criterion 2: offers neither Goals nor Trajectory, five in all',
+      (tester) async {
+        await _pump(
+          tester,
+          at: AppPaths.onboardingModules,
+          profile: InMemoryUserProfileStore(_aged(30)),
+        );
 
-      expect(
-        find.byKey(ModulesOfferKeys.module(OfferedModule.goals)),
-        findsNothing,
-      );
-      expect(find.byType(SwitchListTile), findsNWidgets(5));
-      expect(find.text('Goals'), findsNothing);
-    });
+        expect(
+          find.byKey(ModulesOfferKeys.module(OfferedModule.goals)),
+          findsNothing,
+        );
+        expect(
+          find.byKey(ModulesOfferKeys.module(OfferedModule.trajectory)),
+          findsNothing,
+        );
+        expect(find.byType(SwitchListTile), findsNWidgets(5));
+        expect(find.text('Goals'), findsNothing);
+      },
+    );
 
     testWidgets('criterion 2: finishing with everything picked never turns '
         'Goals on', (tester) async {

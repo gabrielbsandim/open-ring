@@ -87,6 +87,7 @@ abstract final class AppPaths {
   static const settingsModuleGoals = '/ring/settings/modules/goals';
   static const settingsModuleFood = '/ring/settings/modules/food';
   static const settingsModuleAi = '/ring/settings/modules/ai';
+  static const settingsModuleTrajectory = '/ring/settings/modules/trajectory';
   static const measure = '/heart/measure';
   static const trends = '/heart/trends';
   static const aiReadings = '/heart/trends/ai';

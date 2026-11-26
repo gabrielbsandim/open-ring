@@ -266,18 +266,30 @@ void main() {
     expect(previewLabel(tester), contains('Sleep 6 h 52 min'));
     expect(previewLabel(tester), contains('Steps 2,224'));
     expect(find.text('synced 08:40'), findsOneWidget);
-    expect(find.text('3 of 3'), findsOneWidget);
-    expect(find.text('Limit of 3. Uncheck one to swap.'), findsOneWidget);
+    expect(find.text('3 of 6'), findsOneWidget);
+    expect(find.text('You can pick 3 more.'), findsOneWidget);
     expect(
       find.text('Preview in the app theme, dark right now'),
       findsOneWidget,
     );
   });
 
-  testWidgets('a full selection ignores a fourth metric until one is removed', (
+  testWidgets('a full selection ignores a seventh metric until one is removed', (
     tester,
   ) async {
-    await pumpConfig(tester);
+    await pumpConfig(
+      tester,
+      config: TodayWidgetConfig(
+        metrics: const [
+          WidgetMetric.sleep,
+          WidgetMetric.steps,
+          WidgetMetric.heartRate,
+          WidgetMetric.readiness,
+          WidgetMetric.stress,
+          WidgetMetric.battery,
+        ],
+      ),
+    );
 
     await tester.tap(
       find.byKey(TodayWidgetConfigScreen.metricKey(WidgetMetric.spo2)),

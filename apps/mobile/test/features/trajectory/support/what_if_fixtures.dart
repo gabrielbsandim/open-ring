@@ -1,5 +1,7 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart' show Ref;
 import 'package:flutter_riverpod/misc.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
@@ -29,8 +31,15 @@ List<Override> whatIfOverrides({
   bool hidden = false,
   EnergyGate gate = EnergyGate.on,
   bool withProfile = true,
+  Future<List<WeighIn>> Function()? weighIns,
+  Future<TrajectoryView> Function(Ref ref)? read,
 }) => [
-  ...trajectoryOverrides(view: view ?? readyView(), hidden: hidden),
+  ...trajectoryOverrides(
+    view: view ?? readyView(),
+    hidden: hidden,
+    weighIns: weighIns,
+    read: read,
+  ),
   leversProvider.overrideWith(
     (ref) async => levers ?? leversWith(trend: stepsTrend(typical)),
   ),

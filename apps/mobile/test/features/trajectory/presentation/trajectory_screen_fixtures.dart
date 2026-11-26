@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show Ref;
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -87,12 +88,13 @@ List<Override> trajectoryOverrides({
   Future<TrajectoryView> Function()? load,
   Future<WeightSummary?> Function()? summaryLoad,
   Future<List<WeighIn>> Function()? weighIns,
+  Future<TrajectoryView> Function(Ref ref)? read,
 }) => [
   clockProvider.overrideWithValue(
     () => DateTime(asOf.year, asOf.month, asOf.day, 12),
   ),
   trajectoryViewProvider.overrideWith(
-    (ref) => load?.call() ?? Future.value(view),
+    (ref) => read?.call(ref) ?? load?.call() ?? Future.value(view),
   ),
   weighInsProvider.overrideWith(
     (ref) => weighIns?.call() ?? Future.value(const <WeighIn>[]),

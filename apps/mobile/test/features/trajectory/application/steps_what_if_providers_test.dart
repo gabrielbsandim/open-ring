@@ -156,6 +156,13 @@ void main() {
       expect(ready.toSteps, 13500);
     });
 
+    test('typical 9500 reaching 11500 is clamped by the destination', () async {
+      final ready = _ready(await _read(2000, typical: 9500));
+
+      expect(ready.toSteps, 11500);
+      expect(ready.clamped, isTrue);
+    });
+
     test('typical 8900 reaching 10900 is not clamped', () async {
       expect(_ready(await _read(2000, typical: 8900)).clamped, isFalse);
     });

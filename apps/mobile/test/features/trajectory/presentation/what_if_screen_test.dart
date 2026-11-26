@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:open_ring/features/body/application/weight_summary.dart';
 import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/trajectory/domain/trajectory_view.dart';
+import 'package:open_ring/features/trajectory/presentation/trajectory_screen.dart';
 import 'package:open_ring/features/trajectory/presentation/what_if_screen.dart';
+import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 import '../../../helpers/layout_harness.dart';
 import '../support/what_if_fixtures.dart';
@@ -45,6 +48,9 @@ String _textOf(WidgetTester tester, Finder within) => [
 ].join(' | ');
 
 String _all(WidgetTester tester) => _textOf(tester, find.byType(WhatIfScreen));
+
+final String _clamped = lookupAppLocalizations(const Locale('en'))
+    .trajectoryWhatIfClamped('10,901');
 
 void main() {
   group('TR10b acceptance 1: the Ready scenario numbers', () {
@@ -91,8 +97,7 @@ void main() {
         expect(find.byKey(WhatIfKeys.cohort), findsNothing);
         expect(find.byKey(WhatIfKeys.step2000), findsNothing);
         expect(find.textContaining('kcal'), findsNothing);
-        expect(find.byType(WhatIfScreen), findsOneWidget);
-        expect(_all(tester).trim(), isNotEmpty);
+        expect(find.byKey(TrajectoryKeys.refused), findsOneWidget);
       });
     }
   });
@@ -282,5 +287,74 @@ void main() {
         }
       });
     }
+  });
+
+  group('TR10b review round 1', () {
+    String cohort(WidgetTester tester) =>
+        _textOf(tester, find.byKey(WhatIfKeys.cohort));
+
+    testWidgets('F3: the clamped sentence shows only when clamped', (
+      tester,
+    ) async {
+      await _pump(tester);
+      expect(cohort(tester), isNot(contains(_clamped)));
+
+      await tester.pumpWidget(const SizedBox());
+      await _pump(tester, typical: 11500);
+      expect(cohort(tester), contains(_clamped));
+    });
+
+    testWidgets('F1: typical 12000 names no group above 10,901', (
+      tester,
+    ) async {
+      await _pump(tester, typical: 12000);
+
+      final text = cohort(tester);
+      expect(text, contains(_clamped));
+      expect(text, isNot(contains('12,000')));
+      expect(text, isNot(contains('Groups walking')));
+    });
+
+    testWidgets('F1: typical 9500 plus 2000 names 10,901 and 9,500', (
+      tester,
+    ) async {
+      await _pump(tester, typical: 9500);
+
+      final text = cohort(tester);
+      expect(text, contains('10,901'));
+      expect(text, contains('9,500'));
+      expect(text, contains(_clamped));
+    });
+
+    testWidgets('F5: Retry recovers from a failed weigh-in read', (
+      tester,
+    ) async {
+      var reads = 0;
+      await pumpScaled(
+        tester,
+        screenHost(const WhatIfScreen()),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.light,
+        locale: const Locale('en'),
+        size: _tall,
+        overrides: whatIfOverrides(
+          weighIns: () async {
+            reads++;
+            if (reads == 1) throw StateError('weigh-ins unreadable');
+            return const [];
+          },
+          read: (ref) async {
+            await ref.watch(weightSummaryProvider.future);
+            return readyView();
+          },
+        ),
+      );
+      expect(find.byKey(TrajectoryKeys.retry), findsOneWidget);
+
+      await tester.tap(find.byKey(TrajectoryKeys.retry));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(WhatIfKeys.cohort), findsOneWidget);
+    });
   });
 }

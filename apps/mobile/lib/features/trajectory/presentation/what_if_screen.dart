@@ -1,9 +1,13 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/body/application/weigh_in_providers.dart';
+import 'package:open_ring/features/body/application/weight_summary.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/features/trajectory/application/levers_providers.dart';
 import 'package:open_ring/features/trajectory/application/steps_what_if_providers.dart';
@@ -57,6 +61,8 @@ class _WhatIfScreenState extends ConsumerState<WhatIfScreen> {
     final error = TrajectoryErrorCard(
       onRetry: () {
         ref
+          ..invalidate(weighInsProvider)
+          ..invalidate(weightSummaryProvider)
           ..invalidate(trajectoryViewProvider)
           ..invalidate(leversProvider)
           ..invalidate(whatIfProvider);
@@ -175,10 +181,16 @@ class _WhatIfScreenState extends ConsumerState<WhatIfScreen> {
     final format = units.format;
     final top = paluchAnchors.last.steps;
     final groups = l10n.trajectoryWhatIfGroups(
-      format.integer(ready.clamped ? top : ready.toSteps),
+      format.integer(math.min(ready.toSteps, top)),
       format.integer(ready.typical),
     );
     final clamped = l10n.trajectoryWhatIfClamped(format.integer(top));
+    // At or above the top group there is no study group to compare against.
+    final why = switch (ready) {
+      WhatIfReady(:final typical) when typical >= top => clamped,
+      WhatIfReady(clamped: true) => '$groups $clamped',
+      _ => groups,
+    };
     return _Card(
       title: l10n.trajectoryWhatIfStudiesTitle,
       children: [
@@ -186,7 +198,7 @@ class _WhatIfScreenState extends ConsumerState<WhatIfScreen> {
           key: WhatIfKeys.cohort,
           caption: l10n.trajectoryWhatIfMortality,
           value: _words(l10n, ready.words),
-          why: ready.clamped ? '$groups $clamped' : groups,
+          why: why,
         ),
         const SizedBox(height: 10),
         BodyText(l10n.trajectoryWhatIfCohortNote),

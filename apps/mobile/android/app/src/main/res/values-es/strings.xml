@@ -87,9 +87,9 @@
     <string name="widget_pillar_stress_short">Estrés</string>
     <string name="widget_pillar_spo2_short">O2</string>
     <string name="widget_this_week_name">Esta semana</string>
-    <string name="widget_this_week_description">Esfuerzo y Metas de esta semana</string>
-    <string name="widget_this_week_off">Esfuerzo y Metas están desactivados. Toca para abrir Módulos.</string>
-    <string name="widget_goals_name">Metas</string>
+    <string name="widget_this_week_description">Esfuerzo y Objetivos de esta semana</string>
+    <string name="widget_this_week_off">Esfuerzo y Objetivos están desactivados. Toca para abrir Módulos.</string>
+    <string name="widget_goals_name">Objetivos</string>
     <string name="widget_effort_detail">Puntos de Esfuerzo · fuerza %1$s de %2$s</string>
     <string name="widget_goals_tag_week_of">semana %1$s de %2$s</string>
     <string name="widget_goals_tag_week">semana %1$s</string>
@@ -104,4 +104,7 @@
     <string name="widget_goals_ratio">%1$s de %2$s</string>
     <string name="widget_lever_strength">Días de fuerza</string>
     <string name="widget_lever_wake">Hora de despertar</string>
+    <string name="widget_goals_tag_maintenance">mantenimiento</string>
+    <string name="widget_goals_hold">Cuerpo desactivado. Plan en espera.</string>
+    <string name="widget_goals_recovery">Semana de recuperación. Sin cambios.</string>
 </resources>

@@ -104,4 +104,7 @@
     <string name="widget_goals_ratio">%1$s / %2$s</string>
     <string name="widget_lever_strength">筋トレ日数</string>
     <string name="widget_lever_wake">起床時刻</string>
+    <string name="widget_goals_tag_maintenance">維持</string>
+    <string name="widget_goals_hold">体組成オフ。プラン保留中。</string>
+    <string name="widget_goals_recovery">回復週。今週の課題はありません。</string>
 </resources>

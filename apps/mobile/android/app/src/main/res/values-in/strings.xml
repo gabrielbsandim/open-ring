@@ -104,4 +104,7 @@
     <string name="widget_goals_ratio">%1$s dari %2$s</string>
     <string name="widget_lever_strength">Hari kekuatan</string>
     <string name="widget_lever_wake">Waktu bangun</string>
+    <string name="widget_goals_tag_maintenance">pemeliharaan</string>
+    <string name="widget_goals_hold">Tubuh nonaktif. Rencana ditahan.</string>
+    <string name="widget_goals_recovery">Minggu pemulihan. Tidak ada target.</string>
 </resources>

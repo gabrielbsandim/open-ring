@@ -151,38 +151,21 @@ internal data class EffortData(
 
 internal enum class GoalsState(val id: String) {
     RUNNING("running"), REVIEW("review"), PAUSED("paused"), HOLD("hold"), BASE("base"), RECOVERY("recovery");
-
-    companion object {
-        fun of(id: String?): GoalsState? = entries.firstOrNull { it.id == id }
-    }
+    companion object { fun of(id: String?): GoalsState? = entries.firstOrNull { it.id == id } }
 }
 
 internal enum class GoalLeverKind(val id: String) {
-    STRENGTH_DAYS("strengthDays"),
-    SLEEP_WINDOW("sleepWindow"),
-    STEPS("steps"),
-    EFFORT_POINTS("effortPoints"),
-    WAKE_TIME("wakeTime");
-
-    companion object {
-        fun of(id: String?): GoalLeverKind? = entries.firstOrNull { it.id == id }
-    }
+    STRENGTH_DAYS("strengthDays"), SLEEP_WINDOW("sleepWindow"), STEPS("steps"), EFFORT_POINTS("effortPoints"), WAKE_TIME("wakeTime");
+    companion object { fun of(id: String?): GoalLeverKind? = entries.firstOrNull { it.id == id } }
 }
 
 internal enum class GoalDayMark(val id: String) {
     MET("met"), MISSED("missed"), OPEN("open"), AHEAD("ahead");
-
-    companion object {
-        fun of(id: String?): GoalDayMark? = entries.firstOrNull { it.id == id }
-    }
+    companion object { fun of(id: String?): GoalDayMark? = entries.firstOrNull { it.id == id } }
 }
 
 internal data class GoalLeverData(
-    val kind: GoalLeverKind,
-    val target: Int,
-    val achieved: Int,
-    val goal: Int,
-    val days: List<GoalDayMark>?,
+    val kind: GoalLeverKind, val target: Int, val achieved: Int, val goal: Int, val days: List<GoalDayMark>?,
 ) {
     companion object {
         fun parse(json: JSONObject?): GoalLeverData? {
@@ -190,25 +173,14 @@ internal data class GoalLeverData(
             val kind = GoalLeverKind.of(json.text("kind")) ?: return null
             val arr = json.optJSONArray("days")
             val days = arr?.let { a -> (0 until a.length()).mapNotNull { GoalDayMark.of(a.optString(it)) } }
-            return GoalLeverData(
-                kind = kind,
-                target = json.int("target") ?: 0,
-                achieved = json.int("achieved") ?: 0,
-                goal = json.int("goal") ?: 0,
-                days = days,
-            )
+            return GoalLeverData(kind, json.int("target") ?: 0, json.int("achieved") ?: 0, json.int("goal") ?: 0, days)
         }
     }
 }
 
 internal data class GoalsData(
-    val state: GoalsState,
-    val monday: LocalDate?,
-    val sunday: LocalDate?,
-    val weekNumber: Int?,
-    val blockWeeks: Int?,
-    val maintenance: Boolean,
-    val levers: List<GoalLeverData>,
+    val state: GoalsState, val monday: LocalDate?, val sunday: LocalDate?,
+    val weekNumber: Int?, val blockWeeks: Int?, val maintenance: Boolean, val levers: List<GoalLeverData>,
 ) {
     companion object {
         fun parse(json: JSONObject?): GoalsData? {
@@ -216,15 +188,7 @@ internal data class GoalsData(
             val state = GoalsState.of(json.text("state")) ?: return null
             val arr = json.optJSONArray("levers")
             val levers = (0 until (arr?.length() ?: 0)).mapNotNull { GoalLeverData.parse(arr?.optJSONObject(it)) }
-            return GoalsData(
-                state = state,
-                monday = json.text("monday")?.let(::dateOf),
-                sunday = json.text("sunday")?.let(::dateOf),
-                weekNumber = json.int("weekNumber"),
-                blockWeeks = json.int("blockWeeks"),
-                maintenance = json.optBoolean("maintenance", false),
-                levers = levers,
-            )
+            return GoalsData(state, json.text("monday")?.let(::dateOf), json.text("sunday")?.let(::dateOf), json.int("weekNumber"), json.int("blockWeeks"), json.optBoolean("maintenance", false), levers)
         }
     }
 }

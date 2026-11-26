@@ -104,4 +104,7 @@
     <string name="widget_goals_ratio">%1$s из %2$s</string>
     <string name="widget_lever_strength">Силовые дни</string>
     <string name="widget_lever_wake">Подъём</string>
+    <string name="widget_goals_tag_maintenance">поддержание</string>
+    <string name="widget_goals_hold">Тело отключено. План на паузе.</string>
+    <string name="widget_goals_recovery">Неделя восстановления. Нагрузка не требуется.</string>
 </resources>

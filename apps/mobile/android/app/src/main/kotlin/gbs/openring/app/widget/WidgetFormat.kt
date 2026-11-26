@@ -60,8 +60,8 @@ internal class WidgetFormat(private val context: Context) {
 
     fun dateRange(monday: LocalDate, sunday: LocalDate): String {
         val zone = ZoneId.systemDefault()
-        val start = monday.atStartOfDay(zone).toInstant().toEpochMilli()
-        val end = sunday.atStartOfDay(zone).toInstant().toEpochMilli()
+        val start = monday.atTime(12, 0).atZone(zone).toInstant().toEpochMilli()
+        val end = sunday.atTime(12, 0).atZone(zone).toInstant().toEpochMilli()
         return DateUtils.formatDateRange(context, start, end, DAY_FLAGS)
     }
 
@@ -81,12 +81,11 @@ internal class WidgetFormat(private val context: Context) {
         GoalsState.HOLD -> context.getString(R.string.widget_goals_tag_hold)
         GoalsState.BASE -> context.getString(R.string.widget_goals_tag_base)
         GoalsState.RECOVERY -> context.getString(R.string.widget_goals_tag_recovery)
-        GoalsState.RUNNING -> when (val w = goals.weekNumber) {
-            null -> context.getString(R.string.widget_goals_name)
-            else -> when (val total = goals.blockWeeks) {
-                null -> context.getString(R.string.widget_goals_tag_week, integer(w))
-                else -> context.getString(R.string.widget_goals_tag_week_of, integer(w), integer(total))
-            }
+        GoalsState.RUNNING -> when {
+            goals.maintenance -> context.getString(R.string.widget_goals_tag_maintenance)
+            goals.weekNumber == null -> context.getString(R.string.widget_goals_name)
+            goals.blockWeeks == null -> context.getString(R.string.widget_goals_tag_week, integer(goals.weekNumber))
+            else -> context.getString(R.string.widget_goals_tag_week_of, integer(goals.weekNumber), integer(goals.blockWeeks))
         }
     }
 

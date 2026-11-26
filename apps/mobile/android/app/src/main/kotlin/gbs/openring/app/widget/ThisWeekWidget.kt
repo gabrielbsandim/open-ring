@@ -175,25 +175,34 @@ private fun EffortSection(snapshot: Snapshot, format: WidgetFormat, palette: Wid
 private fun GoalsSection(snapshot: Snapshot, format: WidgetFormat, palette: WidgetPalette, large: Boolean) {
     val context = LocalContext.current
     val goals = snapshot.goals
+    val tag = goals?.let(format::goalsTag)
     Column(modifier = GlanceModifier.fillMaxWidth()) {
-        Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Row(modifier = GlanceModifier.defaultWeight(), verticalAlignment = Alignment.CenterVertically) {
+        if (large) {
+            Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Row(modifier = GlanceModifier.defaultWeight(), verticalAlignment = Alignment.CenterVertically) {
+                    Swatch(palette.textLabel)
+                    Spacer(modifier = GlanceModifier.width(5.dp))
+                    Label(context.getString(R.string.widget_goals_name), palette.textSecondary, 11.sp, maxLines = 1)
+                }
+                tag?.let { Label(it, palette.textLabel, 10.sp, maxLines = 1) }
+            }
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Swatch(palette.textLabel)
                 Spacer(modifier = GlanceModifier.width(5.dp))
-                Label(context.getString(R.string.widget_goals_name), palette.textSecondary, 11.sp)
+                Label(context.getString(R.string.widget_goals_name), palette.textSecondary, 11.sp, maxLines = 1)
             }
-            goals?.let { Label(format.goalsTag(it), palette.textLabel, 10.sp) }
+            tag?.let { Label(it, palette.textLabel, 10.sp, maxLines = 1) }
         }
         Gap(4)
         when {
-            goals == null -> Label(context.getString(R.string.widget_goals_waiting), palette.textLabel, 11.sp, maxLines = 2)
+            goals == null || goals.state == GoalsState.BASE -> Label(context.getString(R.string.widget_goals_waiting), palette.textLabel, 11.sp, maxLines = 2)
             goals.state == GoalsState.PAUSED -> Label(context.getString(R.string.widget_goals_paused), palette.textLabel, 11.sp, maxLines = 3)
+            goals.state == GoalsState.HOLD -> Label(context.getString(R.string.widget_goals_hold), palette.textLabel, 11.sp, maxLines = 2)
+            goals.state == GoalsState.RECOVERY -> Label(context.getString(R.string.widget_goals_recovery), palette.textLabel, 11.sp, maxLines = 2)
             goals.state == GoalsState.REVIEW -> Label(context.getString(R.string.widget_goals_review), palette.textPrimary, 12.sp, bold = true, maxLines = 2)
-            goals.state == GoalsState.HOLD || goals.state == GoalsState.BASE || goals.state == GoalsState.RECOVERY -> {
-                Label(context.getString(R.string.widget_goals_waiting), palette.textLabel, 11.sp, maxLines = 2)
-            }
             else -> {
-                val showDots = large && !prefersSingleColumn()
+                val showDots = large && snapshot.paired && !prefersSingleColumn()
                 Column(modifier = GlanceModifier.fillMaxWidth()) {
                     goals.levers.take(3).forEach { lever ->
                         val ratio = if (!snapshot.paired) {

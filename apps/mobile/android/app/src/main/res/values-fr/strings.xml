@@ -104,4 +104,7 @@
     <string name="widget_goals_ratio">%1$s sur %2$s</string>
     <string name="widget_lever_strength">Jours de force</string>
     <string name="widget_lever_wake">Heure de réveil</string>
+    <string name="widget_goals_tag_maintenance">maintien</string>
+    <string name="widget_goals_hold">Corps désactivé. Plan en attente.</string>
+    <string name="widget_goals_recovery">Semaine de récupération. Rien demandé.</string>
 </resources>

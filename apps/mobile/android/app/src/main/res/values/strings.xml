@@ -104,4 +104,7 @@
     <string name="widget_goals_ratio">%1$s of %2$s</string>
     <string name="widget_lever_strength">Strength days</string>
     <string name="widget_lever_wake">Wake time</string>
+    <string name="widget_goals_tag_maintenance">maintenance</string>
+    <string name="widget_goals_hold">Body is off. Weight plan on hold.</string>
+    <string name="widget_goals_recovery">Recovery week. Plan asks nothing.</string>
 </resources>

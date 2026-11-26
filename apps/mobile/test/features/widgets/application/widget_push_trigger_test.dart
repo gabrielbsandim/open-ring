@@ -404,4 +404,84 @@ void main() {
       expect(r.gateway.appearances.last['todayMetrics'], ['steps']);
     },
   );
+
+  test('foreground trigger publishes v2 module snapshot, reacts to hideNumbers, and rolls energy at midnight', () async {
+    var now = metricsNow;
+    final scenario = fullDataScenario;
+    final gateway = FakeWidgetGateway();
+    final container = ProviderContainer.test(
+      overrides: [
+        clockProvider.overrideWithValue(() => now),
+        sleepHistoryReaderProvider.overrideWithValue(
+          FakeSleepHistoryReader(scenario.spans),
+        ),
+        heartHistoryReaderProvider.overrideWithValue(scenario.heart),
+        activityHistoryReaderProvider.overrideWithValue(
+          FakeActivityHistoryReader(scenario.activity, slots: scenario.slots),
+        ),
+        ringStatusReaderProvider.overrideWithValue(
+          MutableRingStatusReader(freshRing),
+        ),
+        themeModeStoreProvider.overrideWithValue(InMemoryThemeModeStore()),
+        widgetGatewayProvider.overrideWithValue(gateway),
+        todayWidgetConfigStoreProvider.overrideWithValue(
+          InMemoryTodayWidgetConfigStore(),
+        ),
+        workoutHistoryReaderProvider.overrideWithValue(ListedWorkouts()),
+        unitSystemStoreProvider.overrideWithValue(
+          InMemoryUnitSystemStore(UnitSystem.metric),
+        ),
+        moduleStoreProvider.overrideWithValue(
+          InMemoryModuleStore({
+            ModuleId.body,
+            ModuleId.openScore,
+            ModuleId.energy,
+            ModuleId.effort,
+            ModuleId.goals,
+          }),
+        ),
+        hideNumbersStoreProvider.overrideWithValue(InMemoryHideNumbersStore()),
+        userProfileStoreProvider.overrideWithValue(
+          InMemoryUserProfileStore(fullProfile),
+        ),
+      ],
+    );
+    startWidgetPush(container);
+    await settle(container);
+
+    final first = gateway.snapshots.last;
+    expect(first['version'], 2);
+    expect(first['date'], '2026-11-10');
+    expect(first['enabledModules'], [
+      'body',
+      'effort',
+      'energy',
+      'goals',
+      'openScore',
+    ]);
+    expect(first['hideNumbers'], isFalse);
+    expect(first['energy'], isNotNull);
+    expect(first['dayScore'], isNotNull);
+    expect(first['effort'], isNotNull);
+
+    await container.read(hideNumbersProvider.notifier).set(hidden: true);
+    await settle(container);
+
+    expect(gateway.snapshots.last['hideNumbers'], isTrue);
+    expect(gateway.snapshots.last['energy'], isNull);
+
+    await container.read(hideNumbersProvider.notifier).set(hidden: false);
+    await settle(container);
+
+    expect(gateway.snapshots.last['hideNumbers'], isFalse);
+    expect(gateway.snapshots.last['energy'], isNotNull);
+
+    // Midnight day roll with no ring sync must clear yesterday's energy.
+    now = DateTime.utc(2026, 11, 11, 0, 5);
+    container.invalidate(currentDateProvider);
+    await settle(container);
+
+    expect(gateway.snapshots.last['date'], '2026-11-11');
+    expect(gateway.snapshots.last['energy'], isNull);
+  });
 }

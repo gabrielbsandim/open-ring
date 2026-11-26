@@ -1,12 +1,22 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
+import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/body/application/weight_summary.dart';
+import 'package:open_ring/features/effort/application/effort_providers.dart';
 import 'package:open_ring/features/energy/application/energy_gate.dart';
+import 'package:open_ring/features/energy/application/energy_providers.dart';
+import 'package:open_ring/features/goals/application/goal_providers.dart';
+import 'package:open_ring/features/goals/application/goal_week_view.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/open_score/application/day_score_providers.dart';
+import 'package:open_ring/features/open_score/domain/day_score_history.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
+import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/widgets/application/widget_publisher.dart';
 import 'package:open_ring/features/widgets/application/widget_snapshot_builder.dart';
@@ -87,10 +97,60 @@ class TodayWidgetConfigController extends Notifier<TodayWidgetConfig> {
   }
 }
 
+Future<T?> _tryRead<T>(Future<T> future) async {
+  try {
+    return await future;
+  } on Object {
+    return null;
+  }
+}
+
 final widgetSnapshotProvider = FutureProvider<WidgetSnapshot>((ref) async {
+  final now = ref.watch(clockProvider)();
+  await (
+    _tryRead(ref.watch(enabledModulesProvider.future)),
+    _tryRead(ref.watch(hideNumbersProvider.future)),
+    _tryRead(ref.watch(userProfileProvider.future)),
+  ).wait;
+  final enabled = ref.watch(activeModulesProvider);
+  final hideNumbers = ref.watch(profileWeightHiddenProvider);
   final view = await ref.watch(todayViewProvider.future);
   final lastWorkout = await ref.watch(lastWorkoutProvider.future);
-  return buildWidgetSnapshot(view, lastWorkout: lastWorkout);
+  final (
+    dayScoreHistory,
+    weightSummary,
+    energyNow,
+    effortWeek,
+    goalWeek,
+  ) = await (
+    enabled.contains(ModuleId.openScore)
+        ? _tryRead(ref.watch(dayScoreHistoryProvider.future))
+        : Future<DayScoreHistory?>.value(),
+    enabled.contains(ModuleId.body)
+        ? _tryRead(ref.watch(weightSummaryProvider.future))
+        : Future<WeightSummary?>.value(),
+    enabled.contains(ModuleId.energy) && !hideNumbers
+        ? _tryRead(ref.watch(energyNowProvider.future))
+        : Future<EnergyNow?>.value(),
+    enabled.contains(ModuleId.effort)
+        ? _tryRead(ref.watch(effortWeekProvider.future))
+        : Future<EffortWeek?>.value(),
+    enabled.contains(ModuleId.goals)
+        ? _tryRead(ref.watch(goalWeekProvider.future))
+        : Future<GoalWeekView?>.value(),
+  ).wait;
+  return buildWidgetSnapshot(
+    view,
+    lastWorkout: lastWorkout,
+    enabledModules: enabled,
+    hideNumbers: hideNumbers,
+    dayScoreHistory: dayScoreHistory,
+    weightSummary: weightSummary,
+    energyNow: energyNow,
+    effortWeek: effortWeek,
+    goalWeek: goalWeek,
+    now: now,
+  );
 });
 
 final widgetAppearanceProvider = Provider<WidgetAppearance>((ref) {

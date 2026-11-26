@@ -2,9 +2,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
+import 'package:open_ring/features/activity/application/step_goal_history_providers.dart';
 import 'package:open_ring/features/activity/infrastructure/drift_activity_history_reader.dart';
+import 'package:open_ring/features/activity/infrastructure/drift_step_goal_history.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/body/application/weigh_in_providers.dart';
+import 'package:open_ring/features/body/domain/hide_numbers_store.dart';
+import 'package:open_ring/features/body/infrastructure/drift_weigh_in_store.dart';
+import 'package:open_ring/features/goals/application/goal_store_providers.dart';
+import 'package:open_ring/features/goals/infrastructure/drift_goal_store.dart';
 import 'package:open_ring/features/heart/application/heart_providers.dart';
 import 'package:open_ring/features/heart/infrastructure/drift_heart_history_reader.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
+import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
+import 'package:open_ring/features/open_score/infrastructure/drift_day_tag_store.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/infrastructure/drift_user_profile_store.dart';
 import 'package:open_ring/features/sleep/application/sleep_providers.dart';
@@ -24,10 +36,21 @@ Future<void> publishWidgetSnapshot(
   AppDatabase database,
   WidgetGateway gateway, {
   DateTime Function() clock = DateTime.now,
+  ModuleStore? modules,
+  HideNumbersStore? hideNumbers,
 }) async {
   final container = ProviderContainer(
+    retry: (_, _) => null,
     overrides: [
       clockProvider.overrideWithValue(clock),
+      moduleStoreProvider.overrideWithValue(modules ?? InMemoryModuleStore()),
+      hideNumbersStoreProvider.overrideWithValue(
+        hideNumbers ?? InMemoryHideNumbersStore(),
+      ),
+      weighInStoreProvider.overrideWithValue(DriftWeighInStore(database)),
+      dayTagStoreProvider.overrideWithValue(DriftDayTagStore(database)),
+      stepGoalHistoryProvider.overrideWithValue(DriftStepGoalHistory(database)),
+      goalStoreProvider.overrideWithValue(DriftGoalStore(database)),
       sleepHistoryReaderProvider.overrideWithValue(
         DriftSleepHistoryReader(database),
       ),
@@ -58,7 +81,6 @@ Future<void> publishWidgetSnapshot(
     ],
   );
   try {
-    await container.read(userProfileProvider.future);
     final snapshot = await container.read(widgetSnapshotProvider.future);
     await WidgetPublisher(gateway).snapshot(snapshot);
   } finally {

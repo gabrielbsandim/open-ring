@@ -19,7 +19,9 @@ const energySelectionPadding = Duration(days: 1);
 // The instant a day is computed at. New data moves it, and so does whoever
 // invalidates it, which is how a screen asks for the day at the clock of now.
 final energyAsOfProvider = Provider<DateTime>((ref) {
-  ref.watch(dataRevisionProvider);
+  ref
+    ..watch(dataRevisionProvider)
+    ..watch(currentDateProvider);
   return ref.read(clockProvider)();
 });
 

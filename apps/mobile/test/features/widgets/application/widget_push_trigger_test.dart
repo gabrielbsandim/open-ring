@@ -190,16 +190,18 @@ void main() {
       'dark',
       'dark',
       'dark',
+      'dark',
     ]);
     expect(r.gateway.appearances.last, {
       'appTheme': 'dark',
       'todayTheme': 'light',
-      'todayMetrics': ['steps', 'heartRate'],
+      'todayMetrics': ['steps', 'heartRate', 'spo2'],
       'units': 'metric',
     });
     expect(r.configs.saved?.metrics, [
       WidgetMetric.steps,
       WidgetMetric.heartRate,
+      WidgetMetric.spo2,
     ]);
     expect(r.gateway.snapshots, hasLength(1));
   });
@@ -300,51 +302,49 @@ void main() {
     },
   );
 
-  test(
-    'hiding numbers drops energy from appearance without deleting it and restores it on unhide',
-    () async {
-      final r = rig(
-        modules: {ModuleId.body, ModuleId.energy},
-        profile: fullProfile,
-        config: TodayWidgetConfig(
-          metrics: const [
-            WidgetMetric.weight,
-            WidgetMetric.energy,
-            WidgetMetric.steps,
-          ],
-        ),
-      );
-      startWidgetPush(r.container);
-      await r.container.read(enabledModulesProvider.future);
-      await r.container.read(hideNumbersProvider.future);
-      await r.container.read(userProfileProvider.future);
-      await settle(r.container);
+  test('hiding numbers drops energy from appearance without deleting it and restores it on unhide', () async {
+    final r = rig(
+      modules: {ModuleId.body, ModuleId.energy},
+      profile: fullProfile,
+      config: TodayWidgetConfig(
+        metrics: const [
+          WidgetMetric.weight,
+          WidgetMetric.energy,
+          WidgetMetric.steps,
+        ],
+      ),
+    );
+    startWidgetPush(r.container);
+    await r.container.read(enabledModulesProvider.future);
+    await r.container.read(hideNumbersProvider.future);
+    await r.container.read(userProfileProvider.future);
+    await settle(r.container);
 
-      expect(r.gateway.appearances.last['todayMetrics'], [
-        'weight',
-        'energy',
-        'steps',
-      ]);
+    expect(r.gateway.appearances.last['todayMetrics'], [
+      'weight',
+      'energy',
+      'steps',
+    ]);
 
-      await r.container.read(hideNumbersProvider.notifier).set(hidden: true);
-      await pumpEventQueue();
+    await r.container.read(hideNumbersProvider.notifier).set(hidden: true);
+    await pumpEventQueue();
 
-      expect(r.gateway.appearances.last['todayMetrics'], ['weight', 'steps']);
-      expect(
-        r.container.read(todayWidgetConfigProvider).metrics,
-        [WidgetMetric.weight, WidgetMetric.energy, WidgetMetric.steps],
-      );
+    expect(r.gateway.appearances.last['todayMetrics'], ['weight', 'steps']);
+    expect(r.container.read(todayWidgetConfigProvider).metrics, [
+      WidgetMetric.weight,
+      WidgetMetric.energy,
+      WidgetMetric.steps,
+    ]);
 
-      await r.container.read(hideNumbersProvider.notifier).set(hidden: false);
-      await pumpEventQueue();
+    await r.container.read(hideNumbersProvider.notifier).set(hidden: false);
+    await pumpEventQueue();
 
-      expect(r.gateway.appearances.last['todayMetrics'], [
-        'weight',
-        'energy',
-        'steps',
-      ]);
-    },
-  );
+    expect(r.gateway.appearances.last['todayMetrics'], [
+      'weight',
+      'energy',
+      'steps',
+    ]);
+  });
 
   test('underage profile omits energy from published appearance', () async {
     final r = rig(

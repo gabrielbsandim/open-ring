@@ -42,6 +42,10 @@ extension WidgetMetricLabels on WidgetMetric {
     WidgetMetric.spo2 => l10n.widgetMetricSpo2,
     WidgetMetric.stress => l10n.widgetMetricStress,
     WidgetMetric.battery => l10n.widgetMetricBattery,
+    WidgetMetric.dayScore => l10n.dayScoreTitle,
+    WidgetMetric.weight => l10n.profileWeight,
+    WidgetMetric.energy => l10n.energyTitle,
+    WidgetMetric.effort => l10n.effortTitle,
   };
 
   Color accent(AppColors colors) => switch (this) {
@@ -52,6 +56,10 @@ extension WidgetMetricLabels on WidgetMetric {
     WidgetMetric.spo2 => colors.oxygen,
     WidgetMetric.stress => colors.stress,
     WidgetMetric.battery => colors.textSecondary,
+    WidgetMetric.dayScore => colors.textPrimary,
+    WidgetMetric.weight => colors.textLabel,
+    WidgetMetric.energy => colors.activity,
+    WidgetMetric.effort => colors.textPrimary,
   };
 
   MetricText describe(MetricFormat format, WidgetSnapshot? snapshot) {
@@ -105,6 +113,10 @@ extension WidgetMetricLabels on WidgetMetric {
         detail: l10n.widgetSubBattery,
         progress: _share(snapshot?.batteryPercent, 100),
       ),
+      WidgetMetric.dayScore ||
+      WidgetMetric.weight ||
+      WidgetMetric.energy ||
+      WidgetMetric.effort => (value: none, detail: '', progress: null),
     };
   }
 }

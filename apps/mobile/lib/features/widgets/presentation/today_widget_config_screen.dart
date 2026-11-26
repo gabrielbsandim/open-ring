@@ -182,14 +182,15 @@ class _MetricsCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final toggles = [
       for (final metric in WidgetMetric.values)
-        _MetricToggle(
-          metric: metric,
-          selected: config.contains(metric),
-          enabled: config.canPick(metric),
-          onTap: () => unawaited(
-            ref.read(todayWidgetConfigProvider.notifier).toggle(metric),
+        if (metric.module == null)
+          _MetricToggle(
+            metric: metric,
+            selected: config.contains(metric),
+            enabled: config.canPick(metric),
+            onTap: () => unawaited(
+              ref.read(todayWidgetConfigProvider.notifier).toggle(metric),
+            ),
           ),
-        ),
     ];
     return MetricCard(
       child: Column(

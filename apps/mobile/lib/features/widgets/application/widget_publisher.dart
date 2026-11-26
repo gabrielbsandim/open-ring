@@ -9,13 +9,14 @@ import 'package:open_ring/features/widgets/domain/widget_snapshot.dart';
 typedef WidgetAppearance = ({
   ThemeMode appTheme,
   TodayWidgetConfig today,
+  List<WidgetMetric> effectiveTodayMetrics,
   UnitSystem units,
 });
 
 Map<String, Object?> appearanceJson(WidgetAppearance appearance) => {
   'appTheme': appearance.appTheme.name,
   'todayTheme': appearance.today.theme.name,
-  'todayMetrics': appearance.today.toJson()['metrics'],
+  'todayMetrics': [for (final m in appearance.effectiveTodayMetrics) m.name],
   'units': appearance.units.name,
 };
 

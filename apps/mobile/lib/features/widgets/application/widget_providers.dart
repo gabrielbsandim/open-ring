@@ -2,6 +2,10 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/energy/application/energy_gate.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/widgets/application/widget_publisher.dart';
@@ -31,6 +35,16 @@ class TodayWidgetConfigController extends Notifier<TodayWidgetConfig> {
 
   Future<void> toggle(WidgetMetric metric) => _save(state.toggle(metric));
 
+  Future<void> add(WidgetMetric metric) => _save(state.add(metric));
+
+  Future<void> remove(WidgetMetric metric) => _save(state.remove(metric));
+
+  Future<void> moveUp(int index) => _save(state.moveUp(index));
+
+  Future<void> moveDown(int index) => _save(state.moveDown(index));
+
+  Future<void> removeForModule(ModuleId id) => _save(state.removeForModule(id));
+
   Future<void> selectTheme(WidgetTheme theme) => _save(state.withTheme(theme));
 
   Future<void> reset() async {
@@ -51,13 +65,20 @@ final widgetSnapshotProvider = FutureProvider<WidgetSnapshot>((ref) async {
   return buildWidgetSnapshot(view, lastWorkout: lastWorkout);
 });
 
-final widgetAppearanceProvider = Provider<WidgetAppearance>(
-  (ref) => (
+final widgetAppearanceProvider = Provider<WidgetAppearance>((ref) {
+  final today = ref.watch(todayWidgetConfigProvider);
+  final enabled = ref.watch(activeModulesProvider);
+  final hideNumbers = ref.watch(profileWeightHiddenProvider);
+  return (
     appTheme: ref.watch(themeModeProvider),
-    today: ref.watch(todayWidgetConfigProvider),
+    today: today,
+    effectiveTodayMetrics: today.effectiveMetrics(
+      enabled: enabled,
+      hideNumbers: hideNumbers,
+    ),
     units: ref.watch(currentUnitSystemProvider),
-  ),
-);
+  );
+});
 
 final widgetPinSupportedProvider = FutureProvider<bool>(
   (ref) => ref.watch(widgetGatewayProvider).canPin(),
@@ -65,7 +86,20 @@ final widgetPinSupportedProvider = FutureProvider<bool>(
 
 final widgetPushTriggerProvider = Provider<WidgetPublisher>((ref) {
   final publisher = WidgetPublisher(ref.watch(widgetGatewayProvider));
+  Set<ModuleId>? previousModules;
   ref
+    ..listen(enabledModulesProvider, (_, next) {
+      if (next case AsyncData(:final value)) {
+        final prior = previousModules;
+        previousModules = value;
+        if (prior == null) return;
+        for (final id in prior.difference(value)) {
+          unawaited(
+            ref.read(todayWidgetConfigProvider.notifier).removeForModule(id),
+          );
+        }
+      }
+    }, fireImmediately: true)
     ..listen(widgetSnapshotProvider, (_, next) {
       if (next case AsyncData(:final value)) {
         unawaited(publisher.snapshot(value));

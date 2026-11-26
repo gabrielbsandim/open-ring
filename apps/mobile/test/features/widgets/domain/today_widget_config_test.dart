@@ -27,50 +27,56 @@ void main() {
     }
   });
 
-  test('a full selection of 6 refuses a seventh metric until one is removed', () {
-    var config = TodayWidgetConfig()
-        .add(WidgetMetric.readiness)
-        .add(WidgetMetric.spo2)
-        .add(WidgetMetric.stress);
+  test(
+    'a full selection of 6 refuses a seventh metric until one is removed',
+    () {
+      var config = TodayWidgetConfig()
+          .add(WidgetMetric.readiness)
+          .add(WidgetMetric.spo2)
+          .add(WidgetMetric.stress);
 
-    expect(config.isFull, isTrue);
-    expect(config.add(WidgetMetric.battery), same(config));
-    expect(config.toggle(WidgetMetric.battery), same(config));
-    expect(config.canPick(WidgetMetric.battery), isFalse);
+      expect(config.isFull, isTrue);
+      expect(config.add(WidgetMetric.battery), same(config));
+      expect(config.toggle(WidgetMetric.battery), same(config));
+      expect(config.canPick(WidgetMetric.battery), isFalse);
 
-    config = config.remove(WidgetMetric.sleep).add(WidgetMetric.battery);
-    expect(config.metrics, [
-      WidgetMetric.steps,
-      WidgetMetric.heartRate,
-      WidgetMetric.readiness,
-      WidgetMetric.spo2,
-      WidgetMetric.stress,
-      WidgetMetric.battery,
-    ]);
-  });
+      config = config.remove(WidgetMetric.sleep).add(WidgetMetric.battery);
+      expect(config.metrics, [
+        WidgetMetric.steps,
+        WidgetMetric.heartRate,
+        WidgetMetric.readiness,
+        WidgetMetric.spo2,
+        WidgetMetric.stress,
+        WidgetMetric.battery,
+      ]);
+    },
+  );
 
-  test('moveUp and moveDown reorder metrics and ignore out-of-bounds moves', () {
-    final config = TodayWidgetConfig();
+  test(
+    'moveUp and moveDown reorder metrics and ignore out-of-bounds moves',
+    () {
+      final config = TodayWidgetConfig();
 
-    expect(config.moveUp(0), same(config));
-    expect(config.moveDown(2), same(config));
-    expect(config.moveUp(3), same(config));
-    expect(config.moveDown(-1), same(config));
+      expect(config.moveUp(0), same(config));
+      expect(config.moveDown(2), same(config));
+      expect(config.moveUp(3), same(config));
+      expect(config.moveDown(-1), same(config));
 
-    final movedUp = config.moveUp(2);
-    expect(movedUp.metrics, [
-      WidgetMetric.sleep,
-      WidgetMetric.heartRate,
-      WidgetMetric.steps,
-    ]);
+      final movedUp = config.moveUp(2);
+      expect(movedUp.metrics, [
+        WidgetMetric.sleep,
+        WidgetMetric.heartRate,
+        WidgetMetric.steps,
+      ]);
 
-    final movedDown = movedUp.moveDown(0);
-    expect(movedDown.metrics, [
-      WidgetMetric.heartRate,
-      WidgetMetric.sleep,
-      WidgetMetric.steps,
-    ]);
-  });
+      final movedDown = movedUp.moveDown(0);
+      expect(movedDown.metrics, [
+        WidgetMetric.heartRate,
+        WidgetMetric.sleep,
+        WidgetMetric.steps,
+      ]);
+    },
+  );
 
   test('removeForModule drops only metrics owned by that module', () {
     final config = TodayWidgetConfig(

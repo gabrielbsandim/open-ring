@@ -3211,7 +3211,7 @@
   "trajectoryFormulaBendBody": "Ein leichterer Körper verbraucht weniger. Bei gleichem Essen schrumpft die Lücke zwischen dem, was hineingeht, und dem, was hinausgeht, und das Tempo sinkt.",
   "trajectoryFormulaBendExpression": "der ganze Tag: etwa {perKg} kcal pro Tag\nweniger für jedes kg weniger\nZeitkonstante von etwa 1 Jahr\nin Ruhe, nach der Energie Gleichung:\n{resting} kcal pro Tag pro kg",
   "trajectoryFormulaBalanceTitle": "Die Bilanz über {window} Tage",
-  "trajectoryFormulaBalanceExpression": "Bilanz = Tempo pro Tag × {perKg} kcal/kg\neine Rechnung für jedes Ende des Tempos\ngerundet auf {step} kcal\nbraucht {count} Wiegungen in {window} Tagen\nüberspringt die ersten {weeks} Wochen eines\nZiele Blocks",
+  "trajectoryFormulaBalanceExpression": "Bilanz = Tempo pro Tag × {perKg} kcal/kg\neine Rechnung für jedes Ende des Tempos\ngerundet auf {step} kcal\nbraucht {count} Wiegungen in {window} Tagen\nwartet {hold} Tage nach dem Start eines\nZiele Blocks, um die ersten {weeks} Wochen auszulassen",
   "trajectoryFormulaBalanceNote": "Die Lücke zwischen dem, was hineinging, und dem, was hinausging, am Gewicht abgelesen. Nie, wie viel du gegessen hast, und nie ein Ziel. Nur mit aktiver Energie sichtbar.",
   "trajectoryFormulaLeversExpression": "typischer Wert: der Median der gültigen Tage\nGerade: Theil-Sen, der Median der Steigungen\nzwischen allen Tagespaaren\n90 % Intervall der Steigung\nbraucht {minDays} von {days} gültigen Tagen\nsteigend oder fallend: das Intervall schließt\nnull aus und die Änderung über {days} Tage übersteigt\n{steps} · {regularity}\n{resting} · {duration}",
   "trajectoryFormulaLeversNote": "Das Gewicht zählt hier nicht: es nutzt das {window} Tage Tempo, dasselbe wie Körper und Ziele.",

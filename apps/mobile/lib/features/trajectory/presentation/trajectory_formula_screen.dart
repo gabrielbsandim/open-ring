@@ -86,6 +86,7 @@ class TrajectoryFormulaScreen extends StatelessWidget {
             format.integer(energyRangeStep),
             format.integer(foodEnergyMinWeighIns),
             window,
+            format.integer(trajectoryBalanceHoldDays),
             format.integer(foodEnergyGoalHoldDays ~/ 7),
           ),
           note: l10n.trajectoryFormulaBalanceNote,

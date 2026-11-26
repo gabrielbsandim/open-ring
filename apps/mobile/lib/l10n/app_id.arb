@@ -3211,7 +3211,7 @@
   "trajectoryFormulaBendBody": "Tubuh yang lebih ringan membakar lebih sedikit. Dengan makanan yang sama, selisih antara yang masuk dan yang keluar mengecil, dan lajunya melambat.",
   "trajectoryFormulaBendExpression": "sepanjang hari: sekitar {perKg} kcal per hari\nlebih sedikit untuk setiap kg yang berkurang\nkonstanta waktu sekitar 1 tahun\nsaat istirahat, dengan persamaan Energi:\n{resting} kcal per hari per kg",
   "trajectoryFormulaBalanceTitle": "Keseimbangan {window} hari",
-  "trajectoryFormulaBalanceExpression": "keseimbangan = laju per hari × {perKg} kcal/kg\nsatu hitungan untuk tiap ujung laju\ndibulatkan ke {step} kcal\nperlu {count} penimbangan dalam {window} hari\nmelewati {weeks} minggu pertama\nblok Target",
+  "trajectoryFormulaBalanceExpression": "keseimbangan = laju per hari × {perKg} kcal/kg\nsatu hitungan untuk tiap ujung laju\ndibulatkan ke {step} kcal\nperlu {count} penimbangan dalam {window} hari\nmenunggu {hold} hari setelah blok Target\ndimulai, agar {weeks} minggu pertamanya terlewati",
   "trajectoryFormulaBalanceNote": "Selisih antara yang masuk dan yang keluar, dibaca dari berat. Bukan berapa banyak Anda makan, dan bukan target. Hanya muncul jika Energi aktif.",
   "trajectoryFormulaLeversExpression": "nilai khas: median hari yang valid\ngaris: Theil-Sen, median kemiringan\nantara semua pasangan hari\ninterval 90% dari kemiringan\nperlu {minDays} dari {days} hari valid\nnaik atau turun: interval tidak mencakup\nnol dan perubahan dalam {days} hari melewati\n{steps} · {regularity}\n{resting} · {duration}",
   "trajectoryFormulaLeversNote": "Berat tidak dipakai di sini: ia memakai laju {window} hari, sama dengan Tubuh dan Target.",

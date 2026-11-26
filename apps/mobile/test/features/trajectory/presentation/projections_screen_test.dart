@@ -409,7 +409,8 @@ void main() {
     expect(balance, contains('× 7,700 kcal/kg'));
     expect(balance, contains('rounded to 50 kcal'));
     expect(balance, contains('needs 20 weigh-ins in 28 days'));
-    expect(balance, contains('first 2 weeks'));
+    expect(balance, contains('waits 41 days after a Goals block'));
+    expect(balance, contains('skips its first 2 weeks'));
   });
 
   testWidgets('formula screen states the lever and what if rules', (

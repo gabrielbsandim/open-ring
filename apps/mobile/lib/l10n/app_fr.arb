@@ -3211,7 +3211,7 @@
   "trajectoryFormulaBendBody": "Un corps plus léger dépense moins. À alimentation égale, l'écart entre ce qui entre et ce qui sort diminue, et le rythme ralentit.",
   "trajectoryFormulaBendExpression": "la journée entière : environ {perKg} kcal par jour\nde moins pour chaque kg en moins\nconstante de temps d'environ 1 an\nau repos, par l'équation d'Énergie :\n{resting} kcal par jour par kg",
   "trajectoryFormulaBalanceTitle": "Le bilan sur {window} jours",
-  "trajectoryFormulaBalanceExpression": "bilan = rythme par jour × {perKg} kcal/kg\nun calcul pour chaque borne du rythme\narrondi à {step} kcal\nil faut {count} pesées en {window} jours\nsaute les {weeks} premières semaines d'un\nbloc Objectifs",
+  "trajectoryFormulaBalanceExpression": "bilan = rythme par jour × {perKg} kcal/kg\nun calcul pour chaque borne du rythme\narrondi à {step} kcal\nil faut {count} pesées en {window} jours\nattend {hold} jours après le début d'un\nbloc Objectifs, pour sauter ses {weeks} premières semaines",
   "trajectoryFormulaBalanceNote": "C'est l'écart entre ce qui est entré et ce qui est sorti, lu sur le poids. Jamais ce que vous avez mangé, et jamais une cible. N'apparaît qu'avec Énergie activé.",
   "trajectoryFormulaLeversExpression": "valeur typique : la médiane des jours valides\ndroite : Theil-Sen, la médiane des pentes\nentre toutes les paires de jours\nintervalle à 90 % de la pente\nil faut {minDays} jours valides sur {days}\nen hausse ou en baisse : l'intervalle exclut\nzéro et le changement sur {days} jours dépasse\n{steps} · {regularity}\n{resting} · {duration}",
   "trajectoryFormulaLeversNote": "Le poids n'entre pas ici : il utilise le rythme sur {window} jours, le même que Corps et Objectifs.",

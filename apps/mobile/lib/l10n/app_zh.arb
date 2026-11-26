@@ -3211,7 +3211,7 @@
   "trajectoryFormulaBendBody": "更轻的身体消耗更少。饮食不变时，摄入与消耗之间的差距缩小，速率放慢。",
   "trajectoryFormulaBendExpression": "全天：每少 1 kg\n每天约少 {perKg} kcal\n时间常数约 1 年\n静息时，按能量页面的公式：\n每 kg 每天 {resting} kcal",
   "trajectoryFormulaBalanceTitle": "{window} 天能量平衡",
-  "trajectoryFormulaBalanceExpression": "平衡 = 每天速率 × {perKg} kcal/kg\n速率两端各算一次\n按 {step} kcal 取整\n需要 {window} 天内 {count} 次称重\n跳过目标阶段的前 {weeks} 周",
+  "trajectoryFormulaBalanceExpression": "平衡 = 每天速率 × {perKg} kcal/kg\n速率两端各算一次\n按 {step} kcal 取整\n需要 {window} 天内 {count} 次称重\n目标阶段开始后等待 {hold} 天\n以跳过前 {weeks} 周",
   "trajectoryFormulaBalanceNote": "这是摄入与消耗之间的差，从体重中读出。绝不是你吃了多少，也绝不是目标。只在能量开启时显示。",
   "trajectoryFormulaLeversExpression": "典型值：有效天数的中位数\n直线：Theil-Sen，所有天数对之间\n斜率的中位数\n斜率的 90% 区间\n需要 {days} 天中有 {minDays} 天有效\n上升或下降：区间不含零\n且 {days} 天内的变化超过\n{steps} · {regularity}\n{resting} · {duration}",
   "trajectoryFormulaLeversNote": "这里不使用体重：它用 {window} 天的速率，与身体和目标页面相同。",

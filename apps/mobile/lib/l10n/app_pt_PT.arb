@@ -3203,7 +3203,7 @@
   "trajectoryFormulaBendBody": "Um corpo mais leve gasta menos. Com a comida igual, a diferença entre o que entra e o que sai diminui, e o ritmo abranda.",
   "trajectoryFormulaBendExpression": "o dia inteiro: cerca de {perKg} kcal por dia\na menos por cada kg a menos\nconstante de tempo de cerca de 1 ano\nem repouso, pela equação da Energia:\n{resting} kcal por dia por kg",
   "trajectoryFormulaBalanceTitle": "O balanço de {window} dias",
-  "trajectoryFormulaBalanceExpression": "balanço = ritmo por dia × {perKg} kcal/kg\numa conta para cada ponta do ritmo\narredondado a {step} kcal\nprecisa de {count} pesagens em {window} dias\nsalta as {weeks} primeiras semanas de um\nbloco de Metas",
+  "trajectoryFormulaBalanceExpression": "balanço = ritmo por dia × {perKg} kcal/kg\numa conta para cada ponta do ritmo\narredondado a {step} kcal\nprecisa de {count} pesagens em {window} dias\nespera {hold} dias após o início de um\nbloco de Metas, para saltar as {weeks} primeiras semanas",
   "trajectoryFormulaBalanceNote": "É a diferença entre o que entrou e o que saiu, lida no peso. Nunca quanto comeu, e nunca um alvo. Aparece só com a Energia ativa.",
   "trajectoryFormulaLeversExpression": "valor típico: a mediana dos dias válidos\nreta: Theil-Sen, a mediana dos declives\nentre todos os pares de dias\nintervalo de 90% do declive\nprecisa de {minDays} de {days} dias válidos\na subir ou a descer: o intervalo não inclui\nzero e a mudança em {days} dias passa de\n{steps} · {regularity}\n{resting} · {duration}",
   "trajectoryFormulaLeversNote": "O peso não entra aqui: usa o ritmo de {window} dias, o mesmo do Corpo e das Metas.",

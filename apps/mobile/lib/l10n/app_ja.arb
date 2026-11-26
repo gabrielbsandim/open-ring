@@ -3211,7 +3211,7 @@
   "trajectoryFormulaBendBody": "軽い体は消費が少なくなります。食事が同じなら、入る量と出る量の差が縮まり、ペースは落ちます。",
   "trajectoryFormulaBendExpression": "1日全体: 1 kg 減るごとに\n1日約{perKg} kcal 減る\n時定数は約1年\n安静時、エネルギーの式で:\n1 kg あたり1日{resting} kcal",
   "trajectoryFormulaBalanceTitle": "{window}日間の収支",
-  "trajectoryFormulaBalanceExpression": "収支 = 1日のペース × {perKg} kcal/kg\nペースの両端それぞれで計算\n{step} kcal 単位で丸める\n{window}日間に{count}回の記録が必要\n目標ブロックの最初の{weeks}週は\n除く",
+  "trajectoryFormulaBalanceExpression": "収支 = 1日のペース × {perKg} kcal/kg\nペースの両端それぞれで計算\n{step} kcal 単位で丸める\n{window}日間に{count}回の記録が必要\n目標ブロック開始から{hold}日待ち\n最初の{weeks}週を除く",
   "trajectoryFormulaBalanceNote": "入った量と出た量の差を、体重から読んだものです。食べた量でも目標でもありません。エネルギーがオンのときだけ表示されます。",
   "trajectoryFormulaLeversExpression": "典型値: 有効な日の中央値\n直線: Theil-Sen、すべての日の組の\n傾きの中央値\n傾きの90%区間\n{days}日のうち有効な日が{minDays}日必要\n上昇または下降: 区間がゼロを含まず\n{days}日での変化が次を超えるとき\n{steps} · {regularity}\n{resting} · {duration}",
   "trajectoryFormulaLeversNote": "体重はここでは使いません: 体と目標と同じ{window}日間のペースを使います。",

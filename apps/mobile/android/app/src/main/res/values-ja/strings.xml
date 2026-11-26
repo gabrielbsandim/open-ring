@@ -3,7 +3,7 @@
     <string name="widget_readiness_name">コンディション</string>
     <string name="widget_readiness_description">スコアと安静時心拍数、心拍変動、睡眠</string>
     <string name="widget_today_name">今日</string>
-    <string name="widget_today_description">選んだ指標を最大 3 つ</string>
+    <string name="widget_today_description">選んだ指標を最大 6 つ</string>
     <string name="widget_ring_name">リング</string>
     <string name="widget_ring_description">バッテリーと最後の同期</string>
     <string name="widget_workout_name">ワークアウトを開始</string>
@@ -51,4 +51,25 @@
     <string name="widget_workout_type_elliptical">エリプティカル</string>
     <string name="widget_workout_type_yoga">ヨガ</string>
     <string name="widget_workout_type_other">ワークアウト</string>
+    <string name="widget_metric_day_score">今日のスコア</string>
+    <string name="widget_metric_weight">体重</string>
+    <string name="widget_metric_energy">エネルギー</string>
+    <string name="widget_metric_effort">エフォート</string>
+    <string name="widget_ring_charging">充電中 · %1$sに同期</string>
+    <string name="widget_ring_low_battery">電池残量低下 · %1$sに同期</string>
+    <string name="widget_unpaired_short">リング未ペアリング</string>
+    <string name="widget_day_score_band_great">とても良い日</string>
+    <string name="widget_day_score_band_good">良い日</string>
+    <string name="widget_day_score_band_mixed">まずまずの日</string>
+    <string name="widget_day_score_band_low">ひと休みの日</string>
+    <string name="widget_weight_unit_kg">%1$s kg</string>
+    <string name="widget_weight_unit_lb">%1$s lb</string>
+    <string name="widget_weight_trend">28日間のトレンド</string>
+    <string name="widget_weight_direction_falling">下降中</string>
+    <string name="widget_weight_direction_rising">上昇中</string>
+    <string name="widget_weight_direction_steady">安定</string>
+    <string name="widget_weight_direction_building">方向はまだありません</string>
+    <string name="widget_energy_range">%1$s〜%2$s</string>
+    <string name="widget_sub_energy">kcal（推定）</string>
+    <string name="widget_sub_effort">目標 %1$s · 筋トレ %2$s / %3$s</string>
 </resources>

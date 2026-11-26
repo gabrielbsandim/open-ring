@@ -3,7 +3,7 @@
     <string name="widget_readiness_name">Готовность</string>
     <string name="widget_readiness_description">Оценка, пульс в покое, ВСР и сон</string>
     <string name="widget_today_name">Сегодня</string>
-    <string name="widget_today_description">До 3 показателей на ваш выбор</string>
+    <string name="widget_today_description">До 6 показателей на ваш выбор</string>
     <string name="widget_ring_name">Кольцо</string>
     <string name="widget_ring_description">Заряд и последняя синхронизация</string>
     <string name="widget_workout_name">Начать тренировку</string>
@@ -51,4 +51,25 @@
     <string name="widget_workout_type_elliptical">эллипсоид</string>
     <string name="widget_workout_type_yoga">йога</string>
     <string name="widget_workout_type_other">другое</string>
+    <string name="widget_metric_day_score">Оценка дня</string>
+    <string name="widget_metric_weight">Вес</string>
+    <string name="widget_metric_energy">Энергия</string>
+    <string name="widget_metric_effort">Усилие</string>
+    <string name="widget_ring_charging">заряжается · синхр. %1$s</string>
+    <string name="widget_ring_low_battery">низкий заряд · синхр. %1$s</string>
+    <string name="widget_unpaired_short">Кольцо не подключено</string>
+    <string name="widget_day_score_band_great">Отличный день</string>
+    <string name="widget_day_score_band_good">Хороший день</string>
+    <string name="widget_day_score_band_mixed">Смешанный день</string>
+    <string name="widget_day_score_band_low">День паузы</string>
+    <string name="widget_weight_unit_kg">%1$s кг</string>
+    <string name="widget_weight_unit_lb">%1$s lb</string>
+    <string name="widget_weight_trend">тренд за 28 дней</string>
+    <string name="widget_weight_direction_falling">Снижается</string>
+    <string name="widget_weight_direction_rising">Растёт</string>
+    <string name="widget_weight_direction_steady">Стабильно</string>
+    <string name="widget_weight_direction_building">Направления пока нет</string>
+    <string name="widget_energy_range">от %1$s до %2$s</string>
+    <string name="widget_sub_energy">ккал, оценка</string>
+    <string name="widget_sub_effort">из %1$s · силовые %2$s из %3$s</string>
 </resources>

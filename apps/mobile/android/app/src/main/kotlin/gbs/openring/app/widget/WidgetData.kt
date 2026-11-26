@@ -2,6 +2,7 @@ package gbs.openring.app.widget
 
 import android.content.SharedPreferences
 import java.time.LocalDate
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -10,14 +11,18 @@ internal const val APPEARANCE_KEY = "openring_appearance"
 
 internal enum class Freshness { UNPAIRED, NEVER_SYNCED, FRESH, STALE }
 
-internal enum class Metric(val id: String) {
+internal enum class Metric(val id: String, val requiresRing: Boolean = true) {
     READINESS("readiness"),
     SLEEP("sleep"),
     STEPS("steps"),
     HEART_RATE("heartRate"),
     SPO2("spo2"),
     STRESS("stress"),
-    BATTERY("battery");
+    BATTERY("battery"),
+    DAY_SCORE("dayScore"),
+    WEIGHT("weight", requiresRing = false),
+    ENERGY("energy"),
+    EFFORT("effort");
 
     companion object {
         fun of(id: String): Metric? = entries.firstOrNull { it.id == id }
@@ -30,6 +35,117 @@ internal enum class Units {
 
     companion object {
         fun of(name: String?): Units = if (name == "imperial") IMPERIAL else METRIC
+    }
+}
+
+internal enum class DayScoreKind(val id: String) {
+    FULL("full"),
+    PARTIAL("partial"),
+    FIRST_DAYS("firstDays"),
+    NO_SCORE("noScore"),
+    AFTER_MIDNIGHT("afterMidnight");
+
+    companion object {
+        fun of(id: String?): DayScoreKind? = entries.firstOrNull { it.id == id }
+    }
+}
+
+internal enum class DayScoreBand(val id: String) {
+    GREAT("great"),
+    GOOD("good"),
+    MIXED("mixed"),
+    LOW("low");
+
+    companion object {
+        fun of(id: String?): DayScoreBand? = entries.firstOrNull { it.id == id }
+    }
+}
+
+internal enum class DayScoreGap(val id: String) {
+    NIGHT("night"),
+    STEPS("steps"),
+    COVERAGE("coverage");
+
+    companion object {
+        fun of(id: String?): DayScoreGap? = entries.firstOrNull { it.id == id }
+    }
+}
+
+internal data class DayScoreData(
+    val kind: DayScoreKind,
+    val score: Int?,
+    val band: DayScoreBand?,
+    val coverage: Int,
+    val pillarPoints: List<Double?>?,
+    val asOfMs: Long?,
+    val gap: DayScoreGap?,
+) {
+    companion object {
+        fun parse(json: JSONObject?): DayScoreData? {
+            if (json == null) return null
+            val kind = DayScoreKind.of(json.text("kind")) ?: return null
+            return DayScoreData(
+                kind = kind,
+                score = json.int("score"),
+                band = DayScoreBand.of(json.text("band")),
+                coverage = json.int("coverage") ?: 0,
+                pillarPoints = json.optJSONArray("pillarPoints")?.toNullableDoubles(),
+                asOfMs = json.long("asOfMs"),
+                gap = DayScoreGap.of(json.text("gap")),
+            )
+        }
+    }
+}
+
+internal enum class WeightDirection(val id: String) {
+    FALLING("falling"),
+    RISING("rising"),
+    STEADY("steady"),
+    BUILDING("building");
+
+    companion object {
+        fun of(id: String?): WeightDirection = entries.firstOrNull { it.id == id } ?: BUILDING
+    }
+}
+
+internal data class WeightData(val trendKilograms: Double?, val direction: WeightDirection) {
+    companion object {
+        fun parse(json: JSONObject?): WeightData? {
+            if (json == null) return null
+            return WeightData(
+                trendKilograms = json.double("trendKilograms"),
+                direction = WeightDirection.of(json.text("direction")),
+            )
+        }
+    }
+}
+
+internal data class EnergyData(val lowKcal: Int, val highKcal: Int) {
+    companion object {
+        fun parse(json: JSONObject?): EnergyData? {
+            if (json == null) return null
+            val low = json.int("lowKcal") ?: return null
+            val high = json.int("highKcal") ?: return null
+            return EnergyData(lowKcal = low, highKcal = high)
+        }
+    }
+}
+
+internal data class EffortData(
+    val points: Int,
+    val targetPoints: Int,
+    val strengthDays: Int,
+    val strengthTarget: Int,
+) {
+    companion object {
+        fun parse(json: JSONObject?): EffortData? {
+            if (json == null) return null
+            val points = json.int("points") ?: return null
+            val targetPoints = json.int("targetPoints") ?: return null
+            val strengthDays = json.int("strengthDays") ?: return null
+            val strengthTarget = json.int("strengthTarget") ?: return null
+            return EffortData(points, targetPoints, strengthDays, strengthTarget)
+        }
     }
 }
 
@@ -101,7 +217,14 @@ internal data class Snapshot(
     val spo2: Int?,
     val stress: Int?,
     val batteryPercent: Int?,
+    val batteryCharging: Boolean? = null,
     val lastWorkout: LastWorkout?,
+    val enabledModules: Set<String> = emptySet(),
+    val hideNumbers: Boolean = false,
+    val dayScore: DayScoreData? = null,
+    val weight: WeightData? = null,
+    val energy: EnergyData? = null,
+    val effort: EffortData? = null,
 ) {
     val hasHealthData: Boolean
         get() = listOf(
@@ -137,7 +260,14 @@ internal data class Snapshot(
                 spo2 = json.int("spo2"),
                 stress = json.int("stress"),
                 batteryPercent = json.int("batteryPercent"),
+                batteryCharging = json.bool("batteryCharging"),
                 lastWorkout = LastWorkout.parse(json.optJSONObject("lastWorkout")),
+                enabledModules = json.optJSONArray("enabledModules")?.toStringSet() ?: emptySet(),
+                hideNumbers = json.optBoolean("hideNumbers", false),
+                dayScore = DayScoreData.parse(json.optJSONObject("dayScore")),
+                weight = WeightData.parse(json.optJSONObject("weight")),
+                energy = EnergyData.parse(json.optJSONObject("energy")),
+                effort = EffortData.parse(json.optJSONObject("effort")),
             )
         }
     }
@@ -193,10 +323,20 @@ private fun dateOf(iso: String): LocalDate? = try {
     null
 }
 
+private fun JSONArray.toStringSet(): Set<String> =
+    (0 until length()).mapNotNull { if (isNull(it)) null else optString(it) }.toSet()
+
+private fun JSONArray.toNullableDoubles(): List<Double?> = (0 until length()).map { index ->
+    if (isNull(index)) null else optDouble(index).takeUnless { it.isNaN() }
+}
+
+private fun JSONObject.bool(key: String): Boolean? = if (isNull(key)) null else optBoolean(key)
+
 private fun JSONObject.int(key: String): Int? = if (isNull(key)) null else optInt(key)
 
 private fun JSONObject.long(key: String): Long? = if (isNull(key)) null else optLong(key)
 
-private fun JSONObject.double(key: String): Double? = if (isNull(key)) null else optDouble(key)
+private fun JSONObject.double(key: String): Double? =
+    if (isNull(key)) null else optDouble(key).takeUnless { it.isNaN() }
 
 private fun JSONObject.text(key: String): String? = if (isNull(key)) null else optString(key)

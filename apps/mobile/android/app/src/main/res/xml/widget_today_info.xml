@@ -10,6 +10,6 @@
     android:targetCellHeight="2"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="1800000"
-    android:widgetCategory="home_screen"
+    android:widgetCategory="home_screen|not_keyguard"
     android:configure="gbs.openring.app.widget.TodayWidgetConfigureActivity"
     android:widgetFeatures="reconfigurable|configuration_optional" />

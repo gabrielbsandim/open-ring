@@ -3,6 +3,7 @@ package gbs.openring.app
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import gbs.openring.app.widget.WidgetComponentsChannel
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 
@@ -33,6 +34,7 @@ class MainActivity : FlutterFragmentActivity() {
         super.configureFlutterEngine(flutterEngine)
         permissions.attach(flutterEngine.dartExecutor.binaryMessenger)
         HealthSettingsChannel(this).attach(flutterEngine.dartExecutor.binaryMessenger)
+        WidgetComponentsChannel(this).attach(flutterEngine.dartExecutor.binaryMessenger)
     }
 
     // Flutter's deep linking reads only the intent data, so the Health Connect

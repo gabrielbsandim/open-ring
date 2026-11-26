@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
@@ -19,7 +22,10 @@ import 'package:open_ring/features/sleep/application/sleep_providers.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/today/domain/ring_status_reader.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
+import 'package:open_ring/features/widgets/application/widget_publisher.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
+import 'package:open_ring/features/widgets/domain/widget_gateway.dart';
+import 'package:open_ring/features/widgets/infrastructure/home_widget_plugin_gateway.dart';
 import 'package:open_ring/features/workout/application/workout_history_providers.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
@@ -484,4 +490,125 @@ void main() {
     expect(gateway.snapshots.last['date'], '2026-11-11');
     expect(gateway.snapshots.last['energy'], isNull);
   });
+
+  test(
+    'setThisWeekAvailable toggles with Effort or Goals and deduplicates',
+    () async {
+      final (:container, :gateway, ring: _, configs: _, workouts: _) = rig();
+      addTearDown(container.dispose);
+
+      startWidgetPush(container);
+      await container.read(enabledModulesProvider.future);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false]);
+
+      await container
+          .read(enabledModulesProvider.notifier)
+          .enable(ModuleId.effort);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false, true]);
+
+      await container
+          .read(enabledModulesProvider.notifier)
+          .enable(ModuleId.goals);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false, true]);
+
+      await container
+          .read(enabledModulesProvider.notifier)
+          .disable(ModuleId.effort);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false, true]);
+
+      await container
+          .read(enabledModulesProvider.notifier)
+          .disable(ModuleId.goals);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false, true, false]);
+    },
+  );
+
+  test('cold start with Effort already enabled emits only true', () async {
+    final (:container, :gateway, ring: _, configs: _, workouts: _) = rig(
+      modules: {ModuleId.effort},
+    );
+    addTearDown(container.dispose);
+
+    startWidgetPush(container);
+    await settle(container);
+
+    expect(gateway.thisWeekAvailable, [true]);
+  });
+
+  test('AndroidHomeWidgetGateway invokes widget_components channel', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    const channel = MethodChannel('gbs.openring.app/widget_components');
+    final calls = <MethodCall>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          calls.add(call);
+          return null;
+        });
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null),
+    );
+
+    const gateway = AndroidHomeWidgetGateway();
+    await gateway.setThisWeekAvailable(available: true);
+    await gateway.setThisWeekAvailable(available: false);
+
+    expect(calls.map((c) => (c.method, c.arguments)), [
+      ('setThisWeekAvailable', true),
+      ('setThisWeekAvailable', false),
+    ]);
+  });
+
+  test(
+    'setThisWeekAvailable serializes overlapping toggles in order',
+    () async {
+      final firstGate = Completer<void>();
+      final calls = <bool>[];
+      final publisher = WidgetPublisher(
+        _SlowAvailabilityGateway(calls, pauseFirst: firstGate),
+      );
+
+      final first = publisher.setThisWeekAvailable(available: true);
+      final dup = publisher.setThisWeekAvailable(available: true);
+      final drop = publisher.setThisWeekAvailable(available: false);
+      await pumpEventQueue();
+      expect(calls, [true]);
+
+      firstGate.complete();
+      await Future.wait([first, dup, drop]);
+
+      expect(calls, [true, false]);
+    },
+  );
+}
+
+final class _SlowAvailabilityGateway implements WidgetGateway {
+  new(this.calls, {required this.pauseFirst});
+
+  final List<bool> calls;
+  final Completer<void> pauseFirst;
+  var _first = true;
+
+  @override
+  Future<void> publish(String key, String json) async {}
+
+  @override
+  Future<bool> canPin() async => false;
+
+  @override
+  Future<void> pin(HomeWidgetKind kind) async {}
+
+  @override
+  Future<void> setThisWeekAvailable({required bool available}) async {
+    calls.add(available);
+    if (_first) {
+      _first = false;
+      await pauseFirst.future;
+    }
+  }
 }

@@ -58,6 +58,38 @@ internal class WidgetFormat(private val context: Context) {
         return DateUtils.formatDateTime(context, start, WEEKDAY_FLAGS or DAY_FLAGS)
     }
 
+    fun dateRange(monday: LocalDate, sunday: LocalDate): String {
+        val zone = ZoneId.systemDefault()
+        val start = monday.atStartOfDay(zone).toInstant().toEpochMilli()
+        val end = sunday.atStartOfDay(zone).toInstant().toEpochMilli()
+        return DateUtils.formatDateRange(context, start, end, DAY_FLAGS)
+    }
+
+    fun goalLeverLabel(kind: GoalLeverKind): String = context.getString(
+        when (kind) {
+            GoalLeverKind.STRENGTH_DAYS -> R.string.widget_lever_strength
+            GoalLeverKind.SLEEP_WINDOW -> R.string.widget_metric_sleep
+            GoalLeverKind.STEPS -> R.string.widget_metric_steps
+            GoalLeverKind.EFFORT_POINTS -> R.string.widget_metric_effort
+            GoalLeverKind.WAKE_TIME -> R.string.widget_lever_wake
+        },
+    )
+
+    fun goalsTag(goals: GoalsData): String = when (goals.state) {
+        GoalsState.REVIEW -> context.getString(R.string.widget_goals_tag_review)
+        GoalsState.PAUSED -> context.getString(R.string.widget_goals_tag_paused)
+        GoalsState.HOLD -> context.getString(R.string.widget_goals_tag_hold)
+        GoalsState.BASE -> context.getString(R.string.widget_goals_tag_base)
+        GoalsState.RECOVERY -> context.getString(R.string.widget_goals_tag_recovery)
+        GoalsState.RUNNING -> when (val w = goals.weekNumber) {
+            null -> context.getString(R.string.widget_goals_name)
+            else -> when (val total = goals.blockWeeks) {
+                null -> context.getString(R.string.widget_goals_tag_week, integer(w))
+                else -> context.getString(R.string.widget_goals_tag_week_of, integer(w), integer(total))
+            }
+        }
+    }
+
     fun status(snapshot: Snapshot?, nowMs: Long): Status {
         val synced = snapshot?.syncedAtMs ?: 0L
         return when (snapshot?.freshness(nowMs)) {

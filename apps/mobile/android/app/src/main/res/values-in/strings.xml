@@ -86,4 +86,22 @@
     <string name="widget_pillar_rec_short">Pulih</string>
     <string name="widget_pillar_stress_short">Stres</string>
     <string name="widget_pillar_spo2_short">O2</string>
+    <string name="widget_this_week_name">Minggu ini</string>
+    <string name="widget_this_week_description">Effort dan Target untuk minggu ini</string>
+    <string name="widget_this_week_off">Effort dan Target nonaktif. Ketuk untuk membuka Modul.</string>
+    <string name="widget_goals_name">Target</string>
+    <string name="widget_effort_detail">Poin Effort · kekuatan %1$s dari %2$s</string>
+    <string name="widget_goals_tag_week_of">minggu %1$s dari %2$s</string>
+    <string name="widget_goals_tag_week">minggu %1$s</string>
+    <string name="widget_goals_tag_review">tinjauan</string>
+    <string name="widget_goals_tag_paused">dijeda</string>
+    <string name="widget_goals_tag_hold">ditahan</string>
+    <string name="widget_goals_tag_base">fase dasar</string>
+    <string name="widget_goals_tag_recovery">pemulihan</string>
+    <string name="widget_goals_paused">Rencana dijeda. Pengungkit tetap sebagai pengingat.</string>
+    <string name="widget_goals_review">Tinjauan minggu ini sudah siap</string>
+    <string name="widget_goals_waiting">Menunggu data yang cukup untuk mulai.</string>
+    <string name="widget_goals_ratio">%1$s dari %2$s</string>
+    <string name="widget_lever_strength">Hari kekuatan</string>
+    <string name="widget_lever_wake">Waktu bangun</string>
 </resources>

@@ -66,6 +66,7 @@ void main() {
     HomeWidgetKind.today: TodayScreen,
     HomeWidgetKind.ring: RingScreen,
     HomeWidgetKind.workout: WorkoutPickScreen,
+    HomeWidgetKind.thisWeek: TodayScreen,
   };
 
   for (final MapEntry(key: kind, value: screen) in screens.entries) {

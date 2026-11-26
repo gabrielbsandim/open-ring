@@ -165,3 +165,20 @@ internal fun Gap(height: Int) {
 internal fun Divider(palette: WidgetPalette) {
     Box(modifier = GlanceModifier.fillMaxWidth().height(1.dp).background(palette.track)) {}
 }
+
+@Composable
+internal fun DotsRow(days: List<GoalDayMark>, palette: WidgetPalette) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        days.take(7).forEachIndexed { index, mark ->
+            val color = when (mark) {
+                GoalDayMark.MET -> palette.activity
+                GoalDayMark.OPEN -> palette.textPrimary
+                GoalDayMark.MISSED -> palette.textLabel
+                GoalDayMark.AHEAD -> palette.track
+            }
+            Box(modifier = GlanceModifier.padding(end = if (index == days.lastIndex || index == 6) 0.dp else 3.dp)) {
+                Box(modifier = GlanceModifier.size(7.dp).background(color).cornerRadius(3.5.dp)) {}
+            }
+        }
+    }
+}

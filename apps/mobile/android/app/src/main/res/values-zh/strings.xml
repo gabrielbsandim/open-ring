@@ -86,4 +86,22 @@
     <string name="widget_pillar_rec_short">恢复</string>
     <string name="widget_pillar_stress_short">压力</string>
     <string name="widget_pillar_spo2_short">血氧</string>
+    <string name="widget_this_week_name">本周</string>
+    <string name="widget_this_week_description">本周努力与目标</string>
+    <string name="widget_this_week_off">努力和目标已关闭。点击打开模块。</string>
+    <string name="widget_goals_name">目标</string>
+    <string name="widget_effort_detail">努力点数 · 力量 %1$s / %2$s</string>
+    <string name="widget_goals_tag_week_of">第 %1$s / %2$s 周</string>
+    <string name="widget_goals_tag_week">第 %1$s 周</string>
+    <string name="widget_goals_tag_review">回顾</string>
+    <string name="widget_goals_tag_paused">已暂停</string>
+    <string name="widget_goals_tag_hold">保持中</string>
+    <string name="widget_goals_tag_base">基础阶段</string>
+    <string name="widget_goals_tag_recovery">恢复周</string>
+    <string name="widget_goals_paused">计划已暂停。指标仅作提醒保留。</string>
+    <string name="widget_goals_review">本周回顾已就绪</string>
+    <string name="widget_goals_waiting">正在等待足够的数据以开始。</string>
+    <string name="widget_goals_ratio">%1$s / %2$s</string>
+    <string name="widget_lever_strength">力量训练日</string>
+    <string name="widget_lever_wake">起床时间</string>
 </resources>

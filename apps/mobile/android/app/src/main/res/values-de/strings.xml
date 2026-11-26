@@ -86,4 +86,22 @@
     <string name="widget_pillar_rec_short">Erhol.</string>
     <string name="widget_pillar_stress_short">Stress</string>
     <string name="widget_pillar_spo2_short">O2</string>
+    <string name="widget_this_week_name">Diese Woche</string>
+    <string name="widget_this_week_description">Effort und Ziele für diese Woche</string>
+    <string name="widget_this_week_off">Effort und Ziele sind aus. Tippen für Module.</string>
+    <string name="widget_goals_name">Ziele</string>
+    <string name="widget_effort_detail">Effort-Punkte · Kraft %1$s von %2$s</string>
+    <string name="widget_goals_tag_week_of">Woche %1$s von %2$s</string>
+    <string name="widget_goals_tag_week">Woche %1$s</string>
+    <string name="widget_goals_tag_review">Rückblick</string>
+    <string name="widget_goals_tag_paused">pausiert</string>
+    <string name="widget_goals_tag_hold">wartet</string>
+    <string name="widget_goals_tag_base">Basisphase</string>
+    <string name="widget_goals_tag_recovery">Erholung</string>
+    <string name="widget_goals_paused">Plan pausiert. Die Hebel bleiben als Erinnerung.</string>
+    <string name="widget_goals_review">Der Wochenrückblick ist bereit</string>
+    <string name="widget_goals_waiting">Wartet auf genügend Daten zum Start.</string>
+    <string name="widget_goals_ratio">%1$s von %2$s</string>
+    <string name="widget_lever_strength">Krafttage</string>
+    <string name="widget_lever_wake">Aufwachzeit</string>
 </resources>

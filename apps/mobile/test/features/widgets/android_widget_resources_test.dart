@@ -112,10 +112,19 @@ void main() {
     for (final kind in HomeWidgetKind.values) {
       expect(manifest, contains('android:name=".widget.${kind.receiver}"'));
       expect(
-        File('$_res/xml/widget_${kind.name}_info.xml').existsSync(),
+        File('$_res/xml/widget_${kind.xmlName}_info.xml').existsSync(),
         isTrue,
       );
     }
+    final manifestDoc = XmlDocument.parse(manifest);
+    final thisWeekReceiver = manifestDoc
+        .findAllElements('receiver')
+        .firstWhere(
+          (e) =>
+              e.getAttribute('android:name') ==
+              '.widget.ThisWeekWidgetReceiver',
+        );
+    expect(thisWeekReceiver.getAttribute('android:enabled'), 'false');
   });
 
   test('lock screen category matches the privacy rule and icons exist', () {
@@ -124,6 +133,7 @@ void main() {
       'workout': 'home_screen|keyguard',
       'readiness': 'home_screen|not_keyguard',
       'today': 'home_screen|not_keyguard',
+      'this_week': 'home_screen|not_keyguard',
     };
     for (final MapEntry(key: name, value: expected) in categories.entries) {
       final info = XmlDocument.parse(

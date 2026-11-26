@@ -86,4 +86,22 @@
     <string name="widget_pillar_rec_short">Восст.</string>
     <string name="widget_pillar_stress_short">Стресс</string>
     <string name="widget_pillar_spo2_short">O2</string>
+    <string name="widget_this_week_name">Эта неделя</string>
+    <string name="widget_this_week_description">Усилие и Цели на эту неделю</string>
+    <string name="widget_this_week_off">Усилие и Цели отключены. Нажмите, чтобы открыть Модули.</string>
+    <string name="widget_goals_name">Цели</string>
+    <string name="widget_effort_detail">Очки усилия · силовые %1$s из %2$s</string>
+    <string name="widget_goals_tag_week_of">неделя %1$s из %2$s</string>
+    <string name="widget_goals_tag_week">неделя %1$s</string>
+    <string name="widget_goals_tag_review">итоги</string>
+    <string name="widget_goals_tag_paused">пауза</string>
+    <string name="widget_goals_tag_hold">удержание</string>
+    <string name="widget_goals_tag_base">база</string>
+    <string name="widget_goals_tag_recovery">восстановление</string>
+    <string name="widget_goals_paused">План на паузе. Показатели остаются как напоминание.</string>
+    <string name="widget_goals_review">Итоги недели готовы</string>
+    <string name="widget_goals_waiting">Ожидание достаточных данных для старта.</string>
+    <string name="widget_goals_ratio">%1$s из %2$s</string>
+    <string name="widget_lever_strength">Силовые дни</string>
+    <string name="widget_lever_wake">Подъём</string>
 </resources>

@@ -15,6 +15,11 @@ const List<({int steps, double hazard})> paluchAnchors = [
   (steps: 10901, hazard: 0.47),
 ];
 
+// Our word bands for the cohort comparison, in percent lower.
+const cohortSamePercent = 5.0;
+const cohortSlightPercent = 15.0;
+const cohortFifthPercent = 30.0;
+
 enum CohortWords {
   aboutTheSame,
   slightlyLower,
@@ -22,9 +27,9 @@ enum CohortWords {
   muchLower;
 
   static CohortWords of(double percentLower) {
-    if (percentLower < 5) return aboutTheSame;
-    if (percentLower < 15) return slightlyLower;
-    if (percentLower < 30) return fifthToQuarterLower;
+    if (percentLower < cohortSamePercent) return aboutTheSame;
+    if (percentLower < cohortSlightPercent) return slightlyLower;
+    if (percentLower < cohortFifthPercent) return fifthToQuarterLower;
     return muchLower;
   }
 }

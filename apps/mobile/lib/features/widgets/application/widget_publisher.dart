@@ -25,12 +25,19 @@ final class WidgetPublisher {
 
   final WidgetGateway _gateway;
   final Map<String, String> _published = {};
+  bool? _thisWeekAvailable;
 
   Future<void> snapshot(WidgetSnapshot snapshot) =>
       _publish(WidgetKeys.snapshot, snapshot.toJson());
 
   Future<void> appearance(WidgetAppearance appearance) =>
       _publish(WidgetKeys.appearance, appearanceJson(appearance));
+
+  Future<void> setThisWeekAvailable({required bool available}) async {
+    if (_thisWeekAvailable == available) return;
+    _thisWeekAvailable = available;
+    await _gateway.setThisWeekAvailable(available: available);
+  }
 
   Future<void> _publish(String key, Map<String, Object?> json) async {
     final encoded = jsonEncode(json);

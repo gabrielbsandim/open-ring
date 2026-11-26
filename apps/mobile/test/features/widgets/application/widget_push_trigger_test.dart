@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
@@ -20,6 +21,7 @@ import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/today/domain/ring_status_reader.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
+import 'package:open_ring/features/widgets/infrastructure/home_widget_plugin_gateway.dart';
 import 'package:open_ring/features/workout/application/workout_history_providers.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
@@ -483,5 +485,66 @@ void main() {
 
     expect(gateway.snapshots.last['date'], '2026-11-11');
     expect(gateway.snapshots.last['energy'], isNull);
+  });
+
+  test(
+    'setThisWeekAvailable toggles with Effort or Goals and deduplicates',
+    () async {
+      final (:container, :gateway, ring: _, configs: _, workouts: _) = rig();
+      addTearDown(container.dispose);
+
+      startWidgetPush(container);
+      await container.read(enabledModulesProvider.future);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false]);
+
+      await container
+          .read(enabledModulesProvider.notifier)
+          .enable(ModuleId.effort);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false, true]);
+
+      await container
+          .read(enabledModulesProvider.notifier)
+          .enable(ModuleId.goals);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false, true]);
+
+      await container
+          .read(enabledModulesProvider.notifier)
+          .disable(ModuleId.effort);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false, true]);
+
+      await container
+          .read(enabledModulesProvider.notifier)
+          .disable(ModuleId.goals);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false, true, false]);
+    },
+  );
+
+  test('AndroidHomeWidgetGateway invokes widget_components channel', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    const channel = MethodChannel('gbs.openring.app/widget_components');
+    final calls = <MethodCall>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          calls.add(call);
+          return null;
+        });
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null),
+    );
+
+    const gateway = AndroidHomeWidgetGateway();
+    await gateway.setThisWeekAvailable(available: true);
+    await gateway.setThisWeekAvailable(available: false);
+
+    expect(calls.map((c) => (c.method, c.arguments)), [
+      ('setThisWeekAvailable', true),
+      ('setThisWeekAvailable', false),
+    ]);
   });
 }

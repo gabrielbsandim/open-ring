@@ -42,6 +42,8 @@ abstract interface class WidgetGateway {
   Future<bool> canPin();
 
   Future<void> pin(HomeWidgetKind kind);
+
+  Future<void> setThisWeekAvailable({required bool available});
 }
 
 final class UnsupportedWidgetGateway implements WidgetGateway {
@@ -55,4 +57,7 @@ final class UnsupportedWidgetGateway implements WidgetGateway {
 
   @override
   Future<void> pin(HomeWidgetKind kind) async {}
+
+  @override
+  Future<void> setThisWeekAvailable({required bool available}) async {}
 }

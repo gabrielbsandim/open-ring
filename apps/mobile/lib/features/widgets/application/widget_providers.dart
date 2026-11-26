@@ -181,6 +181,16 @@ final widgetPushTriggerProvider = Provider<WidgetPublisher>((ref) {
         ref.read(todayWidgetConfigProvider.notifier).retainModules(next.value),
       );
     }, fireImmediately: true)
+    ..listen(
+      activeModulesProvider,
+      (_, next) => unawaited(
+        publisher.setThisWeekAvailable(
+          available:
+              next.contains(ModuleId.effort) || next.contains(ModuleId.goals),
+        ),
+      ),
+      fireImmediately: true,
+    )
     ..listen(widgetSnapshotProvider, (_, next) {
       if (next case AsyncData(:final value)) {
         unawaited(publisher.snapshot(value));

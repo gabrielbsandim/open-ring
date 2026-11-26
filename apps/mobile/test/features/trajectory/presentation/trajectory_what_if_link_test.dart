@@ -74,10 +74,9 @@ void main() {
             300,
             scrollable: find.byType(Scrollable).first,
           );
+          expect(find.byKey(TrajectoryKeys.whatIfLink), findsOneWidget);
           await tester.pumpAndSettle();
         });
-
-        expect(find.byKey(TrajectoryKeys.whatIfLink), findsOneWidget);
       });
     }
   });

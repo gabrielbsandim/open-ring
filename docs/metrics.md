@@ -2432,6 +2432,16 @@ the trend, so no edge is pushed above the trend. The stored Monday
 band is not floored, so near BMI 18.5 it can sit under the drawn 4 week
 band. **our choice**.
 
+### Evidence sheets on the scenario card
+
+Code: `trajectory_evidence_sheet.dart` in the Trajectory presentation layer. On
+a Ready card the Now tile and the rate row open the rate sheet, the 4 and 12
+week tiles open a scenario sheet. "Your number" carries the math with the
+reader's values: trend, rate ends, `F(t)` with one decimal, middle, noise and
+the drawn range, plus a line when an edge sits more than 0.05 kg above the
+unfloored band, so the BMI floor is named. With numbers hidden no tile or rate
+row is drawn, so no sheet opens. The sheets never show kcal. **our choice**.
+
 ### Ring levers (Theil-Sen over 90 days)
 
 Code: `packages/metrics/lib/src/lever_trend.dart`. Steps, sleep regularity,

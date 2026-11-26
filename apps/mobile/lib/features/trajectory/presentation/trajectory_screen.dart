@@ -12,10 +12,12 @@ import 'package:open_ring/features/body/application/hide_numbers_controller.dart
 import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/application/weight_summary.dart';
 import 'package:open_ring/features/body/presentation/hidden_numbers.dart';
+import 'package:open_ring/features/goals/presentation/goal_evidence_sheet.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/features/trajectory/application/trajectory_providers.dart';
 import 'package:open_ring/features/trajectory/domain/trajectory_view.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_chart.dart';
+import 'package:open_ring/features/trajectory/presentation/trajectory_evidence_sheet.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_kcal_card.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_states.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -159,6 +161,13 @@ class _ScenarioCard extends StatelessWidget {
       band.days ~/ 7,
       units.format.monthDay(view.asOf.addDays(band.days)),
     );
+    void open(TrajectoryEvidence kind) => unawaited(
+      showGoalEvidence(
+        context,
+        copy: trajectoryEvidenceCopy(units, kind),
+        yours: trajectoryEvidenceYours(units, kind, view),
+      ),
+    );
     return MetricCard(
       key: TrajectoryKeys.card,
       child: Column(
@@ -182,16 +191,19 @@ class _ScenarioCard extends StatelessWidget {
                   key: TrajectoryKeys.now,
                   caption: l10n.trajectoryNow(units.format.monthDay(view.asOf)),
                   value: units.bodyWeight(view.trendKg),
+                  onTap: () => open(TrajectoryEvidence.rate),
                 ),
                 _Tile(
                   key: TrajectoryKeys.firm,
                   caption: weeks(view.firm),
                   value: range(view.firm),
+                  onTap: () => open(TrajectoryEvidence.firm),
                 ),
                 _Tile(
                   key: TrajectoryKeys.band,
                   caption: weeks(view.band),
                   value: range(view.band),
+                  onTap: () => open(TrajectoryEvidence.band),
                 ),
               ],
             ),
@@ -215,7 +227,11 @@ class _ScenarioCard extends StatelessWidget {
           if (hidden)
             _Direction(rate: view.rate, l10n: l10n)
           else
-            _Rate(rate: view.rate, units: units),
+            _Rate(
+              rate: view.rate,
+              units: units,
+              onTap: () => open(TrajectoryEvidence.rate),
+            ),
           const SizedBox(height: 10),
           CaptionText(
             [
@@ -233,14 +249,21 @@ class _ScenarioCard extends StatelessWidget {
 }
 
 class _Tile extends StatelessWidget {
-  const new({required this.caption, required this.value, super.key});
+  const new({
+    required this.caption,
+    required this.value,
+    required this.onTap,
+    super.key,
+  });
 
   final String caption;
   final String value;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return MergeSemantics(
+    return _Tappable(
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -256,11 +279,33 @@ class _Tile extends StatelessWidget {
   }
 }
 
+class _Tappable extends StatelessWidget {
+  const new({required this.onTap, required this.child, super.key});
+
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
 class _Rate extends StatelessWidget {
-  const new({required this.rate, required this.units});
+  const new({required this.rate, required this.units, required this.onTap});
 
   final WeightRateReady rate;
   final UnitFormat units;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -276,8 +321,9 @@ class _Rate extends StatelessWidget {
             l10n.bodyWeightRatePerWeek(perWeek(rate.perWeek), unit),
             l10n.bodyRateInterval(low, high, unit),
           );
-    return MergeSemantics(
+    return _Tappable(
       key: TrajectoryKeys.rate,
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

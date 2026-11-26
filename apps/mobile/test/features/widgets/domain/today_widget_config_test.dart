@@ -97,6 +97,10 @@ void main() {
       WidgetMetric.effort,
     ]);
     expect(updated.removeForModule(ModuleId.openScore), same(updated));
+
+    final retained = updated.retainModules({ModuleId.body});
+    expect(retained.metrics, [WidgetMetric.steps, WidgetMetric.weight]);
+    expect(retained.retainModules({ModuleId.body}), same(retained));
   });
 
   test('effectiveMetrics filters disabled modules and hidden energy', () {

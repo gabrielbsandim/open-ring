@@ -29,33 +29,54 @@ final todayWidgetConfigProvider =
     );
 
 class TodayWidgetConfigController extends Notifier<TodayWidgetConfig> {
+  Future<void> _queue = Future.value();
+
   @override
   TodayWidgetConfig build() =>
       ref.watch(todayWidgetConfigStoreProvider).read() ?? TodayWidgetConfig();
 
-  Future<void> toggle(WidgetMetric metric) => _save(state.toggle(metric));
+  Future<void> toggle(WidgetMetric metric) =>
+      _save((current) => current.toggle(metric));
 
-  Future<void> add(WidgetMetric metric) => _save(state.add(metric));
+  Future<void> add(WidgetMetric metric) =>
+      _save((current) => current.add(metric));
 
-  Future<void> remove(WidgetMetric metric) => _save(state.remove(metric));
+  Future<void> remove(WidgetMetric metric) =>
+      _save((current) => current.remove(metric));
 
-  Future<void> moveUp(int index) => _save(state.moveUp(index));
+  Future<void> moveUp(int index) => _save((current) => current.moveUp(index));
 
-  Future<void> moveDown(int index) => _save(state.moveDown(index));
+  Future<void> moveDown(int index) =>
+      _save((current) => current.moveDown(index));
 
-  Future<void> removeForModule(ModuleId id) => _save(state.removeForModule(id));
+  Future<void> removeForModule(ModuleId id) =>
+      _save((current) => current.removeForModule(id));
 
-  Future<void> selectTheme(WidgetTheme theme) => _save(state.withTheme(theme));
+  Future<void> retainModules(Set<ModuleId> enabled) =>
+      _save((current) => current.retainModules(enabled));
 
-  Future<void> reset() async {
+  Future<void> selectTheme(WidgetTheme theme) =>
+      _save((current) => current.withTheme(theme));
+
+  Future<void> reset() => _enqueue(() async {
     state = TodayWidgetConfig();
     await ref.read(todayWidgetConfigStoreProvider).reset();
-  }
+  });
 
-  Future<void> _save(TodayWidgetConfig next) async {
+  Future<void> _save(
+    TodayWidgetConfig Function(TodayWidgetConfig current) transform,
+  ) => _enqueue(() async {
+    final next = transform(state);
     if (next == state) return;
     state = next;
     await ref.read(todayWidgetConfigStoreProvider).write(next);
+  });
+
+  // Serialize store mutations so async writes never overwrite newer state.
+  Future<void> _enqueue(Future<void> Function() action) {
+    final next = _queue.then((_) => action());
+    _queue = next.then<void>((_) {}, onError: (Object _) {});
+    return next;
   }
 }
 
@@ -86,19 +107,12 @@ final widgetPinSupportedProvider = FutureProvider<bool>(
 
 final widgetPushTriggerProvider = Provider<WidgetPublisher>((ref) {
   final publisher = WidgetPublisher(ref.watch(widgetGatewayProvider));
-  Set<ModuleId>? previousModules;
   ref
     ..listen(enabledModulesProvider, (_, next) {
-      if (next case AsyncData(:final value)) {
-        final prior = previousModules;
-        previousModules = value;
-        if (prior == null) return;
-        for (final id in prior.difference(value)) {
-          unawaited(
-            ref.read(todayWidgetConfigProvider.notifier).removeForModule(id),
-          );
-        }
-      }
+      if (next is! AsyncData<Set<ModuleId>>) return;
+      unawaited(
+        ref.read(todayWidgetConfigProvider.notifier).retainModules(next.value),
+      );
     }, fireImmediately: true)
     ..listen(widgetSnapshotProvider, (_, next) {
       if (next case AsyncData(:final value)) {

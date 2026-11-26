@@ -103,6 +103,15 @@ final class TodayWidgetConfig {
     );
   }
 
+  TodayWidgetConfig retainModules(Set<ModuleId> enabled) {
+    final keep = [
+      for (final metric in metrics)
+        if (metric.module == null || enabled.contains(metric.module)) metric,
+    ];
+    if (keep.length == metrics.length) return this;
+    return TodayWidgetConfig(metrics: keep, theme: theme);
+  }
+
   List<WidgetMetric> effectiveMetrics({
     required Set<ModuleId> enabled,
     required bool hideNumbers,

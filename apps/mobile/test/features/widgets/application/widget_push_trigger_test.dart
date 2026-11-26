@@ -346,10 +346,10 @@ void main() {
     ]);
   });
 
-  test('underage profile omits energy from published appearance', () async {
+  test('underage profile omits energy from published appearance while keeping stored config', () async {
     final r = rig(
       modules: {ModuleId.energy},
-      profile: const UserProfile(birthYear: 2012),
+      profile: fullProfile,
       config: TodayWidgetConfig(
         metrics: const [WidgetMetric.energy, WidgetMetric.steps],
       ),
@@ -360,6 +360,48 @@ void main() {
     await r.container.read(userProfileProvider.future);
     await settle(r.container);
 
+    expect(r.gateway.appearances.last['todayMetrics'], ['energy', 'steps']);
+
+    await r.container
+        .read(userProfileProvider.notifier)
+        .save(const UserProfile(birthYear: 2012));
+    await pumpEventQueue();
+
     expect(r.gateway.appearances.last['todayMetrics'], ['steps']);
+    expect(r.container.read(todayWidgetConfigProvider).metrics, [
+      WidgetMetric.energy,
+      WidgetMetric.steps,
+    ]);
+    expect(
+      r.configs.saved?.metrics ??
+          r.container.read(todayWidgetConfigProvider).metrics,
+      [WidgetMetric.energy, WidgetMetric.steps],
+    );
+
+    await r.container.read(userProfileProvider.notifier).save(fullProfile);
+    await pumpEventQueue();
+
+    expect(r.gateway.appearances.last['todayMetrics'], ['energy', 'steps']);
   });
+
+  test(
+    'cold start strips metrics for modules already disabled in storage',
+    () async {
+      final r = rig(
+        config: TodayWidgetConfig(
+          metrics: const [
+            WidgetMetric.dayScore,
+            WidgetMetric.weight,
+            WidgetMetric.steps,
+          ],
+        ),
+      );
+      startWidgetPush(r.container);
+      await r.container.read(enabledModulesProvider.future);
+      await settle(r.container);
+
+      expect(r.configs.saved?.metrics, [WidgetMetric.steps]);
+      expect(r.gateway.appearances.last['todayMetrics'], ['steps']);
+    },
+  );
 }

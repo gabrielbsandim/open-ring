@@ -17,6 +17,7 @@ import 'package:open_ring/features/modules/presentation/modules_screen.dart';
 import 'package:open_ring/features/open_score/presentation/open_score_module_screen.dart';
 import 'package:open_ring/features/settings/presentation/data_sources_screen.dart';
 import 'package:open_ring/features/settings/presentation/settings_screen.dart';
+import 'package:open_ring/features/trajectory/presentation/trajectory_module_screen.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_config_screen.dart';
 import 'package:open_ring/features/widgets/presentation/widgets_screen.dart';
 import 'package:open_ring/features/workout/presentation/workout_notification_how_screen.dart';
@@ -64,6 +65,10 @@ GoRoute settingsRoute() => GoRoute(
         GoRoute(path: 'goals', builder: (_, _) => const GoalsModuleScreen()),
         GoRoute(path: 'food', builder: (_, _) => const FoodModuleScreen()),
         GoRoute(path: 'ai', builder: (_, _) => const AiModuleScreen()),
+        GoRoute(
+          path: 'trajectory',
+          builder: (_, _) => const TrajectoryModuleScreen(),
+        ),
       ],
     ),
     GoRoute(

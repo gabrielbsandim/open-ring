@@ -36,8 +36,8 @@ class _ModulesOfferScreenState extends ConsumerState<ModulesOfferScreen> {
   bool _busy = false;
 
   // Energy is offered to a known adult only, and a module that is not
-  // offered keeps whatever is stored for it. Goals waits for the Modules
-  // screen, since Today shows nothing for it until a goal is chosen.
+  // offered keeps whatever is stored for it. Goals and Trajectory wait for
+  // the Modules screen, since Today shows nothing for them.
   List<OfferedModule> get _offered {
     final adult = ref.watch(energyUnderageProvider) == false;
     return [
@@ -47,7 +47,9 @@ class _ModulesOfferScreenState extends ConsumerState<ModulesOfferScreen> {
   }
 
   bool _offers(OfferedModule module, {required bool adult}) => switch (module) {
-    OfferedModule.goals || OfferedModule.ai => false,
+    OfferedModule.goals ||
+    OfferedModule.ai ||
+    OfferedModule.trajectory => false,
     OfferedModule.energy => adult,
     _ => true,
   };

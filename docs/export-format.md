@@ -247,7 +247,8 @@ stays 1:
   answers;
 - meal photo analyses (`meal_analyses`) and their items (`meal_items`);
 - Trajectory projections (`trajectory_projections`), the 4 week weight bands
-  stored each Monday.
+  stored each Monday. Delete Trajectory data, on its module screen, removes
+  them and nothing else.
 
 Tests pin it: `test/features/ai/infrastructure/ai_export_exclusion_test.dart`,
 `test/features/food/infrastructure/meal_analysis_export_exclusion_test.dart`

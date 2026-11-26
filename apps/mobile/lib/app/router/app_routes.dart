@@ -23,6 +23,8 @@ abstract final class AppPaths {
   static const energyFormula = '/today/energy/formula';
   static const trajectory = '/today/trajectory';
   static const trajectoryWhatIf = '/today/trajectory/what-if';
+  static const trajectoryProjections = '/today/trajectory/projections';
+  static const trajectoryFormula = '/today/trajectory/formula';
   static const food = '/today/food';
   static const foodWeek = '/today/food/week';
   static const foodPlate = '/today/food/plate';

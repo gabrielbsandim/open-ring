@@ -2422,6 +2422,13 @@ filled in, and no band is stored from demo weigh-ins, in demo mode or while
 leaving it. Missing height refuses the module up front, because the drawn
 band needs it for the BMI floor below.
 
+The stored projections screen (`projections_screen.dart`) lists every stored
+row, newest Monday first, graded as above on each open: its 28 day band, the
+trend on the check day and the grade, or "checks <day>" before it. A past row
+with no weigh-in left by its check day reads "not checked". The Trajectory
+screen shows a summary card with the counts. Hidden numbers keep dates and
+grades only. Guarded Mondays are never stored, so they never appear.
+
 ### BMI floor on the drawn band
 
 Code: `scenarioFloored` in `packages/metrics/lib/src/trajectory.dart`. The

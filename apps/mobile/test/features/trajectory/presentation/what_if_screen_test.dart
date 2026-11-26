@@ -321,9 +321,15 @@ void main() {
       await _pump(tester, typical: 9500);
 
       final text = cohort(tester);
-      expect(text, contains('10,901'));
-      expect(text, contains('9,500'));
+      expect(
+        text,
+        contains(
+          lookupAppLocalizations(const Locale('en'))
+              .trajectoryWhatIfGroups('10,901', '9,500'),
+        ),
+      );
       expect(text, contains(_clamped));
+      expect(text, isNot(contains('11,500')));
     });
 
     testWidgets('F5: Retry recovers from a failed weigh-in read', (

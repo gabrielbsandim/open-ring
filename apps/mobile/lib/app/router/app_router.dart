@@ -55,6 +55,8 @@ import 'package:open_ring/features/sleep/presentation/sleep_screen.dart';
 import 'package:open_ring/features/today/presentation/formula_screen.dart';
 import 'package:open_ring/features/today/presentation/readiness_screen.dart';
 import 'package:open_ring/features/today/presentation/today_screen.dart';
+import 'package:open_ring/features/trajectory/presentation/projections_screen.dart';
+import 'package:open_ring/features/trajectory/presentation/trajectory_formula_screen.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_screen.dart';
 import 'package:open_ring/features/trajectory/presentation/what_if_screen.dart';
 import 'package:open_ring/features/trends/presentation/trends_screen.dart';
@@ -148,6 +150,14 @@ GoRoute _tabRoute(AppTab tab) => switch (tab) {
         builder: (_, _) => const TrajectoryScreen(),
         routes: [
           GoRoute(path: 'what-if', builder: (_, _) => const WhatIfScreen()),
+          GoRoute(
+            path: 'projections',
+            builder: (_, _) => const ProjectionsScreen(),
+          ),
+          GoRoute(
+            path: 'formula',
+            builder: (_, _) => const TrajectoryFormulaScreen(),
+          ),
         ],
       ),
       GoRoute(

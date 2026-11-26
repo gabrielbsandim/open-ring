@@ -16,6 +16,7 @@ import 'package:open_ring/features/goals/presentation/goal_evidence_sheet.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/features/trajectory/application/trajectory_providers.dart';
 import 'package:open_ring/features/trajectory/domain/trajectory_view.dart';
+import 'package:open_ring/features/trajectory/presentation/projections_screen.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_chart.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_evidence_sheet.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_kcal_card.dart';
@@ -40,6 +41,7 @@ abstract final class TrajectoryKeys {
   static const direction = Key('trajectory_direction');
   static const kcal = Key('trajectory_kcal');
   static const whatIfLink = Key('trajectory_what_if_link');
+  static const formulaLink = Key('trajectory_formula_link');
 }
 
 class TrajectoryScreen extends ConsumerWidget {
@@ -90,6 +92,7 @@ class TrajectoryScreen extends ConsumerWidget {
       ],
       TrajectoryRefused(:final reason) => [
         TrajectoryRefusedCard(reason: reason),
+        const _FormulaLink(),
       ],
       TrajectoryGuard(:final loss) => [
         TrajectoryGuardCard(
@@ -98,11 +101,15 @@ class TrajectoryScreen extends ConsumerWidget {
           units: units,
           hidden: hidden,
         ),
+        const TrajectoryProjectionsCard(),
         const _WhatIfLink(),
+        const _FormulaLink(),
       ],
       TrajectoryBuilding() || TrajectoryReady() when weights == null => [
         const TrajectoryNone(),
+        const TrajectoryProjectionsCard(),
         const _WhatIfLink(),
+        const _FormulaLink(),
       ],
       TrajectoryBuilding(:final rate) => [
         TrajectoryBuildingCard(
@@ -111,7 +118,9 @@ class TrajectoryScreen extends ConsumerWidget {
           units: units,
           hidden: hidden,
         ),
+        const TrajectoryProjectionsCard(),
         const _WhatIfLink(),
+        const _FormulaLink(),
       ],
       final TrajectoryReady ready => [
         if (hidden) ...[
@@ -128,7 +137,9 @@ class TrajectoryScreen extends ConsumerWidget {
           hidden: hidden,
         ),
         TrajectoryKcalCard(format: units.format),
+        const TrajectoryProjectionsCard(),
         const _WhatIfLink(),
+        const _FormulaLink(),
       ],
     };
   }
@@ -386,6 +397,26 @@ class _WhatIfLink extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FormulaLink extends StatelessWidget {
+  const new();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: TextButton.icon(
+          key: TrajectoryKeys.formulaLink,
+          onPressed: () => unawaited(context.push(AppPaths.trajectoryFormula)),
+          icon: const Icon(Icons.receipt_long_outlined),
+          label: Text(AppLocalizations.of(context).formulaLink),
         ),
       ),
     );

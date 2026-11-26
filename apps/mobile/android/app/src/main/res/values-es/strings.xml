@@ -86,4 +86,25 @@
     <string name="widget_pillar_rec_short">Recup.</string>
     <string name="widget_pillar_stress_short">Estrés</string>
     <string name="widget_pillar_spo2_short">O2</string>
+    <string name="widget_this_week_name">Esta semana</string>
+    <string name="widget_this_week_description">Esfuerzo y Objetivos de esta semana</string>
+    <string name="widget_this_week_off">Esfuerzo y Objetivos están desactivados. Toca para abrir Módulos.</string>
+    <string name="widget_goals_name">Objetivos</string>
+    <string name="widget_effort_detail">Puntos de Esfuerzo · fuerza %1$s de %2$s</string>
+    <string name="widget_goals_tag_week_of">semana %1$s de %2$s</string>
+    <string name="widget_goals_tag_week">semana %1$s</string>
+    <string name="widget_goals_tag_review">revisión</string>
+    <string name="widget_goals_tag_paused">en pausa</string>
+    <string name="widget_goals_tag_hold">en espera</string>
+    <string name="widget_goals_tag_base">fase base</string>
+    <string name="widget_goals_tag_recovery">recuperación</string>
+    <string name="widget_goals_paused">Plan en pausa. Las palancas quedan como recordatorio.</string>
+    <string name="widget_goals_review">La revisión de la semana está lista</string>
+    <string name="widget_goals_waiting">Esperando suficientes datos para empezar.</string>
+    <string name="widget_goals_ratio">%1$s de %2$s</string>
+    <string name="widget_lever_strength">Días de fuerza</string>
+    <string name="widget_lever_wake">Hora de despertar</string>
+    <string name="widget_goals_tag_maintenance">mantenimiento</string>
+    <string name="widget_goals_hold">Cuerpo desactivado. Plan en espera.</string>
+    <string name="widget_goals_recovery">Semana de recuperación. Sin cambios.</string>
 </resources>

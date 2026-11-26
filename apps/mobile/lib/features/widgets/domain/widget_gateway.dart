@@ -7,12 +7,15 @@ enum HomeWidgetKind {
   readiness('ReadinessWidgetReceiver', AppPaths.readiness),
   today('TodayWidgetReceiver', '/today'),
   ring('RingWidgetReceiver', '/ring'),
-  workout('WorkoutWidgetReceiver', AppPaths.workout);
+  workout('WorkoutWidgetReceiver', AppPaths.workout),
+  thisWeek('ThisWeekWidgetReceiver', '/today');
 
   new(this.receiver, this.path);
 
   final String receiver;
   final String path;
+
+  String get xmlName => this == thisWeek ? 'this_week' : name;
 
   String get androidName => 'gbs.openring.app.widget.$receiver';
 

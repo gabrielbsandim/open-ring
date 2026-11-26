@@ -86,4 +86,25 @@
     <string name="widget_pillar_rec_short">Rec.</string>
     <string name="widget_pillar_stress_short">Str.</string>
     <string name="widget_pillar_spo2_short">O2</string>
+    <string name="widget_this_week_name">This week</string>
+    <string name="widget_this_week_description">Effort and Goals for this week</string>
+    <string name="widget_this_week_off">Effort and Goals are off. Tap to open Modules.</string>
+    <string name="widget_goals_name">Goals</string>
+    <string name="widget_effort_detail">Effort Points · strength %1$s of %2$s</string>
+    <string name="widget_goals_tag_week_of">week %1$s of %2$s</string>
+    <string name="widget_goals_tag_week">week %1$s</string>
+    <string name="widget_goals_tag_review">review</string>
+    <string name="widget_goals_tag_paused">paused</string>
+    <string name="widget_goals_tag_hold">hold</string>
+    <string name="widget_goals_tag_base">base phase</string>
+    <string name="widget_goals_tag_recovery">recovery</string>
+    <string name="widget_goals_paused">Plan paused. Levers stay as a reminder.</string>
+    <string name="widget_goals_review">The review of the week is ready</string>
+    <string name="widget_goals_waiting">Waiting for enough data to start.</string>
+    <string name="widget_goals_ratio">%1$s of %2$s</string>
+    <string name="widget_lever_strength">Strength days</string>
+    <string name="widget_lever_wake">Wake time</string>
+    <string name="widget_goals_tag_maintenance">maintenance</string>
+    <string name="widget_goals_hold">Body is off. Weight plan on hold.</string>
+    <string name="widget_goals_recovery">Recovery week. Plan asks nothing.</string>
 </resources>

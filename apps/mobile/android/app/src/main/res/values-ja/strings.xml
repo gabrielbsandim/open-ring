@@ -86,4 +86,25 @@
     <string name="widget_pillar_rec_short">回復</string>
     <string name="widget_pillar_stress_short">ストレス</string>
     <string name="widget_pillar_spo2_short">O2</string>
+    <string name="widget_this_week_name">今週</string>
+    <string name="widget_this_week_description">今週のエフォートと目標</string>
+    <string name="widget_this_week_off">エフォートと目標はオフです。タップしてモジュールを開く。</string>
+    <string name="widget_goals_name">目標</string>
+    <string name="widget_effort_detail">エフォート · 筋トレ %1$s / %2$s</string>
+    <string name="widget_goals_tag_week_of">第 %1$s / %2$s 週</string>
+    <string name="widget_goals_tag_week">第 %1$s 週</string>
+    <string name="widget_goals_tag_review">見直し</string>
+    <string name="widget_goals_tag_paused">一時停止</string>
+    <string name="widget_goals_tag_hold">保留中</string>
+    <string name="widget_goals_tag_base">基礎期間</string>
+    <string name="widget_goals_tag_recovery">回復週</string>
+    <string name="widget_goals_paused">プランは一時停止中です。項目は目安として残ります。</string>
+    <string name="widget_goals_review">今週の見直しが準備できました</string>
+    <string name="widget_goals_waiting">開始に必要なデータを待っています。</string>
+    <string name="widget_goals_ratio">%1$s / %2$s</string>
+    <string name="widget_lever_strength">筋トレ日数</string>
+    <string name="widget_lever_wake">起床時刻</string>
+    <string name="widget_goals_tag_maintenance">維持</string>
+    <string name="widget_goals_hold">体組成オフ。プラン保留中。</string>
+    <string name="widget_goals_recovery">回復週。今週の課題はありません。</string>
 </resources>

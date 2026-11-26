@@ -154,6 +154,20 @@ String leverAmount(
   };
 }
 
+// An interval end that rounds to zero would hide the side it is on.
+String _end(MetricFormat format, RingLever lever, double value) {
+  if (_rounded(lever, value) != 0 || value == 0) {
+    return leverAmount(format, lever, value, signed: true);
+  }
+  final digits = lever == RingLever.steps ? 0 : 1;
+  final number = format.signed(value, digits: digits);
+  return switch (lever) {
+    RingLever.steps || RingLever.sleepRegularity => number,
+    RingLever.restingHeartRate => format.l10n.metricBpm(number),
+    RingLever.sleepDuration => format.l10n.trajectoryLeverMinutes(number),
+  };
+}
+
 String leverTypical(MetricFormat format, RingLever lever, double value) {
   final l10n = format.l10n;
   final rounded = _rounded(lever, value);
@@ -225,8 +239,8 @@ String leverEvidenceYours(
     format.integer(trend.validDays),
     days,
     leverAmount(format, lever, trend.change, signed: true),
-    leverAmount(format, lever, trend.changeLow, signed: true),
-    leverAmount(format, lever, trend.changeHigh, signed: true),
+    _end(format, lever, trend.changeLow),
+    _end(format, lever, trend.changeHigh),
   );
   return '$text ${_why(format, lever, trend)}';
 }

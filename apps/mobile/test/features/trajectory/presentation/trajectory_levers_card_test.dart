@@ -263,6 +263,29 @@ void main() {
       );
     });
 
+    testWidgets('an interval end near zero keeps its side', (tester) async {
+      final near = _trend(change: 3, low: 0.4, high: 5, typical: 54);
+      final steps = _trend(change: 600, low: 40, high: 1200, typical: 8700);
+      await _pump(
+        tester,
+        levers: LeversReady({
+          RingLever.steps: (validDays: 88, trend: steps),
+          RingLever.restingHeartRate: (validDays: 88, trend: near),
+        }),
+      );
+
+      expect(
+        await _yours(tester, RingLever.restingHeartRate),
+        contains('(+0.4 bpm to +5 bpm, 90% interval)'),
+      );
+      Navigator.of(tester.element(find.byKey(GoalEvidenceKeys.sheet))).pop();
+      await tester.pumpAndSettle();
+      expect(
+        await _yours(tester, RingLever.steps),
+        contains('(+40 to +1,200, 90% interval)'),
+      );
+    });
+
     testWidgets('a lever without a trend explains the missing days', (
       tester,
     ) async {

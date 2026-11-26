@@ -55,9 +55,9 @@
     <string name="widget_metric_weight">Berat</string>
     <string name="widget_metric_energy">Energi</string>
     <string name="widget_metric_effort">Effort</string>
-    <string name="widget_ring_charging">mengisi · sinkron %1$s</string>
+    <string name="widget_ring_charging">sedang diisi · sinkron %1$s</string>
     <string name="widget_ring_low_battery">baterai lemah · sinkron %1$s</string>
-    <string name="widget_unpaired_short">Belum ada cincin terpasang</string>
+    <string name="widget_unpaired_short">Belum ada cincin tersambung</string>
     <string name="widget_day_score_band_great">Hari yang hebat</string>
     <string name="widget_day_score_band_good">Hari yang baik</string>
     <string name="widget_day_score_band_mixed">Hari campuran</string>

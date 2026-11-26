@@ -57,7 +57,7 @@
     <string name="widget_metric_effort">Esfuerzo</string>
     <string name="widget_ring_charging">cargando · sinc. %1$s</string>
     <string name="widget_ring_low_battery">batería baja · sinc. %1$s</string>
-    <string name="widget_unpaired_short">Sin anillo emparejado</string>
+    <string name="widget_unpaired_short">Ningún anillo vinculado</string>
     <string name="widget_day_score_band_great">Día excelente</string>
     <string name="widget_day_score_band_good">Día bueno</string>
     <string name="widget_day_score_band_mixed">Día mixto</string>

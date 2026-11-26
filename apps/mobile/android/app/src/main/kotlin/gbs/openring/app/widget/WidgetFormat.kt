@@ -63,6 +63,9 @@ internal class WidgetFormat(private val context: Context) {
     fun ringStatus(snapshot: Snapshot?, nowMs: Long, lowThreshold: Int): Status {
         val synced = snapshot?.syncedAtMs ?: 0L
         val freshness = snapshot?.freshness(nowMs)
+        if (freshness == Freshness.UNPAIRED) {
+            return Status(context.getString(R.string.widget_unpaired_short), false)
+        }
         val percent = snapshot?.batteryPercent
         if (freshness == Freshness.FRESH && percent != null) {
             if (snapshot.batteryCharging == true) {

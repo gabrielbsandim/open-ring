@@ -55,8 +55,8 @@
     <string name="widget_metric_weight">体重</string>
     <string name="widget_metric_energy">エネルギー</string>
     <string name="widget_metric_effort">エフォート</string>
-    <string name="widget_ring_charging">充電中 · 同期 %1$s</string>
-    <string name="widget_ring_low_battery">電池残量低下 · 同期 %1$s</string>
+    <string name="widget_ring_charging">充電中 · %1$sに同期</string>
+    <string name="widget_ring_low_battery">電池残量低下 · %1$sに同期</string>
     <string name="widget_unpaired_short">リング未ペアリング</string>
     <string name="widget_day_score_band_great">とても良い日</string>
     <string name="widget_day_score_band_good">良い日</string>

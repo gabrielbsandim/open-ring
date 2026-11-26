@@ -55,8 +55,8 @@
     <string name="widget_metric_weight">体重</string>
     <string name="widget_metric_energy">能量</string>
     <string name="widget_metric_effort">努力</string>
-    <string name="widget_ring_charging">充电中 · 同步 %1$s</string>
-    <string name="widget_ring_low_battery">电量低 · 同步 %1$s</string>
+    <string name="widget_ring_charging">正在充电 · 已同步 %1$s</string>
+    <string name="widget_ring_low_battery">电量低 · 已同步 %1$s</string>
     <string name="widget_unpaired_short">未配对戒指</string>
     <string name="widget_day_score_band_great">很棒的一天</string>
     <string name="widget_day_score_band_good">不错的一天</string>

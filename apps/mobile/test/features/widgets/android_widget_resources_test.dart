@@ -70,13 +70,28 @@ void main() {
       final local = _resources('$_res/$dir/strings.xml', 'string');
       expect(local.keys.toSet(), english.keys.toSet(), reason: dir);
       for (final MapEntry(:key, :value) in english.entries) {
+        final localized = local[key]!;
+        expect(localized.trim(), isNotEmpty, reason: '$dir $key');
+        expect(
+          localized.contains('\u2013') || localized.contains('\u2014'),
+          isFalse,
+          reason: '$dir $key dash',
+        );
         final placeholders = RegExp(r'%\d\$[sd]');
         expect(
-          placeholders.allMatches(local[key]!).map((m) => m[0]).toSet(),
-          placeholders.allMatches(value).map((m) => m[0]).toSet(),
+          placeholders.allMatches(localized).map((m) => m[0]).toList()..sort(),
+          placeholders.allMatches(value).map((m) => m[0]).toList()..sort(),
           reason: '$dir $key',
         );
       }
+    }
+    for (final MapEntry(:key, :value) in english.entries) {
+      expect(value.trim(), isNotEmpty, reason: 'en $key');
+      expect(
+        value.contains('\u2013') || value.contains('\u2014'),
+        isFalse,
+        reason: 'en $key dash',
+      );
     }
   });
 
@@ -111,7 +126,28 @@ void main() {
         reason: name,
       );
     }
-    expect(File('$_res/drawable/ic_widget_warn.xml').existsSync(), isTrue);
-    expect(File('$_res/drawable/ic_widget_bolt.xml').existsSync(), isTrue);
+    for (final icon in ['ic_widget_warn.xml', 'ic_widget_bolt.xml']) {
+      final vector = XmlDocument.parse(
+        File('$_res/drawable/$icon').readAsStringSync(),
+      ).findAllElements('vector').single;
+      expect(vector.getAttribute('android:width'), '24dp', reason: icon);
+      expect(vector.getAttribute('android:height'), '24dp', reason: icon);
+      expect(vector.getAttribute('android:viewportWidth'), '24', reason: icon);
+      expect(vector.getAttribute('android:viewportHeight'), '24', reason: icon);
+      final paths = vector.findAllElements('path').toList();
+      expect(paths, isNotEmpty, reason: icon);
+      for (final path in paths) {
+        expect(
+          path.getAttribute('android:fillColor'),
+          '#FFFFFFFF',
+          reason: icon,
+        );
+        expect(
+          path.getAttribute('android:pathData')?.trim(),
+          isNotEmpty,
+          reason: icon,
+        );
+      }
+    }
   });
 }

@@ -524,6 +524,18 @@ void main() {
     },
   );
 
+  test('cold start with Effort already enabled emits only true', () async {
+    final (:container, :gateway, ring: _, configs: _, workouts: _) = rig(
+      modules: {ModuleId.effort},
+    );
+    addTearDown(container.dispose);
+
+    startWidgetPush(container);
+    await settle(container);
+
+    expect(gateway.thisWeekAvailable, [true]);
+  });
+
   test('AndroidHomeWidgetGateway invokes widget_components channel', () async {
     TestWidgetsFlutterBinding.ensureInitialized();
     const channel = MethodChannel('gbs.openring.app/widget_components');

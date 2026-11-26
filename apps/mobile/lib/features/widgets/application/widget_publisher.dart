@@ -35,8 +35,8 @@ final class WidgetPublisher {
 
   Future<void> setThisWeekAvailable({required bool available}) async {
     if (_thisWeekAvailable == available) return;
-    _thisWeekAvailable = available;
     await _gateway.setThisWeekAvailable(available: available);
+    _thisWeekAvailable = available;
   }
 
   Future<void> _publish(String key, Map<String, Object?> json) async {

@@ -11,13 +11,18 @@ WAS DU SIEHST
 • Herzfrequenz über den Tag, Ruhepuls, HFV, Blutsauerstoff (SpO2) und Stress.
 • Schritte, Strecke und aktive Energie.
 • Ein Bereitschaftswert, der seine Eingaben zeigt: was jede hinzugefügt oder abgezogen hat, gemessen an deinem eigenen Ausgangswert.
-• Startbildschirm-Widgets für Bereitschaft, den Tag, den Ringakku und den Start eines Trainings.
+• Startbildschirm-Widgets: Bereitschaft, konfigurierbares Heute (bis zu 6 Felder), Ringakku, Training starten (mit Sperrbildschirm-Unterstützung für Ring und Training starten) sowie Diese Woche bei aktivem Effort oder Zielen.
+
+OPTIONALE MODULE (STANDARDMÄSSIG AUS IN EINSTELLUNGEN > MODULE)
+• Körper und Open Score: manuelles Gewicht mit 28-Tage-Trend (optional Zahlen ausblenden), Tagesnote, Stufe, Gesamtnote und Tages-Tags.
+• Energie, Effort und Ziele: täglicher Energiebereich, wöchentliche Effort-Punkte und Krafttage sowie flexible Wochenpläne mit geführtem Rückblick.
+• Ernährung, Verlauf und KI-Analyse: lokales Mahlzeiten-Fototagebuch, 4- und 12-Wochen-Projektionen sowie optionale KI-Analyse mit eigenem Schlüssel, die Zusammenfassungen oder Fotos nur auf deinen Wunsch sendet.
 
 TRAINING MIT GPS
 Das Handy führt die Zeit, der Ring sendet den Puls live, und draußen zeichnet das GPS des Handys Route, Strecke, Tempo und Zwischenzeiten auf. Der Standort wird nur während eines Trainings genutzt. Jede Route lässt sich als GPX exportieren.
 
 HEALTH CONNECT
-Schritte, aktive Energie, Herzfrequenz, SpO2, HFV, Schlafphasen und Trainings mit Route können in Health Connect geschrieben werden, damit andere Apps deiner Wahl sie nutzen können. Schlaf zu lesen, den andere Apps geschrieben haben, ist optional und standardmäßig aus.
+Schritte, aktive Energie, Herzfrequenz, SpO2, HFV, Schlafphasen und Trainings mit Route können in Health Connect geschrieben werden, damit andere Apps deiner Wahl sie nutzen können. Schlaf und Trainings aus anderen Apps zu lesen, ist optional und standardmäßig aus.
 
 SYNCHRONISIEREN STATT STREAMEN
 Der Ring speichert seinen Verlauf selbst. Das Handy verbindet sich in Abständen (standardmäßig alle 60 Minuten), holt das Neue ab und trennt die Verbindung wieder. Das schont beide Akkus.

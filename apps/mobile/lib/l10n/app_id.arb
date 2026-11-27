@@ -3322,5 +3322,13 @@
   "widgetHowNeverFood": "Tidak pernah menampilkan makanan atau kalori yang dikonsumsi.",
   "widgetHowNeverGoals": "Tidak pernah menampilkan berat target, tanggal capai, rentetan, atau persentase rencana.",
   "widgetHowDataHeading": "Tempat data disimpan",
-  "widgetHowDataBody": "Di ponsel Anda, di penyimpanan widget aplikasi. Menghapus semua data juga membersihkan widget."
+  "widgetHowDataBody": "Di ponsel Anda, di penyimpanan widget aplikasi. Menghapus semua data juga membersihkan widget.",
+  "widgetCatalogAdd": "Tambah",
+  "widgetTodayCatalogDetail": "2x2, 4x2, atau 4x4 · {count} dari {max} dipilih",
+  "widgetThisWeekCatalogBoth": "4x2 atau 4x3 · Usaha dan Target",
+  "widgetThisWeekCatalogEffort": "4x2 atau 4x3 · Usaha",
+  "widgetThisWeekCatalogGoals": "4x2 atau 4x3 · Target",
+  "widgetConfigureTodayFieldsDetail": "Bidang, urutan, dan tema",
+  "widgetLockScreenHeading": "Layar kunci",
+  "widgetLockScreenBody": "Hanya Cincin dan Mulai olahraga yang bisa berada di layar kunci. Lainnya menampilkan data kesehatan sehingga tidak muncul di sana."
 }

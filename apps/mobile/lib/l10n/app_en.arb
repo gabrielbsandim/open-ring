@@ -6020,5 +6020,14 @@
   "widgetHowNeverFood": "Never show meals or calories eaten.",
   "widgetHowNeverGoals": "Never show goal weight, arrival date, streaks, or plan percentage.",
   "widgetHowDataHeading": "Where data lives",
-  "widgetHowDataBody": "On your phone, in the app’s widget storage. Deleting all data clears widgets too."
+  "widgetHowDataBody": "On your phone, in the app’s widget storage. Deleting all data clears widgets too.",
+  "widgetCatalogAdd": "Add",
+  "widgetTodayCatalogDetail": "2x2, 4x2 or 4x4 · {count} of {max} chosen",
+  "@widgetTodayCatalogDetail": {"placeholders": {"count": {"type": "int"}, "max": {"type": "int"}}},
+  "widgetThisWeekCatalogBoth": "4x2 or 4x3 · Effort and Goals",
+  "widgetThisWeekCatalogEffort": "4x2 or 4x3 · Effort",
+  "widgetThisWeekCatalogGoals": "4x2 or 4x3 · Goals",
+  "widgetConfigureTodayFieldsDetail": "Fields, order, and theme",
+  "widgetLockScreenHeading": "Lock screen",
+  "widgetLockScreenBody": "Only Ring and Start workout can go on the lock screen. The others show health data and do not appear there."
 }

@@ -3322,5 +3322,13 @@
   "widgetHowNeverFood": "Никогда не показывают приёмы пищи и потреблённые калории.",
   "widgetHowNeverGoals": "Никогда не показывают целевой вес, дату достижения, серию и процент плана.",
   "widgetHowDataHeading": "Где хранятся данные",
-  "widgetHowDataBody": "На телефоне, в хранилище виджетов приложения. Удаление всех данных также очищает виджеты."
+  "widgetHowDataBody": "На телефоне, в хранилище виджетов приложения. Удаление всех данных также очищает виджеты.",
+  "widgetCatalogAdd": "Добавить",
+  "widgetTodayCatalogDetail": "2x2, 4x2 или 4x4 · выбрано {count} из {max}",
+  "widgetThisWeekCatalogBoth": "4x2 или 4x3 · Нагрузка и Цели",
+  "widgetThisWeekCatalogEffort": "4x2 или 4x3 · Нагрузка",
+  "widgetThisWeekCatalogGoals": "4x2 или 4x3 · Цели",
+  "widgetConfigureTodayFieldsDetail": "Поля, порядок и тема",
+  "widgetLockScreenHeading": "Экран блокировки",
+  "widgetLockScreenBody": "На экран блокировки можно поместить только Кольцо и Начать тренировку. Остальные показывают данные здоровья и там не появляются."
 }

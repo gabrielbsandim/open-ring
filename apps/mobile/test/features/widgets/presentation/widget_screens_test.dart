@@ -15,6 +15,7 @@ import 'package:open_ring/features/widgets/application/widget_providers.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
 import 'package:open_ring/features/widgets/domain/widget_gateway.dart';
 import 'package:open_ring/features/widgets/domain/widget_snapshot.dart';
+import 'package:open_ring/features/widgets/presentation/this_week_widget_preview.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_config_screen.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_preview.dart';
 import 'package:open_ring/features/widgets/presentation/widget_previews.dart';
@@ -102,6 +103,12 @@ String previewLabel(WidgetTester tester) =>
 void main() {
   final layouts = <String, (Widget, List<Override> Function())>{
     'Widgets': (const WidgetsScreen(), widgetOverrides),
+    'Widgets with modules': (
+      const WidgetsScreen(),
+      () => widgetOverrides(
+        enabledModules: const {ModuleId.effort, ModuleId.goals},
+      ),
+    ),
     'Widgets without a ring': (
       const WidgetsScreen(),
       () => widgetOverrides(scenario: noDataScenario),
@@ -525,4 +532,50 @@ void main() {
     expect(find.text('What they never do'), findsOneWidget);
     expect(find.text('Where data lives'), findsOneWidget);
   });
+
+  testWidgets(
+    'Widgets catalog toggles ThisWeek, pins widgets, and shows lock note',
+    (tester) async {
+      final gateway = FakeWidgetGateway();
+      await pumpScaled(
+        tester,
+        screenHost(const WidgetsScreen()),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.dark,
+        locale: const Locale('en'),
+        size: const Size(360, 2200),
+        overrides: widgetOverrides(gateway: gateway),
+      );
+      expect(find.byKey(ThisWeekWidgetPreview.previewKey), findsNothing);
+      expect(
+        find.text(
+          'Only Ring and Start workout can go on the lock screen. The others show health data and do not appear there.',
+        ),
+        findsOneWidget,
+      );
+
+      await pumpScaled(
+        tester,
+        screenHost(const WidgetsScreen()),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.dark,
+        locale: const Locale('en'),
+        size: const Size(360, 2400),
+        overrides: widgetOverrides(
+          gateway: gateway,
+          enabledModules: const {ModuleId.effort, ModuleId.goals},
+        ),
+      );
+      expect(find.byKey(ThisWeekWidgetPreview.previewKey), findsOneWidget);
+      await reveal(
+        tester,
+        find.byKey(WidgetsScreen.pinKey(HomeWidgetKind.thisWeek)),
+      );
+      await tester.tap(
+        find.byKey(WidgetsScreen.pinKey(HomeWidgetKind.thisWeek)),
+      );
+      await tester.pumpAndSettle();
+      expect(gateway.pinned, [HomeWidgetKind.thisWeek]);
+    },
+  );
 }

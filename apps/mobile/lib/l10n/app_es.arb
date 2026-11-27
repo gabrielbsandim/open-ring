@@ -3322,5 +3322,13 @@
   "widgetHowNeverFood": "Nunca muestran comidas ni calorías ingeridas.",
   "widgetHowNeverGoals": "Nunca muestran el peso objetivo, fecha de llegada, racha o porcentaje del plan.",
   "widgetHowDataHeading": "Dónde viven los datos",
-  "widgetHowDataBody": "En tu teléfono, en el área de widgets de la app. Borrar todos los datos limpia los widgets también."
+  "widgetHowDataBody": "En tu teléfono, en el área de widgets de la app. Borrar todos los datos limpia los widgets también.",
+  "widgetCatalogAdd": "Añadir",
+  "widgetTodayCatalogDetail": "2x2, 4x2 o 4x4 · {count} de {max} elegidos",
+  "widgetThisWeekCatalogBoth": "4x2 o 4x3 · Esfuerzo y Metas",
+  "widgetThisWeekCatalogEffort": "4x2 o 4x3 · Esfuerzo",
+  "widgetThisWeekCatalogGoals": "4x2 o 4x3 · Metas",
+  "widgetConfigureTodayFieldsDetail": "Campos, orden y tema",
+  "widgetLockScreenHeading": "Pantalla de bloqueo",
+  "widgetLockScreenBody": "Solo Anillo e Iniciar entrenamiento pueden ir en la pantalla de bloqueo. Los demás muestran datos de salud y no aparecen ahí."
 }

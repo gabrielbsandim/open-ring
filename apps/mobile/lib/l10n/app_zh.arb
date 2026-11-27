@@ -3322,5 +3322,13 @@
   "widgetHowNeverFood": "绝不显示餐食或摄入热量。",
   "widgetHowNeverGoals": "绝不显示目标体重、达成日期、连续天数或计划进度百分比。",
   "widgetHowDataHeading": "数据存储位置",
-  "widgetHowDataBody": "保存在手机的应用微件存储区。删除所有数据也会一并清除微件。"
+  "widgetHowDataBody": "保存在手机的应用微件存储区。删除所有数据也会一并清除微件。",
+  "widgetCatalogAdd": "添加",
+  "widgetTodayCatalogDetail": "2x2、4x2 或 4x4 · 已选 {count} / {max}",
+  "widgetThisWeekCatalogBoth": "4x2 或 4x3 · 努力与目标",
+  "widgetThisWeekCatalogEffort": "4x2 或 4x3 · 努力",
+  "widgetThisWeekCatalogGoals": "4x2 或 4x3 · 目标",
+  "widgetConfigureTodayFieldsDetail": "字段、顺序与主题",
+  "widgetLockScreenHeading": "锁屏",
+  "widgetLockScreenBody": "仅戒指和开始训练可放在锁屏上。其余微件显示健康数据，不会出现在锁屏。"
 }

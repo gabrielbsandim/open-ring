@@ -3322,5 +3322,13 @@
   "widgetHowNeverFood": "Non mostrano mai pasti né calorie assunte.",
   "widgetHowNeverGoals": "Non mostrano mai peso obiettivo, data di arrivo, serie o percentuale del piano.",
   "widgetHowDataHeading": "Dove restano i dati",
-  "widgetHowDataBody": "Sul telefono, nell’archivio widget dell’app. Cancellare tutti i dati svuota anche i widget."
+  "widgetHowDataBody": "Sul telefono, nell’archivio widget dell’app. Cancellare tutti i dati svuota anche i widget.",
+  "widgetCatalogAdd": "Aggiungi",
+  "widgetTodayCatalogDetail": "2x2, 4x2 o 4x4 · {count} di {max} scelti",
+  "widgetThisWeekCatalogBoth": "4x2 o 4x3 · Impegno e Obiettivi",
+  "widgetThisWeekCatalogEffort": "4x2 o 4x3 · Impegno",
+  "widgetThisWeekCatalogGoals": "4x2 o 4x3 · Obiettivi",
+  "widgetConfigureTodayFieldsDetail": "Campi, ordine e tema",
+  "widgetLockScreenHeading": "Schermata di blocco",
+  "widgetLockScreenBody": "Solo Anello e Avvia allenamento possono andare nella schermata di blocco. Gli altri mostrano dati sanitari e non appaiono lì."
 }

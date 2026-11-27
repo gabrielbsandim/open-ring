@@ -3322,5 +3322,13 @@
   "widgetHowNeverFood": "N’affichent jamais les repas ni les calories consommées.",
   "widgetHowNeverGoals": "N’affichent jamais le poids cible, la date d’atteinte, les séries ni le pourcentage du plan.",
   "widgetHowDataHeading": "Où vivent les données",
-  "widgetHowDataBody": "Sur votre téléphone, dans le stockage widgets de l’app. Supprimer toutes les données efface aussi les widgets."
+  "widgetHowDataBody": "Sur votre téléphone, dans le stockage widgets de l’app. Supprimer toutes les données efface aussi les widgets.",
+  "widgetCatalogAdd": "Ajouter",
+  "widgetTodayCatalogDetail": "2x2, 4x2 ou 4x4 · {count} sur {max} choisis",
+  "widgetThisWeekCatalogBoth": "4x2 ou 4x3 · Effort et Objectifs",
+  "widgetThisWeekCatalogEffort": "4x2 ou 4x3 · Effort",
+  "widgetThisWeekCatalogGoals": "4x2 ou 4x3 · Objectifs",
+  "widgetConfigureTodayFieldsDetail": "Champs, ordre et thème",
+  "widgetLockScreenHeading": "Écran verrouillé",
+  "widgetLockScreenBody": "Seuls Bague et Démarrer séance peuvent aller sur l’écran verrouillé. Les autres montrent des données de santé et n’y apparaissent pas."
 }

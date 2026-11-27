@@ -129,6 +129,19 @@ void main() {
     );
   });
 
+  testWidgets('Widgets catalog links to WidgetsHowScreen', (tester) async {
+    await pumpApp(tester);
+    await openLink(
+      tester,
+      Uri.parse('openring://widget/ring/settings/widgets'),
+    );
+
+    await tester.ensureVisible(find.byKey(WidgetsScreen.howKey));
+    await tester.tap(find.byKey(WidgetsScreen.howKey));
+    await tester.pumpAndSettle();
+    expect(find.byType(WidgetsHowScreen), findsOneWidget);
+  });
+
   test('the Kotlin widgets open the same links the router serves', () {
     final kotlin = File(_kotlinLinks).readAsStringSync();
 

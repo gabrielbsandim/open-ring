@@ -3322,5 +3322,13 @@
   "widgetHowNeverFood": "Zeigen nie Mahlzeiten oder aufgenommene Kalorien.",
   "widgetHowNeverGoals": "Zeigen nie Zielgewicht, Zieldatum, Serie oder Planprozentsatz.",
   "widgetHowDataHeading": "Wo Daten liegen",
-  "widgetHowDataBody": "Auf deinem Handy im Widget-Speicher der App. Alle Daten löschen leert auch die Widgets."
+  "widgetHowDataBody": "Auf deinem Handy im Widget-Speicher der App. Alle Daten löschen leert auch die Widgets.",
+  "widgetCatalogAdd": "Hinzufügen",
+  "widgetTodayCatalogDetail": "2x2, 4x2 oder 4x4 · {count} von {max} gewählt",
+  "widgetThisWeekCatalogBoth": "4x2 oder 4x3 · Effort und Ziele",
+  "widgetThisWeekCatalogEffort": "4x2 oder 4x3 · Effort",
+  "widgetThisWeekCatalogGoals": "4x2 oder 4x3 · Ziele",
+  "widgetConfigureTodayFieldsDetail": "Felder, Reihenfolge und Design",
+  "widgetLockScreenHeading": "Sperrbildschirm",
+  "widgetLockScreenBody": "Nur Ring und Training starten dürfen auf den Sperrbildschirm. Die anderen zeigen Gesundheitsdaten und erscheinen dort nicht."
 }

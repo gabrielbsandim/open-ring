@@ -11,13 +11,18 @@ O QUE VOCÊ VÊ
 • Frequência cardíaca ao longo do dia, FC de repouso, VFC, oxigênio no sangue (SpO2) e estresse.
 • Passos, distância e energia ativa.
 • Uma nota de prontidão que mostra as entradas: quanto cada uma somou ou tirou, comparada à sua própria base.
-• Widgets na tela inicial para prontidão, o dia, a bateria do anel e iniciar um treino.
+• Widgets na tela inicial: prontidão, Hoje configurável (até 6 campos), bateria do anel, Iniciar treino (com suporte à tela de bloqueio para Anel e Iniciar treino) e Esta semana quando Esforço ou Metas estão ligados.
+
+MÓDULOS OPCIONAIS (DESLIGADOS POR PADRÃO EM AJUSTES > MÓDULOS)
+• Corpo e Open Score: pesagens manuais com tendência de 28 dias (com modo opcional para ocultar números), Nota do dia, Nível, Geral e tags do dia.
+• Energia, Esforço e Metas: faixa de energia diária, pontos de esforço e dias de força na semana, e planos semanais flexíveis com revisão guiada.
+• Alimentação, Trajetória e Análise com IA: diário local de refeições com fotos, projeções de 4 e 12 semanas e IA opcional com sua própria chave, enviando resumos ou fotos só quando você pedir.
 
 TREINOS COM GPS
 O celular marca o tempo, o anel manda a FC ao vivo e, ao ar livre, o GPS do celular grava rota, distância, ritmo e parciais. A localização só é usada enquanto o treino está rodando. Exporte qualquer rota em GPX.
 
 HEALTH CONNECT
-Passos, energia ativa, FC, SpO2, VFC, fases do sono e treinos com a rota podem ser gravados no Health Connect, para que outros apps que você escolher possam usar. Ler o sono gravado por outros apps é opcional e vem desligado.
+Passos, energia ativa, FC, SpO2, VFC, fases do sono e treinos com a rota podem ser gravados no Health Connect, para que outros apps que você escolher possam usar. Ler o sono e os treinos gravados por outros apps é opcional e vem desligado.
 
 SINCRONIZA, NÃO TRANSMITE
 O anel guarda o próprio histórico. O celular conecta de tempos em tempos (a cada 60 minutos por padrão), puxa o que é novo e desconecta, o que poupa as duas baterias.

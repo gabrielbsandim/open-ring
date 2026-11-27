@@ -130,7 +130,8 @@ aapt2 dump permissions build/app/outputs/flutter-apk/app-release.apk
 
 Both tools are in `<Android SDK>/build-tools/<version>/`. The certificate must
 be the upload key, not `CN=Android Debug`. `android.permission.INTERNET` is there
-for the Shorebird updater and for nothing else.
+for the Shorebird updater and, only when the optional AI analysis module is turned
+on, user-initiated requests to the AI service the user configured.
 
 CI builds the same APK with no secrets, so it carries the debug key and is only
 a build check.
@@ -294,6 +295,12 @@ debug one:
   Connect (`geolocator`).
 - External links open (`url_launcher`), exports reach the share sheet and every
   widget renders and updates.
+- Optional AI LAN `http` connection check on a real phone (O12 in A14).
+- Workout notifications and alerts: ongoing `WorkoutForegroundService` notice,
+  ring-lost vibration and alert, and screen-off checkpoint recovery.
+- Glance v2 widgets: Small/Medium/Large sizing on Today and This week,
+  `ThisWeekWidgetReceiver` launcher picker toggle with Effort/Goals, and lock
+  screen placement restricted to Ring and Start workout.
 
 ## Release constraints
 

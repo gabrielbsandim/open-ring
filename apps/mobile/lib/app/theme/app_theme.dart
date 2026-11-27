@@ -62,6 +62,30 @@ abstract final class AppTheme {
           side: BorderSide(color: colors.surfaceBorder),
         ),
       ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: brightness == Brightness.dark
+            ? colors.surfaceInner
+            : colors.textPrimary,
+        contentTextStyle: TextStyle(
+          color: brightness == Brightness.dark
+              ? colors.textPrimary
+              : colors.surface,
+          fontSize: 14,
+          height: 1.35,
+        ),
+        actionTextColor: AppColors.dark.sleep,
+        disabledActionTextColor: colors.textLabel,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: brightness == Brightness.dark
+              ? BorderSide(color: colors.strongBorder)
+              : BorderSide.none,
+        ),
+        elevation: 4,
+        insetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        dismissDirection: DismissDirection.horizontal,
+      ),
       extensions: [colors],
     );
   }

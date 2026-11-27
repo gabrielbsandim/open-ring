@@ -32,6 +32,23 @@ void main() {
         expect(scheme.error, colors.heart);
         expect(scheme.onPrimary, colors.onAccent);
       });
+
+      test(
+        'uses a rounded floating SnackBar theme with violet action text',
+        () {
+          final snack = theme.snackBarTheme;
+          final expectedBg = brightness == Brightness.dark
+              ? colors.surfaceInner
+              : colors.textPrimary;
+          expect(snack.behavior, SnackBarBehavior.floating);
+          expect(snack.dismissDirection, DismissDirection.horizontal);
+          expect(snack.backgroundColor, expectedBg);
+          expect(snack.actionTextColor, AppColors.dark.sleep);
+          expect(snack.shape, isA<RoundedRectangleBorder>());
+          final shape = snack.shape! as RoundedRectangleBorder;
+          expect(shape.borderRadius, BorderRadius.circular(14));
+        },
+      );
     });
   }
 }

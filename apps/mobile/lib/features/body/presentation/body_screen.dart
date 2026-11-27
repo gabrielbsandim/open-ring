@@ -93,6 +93,7 @@ class _BodyScreenState extends ConsumerState<BodyScreen> {
       ..showSnackBar(
         SnackBar(
           content: Text(l10n.bodyEntryDeleted),
+          persist: false,
           action: SnackBarAction(
             label: l10n.bodyEntryUndo,
             onPressed: () => unawaited(restore()),

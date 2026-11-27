@@ -76,6 +76,7 @@ Future<void> showDayTagSheet(
               ? l10n.dayTagRemoved
               : l10n.dayTagSet(dayTagLabel(l10n, tag)),
         ),
+        persist: false,
         action: SnackBarAction(
           label: l10n.bodyEntryUndo,
           onPressed: () => unawaited(log.set(date, current)),

@@ -130,5 +130,7 @@ void _snack(
         );
   ScaffoldMessenger.of(context)
     ..clearSnackBars()
-    ..showSnackBar(SnackBar(content: Text(text), action: action));
+    ..showSnackBar(
+      SnackBar(content: Text(text), persist: false, action: action),
+    );
 }

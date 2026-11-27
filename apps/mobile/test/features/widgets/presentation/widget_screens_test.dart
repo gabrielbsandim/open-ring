@@ -18,6 +18,7 @@ import 'package:open_ring/features/widgets/domain/widget_snapshot.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_config_screen.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_preview.dart';
 import 'package:open_ring/features/widgets/presentation/widget_previews.dart';
+import 'package:open_ring/features/widgets/presentation/widgets_how_screen.dart';
 import 'package:open_ring/features/widgets/presentation/widgets_screen.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
@@ -115,6 +116,7 @@ void main() {
       const WidgetsScreen(),
       () => widgetOverrides(scenario: offlineScenario),
     ),
+    'Widgets how': (const WidgetsHowScreen(), widgetOverrides),
     'Today widget config': (const TodayWidgetConfigScreen(), widgetOverrides),
     'Today widget config with no metric': (
       const TodayWidgetConfigScreen(),
@@ -502,5 +504,25 @@ void main() {
       find.text('No data yet. Keep the ring on and sync.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('WidgetsHowScreen renders all five explanation sections', (
+    tester,
+  ) async {
+    await pumpScaled(
+      tester,
+      screenHost(const WidgetsHowScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      size: const Size(360, 1800),
+      overrides: widgetOverrides(),
+    );
+    expect(find.text('How widgets work'), findsOneWidget);
+    expect(find.text('What they show'), findsOneWidget);
+    expect(find.text('When they change'), findsOneWidget);
+    expect(find.text('Modules'), findsOneWidget);
+    expect(find.text('What they never do'), findsOneWidget);
+    expect(find.text('Where data lives'), findsOneWidget);
   });
 }

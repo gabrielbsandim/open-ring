@@ -19,6 +19,7 @@ import 'package:open_ring/features/settings/presentation/data_sources_screen.dar
 import 'package:open_ring/features/settings/presentation/settings_screen.dart';
 import 'package:open_ring/features/trajectory/presentation/trajectory_module_screen.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_config_screen.dart';
+import 'package:open_ring/features/widgets/presentation/widgets_how_screen.dart';
 import 'package:open_ring/features/widgets/presentation/widgets_screen.dart';
 import 'package:open_ring/features/workout/presentation/workout_notification_how_screen.dart';
 
@@ -79,6 +80,7 @@ GoRoute settingsRoute() => GoRoute(
           path: 'today',
           builder: (_, _) => const TodayWidgetConfigScreen(),
         ),
+        GoRoute(path: 'how', builder: (_, _) => const WidgetsHowScreen()),
       ],
     ),
   ],

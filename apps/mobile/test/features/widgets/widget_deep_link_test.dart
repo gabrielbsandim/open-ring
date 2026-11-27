@@ -13,6 +13,7 @@ import 'package:open_ring/features/widgets/application/widget_providers.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
 import 'package:open_ring/features/widgets/domain/widget_gateway.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_config_screen.dart';
+import 'package:open_ring/features/widgets/presentation/widgets_how_screen.dart';
 import 'package:open_ring/features/widgets/presentation/widgets_screen.dart';
 import 'package:open_ring/features/workout/presentation/workout_pick_screen.dart';
 
@@ -88,6 +89,17 @@ void main() {
     await openLink(tester, todayWidgetConfigLink);
 
     expect(find.byType(TodayWidgetConfigScreen), findsOneWidget);
+  });
+
+  testWidgets('the widgets how route opens WidgetsHowScreen', (tester) async {
+    await pumpApp(tester);
+
+    await openLink(
+      tester,
+      Uri.parse('openring://widget/ring/settings/widgets/how'),
+    );
+
+    expect(find.byType(WidgetsHowScreen), findsOneWidget);
   });
 
   testWidgets('Settings leads to the widgets and the Today widget config', (

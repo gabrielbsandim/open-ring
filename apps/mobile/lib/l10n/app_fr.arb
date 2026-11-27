@@ -3271,5 +3271,14 @@
   "moduleTrajectoryTurnOnBoth": "Activer {body} et Trajectoire",
   "moduleTrajectoryTurnOnBothNote": "{body} ne demande aucune autorisation et n'envoie rien. Vous pouvez désactiver les deux quand vous voulez.",
   "moduleTrajectoryTurnOff": "Désactiver Trajectoire",
-  "moduleTrajectoryTurnOffNote": "Les projections enregistrées restent. {body} reste activé."
+  "moduleTrajectoryTurnOffNote": "Les projections enregistrées restent. {body} reste activé.",
+  "widgetRingCharging": "en charge · synchro {time}",
+  "widgetRingLowBattery": "batterie faible · synchro {time}",
+  "widgetDayScoreAsOf": "à {time}",
+  "widgetDayScoreYesterdayFinal": "hier, final",
+  "widgetDayScoreFirstDaysDetail": "Il faut 60 points. Aujourd'hui : {points}.",
+  "widgetDayScoreNoneCoverage": "Il faut 60 points aujourd'hui.",
+  "widgetEffortSummary": "sur {target} · force {done} sur {total}",
+  "widgetThisWeekOff": "Effort et Objectifs sont désactivés. Touchez pour ouvrir Modules.",
+  "widgetThisWeekWaiting": "En attente de suffisamment de données."
 }

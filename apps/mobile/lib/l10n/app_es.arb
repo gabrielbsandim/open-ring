@@ -3271,5 +3271,14 @@
   "moduleTrajectoryTurnOnBoth": "Activar {body} y Trayectoria",
   "moduleTrajectoryTurnOnBothNote": "{body} no pide permiso ni envía nada. Puedes apagar los dos cuando quieras.",
   "moduleTrajectoryTurnOff": "Apagar Trayectoria",
-  "moduleTrajectoryTurnOffNote": "Las proyecciones guardadas se quedan. {body} sigue activo."
+  "moduleTrajectoryTurnOffNote": "Las proyecciones guardadas se quedan. {body} sigue activo.",
+  "widgetRingCharging": "cargando · sinc. {time}",
+  "widgetRingLowBattery": "batería baja · sinc. {time}",
+  "widgetDayScoreAsOf": "hasta {time}",
+  "widgetDayScoreYesterdayFinal": "ayer, final",
+  "widgetDayScoreFirstDaysDetail": "Necesita 60 puntos. Hoy hay {points}.",
+  "widgetDayScoreNoneCoverage": "Necesita 60 puntos hoy.",
+  "widgetEffortSummary": "de {target} · fuerza {done} de {total}",
+  "widgetThisWeekOff": "Esfuerzo y Objetivos están desactivados. Toca para abrir Módulos.",
+  "widgetThisWeekWaiting": "Esperando suficientes datos para empezar."
 }

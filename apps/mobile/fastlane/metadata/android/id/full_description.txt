@@ -3,21 +3,26 @@ OpenRing adalah aplikasi gratis dan open source untuk cincin pintar COLMI R09. A
 TANPA AKUN, TANPA CLOUD
 • Tanpa pendaftaran, tanpa login, tanpa email. Sambungkan cincin dan mulai.
 • Data Anda tersimpan di database lokal di ponsel, bukan di server.
-• Tanpa analitik, tanpa iklan, tanpa pelacakan. Aplikasi ini hanya memakai internet untuk mengunduh pembaruannya sendiri.
-• Data hanya keluar dari ponsel saat Anda memilihnya: ke Health Connect, atau dalam file CSV, JSON, atau GPX yang Anda ekspor.
+• Tanpa analitik, tanpa iklan, tanpa pelacakan. Aplikasi ini memakai internet untuk pembaruannya sendiri dan, hanya jika Anda mengaktifkan Analisis AI, untuk layanan AI yang Anda pilih.
+• Data hanya keluar dari ponsel saat Anda memilihnya: ke Health Connect, dalam file CSV, JSON, atau GPX yang Anda ekspor, dalam pemindahan ke ponsel baru yang Anda mulai, atau, saat Analisis AI aktif, ke layanan AI yang Anda pilih.
 
 YANG ANDA LIHAT
 • Tidur dalam garis waktu: ringan, nyenyak, REM, dan terjaga.
 • Detak jantung sepanjang hari, detak jantung istirahat, HRV, oksigen darah (SpO2), dan stres.
 • Langkah, jarak, dan energi aktif.
 • Skor kesiapan yang menampilkan masukannya: berapa yang ditambah atau dikurangi tiap masukan, dibandingkan dengan patokan Anda sendiri.
-• Widget layar utama untuk kesiapan, ringkasan hari ini, baterai cincin, dan memulai latihan.
+• Widget layar utama: kesiapan, Hari Ini yang dapat diatur (hingga 6 data), baterai cincin, Mulai latihan (mendukung layar kunci untuk Cincin dan Mulai latihan), serta Minggu Ini saat Effort atau Target diaktifkan.
+
+MODUL OPSIONAL (MATI SECARA BAWAAN DI PENGATURAN > MODUL)
+• Tubuh dan Open Score: catatan berat badan manual dengan tren 28 hari (plus mode sembunyikan angka), Skor Hari, Level, Keseluruhan, dan tag hari.
+• Energi, Effort, dan Target: rentang energi harian, poin usaha mingguan dan hari latihan kekuatan, serta rencana fleksibel dengan tinjauan mingguan.
+• Makanan, Lintasan, dan Analisis AI: jurnal foto makanan lokal, proyeksi 4 dan 12 minggu, serta AI opsional dengan kunci Anda sendiri yang mengirim ringkasan atau foto hanya saat Anda memilihnya.
 
 LATIHAN DENGAN GPS
 Ponsel mencatat waktu, cincin mengirim detak jantung secara langsung, dan untuk latihan di luar ruangan GPS ponsel merekam rute, jarak, kecepatan, dan split. Lokasi hanya dipakai selama latihan berjalan. Ekspor rute mana pun sebagai GPX.
 
 HEALTH CONNECT
-Langkah, energi aktif, detak jantung, SpO2, HRV, tahap tidur, dan latihan beserta rutenya bisa ditulis ke Health Connect, sehingga aplikasi lain pilihan Anda bisa memakainya. Membaca data tidur yang ditulis aplikasi lain bersifat opsional dan mati secara bawaan.
+Langkah, energi aktif, detak jantung, SpO2, HRV, tahap tidur, dan latihan beserta rutenya bisa ditulis ke Health Connect, sehingga aplikasi lain pilihan Anda bisa memakainya. Membaca tidur dan latihan yang ditulis aplikasi lain bersifat opsional dan mati secara bawaan.
 
 SINKRON, BUKAN STREAMING
 Cincin menyimpan riwayatnya sendiri. Ponsel tersambung sesuai jadwal (setiap 60 menit secara bawaan), mengambil data baru, lalu memutus sambungan, sehingga kedua baterai lebih hemat.

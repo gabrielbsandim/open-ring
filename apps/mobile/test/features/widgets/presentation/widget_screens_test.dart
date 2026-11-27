@@ -3,14 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/body/domain/hide_numbers_store.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
+import 'package:open_ring/features/settings/application/user_profile_providers.dart';
+import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/today/application/today_view.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
 import 'package:open_ring/features/widgets/domain/widget_gateway.dart';
 import 'package:open_ring/features/widgets/domain/widget_snapshot.dart';
+import 'package:open_ring/features/widgets/presentation/this_week_widget_preview.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_config_screen.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_preview.dart';
 import 'package:open_ring/features/widgets/presentation/widget_previews.dart';
+import 'package:open_ring/features/widgets/presentation/widgets_how_screen.dart';
 import 'package:open_ring/features/widgets/presentation/widgets_screen.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
@@ -24,12 +33,23 @@ List<Override> widgetOverrides({
   MetricsScenario? scenario,
   FakeWidgetGateway? gateway,
   TodayWidgetConfig? config,
+  Set<ModuleId> enabledModules = const {},
+  bool hideNumbers = false,
+  UserProfile? profile,
 }) => [
   ...metricsOverrides(scenario ?? fullDataScenario),
   widgetGatewayProvider.overrideWithValue(gateway ?? FakeWidgetGateway()),
   todayWidgetConfigStoreProvider.overrideWithValue(
     InMemoryTodayWidgetConfigStore(config),
   ),
+  moduleStoreProvider.overrideWithValue(InMemoryModuleStore(enabledModules)),
+  hideNumbersStoreProvider.overrideWithValue(
+    InMemoryHideNumbersStore(hidden: hideNumbers),
+  ),
+  if (profile != null)
+    userProfileStoreProvider.overrideWithValue(
+      InMemoryUserProfileStore(profile),
+    ),
 ];
 
 Future<void> pumpConfig(
@@ -37,6 +57,9 @@ Future<void> pumpConfig(
   MetricsScenario? scenario,
   FakeWidgetGateway? gateway,
   TodayWidgetConfig? config,
+  Set<ModuleId> enabledModules = const {},
+  bool hideNumbers = false,
+  UserProfile? profile,
   Brightness brightness = Brightness.dark,
 }) => pumpScaled(
   tester,
@@ -44,11 +67,14 @@ Future<void> pumpConfig(
   textScaler: TextScaler.noScaling,
   brightness: brightness,
   locale: const Locale('en'),
-  size: const Size(360, 1600),
+  size: const Size(360, 1800),
   overrides: widgetOverrides(
     scenario: scenario,
     gateway: gateway,
     config: config,
+    enabledModules: enabledModules,
+    hideNumbers: hideNumbers,
+    profile: profile,
   ),
 );
 
@@ -77,6 +103,12 @@ String previewLabel(WidgetTester tester) =>
 void main() {
   final layouts = <String, (Widget, List<Override> Function())>{
     'Widgets': (const WidgetsScreen(), widgetOverrides),
+    'Widgets with modules': (
+      const WidgetsScreen(),
+      () => widgetOverrides(
+        enabledModules: const {ModuleId.effort, ModuleId.goals},
+      ),
+    ),
     'Widgets without a ring': (
       const WidgetsScreen(),
       () => widgetOverrides(scenario: noDataScenario),
@@ -91,6 +123,7 @@ void main() {
       const WidgetsScreen(),
       () => widgetOverrides(scenario: offlineScenario),
     ),
+    'Widgets how': (const WidgetsHowScreen(), widgetOverrides),
     'Today widget config': (const TodayWidgetConfigScreen(), widgetOverrides),
     'Today widget config with no metric': (
       const TodayWidgetConfigScreen(),
@@ -258,45 +291,159 @@ void main() {
     });
   });
 
-  testWidgets('the preview shows the chosen metrics from the snapshot', (
+  testWidgets('the preview shows the chosen metrics and S/M/L switcher', (
     tester,
   ) async {
-    await pumpConfig(tester);
+    await pumpConfig(
+      tester,
+      config: TodayWidgetConfig(
+        metrics: const [
+          WidgetMetric.sleep,
+          WidgetMetric.steps,
+          WidgetMetric.heartRate,
+          WidgetMetric.spo2,
+        ],
+      ),
+    );
 
     expect(previewLabel(tester), contains('Sleep 6 h 52 min'));
     expect(previewLabel(tester), contains('Steps 2,224'));
-    expect(find.text('synced 08:40'), findsOneWidget);
-    expect(find.text('3 of 3'), findsOneWidget);
-    expect(find.text('Limit of 3. Uncheck one to swap.'), findsOneWidget);
-    expect(
-      find.text('Preview in the app theme, dark right now'),
-      findsOneWidget,
-    );
-  });
-
-  testWidgets('a full selection ignores a fourth metric until one is removed', (
-    tester,
-  ) async {
-    await pumpConfig(tester);
-
-    await tester.tap(
-      find.byKey(TodayWidgetConfigScreen.metricKey(WidgetMetric.spo2)),
-    );
-    await tester.pumpAndSettle();
     expect(previewLabel(tester), isNot(contains('SpO2')));
+    expect(find.text('synced 08:40'), findsOneWidget);
+    expect(find.text('4 of 6'), findsOneWidget);
+    expect(find.text('S M L'), findsOneWidget);
+    expect(find.text('M L'), findsNWidgets(2));
+    expect(find.text('L'), findsOneWidget);
 
     await tester.tap(
-      find.byKey(TodayWidgetConfigScreen.metricKey(WidgetMetric.sleep)),
-    );
-    await tester.pumpAndSettle();
-    expect(find.text('You can pick 1 more.'), findsOneWidget);
-
-    await tester.tap(
-      find.byKey(TodayWidgetConfigScreen.metricKey(WidgetMetric.spo2)),
+      find.byKey(
+        TodayWidgetConfigScreen.previewSizeKey(TodayPreviewSize.large),
+      ),
     );
     await tester.pumpAndSettle();
     expect(previewLabel(tester), contains('SpO2'));
-    expect(previewLabel(tester), isNot(contains('Sleep')));
+
+    await tester.tap(
+      find.byKey(
+        TodayWidgetConfigScreen.previewSizeKey(TodayPreviewSize.small),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(previewLabel(tester), contains('Sleep'));
+    expect(previewLabel(tester), isNot(contains('Steps')));
+  });
+
+  testWidgets('supports up to 6 fields, reordering, and active modules', (
+    tester,
+  ) async {
+    await pumpConfig(
+      tester,
+      enabledModules: const {ModuleId.openScore, ModuleId.body},
+    );
+
+    expect(find.text('Day Score'), findsOneWidget);
+    expect(find.text('Weight'), findsOneWidget);
+    expect(find.text('Energy'), findsNothing);
+
+    await tester.tap(
+      find.byKey(TodayWidgetConfigScreen.moveDownKey(WidgetMetric.sleep)),
+    );
+    await tester.pumpAndSettle();
+    expect(previewLabel(tester), contains('Steps 2,224, Sleep 6 h 52 min'));
+
+    for (final m in [
+      WidgetMetric.spo2,
+      WidgetMetric.stress,
+      WidgetMetric.dayScore,
+    ]) {
+      await reveal(tester, find.byKey(TodayWidgetConfigScreen.addMetricKey(m)));
+      await tester.tap(find.byKey(TodayWidgetConfigScreen.addMetricKey(m)));
+      await tester.pumpAndSettle();
+    }
+    expect(find.text('6 of 6'), findsOneWidget);
+    expect(find.text('Limit of 6. Remove one to swap.'), findsOneWidget);
+
+    await reveal(
+      tester,
+      find.byKey(TodayWidgetConfigScreen.addMetricKey(WidgetMetric.weight)),
+    );
+    await tester.tap(
+      find.byKey(TodayWidgetConfigScreen.addMetricKey(WidgetMetric.weight)),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('6 of 6'), findsOneWidget);
+
+    await reveal(
+      tester,
+      find.byKey(TodayWidgetConfigScreen.removeMetricKey(WidgetMetric.sleep)),
+    );
+    await tester.tap(
+      find.byKey(TodayWidgetConfigScreen.removeMetricKey(WidgetMetric.sleep)),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('5 of 6'), findsOneWidget);
+  });
+
+  testWidgets('hides Energy when body numbers are hidden', (tester) async {
+    await pumpConfig(
+      tester,
+      config: TodayWidgetConfig(
+        metrics: const [WidgetMetric.energy, WidgetMetric.sleep],
+      ),
+      enabledModules: const {ModuleId.energy, ModuleId.body},
+      hideNumbers: true,
+    );
+
+    expect(find.text('hidden'), findsOneWidget);
+    expect(find.text('1 of 6'), findsOneWidget);
+    expect(previewLabel(tester), isNot(contains('Energy')));
+
+    await pumpConfig(
+      tester,
+      config: TodayWidgetConfig(metrics: const [WidgetMetric.sleep]),
+      enabledModules: const {ModuleId.energy, ModuleId.body},
+      hideNumbers: true,
+    );
+    await reveal(
+      tester,
+      find.byKey(TodayWidgetConfigScreen.addMetricKey(WidgetMetric.energy)),
+    );
+    await tester.tap(
+      find.byKey(TodayWidgetConfigScreen.addMetricKey(WidgetMetric.energy)),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('1 of 6'), findsOneWidget);
+    expect(find.text('Numbers hidden in Body'), findsOneWidget);
+  });
+
+  testWidgets('keeps Energy active with Body off even if numbers are hidden', (
+    tester,
+  ) async {
+    await pumpConfig(
+      tester,
+      config: TodayWidgetConfig(metrics: const [WidgetMetric.energy]),
+      enabledModules: const {ModuleId.energy},
+      hideNumbers: true,
+    );
+    expect(find.text('1 of 6'), findsOneWidget);
+    expect(find.text('hidden'), findsNothing);
+    expect(previewLabel(tester), contains('Energy'));
+  });
+
+  testWidgets('gates Energy out of config when underage', (tester) async {
+    await pumpConfig(
+      tester,
+      config: TodayWidgetConfig(metrics: const [WidgetMetric.energy]),
+      enabledModules: const {ModuleId.energy},
+      profile: const UserProfile(birthYear: 2015),
+    );
+    expect(find.text('0 of 6'), findsOneWidget);
+    expect(find.text('hidden'), findsOneWidget);
+    expect(find.text('Numbers hidden in Body'), findsNothing);
+    final button = tester.widget<FilledButton>(
+      find.byKey(TodayWidgetConfigScreen.addKey),
+    );
+    expect(button.onPressed, isNull);
   });
 
   testWidgets('a theme override changes the preview note', (tester) async {
@@ -338,7 +485,7 @@ void main() {
     expect(button.onPressed, isNull);
     expect(
       find.text('No metric chosen. Pick at least 1 below.'),
-      findsOneWidget,
+      findsNWidgets(2),
     );
   });
 
@@ -365,4 +512,70 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('WidgetsHowScreen renders all five explanation sections', (
+    tester,
+  ) async {
+    await pumpScaled(
+      tester,
+      screenHost(const WidgetsHowScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      size: const Size(360, 1800),
+      overrides: widgetOverrides(),
+    );
+    expect(find.text('How widgets work'), findsOneWidget);
+    expect(find.text('What they show'), findsOneWidget);
+    expect(find.text('When they change'), findsOneWidget);
+    expect(find.text('Modules'), findsOneWidget);
+    expect(find.text('What they never do'), findsOneWidget);
+    expect(find.text('Where data lives'), findsOneWidget);
+  });
+
+  testWidgets(
+    'Widgets catalog toggles ThisWeek, pins widgets, and shows lock note',
+    (tester) async {
+      final gateway = FakeWidgetGateway();
+      await pumpScaled(
+        tester,
+        screenHost(const WidgetsScreen()),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.dark,
+        locale: const Locale('en'),
+        size: const Size(360, 2200),
+        overrides: widgetOverrides(gateway: gateway),
+      );
+      expect(find.byKey(ThisWeekWidgetPreview.previewKey), findsNothing);
+      expect(
+        find.text(
+          'Only Ring and Start workout can go on the lock screen. The others show health data and do not appear there.',
+        ),
+        findsOneWidget,
+      );
+
+      await pumpScaled(
+        tester,
+        screenHost(const WidgetsScreen()),
+        textScaler: TextScaler.noScaling,
+        brightness: Brightness.dark,
+        locale: const Locale('en'),
+        size: const Size(360, 2400),
+        overrides: widgetOverrides(
+          gateway: gateway,
+          enabledModules: const {ModuleId.effort, ModuleId.goals},
+        ),
+      );
+      expect(find.byKey(ThisWeekWidgetPreview.previewKey), findsOneWidget);
+      await reveal(
+        tester,
+        find.byKey(WidgetsScreen.pinKey(HomeWidgetKind.thisWeek)),
+      );
+      await tester.tap(
+        find.byKey(WidgetsScreen.pinKey(HomeWidgetKind.thisWeek)),
+      );
+      await tester.pumpAndSettle();
+      expect(gateway.pinned, [HomeWidgetKind.thisWeek]);
+    },
+  );
 }

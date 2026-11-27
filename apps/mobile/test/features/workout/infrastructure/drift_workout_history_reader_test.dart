@@ -53,6 +53,53 @@ void main() {
     reader = DriftWorkoutHistoryReader(db);
   });
 
+  test(
+    'routed workouts are the listed types with a route, oldest first',
+    () async {
+      final walk = await store.save(
+        recorded(
+          type: WorkoutType.walking,
+          startAfter: const Duration(days: 1),
+        ),
+        at: at(81),
+      );
+      final run = await store.save(recorded(), at: at(81));
+      await store.save(
+        recorded(
+          type: WorkoutType.cycling,
+          startAfter: const Duration(hours: 3),
+        ),
+        at: at(81),
+      );
+      await store.save(
+        recorded(gps: false, startAfter: const Duration(hours: 5)),
+        at: at(81),
+      );
+      await store.save(
+        recorded(startAfter: const Duration(days: 2)),
+        at: at(81),
+      );
+
+      final routed = await reader.routed(
+        from: workoutStart,
+        to: workoutStart.add(const Duration(days: 2)),
+        types: {WorkoutType.running, WorkoutType.walking},
+      );
+
+      expect(routed.map((w) => w.id), [run, walk]);
+      expect(routed.first.workout.route.segments, hasLength(2));
+      expect(routed.first.workout.heartRate, isNotEmpty);
+      expect(
+        await reader.routed(
+          from: workoutStart.add(const Duration(days: 3)),
+          to: workoutStart.add(const Duration(days: 4)),
+          types: {WorkoutType.running},
+        ),
+        isEmpty,
+      );
+    },
+  );
+
   test('lists finished workouts newest first, up to the limit', () async {
     final first = await store.save(recorded(), at: at(81));
     final second = await store.save(
@@ -78,6 +125,56 @@ void main() {
       first,
     ]);
     expect(await reader.recent(limit: 0), isEmpty);
+  });
+
+  test('intersecting lists finished workouts that overlap the range, oldest '
+      'first', () async {
+    final from = DateTime.utc(2026, 11, 10);
+    final to = DateTime.utc(2026, 11, 11);
+    Future<int> insert(String name, DateTime start, DateTime? end) => db
+        .into(db.workouts)
+        .insert(
+          WorkoutsCompanion.insert(
+            clientId: name,
+            activityType: 'running',
+            startUtcMs: start.millisecondsSinceEpoch,
+            endUtcMs: Value(end?.millisecondsSinceEpoch),
+            offsetMinutes: 0,
+          ),
+        );
+    const hour = Duration(hours: 1);
+    final inside = await insert(
+      'inside',
+      from.add(const Duration(hours: 10)),
+      from.add(const Duration(hours: 11)),
+    );
+    await insert('endsAtFrom', from.subtract(hour), from);
+    final spansFrom = await insert(
+      'spansFrom',
+      from.subtract(hour),
+      from.add(hour),
+    );
+    await insert('startsAtTo', to, to.add(hour));
+    final spansTo = await insert('spansTo', to.subtract(hour), to.add(hour));
+    await insert('unfinished', from.add(const Duration(hours: 2)), null);
+
+    final listed = await reader.intersecting(from: from, to: to);
+
+    expect(listed.map((w) => w.id), [spansFrom, inside, spansTo]);
+    expect(listed.first.start.isAtSameMomentAs(from.subtract(hour)), isTrue);
+    expect(listed.first.end.isAtSameMomentAs(from.add(hour)), isTrue);
+    expect(listed.first.type, WorkoutType.running);
+  });
+
+  test('intersecting a range with no workout is empty', () async {
+    await store.save(recorded(), at: at(81));
+
+    final listed = await reader.intersecting(
+      from: workoutStart.add(const Duration(days: 5)),
+      to: workoutStart.add(const Duration(days: 6)),
+    );
+
+    expect(listed, isEmpty);
   });
 
   test('reads one workout with its HR, pauses and split route', () async {

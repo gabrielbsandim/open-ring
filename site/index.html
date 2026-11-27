@@ -111,8 +111,8 @@
           </div>
         </article>
         <article class="card feature">
-          <div class="title"><span class="dot" style="background: var(--body)"></span><h3>Home screen widgets</h3></div>
-          <p>Readiness, a summary of the day, the ring battery and a shortcut to start a workout, refreshed on every sync.</p>
+          <div class="title"><span class="dot" style="background: var(--body)"></span><h3>5 Android widgets</h3></div>
+          <p>Readiness, configurable Today (up to 6 fields across S/M/L sizes), Ring battery, Start workout (with lock screen on Ring and Start workout), plus This week when Effort or Goals is enabled.</p>
           <div class="visual widgets">
             <div class="widget square"><span class="lbl">Readiness</span><span class="num" style="font-size: 30px; font-weight: 600">98</span></div>
             <div class="widget wide"><span class="lbl">Today · 18:20</span><div class="line"><span style="color: var(--body)">Sleep</span><span class="num" style="color: var(--sleep)">8h20</span></div><div class="line"><span style="color: var(--body)">Steps</span><span class="num" style="color: var(--activity)">7,631</span></div><div class="line"><span style="color: var(--body)">HR</span><span class="num" style="color: var(--heart)">71 bpm</span></div></div>
@@ -120,9 +120,19 @@
         </article>
         <article class="card feature">
           <div class="title"><span class="dot" style="background: var(--body)"></span><h3>Health Connect</h3></div>
-          <p>Every sample can go to Health Connect, workouts with their route included, for the apps you choose.</p>
+          <p>Every sample can go to Health Connect, workouts with their route included, for the apps you choose. Reading sleep and workouts written by other apps is optional and off by default.</p>
           <div class="visual chips"><span>Steps</span><span>Active energy</span><span>Heart rate series</span><span>Sleep with REM</span><span>SpO2</span><span>HRV</span><span>Workouts with route</span></div>
         </article>
+      </div>
+      <div class="card sync">
+        <div class="copy">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          <div>
+            <h3>Optional modules (off by default)</h3>
+            <p>Turn on only what fits you in Settings &gt; Modules: Body (manual weigh-ins and 28-day trend, with an optional hide-numbers mode), Open Score (Day Score, Level, Overall), Energy, Effort, Goals, Food (local meal photo diary), Trajectory (4- and 12-week scenarios), and optional bring-your-own-key AI analysis (never offered during setup).</p>
+          </div>
+        </div>
+        <div class="chips" aria-label="Optional modules"><span>Body</span><span>Open Score</span><span>Energy</span><span>Effort</span><span>Goals</span><span>Food</span><span>AI Analysis</span><span>Trajectory</span></div>
       </div>
     </section>
 
@@ -183,7 +193,7 @@
       <div class="grid4">
         <div class="card privacy"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M11 18.5h2"/></svg><h3>Stays on the device</h3><p>Everything is kept in a local database on your phone, not on a server of ours.</p></div>
         <div class="card privacy"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="4"/><path d="M3 20c0-3.6 3.1-6 7-6 1.4 0 2.6.3 3.7.8M16 15l5 5M21 15l-5 5"/></svg><h3>No account</h3><p>No sign-up, no login, no email. Pair the ring and start.</p></div>
-        <div class="card privacy"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c5 0 8.5 4.2 9.5 6-.5.9-1.5 2.3-2.9 3.6M6.6 7.6C4.6 8.9 3.2 10.8 2.5 12c1 1.8 4.5 6 9.5 6 1.6 0 3-.4 4.2-1.1"/></svg><h3>No telemetry</h3><p>The app sends no usage, taps or metrics. The internet is used only to fetch the app's own updates.</p></div>
+        <div class="card privacy"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c5 0 8.5 4.2 9.5 6-.5.9-1.5 2.3-2.9 3.6M6.6 7.6C4.6 8.9 3.2 10.8 2.5 12c1 1.8 4.5 6 9.5 6 1.6 0 3-.4 4.2-1.1"/></svg><h3>No telemetry</h3><p>The app sends no usage, taps or metrics. The internet is used for the app's own updates and, only if you turn on AI analysis, for the AI service you choose.</p></div>
         <div class="card privacy"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><h3>Export any time</h3><p>CSV and JSON of everything, GPX of workouts, and Health Connect only with your permission.</p></div>
       </div>
       <div class="card sync">
@@ -225,7 +235,7 @@
         <div>
           <details class="q"><summary>Do I need an account?<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p class="ans">No. There is no sign-up, login or email. Open the app, pair the ring and start.</p></details>
           <details class="q"><summary>Does it work with an iPhone?<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p class="ans">Not yet. For now OpenRing is for Android 9 or later.</p></details>
-          <details class="q"><summary>Does my data go to a server?<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p class="ans">No. It stays in a local database on your phone. It leaves only when you allow it: to Health Connect, or in a CSV, JSON or GPX file you export. The details are in the <a href="https://github.com/gabrielbsandim/open-ring/blob/main/docs/privacy-policy.md">privacy policy</a>.</p></details>
+          <details class="q"><summary>Does my data go to a server?<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p class="ans">No OpenRing server exists. Everything lives in a local database on your phone and leaves only when you choose: to Health Connect, in a CSV, JSON or GPX file you export, in a phone-to-phone transfer you start or, with optional AI analysis enabled, to the AI service you configured (the app also checks for its own updates). The details are in the <a href="https://github.com/gabrielbsandim/open-ring/blob/main/docs/privacy-policy.md">privacy policy</a>.</p></details>
           <details class="q"><summary>Can I use it with the ring's original app?<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p class="ans">Not at the same time. The ring talks to one app at a time, so disconnect it from the original app before pairing it with OpenRing.</p></details>
           <details class="q"><summary>Is it free?<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p class="ans">Yes. The code is open under the MIT license, with no subscription and no ads.</p></details>
         </div>

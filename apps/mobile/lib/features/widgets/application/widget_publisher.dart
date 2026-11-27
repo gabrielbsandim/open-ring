@@ -9,13 +9,14 @@ import 'package:open_ring/features/widgets/domain/widget_snapshot.dart';
 typedef WidgetAppearance = ({
   ThemeMode appTheme,
   TodayWidgetConfig today,
+  List<WidgetMetric> effectiveTodayMetrics,
   UnitSystem units,
 });
 
 Map<String, Object?> appearanceJson(WidgetAppearance appearance) => {
   'appTheme': appearance.appTheme.name,
   'todayTheme': appearance.today.theme.name,
-  'todayMetrics': appearance.today.toJson()['metrics'],
+  'todayMetrics': [for (final m in appearance.effectiveTodayMetrics) m.name],
   'units': appearance.units.name,
 };
 
@@ -24,12 +25,24 @@ final class WidgetPublisher {
 
   final WidgetGateway _gateway;
   final Map<String, String> _published = {};
+  bool? _thisWeekAvailable;
+  Future<void> _availabilityQueue = Future.value();
 
   Future<void> snapshot(WidgetSnapshot snapshot) =>
       _publish(WidgetKeys.snapshot, snapshot.toJson());
 
   Future<void> appearance(WidgetAppearance appearance) =>
       _publish(WidgetKeys.appearance, appearanceJson(appearance));
+
+  Future<void> setThisWeekAvailable({required bool available}) {
+    final next = _availabilityQueue.then((_) async {
+      if (_thisWeekAvailable == available) return;
+      await _gateway.setThisWeekAvailable(available: available);
+      _thisWeekAvailable = available;
+    });
+    _availabilityQueue = next.then<void>((_) {}, onError: (Object _) {});
+    return next;
+  }
 
   Future<void> _publish(String key, Map<String, Object?> json) async {
     final encoded = jsonEncode(json);

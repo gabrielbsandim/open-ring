@@ -23,6 +23,7 @@ import 'package:open_ring/features/workout/domain/workout_history.dart';
 import 'package:open_ring/features/workout/domain/workout_route.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_store.dart';
+import 'package:open_ring/features/workout/domain/workout_type.dart';
 
 final workoutStart = DateTime.utc(2026, 11, 10, 7);
 
@@ -133,6 +134,15 @@ class FlakyWorkoutStore implements WorkoutStore {
 
   @override
   Future<bool> delete(int id) => _inner.delete(id);
+
+  @override
+  Future<void> checkpoint(
+    WorkoutSession session, {
+    required DateTime at,
+  }) async {}
+
+  @override
+  Future<void> dropCheckpoint(WorkoutSession session) async {}
 }
 
 class FakeLocationAccess implements LocationAccess {
@@ -171,6 +181,8 @@ class FakeLocationAccess implements LocationAccess {
 class RecordingWorkoutStore implements WorkoutStore {
   final saved = <FinishedWorkout>[];
   final deleted = <int>[];
+  final checkpoints = <DateTime>[];
+  int drops = 0;
 
   @override
   Future<int> save(FinishedWorkout workout, {required DateTime at}) async {
@@ -184,6 +196,15 @@ class RecordingWorkoutStore implements WorkoutStore {
     deleted.add(id);
     return true;
   }
+
+  @override
+  Future<void> checkpoint(
+    WorkoutSession session, {
+    required DateTime at,
+  }) async => checkpoints.add(at);
+
+  @override
+  Future<void> dropCheckpoint(WorkoutSession session) async => drops++;
 }
 
 class MemoryWorkoutHistory implements WorkoutStore, WorkoutHistoryReader {
@@ -197,6 +218,20 @@ class MemoryWorkoutHistory implements WorkoutStore, WorkoutHistoryReader {
   final _saved = <int, SavedWorkout>{};
   var _next = 1;
   bool failDelete = false;
+
+  @override
+  Future<List<SavedWorkout>> routed({
+    required DateTime from,
+    required DateTime to,
+    required Set<WorkoutType> types,
+  }) async => [
+    for (final saved in _saved.values)
+      if (types.contains(saved.workout.type) &&
+          saved.workout.gps &&
+          !saved.workout.start.isBefore(from) &&
+          saved.workout.start.isBefore(to))
+        saved,
+  ];
 
   @override
   Future<int> save(FinishedWorkout workout, {required DateTime at}) async {
@@ -217,28 +252,49 @@ class MemoryWorkoutHistory implements WorkoutStore, WorkoutHistoryReader {
   }
 
   @override
+  Future<void> checkpoint(
+    WorkoutSession session, {
+    required DateTime at,
+  }) async {}
+
+  @override
+  Future<void> dropCheckpoint(WorkoutSession session) async {}
+
+  @override
   Future<SavedWorkout?> byId(int id) async => _saved[id];
 
   @override
   Future<List<WorkoutListItem>> recent({required int limit}) async {
     final newest = _saved.values.toList()
       ..sort((a, b) => b.workout.start.compareTo(a.workout.start));
-    return [
-      for (final saved in newest.take(limit))
-        WorkoutListItem(
-          id: saved.id,
-          type: saved.workout.type,
-          start: saved.workout.start,
-          end: saved.workout.end,
-          utcOffset: saved.utcOffset,
-          elapsed: saved.workout.elapsed,
-          distanceMeters: saved.workout.distanceMeters,
-          averageHeartRate: saved.workout.averageHeartRate,
-          activeKilocalories: saved.workout.activeKilocalories,
-          health: saved.health,
-        ),
-    ];
+    return [for (final saved in newest.take(limit)) _item(saved)];
   }
+
+  @override
+  Future<List<WorkoutListItem>> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    final inside = [
+      for (final saved in _saved.values)
+        if (saved.workout.end.isAfter(from) && saved.workout.start.isBefore(to))
+          saved,
+    ]..sort((a, b) => a.workout.start.compareTo(b.workout.start));
+    return [for (final saved in inside) _item(saved)];
+  }
+
+  static WorkoutListItem _item(SavedWorkout saved) => WorkoutListItem(
+    id: saved.id,
+    type: saved.workout.type,
+    start: saved.workout.start,
+    end: saved.workout.end,
+    utcOffset: saved.utcOffset,
+    elapsed: saved.workout.elapsed,
+    distanceMeters: saved.workout.distanceMeters,
+    averageHeartRate: saved.workout.averageHeartRate,
+    activeKilocalories: saved.workout.activeKilocalories,
+    health: saved.health,
+  );
 }
 
 final class FakeRouteExporter implements DataExporter {

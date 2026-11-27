@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_router.dart';
 import 'package:open_ring/app/router/app_routes.dart';
+import 'package:open_ring/features/ai/domain/ai_config.dart';
 import 'package:open_ring/features/onboarding/presentation/welcome_screen.dart';
 import 'package:open_ring/features/settings/presentation/privacy_policy_screen.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
@@ -101,12 +102,28 @@ void main() {
       l.privacyStoresRingDataWhy,
       l.privacyStoresWorkouts,
       l.privacyStoresWorkoutsWhy,
+      l.privacyStoresRatings,
+      l.privacyStoresRatingsWhy,
       l.privacyStoresRoutes,
       l.privacyStoresRoutesWhy,
       l.privacyStoresProfile,
       l.privacyStoresProfileWhy,
       l.privacyStoresOtherApps,
       l.privacyStoresOtherAppsWhy,
+      l.privacyStoresWeighIns,
+      l.privacyStoresWeighInsWhy,
+      l.privacyStoresDayTags,
+      l.privacyStoresDayTagsWhy,
+      l.privacyStoresGoals,
+      l.privacyStoresGoalsWhy,
+      l.privacyStoresFood,
+      l.privacyStoresFoodWhy,
+      l.privacyStoresAi,
+      l.privacyStoresAiWhy,
+      l.privacyStoresAiKey,
+      l.privacyStoresAiKeyWhy,
+      l.privacyStoresMealAi,
+      l.privacyStoresMealAiWhy,
       l.privacyStoresSettings,
       l.privacyStoresSettingsWhy,
       l.privacyStoresSummary,
@@ -116,15 +133,146 @@ void main() {
       l.privacyHealthReads,
       l.privacyHealthReadsWhy,
       l.privacyHealthShare,
+      l.privacyAiHeading,
+      l.privacyAiSends,
+      l.privacyAiNever,
+      l.privacyAiPhotos,
+      l.privacyAiProvider,
+      l.privacyAiLocal,
+      l.aiKeyInfoShorebird,
       l.privacyDeleteHeading,
       l.privacyDeleteKept,
       l.privacyDeleteWorkout,
+      l.privacyDeleteFood,
+      l.privacyDeleteAi,
       l.privacyDeleteAll,
       l.privacyDeleteHealthConnect,
       l.privacyRevoke,
     ]) {
       expect(policy, contains(text));
     }
+  });
+
+  testWidgets('the privacy screen shows the ratings row', (tester) async {
+    await pumpScaled(
+      tester,
+      screenHost(const PrivacyPolicyScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: settingsOverrides(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+
+    await reveal(tester, find.text(l.privacyStoresRatings));
+
+    expect(find.text(l.privacyStoresRatings), findsOneWidget);
+    expect(find.text(l.privacyStoresRatingsWhy), findsOneWidget);
+  });
+
+  test('the policy document has the ratings row in the stored table', () {
+    final policy = _normalized(
+      File('../../docs/privacy-policy.md').readAsStringSync(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+    final row = '| ${l.privacyStoresRatings} |';
+
+    expect(policy, contains(row));
+    expect(policy.indexOf(row), lessThan(policy.indexOf('## Permissions')));
+    expect(policy, contains(l.privacyStoresRatingsWhy));
+  });
+
+  testWidgets('criterion 11: the privacy screen shows the Goals row', (
+    tester,
+  ) async {
+    await pumpScaled(
+      tester,
+      screenHost(const PrivacyPolicyScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: settingsOverrides(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+
+    await reveal(tester, find.text(l.privacyStoresGoals));
+
+    expect(find.text(l.privacyStoresGoals), findsOneWidget);
+    expect(find.text(l.privacyStoresGoalsWhy), findsOneWidget);
+  });
+
+  test('criterion 11: the policy document has the Goals row in the table', () {
+    final policy = _normalized(
+      File('../../docs/privacy-policy.md').readAsStringSync(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+    final row = '| ${l.privacyStoresGoals} |';
+
+    expect(policy, contains(row));
+    expect(policy.indexOf(row), lessThan(policy.indexOf('## Permissions')));
+    expect(policy, contains('${l.privacyStoresGoalsWhy} |'));
+  });
+
+  test('criterion 11: the Goals row names what the module stores', () {
+    final l = lookupAppLocalizations(const Locale('en'));
+    final row = '${l.privacyStoresGoals} ${l.privacyStoresGoalsWhy}'
+        .toLowerCase();
+
+    for (final word in [
+      'start',
+      'reference',
+      'check-in',
+      'pregnan',
+      'screening',
+    ]) {
+      expect(row, contains(word), reason: word);
+    }
+  });
+
+  testWidgets('criterion 10: the privacy screen names Effort in five rows', (
+    tester,
+  ) async {
+    await pumpScaled(
+      tester,
+      screenHost(const PrivacyPolicyScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: settingsOverrides(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+    final whys = {
+      'ring data': l.privacyStoresRingDataWhy,
+      'workouts': l.privacyStoresWorkoutsWhy,
+      'profile': l.privacyStoresProfileWhy,
+      'other apps': l.privacyStoresOtherAppsWhy,
+      'day tags': l.privacyStoresDayTagsWhy,
+    };
+
+    for (final MapEntry(key: row, value: why) in whys.entries) {
+      expect(why, contains('Effort'), reason: row);
+      await reveal(tester, find.text(why));
+      expect(find.text(why), findsOneWidget, reason: row);
+    }
+  });
+
+  test('criterion 10: the policy document names Effort in the five rows', () {
+    final policy = _normalized(
+      File('../../docs/privacy-policy.md').readAsStringSync(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+
+    for (final why in [
+      l.privacyStoresRingDataWhy,
+      l.privacyStoresWorkoutsWhy,
+      l.privacyStoresProfileWhy,
+      l.privacyStoresOtherAppsWhy,
+      l.privacyStoresDayTagsWhy,
+    ]) {
+      expect(why, contains('Effort'));
+      expect(policy, contains(why));
+    }
+    expect(l.privacyStoresDayTagsWhy, contains('Open Score and Effort'));
   });
 
   testWidgets('the Health Connect link opens the privacy screen', (
@@ -213,5 +361,140 @@ void main() {
       File(_manifest).readAsStringSync(),
       contains('androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE'),
     );
+  });
+
+  testWidgets('the privacy screen shows the Meals row and Food delete line', (
+    tester,
+  ) async {
+    await pumpScaled(
+      tester,
+      screenHost(const PrivacyPolicyScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: settingsOverrides(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+
+    await reveal(tester, find.text(l.privacyStoresFood));
+    expect(find.text(l.privacyStoresFood), findsOneWidget);
+    expect(find.text(l.privacyStoresFoodWhy), findsOneWidget);
+
+    await reveal(tester, find.text(l.privacyDeleteFood));
+    expect(find.text(l.privacyDeleteFood), findsOneWidget);
+  });
+
+  test('the policy document describes Food storage, deletions, and no camera '
+      'permission', () {
+    final policy = _normalized(
+      File('../../docs/privacy-policy.md').readAsStringSync(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+    final row = '| ${l.privacyStoresFood} |';
+
+    expect(policy, contains(row));
+    expect(policy.indexOf(row), lessThan(policy.indexOf('## Permissions')));
+    expect(policy, contains('${l.privacyStoresFoodWhy} |'));
+    for (final why in [
+      l.privacyStoresRingDataWhy,
+      l.privacyStoresOtherAppsWhy,
+    ]) {
+      expect(why, contains('Food'));
+      expect(why, contains('meal comparisons'));
+      expect(policy, contains(why));
+    }
+    expect(policy, contains('- ${l.privacyDeleteFood}'));
+    expect(policy, contains('No camera or photo library permission is asked'));
+    expect(policy, contains('up to 20 at once'));
+    final manifest = File(_manifest).readAsStringSync();
+    expect(manifest, isNot(contains('android.permission.CAMERA')));
+    expect(manifest, isNot(contains('android.permission.READ_MEDIA_IMAGES')));
+  });
+
+  test('the app, the policy and AI consents carry one effective date', () {
+    final policy = File('../../docs/privacy-policy.md').readAsStringSync();
+
+    expect(policy, contains('Effective $aiCurrentPolicyEffectiveDate.'));
+    for (final locale in AppLocalizations.supportedLocales) {
+      final l = lookupAppLocalizations(locale);
+      expect(l.privacyEffective, contains(aiCurrentPolicyEffectiveDate));
+    }
+  });
+
+  testWidgets('the privacy screen shows the AI rows, section and delete line', (
+    tester,
+  ) async {
+    await pumpScaled(
+      tester,
+      screenHost(const PrivacyPolicyScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: settingsOverrides(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+
+    for (final text in [
+      l.privacyStoresAi,
+      l.privacyStoresAiKeyWhy,
+      l.privacyStoresMealAi,
+      l.privacyAiHeading,
+      l.privacyAiSends,
+      l.privacyAiNever,
+      l.privacyAiPhotos,
+      l.privacyAiProvider,
+      l.privacyAiLocal,
+      l.aiKeyInfoShorebird,
+      l.privacyDeleteAi,
+    ]) {
+      await reveal(tester, find.text(text));
+      expect(find.text(text), findsOneWidget, reason: text);
+    }
+  });
+
+  test('the policy document has the three AI rows in the stored table', () {
+    final policy = _normalized(
+      File('../../docs/privacy-policy.md').readAsStringSync(),
+    );
+    final l = lookupAppLocalizations(const Locale('en'));
+
+    for (final (data, why) in [
+      (l.privacyStoresAi, l.privacyStoresAiWhy),
+      (l.privacyStoresAiKey, l.privacyStoresAiKeyWhy),
+      (l.privacyStoresMealAi, l.privacyStoresMealAiWhy),
+    ]) {
+      final row = '| $data |';
+      expect(policy, contains(row));
+      expect(policy.indexOf(row), lessThan(policy.indexOf('## Permissions')));
+      expect(policy, contains('$why |'));
+    }
+    expect(policy, contains('- ${l.privacyDeleteAi}'));
+  });
+
+  test('no surface still says the internet is only for updates', () {
+    final surfaces = [
+      File('../../docs/privacy-policy.md'),
+      File('../../README.md'),
+      File('../../CONTRIBUTING.md'),
+      File('../../site/index.html'),
+      File('../../site/pt/index.html'),
+      File('fastlane/metadata/android/en-US/full_description.txt'),
+      for (final locale in AppLocalizations.supportedLocales)
+        File('lib/l10n/app_${locale.toLanguageTag().replaceAll('-', '_')}.arb'),
+    ];
+
+    for (final file in surfaces) {
+      final text = file.readAsStringSync();
+      for (final old in [
+        'for one thing only',
+        'only uses the internet to download its own updates',
+        'used only to fetch the app',
+        'only part of the app that opens a network connection',
+        'serve só para buscar atualizações',
+        'beyond the Shorebird updater, and no analytics',
+      ]) {
+        expect(text, isNot(contains(old)), reason: '${file.path}: $old');
+      }
+    }
   });
 }

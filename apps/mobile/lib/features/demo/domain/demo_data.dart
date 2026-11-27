@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/ring/domain/sync_run.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:ring_driver/ring_driver.dart';
@@ -27,6 +28,8 @@ final class DemoData {
     required List<SleepSegment> sleep,
     required List<FinishedWorkout> workouts,
     required List<SyncRun> syncRuns,
+    List<WeighInDraft> weighIns = const [],
+    Map<DateTime, int> workoutRatings = const {},
     this.identity = demoRing,
   }) : activity = List.unmodifiable(activity),
        heartRate = List.unmodifiable(heartRate),
@@ -35,7 +38,9 @@ final class DemoData {
        stress = List.unmodifiable(stress),
        sleep = List.unmodifiable(sleep),
        workouts = List.unmodifiable(workouts),
-       syncRuns = List.unmodifiable(syncRuns);
+       syncRuns = List.unmodifiable(syncRuns),
+       weighIns = List.unmodifiable(weighIns),
+       workoutRatings = Map.unmodifiable(workoutRatings);
 
   final RingIdentity identity;
   final DateTime pairedAt;
@@ -49,6 +54,10 @@ final class DemoData {
   final List<SleepSegment> sleep;
   final List<FinishedWorkout> workouts;
   final List<SyncRun> syncRuns;
+  final List<WeighInDraft> weighIns;
+
+  /// The effort rating of a demo workout, by the start of that workout.
+  final Map<DateTime, int> workoutRatings;
 
   String get deviceId => identity.deviceId;
 }

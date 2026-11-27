@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/shell/app_navigation_bar.dart';
 import 'package:open_ring/features/heart/presentation/heart_screen.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
+import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
+import 'package:open_ring/features/open_score/domain/day_tag.dart';
+import 'package:open_ring/features/open_score/domain/day_tag_store.dart';
 import 'package:open_ring/features/trends/domain/trend_metric.dart';
 import 'package:open_ring/features/trends/presentation/trends_screen.dart';
 
@@ -30,6 +37,88 @@ Future<void> _pick(
 }
 
 void main() {
+  group('the Day Score metric', () {
+    Future<void> pumpWith(WidgetTester tester, Set<ModuleId> modules) =>
+        pumpScaled(
+          tester,
+          screenHost(const TrendsScreen()),
+          textScaler: TextScaler.noScaling,
+          brightness: Brightness.dark,
+          locale: const Locale('en'),
+          overrides: <Override>[
+            ...metricsOverrides(fullDataScenario),
+            moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
+          ],
+        );
+
+    testWidgets('is not offered while Open Score is off', (tester) async {
+      await pumpWith(tester, const {});
+
+      expect(find.byKey(TrendsKeys.metric(TrendMetric.dayScore)), findsNothing);
+      expect(
+        find.byKey(TrendsKeys.metric(TrendMetric.restingHeartRate)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('comes first with Open Score on and charts the scores', (
+      tester,
+    ) async {
+      await pumpWith(tester, const {ModuleId.openScore});
+
+      final chip = find.byKey(TrendsKeys.metric(TrendMetric.dayScore));
+      expect(chip, findsOneWidget);
+      expect(
+        tester.getTopLeft(chip).dy,
+        lessThanOrEqualTo(
+          tester
+              .getTopLeft(
+                find.byKey(TrendsKeys.metric(TrendMetric.restingHeartRate)),
+              )
+              .dy,
+        ),
+      );
+      expect(find.text('Resting HR · 30 days'), findsOneWidget);
+
+      await _pick(tester, metric: TrendMetric.dayScore);
+
+      expect(find.text('Day Score · 30 days'), findsOneWidget);
+      expect(find.byKey(TrendsKeys.chart), findsOneWidget);
+      expect(find.textContaining('Today so far: '), findsOneWidget);
+      expect(
+        find.textContaining('including days with partial coverage'),
+        findsOneWidget,
+      );
+    });
+  });
+
+  testWidgets('tagged days stay out of the Day Score series', (tester) async {
+    await pumpScaled(
+      tester,
+      screenHost(const TrendsScreen()),
+      textScaler: TextScaler.noScaling,
+      brightness: Brightness.dark,
+      locale: const Locale('en'),
+      overrides: <Override>[
+        ...metricsOverrides(fullDataScenario),
+        moduleStoreProvider.overrideWithValue(
+          InMemoryModuleStore(const {ModuleId.openScore}),
+        ),
+        dayTagStoreProvider.overrideWithValue(
+          InMemoryDayTagStore({
+            for (var age = 0; age < 120; age++)
+              metricsToday.addDays(-age): DayTag.sick,
+          }),
+        ),
+      ],
+    );
+
+    await _pick(tester, metric: TrendMetric.dayScore);
+
+    expect(find.text('Day Score · 30 days'), findsOneWidget);
+    expect(find.byKey(TrendsKeys.metricEmpty), findsOneWidget);
+  });
+
   testWidgets('without data it says what to do', (tester) async {
     await pumpMetrics(tester, screenHost(const TrendsScreen()), noDataScenario);
 

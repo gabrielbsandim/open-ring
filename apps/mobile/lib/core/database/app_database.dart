@@ -1,11 +1,17 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:open_ring/core/database/app_database.steps.dart';
+import 'package:open_ring/core/database/tables/ai_tables.dart';
+import 'package:open_ring/core/database/tables/body_tables.dart';
+import 'package:open_ring/core/database/tables/goal_tables.dart';
 import 'package:open_ring/core/database/tables/health_tables.dart';
 import 'package:open_ring/core/database/tables/import_tables.dart';
+import 'package:open_ring/core/database/tables/meal_tables.dart';
+import 'package:open_ring/core/database/tables/open_score_tables.dart';
 import 'package:open_ring/core/database/tables/ring_tables.dart';
 import 'package:open_ring/core/database/tables/sample_tables.dart';
 import 'package:open_ring/core/database/tables/sleep_tables.dart';
+import 'package:open_ring/core/database/tables/trajectory_tables.dart';
 import 'package:open_ring/core/database/tables/workout_tables.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/core/records/record_kind.dart';
@@ -37,13 +43,24 @@ part 'app_database.g.dart';
     ImportedSleepStages,
     HealthReads,
     ImportedWorkouts,
+    WeighIns,
+    DayTags,
+    StepGoalChanges,
+    Goals,
+    GoalWeeks,
+    GoalScreenings,
+    Meals,
+    AiReports,
+    MealAnalyses,
+    MealItems,
+    TrajectoryProjections,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -96,6 +113,44 @@ class AppDatabase extends _$AppDatabase {
         await migrator.addColumn(runs, runs.heartRateIntervalSeenMinutes);
       },
       from9To10: (migrator, schema) => _requeueRecentWorkouts(),
+      from10To11: (migrator, schema) => migrator.createTable(schema.weighIns),
+      from11To12: (migrator, schema) => migrator.createTable(schema.dayTags),
+      from12To13: (migrator, schema) async {
+        final workouts = schema.workouts;
+        final imported = schema.importedWorkouts;
+        await migrator.addColumn(workouts, workouts.effortRating);
+        await migrator.addColumn(imported, imported.effortRating);
+      },
+      from13To14: (migrator, schema) =>
+          migrator.createTable(schema.stepGoalChanges),
+      from14To15: (migrator, schema) async {
+        await migrator.createTable(schema.goals);
+        await migrator.createTable(schema.goalWeeks);
+        await migrator.createTable(schema.goalScreenings);
+      },
+      from15To16: (migrator, schema) => migrator.createTable(schema.meals),
+      from16To17: (migrator, schema) async {
+        final workouts = schema.workouts;
+        await migrator.addColumn(workouts, workouts.checkpointUtcMs);
+      },
+      from17To18: (migrator, schema) async {
+        await migrator.createTable(schema.aiReports);
+        await migrator.createIndex(schema.aiReportsCacheKey);
+      },
+      from18To19: (migrator, schema) async {
+        await migrator.addColumn(schema.meals, schema.meals.keepOnPhone);
+        await migrator.createTable(schema.mealAnalyses);
+        await migrator.createTable(schema.mealItems);
+        await migrator.createIndex(schema.mealAnalysesCacheKey);
+        await migrator.createIndex(schema.mealAnalysesStatus);
+        await migrator.createIndex(schema.mealItemsAnalysis);
+      },
+      from19To20: (migrator, schema) async {
+        await migrator.addColumn(schema.mealItems, schema.mealItems.foodGroup);
+      },
+      from20To21: (migrator, schema) async {
+        await migrator.createTable(schema.trajectoryProjections);
+      },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );

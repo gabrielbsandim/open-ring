@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/core/format/metric_format.dart';
@@ -9,6 +13,7 @@ import 'package:open_ring/features/workout/domain/live_heart_rate_source.dart';
 import 'package:open_ring/features/workout/domain/location_source.dart';
 import 'package:open_ring/features/workout/domain/workout_analysis.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
+import 'package:open_ring/features/workout/domain/workout_notifier.dart';
 import 'package:open_ring/features/workout/domain/workout_route.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
@@ -48,8 +53,6 @@ extension WorkoutTypeLabels on WorkoutType {
     WorkoutType.yoga => Icons.self_improvement_rounded,
     WorkoutType.other => Icons.more_horiz_rounded,
   };
-
-  bool get showsSpeed => this == WorkoutType.cycling;
 
   String recorded(AppLocalizations l10n) => switch (this) {
     WorkoutType.running ||
@@ -199,6 +202,54 @@ LocationNotice workoutLocationNotice(AppLocalizations l10n) => LocationNotice(
   title: l10n.workoutNotificationTitle,
   text: l10n.workoutNotificationText,
   channel: l10n.workoutNotificationChannel,
+  live: WorkoutNoticeLabels(
+    channel: l10n.workoutNotificationChannel,
+    pause: l10n.workoutPause,
+    resume: l10n.workoutResume,
+    stop: l10n.workoutEnd,
+    paused: l10n.workoutPhasePaused,
+    decimalSeparator: NumberFormat.decimalPattern(l10n.localeName)
+        .symbols
+        .DECIMAL_SEP,
+    types: {for (final type in WorkoutType.values) type: type.label(l10n)},
+    zoneTitle: l10n.workoutNoticeTitleZone,
+    ringLostTitle: l10n.workoutNoticeTitleRingLost,
+    pausedTitle: l10n.workoutNoticeTitlePaused,
+    pausedAt: l10n.workoutNoticePausedAt,
+    recording: l10n.workoutNoticeRecording,
+    gpsLost: l10n.workoutNoticeGpsLost,
+    speed: l10n.workoutUnitSpeed,
+    speedImperial: l10n.workoutUnitSpeedMph,
+    save: l10n.workoutNoticeSave,
+    keep: l10n.workoutNoticeKeep,
+    reconnect: l10n.workoutNoticeReconnect,
+    confirmTitle: l10n.workoutNoticeConfirmTitle,
+    confirmText: (time, distance) => distance == null
+        ? l10n.workoutNoticeConfirmTextNoDistance(time)
+        : l10n.workoutNoticeConfirmText(time, distance),
+    alertChannel: l10n.workoutAlertChannel,
+    ringLostAlertTitle: l10n.workoutRingLostAlertTitle,
+    ringLostAlertText: l10n.workoutRingLostAlertText,
+    savedTitle: l10n.workoutSavedTitle,
+    savedHeartRate: l10n.workoutNoticeSavedHeartRate,
+    failedTitle: l10n.workoutSaveFailedTitle,
+    failedText: l10n.workoutNoticeFailedText,
+    viewSummary: l10n.workoutViewSummary,
+    open: l10n.workoutNoticeOpen,
+    recoveredTitle: l10n.workoutRecoveredTitle,
+    recoveredText: (elapsed, distance) => distance == null
+        ? l10n.workoutRecoveredBodyNoDistance(elapsed)
+        : l10n.workoutRecoveredBody(elapsed, distance),
+    clockOrDay: (instant, offset, now) {
+      // Recovery posts at launch, before MaterialApp has loaded the date
+      // symbols; with them loaded this does nothing.
+      unawaited(initializeDateFormatting());
+      return MetricFormat(
+        l10n,
+        l10n.localeName,
+      ).clockOrDay(instant, now, offset: offset);
+    },
+  ),
 );
 
 enum GpsQuality {

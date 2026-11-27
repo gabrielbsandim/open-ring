@@ -12,6 +12,7 @@ final class FakeWidgetGateway implements WidgetGateway {
   final bool pinFails;
   final Map<String, List<Map<String, Object?>>> published = {};
   final List<HomeWidgetKind> pinned = [];
+  final List<bool> thisWeekAvailable = [];
 
   List<Map<String, Object?>> get snapshots =>
       published[WidgetKeys.snapshot] ?? const [];
@@ -32,6 +33,11 @@ final class FakeWidgetGateway implements WidgetGateway {
   Future<void> pin(HomeWidgetKind kind) async {
     if (pinFails) throw PlatformException(code: 'pin_failed');
     pinned.add(kind);
+  }
+
+  @override
+  Future<void> setThisWeekAvailable({required bool available}) async {
+    thisWeekAvailable.add(available);
   }
 }
 

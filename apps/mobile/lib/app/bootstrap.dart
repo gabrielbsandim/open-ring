@@ -2,18 +2,46 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:open_ring/app/app.dart';
 import 'package:open_ring/app/background/background_sync_dispatcher.dart';
 import 'package:open_ring/app/theme/shared_preferences_theme_mode_store.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
+import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/database/app_database_provider.dart';
 import 'package:open_ring/core/database/open_app_database.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
+import 'package:open_ring/features/activity/application/step_goal_history_providers.dart';
 import 'package:open_ring/features/activity/infrastructure/drift_activity_history_reader.dart';
+import 'package:open_ring/features/activity/infrastructure/drift_step_goal_history.dart';
+import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/ai_report_providers.dart';
+import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
+import 'package:open_ring/features/ai/infrastructure/drift_ai_report_store.dart';
+import 'package:open_ring/features/ai/infrastructure/secure_storage_secret_store.dart';
+import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_config_store.dart';
+import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_run_marker_store.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/body/application/weigh_in_providers.dart';
+import 'package:open_ring/features/body/infrastructure/drift_weigh_in_store.dart';
+import 'package:open_ring/features/body/infrastructure/shared_preferences_hide_numbers_store.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
 import 'package:open_ring/features/demo/infrastructure/demo_workout_store.dart';
 import 'package:open_ring/features/demo/infrastructure/drift_demo_data_store.dart';
 import 'package:open_ring/features/demo/infrastructure/shared_preferences_demo_mode_store.dart';
+import 'package:open_ring/features/food/application/food_energy_gate.dart';
+import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
+import 'package:open_ring/features/food/application/meal_analysis_trigger.dart';
+import 'package:open_ring/features/food/application/meal_recovery.dart';
+import 'package:open_ring/features/food/application/meal_store_providers.dart';
+import 'package:open_ring/features/food/infrastructure/drift_meal_store.dart';
+import 'package:open_ring/features/food/infrastructure/image_picker_meal_camera.dart';
+import 'package:open_ring/features/food/infrastructure/image_picker_meal_gallery.dart';
+import 'package:open_ring/features/food/infrastructure/io_photo_store.dart';
+import 'package:open_ring/features/food/infrastructure/shared_preferences_food_energy_store.dart';
+import 'package:open_ring/features/goals/application/goal_review_trigger.dart';
+import 'package:open_ring/features/goals/application/goal_store_providers.dart';
+import 'package:open_ring/features/goals/infrastructure/drift_goal_store.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/health_sync/application/health_status_providers.dart';
 import 'package:open_ring/features/health_sync/application/health_sync_controller.dart';
@@ -26,16 +54,25 @@ import 'package:open_ring/features/heart/application/heart_providers.dart';
 import 'package:open_ring/features/heart/application/measure_controller.dart';
 import 'package:open_ring/features/heart/infrastructure/drift_heart_history_reader.dart';
 import 'package:open_ring/features/heart/infrastructure/drift_spot_reading_store.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/infrastructure/shared_preferences_module_store.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
 import 'package:open_ring/features/onboarding/infrastructure/device_app_permissions.dart';
 import 'package:open_ring/features/onboarding/infrastructure/method_channel_app_permissions.dart';
 import 'package:open_ring/features/onboarding/infrastructure/shared_preferences_onboarding_store.dart';
+import 'package:open_ring/features/open_score/application/celebration_providers.dart';
+import 'package:open_ring/features/open_score/application/day_tag_providers.dart';
+import 'package:open_ring/features/open_score/application/week_goal_providers.dart';
+import 'package:open_ring/features/open_score/infrastructure/drift_day_tag_store.dart';
+import 'package:open_ring/features/open_score/infrastructure/shared_preferences_celebration_store.dart';
+import 'package:open_ring/features/open_score/infrastructure/shared_preferences_week_goal_store.dart';
 import 'package:open_ring/features/ring/application/auto_measurements_controller.dart';
 import 'package:open_ring/features/ring/application/pair_controller.dart';
 import 'package:open_ring/features/ring/application/resume_sync_trigger.dart';
 import 'package:open_ring/features/ring/application/ring_alert_providers.dart';
 import 'package:open_ring/features/ring/application/ring_link_providers.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
+import 'package:open_ring/features/ring/application/sync_alerts.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
 import 'package:open_ring/features/ring/infrastructure/background_sync_signal.dart';
 import 'package:open_ring/features/ring/infrastructure/drift_paired_ring_store.dart';
@@ -63,20 +100,33 @@ import 'package:open_ring/features/sleep/infrastructure/drift_rem_reporting_read
 import 'package:open_ring/features/sleep/infrastructure/drift_sleep_history_reader.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/today/infrastructure/drift_ring_status_reader.dart';
+import 'package:open_ring/features/trajectory/application/trajectory_providers.dart';
+import 'package:open_ring/features/trajectory/infrastructure/drift_projection_store.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
 import 'package:open_ring/features/widgets/infrastructure/home_widget_plugin_gateway.dart';
 import 'package:open_ring/features/widgets/infrastructure/shared_preferences_today_widget_config_store.dart';
 import 'package:open_ring/features/workout/application/location_access_provider.dart';
+import 'package:open_ring/features/workout/application/workout_alert_providers.dart';
 import 'package:open_ring/features/workout/application/workout_controller.dart';
 import 'package:open_ring/features/workout/application/workout_history_providers.dart';
+import 'package:open_ring/features/workout/application/workout_lock_providers.dart';
+import 'package:open_ring/features/workout/application/workout_recovery.dart';
 import 'package:open_ring/features/workout/infrastructure/drift_imported_workout_reader.dart';
+import 'package:open_ring/features/workout/infrastructure/drift_open_workout_store.dart';
 import 'package:open_ring/features/workout/infrastructure/drift_workout_history_reader.dart';
+import 'package:open_ring/features/workout/infrastructure/drift_workout_rating_store.dart';
 import 'package:open_ring/features/workout/infrastructure/drift_workout_store.dart';
 import 'package:open_ring/features/workout/infrastructure/geolocator_location_source.dart';
+import 'package:open_ring/features/workout/infrastructure/isolate_live_workout_registry.dart';
+import 'package:open_ring/features/workout/infrastructure/method_channel_workout_notifier.dart';
 import 'package:open_ring/features/workout/infrastructure/ring_live_heart_rate_source.dart';
+import 'package:open_ring/features/workout/infrastructure/shared_preferences_workout_alert_preferences.dart';
+import 'package:open_ring/features/workout/infrastructure/shared_preferences_workout_lock_preferences.dart';
+import 'package:open_ring/features/workout/presentation/workout_labels.dart';
 
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
+  configureAndroidPhotoPicker();
   await FlutterBluePlusTransport.enableStateRestoration();
   await clearLegacyPreferences();
   final themeModeStore = await SharedPreferencesThemeModeStore.open();
@@ -117,10 +167,54 @@ Future<void> bootstrap() async {
       unitSystemStoreProvider.overrideWithValue(
         SharedPreferencesUnitSystemStore(),
       ),
+      moduleStoreProvider.overrideWithValue(SharedPreferencesModuleStore()),
+      hideNumbersStoreProvider.overrideWithValue(
+        SharedPreferencesHideNumbersStore(),
+      ),
+      workoutLockPreferencesProvider.overrideWithValue(
+        SharedPreferencesWorkoutLockPreferences(),
+      ),
+      workoutAlertPreferencesProvider.overrideWithValue(
+        SharedPreferencesWorkoutAlertPreferences(),
+      ),
+      weekGoalStoreProvider.overrideWithValue(SharedPreferencesWeekGoalStore()),
+      celebrationStoreProvider.overrideWithValue(
+        SharedPreferencesCelebrationStore(),
+      ),
+      weighInStoreProvider.overrideWith(
+        (ref) => DriftWeighInStore(ref.watch(appDatabaseProvider)),
+      ),
+      dayTagStoreProvider.overrideWith(
+        (ref) => DriftDayTagStore(ref.watch(appDatabaseProvider)),
+      ),
+      stepGoalHistoryProvider.overrideWith(
+        (ref) => DriftStepGoalHistory(ref.watch(appDatabaseProvider)),
+      ),
+      goalStoreProvider.overrideWith(
+        (ref) => DriftGoalStore(ref.watch(appDatabaseProvider)),
+      ),
+      projectionStoreProvider.overrideWith(
+        (ref) => DriftProjectionStore(ref.watch(appDatabaseProvider)),
+      ),
+      mealStoreProvider.overrideWith(
+        (ref) => DriftMealStore(ref.watch(appDatabaseProvider)),
+      ),
+      driftMealAnalysisStoreOverride,
+      foodEnergyStoreProvider.overrideWithValue(
+        SharedPreferencesFoodEnergyStore(),
+      ),
+      photoStoreProvider.overrideWithValue(IoPhotoStore.documents()),
+      mealCameraProvider.overrideWithValue(
+        ImagePickerMealCamera(ImagePicker()),
+      ),
+      mealGalleryProvider.overrideWithValue(
+        ImagePickerMealGallery(ImagePicker()),
+      ),
       ringAlertPreferencesProvider.overrideWithValue(
         SharedPreferencesRingAlertPreferences(),
       ),
       ringNotifierProvider.overrideWithValue(const MethodChannelRingNotifier()),
+      workoutNotifierProvider.overrideWithValue(MethodChannelWorkoutNotifier()),
       healthWritePreferencesProvider.overrideWithValue(
         SharedPreferencesHealthWritePreferences(),
       ),
@@ -128,7 +222,19 @@ Future<void> bootstrap() async {
         (ref) => PlatformNotificationAccess(ref.watch(appPermissionsProvider)),
       ),
       localDataEraserProvider.overrideWith(
-        (ref) => DeviceLocalDataEraser(ref.watch(appDatabaseProvider)),
+        (ref) => DeviceLocalDataEraser(
+          ref.watch(appDatabaseProvider),
+          ref.watch(photoStoreProvider),
+          secrets: ref.watch(secretStoreProvider),
+        ),
+      ),
+      secretStoreProvider.overrideWithValue(const SecureStorageSecretStore()),
+      aiConfigStoreProvider.overrideWithValue(SharedPreferencesAiConfigStore()),
+      aiRunMarkerStoreProvider.overrideWithValue(
+        SharedPreferencesAiRunMarkerStore(),
+      ),
+      aiReportStoreProvider.overrideWith(
+        (ref) => DriftAiReportStore(ref.watch(appDatabaseProvider)),
       ),
       appDatabaseProvider.overrideWithValue(database),
       syncStoreProvider.overrideWith(
@@ -183,6 +289,18 @@ Future<void> bootstrap() async {
         if (ref.watch(demoModeProvider)) return DemoWorkoutStore(database);
         return DriftWorkoutStore(database);
       }),
+      openWorkoutStoreProvider.overrideWith(
+        (ref) => DriftOpenWorkoutStore(ref.watch(appDatabaseProvider)),
+      ),
+      liveWorkoutRegistryProvider.overrideWithValue(
+        IsolateLiveWorkoutRegistry(),
+      ),
+      workoutRecoveryLabelsProvider.overrideWith(
+        (ref) => workoutLocationNotice(ringAlertStrings()).live,
+      ),
+      workoutRatingStoreProvider.overrideWith(
+        (ref) => DriftWorkoutRatingStore(ref.watch(appDatabaseProvider)),
+      ),
       workoutHistoryReaderProvider.overrideWith(
         (ref) => DriftWorkoutHistoryReader(ref.watch(appDatabaseProvider)),
       ),
@@ -205,7 +323,14 @@ Future<void> bootstrap() async {
     unawaited(container.read(syncIntervalProvider.notifier).ensureScheduled());
   }
   unawaited(container.read(resumeSyncTriggerProvider).onForeground());
-  container.listen(healthGrantRetryProvider, (_, _) {});
+  unawaited(container.read(mealRecoveryProvider.notifier).run());
+  unawaited(container.read(workoutRecoveryProvider.notifier).run());
+  unawaited(container.read(aiRunRecoveryProvider.future).catchError((_) {}));
+  container
+    ..listen(healthGrantRetryProvider, (_, _) {})
+    ..listen(dayRollProvider, (_, _) {})
+    ..listen(goalReviewTriggerProvider, (_, _) {})
+    ..listen(mealAnalysisTriggerProvider, (_, _) {});
   startWidgetPush(container);
   runApp(
     UncontrolledProviderScope(container: container, child: const OpenRingApp()),

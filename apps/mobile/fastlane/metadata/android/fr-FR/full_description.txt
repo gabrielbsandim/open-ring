@@ -3,21 +3,26 @@ OpenRing est une application gratuite et open source pour la bague connectée CO
 SANS COMPTE, SANS CLOUD
 • Pas d'inscription, pas de connexion, pas d'e-mail. Associez la bague et c'est parti.
 • Vos données sont dans une base locale sur votre téléphone, pas sur un serveur.
-• Pas de statistiques d'usage, pas de publicité, pas de pistage. L'application n'utilise internet que pour télécharger ses propres mises à jour.
-• Les données ne quittent le téléphone que si vous le décidez : vers Health Connect, ou dans un fichier CSV, JSON ou GPX que vous exportez.
+• Pas de statistiques d'usage, pas de publicité, pas de pistage. L'application utilise internet pour ses propres mises à jour et, seulement si vous activez Analyse IA, pour le service d'IA que vous choisissez.
+• Les données ne quittent le téléphone que si vous le décidez : vers Health Connect, dans un fichier CSV, JSON ou GPX que vous exportez, lors d'un transfert vers un nouveau téléphone que vous lancez ou, avec Analyse IA activé, vers le service d'IA que vous choisissez.
 
 CE QUE VOUS VOYEZ
 • Le sommeil sur une frise : léger, profond, paradoxal (REM) et éveil.
 • La fréquence cardiaque sur la journée, la fréquence au repos, la VFC, l'oxygène sanguin (SpO2) et le stress.
 • Les pas, la distance et l'énergie active.
 • Un score de forme qui montre ses données d'entrée : ce que chacune a ajouté ou retiré, par rapport à votre propre référence.
-• Des widgets d'écran d'accueil pour la forme, la journée, la batterie de la bague et le lancement d'une séance.
+• Widgets d'écran d'accueil : forme, Aujourd'hui configurable (jusqu'à 6 champs), batterie de la bague, Démarrer une séance (avec écran verrouillé pour Bague et Démarrer une séance), et Cette semaine quand Effort ou Objectifs sont activés.
+
+MODULES OPTIONNELS (DÉSACTIVÉS PAR DÉFAUT DANS RÉGLAGES > MODULES)
+• Corps et Open Score : pesées manuelles avec tendance sur 28 jours (option pour masquer les chiffres), Score du jour, Niveau, Global et étiquettes du jour.
+• Énergie, Effort et Objectifs : plage d'énergie quotidienne, points d'effort et jours de renforcement hebdomadaires, et plans flexibles avec bilan guidé.
+• Alimentation, Trajectoire et Analyse IA : journal local de repas avec photos, projections à 4 et 12 semaines, et IA optionnelle avec votre propre clé, envoyant résumés ou photos uniquement quand vous le décidez.
 
 SÉANCES AVEC GPS
 Le téléphone tient le chrono, la bague envoie la fréquence cardiaque en direct et, en extérieur, le GPS du téléphone enregistre le parcours, la distance, l'allure et les temps intermédiaires. La position n'est utilisée que pendant une séance. Exportez n'importe quel parcours en GPX.
 
 HEALTH CONNECT
-Les pas, l'énergie active, la fréquence cardiaque, la SpO2, la VFC, les phases de sommeil et les séances avec leur parcours peuvent être écrits dans Health Connect, pour que les autres applications de votre choix puissent les utiliser. La lecture du sommeil écrit par d'autres applications est facultative et désactivée par défaut.
+Les pas, l'énergie active, la fréquence cardiaque, la SpO2, la VFC, les phases de sommeil et les séances avec leur parcours peuvent être écrits dans Health Connect, pour que les autres applications de votre choix puissent les utiliser. La lecture du sommeil et des séances écrits par d'autres applications est facultative et désactivée par défaut.
 
 SYNCHRONISER, PAS DIFFUSER
 La bague garde son propre historique. Le téléphone se connecte à intervalles réguliers (toutes les 60 minutes par défaut), récupère les nouveautés et se déconnecte, ce qui ménage les deux batteries.

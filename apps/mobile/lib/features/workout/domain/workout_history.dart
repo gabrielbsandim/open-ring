@@ -14,6 +14,7 @@ sealed class WorkoutEntry {
   Duration get utcOffset;
   Duration get elapsed;
   String get source;
+  int? get rating;
 
   bool overlaps(WorkoutEntry other) =>
       start.isBefore(other.end) && other.start.isBefore(end);
@@ -32,6 +33,7 @@ final class WorkoutListItem extends WorkoutEntry {
     this.averageHeartRate,
     this.activeKilocalories,
     this.health = WorkoutHealthStatus.notQueued,
+    this.rating,
   });
 
   final int id;
@@ -49,6 +51,8 @@ final class WorkoutListItem extends WorkoutEntry {
   final int? averageHeartRate;
   final double? activeKilocalories;
   final WorkoutHealthStatus health;
+  @override
+  final int? rating;
 
   @override
   String get source => ringSource;
@@ -65,6 +69,7 @@ final class ImportedWorkout extends WorkoutEntry {
     required this.start,
     required this.end,
     required this.utcOffset,
+    this.rating,
   });
 
   final String recordId;
@@ -78,6 +83,8 @@ final class ImportedWorkout extends WorkoutEntry {
   final DateTime end;
   @override
   final Duration utcOffset;
+  @override
+  final int? rating;
 
   @override
   Duration get elapsed => end.difference(start);
@@ -90,18 +97,34 @@ final class SavedWorkout {
     required this.workout,
     required this.utcOffset,
     this.health = WorkoutHealthStatus.notQueued,
+    this.rating,
   });
 
   final int id;
   final FinishedWorkout workout;
   final Duration utcOffset;
   final WorkoutHealthStatus health;
+  final int? rating;
 }
 
 abstract interface class WorkoutHistoryReader {
   Future<List<WorkoutListItem>> recent({required int limit});
 
   Future<SavedWorkout?> byId(int id);
+
+  /// Workouts with a route that started in [from, to), oldest first.
+  Future<List<SavedWorkout>> routed({
+    required DateTime from,
+    required DateTime to,
+    required Set<WorkoutType> types,
+  });
+
+  /// Finished workouts with a part inside [from, to), oldest first, read
+  /// without their route.
+  Future<List<WorkoutListItem>> intersecting({
+    required DateTime from,
+    required DateTime to,
+  });
 }
 
 final class EmptyWorkoutHistoryReader implements WorkoutHistoryReader {
@@ -112,6 +135,19 @@ final class EmptyWorkoutHistoryReader implements WorkoutHistoryReader {
 
   @override
   Future<SavedWorkout?> byId(int id) async => null;
+
+  @override
+  Future<List<SavedWorkout>> routed({
+    required DateTime from,
+    required DateTime to,
+    required Set<WorkoutType> types,
+  }) async => const [];
+
+  @override
+  Future<List<WorkoutListItem>> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async => const [];
 }
 
 typedef ImportedWorkouts = ({
@@ -130,6 +166,13 @@ abstract interface class ImportedWorkoutReader {
   Future<ImportedWorkouts> recent({required int limit});
 
   Future<ImportedWorkout?> byRecordId(String recordId);
+
+  /// The workouts other apps wrote with a part inside [from, to), oldest
+  /// first, and the same order of sources as [recent].
+  Future<ImportedWorkouts> intersecting({
+    required DateTime from,
+    required DateTime to,
+  });
 }
 
 final class NoImportedWorkoutReader implements ImportedWorkoutReader {
@@ -141,4 +184,10 @@ final class NoImportedWorkoutReader implements ImportedWorkoutReader {
 
   @override
   Future<ImportedWorkout?> byRecordId(String recordId) async => null;
+
+  @override
+  Future<ImportedWorkouts> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async => noImportedWorkouts;
 }

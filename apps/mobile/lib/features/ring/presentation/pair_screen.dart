@@ -351,7 +351,7 @@ class _WithoutRingActionState extends ConsumerState<_WithoutRingAction> {
     await _allowBackgroundReads();
     if (!mounted) return;
     await ref.read(onboardingProvider.notifier).complete();
-    router.go(AppTab.today.path);
+    router.go(AppPaths.onboardingModules);
   }
 
   // A refused or failed read still finishes onboarding: reads can be turned

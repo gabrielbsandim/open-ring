@@ -53,6 +53,56 @@ void main() {
     expect(recent.workouts.last.type, WorkoutType.other);
   });
 
+  test(
+    'intersecting with reading off returns nothing and OpenRing alone',
+    () async {
+      final db = memoryDatabase();
+      await seeded(DriftHealthReadStore(db));
+
+      final listed = await DriftImportedWorkoutReader(db).intersecting(
+        from: run.subtract(const Duration(hours: 1)),
+        to: run.add(const Duration(hours: 1)),
+      );
+
+      expect(listed.priority, [ringSource]);
+      expect(listed.workouts, isEmpty);
+    },
+  );
+
+  test('intersecting returns workouts that overlap the range, oldest '
+      'first, with the order', () async {
+    final from = DateTime.utc(2026, 11, 20);
+    final to = DateTime.utc(2026, 11, 21);
+    const hour = Duration(hours: 1);
+    final db = memoryDatabase();
+    final store = DriftHealthReadStore(db);
+    await store.saveWorkouts([
+      externalWorkout(watch, to.subtract(hour), id: 'spansTo', minutes: 120),
+      externalWorkout(
+        watch,
+        from.subtract(hour),
+        id: 'endsAtFrom',
+        minutes: 60,
+      ),
+      externalWorkout(fit, to, id: 'startsAtTo'),
+      externalWorkout(fit, from.subtract(hour), id: 'spansFrom', minutes: 120),
+      externalWorkout(watch, from.add(const Duration(hours: 5)), id: 'inside'),
+    ], readAt: readAt);
+    await store.setEnabled(HealthRecordKind.workout, enabled: true);
+    await store.savePriority(HealthRecordKind.workout, const [fit, ringSource]);
+
+    final listed = await DriftImportedWorkoutReader(db)
+        .intersecting(from: from, to: to);
+
+    expect(listed.workouts.map((w) => w.recordId), [
+      'spansFrom',
+      'inside',
+      'spansTo',
+    ]);
+    expect(listed.priority, [fit, ringSource, watch]);
+    expect(listed.workouts.first.source, fit);
+  });
+
   test('opens one workout by its record id', () async {
     final db = memoryDatabase();
     final store = await seeded(DriftHealthReadStore(db));

@@ -1,5 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:open_ring/core/database/app_database.dart';
+import 'package:open_ring/features/body/domain/weigh_in.dart';
+import 'package:open_ring/features/body/infrastructure/drift_weigh_in_store.dart';
 import 'package:open_ring/features/demo/domain/demo_data.dart';
 import 'package:open_ring/features/demo/domain/demo_data_store.dart';
 import 'package:open_ring/features/ring/infrastructure/ring_devices_dao.dart';
@@ -43,17 +45,27 @@ final class DriftDemoDataStore implements DemoDataStore {
     await _samples.upsertStress(id, data.stress);
     await _sleep.replaceNights(id, data.sleep);
     for (final workout in data.workouts) {
-      await _workouts.insertFinished(workout, deviceId: id);
+      await _workouts.insertFinished(
+        workout,
+        deviceId: id,
+        effortRating: data.workoutRatings[workout.start],
+      );
     }
     for (final run in data.syncRuns) {
       await _runs.record(id, run);
     }
+    await _db.batch(
+      (batch) => batch.insertAll(_db.weighIns, [
+        for (final draft in data.weighIns) weighInColumns(draft),
+      ]),
+    );
   });
 
   @override
   Future<void> wipe() => _db.transaction(() => _delete(demoDeviceId));
 
   // Children before the device row: every sample table references it.
+  // Weigh-ins have no device, so the demo ones go by their source.
   Future<void> _delete(String deviceId) async {
     final tables = <TableInfo<Table, Object?>>[
       _db.activityBuckets,
@@ -69,6 +81,9 @@ final class DriftDemoDataStore implements DemoDataStore {
       _db.workouts,
       _db.ringDevices,
     ];
+    await (_db.delete(
+      _db.weighIns,
+    )..where((row) => row.source.equals(WeighInSource.demo.name))).go();
     for (final table in tables) {
       await _db.customUpdate(
         'DELETE FROM ${table.actualTableName} WHERE device_id = ?',

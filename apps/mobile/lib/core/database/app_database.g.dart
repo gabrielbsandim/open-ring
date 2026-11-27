@@ -4892,6 +4892,28 @@ class $WorkoutsTable extends Workouts
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _effortRatingMeta = const VerificationMeta(
+    'effortRating',
+  );
+  @override
+  late final GeneratedColumn<int> effortRating = GeneratedColumn<int>(
+    'effort_rating',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _checkpointUtcMsMeta = const VerificationMeta(
+    'checkpointUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> checkpointUtcMs = GeneratedColumn<int>(
+    'checkpoint_utc_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4906,6 +4928,8 @@ class $WorkoutsTable extends Workouts
     elapsedMs,
     averageHeartRate,
     maxHeartRate,
+    effortRating,
+    checkpointUtcMs,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5017,6 +5041,24 @@ class $WorkoutsTable extends Workouts
         ),
       );
     }
+    if (data.containsKey('effort_rating')) {
+      context.handle(
+        _effortRatingMeta,
+        effortRating.isAcceptableOrUnknown(
+          data['effort_rating']!,
+          _effortRatingMeta,
+        ),
+      );
+    }
+    if (data.containsKey('checkpoint_utc_ms')) {
+      context.handle(
+        _checkpointUtcMsMeta,
+        checkpointUtcMs.isAcceptableOrUnknown(
+          data['checkpoint_utc_ms']!,
+          _checkpointUtcMsMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -5074,6 +5116,14 @@ class $WorkoutsTable extends Workouts
         DriftSqlType.int,
         data['${effectivePrefix}max_heart_rate'],
       ),
+      effortRating: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}effort_rating'],
+      ),
+      checkpointUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}checkpoint_utc_ms'],
+      ),
     );
   }
 
@@ -5096,6 +5146,8 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
   final int? elapsedMs;
   final int? averageHeartRate;
   final int? maxHeartRate;
+  final int? effortRating;
+  final int? checkpointUtcMs;
   const WorkoutRow({
     required this.id,
     required this.clientId,
@@ -5109,6 +5161,8 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
     this.elapsedMs,
     this.averageHeartRate,
     this.maxHeartRate,
+    this.effortRating,
+    this.checkpointUtcMs,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5138,6 +5192,12 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
     }
     if (!nullToAbsent || maxHeartRate != null) {
       map['max_heart_rate'] = Variable<int>(maxHeartRate);
+    }
+    if (!nullToAbsent || effortRating != null) {
+      map['effort_rating'] = Variable<int>(effortRating);
+    }
+    if (!nullToAbsent || checkpointUtcMs != null) {
+      map['checkpoint_utc_ms'] = Variable<int>(checkpointUtcMs);
     }
     return map;
   }
@@ -5170,6 +5230,12 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
       maxHeartRate: maxHeartRate == null && nullToAbsent
           ? const Value.absent()
           : Value(maxHeartRate),
+      effortRating: effortRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(effortRating),
+      checkpointUtcMs: checkpointUtcMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(checkpointUtcMs),
     );
   }
 
@@ -5193,6 +5259,8 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
       elapsedMs: serializer.fromJson<int?>(json['elapsedMs']),
       averageHeartRate: serializer.fromJson<int?>(json['averageHeartRate']),
       maxHeartRate: serializer.fromJson<int?>(json['maxHeartRate']),
+      effortRating: serializer.fromJson<int?>(json['effortRating']),
+      checkpointUtcMs: serializer.fromJson<int?>(json['checkpointUtcMs']),
     );
   }
   @override
@@ -5211,6 +5279,8 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
       'elapsedMs': serializer.toJson<int?>(elapsedMs),
       'averageHeartRate': serializer.toJson<int?>(averageHeartRate),
       'maxHeartRate': serializer.toJson<int?>(maxHeartRate),
+      'effortRating': serializer.toJson<int?>(effortRating),
+      'checkpointUtcMs': serializer.toJson<int?>(checkpointUtcMs),
     };
   }
 
@@ -5227,6 +5297,8 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
     Value<int?> elapsedMs = const Value.absent(),
     Value<int?> averageHeartRate = const Value.absent(),
     Value<int?> maxHeartRate = const Value.absent(),
+    Value<int?> effortRating = const Value.absent(),
+    Value<int?> checkpointUtcMs = const Value.absent(),
   }) => WorkoutRow(
     id: id ?? this.id,
     clientId: clientId ?? this.clientId,
@@ -5246,6 +5318,10 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
         ? averageHeartRate.value
         : this.averageHeartRate,
     maxHeartRate: maxHeartRate.present ? maxHeartRate.value : this.maxHeartRate,
+    effortRating: effortRating.present ? effortRating.value : this.effortRating,
+    checkpointUtcMs: checkpointUtcMs.present
+        ? checkpointUtcMs.value
+        : this.checkpointUtcMs,
   );
   WorkoutRow copyWithCompanion(WorkoutsCompanion data) {
     return WorkoutRow(
@@ -5275,6 +5351,12 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
       maxHeartRate: data.maxHeartRate.present
           ? data.maxHeartRate.value
           : this.maxHeartRate,
+      effortRating: data.effortRating.present
+          ? data.effortRating.value
+          : this.effortRating,
+      checkpointUtcMs: data.checkpointUtcMs.present
+          ? data.checkpointUtcMs.value
+          : this.checkpointUtcMs,
     );
   }
 
@@ -5292,7 +5374,9 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
           ..write('activeKilocalories: $activeKilocalories, ')
           ..write('elapsedMs: $elapsedMs, ')
           ..write('averageHeartRate: $averageHeartRate, ')
-          ..write('maxHeartRate: $maxHeartRate')
+          ..write('maxHeartRate: $maxHeartRate, ')
+          ..write('effortRating: $effortRating, ')
+          ..write('checkpointUtcMs: $checkpointUtcMs')
           ..write(')'))
         .toString();
   }
@@ -5311,6 +5395,8 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
     elapsedMs,
     averageHeartRate,
     maxHeartRate,
+    effortRating,
+    checkpointUtcMs,
   );
   @override
   bool operator ==(Object other) =>
@@ -5327,7 +5413,9 @@ class WorkoutRow extends DataClass implements Insertable<WorkoutRow> {
           other.activeKilocalories == this.activeKilocalories &&
           other.elapsedMs == this.elapsedMs &&
           other.averageHeartRate == this.averageHeartRate &&
-          other.maxHeartRate == this.maxHeartRate);
+          other.maxHeartRate == this.maxHeartRate &&
+          other.effortRating == this.effortRating &&
+          other.checkpointUtcMs == this.checkpointUtcMs);
 }
 
 class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
@@ -5343,6 +5431,8 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
   final Value<int?> elapsedMs;
   final Value<int?> averageHeartRate;
   final Value<int?> maxHeartRate;
+  final Value<int?> effortRating;
+  final Value<int?> checkpointUtcMs;
   const WorkoutsCompanion({
     this.id = const Value.absent(),
     this.clientId = const Value.absent(),
@@ -5356,6 +5446,8 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     this.elapsedMs = const Value.absent(),
     this.averageHeartRate = const Value.absent(),
     this.maxHeartRate = const Value.absent(),
+    this.effortRating = const Value.absent(),
+    this.checkpointUtcMs = const Value.absent(),
   });
   WorkoutsCompanion.insert({
     this.id = const Value.absent(),
@@ -5370,6 +5462,8 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     this.elapsedMs = const Value.absent(),
     this.averageHeartRate = const Value.absent(),
     this.maxHeartRate = const Value.absent(),
+    this.effortRating = const Value.absent(),
+    this.checkpointUtcMs = const Value.absent(),
   }) : clientId = Value(clientId),
        activityType = Value(activityType),
        startUtcMs = Value(startUtcMs),
@@ -5387,6 +5481,8 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     Expression<int>? elapsedMs,
     Expression<int>? averageHeartRate,
     Expression<int>? maxHeartRate,
+    Expression<int>? effortRating,
+    Expression<int>? checkpointUtcMs,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -5401,6 +5497,8 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
       if (elapsedMs != null) 'elapsed_ms': elapsedMs,
       if (averageHeartRate != null) 'average_heart_rate': averageHeartRate,
       if (maxHeartRate != null) 'max_heart_rate': maxHeartRate,
+      if (effortRating != null) 'effort_rating': effortRating,
+      if (checkpointUtcMs != null) 'checkpoint_utc_ms': checkpointUtcMs,
     });
   }
 
@@ -5417,6 +5515,8 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     Value<int?>? elapsedMs,
     Value<int?>? averageHeartRate,
     Value<int?>? maxHeartRate,
+    Value<int?>? effortRating,
+    Value<int?>? checkpointUtcMs,
   }) {
     return WorkoutsCompanion(
       id: id ?? this.id,
@@ -5431,6 +5531,8 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
       elapsedMs: elapsedMs ?? this.elapsedMs,
       averageHeartRate: averageHeartRate ?? this.averageHeartRate,
       maxHeartRate: maxHeartRate ?? this.maxHeartRate,
+      effortRating: effortRating ?? this.effortRating,
+      checkpointUtcMs: checkpointUtcMs ?? this.checkpointUtcMs,
     );
   }
 
@@ -5473,6 +5575,12 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
     if (maxHeartRate.present) {
       map['max_heart_rate'] = Variable<int>(maxHeartRate.value);
     }
+    if (effortRating.present) {
+      map['effort_rating'] = Variable<int>(effortRating.value);
+    }
+    if (checkpointUtcMs.present) {
+      map['checkpoint_utc_ms'] = Variable<int>(checkpointUtcMs.value);
+    }
     return map;
   }
 
@@ -5490,7 +5598,9 @@ class WorkoutsCompanion extends UpdateCompanion<WorkoutRow> {
           ..write('activeKilocalories: $activeKilocalories, ')
           ..write('elapsedMs: $elapsedMs, ')
           ..write('averageHeartRate: $averageHeartRate, ')
-          ..write('maxHeartRate: $maxHeartRate')
+          ..write('maxHeartRate: $maxHeartRate, ')
+          ..write('effortRating: $effortRating, ')
+          ..write('checkpointUtcMs: $checkpointUtcMs')
           ..write(')'))
         .toString();
   }
@@ -9311,6 +9421,17 @@ class $ImportedWorkoutsTable extends ImportedWorkouts
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _effortRatingMeta = const VerificationMeta(
+    'effortRating',
+  );
+  @override
+  late final GeneratedColumn<int> effortRating = GeneratedColumn<int>(
+    'effort_rating',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     recordId,
@@ -9320,6 +9441,7 @@ class $ImportedWorkoutsTable extends ImportedWorkouts
     endUtcMs,
     offsetMinutes,
     importedAtUtcMs,
+    effortRating,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -9401,6 +9523,15 @@ class $ImportedWorkoutsTable extends ImportedWorkouts
     } else if (isInserting) {
       context.missing(_importedAtUtcMsMeta);
     }
+    if (data.containsKey('effort_rating')) {
+      context.handle(
+        _effortRatingMeta,
+        effortRating.isAcceptableOrUnknown(
+          data['effort_rating']!,
+          _effortRatingMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -9438,6 +9569,10 @@ class $ImportedWorkoutsTable extends ImportedWorkouts
         DriftSqlType.int,
         data['${effectivePrefix}imported_at_utc_ms'],
       )!,
+      effortRating: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}effort_rating'],
+      ),
     );
   }
 
@@ -9456,6 +9591,7 @@ class ImportedWorkoutRow extends DataClass
   final int endUtcMs;
   final int offsetMinutes;
   final int importedAtUtcMs;
+  final int? effortRating;
   const ImportedWorkoutRow({
     required this.recordId,
     required this.source,
@@ -9464,6 +9600,7 @@ class ImportedWorkoutRow extends DataClass
     required this.endUtcMs,
     required this.offsetMinutes,
     required this.importedAtUtcMs,
+    this.effortRating,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -9475,6 +9612,9 @@ class ImportedWorkoutRow extends DataClass
     map['end_utc_ms'] = Variable<int>(endUtcMs);
     map['offset_minutes'] = Variable<int>(offsetMinutes);
     map['imported_at_utc_ms'] = Variable<int>(importedAtUtcMs);
+    if (!nullToAbsent || effortRating != null) {
+      map['effort_rating'] = Variable<int>(effortRating);
+    }
     return map;
   }
 
@@ -9487,6 +9627,9 @@ class ImportedWorkoutRow extends DataClass
       endUtcMs: Value(endUtcMs),
       offsetMinutes: Value(offsetMinutes),
       importedAtUtcMs: Value(importedAtUtcMs),
+      effortRating: effortRating == null && nullToAbsent
+          ? const Value.absent()
+          : Value(effortRating),
     );
   }
 
@@ -9503,6 +9646,7 @@ class ImportedWorkoutRow extends DataClass
       endUtcMs: serializer.fromJson<int>(json['endUtcMs']),
       offsetMinutes: serializer.fromJson<int>(json['offsetMinutes']),
       importedAtUtcMs: serializer.fromJson<int>(json['importedAtUtcMs']),
+      effortRating: serializer.fromJson<int?>(json['effortRating']),
     );
   }
   @override
@@ -9516,6 +9660,7 @@ class ImportedWorkoutRow extends DataClass
       'endUtcMs': serializer.toJson<int>(endUtcMs),
       'offsetMinutes': serializer.toJson<int>(offsetMinutes),
       'importedAtUtcMs': serializer.toJson<int>(importedAtUtcMs),
+      'effortRating': serializer.toJson<int?>(effortRating),
     };
   }
 
@@ -9527,6 +9672,7 @@ class ImportedWorkoutRow extends DataClass
     int? endUtcMs,
     int? offsetMinutes,
     int? importedAtUtcMs,
+    Value<int?> effortRating = const Value.absent(),
   }) => ImportedWorkoutRow(
     recordId: recordId ?? this.recordId,
     source: source ?? this.source,
@@ -9535,6 +9681,7 @@ class ImportedWorkoutRow extends DataClass
     endUtcMs: endUtcMs ?? this.endUtcMs,
     offsetMinutes: offsetMinutes ?? this.offsetMinutes,
     importedAtUtcMs: importedAtUtcMs ?? this.importedAtUtcMs,
+    effortRating: effortRating.present ? effortRating.value : this.effortRating,
   );
   ImportedWorkoutRow copyWithCompanion(ImportedWorkoutsCompanion data) {
     return ImportedWorkoutRow(
@@ -9553,6 +9700,9 @@ class ImportedWorkoutRow extends DataClass
       importedAtUtcMs: data.importedAtUtcMs.present
           ? data.importedAtUtcMs.value
           : this.importedAtUtcMs,
+      effortRating: data.effortRating.present
+          ? data.effortRating.value
+          : this.effortRating,
     );
   }
 
@@ -9565,7 +9715,8 @@ class ImportedWorkoutRow extends DataClass
           ..write('startUtcMs: $startUtcMs, ')
           ..write('endUtcMs: $endUtcMs, ')
           ..write('offsetMinutes: $offsetMinutes, ')
-          ..write('importedAtUtcMs: $importedAtUtcMs')
+          ..write('importedAtUtcMs: $importedAtUtcMs, ')
+          ..write('effortRating: $effortRating')
           ..write(')'))
         .toString();
   }
@@ -9579,6 +9730,7 @@ class ImportedWorkoutRow extends DataClass
     endUtcMs,
     offsetMinutes,
     importedAtUtcMs,
+    effortRating,
   );
   @override
   bool operator ==(Object other) =>
@@ -9590,7 +9742,8 @@ class ImportedWorkoutRow extends DataClass
           other.startUtcMs == this.startUtcMs &&
           other.endUtcMs == this.endUtcMs &&
           other.offsetMinutes == this.offsetMinutes &&
-          other.importedAtUtcMs == this.importedAtUtcMs);
+          other.importedAtUtcMs == this.importedAtUtcMs &&
+          other.effortRating == this.effortRating);
 }
 
 class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
@@ -9601,6 +9754,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
   final Value<int> endUtcMs;
   final Value<int> offsetMinutes;
   final Value<int> importedAtUtcMs;
+  final Value<int?> effortRating;
   final Value<int> rowid;
   const ImportedWorkoutsCompanion({
     this.recordId = const Value.absent(),
@@ -9610,6 +9764,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
     this.endUtcMs = const Value.absent(),
     this.offsetMinutes = const Value.absent(),
     this.importedAtUtcMs = const Value.absent(),
+    this.effortRating = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ImportedWorkoutsCompanion.insert({
@@ -9620,6 +9775,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
     required int endUtcMs,
     required int offsetMinutes,
     required int importedAtUtcMs,
+    this.effortRating = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : recordId = Value(recordId),
        source = Value(source),
@@ -9636,6 +9792,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
     Expression<int>? endUtcMs,
     Expression<int>? offsetMinutes,
     Expression<int>? importedAtUtcMs,
+    Expression<int>? effortRating,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -9646,6 +9803,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
       if (endUtcMs != null) 'end_utc_ms': endUtcMs,
       if (offsetMinutes != null) 'offset_minutes': offsetMinutes,
       if (importedAtUtcMs != null) 'imported_at_utc_ms': importedAtUtcMs,
+      if (effortRating != null) 'effort_rating': effortRating,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -9658,6 +9816,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
     Value<int>? endUtcMs,
     Value<int>? offsetMinutes,
     Value<int>? importedAtUtcMs,
+    Value<int?>? effortRating,
     Value<int>? rowid,
   }) {
     return ImportedWorkoutsCompanion(
@@ -9668,6 +9827,7 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
       endUtcMs: endUtcMs ?? this.endUtcMs,
       offsetMinutes: offsetMinutes ?? this.offsetMinutes,
       importedAtUtcMs: importedAtUtcMs ?? this.importedAtUtcMs,
+      effortRating: effortRating ?? this.effortRating,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -9696,6 +9856,9 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
     if (importedAtUtcMs.present) {
       map['imported_at_utc_ms'] = Variable<int>(importedAtUtcMs.value);
     }
+    if (effortRating.present) {
+      map['effort_rating'] = Variable<int>(effortRating.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -9712,6 +9875,7408 @@ class ImportedWorkoutsCompanion extends UpdateCompanion<ImportedWorkoutRow> {
           ..write('endUtcMs: $endUtcMs, ')
           ..write('offsetMinutes: $offsetMinutes, ')
           ..write('importedAtUtcMs: $importedAtUtcMs, ')
+          ..write('effortRating: $effortRating, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $WeighInsTable extends WeighIns
+    with TableInfo<$WeighInsTable, WeighInRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WeighInsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _atUtcMsMeta = const VerificationMeta(
+    'atUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> atUtcMs = GeneratedColumn<int>(
+    'at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _offsetMinutesMeta = const VerificationMeta(
+    'offsetMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> offsetMinutes = GeneratedColumn<int>(
+    'offset_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kilogramsMeta = const VerificationMeta(
+    'kilograms',
+  );
+  @override
+  late final GeneratedColumn<double> kilograms = GeneratedColumn<double>(
+    'kilograms',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bodyFatPercentMeta = const VerificationMeta(
+    'bodyFatPercent',
+  );
+  @override
+  late final GeneratedColumn<double> bodyFatPercent = GeneratedColumn<double>(
+    'body_fat_percent',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _waistCentimetersMeta = const VerificationMeta(
+    'waistCentimeters',
+  );
+  @override
+  late final GeneratedColumn<double> waistCentimeters = GeneratedColumn<double>(
+    'waist_centimeters',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    atUtcMs,
+    offsetMinutes,
+    kilograms,
+    bodyFatPercent,
+    waistCentimeters,
+    source,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'weigh_ins';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WeighInRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('at_utc_ms')) {
+      context.handle(
+        _atUtcMsMeta,
+        atUtcMs.isAcceptableOrUnknown(data['at_utc_ms']!, _atUtcMsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_atUtcMsMeta);
+    }
+    if (data.containsKey('offset_minutes')) {
+      context.handle(
+        _offsetMinutesMeta,
+        offsetMinutes.isAcceptableOrUnknown(
+          data['offset_minutes']!,
+          _offsetMinutesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_offsetMinutesMeta);
+    }
+    if (data.containsKey('kilograms')) {
+      context.handle(
+        _kilogramsMeta,
+        kilograms.isAcceptableOrUnknown(data['kilograms']!, _kilogramsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kilogramsMeta);
+    }
+    if (data.containsKey('body_fat_percent')) {
+      context.handle(
+        _bodyFatPercentMeta,
+        bodyFatPercent.isAcceptableOrUnknown(
+          data['body_fat_percent']!,
+          _bodyFatPercentMeta,
+        ),
+      );
+    }
+    if (data.containsKey('waist_centimeters')) {
+      context.handle(
+        _waistCentimetersMeta,
+        waistCentimeters.isAcceptableOrUnknown(
+          data['waist_centimeters']!,
+          _waistCentimetersMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WeighInRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WeighInRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      atUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}at_utc_ms'],
+      )!,
+      offsetMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}offset_minutes'],
+      )!,
+      kilograms: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}kilograms'],
+      )!,
+      bodyFatPercent: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}body_fat_percent'],
+      ),
+      waistCentimeters: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}waist_centimeters'],
+      ),
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+    );
+  }
+
+  @override
+  $WeighInsTable createAlias(String alias) {
+    return $WeighInsTable(attachedDatabase, alias);
+  }
+}
+
+class WeighInRow extends DataClass implements Insertable<WeighInRow> {
+  final int id;
+  final int atUtcMs;
+  final int offsetMinutes;
+  final double kilograms;
+  final double? bodyFatPercent;
+  final double? waistCentimeters;
+  final String source;
+  const WeighInRow({
+    required this.id,
+    required this.atUtcMs,
+    required this.offsetMinutes,
+    required this.kilograms,
+    this.bodyFatPercent,
+    this.waistCentimeters,
+    required this.source,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['at_utc_ms'] = Variable<int>(atUtcMs);
+    map['offset_minutes'] = Variable<int>(offsetMinutes);
+    map['kilograms'] = Variable<double>(kilograms);
+    if (!nullToAbsent || bodyFatPercent != null) {
+      map['body_fat_percent'] = Variable<double>(bodyFatPercent);
+    }
+    if (!nullToAbsent || waistCentimeters != null) {
+      map['waist_centimeters'] = Variable<double>(waistCentimeters);
+    }
+    map['source'] = Variable<String>(source);
+    return map;
+  }
+
+  WeighInsCompanion toCompanion(bool nullToAbsent) {
+    return WeighInsCompanion(
+      id: Value(id),
+      atUtcMs: Value(atUtcMs),
+      offsetMinutes: Value(offsetMinutes),
+      kilograms: Value(kilograms),
+      bodyFatPercent: bodyFatPercent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bodyFatPercent),
+      waistCentimeters: waistCentimeters == null && nullToAbsent
+          ? const Value.absent()
+          : Value(waistCentimeters),
+      source: Value(source),
+    );
+  }
+
+  factory WeighInRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WeighInRow(
+      id: serializer.fromJson<int>(json['id']),
+      atUtcMs: serializer.fromJson<int>(json['atUtcMs']),
+      offsetMinutes: serializer.fromJson<int>(json['offsetMinutes']),
+      kilograms: serializer.fromJson<double>(json['kilograms']),
+      bodyFatPercent: serializer.fromJson<double?>(json['bodyFatPercent']),
+      waistCentimeters: serializer.fromJson<double?>(json['waistCentimeters']),
+      source: serializer.fromJson<String>(json['source']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'atUtcMs': serializer.toJson<int>(atUtcMs),
+      'offsetMinutes': serializer.toJson<int>(offsetMinutes),
+      'kilograms': serializer.toJson<double>(kilograms),
+      'bodyFatPercent': serializer.toJson<double?>(bodyFatPercent),
+      'waistCentimeters': serializer.toJson<double?>(waistCentimeters),
+      'source': serializer.toJson<String>(source),
+    };
+  }
+
+  WeighInRow copyWith({
+    int? id,
+    int? atUtcMs,
+    int? offsetMinutes,
+    double? kilograms,
+    Value<double?> bodyFatPercent = const Value.absent(),
+    Value<double?> waistCentimeters = const Value.absent(),
+    String? source,
+  }) => WeighInRow(
+    id: id ?? this.id,
+    atUtcMs: atUtcMs ?? this.atUtcMs,
+    offsetMinutes: offsetMinutes ?? this.offsetMinutes,
+    kilograms: kilograms ?? this.kilograms,
+    bodyFatPercent: bodyFatPercent.present
+        ? bodyFatPercent.value
+        : this.bodyFatPercent,
+    waistCentimeters: waistCentimeters.present
+        ? waistCentimeters.value
+        : this.waistCentimeters,
+    source: source ?? this.source,
+  );
+  WeighInRow copyWithCompanion(WeighInsCompanion data) {
+    return WeighInRow(
+      id: data.id.present ? data.id.value : this.id,
+      atUtcMs: data.atUtcMs.present ? data.atUtcMs.value : this.atUtcMs,
+      offsetMinutes: data.offsetMinutes.present
+          ? data.offsetMinutes.value
+          : this.offsetMinutes,
+      kilograms: data.kilograms.present ? data.kilograms.value : this.kilograms,
+      bodyFatPercent: data.bodyFatPercent.present
+          ? data.bodyFatPercent.value
+          : this.bodyFatPercent,
+      waistCentimeters: data.waistCentimeters.present
+          ? data.waistCentimeters.value
+          : this.waistCentimeters,
+      source: data.source.present ? data.source.value : this.source,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WeighInRow(')
+          ..write('id: $id, ')
+          ..write('atUtcMs: $atUtcMs, ')
+          ..write('offsetMinutes: $offsetMinutes, ')
+          ..write('kilograms: $kilograms, ')
+          ..write('bodyFatPercent: $bodyFatPercent, ')
+          ..write('waistCentimeters: $waistCentimeters, ')
+          ..write('source: $source')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    atUtcMs,
+    offsetMinutes,
+    kilograms,
+    bodyFatPercent,
+    waistCentimeters,
+    source,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WeighInRow &&
+          other.id == this.id &&
+          other.atUtcMs == this.atUtcMs &&
+          other.offsetMinutes == this.offsetMinutes &&
+          other.kilograms == this.kilograms &&
+          other.bodyFatPercent == this.bodyFatPercent &&
+          other.waistCentimeters == this.waistCentimeters &&
+          other.source == this.source);
+}
+
+class WeighInsCompanion extends UpdateCompanion<WeighInRow> {
+  final Value<int> id;
+  final Value<int> atUtcMs;
+  final Value<int> offsetMinutes;
+  final Value<double> kilograms;
+  final Value<double?> bodyFatPercent;
+  final Value<double?> waistCentimeters;
+  final Value<String> source;
+  const WeighInsCompanion({
+    this.id = const Value.absent(),
+    this.atUtcMs = const Value.absent(),
+    this.offsetMinutes = const Value.absent(),
+    this.kilograms = const Value.absent(),
+    this.bodyFatPercent = const Value.absent(),
+    this.waistCentimeters = const Value.absent(),
+    this.source = const Value.absent(),
+  });
+  WeighInsCompanion.insert({
+    this.id = const Value.absent(),
+    required int atUtcMs,
+    required int offsetMinutes,
+    required double kilograms,
+    this.bodyFatPercent = const Value.absent(),
+    this.waistCentimeters = const Value.absent(),
+    required String source,
+  }) : atUtcMs = Value(atUtcMs),
+       offsetMinutes = Value(offsetMinutes),
+       kilograms = Value(kilograms),
+       source = Value(source);
+  static Insertable<WeighInRow> custom({
+    Expression<int>? id,
+    Expression<int>? atUtcMs,
+    Expression<int>? offsetMinutes,
+    Expression<double>? kilograms,
+    Expression<double>? bodyFatPercent,
+    Expression<double>? waistCentimeters,
+    Expression<String>? source,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (atUtcMs != null) 'at_utc_ms': atUtcMs,
+      if (offsetMinutes != null) 'offset_minutes': offsetMinutes,
+      if (kilograms != null) 'kilograms': kilograms,
+      if (bodyFatPercent != null) 'body_fat_percent': bodyFatPercent,
+      if (waistCentimeters != null) 'waist_centimeters': waistCentimeters,
+      if (source != null) 'source': source,
+    });
+  }
+
+  WeighInsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? atUtcMs,
+    Value<int>? offsetMinutes,
+    Value<double>? kilograms,
+    Value<double?>? bodyFatPercent,
+    Value<double?>? waistCentimeters,
+    Value<String>? source,
+  }) {
+    return WeighInsCompanion(
+      id: id ?? this.id,
+      atUtcMs: atUtcMs ?? this.atUtcMs,
+      offsetMinutes: offsetMinutes ?? this.offsetMinutes,
+      kilograms: kilograms ?? this.kilograms,
+      bodyFatPercent: bodyFatPercent ?? this.bodyFatPercent,
+      waistCentimeters: waistCentimeters ?? this.waistCentimeters,
+      source: source ?? this.source,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (atUtcMs.present) {
+      map['at_utc_ms'] = Variable<int>(atUtcMs.value);
+    }
+    if (offsetMinutes.present) {
+      map['offset_minutes'] = Variable<int>(offsetMinutes.value);
+    }
+    if (kilograms.present) {
+      map['kilograms'] = Variable<double>(kilograms.value);
+    }
+    if (bodyFatPercent.present) {
+      map['body_fat_percent'] = Variable<double>(bodyFatPercent.value);
+    }
+    if (waistCentimeters.present) {
+      map['waist_centimeters'] = Variable<double>(waistCentimeters.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WeighInsCompanion(')
+          ..write('id: $id, ')
+          ..write('atUtcMs: $atUtcMs, ')
+          ..write('offsetMinutes: $offsetMinutes, ')
+          ..write('kilograms: $kilograms, ')
+          ..write('bodyFatPercent: $bodyFatPercent, ')
+          ..write('waistCentimeters: $waistCentimeters, ')
+          ..write('source: $source')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DayTagsTable extends DayTags with TableInfo<$DayTagsTable, DayTagRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DayTagsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<String> date = GeneratedColumn<String>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tagMeta = const VerificationMeta('tag');
+  @override
+  late final GeneratedColumn<String> tag = GeneratedColumn<String>(
+    'tag',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtUtcMsMeta = const VerificationMeta(
+    'updatedAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAtUtcMs = GeneratedColumn<int>(
+    'updated_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [date, tag, updatedAtUtcMs];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'day_tags';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DayTagRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('tag')) {
+      context.handle(
+        _tagMeta,
+        tag.isAcceptableOrUnknown(data['tag']!, _tagMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tagMeta);
+    }
+    if (data.containsKey('updated_at_utc_ms')) {
+      context.handle(
+        _updatedAtUtcMsMeta,
+        updatedAtUtcMs.isAcceptableOrUnknown(
+          data['updated_at_utc_ms']!,
+          _updatedAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtUtcMsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {date};
+  @override
+  DayTagRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DayTagRow(
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}date'],
+      )!,
+      tag: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tag'],
+      )!,
+      updatedAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at_utc_ms'],
+      )!,
+    );
+  }
+
+  @override
+  $DayTagsTable createAlias(String alias) {
+    return $DayTagsTable(attachedDatabase, alias);
+  }
+}
+
+class DayTagRow extends DataClass implements Insertable<DayTagRow> {
+  final String date;
+  final String tag;
+  final int updatedAtUtcMs;
+  const DayTagRow({
+    required this.date,
+    required this.tag,
+    required this.updatedAtUtcMs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['date'] = Variable<String>(date);
+    map['tag'] = Variable<String>(tag);
+    map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs);
+    return map;
+  }
+
+  DayTagsCompanion toCompanion(bool nullToAbsent) {
+    return DayTagsCompanion(
+      date: Value(date),
+      tag: Value(tag),
+      updatedAtUtcMs: Value(updatedAtUtcMs),
+    );
+  }
+
+  factory DayTagRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DayTagRow(
+      date: serializer.fromJson<String>(json['date']),
+      tag: serializer.fromJson<String>(json['tag']),
+      updatedAtUtcMs: serializer.fromJson<int>(json['updatedAtUtcMs']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'date': serializer.toJson<String>(date),
+      'tag': serializer.toJson<String>(tag),
+      'updatedAtUtcMs': serializer.toJson<int>(updatedAtUtcMs),
+    };
+  }
+
+  DayTagRow copyWith({String? date, String? tag, int? updatedAtUtcMs}) =>
+      DayTagRow(
+        date: date ?? this.date,
+        tag: tag ?? this.tag,
+        updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+      );
+  DayTagRow copyWithCompanion(DayTagsCompanion data) {
+    return DayTagRow(
+      date: data.date.present ? data.date.value : this.date,
+      tag: data.tag.present ? data.tag.value : this.tag,
+      updatedAtUtcMs: data.updatedAtUtcMs.present
+          ? data.updatedAtUtcMs.value
+          : this.updatedAtUtcMs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DayTagRow(')
+          ..write('date: $date, ')
+          ..write('tag: $tag, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(date, tag, updatedAtUtcMs);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DayTagRow &&
+          other.date == this.date &&
+          other.tag == this.tag &&
+          other.updatedAtUtcMs == this.updatedAtUtcMs);
+}
+
+class DayTagsCompanion extends UpdateCompanion<DayTagRow> {
+  final Value<String> date;
+  final Value<String> tag;
+  final Value<int> updatedAtUtcMs;
+  final Value<int> rowid;
+  const DayTagsCompanion({
+    this.date = const Value.absent(),
+    this.tag = const Value.absent(),
+    this.updatedAtUtcMs = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DayTagsCompanion.insert({
+    required String date,
+    required String tag,
+    required int updatedAtUtcMs,
+    this.rowid = const Value.absent(),
+  }) : date = Value(date),
+       tag = Value(tag),
+       updatedAtUtcMs = Value(updatedAtUtcMs);
+  static Insertable<DayTagRow> custom({
+    Expression<String>? date,
+    Expression<String>? tag,
+    Expression<int>? updatedAtUtcMs,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (date != null) 'date': date,
+      if (tag != null) 'tag': tag,
+      if (updatedAtUtcMs != null) 'updated_at_utc_ms': updatedAtUtcMs,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DayTagsCompanion copyWith({
+    Value<String>? date,
+    Value<String>? tag,
+    Value<int>? updatedAtUtcMs,
+    Value<int>? rowid,
+  }) {
+    return DayTagsCompanion(
+      date: date ?? this.date,
+      tag: tag ?? this.tag,
+      updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (date.present) {
+      map['date'] = Variable<String>(date.value);
+    }
+    if (tag.present) {
+      map['tag'] = Variable<String>(tag.value);
+    }
+    if (updatedAtUtcMs.present) {
+      map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DayTagsCompanion(')
+          ..write('date: $date, ')
+          ..write('tag: $tag, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StepGoalChangesTable extends StepGoalChanges
+    with TableInfo<$StepGoalChangesTable, StepGoalChangeRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StepGoalChangesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _effectiveDateMeta = const VerificationMeta(
+    'effectiveDate',
+  );
+  @override
+  late final GeneratedColumn<String> effectiveDate = GeneratedColumn<String>(
+    'effective_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _stepsMeta = const VerificationMeta('steps');
+  @override
+  late final GeneratedColumn<int> steps = GeneratedColumn<int>(
+    'steps',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [effectiveDate, steps];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'step_goal_changes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StepGoalChangeRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('effective_date')) {
+      context.handle(
+        _effectiveDateMeta,
+        effectiveDate.isAcceptableOrUnknown(
+          data['effective_date']!,
+          _effectiveDateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_effectiveDateMeta);
+    }
+    if (data.containsKey('steps')) {
+      context.handle(
+        _stepsMeta,
+        steps.isAcceptableOrUnknown(data['steps']!, _stepsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_stepsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {effectiveDate};
+  @override
+  StepGoalChangeRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StepGoalChangeRow(
+      effectiveDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}effective_date'],
+      )!,
+      steps: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}steps'],
+      )!,
+    );
+  }
+
+  @override
+  $StepGoalChangesTable createAlias(String alias) {
+    return $StepGoalChangesTable(attachedDatabase, alias);
+  }
+}
+
+class StepGoalChangeRow extends DataClass
+    implements Insertable<StepGoalChangeRow> {
+  final String effectiveDate;
+  final int steps;
+  const StepGoalChangeRow({required this.effectiveDate, required this.steps});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['effective_date'] = Variable<String>(effectiveDate);
+    map['steps'] = Variable<int>(steps);
+    return map;
+  }
+
+  StepGoalChangesCompanion toCompanion(bool nullToAbsent) {
+    return StepGoalChangesCompanion(
+      effectiveDate: Value(effectiveDate),
+      steps: Value(steps),
+    );
+  }
+
+  factory StepGoalChangeRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StepGoalChangeRow(
+      effectiveDate: serializer.fromJson<String>(json['effectiveDate']),
+      steps: serializer.fromJson<int>(json['steps']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'effectiveDate': serializer.toJson<String>(effectiveDate),
+      'steps': serializer.toJson<int>(steps),
+    };
+  }
+
+  StepGoalChangeRow copyWith({String? effectiveDate, int? steps}) =>
+      StepGoalChangeRow(
+        effectiveDate: effectiveDate ?? this.effectiveDate,
+        steps: steps ?? this.steps,
+      );
+  StepGoalChangeRow copyWithCompanion(StepGoalChangesCompanion data) {
+    return StepGoalChangeRow(
+      effectiveDate: data.effectiveDate.present
+          ? data.effectiveDate.value
+          : this.effectiveDate,
+      steps: data.steps.present ? data.steps.value : this.steps,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StepGoalChangeRow(')
+          ..write('effectiveDate: $effectiveDate, ')
+          ..write('steps: $steps')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(effectiveDate, steps);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StepGoalChangeRow &&
+          other.effectiveDate == this.effectiveDate &&
+          other.steps == this.steps);
+}
+
+class StepGoalChangesCompanion extends UpdateCompanion<StepGoalChangeRow> {
+  final Value<String> effectiveDate;
+  final Value<int> steps;
+  final Value<int> rowid;
+  const StepGoalChangesCompanion({
+    this.effectiveDate = const Value.absent(),
+    this.steps = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  StepGoalChangesCompanion.insert({
+    required String effectiveDate,
+    required int steps,
+    this.rowid = const Value.absent(),
+  }) : effectiveDate = Value(effectiveDate),
+       steps = Value(steps);
+  static Insertable<StepGoalChangeRow> custom({
+    Expression<String>? effectiveDate,
+    Expression<int>? steps,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (effectiveDate != null) 'effective_date': effectiveDate,
+      if (steps != null) 'steps': steps,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  StepGoalChangesCompanion copyWith({
+    Value<String>? effectiveDate,
+    Value<int>? steps,
+    Value<int>? rowid,
+  }) {
+    return StepGoalChangesCompanion(
+      effectiveDate: effectiveDate ?? this.effectiveDate,
+      steps: steps ?? this.steps,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (effectiveDate.present) {
+      map['effective_date'] = Variable<String>(effectiveDate.value);
+    }
+    if (steps.present) {
+      map['steps'] = Variable<int>(steps.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StepGoalChangesCompanion(')
+          ..write('effectiveDate: $effectiveDate, ')
+          ..write('steps: $steps, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GoalsTable extends Goals with TableInfo<$GoalsTable, GoalRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _paceMeta = const VerificationMeta('pace');
+  @override
+  late final GeneratedColumn<String> pace = GeneratedColumn<String>(
+    'pace',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _startedOnMeta = const VerificationMeta(
+    'startedOn',
+  );
+  @override
+  late final GeneratedColumn<String> startedOn = GeneratedColumn<String>(
+    'started_on',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _anchorKgMeta = const VerificationMeta(
+    'anchorKg',
+  );
+  @override
+  late final GeneratedColumn<double> anchorKg = GeneratedColumn<double>(
+    'anchor_kg',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _referenceKgMeta = const VerificationMeta(
+    'referenceKg',
+  );
+  @override
+  late final GeneratedColumn<double> referenceKg = GeneratedColumn<double>(
+    'reference_kg',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _blockStartedOnMeta = const VerificationMeta(
+    'blockStartedOn',
+  );
+  @override
+  late final GeneratedColumn<String> blockStartedOn = GeneratedColumn<String>(
+    'block_started_on',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _blockAnchorKgMeta = const VerificationMeta(
+    'blockAnchorKg',
+  );
+  @override
+  late final GeneratedColumn<double> blockAnchorKg = GeneratedColumn<double>(
+    'block_anchor_kg',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _phaseMeta = const VerificationMeta('phase');
+  @override
+  late final GeneratedColumn<String> phase = GeneratedColumn<String>(
+    'phase',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _phaseSinceMeta = const VerificationMeta(
+    'phaseSince',
+  );
+  @override
+  late final GeneratedColumn<String> phaseSince = GeneratedColumn<String>(
+    'phase_since',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _phaseUntilMeta = const VerificationMeta(
+    'phaseUntil',
+  );
+  @override
+  late final GeneratedColumn<String> phaseUntil = GeneratedColumn<String>(
+    'phase_until',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _leversMeta = const VerificationMeta('levers');
+  @override
+  late final GeneratedColumn<String> levers = GeneratedColumn<String>(
+    'levers',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endedOnMeta = const VerificationMeta(
+    'endedOn',
+  );
+  @override
+  late final GeneratedColumn<String> endedOn = GeneratedColumn<String>(
+    'ended_on',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endReasonMeta = const VerificationMeta(
+    'endReason',
+  );
+  @override
+  late final GeneratedColumn<String> endReason = GeneratedColumn<String>(
+    'end_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    kind,
+    pace,
+    startedOn,
+    anchorKg,
+    referenceKg,
+    blockStartedOn,
+    blockAnchorKg,
+    phase,
+    phaseSince,
+    phaseUntil,
+    levers,
+    endedOn,
+    endReason,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'goals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GoalRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('pace')) {
+      context.handle(
+        _paceMeta,
+        pace.isAcceptableOrUnknown(data['pace']!, _paceMeta),
+      );
+    }
+    if (data.containsKey('started_on')) {
+      context.handle(
+        _startedOnMeta,
+        startedOn.isAcceptableOrUnknown(data['started_on']!, _startedOnMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startedOnMeta);
+    }
+    if (data.containsKey('anchor_kg')) {
+      context.handle(
+        _anchorKgMeta,
+        anchorKg.isAcceptableOrUnknown(data['anchor_kg']!, _anchorKgMeta),
+      );
+    }
+    if (data.containsKey('reference_kg')) {
+      context.handle(
+        _referenceKgMeta,
+        referenceKg.isAcceptableOrUnknown(
+          data['reference_kg']!,
+          _referenceKgMeta,
+        ),
+      );
+    }
+    if (data.containsKey('block_started_on')) {
+      context.handle(
+        _blockStartedOnMeta,
+        blockStartedOn.isAcceptableOrUnknown(
+          data['block_started_on']!,
+          _blockStartedOnMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_blockStartedOnMeta);
+    }
+    if (data.containsKey('block_anchor_kg')) {
+      context.handle(
+        _blockAnchorKgMeta,
+        blockAnchorKg.isAcceptableOrUnknown(
+          data['block_anchor_kg']!,
+          _blockAnchorKgMeta,
+        ),
+      );
+    }
+    if (data.containsKey('phase')) {
+      context.handle(
+        _phaseMeta,
+        phase.isAcceptableOrUnknown(data['phase']!, _phaseMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_phaseMeta);
+    }
+    if (data.containsKey('phase_since')) {
+      context.handle(
+        _phaseSinceMeta,
+        phaseSince.isAcceptableOrUnknown(data['phase_since']!, _phaseSinceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_phaseSinceMeta);
+    }
+    if (data.containsKey('phase_until')) {
+      context.handle(
+        _phaseUntilMeta,
+        phaseUntil.isAcceptableOrUnknown(data['phase_until']!, _phaseUntilMeta),
+      );
+    }
+    if (data.containsKey('levers')) {
+      context.handle(
+        _leversMeta,
+        levers.isAcceptableOrUnknown(data['levers']!, _leversMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_leversMeta);
+    }
+    if (data.containsKey('ended_on')) {
+      context.handle(
+        _endedOnMeta,
+        endedOn.isAcceptableOrUnknown(data['ended_on']!, _endedOnMeta),
+      );
+    }
+    if (data.containsKey('end_reason')) {
+      context.handle(
+        _endReasonMeta,
+        endReason.isAcceptableOrUnknown(data['end_reason']!, _endReasonMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GoalRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GoalRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      pace: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pace'],
+      ),
+      startedOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}started_on'],
+      )!,
+      anchorKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}anchor_kg'],
+      ),
+      referenceKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}reference_kg'],
+      ),
+      blockStartedOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}block_started_on'],
+      )!,
+      blockAnchorKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}block_anchor_kg'],
+      ),
+      phase: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phase'],
+      )!,
+      phaseSince: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phase_since'],
+      )!,
+      phaseUntil: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phase_until'],
+      ),
+      levers: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}levers'],
+      )!,
+      endedOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ended_on'],
+      ),
+      endReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}end_reason'],
+      ),
+    );
+  }
+
+  @override
+  $GoalsTable createAlias(String alias) {
+    return $GoalsTable(attachedDatabase, alias);
+  }
+}
+
+class GoalRow extends DataClass implements Insertable<GoalRow> {
+  final int id;
+  final String kind;
+  final String? pace;
+  final String startedOn;
+  final double? anchorKg;
+  final double? referenceKg;
+  final String blockStartedOn;
+  final double? blockAnchorKg;
+  final String phase;
+  final String phaseSince;
+  final String? phaseUntil;
+  final String levers;
+  final String? endedOn;
+  final String? endReason;
+  const GoalRow({
+    required this.id,
+    required this.kind,
+    this.pace,
+    required this.startedOn,
+    this.anchorKg,
+    this.referenceKg,
+    required this.blockStartedOn,
+    this.blockAnchorKg,
+    required this.phase,
+    required this.phaseSince,
+    this.phaseUntil,
+    required this.levers,
+    this.endedOn,
+    this.endReason,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['kind'] = Variable<String>(kind);
+    if (!nullToAbsent || pace != null) {
+      map['pace'] = Variable<String>(pace);
+    }
+    map['started_on'] = Variable<String>(startedOn);
+    if (!nullToAbsent || anchorKg != null) {
+      map['anchor_kg'] = Variable<double>(anchorKg);
+    }
+    if (!nullToAbsent || referenceKg != null) {
+      map['reference_kg'] = Variable<double>(referenceKg);
+    }
+    map['block_started_on'] = Variable<String>(blockStartedOn);
+    if (!nullToAbsent || blockAnchorKg != null) {
+      map['block_anchor_kg'] = Variable<double>(blockAnchorKg);
+    }
+    map['phase'] = Variable<String>(phase);
+    map['phase_since'] = Variable<String>(phaseSince);
+    if (!nullToAbsent || phaseUntil != null) {
+      map['phase_until'] = Variable<String>(phaseUntil);
+    }
+    map['levers'] = Variable<String>(levers);
+    if (!nullToAbsent || endedOn != null) {
+      map['ended_on'] = Variable<String>(endedOn);
+    }
+    if (!nullToAbsent || endReason != null) {
+      map['end_reason'] = Variable<String>(endReason);
+    }
+    return map;
+  }
+
+  GoalsCompanion toCompanion(bool nullToAbsent) {
+    return GoalsCompanion(
+      id: Value(id),
+      kind: Value(kind),
+      pace: pace == null && nullToAbsent ? const Value.absent() : Value(pace),
+      startedOn: Value(startedOn),
+      anchorKg: anchorKg == null && nullToAbsent
+          ? const Value.absent()
+          : Value(anchorKg),
+      referenceKg: referenceKg == null && nullToAbsent
+          ? const Value.absent()
+          : Value(referenceKg),
+      blockStartedOn: Value(blockStartedOn),
+      blockAnchorKg: blockAnchorKg == null && nullToAbsent
+          ? const Value.absent()
+          : Value(blockAnchorKg),
+      phase: Value(phase),
+      phaseSince: Value(phaseSince),
+      phaseUntil: phaseUntil == null && nullToAbsent
+          ? const Value.absent()
+          : Value(phaseUntil),
+      levers: Value(levers),
+      endedOn: endedOn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endedOn),
+      endReason: endReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endReason),
+    );
+  }
+
+  factory GoalRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GoalRow(
+      id: serializer.fromJson<int>(json['id']),
+      kind: serializer.fromJson<String>(json['kind']),
+      pace: serializer.fromJson<String?>(json['pace']),
+      startedOn: serializer.fromJson<String>(json['startedOn']),
+      anchorKg: serializer.fromJson<double?>(json['anchorKg']),
+      referenceKg: serializer.fromJson<double?>(json['referenceKg']),
+      blockStartedOn: serializer.fromJson<String>(json['blockStartedOn']),
+      blockAnchorKg: serializer.fromJson<double?>(json['blockAnchorKg']),
+      phase: serializer.fromJson<String>(json['phase']),
+      phaseSince: serializer.fromJson<String>(json['phaseSince']),
+      phaseUntil: serializer.fromJson<String?>(json['phaseUntil']),
+      levers: serializer.fromJson<String>(json['levers']),
+      endedOn: serializer.fromJson<String?>(json['endedOn']),
+      endReason: serializer.fromJson<String?>(json['endReason']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'kind': serializer.toJson<String>(kind),
+      'pace': serializer.toJson<String?>(pace),
+      'startedOn': serializer.toJson<String>(startedOn),
+      'anchorKg': serializer.toJson<double?>(anchorKg),
+      'referenceKg': serializer.toJson<double?>(referenceKg),
+      'blockStartedOn': serializer.toJson<String>(blockStartedOn),
+      'blockAnchorKg': serializer.toJson<double?>(blockAnchorKg),
+      'phase': serializer.toJson<String>(phase),
+      'phaseSince': serializer.toJson<String>(phaseSince),
+      'phaseUntil': serializer.toJson<String?>(phaseUntil),
+      'levers': serializer.toJson<String>(levers),
+      'endedOn': serializer.toJson<String?>(endedOn),
+      'endReason': serializer.toJson<String?>(endReason),
+    };
+  }
+
+  GoalRow copyWith({
+    int? id,
+    String? kind,
+    Value<String?> pace = const Value.absent(),
+    String? startedOn,
+    Value<double?> anchorKg = const Value.absent(),
+    Value<double?> referenceKg = const Value.absent(),
+    String? blockStartedOn,
+    Value<double?> blockAnchorKg = const Value.absent(),
+    String? phase,
+    String? phaseSince,
+    Value<String?> phaseUntil = const Value.absent(),
+    String? levers,
+    Value<String?> endedOn = const Value.absent(),
+    Value<String?> endReason = const Value.absent(),
+  }) => GoalRow(
+    id: id ?? this.id,
+    kind: kind ?? this.kind,
+    pace: pace.present ? pace.value : this.pace,
+    startedOn: startedOn ?? this.startedOn,
+    anchorKg: anchorKg.present ? anchorKg.value : this.anchorKg,
+    referenceKg: referenceKg.present ? referenceKg.value : this.referenceKg,
+    blockStartedOn: blockStartedOn ?? this.blockStartedOn,
+    blockAnchorKg: blockAnchorKg.present
+        ? blockAnchorKg.value
+        : this.blockAnchorKg,
+    phase: phase ?? this.phase,
+    phaseSince: phaseSince ?? this.phaseSince,
+    phaseUntil: phaseUntil.present ? phaseUntil.value : this.phaseUntil,
+    levers: levers ?? this.levers,
+    endedOn: endedOn.present ? endedOn.value : this.endedOn,
+    endReason: endReason.present ? endReason.value : this.endReason,
+  );
+  GoalRow copyWithCompanion(GoalsCompanion data) {
+    return GoalRow(
+      id: data.id.present ? data.id.value : this.id,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      pace: data.pace.present ? data.pace.value : this.pace,
+      startedOn: data.startedOn.present ? data.startedOn.value : this.startedOn,
+      anchorKg: data.anchorKg.present ? data.anchorKg.value : this.anchorKg,
+      referenceKg: data.referenceKg.present
+          ? data.referenceKg.value
+          : this.referenceKg,
+      blockStartedOn: data.blockStartedOn.present
+          ? data.blockStartedOn.value
+          : this.blockStartedOn,
+      blockAnchorKg: data.blockAnchorKg.present
+          ? data.blockAnchorKg.value
+          : this.blockAnchorKg,
+      phase: data.phase.present ? data.phase.value : this.phase,
+      phaseSince: data.phaseSince.present
+          ? data.phaseSince.value
+          : this.phaseSince,
+      phaseUntil: data.phaseUntil.present
+          ? data.phaseUntil.value
+          : this.phaseUntil,
+      levers: data.levers.present ? data.levers.value : this.levers,
+      endedOn: data.endedOn.present ? data.endedOn.value : this.endedOn,
+      endReason: data.endReason.present ? data.endReason.value : this.endReason,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalRow(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('pace: $pace, ')
+          ..write('startedOn: $startedOn, ')
+          ..write('anchorKg: $anchorKg, ')
+          ..write('referenceKg: $referenceKg, ')
+          ..write('blockStartedOn: $blockStartedOn, ')
+          ..write('blockAnchorKg: $blockAnchorKg, ')
+          ..write('phase: $phase, ')
+          ..write('phaseSince: $phaseSince, ')
+          ..write('phaseUntil: $phaseUntil, ')
+          ..write('levers: $levers, ')
+          ..write('endedOn: $endedOn, ')
+          ..write('endReason: $endReason')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    kind,
+    pace,
+    startedOn,
+    anchorKg,
+    referenceKg,
+    blockStartedOn,
+    blockAnchorKg,
+    phase,
+    phaseSince,
+    phaseUntil,
+    levers,
+    endedOn,
+    endReason,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GoalRow &&
+          other.id == this.id &&
+          other.kind == this.kind &&
+          other.pace == this.pace &&
+          other.startedOn == this.startedOn &&
+          other.anchorKg == this.anchorKg &&
+          other.referenceKg == this.referenceKg &&
+          other.blockStartedOn == this.blockStartedOn &&
+          other.blockAnchorKg == this.blockAnchorKg &&
+          other.phase == this.phase &&
+          other.phaseSince == this.phaseSince &&
+          other.phaseUntil == this.phaseUntil &&
+          other.levers == this.levers &&
+          other.endedOn == this.endedOn &&
+          other.endReason == this.endReason);
+}
+
+class GoalsCompanion extends UpdateCompanion<GoalRow> {
+  final Value<int> id;
+  final Value<String> kind;
+  final Value<String?> pace;
+  final Value<String> startedOn;
+  final Value<double?> anchorKg;
+  final Value<double?> referenceKg;
+  final Value<String> blockStartedOn;
+  final Value<double?> blockAnchorKg;
+  final Value<String> phase;
+  final Value<String> phaseSince;
+  final Value<String?> phaseUntil;
+  final Value<String> levers;
+  final Value<String?> endedOn;
+  final Value<String?> endReason;
+  const GoalsCompanion({
+    this.id = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.pace = const Value.absent(),
+    this.startedOn = const Value.absent(),
+    this.anchorKg = const Value.absent(),
+    this.referenceKg = const Value.absent(),
+    this.blockStartedOn = const Value.absent(),
+    this.blockAnchorKg = const Value.absent(),
+    this.phase = const Value.absent(),
+    this.phaseSince = const Value.absent(),
+    this.phaseUntil = const Value.absent(),
+    this.levers = const Value.absent(),
+    this.endedOn = const Value.absent(),
+    this.endReason = const Value.absent(),
+  });
+  GoalsCompanion.insert({
+    this.id = const Value.absent(),
+    required String kind,
+    this.pace = const Value.absent(),
+    required String startedOn,
+    this.anchorKg = const Value.absent(),
+    this.referenceKg = const Value.absent(),
+    required String blockStartedOn,
+    this.blockAnchorKg = const Value.absent(),
+    required String phase,
+    required String phaseSince,
+    this.phaseUntil = const Value.absent(),
+    required String levers,
+    this.endedOn = const Value.absent(),
+    this.endReason = const Value.absent(),
+  }) : kind = Value(kind),
+       startedOn = Value(startedOn),
+       blockStartedOn = Value(blockStartedOn),
+       phase = Value(phase),
+       phaseSince = Value(phaseSince),
+       levers = Value(levers);
+  static Insertable<GoalRow> custom({
+    Expression<int>? id,
+    Expression<String>? kind,
+    Expression<String>? pace,
+    Expression<String>? startedOn,
+    Expression<double>? anchorKg,
+    Expression<double>? referenceKg,
+    Expression<String>? blockStartedOn,
+    Expression<double>? blockAnchorKg,
+    Expression<String>? phase,
+    Expression<String>? phaseSince,
+    Expression<String>? phaseUntil,
+    Expression<String>? levers,
+    Expression<String>? endedOn,
+    Expression<String>? endReason,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (kind != null) 'kind': kind,
+      if (pace != null) 'pace': pace,
+      if (startedOn != null) 'started_on': startedOn,
+      if (anchorKg != null) 'anchor_kg': anchorKg,
+      if (referenceKg != null) 'reference_kg': referenceKg,
+      if (blockStartedOn != null) 'block_started_on': blockStartedOn,
+      if (blockAnchorKg != null) 'block_anchor_kg': blockAnchorKg,
+      if (phase != null) 'phase': phase,
+      if (phaseSince != null) 'phase_since': phaseSince,
+      if (phaseUntil != null) 'phase_until': phaseUntil,
+      if (levers != null) 'levers': levers,
+      if (endedOn != null) 'ended_on': endedOn,
+      if (endReason != null) 'end_reason': endReason,
+    });
+  }
+
+  GoalsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? kind,
+    Value<String?>? pace,
+    Value<String>? startedOn,
+    Value<double?>? anchorKg,
+    Value<double?>? referenceKg,
+    Value<String>? blockStartedOn,
+    Value<double?>? blockAnchorKg,
+    Value<String>? phase,
+    Value<String>? phaseSince,
+    Value<String?>? phaseUntil,
+    Value<String>? levers,
+    Value<String?>? endedOn,
+    Value<String?>? endReason,
+  }) {
+    return GoalsCompanion(
+      id: id ?? this.id,
+      kind: kind ?? this.kind,
+      pace: pace ?? this.pace,
+      startedOn: startedOn ?? this.startedOn,
+      anchorKg: anchorKg ?? this.anchorKg,
+      referenceKg: referenceKg ?? this.referenceKg,
+      blockStartedOn: blockStartedOn ?? this.blockStartedOn,
+      blockAnchorKg: blockAnchorKg ?? this.blockAnchorKg,
+      phase: phase ?? this.phase,
+      phaseSince: phaseSince ?? this.phaseSince,
+      phaseUntil: phaseUntil ?? this.phaseUntil,
+      levers: levers ?? this.levers,
+      endedOn: endedOn ?? this.endedOn,
+      endReason: endReason ?? this.endReason,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (pace.present) {
+      map['pace'] = Variable<String>(pace.value);
+    }
+    if (startedOn.present) {
+      map['started_on'] = Variable<String>(startedOn.value);
+    }
+    if (anchorKg.present) {
+      map['anchor_kg'] = Variable<double>(anchorKg.value);
+    }
+    if (referenceKg.present) {
+      map['reference_kg'] = Variable<double>(referenceKg.value);
+    }
+    if (blockStartedOn.present) {
+      map['block_started_on'] = Variable<String>(blockStartedOn.value);
+    }
+    if (blockAnchorKg.present) {
+      map['block_anchor_kg'] = Variable<double>(blockAnchorKg.value);
+    }
+    if (phase.present) {
+      map['phase'] = Variable<String>(phase.value);
+    }
+    if (phaseSince.present) {
+      map['phase_since'] = Variable<String>(phaseSince.value);
+    }
+    if (phaseUntil.present) {
+      map['phase_until'] = Variable<String>(phaseUntil.value);
+    }
+    if (levers.present) {
+      map['levers'] = Variable<String>(levers.value);
+    }
+    if (endedOn.present) {
+      map['ended_on'] = Variable<String>(endedOn.value);
+    }
+    if (endReason.present) {
+      map['end_reason'] = Variable<String>(endReason.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalsCompanion(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('pace: $pace, ')
+          ..write('startedOn: $startedOn, ')
+          ..write('anchorKg: $anchorKg, ')
+          ..write('referenceKg: $referenceKg, ')
+          ..write('blockStartedOn: $blockStartedOn, ')
+          ..write('blockAnchorKg: $blockAnchorKg, ')
+          ..write('phase: $phase, ')
+          ..write('phaseSince: $phaseSince, ')
+          ..write('phaseUntil: $phaseUntil, ')
+          ..write('levers: $levers, ')
+          ..write('endedOn: $endedOn, ')
+          ..write('endReason: $endReason')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GoalWeeksTable extends GoalWeeks
+    with TableInfo<$GoalWeeksTable, GoalWeekRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoalWeeksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _goalIdMeta = const VerificationMeta('goalId');
+  @override
+  late final GeneratedColumn<int> goalId = GeneratedColumn<int>(
+    'goal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES goals (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _mondayMeta = const VerificationMeta('monday');
+  @override
+  late final GeneratedColumn<String> monday = GeneratedColumn<String>(
+    'monday',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _inputsMeta = const VerificationMeta('inputs');
+  @override
+  late final GeneratedColumn<String> inputs = GeneratedColumn<String>(
+    'inputs',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ruleMeta = const VerificationMeta('rule');
+  @override
+  late final GeneratedColumn<String> rule = GeneratedColumn<String>(
+    'rule',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _actionMeta = const VerificationMeta('action');
+  @override
+  late final GeneratedColumn<String> action = GeneratedColumn<String>(
+    'action',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _changeMeta = const VerificationMeta('change');
+  @override
+  late final GeneratedColumn<String> change = GeneratedColumn<String>(
+    'change',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _answerMeta = const VerificationMeta('answer');
+  @override
+  late final GeneratedColumn<String> answer = GeneratedColumn<String>(
+    'answer',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    goalId,
+    monday,
+    inputs,
+    rule,
+    action,
+    change,
+    answer,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'goal_weeks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GoalWeekRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('goal_id')) {
+      context.handle(
+        _goalIdMeta,
+        goalId.isAcceptableOrUnknown(data['goal_id']!, _goalIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_goalIdMeta);
+    }
+    if (data.containsKey('monday')) {
+      context.handle(
+        _mondayMeta,
+        monday.isAcceptableOrUnknown(data['monday']!, _mondayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mondayMeta);
+    }
+    if (data.containsKey('inputs')) {
+      context.handle(
+        _inputsMeta,
+        inputs.isAcceptableOrUnknown(data['inputs']!, _inputsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_inputsMeta);
+    }
+    if (data.containsKey('rule')) {
+      context.handle(
+        _ruleMeta,
+        rule.isAcceptableOrUnknown(data['rule']!, _ruleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ruleMeta);
+    }
+    if (data.containsKey('action')) {
+      context.handle(
+        _actionMeta,
+        action.isAcceptableOrUnknown(data['action']!, _actionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_actionMeta);
+    }
+    if (data.containsKey('change')) {
+      context.handle(
+        _changeMeta,
+        change.isAcceptableOrUnknown(data['change']!, _changeMeta),
+      );
+    }
+    if (data.containsKey('answer')) {
+      context.handle(
+        _answerMeta,
+        answer.isAcceptableOrUnknown(data['answer']!, _answerMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {goalId, monday};
+  @override
+  GoalWeekRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GoalWeekRow(
+      goalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}goal_id'],
+      )!,
+      monday: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}monday'],
+      )!,
+      inputs: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}inputs'],
+      )!,
+      rule: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rule'],
+      )!,
+      action: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}action'],
+      )!,
+      change: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}change'],
+      ),
+      answer: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}answer'],
+      ),
+    );
+  }
+
+  @override
+  $GoalWeeksTable createAlias(String alias) {
+    return $GoalWeeksTable(attachedDatabase, alias);
+  }
+}
+
+class GoalWeekRow extends DataClass implements Insertable<GoalWeekRow> {
+  final int goalId;
+  final String monday;
+  final String inputs;
+  final String rule;
+  final String action;
+  final String? change;
+  final String? answer;
+  const GoalWeekRow({
+    required this.goalId,
+    required this.monday,
+    required this.inputs,
+    required this.rule,
+    required this.action,
+    this.change,
+    this.answer,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['goal_id'] = Variable<int>(goalId);
+    map['monday'] = Variable<String>(monday);
+    map['inputs'] = Variable<String>(inputs);
+    map['rule'] = Variable<String>(rule);
+    map['action'] = Variable<String>(action);
+    if (!nullToAbsent || change != null) {
+      map['change'] = Variable<String>(change);
+    }
+    if (!nullToAbsent || answer != null) {
+      map['answer'] = Variable<String>(answer);
+    }
+    return map;
+  }
+
+  GoalWeeksCompanion toCompanion(bool nullToAbsent) {
+    return GoalWeeksCompanion(
+      goalId: Value(goalId),
+      monday: Value(monday),
+      inputs: Value(inputs),
+      rule: Value(rule),
+      action: Value(action),
+      change: change == null && nullToAbsent
+          ? const Value.absent()
+          : Value(change),
+      answer: answer == null && nullToAbsent
+          ? const Value.absent()
+          : Value(answer),
+    );
+  }
+
+  factory GoalWeekRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GoalWeekRow(
+      goalId: serializer.fromJson<int>(json['goalId']),
+      monday: serializer.fromJson<String>(json['monday']),
+      inputs: serializer.fromJson<String>(json['inputs']),
+      rule: serializer.fromJson<String>(json['rule']),
+      action: serializer.fromJson<String>(json['action']),
+      change: serializer.fromJson<String?>(json['change']),
+      answer: serializer.fromJson<String?>(json['answer']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'goalId': serializer.toJson<int>(goalId),
+      'monday': serializer.toJson<String>(monday),
+      'inputs': serializer.toJson<String>(inputs),
+      'rule': serializer.toJson<String>(rule),
+      'action': serializer.toJson<String>(action),
+      'change': serializer.toJson<String?>(change),
+      'answer': serializer.toJson<String?>(answer),
+    };
+  }
+
+  GoalWeekRow copyWith({
+    int? goalId,
+    String? monday,
+    String? inputs,
+    String? rule,
+    String? action,
+    Value<String?> change = const Value.absent(),
+    Value<String?> answer = const Value.absent(),
+  }) => GoalWeekRow(
+    goalId: goalId ?? this.goalId,
+    monday: monday ?? this.monday,
+    inputs: inputs ?? this.inputs,
+    rule: rule ?? this.rule,
+    action: action ?? this.action,
+    change: change.present ? change.value : this.change,
+    answer: answer.present ? answer.value : this.answer,
+  );
+  GoalWeekRow copyWithCompanion(GoalWeeksCompanion data) {
+    return GoalWeekRow(
+      goalId: data.goalId.present ? data.goalId.value : this.goalId,
+      monday: data.monday.present ? data.monday.value : this.monday,
+      inputs: data.inputs.present ? data.inputs.value : this.inputs,
+      rule: data.rule.present ? data.rule.value : this.rule,
+      action: data.action.present ? data.action.value : this.action,
+      change: data.change.present ? data.change.value : this.change,
+      answer: data.answer.present ? data.answer.value : this.answer,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalWeekRow(')
+          ..write('goalId: $goalId, ')
+          ..write('monday: $monday, ')
+          ..write('inputs: $inputs, ')
+          ..write('rule: $rule, ')
+          ..write('action: $action, ')
+          ..write('change: $change, ')
+          ..write('answer: $answer')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(goalId, monday, inputs, rule, action, change, answer);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GoalWeekRow &&
+          other.goalId == this.goalId &&
+          other.monday == this.monday &&
+          other.inputs == this.inputs &&
+          other.rule == this.rule &&
+          other.action == this.action &&
+          other.change == this.change &&
+          other.answer == this.answer);
+}
+
+class GoalWeeksCompanion extends UpdateCompanion<GoalWeekRow> {
+  final Value<int> goalId;
+  final Value<String> monday;
+  final Value<String> inputs;
+  final Value<String> rule;
+  final Value<String> action;
+  final Value<String?> change;
+  final Value<String?> answer;
+  final Value<int> rowid;
+  const GoalWeeksCompanion({
+    this.goalId = const Value.absent(),
+    this.monday = const Value.absent(),
+    this.inputs = const Value.absent(),
+    this.rule = const Value.absent(),
+    this.action = const Value.absent(),
+    this.change = const Value.absent(),
+    this.answer = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GoalWeeksCompanion.insert({
+    required int goalId,
+    required String monday,
+    required String inputs,
+    required String rule,
+    required String action,
+    this.change = const Value.absent(),
+    this.answer = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : goalId = Value(goalId),
+       monday = Value(monday),
+       inputs = Value(inputs),
+       rule = Value(rule),
+       action = Value(action);
+  static Insertable<GoalWeekRow> custom({
+    Expression<int>? goalId,
+    Expression<String>? monday,
+    Expression<String>? inputs,
+    Expression<String>? rule,
+    Expression<String>? action,
+    Expression<String>? change,
+    Expression<String>? answer,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (goalId != null) 'goal_id': goalId,
+      if (monday != null) 'monday': monday,
+      if (inputs != null) 'inputs': inputs,
+      if (rule != null) 'rule': rule,
+      if (action != null) 'action': action,
+      if (change != null) 'change': change,
+      if (answer != null) 'answer': answer,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GoalWeeksCompanion copyWith({
+    Value<int>? goalId,
+    Value<String>? monday,
+    Value<String>? inputs,
+    Value<String>? rule,
+    Value<String>? action,
+    Value<String?>? change,
+    Value<String?>? answer,
+    Value<int>? rowid,
+  }) {
+    return GoalWeeksCompanion(
+      goalId: goalId ?? this.goalId,
+      monday: monday ?? this.monday,
+      inputs: inputs ?? this.inputs,
+      rule: rule ?? this.rule,
+      action: action ?? this.action,
+      change: change ?? this.change,
+      answer: answer ?? this.answer,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (goalId.present) {
+      map['goal_id'] = Variable<int>(goalId.value);
+    }
+    if (monday.present) {
+      map['monday'] = Variable<String>(monday.value);
+    }
+    if (inputs.present) {
+      map['inputs'] = Variable<String>(inputs.value);
+    }
+    if (rule.present) {
+      map['rule'] = Variable<String>(rule.value);
+    }
+    if (action.present) {
+      map['action'] = Variable<String>(action.value);
+    }
+    if (change.present) {
+      map['change'] = Variable<String>(change.value);
+    }
+    if (answer.present) {
+      map['answer'] = Variable<String>(answer.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalWeeksCompanion(')
+          ..write('goalId: $goalId, ')
+          ..write('monday: $monday, ')
+          ..write('inputs: $inputs, ')
+          ..write('rule: $rule, ')
+          ..write('action: $action, ')
+          ..write('change: $change, ')
+          ..write('answer: $answer, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GoalScreeningsTable extends GoalScreenings
+    with TableInfo<$GoalScreeningsTable, GoalScreeningRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoalScreeningsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _askedOnMeta = const VerificationMeta(
+    'askedOn',
+  );
+  @override
+  late final GeneratedColumn<String> askedOn = GeneratedColumn<String>(
+    'asked_on',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _softModeMeta = const VerificationMeta(
+    'softMode',
+  );
+  @override
+  late final GeneratedColumn<bool> softMode = GeneratedColumn<bool>(
+    'soft_mode',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("soft_mode" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _pregnantOrBreastfeedingMeta =
+      const VerificationMeta('pregnantOrBreastfeeding');
+  @override
+  late final GeneratedColumn<bool> pregnantOrBreastfeeding =
+      GeneratedColumn<bool>(
+        'pregnant_or_breastfeeding',
+        aliasedName,
+        true,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("pregnant_or_breastfeeding" IN (0, 1))',
+        ),
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    askedOn,
+    softMode,
+    pregnantOrBreastfeeding,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'goal_screenings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GoalScreeningRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('asked_on')) {
+      context.handle(
+        _askedOnMeta,
+        askedOn.isAcceptableOrUnknown(data['asked_on']!, _askedOnMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_askedOnMeta);
+    }
+    if (data.containsKey('soft_mode')) {
+      context.handle(
+        _softModeMeta,
+        softMode.isAcceptableOrUnknown(data['soft_mode']!, _softModeMeta),
+      );
+    }
+    if (data.containsKey('pregnant_or_breastfeeding')) {
+      context.handle(
+        _pregnantOrBreastfeedingMeta,
+        pregnantOrBreastfeeding.isAcceptableOrUnknown(
+          data['pregnant_or_breastfeeding']!,
+          _pregnantOrBreastfeedingMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GoalScreeningRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GoalScreeningRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      askedOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}asked_on'],
+      )!,
+      softMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}soft_mode'],
+      ),
+      pregnantOrBreastfeeding: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}pregnant_or_breastfeeding'],
+      ),
+    );
+  }
+
+  @override
+  $GoalScreeningsTable createAlias(String alias) {
+    return $GoalScreeningsTable(attachedDatabase, alias);
+  }
+}
+
+class GoalScreeningRow extends DataClass
+    implements Insertable<GoalScreeningRow> {
+  final int id;
+  final String askedOn;
+  final bool? softMode;
+  final bool? pregnantOrBreastfeeding;
+  const GoalScreeningRow({
+    required this.id,
+    required this.askedOn,
+    this.softMode,
+    this.pregnantOrBreastfeeding,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['asked_on'] = Variable<String>(askedOn);
+    if (!nullToAbsent || softMode != null) {
+      map['soft_mode'] = Variable<bool>(softMode);
+    }
+    if (!nullToAbsent || pregnantOrBreastfeeding != null) {
+      map['pregnant_or_breastfeeding'] = Variable<bool>(
+        pregnantOrBreastfeeding,
+      );
+    }
+    return map;
+  }
+
+  GoalScreeningsCompanion toCompanion(bool nullToAbsent) {
+    return GoalScreeningsCompanion(
+      id: Value(id),
+      askedOn: Value(askedOn),
+      softMode: softMode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(softMode),
+      pregnantOrBreastfeeding: pregnantOrBreastfeeding == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pregnantOrBreastfeeding),
+    );
+  }
+
+  factory GoalScreeningRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GoalScreeningRow(
+      id: serializer.fromJson<int>(json['id']),
+      askedOn: serializer.fromJson<String>(json['askedOn']),
+      softMode: serializer.fromJson<bool?>(json['softMode']),
+      pregnantOrBreastfeeding: serializer.fromJson<bool?>(
+        json['pregnantOrBreastfeeding'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'askedOn': serializer.toJson<String>(askedOn),
+      'softMode': serializer.toJson<bool?>(softMode),
+      'pregnantOrBreastfeeding': serializer.toJson<bool?>(
+        pregnantOrBreastfeeding,
+      ),
+    };
+  }
+
+  GoalScreeningRow copyWith({
+    int? id,
+    String? askedOn,
+    Value<bool?> softMode = const Value.absent(),
+    Value<bool?> pregnantOrBreastfeeding = const Value.absent(),
+  }) => GoalScreeningRow(
+    id: id ?? this.id,
+    askedOn: askedOn ?? this.askedOn,
+    softMode: softMode.present ? softMode.value : this.softMode,
+    pregnantOrBreastfeeding: pregnantOrBreastfeeding.present
+        ? pregnantOrBreastfeeding.value
+        : this.pregnantOrBreastfeeding,
+  );
+  GoalScreeningRow copyWithCompanion(GoalScreeningsCompanion data) {
+    return GoalScreeningRow(
+      id: data.id.present ? data.id.value : this.id,
+      askedOn: data.askedOn.present ? data.askedOn.value : this.askedOn,
+      softMode: data.softMode.present ? data.softMode.value : this.softMode,
+      pregnantOrBreastfeeding: data.pregnantOrBreastfeeding.present
+          ? data.pregnantOrBreastfeeding.value
+          : this.pregnantOrBreastfeeding,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalScreeningRow(')
+          ..write('id: $id, ')
+          ..write('askedOn: $askedOn, ')
+          ..write('softMode: $softMode, ')
+          ..write('pregnantOrBreastfeeding: $pregnantOrBreastfeeding')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, askedOn, softMode, pregnantOrBreastfeeding);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GoalScreeningRow &&
+          other.id == this.id &&
+          other.askedOn == this.askedOn &&
+          other.softMode == this.softMode &&
+          other.pregnantOrBreastfeeding == this.pregnantOrBreastfeeding);
+}
+
+class GoalScreeningsCompanion extends UpdateCompanion<GoalScreeningRow> {
+  final Value<int> id;
+  final Value<String> askedOn;
+  final Value<bool?> softMode;
+  final Value<bool?> pregnantOrBreastfeeding;
+  const GoalScreeningsCompanion({
+    this.id = const Value.absent(),
+    this.askedOn = const Value.absent(),
+    this.softMode = const Value.absent(),
+    this.pregnantOrBreastfeeding = const Value.absent(),
+  });
+  GoalScreeningsCompanion.insert({
+    this.id = const Value.absent(),
+    required String askedOn,
+    this.softMode = const Value.absent(),
+    this.pregnantOrBreastfeeding = const Value.absent(),
+  }) : askedOn = Value(askedOn);
+  static Insertable<GoalScreeningRow> custom({
+    Expression<int>? id,
+    Expression<String>? askedOn,
+    Expression<bool>? softMode,
+    Expression<bool>? pregnantOrBreastfeeding,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (askedOn != null) 'asked_on': askedOn,
+      if (softMode != null) 'soft_mode': softMode,
+      if (pregnantOrBreastfeeding != null)
+        'pregnant_or_breastfeeding': pregnantOrBreastfeeding,
+    });
+  }
+
+  GoalScreeningsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? askedOn,
+    Value<bool?>? softMode,
+    Value<bool?>? pregnantOrBreastfeeding,
+  }) {
+    return GoalScreeningsCompanion(
+      id: id ?? this.id,
+      askedOn: askedOn ?? this.askedOn,
+      softMode: softMode ?? this.softMode,
+      pregnantOrBreastfeeding:
+          pregnantOrBreastfeeding ?? this.pregnantOrBreastfeeding,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (askedOn.present) {
+      map['asked_on'] = Variable<String>(askedOn.value);
+    }
+    if (softMode.present) {
+      map['soft_mode'] = Variable<bool>(softMode.value);
+    }
+    if (pregnantOrBreastfeeding.present) {
+      map['pregnant_or_breastfeeding'] = Variable<bool>(
+        pregnantOrBreastfeeding.value,
+      );
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoalScreeningsCompanion(')
+          ..write('id: $id, ')
+          ..write('askedOn: $askedOn, ')
+          ..write('softMode: $softMode, ')
+          ..write('pregnantOrBreastfeeding: $pregnantOrBreastfeeding')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MealsTable extends Meals with TableInfo<$MealsTable, MealRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MealsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _atUtcMsMeta = const VerificationMeta(
+    'atUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> atUtcMs = GeneratedColumn<int>(
+    'at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _offsetMinutesMeta = const VerificationMeta(
+    'offsetMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> offsetMinutes = GeneratedColumn<int>(
+    'offset_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _proteinMeta = const VerificationMeta(
+    'protein',
+  );
+  @override
+  late final GeneratedColumn<bool> protein = GeneratedColumn<bool>(
+    'protein',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("protein" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _caffeineMeta = const VerificationMeta(
+    'caffeine',
+  );
+  @override
+  late final GeneratedColumn<bool> caffeine = GeneratedColumn<bool>(
+    'caffeine',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("caffeine" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _heavyMeta = const VerificationMeta('heavy');
+  @override
+  late final GeneratedColumn<bool> heavy = GeneratedColumn<bool>(
+    'heavy',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("heavy" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _friedMeta = const VerificationMeta('fried');
+  @override
+  late final GeneratedColumn<bool> fried = GeneratedColumn<bool>(
+    'fried',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("fried" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _sugarMeta = const VerificationMeta('sugar');
+  @override
+  late final GeneratedColumn<bool> sugar = GeneratedColumn<bool>(
+    'sugar',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sugar" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _vegMeta = const VerificationMeta('veg');
+  @override
+  late final GeneratedColumn<String> veg = GeneratedColumn<String>(
+    'veg',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _alcoholMeta = const VerificationMeta(
+    'alcohol',
+  );
+  @override
+  late final GeneratedColumn<String> alcohol = GeneratedColumn<String>(
+    'alcohol',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _processedMeta = const VerificationMeta(
+    'processed',
+  );
+  @override
+  late final GeneratedColumn<String> processed = GeneratedColumn<String>(
+    'processed',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _placeMeta = const VerificationMeta('place');
+  @override
+  late final GeneratedColumn<String> place = GeneratedColumn<String>(
+    'place',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastMealMeta = const VerificationMeta(
+    'lastMeal',
+  );
+  @override
+  late final GeneratedColumn<bool> lastMeal = GeneratedColumn<bool>(
+    'last_meal',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("last_meal" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _photoMeta = const VerificationMeta('photo');
+  @override
+  late final GeneratedColumn<String> photo = GeneratedColumn<String>(
+    'photo',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _createdAtUtcMsMeta = const VerificationMeta(
+    'createdAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> createdAtUtcMs = GeneratedColumn<int>(
+    'created_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _keepOnPhoneMeta = const VerificationMeta(
+    'keepOnPhone',
+  );
+  @override
+  late final GeneratedColumn<bool> keepOnPhone = GeneratedColumn<bool>(
+    'keep_on_phone',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("keep_on_phone" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    atUtcMs,
+    offsetMinutes,
+    kind,
+    protein,
+    caffeine,
+    heavy,
+    fried,
+    sugar,
+    veg,
+    alcohol,
+    processed,
+    place,
+    lastMeal,
+    photo,
+    createdAtUtcMs,
+    keepOnPhone,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'meals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MealRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('at_utc_ms')) {
+      context.handle(
+        _atUtcMsMeta,
+        atUtcMs.isAcceptableOrUnknown(data['at_utc_ms']!, _atUtcMsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_atUtcMsMeta);
+    }
+    if (data.containsKey('offset_minutes')) {
+      context.handle(
+        _offsetMinutesMeta,
+        offsetMinutes.isAcceptableOrUnknown(
+          data['offset_minutes']!,
+          _offsetMinutesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_offsetMinutesMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    }
+    if (data.containsKey('protein')) {
+      context.handle(
+        _proteinMeta,
+        protein.isAcceptableOrUnknown(data['protein']!, _proteinMeta),
+      );
+    }
+    if (data.containsKey('caffeine')) {
+      context.handle(
+        _caffeineMeta,
+        caffeine.isAcceptableOrUnknown(data['caffeine']!, _caffeineMeta),
+      );
+    }
+    if (data.containsKey('heavy')) {
+      context.handle(
+        _heavyMeta,
+        heavy.isAcceptableOrUnknown(data['heavy']!, _heavyMeta),
+      );
+    }
+    if (data.containsKey('fried')) {
+      context.handle(
+        _friedMeta,
+        fried.isAcceptableOrUnknown(data['fried']!, _friedMeta),
+      );
+    }
+    if (data.containsKey('sugar')) {
+      context.handle(
+        _sugarMeta,
+        sugar.isAcceptableOrUnknown(data['sugar']!, _sugarMeta),
+      );
+    }
+    if (data.containsKey('veg')) {
+      context.handle(
+        _vegMeta,
+        veg.isAcceptableOrUnknown(data['veg']!, _vegMeta),
+      );
+    }
+    if (data.containsKey('alcohol')) {
+      context.handle(
+        _alcoholMeta,
+        alcohol.isAcceptableOrUnknown(data['alcohol']!, _alcoholMeta),
+      );
+    }
+    if (data.containsKey('processed')) {
+      context.handle(
+        _processedMeta,
+        processed.isAcceptableOrUnknown(data['processed']!, _processedMeta),
+      );
+    }
+    if (data.containsKey('place')) {
+      context.handle(
+        _placeMeta,
+        place.isAcceptableOrUnknown(data['place']!, _placeMeta),
+      );
+    }
+    if (data.containsKey('last_meal')) {
+      context.handle(
+        _lastMealMeta,
+        lastMeal.isAcceptableOrUnknown(data['last_meal']!, _lastMealMeta),
+      );
+    }
+    if (data.containsKey('photo')) {
+      context.handle(
+        _photoMeta,
+        photo.isAcceptableOrUnknown(data['photo']!, _photoMeta),
+      );
+    }
+    if (data.containsKey('created_at_utc_ms')) {
+      context.handle(
+        _createdAtUtcMsMeta,
+        createdAtUtcMs.isAcceptableOrUnknown(
+          data['created_at_utc_ms']!,
+          _createdAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtUtcMsMeta);
+    }
+    if (data.containsKey('keep_on_phone')) {
+      context.handle(
+        _keepOnPhoneMeta,
+        keepOnPhone.isAcceptableOrUnknown(
+          data['keep_on_phone']!,
+          _keepOnPhoneMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MealRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MealRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      atUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}at_utc_ms'],
+      )!,
+      offsetMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}offset_minutes'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      ),
+      protein: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}protein'],
+      )!,
+      caffeine: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}caffeine'],
+      )!,
+      heavy: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}heavy'],
+      )!,
+      fried: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}fried'],
+      )!,
+      sugar: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sugar'],
+      )!,
+      veg: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}veg'],
+      ),
+      alcohol: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}alcohol'],
+      ),
+      processed: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}processed'],
+      ),
+      place: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}place'],
+      ),
+      lastMeal: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}last_meal'],
+      )!,
+      photo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}photo'],
+      ),
+      createdAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at_utc_ms'],
+      )!,
+      keepOnPhone: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}keep_on_phone'],
+      )!,
+    );
+  }
+
+  @override
+  $MealsTable createAlias(String alias) {
+    return $MealsTable(attachedDatabase, alias);
+  }
+}
+
+class MealRow extends DataClass implements Insertable<MealRow> {
+  final int id;
+  final int atUtcMs;
+  final int offsetMinutes;
+  final String? kind;
+  final bool protein;
+  final bool caffeine;
+  final bool heavy;
+  final bool fried;
+  final bool sugar;
+  final String? veg;
+  final String? alcohol;
+  final String? processed;
+  final String? place;
+  final bool lastMeal;
+  final String? photo;
+  final int createdAtUtcMs;
+  final bool keepOnPhone;
+  const MealRow({
+    required this.id,
+    required this.atUtcMs,
+    required this.offsetMinutes,
+    this.kind,
+    required this.protein,
+    required this.caffeine,
+    required this.heavy,
+    required this.fried,
+    required this.sugar,
+    this.veg,
+    this.alcohol,
+    this.processed,
+    this.place,
+    required this.lastMeal,
+    this.photo,
+    required this.createdAtUtcMs,
+    required this.keepOnPhone,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['at_utc_ms'] = Variable<int>(atUtcMs);
+    map['offset_minutes'] = Variable<int>(offsetMinutes);
+    if (!nullToAbsent || kind != null) {
+      map['kind'] = Variable<String>(kind);
+    }
+    map['protein'] = Variable<bool>(protein);
+    map['caffeine'] = Variable<bool>(caffeine);
+    map['heavy'] = Variable<bool>(heavy);
+    map['fried'] = Variable<bool>(fried);
+    map['sugar'] = Variable<bool>(sugar);
+    if (!nullToAbsent || veg != null) {
+      map['veg'] = Variable<String>(veg);
+    }
+    if (!nullToAbsent || alcohol != null) {
+      map['alcohol'] = Variable<String>(alcohol);
+    }
+    if (!nullToAbsent || processed != null) {
+      map['processed'] = Variable<String>(processed);
+    }
+    if (!nullToAbsent || place != null) {
+      map['place'] = Variable<String>(place);
+    }
+    map['last_meal'] = Variable<bool>(lastMeal);
+    if (!nullToAbsent || photo != null) {
+      map['photo'] = Variable<String>(photo);
+    }
+    map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs);
+    map['keep_on_phone'] = Variable<bool>(keepOnPhone);
+    return map;
+  }
+
+  MealsCompanion toCompanion(bool nullToAbsent) {
+    return MealsCompanion(
+      id: Value(id),
+      atUtcMs: Value(atUtcMs),
+      offsetMinutes: Value(offsetMinutes),
+      kind: kind == null && nullToAbsent ? const Value.absent() : Value(kind),
+      protein: Value(protein),
+      caffeine: Value(caffeine),
+      heavy: Value(heavy),
+      fried: Value(fried),
+      sugar: Value(sugar),
+      veg: veg == null && nullToAbsent ? const Value.absent() : Value(veg),
+      alcohol: alcohol == null && nullToAbsent
+          ? const Value.absent()
+          : Value(alcohol),
+      processed: processed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(processed),
+      place: place == null && nullToAbsent
+          ? const Value.absent()
+          : Value(place),
+      lastMeal: Value(lastMeal),
+      photo: photo == null && nullToAbsent
+          ? const Value.absent()
+          : Value(photo),
+      createdAtUtcMs: Value(createdAtUtcMs),
+      keepOnPhone: Value(keepOnPhone),
+    );
+  }
+
+  factory MealRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MealRow(
+      id: serializer.fromJson<int>(json['id']),
+      atUtcMs: serializer.fromJson<int>(json['atUtcMs']),
+      offsetMinutes: serializer.fromJson<int>(json['offsetMinutes']),
+      kind: serializer.fromJson<String?>(json['kind']),
+      protein: serializer.fromJson<bool>(json['protein']),
+      caffeine: serializer.fromJson<bool>(json['caffeine']),
+      heavy: serializer.fromJson<bool>(json['heavy']),
+      fried: serializer.fromJson<bool>(json['fried']),
+      sugar: serializer.fromJson<bool>(json['sugar']),
+      veg: serializer.fromJson<String?>(json['veg']),
+      alcohol: serializer.fromJson<String?>(json['alcohol']),
+      processed: serializer.fromJson<String?>(json['processed']),
+      place: serializer.fromJson<String?>(json['place']),
+      lastMeal: serializer.fromJson<bool>(json['lastMeal']),
+      photo: serializer.fromJson<String?>(json['photo']),
+      createdAtUtcMs: serializer.fromJson<int>(json['createdAtUtcMs']),
+      keepOnPhone: serializer.fromJson<bool>(json['keepOnPhone']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'atUtcMs': serializer.toJson<int>(atUtcMs),
+      'offsetMinutes': serializer.toJson<int>(offsetMinutes),
+      'kind': serializer.toJson<String?>(kind),
+      'protein': serializer.toJson<bool>(protein),
+      'caffeine': serializer.toJson<bool>(caffeine),
+      'heavy': serializer.toJson<bool>(heavy),
+      'fried': serializer.toJson<bool>(fried),
+      'sugar': serializer.toJson<bool>(sugar),
+      'veg': serializer.toJson<String?>(veg),
+      'alcohol': serializer.toJson<String?>(alcohol),
+      'processed': serializer.toJson<String?>(processed),
+      'place': serializer.toJson<String?>(place),
+      'lastMeal': serializer.toJson<bool>(lastMeal),
+      'photo': serializer.toJson<String?>(photo),
+      'createdAtUtcMs': serializer.toJson<int>(createdAtUtcMs),
+      'keepOnPhone': serializer.toJson<bool>(keepOnPhone),
+    };
+  }
+
+  MealRow copyWith({
+    int? id,
+    int? atUtcMs,
+    int? offsetMinutes,
+    Value<String?> kind = const Value.absent(),
+    bool? protein,
+    bool? caffeine,
+    bool? heavy,
+    bool? fried,
+    bool? sugar,
+    Value<String?> veg = const Value.absent(),
+    Value<String?> alcohol = const Value.absent(),
+    Value<String?> processed = const Value.absent(),
+    Value<String?> place = const Value.absent(),
+    bool? lastMeal,
+    Value<String?> photo = const Value.absent(),
+    int? createdAtUtcMs,
+    bool? keepOnPhone,
+  }) => MealRow(
+    id: id ?? this.id,
+    atUtcMs: atUtcMs ?? this.atUtcMs,
+    offsetMinutes: offsetMinutes ?? this.offsetMinutes,
+    kind: kind.present ? kind.value : this.kind,
+    protein: protein ?? this.protein,
+    caffeine: caffeine ?? this.caffeine,
+    heavy: heavy ?? this.heavy,
+    fried: fried ?? this.fried,
+    sugar: sugar ?? this.sugar,
+    veg: veg.present ? veg.value : this.veg,
+    alcohol: alcohol.present ? alcohol.value : this.alcohol,
+    processed: processed.present ? processed.value : this.processed,
+    place: place.present ? place.value : this.place,
+    lastMeal: lastMeal ?? this.lastMeal,
+    photo: photo.present ? photo.value : this.photo,
+    createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+    keepOnPhone: keepOnPhone ?? this.keepOnPhone,
+  );
+  MealRow copyWithCompanion(MealsCompanion data) {
+    return MealRow(
+      id: data.id.present ? data.id.value : this.id,
+      atUtcMs: data.atUtcMs.present ? data.atUtcMs.value : this.atUtcMs,
+      offsetMinutes: data.offsetMinutes.present
+          ? data.offsetMinutes.value
+          : this.offsetMinutes,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      protein: data.protein.present ? data.protein.value : this.protein,
+      caffeine: data.caffeine.present ? data.caffeine.value : this.caffeine,
+      heavy: data.heavy.present ? data.heavy.value : this.heavy,
+      fried: data.fried.present ? data.fried.value : this.fried,
+      sugar: data.sugar.present ? data.sugar.value : this.sugar,
+      veg: data.veg.present ? data.veg.value : this.veg,
+      alcohol: data.alcohol.present ? data.alcohol.value : this.alcohol,
+      processed: data.processed.present ? data.processed.value : this.processed,
+      place: data.place.present ? data.place.value : this.place,
+      lastMeal: data.lastMeal.present ? data.lastMeal.value : this.lastMeal,
+      photo: data.photo.present ? data.photo.value : this.photo,
+      createdAtUtcMs: data.createdAtUtcMs.present
+          ? data.createdAtUtcMs.value
+          : this.createdAtUtcMs,
+      keepOnPhone: data.keepOnPhone.present
+          ? data.keepOnPhone.value
+          : this.keepOnPhone,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MealRow(')
+          ..write('id: $id, ')
+          ..write('atUtcMs: $atUtcMs, ')
+          ..write('offsetMinutes: $offsetMinutes, ')
+          ..write('kind: $kind, ')
+          ..write('protein: $protein, ')
+          ..write('caffeine: $caffeine, ')
+          ..write('heavy: $heavy, ')
+          ..write('fried: $fried, ')
+          ..write('sugar: $sugar, ')
+          ..write('veg: $veg, ')
+          ..write('alcohol: $alcohol, ')
+          ..write('processed: $processed, ')
+          ..write('place: $place, ')
+          ..write('lastMeal: $lastMeal, ')
+          ..write('photo: $photo, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('keepOnPhone: $keepOnPhone')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    atUtcMs,
+    offsetMinutes,
+    kind,
+    protein,
+    caffeine,
+    heavy,
+    fried,
+    sugar,
+    veg,
+    alcohol,
+    processed,
+    place,
+    lastMeal,
+    photo,
+    createdAtUtcMs,
+    keepOnPhone,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MealRow &&
+          other.id == this.id &&
+          other.atUtcMs == this.atUtcMs &&
+          other.offsetMinutes == this.offsetMinutes &&
+          other.kind == this.kind &&
+          other.protein == this.protein &&
+          other.caffeine == this.caffeine &&
+          other.heavy == this.heavy &&
+          other.fried == this.fried &&
+          other.sugar == this.sugar &&
+          other.veg == this.veg &&
+          other.alcohol == this.alcohol &&
+          other.processed == this.processed &&
+          other.place == this.place &&
+          other.lastMeal == this.lastMeal &&
+          other.photo == this.photo &&
+          other.createdAtUtcMs == this.createdAtUtcMs &&
+          other.keepOnPhone == this.keepOnPhone);
+}
+
+class MealsCompanion extends UpdateCompanion<MealRow> {
+  final Value<int> id;
+  final Value<int> atUtcMs;
+  final Value<int> offsetMinutes;
+  final Value<String?> kind;
+  final Value<bool> protein;
+  final Value<bool> caffeine;
+  final Value<bool> heavy;
+  final Value<bool> fried;
+  final Value<bool> sugar;
+  final Value<String?> veg;
+  final Value<String?> alcohol;
+  final Value<String?> processed;
+  final Value<String?> place;
+  final Value<bool> lastMeal;
+  final Value<String?> photo;
+  final Value<int> createdAtUtcMs;
+  final Value<bool> keepOnPhone;
+  const MealsCompanion({
+    this.id = const Value.absent(),
+    this.atUtcMs = const Value.absent(),
+    this.offsetMinutes = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.protein = const Value.absent(),
+    this.caffeine = const Value.absent(),
+    this.heavy = const Value.absent(),
+    this.fried = const Value.absent(),
+    this.sugar = const Value.absent(),
+    this.veg = const Value.absent(),
+    this.alcohol = const Value.absent(),
+    this.processed = const Value.absent(),
+    this.place = const Value.absent(),
+    this.lastMeal = const Value.absent(),
+    this.photo = const Value.absent(),
+    this.createdAtUtcMs = const Value.absent(),
+    this.keepOnPhone = const Value.absent(),
+  });
+  MealsCompanion.insert({
+    this.id = const Value.absent(),
+    required int atUtcMs,
+    required int offsetMinutes,
+    this.kind = const Value.absent(),
+    this.protein = const Value.absent(),
+    this.caffeine = const Value.absent(),
+    this.heavy = const Value.absent(),
+    this.fried = const Value.absent(),
+    this.sugar = const Value.absent(),
+    this.veg = const Value.absent(),
+    this.alcohol = const Value.absent(),
+    this.processed = const Value.absent(),
+    this.place = const Value.absent(),
+    this.lastMeal = const Value.absent(),
+    this.photo = const Value.absent(),
+    required int createdAtUtcMs,
+    this.keepOnPhone = const Value.absent(),
+  }) : atUtcMs = Value(atUtcMs),
+       offsetMinutes = Value(offsetMinutes),
+       createdAtUtcMs = Value(createdAtUtcMs);
+  static Insertable<MealRow> custom({
+    Expression<int>? id,
+    Expression<int>? atUtcMs,
+    Expression<int>? offsetMinutes,
+    Expression<String>? kind,
+    Expression<bool>? protein,
+    Expression<bool>? caffeine,
+    Expression<bool>? heavy,
+    Expression<bool>? fried,
+    Expression<bool>? sugar,
+    Expression<String>? veg,
+    Expression<String>? alcohol,
+    Expression<String>? processed,
+    Expression<String>? place,
+    Expression<bool>? lastMeal,
+    Expression<String>? photo,
+    Expression<int>? createdAtUtcMs,
+    Expression<bool>? keepOnPhone,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (atUtcMs != null) 'at_utc_ms': atUtcMs,
+      if (offsetMinutes != null) 'offset_minutes': offsetMinutes,
+      if (kind != null) 'kind': kind,
+      if (protein != null) 'protein': protein,
+      if (caffeine != null) 'caffeine': caffeine,
+      if (heavy != null) 'heavy': heavy,
+      if (fried != null) 'fried': fried,
+      if (sugar != null) 'sugar': sugar,
+      if (veg != null) 'veg': veg,
+      if (alcohol != null) 'alcohol': alcohol,
+      if (processed != null) 'processed': processed,
+      if (place != null) 'place': place,
+      if (lastMeal != null) 'last_meal': lastMeal,
+      if (photo != null) 'photo': photo,
+      if (createdAtUtcMs != null) 'created_at_utc_ms': createdAtUtcMs,
+      if (keepOnPhone != null) 'keep_on_phone': keepOnPhone,
+    });
+  }
+
+  MealsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? atUtcMs,
+    Value<int>? offsetMinutes,
+    Value<String?>? kind,
+    Value<bool>? protein,
+    Value<bool>? caffeine,
+    Value<bool>? heavy,
+    Value<bool>? fried,
+    Value<bool>? sugar,
+    Value<String?>? veg,
+    Value<String?>? alcohol,
+    Value<String?>? processed,
+    Value<String?>? place,
+    Value<bool>? lastMeal,
+    Value<String?>? photo,
+    Value<int>? createdAtUtcMs,
+    Value<bool>? keepOnPhone,
+  }) {
+    return MealsCompanion(
+      id: id ?? this.id,
+      atUtcMs: atUtcMs ?? this.atUtcMs,
+      offsetMinutes: offsetMinutes ?? this.offsetMinutes,
+      kind: kind ?? this.kind,
+      protein: protein ?? this.protein,
+      caffeine: caffeine ?? this.caffeine,
+      heavy: heavy ?? this.heavy,
+      fried: fried ?? this.fried,
+      sugar: sugar ?? this.sugar,
+      veg: veg ?? this.veg,
+      alcohol: alcohol ?? this.alcohol,
+      processed: processed ?? this.processed,
+      place: place ?? this.place,
+      lastMeal: lastMeal ?? this.lastMeal,
+      photo: photo ?? this.photo,
+      createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+      keepOnPhone: keepOnPhone ?? this.keepOnPhone,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (atUtcMs.present) {
+      map['at_utc_ms'] = Variable<int>(atUtcMs.value);
+    }
+    if (offsetMinutes.present) {
+      map['offset_minutes'] = Variable<int>(offsetMinutes.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (protein.present) {
+      map['protein'] = Variable<bool>(protein.value);
+    }
+    if (caffeine.present) {
+      map['caffeine'] = Variable<bool>(caffeine.value);
+    }
+    if (heavy.present) {
+      map['heavy'] = Variable<bool>(heavy.value);
+    }
+    if (fried.present) {
+      map['fried'] = Variable<bool>(fried.value);
+    }
+    if (sugar.present) {
+      map['sugar'] = Variable<bool>(sugar.value);
+    }
+    if (veg.present) {
+      map['veg'] = Variable<String>(veg.value);
+    }
+    if (alcohol.present) {
+      map['alcohol'] = Variable<String>(alcohol.value);
+    }
+    if (processed.present) {
+      map['processed'] = Variable<String>(processed.value);
+    }
+    if (place.present) {
+      map['place'] = Variable<String>(place.value);
+    }
+    if (lastMeal.present) {
+      map['last_meal'] = Variable<bool>(lastMeal.value);
+    }
+    if (photo.present) {
+      map['photo'] = Variable<String>(photo.value);
+    }
+    if (createdAtUtcMs.present) {
+      map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs.value);
+    }
+    if (keepOnPhone.present) {
+      map['keep_on_phone'] = Variable<bool>(keepOnPhone.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MealsCompanion(')
+          ..write('id: $id, ')
+          ..write('atUtcMs: $atUtcMs, ')
+          ..write('offsetMinutes: $offsetMinutes, ')
+          ..write('kind: $kind, ')
+          ..write('protein: $protein, ')
+          ..write('caffeine: $caffeine, ')
+          ..write('heavy: $heavy, ')
+          ..write('fried: $fried, ')
+          ..write('sugar: $sugar, ')
+          ..write('veg: $veg, ')
+          ..write('alcohol: $alcohol, ')
+          ..write('processed: $processed, ')
+          ..write('place: $place, ')
+          ..write('lastMeal: $lastMeal, ')
+          ..write('photo: $photo, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('keepOnPhone: $keepOnPhone')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AiReportsTable extends AiReports
+    with TableInfo<$AiReportsTable, AiReportRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AiReportsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _createdAtUtcMsMeta = const VerificationMeta(
+    'createdAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> createdAtUtcMs = GeneratedColumn<int>(
+    'created_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _offsetMinMeta = const VerificationMeta(
+    'offsetMin',
+  );
+  @override
+  late final GeneratedColumn<int> offsetMin = GeneratedColumn<int>(
+    'offset_min',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contextSchemaMeta = const VerificationMeta(
+    'contextSchema',
+  );
+  @override
+  late final GeneratedColumn<String> contextSchema = GeneratedColumn<String>(
+    'context_schema',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contextSha256Meta = const VerificationMeta(
+    'contextSha256',
+  );
+  @override
+  late final GeneratedColumn<String> contextSha256 = GeneratedColumn<String>(
+    'context_sha256',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _detailLevelMeta = const VerificationMeta(
+    'detailLevel',
+  );
+  @override
+  late final GeneratedColumn<String> detailLevel = GeneratedColumn<String>(
+    'detail_level',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _promptVersionMeta = const VerificationMeta(
+    'promptVersion',
+  );
+  @override
+  late final GeneratedColumn<String> promptVersion = GeneratedColumn<String>(
+    'prompt_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _providerHostMeta = const VerificationMeta(
+    'providerHost',
+  );
+  @override
+  late final GeneratedColumn<String> providerHost = GeneratedColumn<String>(
+    'provider_host',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _modelMeta = const VerificationMeta('model');
+  @override
+  late final GeneratedColumn<String> model = GeneratedColumn<String>(
+    'model',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _payloadJsonMeta = const VerificationMeta(
+    'payloadJson',
+  );
+  @override
+  late final GeneratedColumn<String> payloadJson = GeneratedColumn<String>(
+    'payload_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cardsJsonMeta = const VerificationMeta(
+    'cardsJson',
+  );
+  @override
+  late final GeneratedColumn<String> cardsJson = GeneratedColumn<String>(
+    'cards_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _rawTextMeta = const VerificationMeta(
+    'rawText',
+  );
+  @override
+  late final GeneratedColumn<String> rawText = GeneratedColumn<String>(
+    'raw_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _droppedCardsMeta = const VerificationMeta(
+    'droppedCards',
+  );
+  @override
+  late final GeneratedColumn<int> droppedCards = GeneratedColumn<int>(
+    'dropped_cards',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _promptTokensMeta = const VerificationMeta(
+    'promptTokens',
+  );
+  @override
+  late final GeneratedColumn<int> promptTokens = GeneratedColumn<int>(
+    'prompt_tokens',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _completionTokensMeta = const VerificationMeta(
+    'completionTokens',
+  );
+  @override
+  late final GeneratedColumn<int> completionTokens = GeneratedColumn<int>(
+    'completion_tokens',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reasoningTokensMeta = const VerificationMeta(
+    'reasoningTokens',
+  );
+  @override
+  late final GeneratedColumn<int> reasoningTokens = GeneratedColumn<int>(
+    'reasoning_tokens',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _costMeta = const VerificationMeta('cost');
+  @override
+  late final GeneratedColumn<double> cost = GeneratedColumn<double>(
+    'cost',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _costCurrencyMeta = const VerificationMeta(
+    'costCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> costCurrency = GeneratedColumn<String>(
+    'cost_currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _costSourceMeta = const VerificationMeta(
+    'costSource',
+  );
+  @override
+  late final GeneratedColumn<String> costSource = GeneratedColumn<String>(
+    'cost_source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _durationMsMeta = const VerificationMeta(
+    'durationMs',
+  );
+  @override
+  late final GeneratedColumn<int> durationMs = GeneratedColumn<int>(
+    'duration_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _errorKindMeta = const VerificationMeta(
+    'errorKind',
+  );
+  @override
+  late final GeneratedColumn<String> errorKind = GeneratedColumn<String>(
+    'error_kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAtUtcMs,
+    offsetMin,
+    kind,
+    contextSchema,
+    contextSha256,
+    detailLevel,
+    promptVersion,
+    providerHost,
+    model,
+    status,
+    payloadJson,
+    cardsJson,
+    rawText,
+    droppedCards,
+    promptTokens,
+    completionTokens,
+    reasoningTokens,
+    cost,
+    costCurrency,
+    costSource,
+    durationMs,
+    errorKind,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'ai_reports';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AiReportRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at_utc_ms')) {
+      context.handle(
+        _createdAtUtcMsMeta,
+        createdAtUtcMs.isAcceptableOrUnknown(
+          data['created_at_utc_ms']!,
+          _createdAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtUtcMsMeta);
+    }
+    if (data.containsKey('offset_min')) {
+      context.handle(
+        _offsetMinMeta,
+        offsetMin.isAcceptableOrUnknown(data['offset_min']!, _offsetMinMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_offsetMinMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('context_schema')) {
+      context.handle(
+        _contextSchemaMeta,
+        contextSchema.isAcceptableOrUnknown(
+          data['context_schema']!,
+          _contextSchemaMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contextSchemaMeta);
+    }
+    if (data.containsKey('context_sha256')) {
+      context.handle(
+        _contextSha256Meta,
+        contextSha256.isAcceptableOrUnknown(
+          data['context_sha256']!,
+          _contextSha256Meta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contextSha256Meta);
+    }
+    if (data.containsKey('detail_level')) {
+      context.handle(
+        _detailLevelMeta,
+        detailLevel.isAcceptableOrUnknown(
+          data['detail_level']!,
+          _detailLevelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_detailLevelMeta);
+    }
+    if (data.containsKey('prompt_version')) {
+      context.handle(
+        _promptVersionMeta,
+        promptVersion.isAcceptableOrUnknown(
+          data['prompt_version']!,
+          _promptVersionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_promptVersionMeta);
+    }
+    if (data.containsKey('provider_host')) {
+      context.handle(
+        _providerHostMeta,
+        providerHost.isAcceptableOrUnknown(
+          data['provider_host']!,
+          _providerHostMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_providerHostMeta);
+    }
+    if (data.containsKey('model')) {
+      context.handle(
+        _modelMeta,
+        model.isAcceptableOrUnknown(data['model']!, _modelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_modelMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('payload_json')) {
+      context.handle(
+        _payloadJsonMeta,
+        payloadJson.isAcceptableOrUnknown(
+          data['payload_json']!,
+          _payloadJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cards_json')) {
+      context.handle(
+        _cardsJsonMeta,
+        cardsJson.isAcceptableOrUnknown(data['cards_json']!, _cardsJsonMeta),
+      );
+    }
+    if (data.containsKey('raw_text')) {
+      context.handle(
+        _rawTextMeta,
+        rawText.isAcceptableOrUnknown(data['raw_text']!, _rawTextMeta),
+      );
+    }
+    if (data.containsKey('dropped_cards')) {
+      context.handle(
+        _droppedCardsMeta,
+        droppedCards.isAcceptableOrUnknown(
+          data['dropped_cards']!,
+          _droppedCardsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('prompt_tokens')) {
+      context.handle(
+        _promptTokensMeta,
+        promptTokens.isAcceptableOrUnknown(
+          data['prompt_tokens']!,
+          _promptTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('completion_tokens')) {
+      context.handle(
+        _completionTokensMeta,
+        completionTokens.isAcceptableOrUnknown(
+          data['completion_tokens']!,
+          _completionTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reasoning_tokens')) {
+      context.handle(
+        _reasoningTokensMeta,
+        reasoningTokens.isAcceptableOrUnknown(
+          data['reasoning_tokens']!,
+          _reasoningTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cost')) {
+      context.handle(
+        _costMeta,
+        cost.isAcceptableOrUnknown(data['cost']!, _costMeta),
+      );
+    }
+    if (data.containsKey('cost_currency')) {
+      context.handle(
+        _costCurrencyMeta,
+        costCurrency.isAcceptableOrUnknown(
+          data['cost_currency']!,
+          _costCurrencyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cost_source')) {
+      context.handle(
+        _costSourceMeta,
+        costSource.isAcceptableOrUnknown(data['cost_source']!, _costSourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_costSourceMeta);
+    }
+    if (data.containsKey('duration_ms')) {
+      context.handle(
+        _durationMsMeta,
+        durationMs.isAcceptableOrUnknown(data['duration_ms']!, _durationMsMeta),
+      );
+    }
+    if (data.containsKey('error_kind')) {
+      context.handle(
+        _errorKindMeta,
+        errorKind.isAcceptableOrUnknown(data['error_kind']!, _errorKindMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AiReportRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AiReportRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at_utc_ms'],
+      )!,
+      offsetMin: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}offset_min'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      contextSchema: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}context_schema'],
+      )!,
+      contextSha256: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}context_sha256'],
+      )!,
+      detailLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}detail_level'],
+      )!,
+      promptVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}prompt_version'],
+      )!,
+      providerHost: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_host'],
+      )!,
+      model: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      payloadJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload_json'],
+      ),
+      cardsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cards_json'],
+      ),
+      rawText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}raw_text'],
+      ),
+      droppedCards: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}dropped_cards'],
+      )!,
+      promptTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}prompt_tokens'],
+      ),
+      completionTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}completion_tokens'],
+      ),
+      reasoningTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reasoning_tokens'],
+      ),
+      cost: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cost'],
+      ),
+      costCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cost_currency'],
+      ),
+      costSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cost_source'],
+      )!,
+      durationMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duration_ms'],
+      ),
+      errorKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error_kind'],
+      ),
+    );
+  }
+
+  @override
+  $AiReportsTable createAlias(String alias) {
+    return $AiReportsTable(attachedDatabase, alias);
+  }
+}
+
+class AiReportRow extends DataClass implements Insertable<AiReportRow> {
+  final int id;
+  final int createdAtUtcMs;
+  final int offsetMin;
+  final String kind;
+  final String contextSchema;
+  final String contextSha256;
+  final String detailLevel;
+  final String promptVersion;
+  final String providerHost;
+  final String model;
+  final String status;
+  final String? payloadJson;
+  final String? cardsJson;
+  final String? rawText;
+  final int droppedCards;
+  final int? promptTokens;
+  final int? completionTokens;
+  final int? reasoningTokens;
+  final double? cost;
+  final String? costCurrency;
+  final String costSource;
+  final int? durationMs;
+  final String? errorKind;
+  const AiReportRow({
+    required this.id,
+    required this.createdAtUtcMs,
+    required this.offsetMin,
+    required this.kind,
+    required this.contextSchema,
+    required this.contextSha256,
+    required this.detailLevel,
+    required this.promptVersion,
+    required this.providerHost,
+    required this.model,
+    required this.status,
+    this.payloadJson,
+    this.cardsJson,
+    this.rawText,
+    required this.droppedCards,
+    this.promptTokens,
+    this.completionTokens,
+    this.reasoningTokens,
+    this.cost,
+    this.costCurrency,
+    required this.costSource,
+    this.durationMs,
+    this.errorKind,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs);
+    map['offset_min'] = Variable<int>(offsetMin);
+    map['kind'] = Variable<String>(kind);
+    map['context_schema'] = Variable<String>(contextSchema);
+    map['context_sha256'] = Variable<String>(contextSha256);
+    map['detail_level'] = Variable<String>(detailLevel);
+    map['prompt_version'] = Variable<String>(promptVersion);
+    map['provider_host'] = Variable<String>(providerHost);
+    map['model'] = Variable<String>(model);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || payloadJson != null) {
+      map['payload_json'] = Variable<String>(payloadJson);
+    }
+    if (!nullToAbsent || cardsJson != null) {
+      map['cards_json'] = Variable<String>(cardsJson);
+    }
+    if (!nullToAbsent || rawText != null) {
+      map['raw_text'] = Variable<String>(rawText);
+    }
+    map['dropped_cards'] = Variable<int>(droppedCards);
+    if (!nullToAbsent || promptTokens != null) {
+      map['prompt_tokens'] = Variable<int>(promptTokens);
+    }
+    if (!nullToAbsent || completionTokens != null) {
+      map['completion_tokens'] = Variable<int>(completionTokens);
+    }
+    if (!nullToAbsent || reasoningTokens != null) {
+      map['reasoning_tokens'] = Variable<int>(reasoningTokens);
+    }
+    if (!nullToAbsent || cost != null) {
+      map['cost'] = Variable<double>(cost);
+    }
+    if (!nullToAbsent || costCurrency != null) {
+      map['cost_currency'] = Variable<String>(costCurrency);
+    }
+    map['cost_source'] = Variable<String>(costSource);
+    if (!nullToAbsent || durationMs != null) {
+      map['duration_ms'] = Variable<int>(durationMs);
+    }
+    if (!nullToAbsent || errorKind != null) {
+      map['error_kind'] = Variable<String>(errorKind);
+    }
+    return map;
+  }
+
+  AiReportsCompanion toCompanion(bool nullToAbsent) {
+    return AiReportsCompanion(
+      id: Value(id),
+      createdAtUtcMs: Value(createdAtUtcMs),
+      offsetMin: Value(offsetMin),
+      kind: Value(kind),
+      contextSchema: Value(contextSchema),
+      contextSha256: Value(contextSha256),
+      detailLevel: Value(detailLevel),
+      promptVersion: Value(promptVersion),
+      providerHost: Value(providerHost),
+      model: Value(model),
+      status: Value(status),
+      payloadJson: payloadJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(payloadJson),
+      cardsJson: cardsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cardsJson),
+      rawText: rawText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawText),
+      droppedCards: Value(droppedCards),
+      promptTokens: promptTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(promptTokens),
+      completionTokens: completionTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completionTokens),
+      reasoningTokens: reasoningTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reasoningTokens),
+      cost: cost == null && nullToAbsent ? const Value.absent() : Value(cost),
+      costCurrency: costCurrency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(costCurrency),
+      costSource: Value(costSource),
+      durationMs: durationMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(durationMs),
+      errorKind: errorKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorKind),
+    );
+  }
+
+  factory AiReportRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AiReportRow(
+      id: serializer.fromJson<int>(json['id']),
+      createdAtUtcMs: serializer.fromJson<int>(json['createdAtUtcMs']),
+      offsetMin: serializer.fromJson<int>(json['offsetMin']),
+      kind: serializer.fromJson<String>(json['kind']),
+      contextSchema: serializer.fromJson<String>(json['contextSchema']),
+      contextSha256: serializer.fromJson<String>(json['contextSha256']),
+      detailLevel: serializer.fromJson<String>(json['detailLevel']),
+      promptVersion: serializer.fromJson<String>(json['promptVersion']),
+      providerHost: serializer.fromJson<String>(json['providerHost']),
+      model: serializer.fromJson<String>(json['model']),
+      status: serializer.fromJson<String>(json['status']),
+      payloadJson: serializer.fromJson<String?>(json['payloadJson']),
+      cardsJson: serializer.fromJson<String?>(json['cardsJson']),
+      rawText: serializer.fromJson<String?>(json['rawText']),
+      droppedCards: serializer.fromJson<int>(json['droppedCards']),
+      promptTokens: serializer.fromJson<int?>(json['promptTokens']),
+      completionTokens: serializer.fromJson<int?>(json['completionTokens']),
+      reasoningTokens: serializer.fromJson<int?>(json['reasoningTokens']),
+      cost: serializer.fromJson<double?>(json['cost']),
+      costCurrency: serializer.fromJson<String?>(json['costCurrency']),
+      costSource: serializer.fromJson<String>(json['costSource']),
+      durationMs: serializer.fromJson<int?>(json['durationMs']),
+      errorKind: serializer.fromJson<String?>(json['errorKind']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'createdAtUtcMs': serializer.toJson<int>(createdAtUtcMs),
+      'offsetMin': serializer.toJson<int>(offsetMin),
+      'kind': serializer.toJson<String>(kind),
+      'contextSchema': serializer.toJson<String>(contextSchema),
+      'contextSha256': serializer.toJson<String>(contextSha256),
+      'detailLevel': serializer.toJson<String>(detailLevel),
+      'promptVersion': serializer.toJson<String>(promptVersion),
+      'providerHost': serializer.toJson<String>(providerHost),
+      'model': serializer.toJson<String>(model),
+      'status': serializer.toJson<String>(status),
+      'payloadJson': serializer.toJson<String?>(payloadJson),
+      'cardsJson': serializer.toJson<String?>(cardsJson),
+      'rawText': serializer.toJson<String?>(rawText),
+      'droppedCards': serializer.toJson<int>(droppedCards),
+      'promptTokens': serializer.toJson<int?>(promptTokens),
+      'completionTokens': serializer.toJson<int?>(completionTokens),
+      'reasoningTokens': serializer.toJson<int?>(reasoningTokens),
+      'cost': serializer.toJson<double?>(cost),
+      'costCurrency': serializer.toJson<String?>(costCurrency),
+      'costSource': serializer.toJson<String>(costSource),
+      'durationMs': serializer.toJson<int?>(durationMs),
+      'errorKind': serializer.toJson<String?>(errorKind),
+    };
+  }
+
+  AiReportRow copyWith({
+    int? id,
+    int? createdAtUtcMs,
+    int? offsetMin,
+    String? kind,
+    String? contextSchema,
+    String? contextSha256,
+    String? detailLevel,
+    String? promptVersion,
+    String? providerHost,
+    String? model,
+    String? status,
+    Value<String?> payloadJson = const Value.absent(),
+    Value<String?> cardsJson = const Value.absent(),
+    Value<String?> rawText = const Value.absent(),
+    int? droppedCards,
+    Value<int?> promptTokens = const Value.absent(),
+    Value<int?> completionTokens = const Value.absent(),
+    Value<int?> reasoningTokens = const Value.absent(),
+    Value<double?> cost = const Value.absent(),
+    Value<String?> costCurrency = const Value.absent(),
+    String? costSource,
+    Value<int?> durationMs = const Value.absent(),
+    Value<String?> errorKind = const Value.absent(),
+  }) => AiReportRow(
+    id: id ?? this.id,
+    createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+    offsetMin: offsetMin ?? this.offsetMin,
+    kind: kind ?? this.kind,
+    contextSchema: contextSchema ?? this.contextSchema,
+    contextSha256: contextSha256 ?? this.contextSha256,
+    detailLevel: detailLevel ?? this.detailLevel,
+    promptVersion: promptVersion ?? this.promptVersion,
+    providerHost: providerHost ?? this.providerHost,
+    model: model ?? this.model,
+    status: status ?? this.status,
+    payloadJson: payloadJson.present ? payloadJson.value : this.payloadJson,
+    cardsJson: cardsJson.present ? cardsJson.value : this.cardsJson,
+    rawText: rawText.present ? rawText.value : this.rawText,
+    droppedCards: droppedCards ?? this.droppedCards,
+    promptTokens: promptTokens.present ? promptTokens.value : this.promptTokens,
+    completionTokens: completionTokens.present
+        ? completionTokens.value
+        : this.completionTokens,
+    reasoningTokens: reasoningTokens.present
+        ? reasoningTokens.value
+        : this.reasoningTokens,
+    cost: cost.present ? cost.value : this.cost,
+    costCurrency: costCurrency.present ? costCurrency.value : this.costCurrency,
+    costSource: costSource ?? this.costSource,
+    durationMs: durationMs.present ? durationMs.value : this.durationMs,
+    errorKind: errorKind.present ? errorKind.value : this.errorKind,
+  );
+  AiReportRow copyWithCompanion(AiReportsCompanion data) {
+    return AiReportRow(
+      id: data.id.present ? data.id.value : this.id,
+      createdAtUtcMs: data.createdAtUtcMs.present
+          ? data.createdAtUtcMs.value
+          : this.createdAtUtcMs,
+      offsetMin: data.offsetMin.present ? data.offsetMin.value : this.offsetMin,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      contextSchema: data.contextSchema.present
+          ? data.contextSchema.value
+          : this.contextSchema,
+      contextSha256: data.contextSha256.present
+          ? data.contextSha256.value
+          : this.contextSha256,
+      detailLevel: data.detailLevel.present
+          ? data.detailLevel.value
+          : this.detailLevel,
+      promptVersion: data.promptVersion.present
+          ? data.promptVersion.value
+          : this.promptVersion,
+      providerHost: data.providerHost.present
+          ? data.providerHost.value
+          : this.providerHost,
+      model: data.model.present ? data.model.value : this.model,
+      status: data.status.present ? data.status.value : this.status,
+      payloadJson: data.payloadJson.present
+          ? data.payloadJson.value
+          : this.payloadJson,
+      cardsJson: data.cardsJson.present ? data.cardsJson.value : this.cardsJson,
+      rawText: data.rawText.present ? data.rawText.value : this.rawText,
+      droppedCards: data.droppedCards.present
+          ? data.droppedCards.value
+          : this.droppedCards,
+      promptTokens: data.promptTokens.present
+          ? data.promptTokens.value
+          : this.promptTokens,
+      completionTokens: data.completionTokens.present
+          ? data.completionTokens.value
+          : this.completionTokens,
+      reasoningTokens: data.reasoningTokens.present
+          ? data.reasoningTokens.value
+          : this.reasoningTokens,
+      cost: data.cost.present ? data.cost.value : this.cost,
+      costCurrency: data.costCurrency.present
+          ? data.costCurrency.value
+          : this.costCurrency,
+      costSource: data.costSource.present
+          ? data.costSource.value
+          : this.costSource,
+      durationMs: data.durationMs.present
+          ? data.durationMs.value
+          : this.durationMs,
+      errorKind: data.errorKind.present ? data.errorKind.value : this.errorKind,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AiReportRow(')
+          ..write('id: $id, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('offsetMin: $offsetMin, ')
+          ..write('kind: $kind, ')
+          ..write('contextSchema: $contextSchema, ')
+          ..write('contextSha256: $contextSha256, ')
+          ..write('detailLevel: $detailLevel, ')
+          ..write('promptVersion: $promptVersion, ')
+          ..write('providerHost: $providerHost, ')
+          ..write('model: $model, ')
+          ..write('status: $status, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('cardsJson: $cardsJson, ')
+          ..write('rawText: $rawText, ')
+          ..write('droppedCards: $droppedCards, ')
+          ..write('promptTokens: $promptTokens, ')
+          ..write('completionTokens: $completionTokens, ')
+          ..write('reasoningTokens: $reasoningTokens, ')
+          ..write('cost: $cost, ')
+          ..write('costCurrency: $costCurrency, ')
+          ..write('costSource: $costSource, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('errorKind: $errorKind')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    createdAtUtcMs,
+    offsetMin,
+    kind,
+    contextSchema,
+    contextSha256,
+    detailLevel,
+    promptVersion,
+    providerHost,
+    model,
+    status,
+    payloadJson,
+    cardsJson,
+    rawText,
+    droppedCards,
+    promptTokens,
+    completionTokens,
+    reasoningTokens,
+    cost,
+    costCurrency,
+    costSource,
+    durationMs,
+    errorKind,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AiReportRow &&
+          other.id == this.id &&
+          other.createdAtUtcMs == this.createdAtUtcMs &&
+          other.offsetMin == this.offsetMin &&
+          other.kind == this.kind &&
+          other.contextSchema == this.contextSchema &&
+          other.contextSha256 == this.contextSha256 &&
+          other.detailLevel == this.detailLevel &&
+          other.promptVersion == this.promptVersion &&
+          other.providerHost == this.providerHost &&
+          other.model == this.model &&
+          other.status == this.status &&
+          other.payloadJson == this.payloadJson &&
+          other.cardsJson == this.cardsJson &&
+          other.rawText == this.rawText &&
+          other.droppedCards == this.droppedCards &&
+          other.promptTokens == this.promptTokens &&
+          other.completionTokens == this.completionTokens &&
+          other.reasoningTokens == this.reasoningTokens &&
+          other.cost == this.cost &&
+          other.costCurrency == this.costCurrency &&
+          other.costSource == this.costSource &&
+          other.durationMs == this.durationMs &&
+          other.errorKind == this.errorKind);
+}
+
+class AiReportsCompanion extends UpdateCompanion<AiReportRow> {
+  final Value<int> id;
+  final Value<int> createdAtUtcMs;
+  final Value<int> offsetMin;
+  final Value<String> kind;
+  final Value<String> contextSchema;
+  final Value<String> contextSha256;
+  final Value<String> detailLevel;
+  final Value<String> promptVersion;
+  final Value<String> providerHost;
+  final Value<String> model;
+  final Value<String> status;
+  final Value<String?> payloadJson;
+  final Value<String?> cardsJson;
+  final Value<String?> rawText;
+  final Value<int> droppedCards;
+  final Value<int?> promptTokens;
+  final Value<int?> completionTokens;
+  final Value<int?> reasoningTokens;
+  final Value<double?> cost;
+  final Value<String?> costCurrency;
+  final Value<String> costSource;
+  final Value<int?> durationMs;
+  final Value<String?> errorKind;
+  const AiReportsCompanion({
+    this.id = const Value.absent(),
+    this.createdAtUtcMs = const Value.absent(),
+    this.offsetMin = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.contextSchema = const Value.absent(),
+    this.contextSha256 = const Value.absent(),
+    this.detailLevel = const Value.absent(),
+    this.promptVersion = const Value.absent(),
+    this.providerHost = const Value.absent(),
+    this.model = const Value.absent(),
+    this.status = const Value.absent(),
+    this.payloadJson = const Value.absent(),
+    this.cardsJson = const Value.absent(),
+    this.rawText = const Value.absent(),
+    this.droppedCards = const Value.absent(),
+    this.promptTokens = const Value.absent(),
+    this.completionTokens = const Value.absent(),
+    this.reasoningTokens = const Value.absent(),
+    this.cost = const Value.absent(),
+    this.costCurrency = const Value.absent(),
+    this.costSource = const Value.absent(),
+    this.durationMs = const Value.absent(),
+    this.errorKind = const Value.absent(),
+  });
+  AiReportsCompanion.insert({
+    this.id = const Value.absent(),
+    required int createdAtUtcMs,
+    required int offsetMin,
+    required String kind,
+    required String contextSchema,
+    required String contextSha256,
+    required String detailLevel,
+    required String promptVersion,
+    required String providerHost,
+    required String model,
+    required String status,
+    this.payloadJson = const Value.absent(),
+    this.cardsJson = const Value.absent(),
+    this.rawText = const Value.absent(),
+    this.droppedCards = const Value.absent(),
+    this.promptTokens = const Value.absent(),
+    this.completionTokens = const Value.absent(),
+    this.reasoningTokens = const Value.absent(),
+    this.cost = const Value.absent(),
+    this.costCurrency = const Value.absent(),
+    required String costSource,
+    this.durationMs = const Value.absent(),
+    this.errorKind = const Value.absent(),
+  }) : createdAtUtcMs = Value(createdAtUtcMs),
+       offsetMin = Value(offsetMin),
+       kind = Value(kind),
+       contextSchema = Value(contextSchema),
+       contextSha256 = Value(contextSha256),
+       detailLevel = Value(detailLevel),
+       promptVersion = Value(promptVersion),
+       providerHost = Value(providerHost),
+       model = Value(model),
+       status = Value(status),
+       costSource = Value(costSource);
+  static Insertable<AiReportRow> custom({
+    Expression<int>? id,
+    Expression<int>? createdAtUtcMs,
+    Expression<int>? offsetMin,
+    Expression<String>? kind,
+    Expression<String>? contextSchema,
+    Expression<String>? contextSha256,
+    Expression<String>? detailLevel,
+    Expression<String>? promptVersion,
+    Expression<String>? providerHost,
+    Expression<String>? model,
+    Expression<String>? status,
+    Expression<String>? payloadJson,
+    Expression<String>? cardsJson,
+    Expression<String>? rawText,
+    Expression<int>? droppedCards,
+    Expression<int>? promptTokens,
+    Expression<int>? completionTokens,
+    Expression<int>? reasoningTokens,
+    Expression<double>? cost,
+    Expression<String>? costCurrency,
+    Expression<String>? costSource,
+    Expression<int>? durationMs,
+    Expression<String>? errorKind,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAtUtcMs != null) 'created_at_utc_ms': createdAtUtcMs,
+      if (offsetMin != null) 'offset_min': offsetMin,
+      if (kind != null) 'kind': kind,
+      if (contextSchema != null) 'context_schema': contextSchema,
+      if (contextSha256 != null) 'context_sha256': contextSha256,
+      if (detailLevel != null) 'detail_level': detailLevel,
+      if (promptVersion != null) 'prompt_version': promptVersion,
+      if (providerHost != null) 'provider_host': providerHost,
+      if (model != null) 'model': model,
+      if (status != null) 'status': status,
+      if (payloadJson != null) 'payload_json': payloadJson,
+      if (cardsJson != null) 'cards_json': cardsJson,
+      if (rawText != null) 'raw_text': rawText,
+      if (droppedCards != null) 'dropped_cards': droppedCards,
+      if (promptTokens != null) 'prompt_tokens': promptTokens,
+      if (completionTokens != null) 'completion_tokens': completionTokens,
+      if (reasoningTokens != null) 'reasoning_tokens': reasoningTokens,
+      if (cost != null) 'cost': cost,
+      if (costCurrency != null) 'cost_currency': costCurrency,
+      if (costSource != null) 'cost_source': costSource,
+      if (durationMs != null) 'duration_ms': durationMs,
+      if (errorKind != null) 'error_kind': errorKind,
+    });
+  }
+
+  AiReportsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? createdAtUtcMs,
+    Value<int>? offsetMin,
+    Value<String>? kind,
+    Value<String>? contextSchema,
+    Value<String>? contextSha256,
+    Value<String>? detailLevel,
+    Value<String>? promptVersion,
+    Value<String>? providerHost,
+    Value<String>? model,
+    Value<String>? status,
+    Value<String?>? payloadJson,
+    Value<String?>? cardsJson,
+    Value<String?>? rawText,
+    Value<int>? droppedCards,
+    Value<int?>? promptTokens,
+    Value<int?>? completionTokens,
+    Value<int?>? reasoningTokens,
+    Value<double?>? cost,
+    Value<String?>? costCurrency,
+    Value<String>? costSource,
+    Value<int?>? durationMs,
+    Value<String?>? errorKind,
+  }) {
+    return AiReportsCompanion(
+      id: id ?? this.id,
+      createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+      offsetMin: offsetMin ?? this.offsetMin,
+      kind: kind ?? this.kind,
+      contextSchema: contextSchema ?? this.contextSchema,
+      contextSha256: contextSha256 ?? this.contextSha256,
+      detailLevel: detailLevel ?? this.detailLevel,
+      promptVersion: promptVersion ?? this.promptVersion,
+      providerHost: providerHost ?? this.providerHost,
+      model: model ?? this.model,
+      status: status ?? this.status,
+      payloadJson: payloadJson ?? this.payloadJson,
+      cardsJson: cardsJson ?? this.cardsJson,
+      rawText: rawText ?? this.rawText,
+      droppedCards: droppedCards ?? this.droppedCards,
+      promptTokens: promptTokens ?? this.promptTokens,
+      completionTokens: completionTokens ?? this.completionTokens,
+      reasoningTokens: reasoningTokens ?? this.reasoningTokens,
+      cost: cost ?? this.cost,
+      costCurrency: costCurrency ?? this.costCurrency,
+      costSource: costSource ?? this.costSource,
+      durationMs: durationMs ?? this.durationMs,
+      errorKind: errorKind ?? this.errorKind,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (createdAtUtcMs.present) {
+      map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs.value);
+    }
+    if (offsetMin.present) {
+      map['offset_min'] = Variable<int>(offsetMin.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (contextSchema.present) {
+      map['context_schema'] = Variable<String>(contextSchema.value);
+    }
+    if (contextSha256.present) {
+      map['context_sha256'] = Variable<String>(contextSha256.value);
+    }
+    if (detailLevel.present) {
+      map['detail_level'] = Variable<String>(detailLevel.value);
+    }
+    if (promptVersion.present) {
+      map['prompt_version'] = Variable<String>(promptVersion.value);
+    }
+    if (providerHost.present) {
+      map['provider_host'] = Variable<String>(providerHost.value);
+    }
+    if (model.present) {
+      map['model'] = Variable<String>(model.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (payloadJson.present) {
+      map['payload_json'] = Variable<String>(payloadJson.value);
+    }
+    if (cardsJson.present) {
+      map['cards_json'] = Variable<String>(cardsJson.value);
+    }
+    if (rawText.present) {
+      map['raw_text'] = Variable<String>(rawText.value);
+    }
+    if (droppedCards.present) {
+      map['dropped_cards'] = Variable<int>(droppedCards.value);
+    }
+    if (promptTokens.present) {
+      map['prompt_tokens'] = Variable<int>(promptTokens.value);
+    }
+    if (completionTokens.present) {
+      map['completion_tokens'] = Variable<int>(completionTokens.value);
+    }
+    if (reasoningTokens.present) {
+      map['reasoning_tokens'] = Variable<int>(reasoningTokens.value);
+    }
+    if (cost.present) {
+      map['cost'] = Variable<double>(cost.value);
+    }
+    if (costCurrency.present) {
+      map['cost_currency'] = Variable<String>(costCurrency.value);
+    }
+    if (costSource.present) {
+      map['cost_source'] = Variable<String>(costSource.value);
+    }
+    if (durationMs.present) {
+      map['duration_ms'] = Variable<int>(durationMs.value);
+    }
+    if (errorKind.present) {
+      map['error_kind'] = Variable<String>(errorKind.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AiReportsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('offsetMin: $offsetMin, ')
+          ..write('kind: $kind, ')
+          ..write('contextSchema: $contextSchema, ')
+          ..write('contextSha256: $contextSha256, ')
+          ..write('detailLevel: $detailLevel, ')
+          ..write('promptVersion: $promptVersion, ')
+          ..write('providerHost: $providerHost, ')
+          ..write('model: $model, ')
+          ..write('status: $status, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('cardsJson: $cardsJson, ')
+          ..write('rawText: $rawText, ')
+          ..write('droppedCards: $droppedCards, ')
+          ..write('promptTokens: $promptTokens, ')
+          ..write('completionTokens: $completionTokens, ')
+          ..write('reasoningTokens: $reasoningTokens, ')
+          ..write('cost: $cost, ')
+          ..write('costCurrency: $costCurrency, ')
+          ..write('costSource: $costSource, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('errorKind: $errorKind')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MealAnalysesTable extends MealAnalyses
+    with TableInfo<$MealAnalysesTable, MealAnalysisRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MealAnalysesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _mealIdMeta = const VerificationMeta('mealId');
+  @override
+  late final GeneratedColumn<int> mealId = GeneratedColumn<int>(
+    'meal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES meals (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _photoNameMeta = const VerificationMeta(
+    'photoName',
+  );
+  @override
+  late final GeneratedColumn<String> photoName = GeneratedColumn<String>(
+    'photo_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _providerHostMeta = const VerificationMeta(
+    'providerHost',
+  );
+  @override
+  late final GeneratedColumn<String> providerHost = GeneratedColumn<String>(
+    'provider_host',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _modelMeta = const VerificationMeta('model');
+  @override
+  late final GeneratedColumn<String> model = GeneratedColumn<String>(
+    'model',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _promptVersionMeta = const VerificationMeta(
+    'promptVersion',
+  );
+  @override
+  late final GeneratedColumn<int> promptVersion = GeneratedColumn<int>(
+    'prompt_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _outputSchemaMeta = const VerificationMeta(
+    'outputSchema',
+  );
+  @override
+  late final GeneratedColumn<int> outputSchema = GeneratedColumn<int>(
+    'output_schema',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sentSha256Meta = const VerificationMeta(
+    'sentSha256',
+  );
+  @override
+  late final GeneratedColumn<String> sentSha256 = GeneratedColumn<String>(
+    'sent_sha256',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sentWidthMeta = const VerificationMeta(
+    'sentWidth',
+  );
+  @override
+  late final GeneratedColumn<int> sentWidth = GeneratedColumn<int>(
+    'sent_width',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sentHeightMeta = const VerificationMeta(
+    'sentHeight',
+  );
+  @override
+  late final GeneratedColumn<int> sentHeight = GeneratedColumn<int>(
+    'sent_height',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sentBytesMeta = const VerificationMeta(
+    'sentBytes',
+  );
+  @override
+  late final GeneratedColumn<int> sentBytes = GeneratedColumn<int>(
+    'sent_bytes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _resultJsonMeta = const VerificationMeta(
+    'resultJson',
+  );
+  @override
+  late final GeneratedColumn<String> resultJson = GeneratedColumn<String>(
+    'result_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _rawTextMeta = const VerificationMeta(
+    'rawText',
+  );
+  @override
+  late final GeneratedColumn<String> rawText = GeneratedColumn<String>(
+    'raw_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _confidenceMeta = const VerificationMeta(
+    'confidence',
+  );
+  @override
+  late final GeneratedColumn<String> confidence = GeneratedColumn<String>(
+    'confidence',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _promptTokensMeta = const VerificationMeta(
+    'promptTokens',
+  );
+  @override
+  late final GeneratedColumn<int> promptTokens = GeneratedColumn<int>(
+    'prompt_tokens',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _completionTokensMeta = const VerificationMeta(
+    'completionTokens',
+  );
+  @override
+  late final GeneratedColumn<int> completionTokens = GeneratedColumn<int>(
+    'completion_tokens',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reasoningTokensMeta = const VerificationMeta(
+    'reasoningTokens',
+  );
+  @override
+  late final GeneratedColumn<int> reasoningTokens = GeneratedColumn<int>(
+    'reasoning_tokens',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _costMeta = const VerificationMeta('cost');
+  @override
+  late final GeneratedColumn<double> cost = GeneratedColumn<double>(
+    'cost',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _costCurrencyMeta = const VerificationMeta(
+    'costCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> costCurrency = GeneratedColumn<String>(
+    'cost_currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _costSourceMeta = const VerificationMeta(
+    'costSource',
+  );
+  @override
+  late final GeneratedColumn<String> costSource = GeneratedColumn<String>(
+    'cost_source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _attemptsMeta = const VerificationMeta(
+    'attempts',
+  );
+  @override
+  late final GeneratedColumn<int> attempts = GeneratedColumn<int>(
+    'attempts',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _errorKindMeta = const VerificationMeta(
+    'errorKind',
+  );
+  @override
+  late final GeneratedColumn<String> errorKind = GeneratedColumn<String>(
+    'error_kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hiddenOilMeta = const VerificationMeta(
+    'hiddenOil',
+  );
+  @override
+  late final GeneratedColumn<bool> hiddenOil = GeneratedColumn<bool>(
+    'hidden_oil',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("hidden_oil" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _hiddenSauceMeta = const VerificationMeta(
+    'hiddenSauce',
+  );
+  @override
+  late final GeneratedColumn<bool> hiddenSauce = GeneratedColumn<bool>(
+    'hidden_sauce',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("hidden_sauce" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _hiddenSugarMeta = const VerificationMeta(
+    'hiddenSugar',
+  );
+  @override
+  late final GeneratedColumn<bool> hiddenSugar = GeneratedColumn<bool>(
+    'hidden_sugar',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("hidden_sugar" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _queuedAtUtcMsMeta = const VerificationMeta(
+    'queuedAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> queuedAtUtcMs = GeneratedColumn<int>(
+    'queued_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtUtcMsMeta = const VerificationMeta(
+    'updatedAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAtUtcMs = GeneratedColumn<int>(
+    'updated_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    mealId,
+    photoName,
+    status,
+    providerHost,
+    model,
+    promptVersion,
+    outputSchema,
+    sentSha256,
+    sentWidth,
+    sentHeight,
+    sentBytes,
+    resultJson,
+    rawText,
+    confidence,
+    promptTokens,
+    completionTokens,
+    reasoningTokens,
+    cost,
+    costCurrency,
+    costSource,
+    attempts,
+    errorKind,
+    hiddenOil,
+    hiddenSauce,
+    hiddenSugar,
+    queuedAtUtcMs,
+    updatedAtUtcMs,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'meal_analyses';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MealAnalysisRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('meal_id')) {
+      context.handle(
+        _mealIdMeta,
+        mealId.isAcceptableOrUnknown(data['meal_id']!, _mealIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mealIdMeta);
+    }
+    if (data.containsKey('photo_name')) {
+      context.handle(
+        _photoNameMeta,
+        photoName.isAcceptableOrUnknown(data['photo_name']!, _photoNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_photoNameMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('provider_host')) {
+      context.handle(
+        _providerHostMeta,
+        providerHost.isAcceptableOrUnknown(
+          data['provider_host']!,
+          _providerHostMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_providerHostMeta);
+    }
+    if (data.containsKey('model')) {
+      context.handle(
+        _modelMeta,
+        model.isAcceptableOrUnknown(data['model']!, _modelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_modelMeta);
+    }
+    if (data.containsKey('prompt_version')) {
+      context.handle(
+        _promptVersionMeta,
+        promptVersion.isAcceptableOrUnknown(
+          data['prompt_version']!,
+          _promptVersionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_promptVersionMeta);
+    }
+    if (data.containsKey('output_schema')) {
+      context.handle(
+        _outputSchemaMeta,
+        outputSchema.isAcceptableOrUnknown(
+          data['output_schema']!,
+          _outputSchemaMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_outputSchemaMeta);
+    }
+    if (data.containsKey('sent_sha256')) {
+      context.handle(
+        _sentSha256Meta,
+        sentSha256.isAcceptableOrUnknown(data['sent_sha256']!, _sentSha256Meta),
+      );
+    }
+    if (data.containsKey('sent_width')) {
+      context.handle(
+        _sentWidthMeta,
+        sentWidth.isAcceptableOrUnknown(data['sent_width']!, _sentWidthMeta),
+      );
+    }
+    if (data.containsKey('sent_height')) {
+      context.handle(
+        _sentHeightMeta,
+        sentHeight.isAcceptableOrUnknown(data['sent_height']!, _sentHeightMeta),
+      );
+    }
+    if (data.containsKey('sent_bytes')) {
+      context.handle(
+        _sentBytesMeta,
+        sentBytes.isAcceptableOrUnknown(data['sent_bytes']!, _sentBytesMeta),
+      );
+    }
+    if (data.containsKey('result_json')) {
+      context.handle(
+        _resultJsonMeta,
+        resultJson.isAcceptableOrUnknown(data['result_json']!, _resultJsonMeta),
+      );
+    }
+    if (data.containsKey('raw_text')) {
+      context.handle(
+        _rawTextMeta,
+        rawText.isAcceptableOrUnknown(data['raw_text']!, _rawTextMeta),
+      );
+    }
+    if (data.containsKey('confidence')) {
+      context.handle(
+        _confidenceMeta,
+        confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
+      );
+    }
+    if (data.containsKey('prompt_tokens')) {
+      context.handle(
+        _promptTokensMeta,
+        promptTokens.isAcceptableOrUnknown(
+          data['prompt_tokens']!,
+          _promptTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('completion_tokens')) {
+      context.handle(
+        _completionTokensMeta,
+        completionTokens.isAcceptableOrUnknown(
+          data['completion_tokens']!,
+          _completionTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reasoning_tokens')) {
+      context.handle(
+        _reasoningTokensMeta,
+        reasoningTokens.isAcceptableOrUnknown(
+          data['reasoning_tokens']!,
+          _reasoningTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cost')) {
+      context.handle(
+        _costMeta,
+        cost.isAcceptableOrUnknown(data['cost']!, _costMeta),
+      );
+    }
+    if (data.containsKey('cost_currency')) {
+      context.handle(
+        _costCurrencyMeta,
+        costCurrency.isAcceptableOrUnknown(
+          data['cost_currency']!,
+          _costCurrencyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cost_source')) {
+      context.handle(
+        _costSourceMeta,
+        costSource.isAcceptableOrUnknown(data['cost_source']!, _costSourceMeta),
+      );
+    }
+    if (data.containsKey('attempts')) {
+      context.handle(
+        _attemptsMeta,
+        attempts.isAcceptableOrUnknown(data['attempts']!, _attemptsMeta),
+      );
+    }
+    if (data.containsKey('error_kind')) {
+      context.handle(
+        _errorKindMeta,
+        errorKind.isAcceptableOrUnknown(data['error_kind']!, _errorKindMeta),
+      );
+    }
+    if (data.containsKey('hidden_oil')) {
+      context.handle(
+        _hiddenOilMeta,
+        hiddenOil.isAcceptableOrUnknown(data['hidden_oil']!, _hiddenOilMeta),
+      );
+    }
+    if (data.containsKey('hidden_sauce')) {
+      context.handle(
+        _hiddenSauceMeta,
+        hiddenSauce.isAcceptableOrUnknown(
+          data['hidden_sauce']!,
+          _hiddenSauceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('hidden_sugar')) {
+      context.handle(
+        _hiddenSugarMeta,
+        hiddenSugar.isAcceptableOrUnknown(
+          data['hidden_sugar']!,
+          _hiddenSugarMeta,
+        ),
+      );
+    }
+    if (data.containsKey('queued_at_utc_ms')) {
+      context.handle(
+        _queuedAtUtcMsMeta,
+        queuedAtUtcMs.isAcceptableOrUnknown(
+          data['queued_at_utc_ms']!,
+          _queuedAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_queuedAtUtcMsMeta);
+    }
+    if (data.containsKey('updated_at_utc_ms')) {
+      context.handle(
+        _updatedAtUtcMsMeta,
+        updatedAtUtcMs.isAcceptableOrUnknown(
+          data['updated_at_utc_ms']!,
+          _updatedAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtUtcMsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MealAnalysisRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MealAnalysisRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      mealId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}meal_id'],
+      )!,
+      photoName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}photo_name'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      providerHost: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_host'],
+      )!,
+      model: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model'],
+      )!,
+      promptVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}prompt_version'],
+      )!,
+      outputSchema: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}output_schema'],
+      )!,
+      sentSha256: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sent_sha256'],
+      ),
+      sentWidth: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sent_width'],
+      ),
+      sentHeight: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sent_height'],
+      ),
+      sentBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sent_bytes'],
+      ),
+      resultJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}result_json'],
+      ),
+      rawText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}raw_text'],
+      ),
+      confidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}confidence'],
+      ),
+      promptTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}prompt_tokens'],
+      ),
+      completionTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}completion_tokens'],
+      ),
+      reasoningTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reasoning_tokens'],
+      ),
+      cost: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cost'],
+      ),
+      costCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cost_currency'],
+      ),
+      costSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cost_source'],
+      ),
+      attempts: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}attempts'],
+      )!,
+      errorKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error_kind'],
+      ),
+      hiddenOil: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}hidden_oil'],
+      )!,
+      hiddenSauce: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}hidden_sauce'],
+      )!,
+      hiddenSugar: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}hidden_sugar'],
+      )!,
+      queuedAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}queued_at_utc_ms'],
+      )!,
+      updatedAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at_utc_ms'],
+      )!,
+    );
+  }
+
+  @override
+  $MealAnalysesTable createAlias(String alias) {
+    return $MealAnalysesTable(attachedDatabase, alias);
+  }
+}
+
+class MealAnalysisRow extends DataClass implements Insertable<MealAnalysisRow> {
+  final int id;
+  final int mealId;
+  final String photoName;
+  final String status;
+  final String providerHost;
+  final String model;
+  final int promptVersion;
+  final int outputSchema;
+  final String? sentSha256;
+  final int? sentWidth;
+  final int? sentHeight;
+  final int? sentBytes;
+  final String? resultJson;
+  final String? rawText;
+  final String? confidence;
+  final int? promptTokens;
+  final int? completionTokens;
+  final int? reasoningTokens;
+  final double? cost;
+  final String? costCurrency;
+  final String? costSource;
+  final int attempts;
+  final String? errorKind;
+  final bool hiddenOil;
+  final bool hiddenSauce;
+  final bool hiddenSugar;
+  final int queuedAtUtcMs;
+  final int updatedAtUtcMs;
+  const MealAnalysisRow({
+    required this.id,
+    required this.mealId,
+    required this.photoName,
+    required this.status,
+    required this.providerHost,
+    required this.model,
+    required this.promptVersion,
+    required this.outputSchema,
+    this.sentSha256,
+    this.sentWidth,
+    this.sentHeight,
+    this.sentBytes,
+    this.resultJson,
+    this.rawText,
+    this.confidence,
+    this.promptTokens,
+    this.completionTokens,
+    this.reasoningTokens,
+    this.cost,
+    this.costCurrency,
+    this.costSource,
+    required this.attempts,
+    this.errorKind,
+    required this.hiddenOil,
+    required this.hiddenSauce,
+    required this.hiddenSugar,
+    required this.queuedAtUtcMs,
+    required this.updatedAtUtcMs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['meal_id'] = Variable<int>(mealId);
+    map['photo_name'] = Variable<String>(photoName);
+    map['status'] = Variable<String>(status);
+    map['provider_host'] = Variable<String>(providerHost);
+    map['model'] = Variable<String>(model);
+    map['prompt_version'] = Variable<int>(promptVersion);
+    map['output_schema'] = Variable<int>(outputSchema);
+    if (!nullToAbsent || sentSha256 != null) {
+      map['sent_sha256'] = Variable<String>(sentSha256);
+    }
+    if (!nullToAbsent || sentWidth != null) {
+      map['sent_width'] = Variable<int>(sentWidth);
+    }
+    if (!nullToAbsent || sentHeight != null) {
+      map['sent_height'] = Variable<int>(sentHeight);
+    }
+    if (!nullToAbsent || sentBytes != null) {
+      map['sent_bytes'] = Variable<int>(sentBytes);
+    }
+    if (!nullToAbsent || resultJson != null) {
+      map['result_json'] = Variable<String>(resultJson);
+    }
+    if (!nullToAbsent || rawText != null) {
+      map['raw_text'] = Variable<String>(rawText);
+    }
+    if (!nullToAbsent || confidence != null) {
+      map['confidence'] = Variable<String>(confidence);
+    }
+    if (!nullToAbsent || promptTokens != null) {
+      map['prompt_tokens'] = Variable<int>(promptTokens);
+    }
+    if (!nullToAbsent || completionTokens != null) {
+      map['completion_tokens'] = Variable<int>(completionTokens);
+    }
+    if (!nullToAbsent || reasoningTokens != null) {
+      map['reasoning_tokens'] = Variable<int>(reasoningTokens);
+    }
+    if (!nullToAbsent || cost != null) {
+      map['cost'] = Variable<double>(cost);
+    }
+    if (!nullToAbsent || costCurrency != null) {
+      map['cost_currency'] = Variable<String>(costCurrency);
+    }
+    if (!nullToAbsent || costSource != null) {
+      map['cost_source'] = Variable<String>(costSource);
+    }
+    map['attempts'] = Variable<int>(attempts);
+    if (!nullToAbsent || errorKind != null) {
+      map['error_kind'] = Variable<String>(errorKind);
+    }
+    map['hidden_oil'] = Variable<bool>(hiddenOil);
+    map['hidden_sauce'] = Variable<bool>(hiddenSauce);
+    map['hidden_sugar'] = Variable<bool>(hiddenSugar);
+    map['queued_at_utc_ms'] = Variable<int>(queuedAtUtcMs);
+    map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs);
+    return map;
+  }
+
+  MealAnalysesCompanion toCompanion(bool nullToAbsent) {
+    return MealAnalysesCompanion(
+      id: Value(id),
+      mealId: Value(mealId),
+      photoName: Value(photoName),
+      status: Value(status),
+      providerHost: Value(providerHost),
+      model: Value(model),
+      promptVersion: Value(promptVersion),
+      outputSchema: Value(outputSchema),
+      sentSha256: sentSha256 == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sentSha256),
+      sentWidth: sentWidth == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sentWidth),
+      sentHeight: sentHeight == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sentHeight),
+      sentBytes: sentBytes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sentBytes),
+      resultJson: resultJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(resultJson),
+      rawText: rawText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawText),
+      confidence: confidence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(confidence),
+      promptTokens: promptTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(promptTokens),
+      completionTokens: completionTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completionTokens),
+      reasoningTokens: reasoningTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reasoningTokens),
+      cost: cost == null && nullToAbsent ? const Value.absent() : Value(cost),
+      costCurrency: costCurrency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(costCurrency),
+      costSource: costSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(costSource),
+      attempts: Value(attempts),
+      errorKind: errorKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorKind),
+      hiddenOil: Value(hiddenOil),
+      hiddenSauce: Value(hiddenSauce),
+      hiddenSugar: Value(hiddenSugar),
+      queuedAtUtcMs: Value(queuedAtUtcMs),
+      updatedAtUtcMs: Value(updatedAtUtcMs),
+    );
+  }
+
+  factory MealAnalysisRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MealAnalysisRow(
+      id: serializer.fromJson<int>(json['id']),
+      mealId: serializer.fromJson<int>(json['mealId']),
+      photoName: serializer.fromJson<String>(json['photoName']),
+      status: serializer.fromJson<String>(json['status']),
+      providerHost: serializer.fromJson<String>(json['providerHost']),
+      model: serializer.fromJson<String>(json['model']),
+      promptVersion: serializer.fromJson<int>(json['promptVersion']),
+      outputSchema: serializer.fromJson<int>(json['outputSchema']),
+      sentSha256: serializer.fromJson<String?>(json['sentSha256']),
+      sentWidth: serializer.fromJson<int?>(json['sentWidth']),
+      sentHeight: serializer.fromJson<int?>(json['sentHeight']),
+      sentBytes: serializer.fromJson<int?>(json['sentBytes']),
+      resultJson: serializer.fromJson<String?>(json['resultJson']),
+      rawText: serializer.fromJson<String?>(json['rawText']),
+      confidence: serializer.fromJson<String?>(json['confidence']),
+      promptTokens: serializer.fromJson<int?>(json['promptTokens']),
+      completionTokens: serializer.fromJson<int?>(json['completionTokens']),
+      reasoningTokens: serializer.fromJson<int?>(json['reasoningTokens']),
+      cost: serializer.fromJson<double?>(json['cost']),
+      costCurrency: serializer.fromJson<String?>(json['costCurrency']),
+      costSource: serializer.fromJson<String?>(json['costSource']),
+      attempts: serializer.fromJson<int>(json['attempts']),
+      errorKind: serializer.fromJson<String?>(json['errorKind']),
+      hiddenOil: serializer.fromJson<bool>(json['hiddenOil']),
+      hiddenSauce: serializer.fromJson<bool>(json['hiddenSauce']),
+      hiddenSugar: serializer.fromJson<bool>(json['hiddenSugar']),
+      queuedAtUtcMs: serializer.fromJson<int>(json['queuedAtUtcMs']),
+      updatedAtUtcMs: serializer.fromJson<int>(json['updatedAtUtcMs']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'mealId': serializer.toJson<int>(mealId),
+      'photoName': serializer.toJson<String>(photoName),
+      'status': serializer.toJson<String>(status),
+      'providerHost': serializer.toJson<String>(providerHost),
+      'model': serializer.toJson<String>(model),
+      'promptVersion': serializer.toJson<int>(promptVersion),
+      'outputSchema': serializer.toJson<int>(outputSchema),
+      'sentSha256': serializer.toJson<String?>(sentSha256),
+      'sentWidth': serializer.toJson<int?>(sentWidth),
+      'sentHeight': serializer.toJson<int?>(sentHeight),
+      'sentBytes': serializer.toJson<int?>(sentBytes),
+      'resultJson': serializer.toJson<String?>(resultJson),
+      'rawText': serializer.toJson<String?>(rawText),
+      'confidence': serializer.toJson<String?>(confidence),
+      'promptTokens': serializer.toJson<int?>(promptTokens),
+      'completionTokens': serializer.toJson<int?>(completionTokens),
+      'reasoningTokens': serializer.toJson<int?>(reasoningTokens),
+      'cost': serializer.toJson<double?>(cost),
+      'costCurrency': serializer.toJson<String?>(costCurrency),
+      'costSource': serializer.toJson<String?>(costSource),
+      'attempts': serializer.toJson<int>(attempts),
+      'errorKind': serializer.toJson<String?>(errorKind),
+      'hiddenOil': serializer.toJson<bool>(hiddenOil),
+      'hiddenSauce': serializer.toJson<bool>(hiddenSauce),
+      'hiddenSugar': serializer.toJson<bool>(hiddenSugar),
+      'queuedAtUtcMs': serializer.toJson<int>(queuedAtUtcMs),
+      'updatedAtUtcMs': serializer.toJson<int>(updatedAtUtcMs),
+    };
+  }
+
+  MealAnalysisRow copyWith({
+    int? id,
+    int? mealId,
+    String? photoName,
+    String? status,
+    String? providerHost,
+    String? model,
+    int? promptVersion,
+    int? outputSchema,
+    Value<String?> sentSha256 = const Value.absent(),
+    Value<int?> sentWidth = const Value.absent(),
+    Value<int?> sentHeight = const Value.absent(),
+    Value<int?> sentBytes = const Value.absent(),
+    Value<String?> resultJson = const Value.absent(),
+    Value<String?> rawText = const Value.absent(),
+    Value<String?> confidence = const Value.absent(),
+    Value<int?> promptTokens = const Value.absent(),
+    Value<int?> completionTokens = const Value.absent(),
+    Value<int?> reasoningTokens = const Value.absent(),
+    Value<double?> cost = const Value.absent(),
+    Value<String?> costCurrency = const Value.absent(),
+    Value<String?> costSource = const Value.absent(),
+    int? attempts,
+    Value<String?> errorKind = const Value.absent(),
+    bool? hiddenOil,
+    bool? hiddenSauce,
+    bool? hiddenSugar,
+    int? queuedAtUtcMs,
+    int? updatedAtUtcMs,
+  }) => MealAnalysisRow(
+    id: id ?? this.id,
+    mealId: mealId ?? this.mealId,
+    photoName: photoName ?? this.photoName,
+    status: status ?? this.status,
+    providerHost: providerHost ?? this.providerHost,
+    model: model ?? this.model,
+    promptVersion: promptVersion ?? this.promptVersion,
+    outputSchema: outputSchema ?? this.outputSchema,
+    sentSha256: sentSha256.present ? sentSha256.value : this.sentSha256,
+    sentWidth: sentWidth.present ? sentWidth.value : this.sentWidth,
+    sentHeight: sentHeight.present ? sentHeight.value : this.sentHeight,
+    sentBytes: sentBytes.present ? sentBytes.value : this.sentBytes,
+    resultJson: resultJson.present ? resultJson.value : this.resultJson,
+    rawText: rawText.present ? rawText.value : this.rawText,
+    confidence: confidence.present ? confidence.value : this.confidence,
+    promptTokens: promptTokens.present ? promptTokens.value : this.promptTokens,
+    completionTokens: completionTokens.present
+        ? completionTokens.value
+        : this.completionTokens,
+    reasoningTokens: reasoningTokens.present
+        ? reasoningTokens.value
+        : this.reasoningTokens,
+    cost: cost.present ? cost.value : this.cost,
+    costCurrency: costCurrency.present ? costCurrency.value : this.costCurrency,
+    costSource: costSource.present ? costSource.value : this.costSource,
+    attempts: attempts ?? this.attempts,
+    errorKind: errorKind.present ? errorKind.value : this.errorKind,
+    hiddenOil: hiddenOil ?? this.hiddenOil,
+    hiddenSauce: hiddenSauce ?? this.hiddenSauce,
+    hiddenSugar: hiddenSugar ?? this.hiddenSugar,
+    queuedAtUtcMs: queuedAtUtcMs ?? this.queuedAtUtcMs,
+    updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+  );
+  MealAnalysisRow copyWithCompanion(MealAnalysesCompanion data) {
+    return MealAnalysisRow(
+      id: data.id.present ? data.id.value : this.id,
+      mealId: data.mealId.present ? data.mealId.value : this.mealId,
+      photoName: data.photoName.present ? data.photoName.value : this.photoName,
+      status: data.status.present ? data.status.value : this.status,
+      providerHost: data.providerHost.present
+          ? data.providerHost.value
+          : this.providerHost,
+      model: data.model.present ? data.model.value : this.model,
+      promptVersion: data.promptVersion.present
+          ? data.promptVersion.value
+          : this.promptVersion,
+      outputSchema: data.outputSchema.present
+          ? data.outputSchema.value
+          : this.outputSchema,
+      sentSha256: data.sentSha256.present
+          ? data.sentSha256.value
+          : this.sentSha256,
+      sentWidth: data.sentWidth.present ? data.sentWidth.value : this.sentWidth,
+      sentHeight: data.sentHeight.present
+          ? data.sentHeight.value
+          : this.sentHeight,
+      sentBytes: data.sentBytes.present ? data.sentBytes.value : this.sentBytes,
+      resultJson: data.resultJson.present
+          ? data.resultJson.value
+          : this.resultJson,
+      rawText: data.rawText.present ? data.rawText.value : this.rawText,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      promptTokens: data.promptTokens.present
+          ? data.promptTokens.value
+          : this.promptTokens,
+      completionTokens: data.completionTokens.present
+          ? data.completionTokens.value
+          : this.completionTokens,
+      reasoningTokens: data.reasoningTokens.present
+          ? data.reasoningTokens.value
+          : this.reasoningTokens,
+      cost: data.cost.present ? data.cost.value : this.cost,
+      costCurrency: data.costCurrency.present
+          ? data.costCurrency.value
+          : this.costCurrency,
+      costSource: data.costSource.present
+          ? data.costSource.value
+          : this.costSource,
+      attempts: data.attempts.present ? data.attempts.value : this.attempts,
+      errorKind: data.errorKind.present ? data.errorKind.value : this.errorKind,
+      hiddenOil: data.hiddenOil.present ? data.hiddenOil.value : this.hiddenOil,
+      hiddenSauce: data.hiddenSauce.present
+          ? data.hiddenSauce.value
+          : this.hiddenSauce,
+      hiddenSugar: data.hiddenSugar.present
+          ? data.hiddenSugar.value
+          : this.hiddenSugar,
+      queuedAtUtcMs: data.queuedAtUtcMs.present
+          ? data.queuedAtUtcMs.value
+          : this.queuedAtUtcMs,
+      updatedAtUtcMs: data.updatedAtUtcMs.present
+          ? data.updatedAtUtcMs.value
+          : this.updatedAtUtcMs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MealAnalysisRow(')
+          ..write('id: $id, ')
+          ..write('mealId: $mealId, ')
+          ..write('photoName: $photoName, ')
+          ..write('status: $status, ')
+          ..write('providerHost: $providerHost, ')
+          ..write('model: $model, ')
+          ..write('promptVersion: $promptVersion, ')
+          ..write('outputSchema: $outputSchema, ')
+          ..write('sentSha256: $sentSha256, ')
+          ..write('sentWidth: $sentWidth, ')
+          ..write('sentHeight: $sentHeight, ')
+          ..write('sentBytes: $sentBytes, ')
+          ..write('resultJson: $resultJson, ')
+          ..write('rawText: $rawText, ')
+          ..write('confidence: $confidence, ')
+          ..write('promptTokens: $promptTokens, ')
+          ..write('completionTokens: $completionTokens, ')
+          ..write('reasoningTokens: $reasoningTokens, ')
+          ..write('cost: $cost, ')
+          ..write('costCurrency: $costCurrency, ')
+          ..write('costSource: $costSource, ')
+          ..write('attempts: $attempts, ')
+          ..write('errorKind: $errorKind, ')
+          ..write('hiddenOil: $hiddenOil, ')
+          ..write('hiddenSauce: $hiddenSauce, ')
+          ..write('hiddenSugar: $hiddenSugar, ')
+          ..write('queuedAtUtcMs: $queuedAtUtcMs, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    mealId,
+    photoName,
+    status,
+    providerHost,
+    model,
+    promptVersion,
+    outputSchema,
+    sentSha256,
+    sentWidth,
+    sentHeight,
+    sentBytes,
+    resultJson,
+    rawText,
+    confidence,
+    promptTokens,
+    completionTokens,
+    reasoningTokens,
+    cost,
+    costCurrency,
+    costSource,
+    attempts,
+    errorKind,
+    hiddenOil,
+    hiddenSauce,
+    hiddenSugar,
+    queuedAtUtcMs,
+    updatedAtUtcMs,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MealAnalysisRow &&
+          other.id == this.id &&
+          other.mealId == this.mealId &&
+          other.photoName == this.photoName &&
+          other.status == this.status &&
+          other.providerHost == this.providerHost &&
+          other.model == this.model &&
+          other.promptVersion == this.promptVersion &&
+          other.outputSchema == this.outputSchema &&
+          other.sentSha256 == this.sentSha256 &&
+          other.sentWidth == this.sentWidth &&
+          other.sentHeight == this.sentHeight &&
+          other.sentBytes == this.sentBytes &&
+          other.resultJson == this.resultJson &&
+          other.rawText == this.rawText &&
+          other.confidence == this.confidence &&
+          other.promptTokens == this.promptTokens &&
+          other.completionTokens == this.completionTokens &&
+          other.reasoningTokens == this.reasoningTokens &&
+          other.cost == this.cost &&
+          other.costCurrency == this.costCurrency &&
+          other.costSource == this.costSource &&
+          other.attempts == this.attempts &&
+          other.errorKind == this.errorKind &&
+          other.hiddenOil == this.hiddenOil &&
+          other.hiddenSauce == this.hiddenSauce &&
+          other.hiddenSugar == this.hiddenSugar &&
+          other.queuedAtUtcMs == this.queuedAtUtcMs &&
+          other.updatedAtUtcMs == this.updatedAtUtcMs);
+}
+
+class MealAnalysesCompanion extends UpdateCompanion<MealAnalysisRow> {
+  final Value<int> id;
+  final Value<int> mealId;
+  final Value<String> photoName;
+  final Value<String> status;
+  final Value<String> providerHost;
+  final Value<String> model;
+  final Value<int> promptVersion;
+  final Value<int> outputSchema;
+  final Value<String?> sentSha256;
+  final Value<int?> sentWidth;
+  final Value<int?> sentHeight;
+  final Value<int?> sentBytes;
+  final Value<String?> resultJson;
+  final Value<String?> rawText;
+  final Value<String?> confidence;
+  final Value<int?> promptTokens;
+  final Value<int?> completionTokens;
+  final Value<int?> reasoningTokens;
+  final Value<double?> cost;
+  final Value<String?> costCurrency;
+  final Value<String?> costSource;
+  final Value<int> attempts;
+  final Value<String?> errorKind;
+  final Value<bool> hiddenOil;
+  final Value<bool> hiddenSauce;
+  final Value<bool> hiddenSugar;
+  final Value<int> queuedAtUtcMs;
+  final Value<int> updatedAtUtcMs;
+  const MealAnalysesCompanion({
+    this.id = const Value.absent(),
+    this.mealId = const Value.absent(),
+    this.photoName = const Value.absent(),
+    this.status = const Value.absent(),
+    this.providerHost = const Value.absent(),
+    this.model = const Value.absent(),
+    this.promptVersion = const Value.absent(),
+    this.outputSchema = const Value.absent(),
+    this.sentSha256 = const Value.absent(),
+    this.sentWidth = const Value.absent(),
+    this.sentHeight = const Value.absent(),
+    this.sentBytes = const Value.absent(),
+    this.resultJson = const Value.absent(),
+    this.rawText = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.promptTokens = const Value.absent(),
+    this.completionTokens = const Value.absent(),
+    this.reasoningTokens = const Value.absent(),
+    this.cost = const Value.absent(),
+    this.costCurrency = const Value.absent(),
+    this.costSource = const Value.absent(),
+    this.attempts = const Value.absent(),
+    this.errorKind = const Value.absent(),
+    this.hiddenOil = const Value.absent(),
+    this.hiddenSauce = const Value.absent(),
+    this.hiddenSugar = const Value.absent(),
+    this.queuedAtUtcMs = const Value.absent(),
+    this.updatedAtUtcMs = const Value.absent(),
+  });
+  MealAnalysesCompanion.insert({
+    this.id = const Value.absent(),
+    required int mealId,
+    required String photoName,
+    required String status,
+    required String providerHost,
+    required String model,
+    required int promptVersion,
+    required int outputSchema,
+    this.sentSha256 = const Value.absent(),
+    this.sentWidth = const Value.absent(),
+    this.sentHeight = const Value.absent(),
+    this.sentBytes = const Value.absent(),
+    this.resultJson = const Value.absent(),
+    this.rawText = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.promptTokens = const Value.absent(),
+    this.completionTokens = const Value.absent(),
+    this.reasoningTokens = const Value.absent(),
+    this.cost = const Value.absent(),
+    this.costCurrency = const Value.absent(),
+    this.costSource = const Value.absent(),
+    this.attempts = const Value.absent(),
+    this.errorKind = const Value.absent(),
+    this.hiddenOil = const Value.absent(),
+    this.hiddenSauce = const Value.absent(),
+    this.hiddenSugar = const Value.absent(),
+    required int queuedAtUtcMs,
+    required int updatedAtUtcMs,
+  }) : mealId = Value(mealId),
+       photoName = Value(photoName),
+       status = Value(status),
+       providerHost = Value(providerHost),
+       model = Value(model),
+       promptVersion = Value(promptVersion),
+       outputSchema = Value(outputSchema),
+       queuedAtUtcMs = Value(queuedAtUtcMs),
+       updatedAtUtcMs = Value(updatedAtUtcMs);
+  static Insertable<MealAnalysisRow> custom({
+    Expression<int>? id,
+    Expression<int>? mealId,
+    Expression<String>? photoName,
+    Expression<String>? status,
+    Expression<String>? providerHost,
+    Expression<String>? model,
+    Expression<int>? promptVersion,
+    Expression<int>? outputSchema,
+    Expression<String>? sentSha256,
+    Expression<int>? sentWidth,
+    Expression<int>? sentHeight,
+    Expression<int>? sentBytes,
+    Expression<String>? resultJson,
+    Expression<String>? rawText,
+    Expression<String>? confidence,
+    Expression<int>? promptTokens,
+    Expression<int>? completionTokens,
+    Expression<int>? reasoningTokens,
+    Expression<double>? cost,
+    Expression<String>? costCurrency,
+    Expression<String>? costSource,
+    Expression<int>? attempts,
+    Expression<String>? errorKind,
+    Expression<bool>? hiddenOil,
+    Expression<bool>? hiddenSauce,
+    Expression<bool>? hiddenSugar,
+    Expression<int>? queuedAtUtcMs,
+    Expression<int>? updatedAtUtcMs,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (mealId != null) 'meal_id': mealId,
+      if (photoName != null) 'photo_name': photoName,
+      if (status != null) 'status': status,
+      if (providerHost != null) 'provider_host': providerHost,
+      if (model != null) 'model': model,
+      if (promptVersion != null) 'prompt_version': promptVersion,
+      if (outputSchema != null) 'output_schema': outputSchema,
+      if (sentSha256 != null) 'sent_sha256': sentSha256,
+      if (sentWidth != null) 'sent_width': sentWidth,
+      if (sentHeight != null) 'sent_height': sentHeight,
+      if (sentBytes != null) 'sent_bytes': sentBytes,
+      if (resultJson != null) 'result_json': resultJson,
+      if (rawText != null) 'raw_text': rawText,
+      if (confidence != null) 'confidence': confidence,
+      if (promptTokens != null) 'prompt_tokens': promptTokens,
+      if (completionTokens != null) 'completion_tokens': completionTokens,
+      if (reasoningTokens != null) 'reasoning_tokens': reasoningTokens,
+      if (cost != null) 'cost': cost,
+      if (costCurrency != null) 'cost_currency': costCurrency,
+      if (costSource != null) 'cost_source': costSource,
+      if (attempts != null) 'attempts': attempts,
+      if (errorKind != null) 'error_kind': errorKind,
+      if (hiddenOil != null) 'hidden_oil': hiddenOil,
+      if (hiddenSauce != null) 'hidden_sauce': hiddenSauce,
+      if (hiddenSugar != null) 'hidden_sugar': hiddenSugar,
+      if (queuedAtUtcMs != null) 'queued_at_utc_ms': queuedAtUtcMs,
+      if (updatedAtUtcMs != null) 'updated_at_utc_ms': updatedAtUtcMs,
+    });
+  }
+
+  MealAnalysesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? mealId,
+    Value<String>? photoName,
+    Value<String>? status,
+    Value<String>? providerHost,
+    Value<String>? model,
+    Value<int>? promptVersion,
+    Value<int>? outputSchema,
+    Value<String?>? sentSha256,
+    Value<int?>? sentWidth,
+    Value<int?>? sentHeight,
+    Value<int?>? sentBytes,
+    Value<String?>? resultJson,
+    Value<String?>? rawText,
+    Value<String?>? confidence,
+    Value<int?>? promptTokens,
+    Value<int?>? completionTokens,
+    Value<int?>? reasoningTokens,
+    Value<double?>? cost,
+    Value<String?>? costCurrency,
+    Value<String?>? costSource,
+    Value<int>? attempts,
+    Value<String?>? errorKind,
+    Value<bool>? hiddenOil,
+    Value<bool>? hiddenSauce,
+    Value<bool>? hiddenSugar,
+    Value<int>? queuedAtUtcMs,
+    Value<int>? updatedAtUtcMs,
+  }) {
+    return MealAnalysesCompanion(
+      id: id ?? this.id,
+      mealId: mealId ?? this.mealId,
+      photoName: photoName ?? this.photoName,
+      status: status ?? this.status,
+      providerHost: providerHost ?? this.providerHost,
+      model: model ?? this.model,
+      promptVersion: promptVersion ?? this.promptVersion,
+      outputSchema: outputSchema ?? this.outputSchema,
+      sentSha256: sentSha256 ?? this.sentSha256,
+      sentWidth: sentWidth ?? this.sentWidth,
+      sentHeight: sentHeight ?? this.sentHeight,
+      sentBytes: sentBytes ?? this.sentBytes,
+      resultJson: resultJson ?? this.resultJson,
+      rawText: rawText ?? this.rawText,
+      confidence: confidence ?? this.confidence,
+      promptTokens: promptTokens ?? this.promptTokens,
+      completionTokens: completionTokens ?? this.completionTokens,
+      reasoningTokens: reasoningTokens ?? this.reasoningTokens,
+      cost: cost ?? this.cost,
+      costCurrency: costCurrency ?? this.costCurrency,
+      costSource: costSource ?? this.costSource,
+      attempts: attempts ?? this.attempts,
+      errorKind: errorKind ?? this.errorKind,
+      hiddenOil: hiddenOil ?? this.hiddenOil,
+      hiddenSauce: hiddenSauce ?? this.hiddenSauce,
+      hiddenSugar: hiddenSugar ?? this.hiddenSugar,
+      queuedAtUtcMs: queuedAtUtcMs ?? this.queuedAtUtcMs,
+      updatedAtUtcMs: updatedAtUtcMs ?? this.updatedAtUtcMs,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (mealId.present) {
+      map['meal_id'] = Variable<int>(mealId.value);
+    }
+    if (photoName.present) {
+      map['photo_name'] = Variable<String>(photoName.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (providerHost.present) {
+      map['provider_host'] = Variable<String>(providerHost.value);
+    }
+    if (model.present) {
+      map['model'] = Variable<String>(model.value);
+    }
+    if (promptVersion.present) {
+      map['prompt_version'] = Variable<int>(promptVersion.value);
+    }
+    if (outputSchema.present) {
+      map['output_schema'] = Variable<int>(outputSchema.value);
+    }
+    if (sentSha256.present) {
+      map['sent_sha256'] = Variable<String>(sentSha256.value);
+    }
+    if (sentWidth.present) {
+      map['sent_width'] = Variable<int>(sentWidth.value);
+    }
+    if (sentHeight.present) {
+      map['sent_height'] = Variable<int>(sentHeight.value);
+    }
+    if (sentBytes.present) {
+      map['sent_bytes'] = Variable<int>(sentBytes.value);
+    }
+    if (resultJson.present) {
+      map['result_json'] = Variable<String>(resultJson.value);
+    }
+    if (rawText.present) {
+      map['raw_text'] = Variable<String>(rawText.value);
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<String>(confidence.value);
+    }
+    if (promptTokens.present) {
+      map['prompt_tokens'] = Variable<int>(promptTokens.value);
+    }
+    if (completionTokens.present) {
+      map['completion_tokens'] = Variable<int>(completionTokens.value);
+    }
+    if (reasoningTokens.present) {
+      map['reasoning_tokens'] = Variable<int>(reasoningTokens.value);
+    }
+    if (cost.present) {
+      map['cost'] = Variable<double>(cost.value);
+    }
+    if (costCurrency.present) {
+      map['cost_currency'] = Variable<String>(costCurrency.value);
+    }
+    if (costSource.present) {
+      map['cost_source'] = Variable<String>(costSource.value);
+    }
+    if (attempts.present) {
+      map['attempts'] = Variable<int>(attempts.value);
+    }
+    if (errorKind.present) {
+      map['error_kind'] = Variable<String>(errorKind.value);
+    }
+    if (hiddenOil.present) {
+      map['hidden_oil'] = Variable<bool>(hiddenOil.value);
+    }
+    if (hiddenSauce.present) {
+      map['hidden_sauce'] = Variable<bool>(hiddenSauce.value);
+    }
+    if (hiddenSugar.present) {
+      map['hidden_sugar'] = Variable<bool>(hiddenSugar.value);
+    }
+    if (queuedAtUtcMs.present) {
+      map['queued_at_utc_ms'] = Variable<int>(queuedAtUtcMs.value);
+    }
+    if (updatedAtUtcMs.present) {
+      map['updated_at_utc_ms'] = Variable<int>(updatedAtUtcMs.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MealAnalysesCompanion(')
+          ..write('id: $id, ')
+          ..write('mealId: $mealId, ')
+          ..write('photoName: $photoName, ')
+          ..write('status: $status, ')
+          ..write('providerHost: $providerHost, ')
+          ..write('model: $model, ')
+          ..write('promptVersion: $promptVersion, ')
+          ..write('outputSchema: $outputSchema, ')
+          ..write('sentSha256: $sentSha256, ')
+          ..write('sentWidth: $sentWidth, ')
+          ..write('sentHeight: $sentHeight, ')
+          ..write('sentBytes: $sentBytes, ')
+          ..write('resultJson: $resultJson, ')
+          ..write('rawText: $rawText, ')
+          ..write('confidence: $confidence, ')
+          ..write('promptTokens: $promptTokens, ')
+          ..write('completionTokens: $completionTokens, ')
+          ..write('reasoningTokens: $reasoningTokens, ')
+          ..write('cost: $cost, ')
+          ..write('costCurrency: $costCurrency, ')
+          ..write('costSource: $costSource, ')
+          ..write('attempts: $attempts, ')
+          ..write('errorKind: $errorKind, ')
+          ..write('hiddenOil: $hiddenOil, ')
+          ..write('hiddenSauce: $hiddenSauce, ')
+          ..write('hiddenSugar: $hiddenSugar, ')
+          ..write('queuedAtUtcMs: $queuedAtUtcMs, ')
+          ..write('updatedAtUtcMs: $updatedAtUtcMs')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MealItemsTable extends MealItems
+    with TableInfo<$MealItemsTable, MealItemRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MealItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _analysisIdMeta = const VerificationMeta(
+    'analysisId',
+  );
+  @override
+  late final GeneratedColumn<int> analysisId = GeneratedColumn<int>(
+    'analysis_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES meal_analyses (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta(
+    'position',
+  );
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _measureMeta = const VerificationMeta(
+    'measure',
+  );
+  @override
+  late final GeneratedColumn<String> measure = GeneratedColumn<String>(
+    'measure',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _countX2Meta = const VerificationMeta(
+    'countX2',
+  );
+  @override
+  late final GeneratedColumn<int> countX2 = GeneratedColumn<int>(
+    'count_x2',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _gramsMeta = const VerificationMeta('grams');
+  @override
+  late final GeneratedColumn<int> grams = GeneratedColumn<int>(
+    'grams',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _originMeta = const VerificationMeta('origin');
+  @override
+  late final GeneratedColumn<String> origin = GeneratedColumn<String>(
+    'origin',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _confirmedMeta = const VerificationMeta(
+    'confirmed',
+  );
+  @override
+  late final GeneratedColumn<bool> confirmed = GeneratedColumn<bool>(
+    'confirmed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("confirmed" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _foodGroupMeta = const VerificationMeta(
+    'foodGroup',
+  );
+  @override
+  late final GeneratedColumn<String> foodGroup = GeneratedColumn<String>(
+    'food_group',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    analysisId,
+    position,
+    name,
+    measure,
+    countX2,
+    grams,
+    origin,
+    confirmed,
+    foodGroup,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'meal_items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MealItemRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('analysis_id')) {
+      context.handle(
+        _analysisIdMeta,
+        analysisId.isAcceptableOrUnknown(data['analysis_id']!, _analysisIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_analysisIdMeta);
+    }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('measure')) {
+      context.handle(
+        _measureMeta,
+        measure.isAcceptableOrUnknown(data['measure']!, _measureMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_measureMeta);
+    }
+    if (data.containsKey('count_x2')) {
+      context.handle(
+        _countX2Meta,
+        countX2.isAcceptableOrUnknown(data['count_x2']!, _countX2Meta),
+      );
+    } else if (isInserting) {
+      context.missing(_countX2Meta);
+    }
+    if (data.containsKey('grams')) {
+      context.handle(
+        _gramsMeta,
+        grams.isAcceptableOrUnknown(data['grams']!, _gramsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_gramsMeta);
+    }
+    if (data.containsKey('origin')) {
+      context.handle(
+        _originMeta,
+        origin.isAcceptableOrUnknown(data['origin']!, _originMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_originMeta);
+    }
+    if (data.containsKey('confirmed')) {
+      context.handle(
+        _confirmedMeta,
+        confirmed.isAcceptableOrUnknown(data['confirmed']!, _confirmedMeta),
+      );
+    }
+    if (data.containsKey('food_group')) {
+      context.handle(
+        _foodGroupMeta,
+        foodGroup.isAcceptableOrUnknown(data['food_group']!, _foodGroupMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MealItemRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MealItemRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      analysisId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}analysis_id'],
+      )!,
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      measure: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}measure'],
+      )!,
+      countX2: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}count_x2'],
+      )!,
+      grams: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}grams'],
+      )!,
+      origin: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}origin'],
+      )!,
+      confirmed: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}confirmed'],
+      )!,
+      foodGroup: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}food_group'],
+      ),
+    );
+  }
+
+  @override
+  $MealItemsTable createAlias(String alias) {
+    return $MealItemsTable(attachedDatabase, alias);
+  }
+}
+
+class MealItemRow extends DataClass implements Insertable<MealItemRow> {
+  final int id;
+  final int analysisId;
+  final int position;
+  final String name;
+  final String measure;
+  final int countX2;
+  final int grams;
+  final String origin;
+  final bool confirmed;
+  final String? foodGroup;
+  const MealItemRow({
+    required this.id,
+    required this.analysisId,
+    required this.position,
+    required this.name,
+    required this.measure,
+    required this.countX2,
+    required this.grams,
+    required this.origin,
+    required this.confirmed,
+    this.foodGroup,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['analysis_id'] = Variable<int>(analysisId);
+    map['position'] = Variable<int>(position);
+    map['name'] = Variable<String>(name);
+    map['measure'] = Variable<String>(measure);
+    map['count_x2'] = Variable<int>(countX2);
+    map['grams'] = Variable<int>(grams);
+    map['origin'] = Variable<String>(origin);
+    map['confirmed'] = Variable<bool>(confirmed);
+    if (!nullToAbsent || foodGroup != null) {
+      map['food_group'] = Variable<String>(foodGroup);
+    }
+    return map;
+  }
+
+  MealItemsCompanion toCompanion(bool nullToAbsent) {
+    return MealItemsCompanion(
+      id: Value(id),
+      analysisId: Value(analysisId),
+      position: Value(position),
+      name: Value(name),
+      measure: Value(measure),
+      countX2: Value(countX2),
+      grams: Value(grams),
+      origin: Value(origin),
+      confirmed: Value(confirmed),
+      foodGroup: foodGroup == null && nullToAbsent
+          ? const Value.absent()
+          : Value(foodGroup),
+    );
+  }
+
+  factory MealItemRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MealItemRow(
+      id: serializer.fromJson<int>(json['id']),
+      analysisId: serializer.fromJson<int>(json['analysisId']),
+      position: serializer.fromJson<int>(json['position']),
+      name: serializer.fromJson<String>(json['name']),
+      measure: serializer.fromJson<String>(json['measure']),
+      countX2: serializer.fromJson<int>(json['countX2']),
+      grams: serializer.fromJson<int>(json['grams']),
+      origin: serializer.fromJson<String>(json['origin']),
+      confirmed: serializer.fromJson<bool>(json['confirmed']),
+      foodGroup: serializer.fromJson<String?>(json['foodGroup']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'analysisId': serializer.toJson<int>(analysisId),
+      'position': serializer.toJson<int>(position),
+      'name': serializer.toJson<String>(name),
+      'measure': serializer.toJson<String>(measure),
+      'countX2': serializer.toJson<int>(countX2),
+      'grams': serializer.toJson<int>(grams),
+      'origin': serializer.toJson<String>(origin),
+      'confirmed': serializer.toJson<bool>(confirmed),
+      'foodGroup': serializer.toJson<String?>(foodGroup),
+    };
+  }
+
+  MealItemRow copyWith({
+    int? id,
+    int? analysisId,
+    int? position,
+    String? name,
+    String? measure,
+    int? countX2,
+    int? grams,
+    String? origin,
+    bool? confirmed,
+    Value<String?> foodGroup = const Value.absent(),
+  }) => MealItemRow(
+    id: id ?? this.id,
+    analysisId: analysisId ?? this.analysisId,
+    position: position ?? this.position,
+    name: name ?? this.name,
+    measure: measure ?? this.measure,
+    countX2: countX2 ?? this.countX2,
+    grams: grams ?? this.grams,
+    origin: origin ?? this.origin,
+    confirmed: confirmed ?? this.confirmed,
+    foodGroup: foodGroup.present ? foodGroup.value : this.foodGroup,
+  );
+  MealItemRow copyWithCompanion(MealItemsCompanion data) {
+    return MealItemRow(
+      id: data.id.present ? data.id.value : this.id,
+      analysisId: data.analysisId.present
+          ? data.analysisId.value
+          : this.analysisId,
+      position: data.position.present ? data.position.value : this.position,
+      name: data.name.present ? data.name.value : this.name,
+      measure: data.measure.present ? data.measure.value : this.measure,
+      countX2: data.countX2.present ? data.countX2.value : this.countX2,
+      grams: data.grams.present ? data.grams.value : this.grams,
+      origin: data.origin.present ? data.origin.value : this.origin,
+      confirmed: data.confirmed.present ? data.confirmed.value : this.confirmed,
+      foodGroup: data.foodGroup.present ? data.foodGroup.value : this.foodGroup,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MealItemRow(')
+          ..write('id: $id, ')
+          ..write('analysisId: $analysisId, ')
+          ..write('position: $position, ')
+          ..write('name: $name, ')
+          ..write('measure: $measure, ')
+          ..write('countX2: $countX2, ')
+          ..write('grams: $grams, ')
+          ..write('origin: $origin, ')
+          ..write('confirmed: $confirmed, ')
+          ..write('foodGroup: $foodGroup')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    analysisId,
+    position,
+    name,
+    measure,
+    countX2,
+    grams,
+    origin,
+    confirmed,
+    foodGroup,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MealItemRow &&
+          other.id == this.id &&
+          other.analysisId == this.analysisId &&
+          other.position == this.position &&
+          other.name == this.name &&
+          other.measure == this.measure &&
+          other.countX2 == this.countX2 &&
+          other.grams == this.grams &&
+          other.origin == this.origin &&
+          other.confirmed == this.confirmed &&
+          other.foodGroup == this.foodGroup);
+}
+
+class MealItemsCompanion extends UpdateCompanion<MealItemRow> {
+  final Value<int> id;
+  final Value<int> analysisId;
+  final Value<int> position;
+  final Value<String> name;
+  final Value<String> measure;
+  final Value<int> countX2;
+  final Value<int> grams;
+  final Value<String> origin;
+  final Value<bool> confirmed;
+  final Value<String?> foodGroup;
+  const MealItemsCompanion({
+    this.id = const Value.absent(),
+    this.analysisId = const Value.absent(),
+    this.position = const Value.absent(),
+    this.name = const Value.absent(),
+    this.measure = const Value.absent(),
+    this.countX2 = const Value.absent(),
+    this.grams = const Value.absent(),
+    this.origin = const Value.absent(),
+    this.confirmed = const Value.absent(),
+    this.foodGroup = const Value.absent(),
+  });
+  MealItemsCompanion.insert({
+    this.id = const Value.absent(),
+    required int analysisId,
+    required int position,
+    required String name,
+    required String measure,
+    required int countX2,
+    required int grams,
+    required String origin,
+    this.confirmed = const Value.absent(),
+    this.foodGroup = const Value.absent(),
+  }) : analysisId = Value(analysisId),
+       position = Value(position),
+       name = Value(name),
+       measure = Value(measure),
+       countX2 = Value(countX2),
+       grams = Value(grams),
+       origin = Value(origin);
+  static Insertable<MealItemRow> custom({
+    Expression<int>? id,
+    Expression<int>? analysisId,
+    Expression<int>? position,
+    Expression<String>? name,
+    Expression<String>? measure,
+    Expression<int>? countX2,
+    Expression<int>? grams,
+    Expression<String>? origin,
+    Expression<bool>? confirmed,
+    Expression<String>? foodGroup,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (analysisId != null) 'analysis_id': analysisId,
+      if (position != null) 'position': position,
+      if (name != null) 'name': name,
+      if (measure != null) 'measure': measure,
+      if (countX2 != null) 'count_x2': countX2,
+      if (grams != null) 'grams': grams,
+      if (origin != null) 'origin': origin,
+      if (confirmed != null) 'confirmed': confirmed,
+      if (foodGroup != null) 'food_group': foodGroup,
+    });
+  }
+
+  MealItemsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? analysisId,
+    Value<int>? position,
+    Value<String>? name,
+    Value<String>? measure,
+    Value<int>? countX2,
+    Value<int>? grams,
+    Value<String>? origin,
+    Value<bool>? confirmed,
+    Value<String?>? foodGroup,
+  }) {
+    return MealItemsCompanion(
+      id: id ?? this.id,
+      analysisId: analysisId ?? this.analysisId,
+      position: position ?? this.position,
+      name: name ?? this.name,
+      measure: measure ?? this.measure,
+      countX2: countX2 ?? this.countX2,
+      grams: grams ?? this.grams,
+      origin: origin ?? this.origin,
+      confirmed: confirmed ?? this.confirmed,
+      foodGroup: foodGroup ?? this.foodGroup,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (analysisId.present) {
+      map['analysis_id'] = Variable<int>(analysisId.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (measure.present) {
+      map['measure'] = Variable<String>(measure.value);
+    }
+    if (countX2.present) {
+      map['count_x2'] = Variable<int>(countX2.value);
+    }
+    if (grams.present) {
+      map['grams'] = Variable<int>(grams.value);
+    }
+    if (origin.present) {
+      map['origin'] = Variable<String>(origin.value);
+    }
+    if (confirmed.present) {
+      map['confirmed'] = Variable<bool>(confirmed.value);
+    }
+    if (foodGroup.present) {
+      map['food_group'] = Variable<String>(foodGroup.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MealItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('analysisId: $analysisId, ')
+          ..write('position: $position, ')
+          ..write('name: $name, ')
+          ..write('measure: $measure, ')
+          ..write('countX2: $countX2, ')
+          ..write('grams: $grams, ')
+          ..write('origin: $origin, ')
+          ..write('confirmed: $confirmed, ')
+          ..write('foodGroup: $foodGroup')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TrajectoryProjectionsTable extends TrajectoryProjections
+    with TableInfo<$TrajectoryProjectionsTable, TrajectoryProjectionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TrajectoryProjectionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _mondayMeta = const VerificationMeta('monday');
+  @override
+  late final GeneratedColumn<String> monday = GeneratedColumn<String>(
+    'monday',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _trendKgMeta = const VerificationMeta(
+    'trendKg',
+  );
+  @override
+  late final GeneratedColumn<double> trendKg = GeneratedColumn<double>(
+    'trend_kg',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rateKgPerWeekMeta = const VerificationMeta(
+    'rateKgPerWeek',
+  );
+  @override
+  late final GeneratedColumn<double> rateKgPerWeek = GeneratedColumn<double>(
+    'rate_kg_per_week',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lowKgMeta = const VerificationMeta('lowKg');
+  @override
+  late final GeneratedColumn<double> lowKg = GeneratedColumn<double>(
+    'low_kg',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _midKgMeta = const VerificationMeta('midKg');
+  @override
+  late final GeneratedColumn<double> midKg = GeneratedColumn<double>(
+    'mid_kg',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _highKgMeta = const VerificationMeta('highKg');
+  @override
+  late final GeneratedColumn<double> highKg = GeneratedColumn<double>(
+    'high_kg',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtUtcMsMeta = const VerificationMeta(
+    'createdAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> createdAtUtcMs = GeneratedColumn<int>(
+    'created_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    monday,
+    trendKg,
+    rateKgPerWeek,
+    lowKg,
+    midKg,
+    highKg,
+    createdAtUtcMs,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'trajectory_projections';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TrajectoryProjectionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('monday')) {
+      context.handle(
+        _mondayMeta,
+        monday.isAcceptableOrUnknown(data['monday']!, _mondayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mondayMeta);
+    }
+    if (data.containsKey('trend_kg')) {
+      context.handle(
+        _trendKgMeta,
+        trendKg.isAcceptableOrUnknown(data['trend_kg']!, _trendKgMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_trendKgMeta);
+    }
+    if (data.containsKey('rate_kg_per_week')) {
+      context.handle(
+        _rateKgPerWeekMeta,
+        rateKgPerWeek.isAcceptableOrUnknown(
+          data['rate_kg_per_week']!,
+          _rateKgPerWeekMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_rateKgPerWeekMeta);
+    }
+    if (data.containsKey('low_kg')) {
+      context.handle(
+        _lowKgMeta,
+        lowKg.isAcceptableOrUnknown(data['low_kg']!, _lowKgMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_lowKgMeta);
+    }
+    if (data.containsKey('mid_kg')) {
+      context.handle(
+        _midKgMeta,
+        midKg.isAcceptableOrUnknown(data['mid_kg']!, _midKgMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_midKgMeta);
+    }
+    if (data.containsKey('high_kg')) {
+      context.handle(
+        _highKgMeta,
+        highKg.isAcceptableOrUnknown(data['high_kg']!, _highKgMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_highKgMeta);
+    }
+    if (data.containsKey('created_at_utc_ms')) {
+      context.handle(
+        _createdAtUtcMsMeta,
+        createdAtUtcMs.isAcceptableOrUnknown(
+          data['created_at_utc_ms']!,
+          _createdAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtUtcMsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {monday};
+  @override
+  TrajectoryProjectionRow map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TrajectoryProjectionRow(
+      monday: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}monday'],
+      )!,
+      trendKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}trend_kg'],
+      )!,
+      rateKgPerWeek: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}rate_kg_per_week'],
+      )!,
+      lowKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}low_kg'],
+      )!,
+      midKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}mid_kg'],
+      )!,
+      highKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}high_kg'],
+      )!,
+      createdAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at_utc_ms'],
+      )!,
+    );
+  }
+
+  @override
+  $TrajectoryProjectionsTable createAlias(String alias) {
+    return $TrajectoryProjectionsTable(attachedDatabase, alias);
+  }
+}
+
+class TrajectoryProjectionRow extends DataClass
+    implements Insertable<TrajectoryProjectionRow> {
+  final String monday;
+  final double trendKg;
+  final double rateKgPerWeek;
+  final double lowKg;
+  final double midKg;
+  final double highKg;
+  final int createdAtUtcMs;
+  const TrajectoryProjectionRow({
+    required this.monday,
+    required this.trendKg,
+    required this.rateKgPerWeek,
+    required this.lowKg,
+    required this.midKg,
+    required this.highKg,
+    required this.createdAtUtcMs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['monday'] = Variable<String>(monday);
+    map['trend_kg'] = Variable<double>(trendKg);
+    map['rate_kg_per_week'] = Variable<double>(rateKgPerWeek);
+    map['low_kg'] = Variable<double>(lowKg);
+    map['mid_kg'] = Variable<double>(midKg);
+    map['high_kg'] = Variable<double>(highKg);
+    map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs);
+    return map;
+  }
+
+  TrajectoryProjectionsCompanion toCompanion(bool nullToAbsent) {
+    return TrajectoryProjectionsCompanion(
+      monday: Value(monday),
+      trendKg: Value(trendKg),
+      rateKgPerWeek: Value(rateKgPerWeek),
+      lowKg: Value(lowKg),
+      midKg: Value(midKg),
+      highKg: Value(highKg),
+      createdAtUtcMs: Value(createdAtUtcMs),
+    );
+  }
+
+  factory TrajectoryProjectionRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TrajectoryProjectionRow(
+      monday: serializer.fromJson<String>(json['monday']),
+      trendKg: serializer.fromJson<double>(json['trendKg']),
+      rateKgPerWeek: serializer.fromJson<double>(json['rateKgPerWeek']),
+      lowKg: serializer.fromJson<double>(json['lowKg']),
+      midKg: serializer.fromJson<double>(json['midKg']),
+      highKg: serializer.fromJson<double>(json['highKg']),
+      createdAtUtcMs: serializer.fromJson<int>(json['createdAtUtcMs']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'monday': serializer.toJson<String>(monday),
+      'trendKg': serializer.toJson<double>(trendKg),
+      'rateKgPerWeek': serializer.toJson<double>(rateKgPerWeek),
+      'lowKg': serializer.toJson<double>(lowKg),
+      'midKg': serializer.toJson<double>(midKg),
+      'highKg': serializer.toJson<double>(highKg),
+      'createdAtUtcMs': serializer.toJson<int>(createdAtUtcMs),
+    };
+  }
+
+  TrajectoryProjectionRow copyWith({
+    String? monday,
+    double? trendKg,
+    double? rateKgPerWeek,
+    double? lowKg,
+    double? midKg,
+    double? highKg,
+    int? createdAtUtcMs,
+  }) => TrajectoryProjectionRow(
+    monday: monday ?? this.monday,
+    trendKg: trendKg ?? this.trendKg,
+    rateKgPerWeek: rateKgPerWeek ?? this.rateKgPerWeek,
+    lowKg: lowKg ?? this.lowKg,
+    midKg: midKg ?? this.midKg,
+    highKg: highKg ?? this.highKg,
+    createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+  );
+  TrajectoryProjectionRow copyWithCompanion(
+    TrajectoryProjectionsCompanion data,
+  ) {
+    return TrajectoryProjectionRow(
+      monday: data.monday.present ? data.monday.value : this.monday,
+      trendKg: data.trendKg.present ? data.trendKg.value : this.trendKg,
+      rateKgPerWeek: data.rateKgPerWeek.present
+          ? data.rateKgPerWeek.value
+          : this.rateKgPerWeek,
+      lowKg: data.lowKg.present ? data.lowKg.value : this.lowKg,
+      midKg: data.midKg.present ? data.midKg.value : this.midKg,
+      highKg: data.highKg.present ? data.highKg.value : this.highKg,
+      createdAtUtcMs: data.createdAtUtcMs.present
+          ? data.createdAtUtcMs.value
+          : this.createdAtUtcMs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrajectoryProjectionRow(')
+          ..write('monday: $monday, ')
+          ..write('trendKg: $trendKg, ')
+          ..write('rateKgPerWeek: $rateKgPerWeek, ')
+          ..write('lowKg: $lowKg, ')
+          ..write('midKg: $midKg, ')
+          ..write('highKg: $highKg, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    monday,
+    trendKg,
+    rateKgPerWeek,
+    lowKg,
+    midKg,
+    highKg,
+    createdAtUtcMs,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TrajectoryProjectionRow &&
+          other.monday == this.monday &&
+          other.trendKg == this.trendKg &&
+          other.rateKgPerWeek == this.rateKgPerWeek &&
+          other.lowKg == this.lowKg &&
+          other.midKg == this.midKg &&
+          other.highKg == this.highKg &&
+          other.createdAtUtcMs == this.createdAtUtcMs);
+}
+
+class TrajectoryProjectionsCompanion
+    extends UpdateCompanion<TrajectoryProjectionRow> {
+  final Value<String> monday;
+  final Value<double> trendKg;
+  final Value<double> rateKgPerWeek;
+  final Value<double> lowKg;
+  final Value<double> midKg;
+  final Value<double> highKg;
+  final Value<int> createdAtUtcMs;
+  final Value<int> rowid;
+  const TrajectoryProjectionsCompanion({
+    this.monday = const Value.absent(),
+    this.trendKg = const Value.absent(),
+    this.rateKgPerWeek = const Value.absent(),
+    this.lowKg = const Value.absent(),
+    this.midKg = const Value.absent(),
+    this.highKg = const Value.absent(),
+    this.createdAtUtcMs = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TrajectoryProjectionsCompanion.insert({
+    required String monday,
+    required double trendKg,
+    required double rateKgPerWeek,
+    required double lowKg,
+    required double midKg,
+    required double highKg,
+    required int createdAtUtcMs,
+    this.rowid = const Value.absent(),
+  }) : monday = Value(monday),
+       trendKg = Value(trendKg),
+       rateKgPerWeek = Value(rateKgPerWeek),
+       lowKg = Value(lowKg),
+       midKg = Value(midKg),
+       highKg = Value(highKg),
+       createdAtUtcMs = Value(createdAtUtcMs);
+  static Insertable<TrajectoryProjectionRow> custom({
+    Expression<String>? monday,
+    Expression<double>? trendKg,
+    Expression<double>? rateKgPerWeek,
+    Expression<double>? lowKg,
+    Expression<double>? midKg,
+    Expression<double>? highKg,
+    Expression<int>? createdAtUtcMs,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (monday != null) 'monday': monday,
+      if (trendKg != null) 'trend_kg': trendKg,
+      if (rateKgPerWeek != null) 'rate_kg_per_week': rateKgPerWeek,
+      if (lowKg != null) 'low_kg': lowKg,
+      if (midKg != null) 'mid_kg': midKg,
+      if (highKg != null) 'high_kg': highKg,
+      if (createdAtUtcMs != null) 'created_at_utc_ms': createdAtUtcMs,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TrajectoryProjectionsCompanion copyWith({
+    Value<String>? monday,
+    Value<double>? trendKg,
+    Value<double>? rateKgPerWeek,
+    Value<double>? lowKg,
+    Value<double>? midKg,
+    Value<double>? highKg,
+    Value<int>? createdAtUtcMs,
+    Value<int>? rowid,
+  }) {
+    return TrajectoryProjectionsCompanion(
+      monday: monday ?? this.monday,
+      trendKg: trendKg ?? this.trendKg,
+      rateKgPerWeek: rateKgPerWeek ?? this.rateKgPerWeek,
+      lowKg: lowKg ?? this.lowKg,
+      midKg: midKg ?? this.midKg,
+      highKg: highKg ?? this.highKg,
+      createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (monday.present) {
+      map['monday'] = Variable<String>(monday.value);
+    }
+    if (trendKg.present) {
+      map['trend_kg'] = Variable<double>(trendKg.value);
+    }
+    if (rateKgPerWeek.present) {
+      map['rate_kg_per_week'] = Variable<double>(rateKgPerWeek.value);
+    }
+    if (lowKg.present) {
+      map['low_kg'] = Variable<double>(lowKg.value);
+    }
+    if (midKg.present) {
+      map['mid_kg'] = Variable<double>(midKg.value);
+    }
+    if (highKg.present) {
+      map['high_kg'] = Variable<double>(highKg.value);
+    }
+    if (createdAtUtcMs.present) {
+      map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrajectoryProjectionsCompanion(')
+          ..write('monday: $monday, ')
+          ..write('trendKg: $trendKg, ')
+          ..write('rateKgPerWeek: $rateKgPerWeek, ')
+          ..write('lowKg: $lowKg, ')
+          ..write('midKg: $midKg, ')
+          ..write('highKg: $highKg, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -9753,6 +17318,36 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ImportedWorkoutsTable importedWorkouts = $ImportedWorkoutsTable(
     this,
   );
+  late final $WeighInsTable weighIns = $WeighInsTable(this);
+  late final $DayTagsTable dayTags = $DayTagsTable(this);
+  late final $StepGoalChangesTable stepGoalChanges = $StepGoalChangesTable(
+    this,
+  );
+  late final $GoalsTable goals = $GoalsTable(this);
+  late final $GoalWeeksTable goalWeeks = $GoalWeeksTable(this);
+  late final $GoalScreeningsTable goalScreenings = $GoalScreeningsTable(this);
+  late final $MealsTable meals = $MealsTable(this);
+  late final $AiReportsTable aiReports = $AiReportsTable(this);
+  late final $MealAnalysesTable mealAnalyses = $MealAnalysesTable(this);
+  late final $MealItemsTable mealItems = $MealItemsTable(this);
+  late final $TrajectoryProjectionsTable trajectoryProjections =
+      $TrajectoryProjectionsTable(this);
+  late final Index aiReportsCacheKey = Index(
+    'ai_reports_cache_key',
+    'CREATE INDEX ai_reports_cache_key ON ai_reports (kind, context_sha256, prompt_version, provider_host, model, created_at_utc_ms)',
+  );
+  late final Index mealAnalysesCacheKey = Index(
+    'meal_analyses_cache_key',
+    'CREATE UNIQUE INDEX meal_analyses_cache_key ON meal_analyses (meal_id, provider_host, model, prompt_version)',
+  );
+  late final Index mealAnalysesStatus = Index(
+    'meal_analyses_status',
+    'CREATE INDEX meal_analyses_status ON meal_analyses (status)',
+  );
+  late final Index mealItemsAnalysis = Index(
+    'meal_items_analysis',
+    'CREATE INDEX meal_items_analysis ON meal_items (analysis_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -9780,6 +17375,21 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     importedSleepStages,
     healthReads,
     importedWorkouts,
+    weighIns,
+    dayTags,
+    stepGoalChanges,
+    goals,
+    goalWeeks,
+    goalScreenings,
+    meals,
+    aiReports,
+    mealAnalyses,
+    mealItems,
+    trajectoryProjections,
+    aiReportsCacheKey,
+    mealAnalysesCacheKey,
+    mealAnalysesStatus,
+    mealItemsAnalysis,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -9810,6 +17420,27 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('imported_sleep_stages', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'goals',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('goal_weeks', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'meals',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('meal_analyses', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'meal_analyses',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('meal_items', kind: UpdateKind.delete)],
     ),
   ]);
 }

@@ -3,21 +3,26 @@ O OpenRing é uma app gratuita e de código aberto para o anel inteligente COLMI
 SEM CONTA, SEM NUVEM
 • Sem registo, sem início de sessão, sem e-mail. Emparelhe o anel e comece.
 • Os seus dados ficam numa base de dados local no telemóvel, não num servidor.
-• Sem análise de utilização, sem anúncios, sem rastreio. A app só usa a internet para transferir atualizações da própria app.
-• Os dados só saem do telemóvel quando escolher: para o Health Connect, ou num ficheiro CSV, JSON ou GPX que exportar.
+• Sem análise de utilização, sem anúncios, sem rastreio. A app usa a internet para as próprias atualizações e, apenas se ativar a Análise com IA, para o serviço de IA escolhido.
+• Os dados só saem do telemóvel quando escolher: para o Health Connect, num ficheiro CSV, JSON ou GPX que exportar, numa transferência para um telemóvel novo que iniciar ou, com a Análise com IA ativa, para o serviço de IA escolhido.
 
 O QUE VÊ
 • O sono numa linha temporal com leve, profundo, REM e acordado.
 • Frequência cardíaca ao longo do dia, FC em repouso, VFC, oxigénio no sangue (SpO2) e stress.
 • Passos, distância e energia ativa.
 • Uma pontuação de prontidão que mostra as entradas: quanto cada uma somou ou tirou, face à sua própria base.
-• Widgets no ecrã principal para a prontidão, o dia, a bateria do anel e iniciar um treino.
+• Widgets no ecrã principal: prontidão, Hoje configurável (até 6 campos), bateria do anel, Iniciar treino (com suporte no ecrã de bloqueio para Anel e Iniciar treino) e Esta semana quando Esforço ou Metas estão ativos.
+
+MÓDULOS OPCIONAIS (DESLIGADOS POR OMISSÃO EM DEFINIÇÕES > MÓDULOS)
+• Corpo e Open Score: pesagens manuais com tendência de 28 dias (com modo opcional para ocultar números), Pontuação do dia, Nível, Geral e etiquetas do dia.
+• Energia, Esforço e Metas: intervalo de energia diária, pontos de esforço e dias de força na semana, e planos semanais flexíveis com revisão guiada.
+• Alimentação, Trajetória e Análise com IA: diário local de refeições com fotografias, projeções de 4 e 12 semanas e IA opcional com a sua própria chave, enviando resumos ou fotos apenas quando escolher.
 
 TREINOS COM GPS
 O telemóvel marca o tempo, o anel envia a FC em direto e, ao ar livre, o GPS do telemóvel grava o percurso, a distância, o ritmo e os parciais. A localização só é usada enquanto o treino decorre. Exporte qualquer percurso em GPX.
 
 HEALTH CONNECT
-Passos, energia ativa, FC, SpO2, VFC, fases do sono e treinos com o percurso podem ser gravados no Health Connect, para que outras apps que escolher os possam usar. Ler o sono gravado por outras apps é opcional e está desligado por omissão.
+Passos, energia ativa, FC, SpO2, VFC, fases do sono e treinos com o percurso podem ser gravados no Health Connect, para que outras apps que escolher os possam usar. Ler o sono e os treinos gravados por outras apps é opcional e está desligado por omissão.
 
 SINCRONIZA, NÃO TRANSMITE
 O anel guarda o próprio histórico. O telemóvel liga-se de tempos a tempos (a cada 60 minutos por omissão), obtém o que é novo e desliga-se, o que poupa as duas baterias.

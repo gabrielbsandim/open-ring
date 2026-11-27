@@ -11,6 +11,7 @@ import 'package:open_ring/features/workout/application/workout_controller.dart';
 import 'package:open_ring/features/workout/application/workout_source_selection.dart';
 import 'package:open_ring/features/workout/domain/workout_analysis.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
+import 'package:open_ring/features/workout/domain/workout_rating_store.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 
 const recentWorkoutLimit = 5;
@@ -21,6 +22,10 @@ final workoutHistoryReaderProvider = Provider<WorkoutHistoryReader>(
 
 final importedWorkoutReaderProvider = Provider<ImportedWorkoutReader>(
   (ref) => const NoImportedWorkoutReader(),
+);
+
+final workoutRatingStoreProvider = Provider<WorkoutRatingStore>(
+  (ref) => throw UnimplementedError('Override workoutRatingStoreProvider.'),
 );
 
 final recentWorkoutsProvider = FutureProvider<List<WorkoutEntry>>((ref) async {
@@ -66,6 +71,41 @@ Future<bool> deleteWorkout(WidgetRef ref, int id) async {
   ref.read(workoutProvider.notifier).forgetSaved(id);
   ref.read(dataRevisionProvider.notifier).bump();
   return deleted;
+}
+
+Future<bool> rateRecordedWorkout(WidgetRef ref, int id, int? rating) async {
+  final revision = ref.read(dataRevisionProvider.notifier);
+  final rated = await ref
+      .read(workoutRatingStoreProvider)
+      .rateRecorded(id, rating);
+  if (rated) revision.bump();
+  return rated;
+}
+
+Future<bool> rateImportedWorkout(
+  WidgetRef ref,
+  String recordId,
+  int? rating,
+) async {
+  final revision = ref.read(dataRevisionProvider.notifier);
+  final rated = await ref
+      .read(workoutRatingStoreProvider)
+      .rateImported(recordId, rating);
+  if (rated) revision.bump();
+  return rated;
+}
+
+/// How many workouts carry an effort rating, for the Effort module screen.
+final effortRatingCountProvider = FutureProvider<int>((ref) {
+  ref.watch(dataRevisionProvider);
+  return ref.watch(workoutRatingStoreProvider).countRatings();
+});
+
+Future<bool> clearWorkoutRatings(WidgetRef ref) async {
+  final revision = ref.read(dataRevisionProvider.notifier);
+  await ref.read(workoutRatingStoreProvider).clearRatings();
+  revision.bump();
+  return true;
 }
 
 Future<void> shareWorkoutGpx(WidgetRef ref, FinishedWorkout workout) async {

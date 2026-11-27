@@ -28,6 +28,17 @@ void main() {
     'imported_sleep_stages',
     'health_reads',
     'imported_workouts',
+    'weigh_ins',
+    'day_tags',
+    'step_goal_changes',
+    'goals',
+    'goal_weeks',
+    'goal_screenings',
+    'meals',
+    'ai_reports',
+    'meal_analyses',
+    'meal_items',
+    'trajectory_projections',
   };
 
   test('creates every table listed in the plan', () async {
@@ -42,6 +53,43 @@ void main() {
 
     expect(rows.map((r) => r.read<String>('name')).toSet(), planTables);
   });
+
+  test(
+    'meals has one column per tag and only the optional ones nullable',
+    () async {
+      final db = memoryDatabase();
+
+      final columns = await db.customSelect('PRAGMA table_info(meals)').get();
+
+      expect(columns.map((c) => c.read<String>('name')).toSet(), {
+        'id',
+        'at_utc_ms',
+        'offset_minutes',
+        'kind',
+        'protein',
+        'caffeine',
+        'heavy',
+        'fried',
+        'sugar',
+        'veg',
+        'alcohol',
+        'processed',
+        'place',
+        'last_meal',
+        'photo',
+        'created_at_utc_ms',
+        'keep_on_phone',
+      });
+      expect(
+        {
+          for (final c in columns)
+            if (c.read<int>('notnull') == 0 && c.read<int>('pk') == 0)
+              c.read<String>('name'),
+        },
+        {'kind', 'veg', 'alcohol', 'processed', 'place', 'photo'},
+      );
+    },
+  );
 
   test('enforces foreign keys', () async {
     final db = memoryDatabase();

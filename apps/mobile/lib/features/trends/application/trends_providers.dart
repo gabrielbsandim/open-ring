@@ -10,7 +10,7 @@ import 'package:open_ring/features/sleep/application/sleep_source_selection.dart
 import 'package:open_ring/features/trends/domain/trend_history.dart';
 import 'package:open_ring/features/trends/domain/trend_metric.dart';
 
-typedef _NightSamples = ({
+typedef NightSamples = ({
   List<BpmSample> heartRate,
   List<HrvReading> hrv,
   List<Spo2Reading> spo2,
@@ -31,7 +31,9 @@ final trendHistoryProvider = FutureProvider<TrendHistory>((ref) async {
     readSleepNights(
       ring: sleepReader,
       imported: importedReader,
-      from: now.subtract(Duration(days: trendHistoryDays + 2)),
+      from: now.subtract(
+        Duration(days: trendHistoryDays + baselineWindowDays + 2),
+      ),
       to: now,
     ),
     activityReader.dailyActivity(
@@ -40,7 +42,7 @@ final trendHistoryProvider = FutureProvider<TrendHistory>((ref) async {
     ),
   ).wait;
   final nights = byDate.values.toList();
-  final samples = await _nightSamples(heartReader, nights);
+  final samples = await readNightSamples(heartReader, nights);
   return TrendHistory.collect(
     today: today,
     nights: nights,
@@ -53,7 +55,7 @@ final trendHistoryProvider = FutureProvider<TrendHistory>((ref) async {
   );
 });
 
-Future<_NightSamples> _nightSamples(
+Future<NightSamples> readNightSamples(
   HeartHistoryReader reader,
   List<SleepNight> nights,
 ) async {

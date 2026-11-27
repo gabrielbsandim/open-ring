@@ -3,21 +3,26 @@ OpenRing is a free, open-source companion app for the COLMI R09 smart ring. It k
 NO ACCOUNT, NO CLOUD
 • No sign-up, no login, no email. Pair the ring and start.
 • Your data lives in a local database on your phone, not on a server.
-• No analytics, no ads, no tracking. The app only uses the internet to download its own updates.
-• Data leaves the phone only when you choose: to Health Connect, or in a CSV, JSON or GPX file you export.
+• No analytics, no ads, no tracking. The app uses the internet for its own updates and, only if you turn on AI analysis, for the AI service you choose.
+• Data leaves the phone only when you choose: to Health Connect, in a CSV, JSON or GPX file you export, in a transfer to a new phone you start, or, with AI analysis on, to the AI service you choose.
 
 WHAT YOU SEE
 • Sleep as a timeline of light, deep, REM and awake.
 • Heart rate through the day, resting heart rate, HRV, blood oxygen (SpO2) and stress.
 • Steps, distance and active energy.
 • A readiness score that shows its inputs: what each one added or took away, against your own baseline.
-• Home screen widgets for readiness, today, the ring battery and starting a workout.
+• Home screen widgets: readiness, configurable Today (up to 6 fields), ring battery, Start workout (with lock screen support on Ring and Start workout), plus This week when Effort or Goals is enabled.
+
+OPTIONAL MODULES (OFF BY DEFAULT IN SETTINGS > MODULES)
+• Body & Open Score: manual weigh-ins with a 28-day trend (plus an optional hide-numbers mode), Day Score, Level, Overall and day tags.
+• Energy, Effort & Goals: daily energy range, weekly effort points and strength days, and flexible weekly lever plans with review feedback.
+• Food, Trajectory & AI Analysis: local meal photo diary, 4- and 12-week projections, and optional bring-your-own-key AI analysis that sends summaries or photos only when you choose.
 
 WORKOUTS WITH GPS
 The phone keeps the clock, the ring sends live heart rate, and for outdoor workouts the phone's GPS records route, distance, pace and splits. Location is used only while a workout runs. Export any route as GPX.
 
 HEALTH CONNECT
-Steps, active energy, heart rate, SpO2, HRV, sleep stages and workouts with their route can be written to Health Connect, so other apps you choose can use them. Reading sleep that other apps wrote is optional and off by default.
+Steps, active energy, heart rate, SpO2, HRV, sleep stages and workouts with their route can be written to Health Connect, so other apps you choose can use them. Reading sleep and workouts written by other apps is optional and off by default.
 
 SYNC, NOT STREAM
 The ring stores its own history. The phone connects on a schedule (every 60 minutes by default), pulls what is new and disconnects, which saves both batteries.

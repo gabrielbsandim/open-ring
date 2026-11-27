@@ -2,12 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:open_ring/app/router/app_routes.dart';
 import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/features/ring/application/ring_alert_providers.dart';
 import 'package:open_ring/features/ring/application/sync_alerts.dart';
 import 'package:open_ring/features/ring/domain/ring_alerts.dart';
 import 'package:open_ring/features/settings/application/notification_providers.dart';
 import 'package:open_ring/features/settings/presentation/settings_widgets.dart';
+import 'package:open_ring/features/workout/application/workout_alert_providers.dart';
+import 'package:open_ring/features/workout/application/workout_lock_providers.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
 class NotificationsSection extends ConsumerStatefulWidget {
@@ -15,6 +19,9 @@ class NotificationsSection extends ConsumerStatefulWidget {
 
   static const statusKey = Key('settings_notifications_status');
   static const openSettingsKey = Key('settings_notifications_open');
+  static const lockHeartRateKey = Key('settings_lock_heart_rate');
+  static const ringLostAlertKey = Key('settings_ring_lost_alert');
+  static const howKey = Key('settings_workout_notification_how');
 
   static Key alertKey(RingAlert alert) => Key('settings_alert_${alert.name}');
 
@@ -46,6 +53,8 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
     final colors = AppColors.of(context);
     final enabled = ref.watch(notificationsEnabledProvider).value;
     final alerts = ref.watch(ringAlertSettingsProvider).value;
+    final lockHeartRate = ref.watch(workoutLockHeartRateProvider).value;
+    final ringLostAlert = ref.watch(workoutRingLostAlertProvider).value;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -92,9 +101,50 @@ class _NotificationsSectionState extends ConsumerState<NotificationsSection> {
               ),
           ],
         ),
+        SectionHeader(l10n.settingsLiveWorkout),
+        TileGroup(
+          children: [
+            SettingsTile(
+              title: l10n.settingsLockHeartRate,
+              trailing: Switch(
+                key: NotificationsSection.lockHeartRateKey,
+                value: enabled != false && (lockHeartRate ?? true),
+                onChanged: enabled == false || lockHeartRate == null
+                    ? null
+                    : _setLockHeartRate,
+              ),
+            ),
+            SettingsTile(
+              title: l10n.settingsRingLostAlert,
+              detail: l10n.settingsRingLostAlertDetail,
+              trailing: Switch(
+                key: NotificationsSection.ringLostAlertKey,
+                value: enabled != false && (ringLostAlert ?? true),
+                onChanged: enabled == false || ringLostAlert == null
+                    ? null
+                    : _setRingLostAlert,
+              ),
+            ),
+            SettingsTile(
+              key: NotificationsSection.howKey,
+              title: l10n.workoutHowTile,
+              detail: l10n.workoutHowTileDetail,
+              chevron: true,
+              onTap: () => context.go(AppPaths.settingsWorkoutNotification),
+            ),
+          ],
+        ),
       ],
     );
   }
+
+  void _setLockHeartRate(bool show) => unawaited(
+    ref.read(workoutLockHeartRateProvider.notifier).set(show: show),
+  );
+
+  void _setRingLostAlert(bool alert) => unawaited(
+    ref.read(workoutRingLostAlertProvider.notifier).set(alert: alert),
+  );
 
   void _openSettings() =>
       unawaited(ref.read(notificationAccessProvider).openSettings());

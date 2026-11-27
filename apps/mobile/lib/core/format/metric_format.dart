@@ -29,17 +29,26 @@ final class MetricFormat {
   String dayAndClock(DateTime instant, Duration utcOffset) =>
       DateFormat.MMMd(locale).add_Hm().format(_wall(instant, utcOffset));
 
-  String clockOrDay(DateTime instant, DateTime now) {
-    final offset = now.timeZoneOffset;
+  String clockOrDay(DateTime instant, DateTime now, {Duration? offset}) {
+    final at = offset ?? now.timeZoneOffset;
     final sameDay =
-        LocalDate.fromInstant(instant, offset) ==
-        LocalDate.fromInstant(now, offset);
-    if (sameDay) return clock(instant, offset);
-    return dayAndClock(instant, offset);
+        LocalDate.fromInstant(instant, at) == LocalDate.fromInstant(now, at);
+    if (sameDay) return clock(instant, at);
+    return dayAndClock(instant, at);
   }
 
   String date(LocalDate value) =>
       DateFormat.MMMEd(locale).format(_midnight(value));
+
+  String monthYear(LocalDate value) =>
+      DateFormat.yMMMM(locale).format(_midnight(value));
+
+  /// The month alone, in the form a language uses on its own.
+  String month(LocalDate value) =>
+      DateFormat.LLLL(locale).format(_midnight(value));
+
+  String monthDay(LocalDate value) =>
+      DateFormat.MMMd(locale).format(_midnight(value));
 
   String weekday(LocalDate value) =>
       DateFormat.E(locale).format(_midnight(value));

@@ -5,8 +5,10 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -24,13 +26,19 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private var channel: MethodChannel? = null
     private var context: Context? = null
     private var syncServiceStarted = false
+    private var workoutShown = false
+    private var workoutServiceStarted = false
+    private var screenOn: BroadcastReceiver? = null
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
         channel = MethodChannel(binding.binaryMessenger, CHANNEL).also { it.setMethodCallHandler(this) }
+        dropOrphanedFailedWorkoutEnded(binding.applicationContext)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        context?.let(::hideWorkout)
+        context?.let { dropOrphanedFailedWorkoutEnded(it, this) }
         channel?.setMethodCallHandler(null)
         channel = null
         context = null
@@ -51,6 +59,49 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 }
                 "stopSyncService" -> {
                     stopSyncService()
+                    result.success(null)
+                }
+                "showWorkout" -> {
+                    showWorkout(app, call)
+                    result.success(null)
+                }
+                "hideWorkout" -> {
+                    hideWorkout(app)
+                    result.success(null)
+                }
+                "alertWorkout" -> {
+                    showWorkoutAlert(
+                        app,
+                        requireNotNull(call.argument<String>("channelName")),
+                        call.argument<String>("title"),
+                        call.argument<String>("text"),
+                        call.argument<String>("reconnectLabel") ?: "Reconnect",
+                    )
+                    result.success(null)
+                }
+                "clearWorkoutAlert" -> {
+                    cancelWorkoutAlert(app)
+                    result.success(null)
+                }
+                "showWorkoutEnded" -> {
+                    showWorkoutEnded(
+                        app,
+                        this,
+                        WorkoutEnded(
+                            channelName = requireNotNull(call.argument<String>("channelName")),
+                            title = call.argument<String>("title"),
+                            text = call.argument<String>("text"),
+                            actionLabel = requireNotNull(call.argument<String>("actionLabel")),
+                            link = call.argument<String>("link"),
+                            timeoutMs = requireNotNull(call.argument<Number>("timeoutMs")).toLong(),
+                            publicText = call.argument<String>("publicText"),
+                            failed = call.argument<Boolean>("failed") ?: false,
+                        ),
+                    )
+                    result.success(null)
+                }
+                "clearWorkoutEnded" -> {
+                    cancelWorkoutEnded(app)
                     result.success(null)
                 }
                 else -> result.notImplemented()
@@ -98,6 +149,80 @@ class RingNotificationsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         if (!syncServiceStarted) return
         syncServiceStarted = false
         RingSyncForegroundService.stop()
+    }
+
+    private fun showWorkout(app: Context, call: MethodCall) {
+        val notice = WorkoutNotice(
+            channelName = requireNotNull(call.argument<String>("channelName")),
+            title = call.argument<String>("title"),
+            text = call.argument<String>("text"),
+            elapsedMs = requireNotNull(call.argument<Number>("elapsedMs")).toLong(),
+            running = requireNotNull(call.argument<Boolean>("running")),
+            pauseLabel = requireNotNull(call.argument<String>("pauseLabel")),
+            resumeLabel = requireNotNull(call.argument<String>("resumeLabel")),
+            stopLabel = requireNotNull(call.argument<String>("stopLabel")),
+            link = call.argument<String>("link"),
+            confirming = call.argument<Boolean>("confirming") ?: false,
+            ringLost = call.argument<Boolean>("ringLost") ?: false,
+            saveLabel = call.argument<String>("saveLabel") ?: "Save",
+            keepLabel = call.argument<String>("keepLabel") ?: "Continue",
+            reconnectLabel = call.argument<String>("reconnectLabel") ?: "Reconnect",
+            publicTitle = call.argument<String>("publicTitle"),
+            publicText = call.argument<String>("publicText"),
+        )
+        // Only the engine that shows the workout hears its buttons, never the worker's.
+        WorkoutForegroundService.listener = { action -> channel?.invokeMethod("workoutAction", action) }
+        WorkoutForegroundService.pending = notice
+        if (workoutShown) return showWorkoutNotification(app, notice)
+        workoutShown = true
+        listenScreenOn(app)
+        startWorkoutService(app, notice)
+    }
+
+    private fun listenScreenOn(app: Context) {
+        if (screenOn != null) return
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) = refreshWorkoutNotice(app)
+        }
+        val filter = IntentFilter(Intent.ACTION_SCREEN_ON).apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_USER_PRESENT)
+        }
+        app.registerReceiver(receiver, filter)
+        screenOn = receiver
+    }
+
+    private fun stopListeningScreenOn(app: Context) {
+        val receiver = screenOn ?: return
+        screenOn = null
+        app.unregisterReceiver(receiver)
+    }
+
+    // From Android 14 a connectedDevice service needs the Bluetooth grant, so
+    // there a workout with no ring gets the same notification without it.
+    private fun startWorkoutService(app: Context, notice: WorkoutNotice) {
+        if (!mayRunWorkoutService(app)) return showWorkoutNotification(app, notice)
+        WorkoutForegroundService.cancelStop()
+        app.startForegroundService(Intent(app, WorkoutForegroundService::class.java))
+        workoutServiceStarted = true
+    }
+
+    // An engine that never showed the workout, such as the sync worker's, must
+    // leave the main engine's alert alone when it detaches.
+    private fun hideWorkout(app: Context) {
+        if (!workoutShown) return
+        workoutShown = false
+        cancelWorkoutAlert(app)
+        stopListeningScreenOn(app)
+        WorkoutForegroundService.listener = null
+        if (workoutServiceStarted) WorkoutForegroundService.stop()
+        workoutServiceStarted = false
+        cancelWorkoutNotification(app)
+    }
+
+    private fun mayRunWorkoutService(app: Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return true
+        return canConnectToRing(app)
     }
 
     private fun canConnectToRing(app: Context): Boolean {

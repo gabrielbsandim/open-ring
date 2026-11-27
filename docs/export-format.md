@@ -22,9 +22,13 @@ screen), **JSON** (one document), and **GPX 1.1** for a single workout route.
 - **Daylight saving time**: every row carries its own offset, so the repeated
   hour of a fall back is unambiguous (`02:30:00+02:00`, then `02:30:00+01:00`)
   and a night that crosses a spring forward keeps the offset of each stage.
-  Sort by instant, not by the text of the wall clock time.
+  Sort by instant, not by the text of the wall clock time. Sleep from other
+  apps is the exception: every stage of a night is written with the offset of
+  its session, so after a clock change inside the night the instant is right
+  and the wall clock time is the one of the old offset.
 - **Order**: rows are sorted by time, then by device id (workouts: by start,
-  then by internal id).
+  then by internal id; workouts and sleep from other apps: by start, then by
+  record id).
 - **Numbers**: integers as integers. Decimals are rounded to 2 places with
   trailing zeros removed (`31.5`, `402`, `6012.35`).
 - **Missing values**: an empty CSV field, `null` in JSON.
@@ -45,14 +49,42 @@ record uses exactly the same keys in the same order.
 | SpO2 | `spo2` | `time`, `device_id`, `spo2_percent` |
 | Stress | `stress` | `time`, `device_id`, `stress_level` |
 | Steps and activity | `activity` | `start`, `end`, `device_id`, `steps`, `distance_m`, `active_kcal` |
-| Workouts | `workouts` | `start`, `end`, `client_id`, `device_id`, `activity_type`, `duration_s`, `distance_m`, `active_kcal` |
+| Workouts | `workouts` | `start`, `end`, `client_id`, `device_id`, `activity_type`, `duration_s`, `distance_m`, `active_kcal`, `effort_rating` |
+| Weigh-ins | `weigh_ins` | `time`, `weight_kg`, `body_fat_percent`, `waist_cm`, `source` |
+| Day tags | `day_tags` | `date`, `tag` |
+| Workouts from other apps | `imported_workouts` | `start`, `end`, `record_id`, `source`, `activity_type`, `duration_s`, `effort_rating` |
+| Sleep from other apps | `imported_sleep` | `session_start`, `start`, `end`, `record_id`, `source`, `stage`, `duration_s` |
+
+Weigh-ins are offered only while the Body module is on. With the module off the
+kind is not listed and is never written, even when weigh-ins are stored. Hide
+numbers changes the screens only: an export always carries the values.
+
+Day tags are offered only while the Open Score module is on. `date` is a local
+calendar date, `YYYY-MM-DD`, with no time and no offset; `tag` is `sick`,
+`travel` or `rest`. A tag is exported when its date lies between the local
+dates the two ends of the range fall on, both included.
+
+Workouts from other apps are the workouts read from Health Connect. The kind is
+always offered and carries every stored row whose start is in the range: also
+with the reading switched off, and also a workout the app hides because it
+overlaps one you recorded. The app reads no distance, energy or device id for
+these workouts, so the kind has none. The time the row was imported is stored
+and is not exported.
+
+Sleep from other apps is the nights read from Health Connect, one row per
+stage, like the sleep kind. It is always offered and carries every stage of a
+night whose start is in the range: also with the reading switched off, and also
+a night the app does not show because another source comes first. A stage has
+no offset of its own, so every timestamp of a night carries the offset of its
+session. The end of the session and the time the row was imported are stored
+and are not exported, and a night stored with no stages has no row.
 
 ### Units and meaning
 
 | Column | Unit | Notes |
 | :--- | :--- | :--- |
-| `session_start` | timestamp | Start of the night the stage belongs to, with the session's own offset. Rows with the same value are one night. |
-| `start`, `end` | timestamp | `end` is exclusive. For activity it is `start` plus the bucket length. A workout still running has an empty `end`. |
+| `session_start` | timestamp | Start of the night the stage belongs to, with the session's own offset. Rows with the same value are one night. For sleep from other apps, rows with the same `record_id` are one night. |
+| `start`, `end` | timestamp | `end` is exclusive. For activity it is `start` plus the bucket length. Every exported workout has an `end`: one still running, or left open when the app was closed, is not exported until it is saved. |
 | `stage` | text | One of `light`, `deep`, `rem`, `awake`. |
 | `duration_s` | seconds | `end - start`, whole seconds. Empty when `end` is empty. |
 | `bpm` | beats per minute | As logged by the ring. |
@@ -62,12 +94,23 @@ record uses exactly the same keys in the same order.
 | `steps` | steps | Steps in the bucket. |
 | `distance_m` | meters | Integer for activity buckets, decimal for workouts. |
 | `active_kcal` | kilocalories | Active energy only, not total energy. |
+| `effort_rating` | 1 to 10 | The effort you gave the workout, 10 the hardest. Empty when it has none. |
 | `client_id` | text | The workout's stable id, the same one used for Health Connect and HealthKit. |
-| `activity_type` | text | The workout type as recorded by the app. |
+| `activity_type` | text | The workout type as recorded by the app. For a workout from another app, the type the app gave it when it was read. |
+| `record_id` | text | The id Health Connect gives the record: the workout, or the night a stage belongs to. |
+| `weight_kg` | kilograms | The weigh-in as logged, never the trend weight. Always kilograms, whatever unit the app shows. |
+| `body_fat_percent` | percent | Empty when the weigh-in has none. |
+| `waist_cm` | centimeters | Empty when the weigh-in has none. |
+| `source` | text | `manual` for a weigh-in typed in the app, `demo` for demo data. Weigh-ins have no device id. For a workout or a night from another app, the package name of the app that wrote it, as stored. |
 
 Values are exported as stored: implausible readings that the screens hide (a
 zero heart rate, an SpO2 under the plausible floor) are kept, so an export is
 a faithful copy of the database, not of the charts.
+
+`effort_rating` is the same: it is always in the workouts kind, with the
+Effort module on or off, and a stored value outside 1 to 10 is exported as it
+is. The rating given to a workout read from another app is in the
+`imported_workouts` kind, under the same rule.
 
 ## CSV
 
@@ -189,3 +232,24 @@ Exports are written into a fresh folder under the app's temporary directory
 (`openring-export-*`), streamed page by page from drift, and the returned paths
 are handed to the system share sheet. The OS may clear that directory at any
 time after sharing; OpenRing does not keep a copy.
+
+## Never exported
+
+The AI analysis and Trajectory modules keep their data out of every CSV, JSON
+and GPX file, and adding them changed no format, so the JSON `schema_version`
+stays 1:
+
+- the AI service key, which lives in the phone's secure storage, outside the
+  database;
+- the AI settings and consents (service address, model, detail level, prices,
+  limits and the consent dates);
+- AI readings (`ai_reports`), with the summaries that were sent and the raw
+  answers;
+- meal photo analyses (`meal_analyses`) and their items (`meal_items`);
+- Trajectory projections (`trajectory_projections`), the 4 week weight bands
+  stored each Monday. Delete Trajectory data, on its module screen, removes
+  them and nothing else.
+
+Tests pin it: `test/features/ai/infrastructure/ai_export_exclusion_test.dart`,
+`test/features/food/infrastructure/meal_analysis_export_exclusion_test.dart`
+and `test/features/trajectory/trajectory_projection_export_exclusion_test.dart`.

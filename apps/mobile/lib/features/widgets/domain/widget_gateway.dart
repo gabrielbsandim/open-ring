@@ -7,12 +7,15 @@ enum HomeWidgetKind {
   readiness('ReadinessWidgetReceiver', AppPaths.readiness),
   today('TodayWidgetReceiver', '/today'),
   ring('RingWidgetReceiver', '/ring'),
-  workout('WorkoutWidgetReceiver', AppPaths.workout);
+  workout('WorkoutWidgetReceiver', AppPaths.workout),
+  thisWeek('ThisWeekWidgetReceiver', '/today');
 
   new(this.receiver, this.path);
 
   final String receiver;
   final String path;
+
+  String get xmlName => this == thisWeek ? 'this_week' : name;
 
   String get androidName => 'gbs.openring.app.widget.$receiver';
 
@@ -39,6 +42,8 @@ abstract interface class WidgetGateway {
   Future<bool> canPin();
 
   Future<void> pin(HomeWidgetKind kind);
+
+  Future<void> setThisWeekAvailable({required bool available});
 }
 
 final class UnsupportedWidgetGateway implements WidgetGateway {
@@ -52,4 +57,7 @@ final class UnsupportedWidgetGateway implements WidgetGateway {
 
   @override
   Future<void> pin(HomeWidgetKind kind) async {}
+
+  @override
+  Future<void> setThisWeekAvailable({required bool available}) async {}
 }

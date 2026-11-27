@@ -37,6 +37,10 @@ abstract base class HomeWidgetPluginGateway implements WidgetGateway {
 final class AndroidHomeWidgetGateway extends HomeWidgetPluginGateway {
   const new();
 
+  static const _components = MethodChannel(
+    'gbs.openring.app/widget_components',
+  );
+
   @override
   Future<void> refresh(HomeWidgetKind kind) =>
       HomeWidget.updateWidget(qualifiedAndroidName: kind.androidName);
@@ -53,6 +57,17 @@ final class AndroidHomeWidgetGateway extends HomeWidgetPluginGateway {
   @override
   Future<void> pin(HomeWidgetKind kind) =>
       HomeWidget.requestPinWidget(qualifiedAndroidName: kind.androidName);
+
+  @override
+  Future<void> setThisWeekAvailable({required bool available}) async {
+    try {
+      await _components.invokeMethod<void>('setThisWeekAvailable', available);
+    } on PlatformException {
+      return;
+    } on MissingPluginException {
+      return;
+    }
+  }
 }
 
 final class IosHomeWidgetGateway extends HomeWidgetPluginGateway {
@@ -77,4 +92,7 @@ final class IosHomeWidgetGateway extends HomeWidgetPluginGateway {
 
   @override
   Future<void> pin(HomeWidgetKind kind) async {}
+
+  @override
+  Future<void> setThisWeekAvailable({required bool available}) async {}
 }

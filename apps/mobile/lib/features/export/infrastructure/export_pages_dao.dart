@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/core/records/epoch.dart';
 import 'package:open_ring/features/export/domain/export_kind.dart';
@@ -6,7 +7,7 @@ import 'package:open_ring/features/export/domain/export_records.dart';
 import 'package:open_ring/features/export/domain/offset_time.dart';
 
 typedef _TimeCursor = ({int at, String deviceId});
-typedef _WorkoutCursor = ({int at, int id});
+typedef _IdCursor = ({int at, int id});
 
 typedef _SampleTable = ({
   TableInfo<Table, Object?> table,
@@ -65,6 +66,10 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
       ), range),
       ExportKind.activity => _activity(range),
       ExportKind.workouts => _workouts(range),
+      ExportKind.weighIns => _weighIns(range),
+      ExportKind.dayTags => _dayTags(range),
+      ExportKind.importedWorkouts => _importedWorkouts(range),
+      ExportKind.importedSleep => _importedSleep(range),
     };
   }
 
@@ -182,17 +187,15 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
 
   Stream<List<ExportRecord>> _workouts(({int from, int to}) range) {
     final table = attachedDatabase.workouts;
-    return _paged<_WorkoutCursor, WorkoutRow>(
+    return _paged<_IdCursor, WorkoutRow>(
       (cursor) =>
           (select(table)
-                ..where((w) {
-                  final inRange = _inRange(w.startUtcMs, range);
-                  if (cursor == null) return inRange;
-                  return inRange &
-                      (w.startUtcMs.isBiggerThanValue(cursor.at) |
-                          (w.startUtcMs.equals(cursor.at) &
-                              w.id.isBiggerThanValue(cursor.id)));
-                })
+                ..where(
+                  (w) =>
+                      w.endUtcMs.isNotNull() &
+                      _inRange(w.startUtcMs, range) &
+                      _afterId(w.startUtcMs, w.id, cursor),
+                )
                 ..orderBy([
                   (w) => OrderingTerm.asc(w.startUtcMs),
                   (w) => OrderingTerm.asc(w.id),
@@ -214,8 +217,140 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
         activityType: row.activityType,
         distanceMeters: row.distanceMeters,
         activeKilocalories: row.activeKilocalories,
+        effortRating: row.effortRating,
       ),
     );
+  }
+
+  Stream<List<ExportRecord>> _weighIns(({int from, int to}) range) {
+    final table = attachedDatabase.weighIns;
+    return _paged<_IdCursor, WeighInRow>(
+      (cursor) =>
+          (select(table)
+                ..where(
+                  (w) =>
+                      _inRange(w.atUtcMs, range) &
+                      _afterId(w.atUtcMs, w.id, cursor),
+                )
+                ..orderBy([
+                  (w) => OrderingTerm.asc(w.atUtcMs),
+                  (w) => OrderingTerm.asc(w.id),
+                ])
+                ..limit(pageSize))
+              .get(),
+      (row) => (at: row.atUtcMs, id: row.id),
+      (row) => WeighInRecord(
+        at: OffsetTime(utcMs: row.atUtcMs, offsetMinutes: row.offsetMinutes),
+        kilograms: row.kilograms,
+        bodyFatPercent: row.bodyFatPercent,
+        waistCentimeters: row.waistCentimeters,
+        source: row.source,
+      ),
+    );
+  }
+
+  // A tag is keyed by a local date, so the range ends are read as the local
+  // dates they fall on, both included.
+  Stream<List<ExportRecord>> _dayTags(({int from, int to}) range) {
+    final table = attachedDatabase.dayTags;
+    final first = _localDate(range.from);
+    final last = _localDate(range.to);
+    return _paged<({String date}), DayTagRow>(
+      (cursor) =>
+          (select(table)
+                ..where(
+                  (t) =>
+                      t.date.isBetweenValues(first, last) &
+                      t.date.isBiggerThanValue(cursor?.date ?? ''),
+                )
+                ..orderBy([(t) => OrderingTerm.asc(t.date)])
+                ..limit(pageSize))
+              .get(),
+      (row) => (date: row.date),
+      (row) => DayTagRecord(date: row.date, tag: row.tag),
+    );
+  }
+
+  // Every stored row goes out, also one the app hides: the export is a copy
+  // of the database, not of the screens.
+  Stream<List<ExportRecord>> _importedWorkouts(({int from, int to}) range) {
+    final table = attachedDatabase.importedWorkouts;
+    return _paged<_TimeCursor, ImportedWorkoutRow>(
+      (cursor) =>
+          (select(table)
+                ..where((w) => _window(w.startUtcMs, w.recordId, range, cursor))
+                ..orderBy([
+                  (w) => OrderingTerm.asc(w.startUtcMs),
+                  (w) => OrderingTerm.asc(w.recordId),
+                ])
+                ..limit(pageSize))
+              .get(),
+      (row) => (at: row.startUtcMs, deviceId: row.recordId),
+      (row) => ImportedWorkoutRecord(
+        start: OffsetTime(
+          utcMs: row.startUtcMs,
+          offsetMinutes: row.offsetMinutes,
+        ),
+        end: OffsetTime(utcMs: row.endUtcMs, offsetMinutes: row.offsetMinutes),
+        recordId: row.recordId,
+        source: row.source,
+        activityType: row.activityType,
+        effortRating: row.effortRating,
+      ),
+    );
+  }
+
+  // A stage has no offset of its own, so the whole night carries the offset
+  // of its session, and the range is read on the session start.
+  Stream<List<ExportRecord>> _importedSleep(({int from, int to}) range) {
+    final stages = attachedDatabase.importedSleepStages;
+    final sessions = attachedDatabase.importedSleepSessions;
+    return _paged<_TimeCursor, TypedResult>(
+      (cursor) {
+        final query =
+            select(stages).join([
+                innerJoin(
+                  sessions,
+                  sessions.recordId.equalsExp(stages.recordId),
+                ),
+              ])
+              ..where(
+                _inRange(sessions.startUtcMs, range) &
+                    _after(stages.startUtcMs, stages.recordId, cursor),
+              )
+              ..orderBy([
+                OrderingTerm.asc(stages.startUtcMs),
+                OrderingTerm.asc(stages.recordId),
+              ])
+              ..limit(pageSize);
+        return query.get();
+      },
+      (row) {
+        final stage = row.readTable(stages);
+        return (at: stage.startUtcMs, deviceId: stage.recordId);
+      },
+      (row) {
+        final stage = row.readTable(stages);
+        final session = row.readTable(sessions);
+        final offset = session.offsetMinutes;
+        return ImportedSleepStageRecord(
+          sessionStart: OffsetTime(
+            utcMs: session.startUtcMs,
+            offsetMinutes: offset,
+          ),
+          start: OffsetTime(utcMs: stage.startUtcMs, offsetMinutes: offset),
+          end: OffsetTime(utcMs: stage.endUtcMs, offsetMinutes: offset),
+          recordId: stage.recordId,
+          source: session.source,
+          stage: stage.stage,
+        );
+      },
+    );
+  }
+
+  static String _localDate(int utcMs) {
+    final at = DateTime.fromMillisecondsSinceEpoch(utcMs);
+    return LocalDate(at.year, at.month, at.day).iso;
   }
 
   Stream<List<ExportRecord>> _paged<C extends Record, R>(
@@ -252,5 +387,15 @@ class ExportPagesDao extends DatabaseAccessor<AppDatabase> {
     if (cursor == null) return const Constant(true);
     return at.isBiggerThanValue(cursor.at) |
         (at.equals(cursor.at) & deviceId.isBiggerThanValue(cursor.deviceId));
+  }
+
+  static Expression<bool> _afterId(
+    Expression<int> at,
+    Expression<int> id,
+    _IdCursor? cursor,
+  ) {
+    if (cursor == null) return const Constant(true);
+    return at.isBiggerThanValue(cursor.at) |
+        (at.equals(cursor.at) & id.isBiggerThanValue(cursor.id));
   }
 }

@@ -1,17 +1,27 @@
 import 'package:open_ring/app/theme/shared_preferences_theme_mode_store.dart';
 import 'package:open_ring/core/database/app_database.dart';
+import 'package:open_ring/features/ai/domain/secret_store.dart';
+import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_config_store.dart';
+import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_run_marker_store.dart';
+import 'package:open_ring/features/body/infrastructure/shared_preferences_hide_numbers_store.dart';
 import 'package:open_ring/features/demo/infrastructure/shared_preferences_demo_mode_store.dart';
+import 'package:open_ring/features/food/domain/photo_store.dart';
+import 'package:open_ring/features/food/infrastructure/shared_preferences_food_energy_store.dart';
 import 'package:open_ring/features/health_sync/infrastructure/shared_preferences_health_write_preferences.dart';
+import 'package:open_ring/features/modules/infrastructure/shared_preferences_module_store.dart';
+import 'package:open_ring/features/open_score/infrastructure/shared_preferences_celebration_store.dart';
+import 'package:open_ring/features/open_score/infrastructure/shared_preferences_week_goal_store.dart';
 import 'package:open_ring/features/ring/infrastructure/shared_preferences_ring_alert_preferences.dart';
 import 'package:open_ring/features/ring/infrastructure/shared_preferences_sync_interval_store.dart';
 import 'package:open_ring/features/settings/application/delete_all_data_controller.dart';
 import 'package:open_ring/features/settings/infrastructure/legacy_preferences.dart';
 import 'package:open_ring/features/settings/infrastructure/shared_preferences_unit_system_store.dart';
+import 'package:open_ring/features/workout/infrastructure/shared_preferences_workout_alert_preferences.dart';
+import 'package:open_ring/features/workout/infrastructure/shared_preferences_workout_lock_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final class DeviceLocalDataEraser implements LocalDataEraser {
-  new(this._db, [SharedPreferencesAsync? preferences])
-    : _preferences = preferences;
+  new(this._db, this._photos, {required this._secrets, this._preferences});
 
   static const Set<String> preferenceKeys = {
     SharedPreferencesUnitSystemStore.key,
@@ -21,10 +31,22 @@ final class DeviceLocalDataEraser implements LocalDataEraser {
     SharedPreferencesRingAlertPreferences.warnedKey,
     SharedPreferencesHealthWritePreferences.key,
     SharedPreferencesDemoModeStore.key,
+    SharedPreferencesModuleStore.key,
+    SharedPreferencesModuleStore.shortcutKey,
+    SharedPreferencesHideNumbersStore.key,
+    SharedPreferencesWeekGoalStore.key,
+    SharedPreferencesCelebrationStore.key,
+    SharedPreferencesWorkoutLockPreferences.key,
+    SharedPreferencesWorkoutAlertPreferences.key,
+    SharedPreferencesFoodEnergyStore.key,
+    ...SharedPreferencesAiConfigStore.keys,
+    ...SharedPreferencesAiRunMarkerStore.keys,
     ...legacyPreferenceKeys,
   };
 
   final AppDatabase _db;
+  final PhotoStore _photos;
+  final SecretStore _secrets;
   SharedPreferencesAsync? _preferences;
 
   SharedPreferencesAsync get _store =>
@@ -38,6 +60,12 @@ final class DeviceLocalDataEraser implements LocalDataEraser {
         await _db.delete(table).go();
       }
     });
+    // After the tables, so no row is left naming a deleted photo; a retry
+    // empties the folder whatever the tables hold.
+    await _photos.deleteAll();
     await _store.clear(allowList: preferenceKeys);
+    // Last, so a broken keystore cannot block deleting health data; its
+    // failure still fails the run and a retry deletes the key.
+    await _secrets.delete(aiApiKeySecretName);
   }
 }

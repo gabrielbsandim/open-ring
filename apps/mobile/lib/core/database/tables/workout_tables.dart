@@ -14,6 +14,8 @@ class Workouts extends Table {
   IntColumn get elapsedMs => integer().nullable()();
   IntColumn get averageHeartRate => integer().nullable()();
   IntColumn get maxHeartRate => integer().nullable()();
+  IntColumn get effortRating => integer().nullable()();
+  IntColumn get checkpointUtcMs => integer().nullable()();
 }
 
 @DataClassName('WorkoutHrSampleRow')

@@ -4,12 +4,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/body/application/logged_weight.dart';
+import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
+import 'package:open_ring/features/workout/application/workout_alert_providers.dart';
+import 'package:open_ring/features/workout/application/workout_lock_providers.dart';
+import 'package:open_ring/features/workout/application/workout_notice.dart';
+import 'package:open_ring/features/workout/application/workout_recovery.dart';
 import 'package:open_ring/features/workout/application/workout_state.dart';
 import 'package:open_ring/features/workout/domain/live_heart_rate_source.dart';
 import 'package:open_ring/features/workout/domain/location_fix.dart';
 import 'package:open_ring/features/workout/domain/location_source.dart';
+import 'package:open_ring/features/workout/domain/workout_notifier.dart';
+import 'package:open_ring/features/workout/domain/workout_recovery.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_store.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
@@ -32,6 +40,10 @@ final workoutStoreProvider = Provider<WorkoutStore>(
   (ref) => throw UnimplementedError('Override workoutStoreProvider.'),
 );
 
+final workoutNotifierProvider = Provider<WorkoutNotifier>(
+  (ref) => InMemoryWorkoutNotifier(),
+);
+
 final workoutTicksProvider = Provider<Stream<void> Function()>(
   (ref) =>
       () => Stream<void>.periodic(workoutTick),
@@ -44,13 +56,14 @@ final workoutProvider = NotifierProvider<WorkoutController, WorkoutState>(
 const _minZoneMax = 100;
 const _maxZoneMax = 250;
 
-WorkoutProfile workoutProfileOf(UserProfile? profile, {required int year}) {
-  if (profile == null) return const WorkoutProfile();
-  return WorkoutProfile(
-    zones: _zonesOf(profile, year),
-    weightKilograms: profile.weightKilograms,
-  );
-}
+WorkoutProfile workoutProfileOf(
+  UserProfile? profile, {
+  required int year,
+  double? loggedKilograms,
+}) => WorkoutProfile(
+  zones: profile == null ? null : _zonesOf(profile, year),
+  weightKilograms: loggedKilograms ?? profile?.weightKilograms,
+);
 
 HeartRateZones? _zonesOf(UserProfile profile, int year) {
   final max = profile.maxHeartRate ?? _ageMax(profile.ageIn(year));
@@ -63,11 +76,20 @@ int? _ageMax(int? age) {
   return maxHeartRateForAge(age);
 }
 
+const noticeInterval = Duration(seconds: 2);
+
 class WorkoutController extends Notifier<WorkoutState> {
   WorkoutSession? _session;
   StreamSubscription<void>? _ticks;
   StreamSubscription<int>? _heartRate;
   StreamSubscription<LocationFix>? _location;
+  StreamSubscription<WorkoutNoticeAction>? _actions;
+  WorkoutNotice? _shown;
+  DateTime? _shownAt;
+  bool _confirming = false;
+  bool _alerted = false;
+  bool _wasRunning = false;
+  WorkoutNotifier? _showing;
   Future<void>? _heartRateStopping;
   Future<void>? _locationStopping;
   LocationNotice? _notice;
@@ -75,12 +97,21 @@ class WorkoutController extends Notifier<WorkoutState> {
   bool _starting = false;
   bool _restartingHeartRate = false;
   bool _restartingLocation = false;
+  // Counted in ticks, not wall clock time, so a clock change cannot stall it.
+  int _ticksSinceCheckpoint = 0;
+  Future<void>? _checkpointing;
 
   WorkoutSession? get session => _session;
 
   @override
   WorkoutState build() {
-    ref.onDispose(() => unawaited(_stopStreams()));
+    final live = ref.read(liveWorkoutRegistryProvider);
+    ref.onDispose(() {
+      unawaited(_stopStreams());
+      final showing = _showing;
+      if (showing != null) unawaited(_quietly(_guarded(showing.hide)));
+      _unmark(live, _session);
+    });
     return const WorkoutState();
   }
 
@@ -92,6 +123,12 @@ class WorkoutController extends Notifier<WorkoutState> {
     if (_starting || state.live) return;
     _starting = true;
     final profile = await _profile();
+    await _quietly(
+      _guarded(() => ref.read(workoutLockHeartRateProvider.future)),
+    );
+    await _quietly(
+      _guarded(() => ref.read(workoutRingLostAlertProvider.future)),
+    );
     _starting = false;
     if (!ref.mounted) return;
     final session = WorkoutSession(
@@ -101,8 +138,17 @@ class WorkoutController extends Notifier<WorkoutState> {
       heartRateHold: heartRateLostAfter,
     )..start(_now());
     _session = session;
+    ref.read(liveWorkoutRegistryProvider).markLive(session.startedAt!);
     _notice = notice;
+    _shown = null;
+    _confirming = false;
+    _alerted = false;
+    _ticksSinceCheckpoint = 0;
+    _checkpointing = null;
+    _clearEnded();
     state = WorkoutState(snapshot: session.snapshotAt(_now()));
+    _actions = ref.read(workoutNotifierProvider).actions.listen(_onAction);
+    _showNotice(session);
     _listenHeartRate(session);
     if (session.gps) _listenLocation(session, notice);
     _ticks = ref.read(workoutTicksProvider)().listen((_) => _tick(session));
@@ -116,6 +162,7 @@ class WorkoutController extends Notifier<WorkoutState> {
     state = state.withHeartRateRestarted().next(
       snapshot: session.snapshotAt(_now()),
     );
+    _clearAlert();
     final stopping = [_heartRateStopping, _heartRate?.cancel()];
     _heartRate = null;
     _heartRateStopping = null;
@@ -147,11 +194,13 @@ class WorkoutController extends Notifier<WorkoutState> {
     session.pause(_now());
     _heartRate?.pause();
     _publish(session);
+    _checkpoint(session);
   }
 
   void resume() {
     final session = _session;
     if (session == null || session.status != WorkoutStatus.paused) return;
+    _confirming = false;
     session.resume(_now());
     _lastBeat = _now();
     _heartRate?.resume();
@@ -161,9 +210,12 @@ class WorkoutController extends Notifier<WorkoutState> {
   Future<void> finish() async {
     final session = _session;
     if (session == null || !state.live) return;
+    _confirming = false;
     session.finish(_now());
     _publish(session);
     await _stopStreams();
+    await _hideNotice();
+    await _quietly(_checkpointing);
     await _save(session);
   }
 
@@ -172,6 +224,8 @@ class WorkoutController extends Notifier<WorkoutState> {
     if (session == null || state.save != WorkoutSave.failed) return;
     await _save(session);
   }
+
+  void summaryOpened() => _clearEnded();
 
   void forgetSaved(int workoutId) {
     if (state.live || state.workoutId != workoutId) return;
@@ -182,24 +236,52 @@ class WorkoutController extends Notifier<WorkoutState> {
   Future<void> discard() async {
     final session = _session;
     if (session == null || !state.live) return;
+    final store = ref.read(workoutStoreProvider);
+    final live = ref.read(liveWorkoutRegistryProvider);
+    _confirming = false;
     session.discard(_now());
     _publish(session);
     await _stopStreams();
+    await _hideNotice();
+    await _quietly(_checkpointing);
+    await _quietly(_guarded(() => store.dropCheckpoint(session)));
+    _unmark(live, session);
   }
 
   Future<void> _save(WorkoutSession session) async {
     state = state.next(save: WorkoutSave.saving);
     final workout = session.finished();
+    final live = ref.read(liveWorkoutRegistryProvider);
     try {
       final id = await ref.read(workoutStoreProvider).save(workout, at: _now());
+      _unmark(live, session);
       if (!ref.mounted || !identical(_session, session)) return;
       state = state.next(save: WorkoutSave.saved, workoutId: id);
       ref.read(dataRevisionProvider.notifier).bump();
+      _postEnded(id);
     } on Object {
       if (!ref.mounted || !identical(_session, session)) return;
       state = state.next(save: WorkoutSave.failed);
+      _postEnded(null);
     }
   }
+
+  void _postEnded(int? workoutId) {
+    final labels = _notice?.live;
+    final snapshot = state.snapshot;
+    if (labels == null || snapshot == null) return;
+    final notice = workoutEndNoticeOf(
+      snapshot,
+      labels,
+      ref.read(currentUnitSystemProvider),
+      workoutId: workoutId,
+      hideHeartRate: !(ref.read(workoutLockHeartRateProvider).value ?? true),
+    );
+    final notifier = _notifier;
+    unawaited(_quietly(_guarded(() => notifier.ended(notice))));
+  }
+
+  void _clearEnded() => unawaited(_quietly(_guarded(_notifier.clearEnded)));
 
   void _listenHeartRate(WorkoutSession session) {
     _lastBeat = _now();
@@ -237,12 +319,30 @@ class WorkoutController extends Notifier<WorkoutState> {
     session.addHeartRate(bpm, now);
     if (bpm < minWorkoutHeartRate || bpm > maxWorkoutHeartRate) return;
     _lastBeat = now;
-    if (state.heartRateStalled) state = state.next(heartRateStalled: false);
+    if (!state.heartRateStalled) return;
+    state = state.next(heartRateStalled: false);
+    _clearAlert();
   }
 
   void _tick(WorkoutSession session) {
     _checkHeartRate(session);
     _publish(session);
+    if (session.status != WorkoutStatus.running) return;
+    _ticksSinceCheckpoint++;
+    if (workoutTick * _ticksSinceCheckpoint < workoutCheckpointInterval) return;
+    _checkpoint(session);
+  }
+
+  // A failed write is not retried until the next one is due; finish and
+  // discard wait for every write still in flight.
+  void _checkpoint(WorkoutSession session) {
+    if (!_current(session)) return;
+    final at = _now();
+    _ticksSinceCheckpoint = 0;
+    final store = ref.read(workoutStoreProvider);
+    final previous = _checkpointing;
+    final write = _quietly(_guarded(() => store.checkpoint(session, at: at)));
+    _checkpointing = Future.wait([?previous, write]);
   }
 
   void _checkHeartRate(WorkoutSession session) {
@@ -252,6 +352,30 @@ class WorkoutController extends Notifier<WorkoutState> {
     if (state.heartRateStalled) return;
     if (_now().difference(lastBeat) < heartRateLostAfter) return;
     state = state.next(heartRateStalled: true);
+    _alertRingLost();
+  }
+
+  // One alert per loss; it goes when the heart rate, a reconnect or a ring
+  // problem ends the loss.
+  void _alertRingLost() {
+    final labels = _notice?.live;
+    if (labels == null) return;
+    if (!(ref.read(workoutRingLostAlertProvider).value ?? true)) return;
+    _alerted = true;
+    final alert = WorkoutAlert(
+      title: labels.ringLostAlertTitle,
+      text: labels.ringLostAlertText,
+      channel: labels.alertChannel,
+      reconnect: labels.reconnect,
+    );
+    final notifier = _notifier;
+    unawaited(_quietly(_guarded(() => notifier.alert(alert))));
+  }
+
+  void _clearAlert() {
+    if (!_alerted) return;
+    _alerted = false;
+    unawaited(_quietly(_guarded(_notifier.clearAlert)));
   }
 
   void _onFix(WorkoutSession session, LocationFix fix) {
@@ -265,6 +389,7 @@ class WorkoutController extends Notifier<WorkoutState> {
         ? error.problem
         : HeartRateProblem.unreachable;
     state = state.next(heartRateProblem: problem, heartRateStalled: false);
+    _clearAlert();
     _heartRateStopping = _quietly(_heartRate?.cancel());
     _heartRate = null;
   }
@@ -282,19 +407,110 @@ class WorkoutController extends Notifier<WorkoutState> {
   void _publish(WorkoutSession session) {
     if (!_current(session)) return;
     state = state.next(snapshot: session.snapshotAt(_now()));
+    _showNotice(session);
   }
+
+  void _onAction(WorkoutNoticeAction action) => switch (action) {
+    WorkoutNoticeAction.pause when !_confirming => pause(),
+    WorkoutNoticeAction.resume when !_confirming => resume(),
+    WorkoutNoticeAction.pause || WorkoutNoticeAction.resume => null,
+    WorkoutNoticeAction.stop => _ask(),
+    WorkoutNoticeAction.save => _saveAsked(),
+    WorkoutNoticeAction.keep => _keep(),
+    WorkoutNoticeAction.reconnect => unawaited(reconnectHeartRate()),
+  };
+
+  // End from the notification pauses and asks; Continue restores the state
+  // the workout had before End.
+  void _ask() {
+    final session = _session;
+    if (session == null || !state.live || _confirming) return;
+    _wasRunning = session.status == WorkoutStatus.running;
+    _confirming = true;
+    if (_wasRunning) return pause();
+    _publish(session);
+  }
+
+  void _saveAsked() {
+    if (!_confirming) return;
+    _confirming = false;
+    unawaited(finish());
+  }
+
+  void _keep() {
+    final session = _session;
+    if (session == null || !_confirming) return;
+    _confirming = false;
+    if (_wasRunning) return resume();
+    _publish(session);
+  }
+
+  void _showNotice(WorkoutSession session) {
+    final labels = _notice;
+    final snapshot = state.snapshot;
+    if (labels == null || snapshot == null || !state.live) return;
+    final notice = workoutNoticeOf(
+      snapshot,
+      labels,
+      ref.read(currentUnitSystemProvider),
+      ringLost: state.heartRateStalled,
+      gpsLost: state.locationProblem != null,
+      confirming: _confirming,
+      hideHeartRate: !(ref.read(workoutLockHeartRateProvider).value ?? true),
+    );
+    if (notice == _shown || _tooSoon(notice)) return;
+    _shown = notice;
+    _shownAt = _now();
+    final notifier = _notifier;
+    _showing = notifier;
+    unawaited(_quietly(_guarded(() => notifier.show(notice))));
+  }
+
+  // The system chronometer keeps the time, so a running notice posts at most
+  // every noticeInterval; a pause, a resume or the end question posts at once.
+  bool _tooSoon(WorkoutNotice notice) {
+    final shown = _shown;
+    final at = _shownAt;
+    if (shown == null || at == null) return false;
+    if (shown.running != notice.running) return false;
+    if (shown.confirming != notice.confirming) return false;
+    return _now().difference(at) < noticeInterval;
+  }
+
+  // Hiding the notice in Kotlin cancels the alert too.
+  Future<void> _hideNotice() {
+    _alerted = false;
+    _shown = null;
+    _showing = null;
+    return _quietly(_guarded(_notifier.hide));
+  }
+
+  WorkoutNotifier get _notifier => ref.read(workoutNotifierProvider);
+
+  // A failed save keeps the mark, so recovery leaves a row the user can still
+  // save from this process.
+  static void _unmark(LiveWorkoutRegistry live, WorkoutSession? session) {
+    final start = session?.startedAt;
+    if (start != null) live.clear(start);
+  }
+
+  // A notifier that throws before returning its future must not stop a workout.
+  static Future<void> _guarded(Future<void> Function() call) async =>
+      await call();
 
   bool _current(WorkoutSession session) =>
       ref.mounted && identical(_session, session);
 
   Future<void> _stopStreams() async {
     final cancels = [
+      _quietly(_actions?.cancel()),
       _quietly(_ticks?.cancel()),
       _quietly(_heartRate?.cancel()),
       _quietly(_location?.cancel()),
       _quietly(_heartRateStopping),
       _quietly(_locationStopping),
     ];
+    _actions = null;
     _ticks = null;
     _heartRate = null;
     _location = null;
@@ -304,11 +520,22 @@ class WorkoutController extends Notifier<WorkoutState> {
   }
 
   Future<WorkoutProfile> _profile() async {
+    final profile = await _orNull(
+      () => ref.read(userProfileStoreProvider).read(),
+    );
+    final logged = await _orNull(() => ref.read(loggedWeightProvider.future));
+    return workoutProfileOf(
+      profile,
+      year: _now().year,
+      loggedKilograms: logged,
+    );
+  }
+
+  Future<T?> _orNull<T>(Future<T?> Function() read) async {
     try {
-      final profile = await ref.read(userProfileStoreProvider).read();
-      return workoutProfileOf(profile, year: _now().year);
+      return await read();
     } on Object {
-      return const WorkoutProfile();
+      return null;
     }
   }
 

@@ -11,6 +11,7 @@ import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
 import 'package:open_ring/features/activity/application/activity_view.dart';
 import 'package:open_ring/features/activity/presentation/hourly_steps_chart.dart';
+import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/ring/presentation/sync_status_banner.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/features/workout/presentation/recent_workouts_card.dart';
@@ -82,7 +83,9 @@ class _ActivityBody extends ConsumerWidget {
         AdaptiveColumns(
           first: _Tile(
             key: ActivityKeys.energy,
-            label: l10n.activityActiveEnergy,
+            label: ref.watch(energyGateProvider) == EnergyGate.on
+                ? l10n.activityActiveEnergyRing
+                : l10n.activityActiveEnergy,
             value: today == null
                 ? l10n.metricNoReading
                 : l10n.activityKcal(format.integer(today.activeKilocalories)),

@@ -30,6 +30,33 @@ enum ExportKind {
     'duration_s',
     'distance_m',
     'active_kcal',
+    'effort_rating',
+  ]),
+  weighIns('weigh_ins', [
+    'time',
+    'weight_kg',
+    'body_fat_percent',
+    'waist_cm',
+    'source',
+  ]),
+  dayTags('day_tags', ['date', 'tag']),
+  importedWorkouts('imported_workouts', [
+    'start',
+    'end',
+    'record_id',
+    'source',
+    'activity_type',
+    'duration_s',
+    'effort_rating',
+  ]),
+  importedSleep('imported_sleep', [
+    'session_start',
+    'start',
+    'end',
+    'record_id',
+    'source',
+    'stage',
+    'duration_s',
   ]);
 
   new(this.key, this.columns);

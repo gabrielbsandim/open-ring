@@ -52,4 +52,12 @@ void main() {
     ]..sort((a, b) => a.compareTo(b));
     expect(dates.map((d) => d.iso), ['2025-12-31', '2026-01-02', '2026-11-10']);
   });
+
+  test('parses only real calendar dates written as YYYY-MM-DD', () {
+    expect(LocalDate.tryParse('2026-11-09'), const LocalDate(2026, 11, 9));
+    expect(LocalDate.tryParse('2026-02-31'), isNull);
+    expect(LocalDate.tryParse('2026-1-9'), isNull);
+    expect(LocalDate.tryParse('yesterday'), isNull);
+    expect(LocalDate.tryParse(null), isNull);
+  });
 }

@@ -4,6 +4,7 @@ import 'package:open_ring/core/records/epoch.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/core/records/source_priority.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
+import 'package:open_ring/features/workout/domain/workout_rating_store.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
 
 final class DriftImportedWorkoutReader implements ImportedWorkoutReader {
@@ -18,6 +19,24 @@ final class DriftImportedWorkoutReader implements ImportedWorkoutReader {
         await (_db.select(_db.importedWorkouts)
               ..orderBy([(w) => OrderingTerm.desc(w.startUtcMs)])
               ..limit(limit))
+            .get();
+    return (priority: await _priority(), workouts: rows.map(_workout).toList());
+  }
+
+  @override
+  Future<ImportedWorkouts> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    if (!await _enabled()) return noImportedWorkouts;
+    final rows =
+        await (_db.select(_db.importedWorkouts)
+              ..where(
+                (w) =>
+                    w.endUtcMs.isBiggerThanValue(from.millisecondsSinceEpoch) &
+                    w.startUtcMs.isSmallerThanValue(to.millisecondsSinceEpoch),
+              )
+              ..orderBy([(w) => OrderingTerm.asc(w.startUtcMs)]))
             .get();
     return (priority: await _priority(), workouts: rows.map(_workout).toList());
   }
@@ -39,6 +58,7 @@ final class DriftImportedWorkoutReader implements ImportedWorkoutReader {
     start: fromUtcMs(row.startUtcMs),
     end: fromUtcMs(row.endUtcMs),
     utcOffset: offsetOf(row.offsetMinutes),
+    rating: storedRatingOf(row.effortRating),
   );
 
   Future<bool> _enabled() async {

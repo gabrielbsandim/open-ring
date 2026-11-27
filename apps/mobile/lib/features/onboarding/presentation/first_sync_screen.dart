@@ -32,7 +32,9 @@ abstract final class FirstSyncKeys {
 enum FirstSyncPhase { running, done, failed }
 
 class FirstSyncScreen extends ConsumerStatefulWidget {
-  const new({super.key});
+  const new({required this.flow, super.key});
+
+  final PairFlow flow;
 
   @override
   ConsumerState<FirstSyncScreen> createState() => _FirstSyncScreenState();
@@ -56,7 +58,7 @@ class _FirstSyncScreenState extends ConsumerState<FirstSyncScreen> {
     setState(() => _phase = ok ? FirstSyncPhase.done : FirstSyncPhase.failed);
   }
 
-  void _openToday() => context.go(AppTab.today.path);
+  void _openToday() => context.go(widget.flow.donePath);
 
   @override
   Widget build(BuildContext context) {

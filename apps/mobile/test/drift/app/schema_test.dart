@@ -7,7 +7,19 @@ import 'package:open_ring/core/database/app_database.dart';
 import '../../helpers/database.dart';
 import 'generated/schema.dart';
 import 'generated/schema_v1.dart' as v1;
+import 'generated/schema_v10.dart' as v10;
+import 'generated/schema_v11.dart' as v11;
+import 'generated/schema_v12.dart' as v12;
+import 'generated/schema_v13.dart' as v13;
+import 'generated/schema_v14.dart' as v14;
+import 'generated/schema_v15.dart' as v15;
+import 'generated/schema_v16.dart' as v16;
+import 'generated/schema_v17.dart' as v17;
+import 'generated/schema_v18.dart' as v18;
+import 'generated/schema_v19.dart' as v19;
 import 'generated/schema_v2.dart' as v2;
+import 'generated/schema_v20.dart' as v20;
+import 'generated/schema_v21.dart' as v21;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
 import 'generated/schema_v5.dart' as v5;
@@ -355,6 +367,605 @@ void main() {
             failures: '',
           ),
         ]);
+      },
+    );
+  });
+
+  test(
+    'v10 migrates to v11, keeps the data and adds an empty weigh_ins',
+    () async {
+      const ring = v10.RingDevicesData(
+        deviceId: ringId,
+        name: 'R09_C0FE',
+        pairedAtUtcMs: 1762732800000,
+        autoHeartRate: 1,
+        autoSpo2: 1,
+        autoStress: 1,
+        autoHrv: 1,
+      );
+      const profile = v10.UserProfileData(id: 1, updatedAtUtcMs: 1762765200000);
+
+      await verifier.testWithDataIntegrity(
+        oldVersion: 10,
+        newVersion: 11,
+        createOld: v10.DatabaseAtV10.new,
+        createNew: v11.DatabaseAtV11.new,
+        openTestedDatabase: AppDatabase.new,
+        createItems: (batch, oldDb) => batch
+          ..insert(oldDb.ringDevices, ring)
+          ..insert(oldDb.userProfile, profile),
+        validateItems: (newDb) async {
+          expect(await newDb.select(newDb.ringDevices).get(), [
+            const v11.RingDevicesData(
+              deviceId: ringId,
+              name: 'R09_C0FE',
+              pairedAtUtcMs: 1762732800000,
+              autoHeartRate: 1,
+              autoSpo2: 1,
+              autoStress: 1,
+              autoHrv: 1,
+            ),
+          ]);
+          expect(await newDb.select(newDb.userProfile).get(), [
+            const v11.UserProfileData(id: 1, updatedAtUtcMs: 1762765200000),
+          ]);
+          expect(await newDb.select(newDb.weighIns).get(), isEmpty);
+        },
+      );
+    },
+  );
+
+  test(
+    'v11 migrates to v12, keeps the data and adds an empty day_tags',
+    () async {
+      const ring = v11.RingDevicesData(
+        deviceId: ringId,
+        name: 'R09_C0FE',
+        pairedAtUtcMs: 1762732800000,
+        autoHeartRate: 1,
+        autoSpo2: 1,
+        autoStress: 1,
+        autoHrv: 1,
+      );
+      const profile = v11.UserProfileData(id: 1, updatedAtUtcMs: 1762765200000);
+      const weighIn = v11.WeighInsData(
+        id: 1,
+        atUtcMs: 1762765200000,
+        offsetMinutes: -180,
+        kilograms: 80.4,
+        source: 'manual',
+      );
+
+      await verifier.testWithDataIntegrity(
+        oldVersion: 11,
+        newVersion: 12,
+        createOld: v11.DatabaseAtV11.new,
+        createNew: v12.DatabaseAtV12.new,
+        openTestedDatabase: AppDatabase.new,
+        createItems: (batch, oldDb) => batch
+          ..insert(oldDb.ringDevices, ring)
+          ..insert(oldDb.userProfile, profile)
+          ..insert(oldDb.weighIns, weighIn),
+        validateItems: (newDb) async {
+          expect(await newDb.select(newDb.ringDevices).get(), [
+            const v12.RingDevicesData(
+              deviceId: ringId,
+              name: 'R09_C0FE',
+              pairedAtUtcMs: 1762732800000,
+              autoHeartRate: 1,
+              autoSpo2: 1,
+              autoStress: 1,
+              autoHrv: 1,
+            ),
+          ]);
+          expect(await newDb.select(newDb.userProfile).get(), [
+            const v12.UserProfileData(id: 1, updatedAtUtcMs: 1762765200000),
+          ]);
+          expect(await newDb.select(newDb.weighIns).get(), [
+            const v12.WeighInsData(
+              id: 1,
+              atUtcMs: 1762765200000,
+              offsetMinutes: -180,
+              kilograms: 80.4,
+              source: 'manual',
+            ),
+          ]);
+          expect(await newDb.select(newDb.dayTags).get(), isEmpty);
+        },
+      );
+    },
+  );
+
+  test(
+    'v12 migrates to v13, keeps a workout and an imported workout unrated',
+    () async {
+      const workout = v12.WorkoutsData(
+        id: 1,
+        clientId: 'phone:1762758000000',
+        activityType: 'running',
+        startUtcMs: 1762758000000,
+        endUtcMs: 1762759800000,
+        offsetMinutes: -180,
+      );
+      const imported = v12.ImportedWorkoutsData(
+        recordId: 'w1',
+        source: 'com.garmin.android.apps.connectmobile',
+        activityType: 'running',
+        startUtcMs: 1762758000000,
+        endUtcMs: 1762760400000,
+        offsetMinutes: -180,
+        importedAtUtcMs: 1762765200000,
+      );
+
+      await verifier.testWithDataIntegrity(
+        oldVersion: 12,
+        newVersion: 13,
+        createOld: v12.DatabaseAtV12.new,
+        createNew: v13.DatabaseAtV13.new,
+        openTestedDatabase: AppDatabase.new,
+        createItems: (batch, oldDb) => batch
+          ..insert(oldDb.workouts, workout)
+          ..insert(oldDb.importedWorkouts, imported),
+        validateItems: (newDb) async {
+          expect(await newDb.select(newDb.workouts).get(), [
+            const v13.WorkoutsData(
+              id: 1,
+              clientId: 'phone:1762758000000',
+              activityType: 'running',
+              startUtcMs: 1762758000000,
+              endUtcMs: 1762759800000,
+              offsetMinutes: -180,
+            ),
+          ]);
+          expect(await newDb.select(newDb.importedWorkouts).get(), [
+            const v13.ImportedWorkoutsData(
+              recordId: 'w1',
+              source: 'com.garmin.android.apps.connectmobile',
+              activityType: 'running',
+              startUtcMs: 1762758000000,
+              endUtcMs: 1762760400000,
+              offsetMinutes: -180,
+              importedAtUtcMs: 1762765200000,
+            ),
+          ]);
+        },
+      );
+    },
+  );
+
+  test('v13 migrates to v14, keeps the profile and starts with no goal '
+      'changes', () async {
+    const profile = v13.UserProfileData(
+      id: 1,
+      dailyStepGoal: 9000,
+      updatedAtUtcMs: 1762765200000,
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 13,
+      newVersion: 14,
+      createOld: v13.DatabaseAtV13.new,
+      createNew: v14.DatabaseAtV14.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch.insert(oldDb.userProfile, profile),
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.userProfile).get(), [
+          const v14.UserProfileData(
+            id: 1,
+            dailyStepGoal: 9000,
+            updatedAtUtcMs: 1762765200000,
+          ),
+        ]);
+        expect(await newDb.select(newDb.stepGoalChanges).get(), isEmpty);
+      },
+    );
+  });
+
+  test('v14 migrates to v15, keeps the step goal changes and starts with no '
+      'goals', () async {
+    const change = v14.StepGoalChangesData(
+      effectiveDate: '2026-12-07',
+      steps: 10000,
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 14,
+      newVersion: 15,
+      createOld: v14.DatabaseAtV14.new,
+      createNew: v15.DatabaseAtV15.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) =>
+          batch.insert(oldDb.stepGoalChanges, change),
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.stepGoalChanges).get(), [
+          const v15.StepGoalChangesData(
+            effectiveDate: '2026-12-07',
+            steps: 10000,
+          ),
+        ]);
+        expect(await newDb.select(newDb.goals).get(), isEmpty);
+        expect(await newDb.select(newDb.goalWeeks).get(), isEmpty);
+        expect(await newDb.select(newDb.goalScreenings).get(), isEmpty);
+      },
+    );
+  });
+
+  test(
+    'v15 migrates to v16, keeps the goals and starts with no meals',
+    () async {
+      const goal = v15.GoalsData(
+        id: 1,
+        kind: 'loseFat',
+        startedOn: '2026-11-16',
+        blockStartedOn: '2026-11-16',
+        phase: 'block',
+        phaseSince: '2026-11-16',
+        levers: '{"v":1,"levers":[]}',
+      );
+
+      await verifier.testWithDataIntegrity(
+        oldVersion: 15,
+        newVersion: 16,
+        createOld: v15.DatabaseAtV15.new,
+        createNew: v16.DatabaseAtV16.new,
+        openTestedDatabase: AppDatabase.new,
+        createItems: (batch, oldDb) => batch.insert(oldDb.goals, goal),
+        validateItems: (newDb) async {
+          expect(await newDb.select(newDb.goals).get(), [
+            const v16.GoalsData(
+              id: 1,
+              kind: 'loseFat',
+              startedOn: '2026-11-16',
+              blockStartedOn: '2026-11-16',
+              phase: 'block',
+              phaseSince: '2026-11-16',
+              levers: '{"v":1,"levers":[]}',
+            ),
+          ]);
+          expect(await newDb.select(newDb.meals).get(), isEmpty);
+        },
+      );
+    },
+  );
+
+  test('the code schema is v21', () {
+    expect(memoryDatabase().schemaVersion, 21);
+  });
+
+  test('v16 migrates to v17, a finished workout keeps its end and has no '
+      'checkpoint', () async {
+    const workout = v16.WorkoutsData(
+      id: 1,
+      clientId: 'phone:1762758000000',
+      activityType: 'running',
+      startUtcMs: 1762758000000,
+      endUtcMs: 1762759800000,
+      offsetMinutes: -180,
+      elapsedMs: 1800000,
+      averageHeartRate: 148,
+      effortRating: 6,
+    );
+    const sample = v16.WorkoutHrSamplesData(
+      workoutId: 1,
+      atUtcMs: 1762758060000,
+      offsetMinutes: -180,
+      bpm: 142,
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 16,
+      newVersion: 17,
+      createOld: v16.DatabaseAtV16.new,
+      createNew: v17.DatabaseAtV17.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch
+        ..insert(oldDb.workouts, workout)
+        ..insert(oldDb.workoutHrSamples, sample),
+      validateItems: (newDb) async {
+        final rows = await newDb.select(newDb.workouts).get();
+        expect(rows, [
+          const v17.WorkoutsData(
+            id: 1,
+            clientId: 'phone:1762758000000',
+            activityType: 'running',
+            startUtcMs: 1762758000000,
+            endUtcMs: 1762759800000,
+            offsetMinutes: -180,
+            elapsedMs: 1800000,
+            averageHeartRate: 148,
+            effortRating: 6,
+          ),
+        ]);
+        expect(rows.single.endUtcMs, 1762759800000);
+        expect(rows.single.checkpointUtcMs, null);
+        expect(await newDb.select(newDb.workoutHrSamples).get(), hasLength(1));
+      },
+    );
+  });
+
+  test('v17 migrates to v18, an empty ai_reports table with its cache key '
+      'index and workouts untouched', () async {
+    const workout = v17.WorkoutsData(
+      id: 1,
+      clientId: 'phone:1762758000000',
+      activityType: 'running',
+      startUtcMs: 1762758000000,
+      endUtcMs: 1762759800000,
+      offsetMinutes: -180,
+      elapsedMs: 1800000,
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 17,
+      newVersion: 18,
+      createOld: v17.DatabaseAtV17.new,
+      createNew: v18.DatabaseAtV18.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch.insert(oldDb.workouts, workout),
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.workouts).get(), hasLength(1));
+        expect(await newDb.select(newDb.aiReports).get(), isEmpty);
+        final index = await newDb
+            .customSelect(
+              "SELECT name FROM sqlite_master WHERE type = 'index' "
+              "AND name = 'ai_reports_cache_key'",
+            )
+            .get();
+        expect(index, hasLength(1));
+      },
+    );
+  });
+
+  test('v18 migrates to v19, a meal keeps its tags and photo, is not kept on '
+      'the phone, and both analysis tables start empty', () async {
+    const meal = v18.MealsData(
+      id: 1,
+      atUtcMs: 1762758000000,
+      offsetMinutes: -180,
+      kind: 'main',
+      protein: 1,
+      caffeine: 1,
+      heavy: 1,
+      fried: 1,
+      sugar: 1,
+      veg: 'halfOrMore',
+      alcohol: 'oneToTwo',
+      processed: 'mostly',
+      place: 'home',
+      lastMeal: 1,
+      photo: 'meal_1.jpg',
+      createdAtUtcMs: 1762758001000,
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 18,
+      newVersion: 19,
+      createOld: v18.DatabaseAtV18.new,
+      createNew: v19.DatabaseAtV19.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch.insert(oldDb.meals, meal),
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.meals).get(), [
+          const v19.MealsData(
+            id: 1,
+            atUtcMs: 1762758000000,
+            offsetMinutes: -180,
+            kind: 'main',
+            protein: 1,
+            caffeine: 1,
+            heavy: 1,
+            fried: 1,
+            sugar: 1,
+            veg: 'halfOrMore',
+            alcohol: 'oneToTwo',
+            processed: 'mostly',
+            place: 'home',
+            lastMeal: 1,
+            photo: 'meal_1.jpg',
+            createdAtUtcMs: 1762758001000,
+            keepOnPhone: 0,
+          ),
+        ]);
+        expect(await newDb.select(newDb.mealAnalyses).get(), isEmpty);
+        expect(await newDb.select(newDb.mealItems).get(), isEmpty);
+        final indexes = await newDb
+            .customSelect(
+              "SELECT name FROM sqlite_master WHERE type = 'index' "
+              "AND name IN ('meal_analyses_cache_key', "
+              "'meal_analyses_status', 'meal_items_analysis')",
+            )
+            .get();
+        expect(indexes, hasLength(3));
+      },
+    );
+  });
+
+  test('v19 migrates to v20, every meal, analysis and item row stays and '
+      'items have no food group', () async {
+    const meal = v19.MealsData(
+      id: 1,
+      atUtcMs: 1762758000000,
+      offsetMinutes: -180,
+      kind: 'main',
+      protein: 1,
+      caffeine: 0,
+      heavy: 0,
+      fried: 0,
+      sugar: 0,
+      veg: 'some',
+      alcohol: 'none',
+      processed: 'notMostly',
+      place: 'home',
+      lastMeal: 0,
+      photo: 'meal_1.jpg',
+      createdAtUtcMs: 1762758001000,
+      keepOnPhone: 0,
+    );
+    const analysis = v19.MealAnalysesData(
+      id: 1,
+      mealId: 1,
+      photoName: 'meal_1.jpg',
+      status: 'done',
+      providerHost: 'https://api.example.com:443',
+      model: 'vision-m',
+      promptVersion: 1,
+      outputSchema: 2,
+      resultJson: '{"is_food":"yes"}',
+      attempts: 1,
+      hiddenOil: 1,
+      hiddenSauce: 0,
+      hiddenSugar: 0,
+      queuedAtUtcMs: 1762758002000,
+      updatedAtUtcMs: 1762758003000,
+    );
+    v19.MealItemsData item(int id, {required String origin}) =>
+        v19.MealItemsData(
+          id: id,
+          analysisId: 1,
+          position: id - 1,
+          name: 'Rice',
+          measure: 'serving_spoon',
+          countX2: 4,
+          grams: 120,
+          origin: origin,
+          confirmed: origin == 'user' ? 1 : 0,
+        );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 19,
+      newVersion: 20,
+      createOld: v19.DatabaseAtV19.new,
+      createNew: v20.DatabaseAtV20.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch
+        ..insert(oldDb.meals, meal)
+        ..insert(oldDb.mealAnalyses, analysis)
+        ..insertAll(oldDb.mealItems, [
+          item(1, origin: 'model'),
+          item(2, origin: 'user'),
+        ]),
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.meals).get(), hasLength(1));
+        final analyses = await newDb.select(newDb.mealAnalyses).get();
+        expect(
+          analyses.map((a) => (a.id, a.status, a.outputSchema, a.hiddenOil)),
+          [(1, 'done', 2, 1)],
+        );
+        expect(await newDb.select(newDb.mealItems).get(), [
+          for (final (id, origin) in [(1, 'model'), (2, 'user')])
+            v20.MealItemsData(
+              id: id,
+              analysisId: 1,
+              position: id - 1,
+              name: 'Rice',
+              measure: 'serving_spoon',
+              countX2: 4,
+              grams: 120,
+              origin: origin,
+              confirmed: origin == 'user' ? 1 : 0,
+            ),
+        ]);
+      },
+    );
+  });
+
+  test('the latest dumped schema is v21', () {
+    expect(GeneratedHelper.versions.last, 21);
+  });
+
+  test('v20 migrates to v21, a weigh-in, a goal week and a meal item stay '
+      'and trajectory_projections starts empty', () async {
+    const weighIn = v20.WeighInsData(
+      id: 1,
+      atUtcMs: 1762765200000,
+      offsetMinutes: -180,
+      kilograms: 80.4,
+      source: 'manual',
+    );
+    const goal = v20.GoalsData(
+      id: 1,
+      kind: 'lose',
+      startedOn: '2026-11-02',
+      blockStartedOn: '2026-11-02',
+      phase: 'active',
+      phaseSince: '2026-11-02',
+      levers: '{}',
+    );
+    const goalWeek = v20.GoalWeeksData(
+      goalId: 1,
+      monday: '2026-11-09',
+      inputs: '{}',
+      rule: 'hold',
+      action: 'none',
+    );
+    const meal = v20.MealsData(
+      id: 1,
+      atUtcMs: 1762758000000,
+      offsetMinutes: -180,
+      kind: 'main',
+      protein: 1,
+      caffeine: 0,
+      heavy: 0,
+      fried: 0,
+      sugar: 0,
+      veg: 'some',
+      alcohol: 'none',
+      processed: 'notMostly',
+      place: 'home',
+      lastMeal: 0,
+      photo: 'meal_1.jpg',
+      createdAtUtcMs: 1762758001000,
+      keepOnPhone: 0,
+    );
+    const analysis = v20.MealAnalysesData(
+      id: 1,
+      mealId: 1,
+      photoName: 'meal_1.jpg',
+      status: 'done',
+      providerHost: 'https://api.example.com:443',
+      model: 'vision-m',
+      promptVersion: 1,
+      outputSchema: 2,
+      resultJson: '{"is_food":"yes"}',
+      attempts: 1,
+      hiddenOil: 1,
+      hiddenSauce: 0,
+      hiddenSugar: 0,
+      queuedAtUtcMs: 1762758002000,
+      updatedAtUtcMs: 1762758003000,
+    );
+    const item = v20.MealItemsData(
+      id: 1,
+      analysisId: 1,
+      position: 0,
+      name: 'Rice',
+      measure: 'serving_spoon',
+      countX2: 4,
+      grams: 120,
+      origin: 'model',
+      confirmed: 0,
+    );
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 20,
+      newVersion: 21,
+      createOld: v20.DatabaseAtV20.new,
+      createNew: v21.DatabaseAtV21.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch
+        ..insert(oldDb.weighIns, weighIn)
+        ..insert(oldDb.goals, goal)
+        ..insert(oldDb.goalWeeks, goalWeek)
+        ..insert(oldDb.meals, meal)
+        ..insert(oldDb.mealAnalyses, analysis)
+        ..insert(oldDb.mealItems, item),
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.weighIns).get(), hasLength(1));
+        final weeks = await newDb.select(newDb.goalWeeks).get();
+        expect(weeks.map((w) => (w.goalId, w.monday)), [(1, '2026-11-09')]);
+        final items = await newDb.select(newDb.mealItems).get();
+        expect(items.map((i) => (i.id, i.name, i.grams)), [(1, 'Rice', 120)]);
+        expect(await newDb.select(newDb.trajectoryProjections).get(), isEmpty);
       },
     );
   });

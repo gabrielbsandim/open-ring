@@ -1,4 +1,5 @@
 enum TrendMetric {
+  dayScore,
   restingHeartRate,
   hrv,
   sleepDuration,
@@ -6,7 +7,8 @@ enum TrendMetric {
   steps,
   spo2;
 
-  bool get isNightly => this != TrendMetric.steps;
+  bool get isNightly =>
+      this != TrendMetric.steps && this != TrendMetric.dayScore;
 }
 
 enum TrendRange {

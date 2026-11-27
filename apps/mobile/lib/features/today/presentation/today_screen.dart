@@ -10,7 +10,15 @@ import 'package:open_ring/core/widgets/charts.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
 import 'package:open_ring/core/widgets/text_scale.dart';
+import 'package:open_ring/features/body/presentation/weight_card.dart';
+import 'package:open_ring/features/effort/presentation/effort_coach_card.dart';
+import 'package:open_ring/features/effort/presentation/effort_week_tile.dart';
+import 'package:open_ring/features/energy/presentation/energy_row.dart';
+import 'package:open_ring/features/food/presentation/food_row.dart';
+import 'package:open_ring/features/goals/presentation/goal_week_card.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
+import 'package:open_ring/features/modules/presentation/modules_shortcut.dart';
+import 'package:open_ring/features/open_score/presentation/day_score_card.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/presentation/sync_status_banner.dart';
 import 'package:open_ring/features/today/application/readiness_view.dart';
@@ -96,6 +104,10 @@ class _TodayBody extends StatelessWidget {
               actionKey: TodayKeys.pairAction,
               onAction: () => context.go(AppTab.ring.path),
             ),
+            const GoalWeekCardSlot(padding: EdgeInsets.only(top: cardGap)),
+            const EffortWeekTileSlot(padding: EdgeInsets.only(top: cardGap)),
+            const FoodRowSlot(padding: EdgeInsets.only(top: cardGap)),
+            const WeightCardSlot(),
           ],
           SyncFreshness.unpaired => [
             EmptyStateCard(
@@ -106,6 +118,10 @@ class _TodayBody extends StatelessWidget {
               actionKey: TodayKeys.pairAction,
               onAction: () => context.go(AppTab.ring.path),
             ),
+            const GoalWeekCardSlot(padding: EdgeInsets.only(top: cardGap)),
+            const EffortWeekTileSlot(padding: EdgeInsets.only(top: cardGap)),
+            const FoodRowSlot(padding: EdgeInsets.only(top: cardGap)),
+            const WeightCardSlot(),
           ],
           SyncFreshness.neverSynced => [
             EmptyStateCard(
@@ -116,12 +132,21 @@ class _TodayBody extends StatelessWidget {
               actionKey: TodayKeys.pairAction,
               onAction: () => context.go(AppTab.ring.path),
             ),
+            const GoalWeekCardSlot(padding: EdgeInsets.only(top: cardGap)),
+            const EffortWeekTileSlot(padding: EdgeInsets.only(top: cardGap)),
+            const FoodRowSlot(padding: EdgeInsets.only(top: cardGap)),
+            const WeightCardSlot(),
           ],
           SyncFreshness.fresh || SyncFreshness.stale => [
             if (freshness == SyncFreshness.stale) ...[
               OfflineCard(key: TodayKeys.offline, view: view),
               const SizedBox(height: cardGap),
             ],
+            const DayScoreCardSlot(),
+            const GoalWeekCardSlot(),
+            const EnergyRowSlot(),
+            const EffortWeekTileSlot(),
+            const FoodRowSlot(),
             _ReadinessCard(
               readiness: view.readiness,
               staleSyncAt: freshness == SyncFreshness.stale
@@ -129,9 +154,11 @@ class _TodayBody extends StatelessWidget {
                   : null,
             ),
             const SizedBox(height: cardGap),
+            const EffortCoachSlot(),
             SleepSummaryCard(view: view),
             const SizedBox(height: cardGap),
             SummaryColumns(view: view),
+            const WeightCardSlot(),
             const SizedBox(height: cardGap),
             const WorkoutEntryButton(),
             if (freshness == SyncFreshness.stale) ...[
@@ -146,6 +173,7 @@ class _TodayBody extends StatelessWidget {
             const EstimateNote(),
           ],
         },
+        const ModulesShortcutSlot(),
       ],
     );
   }

@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:open_ring/features/body/domain/weigh_in.dart';
 import 'package:open_ring/features/demo/domain/demo_data.dart';
 import 'package:open_ring/features/demo/domain/demo_data_generator.dart';
 import 'package:open_ring/features/ring/domain/sleep_session_span.dart';
+import 'package:open_ring/features/workout/domain/workout_type.dart';
 import 'package:ring_driver/ring_driver.dart';
 
 final now = DateTime(2026, 11, 11, 14, 37);
@@ -19,6 +21,8 @@ String fingerprint(DemoData data) => [
     '${s.start.millisecondsSinceEpoch}:${s.stage.name}',
   for (final w in data.workouts)
     '${w.start.millisecondsSinceEpoch}:${w.heartRate.length}',
+  for (final w in data.weighIns)
+    '${w.at.millisecondsSinceEpoch}:${w.kilograms}',
 ].join(',');
 
 Map<DateTime, int> stepsByDay(DemoData data) {
@@ -83,6 +87,7 @@ void main() {
     expect(data.sleep.every((s) => !s.end.isAfter(now)), isTrue);
     expect(data.workouts.every((w) => !w.end.isAfter(now)), isTrue);
     expect(data.syncRuns.every((r) => !r.at.isAfter(now)), isTrue);
+    expect(data.weighIns.every((w) => !w.at.isAfter(now)), isTrue);
   });
 
   test('heart rate comes every five minutes for fourteen days', () {
@@ -191,6 +196,103 @@ void main() {
     final data = DemoDataGenerator(now: now, days: 3).generate();
 
     expect(data.workouts, hasLength(1));
+  });
+
+  test('the treadmill workout is rated 7 and the strength one is not', () {
+    final data = generate();
+    final treadmill = data.workouts.singleWhere(
+      (w) => w.type == WorkoutType.treadmill,
+    );
+
+    expect(data.workoutRatings, {treadmill.start: 7});
+  });
+
+  test('a short history drops the rating with its workout', () {
+    final data = DemoDataGenerator(now: now, days: 3).generate();
+
+    expect(data.workouts.map((w) => w.start), isNotEmpty);
+    expect(
+      data.workoutRatings.keys.toSet().difference(
+        data.workouts.map((w) => w.start).toSet(),
+      ),
+      isEmpty,
+    );
+    expect(data.workoutRatings, hasLength(1));
+
+    final shortest = DemoDataGenerator(now: now, days: 1).generate();
+    expect(shortest.workouts, isEmpty);
+    expect(shortest.workoutRatings, isEmpty);
+  });
+
+  group('weigh-ins', () {
+    test('cover five weeks of mornings with some days skipped', () {
+      final weighIns = generate().weighIns;
+      final first = weighIns.first.at;
+      final days = {
+        for (final w in weighIns) DateTime(w.at.year, w.at.month, w.at.day),
+      };
+
+      expect(
+        DateTime(first.year, first.month, first.day),
+        DateTime(2026, 10, 7),
+      );
+      expect(days, hasLength(weighIns.length));
+      expect(weighIns.length, inInclusiveRange(24, 35));
+      expect(weighIns.every((w) => w.at.hour < 8), isTrue);
+    });
+
+    test('are demo rows the weigh-in rules accept', () {
+      final weighIns = generate().weighIns;
+
+      expect(weighIns.every((w) => w.source == WeighInSource.demo), isTrue);
+      expect(weighIns.every((w) => w.validate(now: now).isEmpty), isTrue);
+      expect(
+        weighIns.every((w) => w.kilograms > 69 && w.kilograms < 73),
+        isTrue,
+      );
+      expect(
+        weighIns.every((w) => w.offsetMinutes == w.at.timeZoneOffset.inMinutes),
+        isTrue,
+      );
+    });
+
+    test('carry body fat and waist on Mondays only', () {
+      final weighIns = generate().weighIns;
+      final withExtras = weighIns.where((w) => w.bodyFatPercent != null);
+
+      expect(withExtras, isNotEmpty);
+      expect(
+        withExtras.every(
+          (w) => w.at.weekday == DateTime.monday && w.waistCentimeters != null,
+        ),
+        isTrue,
+      );
+      expect(
+        weighIns
+            .where((w) => w.at.weekday != DateTime.monday)
+            .every(
+              (w) => w.bodyFatPercent == null && w.waistCentimeters == null,
+            ),
+        isTrue,
+      );
+    });
+
+    test('a refresh later the same day keeps every earlier weigh-in', () {
+      String log(DemoData data) => [
+        for (final w in data.weighIns)
+          '${w.at.millisecondsSinceEpoch}:${w.kilograms}',
+      ].join(',');
+      final morning = generate(DateTime(2026, 11, 11, 9));
+      final evening = generate(DateTime(2026, 11, 11, 21));
+
+      expect(log(evening), log(morning));
+    });
+
+    test('today is left out before the morning weigh-in', () {
+      final early = generate(DateTime(2026, 11, 11, 5)).weighIns;
+
+      expect(early.last.at.isBefore(DateTime(2026, 11, 11)), isTrue);
+    });
   });
 
   test('the demo ring can never be mistaken for a real one', () {

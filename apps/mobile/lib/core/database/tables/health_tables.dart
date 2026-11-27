@@ -46,3 +46,12 @@ class UserProfile extends Table {
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
+
+@DataClassName('StepGoalChangeRow')
+class StepGoalChanges extends Table {
+  TextColumn get effectiveDate => text()();
+  IntColumn get steps => integer()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {effectiveDate};
+}

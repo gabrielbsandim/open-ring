@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <!-- Shorebird update check and, only with the AI analysis module on, requests the user starts to the address they set (https, or http to a private or local network address only, see BaseUrlPolicy). No other code opens a connection. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
 
@@ -13,8 +14,8 @@
     <!-- Every SDK: the GPS route of a workout. Android 11 and lower also scan with it. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- Only geolocator's location service runs in the foreground, during a workout.
-         Sync stays a plain periodic WorkManager job. -->
+    <!-- During a workout geolocator's location service records the route, and
+         ring_notifications runs its own services for the live workout and a sync. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SHORT_SERVICE" tools:node="remove" />
@@ -37,14 +38,15 @@
     <!-- Asked only with no ring paired and a read on, so the periodic job can import. -->
     <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" />
 
-    <!-- No Google cloud backup, so health data never leaves the phone that way.
-         Android 12 and later still allow a direct device to device transfer. -->
+    <!-- No Google cloud backup on any SDK; Android 12+ device transfer
+         also excludes flutter_secure_storage encrypted API keys. -->
     <application
         android:label="OpenRing"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:localeConfig="@xml/locales_config"
-        android:allowBackup="false">
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -119,6 +121,18 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_workout_info" />
+        </receiver>
+        <receiver
+            android:name=".widget.ThisWeekWidgetReceiver"
+            android:enabled="false"
+            android:exported="true"
+            android:label="@string/widget_this_week_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_this_week_info" />
         </receiver>
         <activity
             android:name=".widget.TodayWidgetConfigureActivity"

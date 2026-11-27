@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
@@ -36,6 +37,7 @@ Future<void> pumpWorkout(
   ),
   RingStatus ring = pairedRing,
   Size size = phoneSize,
+  List<Override> overrides = const [],
 }) => pumpScaled(
   tester,
   screenHost(screen),
@@ -48,6 +50,7 @@ Future<void> pumpWorkout(
     ...ringOverrides(),
     ...rig.overrides(),
     ringStatusReaderProvider.overrideWithValue(FakeRingStatusReader(ring)),
+    ...overrides,
   ],
 );
 

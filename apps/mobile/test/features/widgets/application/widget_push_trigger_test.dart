@@ -1,24 +1,38 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/body/domain/hide_numbers_store.dart';
 import 'package:open_ring/features/heart/application/heart_providers.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
+import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
+import 'package:open_ring/features/settings/domain/user_profile.dart';
 import 'package:open_ring/features/sleep/application/sleep_providers.dart';
 import 'package:open_ring/features/today/application/today_providers.dart';
 import 'package:open_ring/features/today/domain/ring_status_reader.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
+import 'package:open_ring/features/widgets/application/widget_publisher.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
+import 'package:open_ring/features/widgets/domain/widget_gateway.dart';
+import 'package:open_ring/features/widgets/infrastructure/home_widget_plugin_gateway.dart';
 import 'package:open_ring/features/workout/application/workout_history_providers.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
 
 import '../../../helpers/in_memory_theme_mode_store.dart';
 import '../../../helpers/metrics_fakes.dart';
+import '../../../helpers/settings_fakes.dart';
 import '../../../helpers/widget_fakes.dart';
 
 typedef Rig = ({
@@ -38,13 +52,35 @@ final class ListedWorkouts implements WorkoutHistoryReader {
 
   @override
   Future<SavedWorkout?> byId(int id) async => null;
+
+  @override
+  Future<List<WorkoutListItem>> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async => [
+    for (final item in items)
+      if (item.end.isAfter(from) && item.start.isBefore(to)) item,
+  ]..sort((a, b) => a.start.compareTo(b.start));
+
+  @override
+  Future<List<SavedWorkout>> routed({
+    required DateTime from,
+    required DateTime to,
+    required Set<WorkoutType> types,
+  }) async => const [];
 }
 
-Rig rig({UnitSystem units = UnitSystem.metric}) {
+Rig rig({
+  UnitSystem units = UnitSystem.metric,
+  Set<ModuleId> modules = const {},
+  bool hideNumbers = false,
+  TodayWidgetConfig? config,
+  UserProfile? profile,
+}) {
   final scenario = fullDataScenario;
   final gateway = FakeWidgetGateway();
   final ring = MutableRingStatusReader(freshRing);
-  final configs = InMemoryTodayWidgetConfigStore();
+  final configs = InMemoryTodayWidgetConfigStore(config);
   final workouts = ListedWorkouts();
   final container = ProviderContainer.test(
     overrides: [
@@ -62,6 +98,13 @@ Rig rig({UnitSystem units = UnitSystem.metric}) {
       todayWidgetConfigStoreProvider.overrideWithValue(configs),
       workoutHistoryReaderProvider.overrideWithValue(workouts),
       unitSystemStoreProvider.overrideWithValue(InMemoryUnitSystemStore(units)),
+      moduleStoreProvider.overrideWithValue(InMemoryModuleStore(modules)),
+      hideNumbersStoreProvider.overrideWithValue(
+        InMemoryHideNumbersStore(hidden: hideNumbers),
+      ),
+      userProfileStoreProvider.overrideWithValue(
+        InMemoryUserProfileStore(profile),
+      ),
     ],
   );
   return (
@@ -153,16 +196,18 @@ void main() {
       'dark',
       'dark',
       'dark',
+      'dark',
     ]);
     expect(r.gateway.appearances.last, {
       'appTheme': 'dark',
       'todayTheme': 'light',
-      'todayMetrics': ['steps', 'heartRate'],
+      'todayMetrics': ['steps', 'heartRate', 'spo2'],
       'units': 'metric',
     });
     expect(r.configs.saved?.metrics, [
       WidgetMetric.steps,
       WidgetMetric.heartRate,
+      WidgetMetric.spo2,
     ]);
     expect(r.gateway.snapshots, hasLength(1));
   });
@@ -214,4 +259,356 @@ void main() {
 
     expect(r.gateway.appearances.last['units'], 'metric');
   });
+
+  test(
+    'turning a module off removes its field permanently and republishes',
+    () async {
+      final r = rig(
+        modules: {ModuleId.openScore, ModuleId.body},
+        config: TodayWidgetConfig(
+          metrics: const [
+            WidgetMetric.dayScore,
+            WidgetMetric.steps,
+            WidgetMetric.weight,
+          ],
+        ),
+      );
+      startWidgetPush(r.container);
+      await r.container.read(enabledModulesProvider.future);
+      await settle(r.container);
+
+      expect(r.gateway.appearances.last['todayMetrics'], [
+        'dayScore',
+        'steps',
+        'weight',
+      ]);
+
+      await r.container
+          .read(enabledModulesProvider.notifier)
+          .disable(ModuleId.openScore);
+      await pumpEventQueue();
+
+      expect(r.configs.saved?.metrics, [
+        WidgetMetric.steps,
+        WidgetMetric.weight,
+      ]);
+      expect(r.gateway.appearances.last['todayMetrics'], ['steps', 'weight']);
+
+      // Re-enabling the module must not bring the removed field back.
+      await r.container
+          .read(enabledModulesProvider.notifier)
+          .enable(ModuleId.openScore);
+      await pumpEventQueue();
+
+      expect(r.configs.saved?.metrics, [
+        WidgetMetric.steps,
+        WidgetMetric.weight,
+      ]);
+      expect(r.gateway.appearances.last['todayMetrics'], ['steps', 'weight']);
+    },
+  );
+
+  test('hiding numbers drops energy from appearance without deleting it and restores it on unhide', () async {
+    final r = rig(
+      modules: {ModuleId.body, ModuleId.energy},
+      profile: fullProfile,
+      config: TodayWidgetConfig(
+        metrics: const [
+          WidgetMetric.weight,
+          WidgetMetric.energy,
+          WidgetMetric.steps,
+        ],
+      ),
+    );
+    startWidgetPush(r.container);
+    await r.container.read(enabledModulesProvider.future);
+    await r.container.read(hideNumbersProvider.future);
+    await r.container.read(userProfileProvider.future);
+    await settle(r.container);
+
+    expect(r.gateway.appearances.last['todayMetrics'], [
+      'weight',
+      'energy',
+      'steps',
+    ]);
+
+    await r.container.read(hideNumbersProvider.notifier).set(hidden: true);
+    await pumpEventQueue();
+
+    expect(r.gateway.appearances.last['todayMetrics'], ['weight', 'steps']);
+    expect(r.container.read(todayWidgetConfigProvider).metrics, [
+      WidgetMetric.weight,
+      WidgetMetric.energy,
+      WidgetMetric.steps,
+    ]);
+
+    await r.container.read(hideNumbersProvider.notifier).set(hidden: false);
+    await pumpEventQueue();
+
+    expect(r.gateway.appearances.last['todayMetrics'], [
+      'weight',
+      'energy',
+      'steps',
+    ]);
+  });
+
+  test('underage profile omits energy from published appearance while keeping stored config', () async {
+    final r = rig(
+      modules: {ModuleId.energy},
+      profile: fullProfile,
+      config: TodayWidgetConfig(
+        metrics: const [WidgetMetric.energy, WidgetMetric.steps],
+      ),
+    );
+    startWidgetPush(r.container);
+    await r.container.read(enabledModulesProvider.future);
+    await r.container.read(hideNumbersProvider.future);
+    await r.container.read(userProfileProvider.future);
+    await settle(r.container);
+
+    expect(r.gateway.appearances.last['todayMetrics'], ['energy', 'steps']);
+
+    await r.container
+        .read(userProfileProvider.notifier)
+        .save(const UserProfile(birthYear: 2012));
+    await pumpEventQueue();
+
+    expect(r.gateway.appearances.last['todayMetrics'], ['steps']);
+    expect(r.container.read(todayWidgetConfigProvider).metrics, [
+      WidgetMetric.energy,
+      WidgetMetric.steps,
+    ]);
+    expect(
+      r.configs.saved?.metrics ??
+          r.container.read(todayWidgetConfigProvider).metrics,
+      [WidgetMetric.energy, WidgetMetric.steps],
+    );
+
+    await r.container.read(userProfileProvider.notifier).save(fullProfile);
+    await pumpEventQueue();
+
+    expect(r.gateway.appearances.last['todayMetrics'], ['energy', 'steps']);
+  });
+
+  test(
+    'cold start strips metrics for modules already disabled in storage',
+    () async {
+      final r = rig(
+        config: TodayWidgetConfig(
+          metrics: const [
+            WidgetMetric.dayScore,
+            WidgetMetric.weight,
+            WidgetMetric.steps,
+          ],
+        ),
+      );
+      startWidgetPush(r.container);
+      await r.container.read(enabledModulesProvider.future);
+      await settle(r.container);
+
+      expect(r.configs.saved?.metrics, [WidgetMetric.steps]);
+      expect(r.gateway.appearances.last['todayMetrics'], ['steps']);
+    },
+  );
+
+  test('foreground trigger publishes v2 module snapshot, reacts to hideNumbers, and rolls energy at midnight', () async {
+    var now = metricsNow;
+    final scenario = fullDataScenario;
+    final gateway = FakeWidgetGateway();
+    final container = ProviderContainer.test(
+      overrides: [
+        clockProvider.overrideWithValue(() => now),
+        sleepHistoryReaderProvider.overrideWithValue(
+          FakeSleepHistoryReader(scenario.spans),
+        ),
+        heartHistoryReaderProvider.overrideWithValue(scenario.heart),
+        activityHistoryReaderProvider.overrideWithValue(
+          FakeActivityHistoryReader(scenario.activity, slots: scenario.slots),
+        ),
+        ringStatusReaderProvider.overrideWithValue(
+          MutableRingStatusReader(freshRing),
+        ),
+        themeModeStoreProvider.overrideWithValue(InMemoryThemeModeStore()),
+        widgetGatewayProvider.overrideWithValue(gateway),
+        todayWidgetConfigStoreProvider.overrideWithValue(
+          InMemoryTodayWidgetConfigStore(),
+        ),
+        workoutHistoryReaderProvider.overrideWithValue(ListedWorkouts()),
+        unitSystemStoreProvider.overrideWithValue(
+          InMemoryUnitSystemStore(UnitSystem.metric),
+        ),
+        moduleStoreProvider.overrideWithValue(
+          InMemoryModuleStore({
+            ModuleId.body,
+            ModuleId.openScore,
+            ModuleId.energy,
+            ModuleId.effort,
+            ModuleId.goals,
+          }),
+        ),
+        hideNumbersStoreProvider.overrideWithValue(InMemoryHideNumbersStore()),
+        userProfileStoreProvider.overrideWithValue(
+          InMemoryUserProfileStore(fullProfile),
+        ),
+      ],
+    );
+    startWidgetPush(container);
+    await settle(container);
+
+    final first = gateway.snapshots.last;
+    expect(first['version'], 2);
+    expect(first['date'], '2026-11-10');
+    expect(first['enabledModules'], [
+      'body',
+      'effort',
+      'energy',
+      'goals',
+      'openScore',
+    ]);
+    expect(first['hideNumbers'], isFalse);
+    expect(first['energy'], isNotNull);
+    expect(first['dayScore'], isNotNull);
+    expect(first['effort'], isNotNull);
+
+    await container.read(hideNumbersProvider.notifier).set(hidden: true);
+    await settle(container);
+
+    expect(gateway.snapshots.last['hideNumbers'], isTrue);
+    expect(gateway.snapshots.last['energy'], isNull);
+
+    await container.read(hideNumbersProvider.notifier).set(hidden: false);
+    await settle(container);
+
+    expect(gateway.snapshots.last['hideNumbers'], isFalse);
+    expect(gateway.snapshots.last['energy'], isNotNull);
+
+    // Midnight day roll with no ring sync must clear yesterday's energy.
+    now = DateTime.utc(2026, 11, 11, 0, 5);
+    container.invalidate(currentDateProvider);
+    await settle(container);
+
+    expect(gateway.snapshots.last['date'], '2026-11-11');
+    expect(gateway.snapshots.last['energy'], isNull);
+  });
+
+  test(
+    'setThisWeekAvailable toggles with Effort or Goals and deduplicates',
+    () async {
+      final (:container, :gateway, ring: _, configs: _, workouts: _) = rig();
+      addTearDown(container.dispose);
+
+      startWidgetPush(container);
+      await container.read(enabledModulesProvider.future);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false]);
+
+      await container
+          .read(enabledModulesProvider.notifier)
+          .enable(ModuleId.effort);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false, true]);
+
+      await container
+          .read(enabledModulesProvider.notifier)
+          .enable(ModuleId.goals);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false, true]);
+
+      await container
+          .read(enabledModulesProvider.notifier)
+          .disable(ModuleId.effort);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false, true]);
+
+      await container
+          .read(enabledModulesProvider.notifier)
+          .disable(ModuleId.goals);
+      await pumpEventQueue();
+      expect(gateway.thisWeekAvailable, [false, true, false]);
+    },
+  );
+
+  test('cold start with Effort already enabled emits only true', () async {
+    final (:container, :gateway, ring: _, configs: _, workouts: _) = rig(
+      modules: {ModuleId.effort},
+    );
+    addTearDown(container.dispose);
+
+    startWidgetPush(container);
+    await settle(container);
+
+    expect(gateway.thisWeekAvailable, [true]);
+  });
+
+  test('AndroidHomeWidgetGateway invokes widget_components channel', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    const channel = MethodChannel('gbs.openring.app/widget_components');
+    final calls = <MethodCall>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          calls.add(call);
+          return null;
+        });
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null),
+    );
+
+    const gateway = AndroidHomeWidgetGateway();
+    await gateway.setThisWeekAvailable(available: true);
+    await gateway.setThisWeekAvailable(available: false);
+
+    expect(calls.map((c) => (c.method, c.arguments)), [
+      ('setThisWeekAvailable', true),
+      ('setThisWeekAvailable', false),
+    ]);
+  });
+
+  test(
+    'setThisWeekAvailable serializes overlapping toggles in order',
+    () async {
+      final firstGate = Completer<void>();
+      final calls = <bool>[];
+      final publisher = WidgetPublisher(
+        _SlowAvailabilityGateway(calls, pauseFirst: firstGate),
+      );
+
+      final first = publisher.setThisWeekAvailable(available: true);
+      final dup = publisher.setThisWeekAvailable(available: true);
+      final drop = publisher.setThisWeekAvailable(available: false);
+      await pumpEventQueue();
+      expect(calls, [true]);
+
+      firstGate.complete();
+      await Future.wait([first, dup, drop]);
+
+      expect(calls, [true, false]);
+    },
+  );
+}
+
+final class _SlowAvailabilityGateway implements WidgetGateway {
+  new(this.calls, {required this.pauseFirst});
+
+  final List<bool> calls;
+  final Completer<void> pauseFirst;
+  var _first = true;
+
+  @override
+  Future<void> publish(String key, String json) async {}
+
+  @override
+  Future<bool> canPin() async => false;
+
+  @override
+  Future<void> pin(HomeWidgetKind kind) async {}
+
+  @override
+  Future<void> setThisWeekAvailable({required bool available}) async {
+    calls.add(available);
+    if (_first) {
+      _first = false;
+      await pauseFirst.future;
+    }
+  }
 }

@@ -94,6 +94,7 @@ void main() {
               clientId: clientId,
               activityType: 'walking',
               startUtcMs: _ms(start),
+              endUtcMs: Value(_ms(start.add(const Duration(minutes: 30)))),
               offsetMinutes: 0,
               deviceId: const Value(ringId),
             ),
@@ -111,6 +112,76 @@ void main() {
           for (final record in page.cast<WorkoutRecord>()) record.clientId,
       ],
       ['a', 'b', 'c'],
+    );
+  });
+
+  test('a workout record carries its stored rating as stored', () async {
+    for (final (clientId, hour, rating) in [
+      ('rated', 9, 7),
+      ('out-of-scale', 10, 42),
+      ('unrated', 11, null),
+    ]) {
+      await db
+          .into(db.workouts)
+          .insert(
+            WorkoutsCompanion.insert(
+              clientId: clientId,
+              activityType: 'walking',
+              startUtcMs: _ms(DateTime.utc(2026, 11, 10, hour)),
+              endUtcMs: Value(_ms(DateTime.utc(2026, 11, 10, hour, 30))),
+              offsetMinutes: 0,
+              effortRating: Value(rating),
+            ),
+          );
+    }
+
+    final pages = await ExportPagesDao(db)
+        .pages(ExportKind.workouts, from: _from, to: _to)
+        .toList();
+
+    expect(
+      {
+        for (final page in pages)
+          for (final record in page.cast<WorkoutRecord>())
+            record.clientId: record.effortRating,
+      },
+      {'rated': 7, 'out-of-scale': 42, 'unrated': null},
+    );
+  });
+
+  test('weigh-ins in the range are paged by time, then id', () async {
+    final morning = DateTime.utc(2026, 11, 10, 7);
+    for (final (at, kilograms) in [
+      (morning, 80.4),
+      (_from.subtract(const Duration(minutes: 1)), 99.0),
+      (morning, 80.6),
+      (DateTime.utc(2026, 11, 10, 6), 80.2),
+      (_to, 98.0),
+    ]) {
+      await db
+          .into(db.weighIns)
+          .insert(
+            WeighInsCompanion.insert(
+              atUtcMs: _ms(at),
+              offsetMinutes: -180,
+              kilograms: kilograms,
+              source: 'manual',
+            ),
+          );
+    }
+
+    final pages = await ExportPagesDao(
+      db,
+      pageSize: 2,
+    ).pages(ExportKind.weighIns, from: _from, to: _to).toList();
+
+    expect([for (final page in pages) page.length], [2, 1]);
+    expect(
+      [
+        for (final page in pages)
+          for (final record in page.cast<WeighInRecord>()) record.kilograms,
+      ],
+      [80.2, 80.4, 80.6],
     );
   });
 

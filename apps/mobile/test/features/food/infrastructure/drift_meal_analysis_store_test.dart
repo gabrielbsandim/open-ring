@@ -1,0 +1,898 @@
+import 'package:drift/drift.dart' hide isNotNull, isNull;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:metrics/metrics.dart' show FoodGroup;
+import 'package:open_ring/core/database/app_database.dart';
+import 'package:open_ring/core/database/app_database_provider.dart';
+import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/ai/domain/ai_report.dart';
+import 'package:open_ring/features/ai/domain/ai_wire_types.dart';
+import 'package:open_ring/features/ai/domain/meal_photo_result.dart';
+import 'package:open_ring/features/food/application/food_data.dart';
+import 'package:open_ring/features/food/application/meal_analysis_providers.dart';
+import 'package:open_ring/features/food/application/meal_store_providers.dart';
+import 'package:open_ring/features/food/domain/meal.dart';
+import 'package:open_ring/features/food/domain/meal_analysis.dart';
+import 'package:open_ring/features/food/domain/photo_store.dart';
+import 'package:open_ring/features/food/infrastructure/drift_meal_analysis_store.dart';
+import 'package:open_ring/features/food/infrastructure/drift_meal_store.dart';
+import 'package:open_ring/features/settings/infrastructure/device_local_data_eraser.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+
+import '../../../helpers/ai_fakes.dart';
+import '../../../helpers/database.dart';
+
+final _now = DateTime.utc(2026, 11, 24, 12);
+
+const MealAnalysisTarget _target = (
+  providerHost: 'api.example.com',
+  model: 'vision-1',
+  promptVersion: 1,
+  outputSchema: 1,
+);
+
+const MealAnalysisTarget _otherModel = (
+  providerHost: 'api.example.com',
+  model: 'vision-2',
+  promptVersion: 1,
+  outputSchema: 1,
+);
+
+const MealAnalysisTarget _withItems = (
+  providerHost: 'api.example.com',
+  model: 'vision-1',
+  promptVersion: 1,
+  outputSchema: 2,
+);
+
+const MealSentPhoto _sent = (
+  sha256: 'abc123',
+  width: 768,
+  height: 576,
+  bytes: 41000,
+);
+
+const _rice = MealPhotoItem(
+  name: 'rice',
+  measure: MealPhotoMeasure.servingSpoon,
+  countX2: 4,
+  grams: 180,
+);
+
+const _suggestion = MealPhotoSuggestion(
+  isFood: MealPhotoFlag.yes,
+  kind: MealPhotoKind.main,
+  protein: MealPhotoFlag.yes,
+  caffeine: MealPhotoFlag.no,
+  fried: MealPhotoFlag.no,
+  sugaryDrink: MealPhotoFlag.no,
+  veg: MealPhotoVeg.some,
+  alcohol: MealPhotoAlcohol.none,
+  processed: MealPhotoProcessed.notMostly,
+  items: [_rice],
+);
+
+MealAnalysisAnswer _done({
+  MealPhotoSuggestion suggestion = _suggestion,
+  String raw = '{"is_food":"yes"}',
+}) => (
+  status: MealAnalysisStatus.done,
+  sent: _sent,
+  suggestion: suggestion,
+  confidence: MealPhotoConfidence.medium,
+  rawText: raw,
+  usage: const AiTokenUsage(promptTokens: 900, completionTokens: 60),
+  cost: (cost: 0.002, currency: 'credits', source: AiCostSource.provider),
+  errorKind: null,
+);
+
+Future<int> _meal(AppDatabase db, {String photo = 'meal_1.jpg'}) async {
+  final meal = await DriftMealStore(db).add(
+    MealDraft(at: _now, offsetMinutes: -180),
+    now: _now,
+    photo: photo,
+  );
+  return meal.id;
+}
+
+Future<void> _userItem(AppDatabase db, int analysisId, String name) => db
+    .into(db.mealItems)
+    .insert(
+      MealItemsCompanion.insert(
+        analysisId: analysisId,
+        position: 9,
+        name: name,
+        measure: 'cup',
+        countX2: 2,
+        grams: 200,
+        origin: 'user',
+      ),
+    );
+
+Future<int> _analysisAt(
+  DriftMealAnalysisStore store,
+  int mealId,
+  MealAnalysisTarget target,
+  DateTime at,
+) async => (await store.enqueue(mealId, 'meal_1.jpg', target, now: at)).id;
+
+Future<int> _doneRow(DriftMealAnalysisStore store, int mealId) async {
+  final id = await _analysisAt(store, mealId, _target, _now);
+  await store.markSending(id, now: _now);
+  await store.complete(id, _done(), now: _now);
+  return id;
+}
+
+void main() {
+  late AppDatabase db;
+  late DriftMealAnalysisStore store;
+  late int mealId;
+
+  setUp(() async {
+    db = memoryDatabase();
+    store = DriftMealAnalysisStore(db);
+    mealId = await _meal(db);
+  });
+
+  group('enqueue', () {
+    test('the same meal, host, model and prompt twice gives one row', () async {
+      final first = await store.enqueue(
+        mealId,
+        'meal_1.jpg',
+        _target,
+        now: _now,
+      );
+      final second = await store.enqueue(
+        mealId,
+        'meal_1.jpg',
+        _target,
+        now: _now.add(const Duration(minutes: 1)),
+      );
+
+      expect(second.id, first.id);
+      expect(second.status, MealAnalysisStatus.queued);
+      expect(second.queuedAt, _now);
+      expect(await rowCount(db, 'meal_analyses'), 1);
+    });
+
+    test('a done row comes back cached with its items', () async {
+      final id = await _doneRow(store, mealId);
+
+      final cached = await store.enqueue(
+        mealId,
+        'meal_1.jpg',
+        _target,
+        now: _now.add(const Duration(hours: 1)),
+      );
+
+      expect(cached.id, id);
+      expect(cached.status, MealAnalysisStatus.done);
+      expect(cached.attempts, 1);
+      expect(cached.items.single.name, 'rice');
+    });
+
+    test('a not_food row comes back cached without a new queue', () async {
+      final id = await _analysisAt(store, mealId, _target, _now);
+      await store.markSending(id, now: _now);
+      await store.complete(id, (
+        status: MealAnalysisStatus.notFood,
+        sent: _sent,
+        suggestion: null,
+        confidence: null,
+        rawText: '{"is_food":"no"}',
+        usage: null,
+        cost: null,
+        errorKind: null,
+      ), now: _now);
+
+      final cached = await store.enqueue(
+        mealId,
+        'meal_1.jpg',
+        _target,
+        now: _now.add(const Duration(hours: 1)),
+      );
+
+      expect(cached.id, id);
+      expect(cached.status, MealAnalysisStatus.notFood);
+      expect(cached.queuedAt, _now);
+      expect(await store.next(), isNull);
+    });
+
+    test('a different photo name resets a done row to queued', () async {
+      final id = await _doneRow(store, mealId);
+      final later = _now.add(const Duration(hours: 1));
+
+      final reset = await store.enqueue(
+        mealId,
+        'meal_9.jpg',
+        _target,
+        now: later,
+      );
+
+      expect(reset.id, id);
+      expect(reset.status, MealAnalysisStatus.queued);
+      expect(reset.photoName, 'meal_9.jpg');
+      expect(reset.queuedAt, later);
+      expect(reset.items, isEmpty);
+    });
+
+    for (final (label, target, again) in [
+      ('a different output schema', _withItems, false),
+      ('again', _target, true),
+    ]) {
+      test('$label resets a done row to queued, keeping user items and hidden '
+          'chips', () async {
+        final id = await _doneRow(store, mealId);
+        await _userItem(db, id, 'juice');
+        await (db.update(db.mealAnalyses)..where((r) => r.id.equals(id))).write(
+          const MealAnalysesCompanion(hiddenOil: Value(true)),
+        );
+        final later = _now.add(const Duration(hours: 2));
+
+        final reset = await store.enqueue(
+          mealId,
+          'meal_1.jpg',
+          target,
+          now: later,
+          again: again,
+        );
+
+        expect(reset.id, id);
+        expect(reset.status, MealAnalysisStatus.queued);
+        expect(reset.target.outputSchema, target.outputSchema);
+        expect(reset.queuedAt, later);
+        expect(reset.attempts, 0);
+        expect(reset.sent, isNull);
+        expect(reset.resultJson, isNull);
+        expect(reset.rawText, isNull);
+        expect(reset.hiddenOil, isTrue);
+        expect(reset.items.map((i) => (i.name, i.origin)), [
+          ('juice', MealItemOrigin.user),
+        ]);
+        expect(await rowCount(db, 'meal_analyses'), 1);
+      });
+    }
+  });
+
+  group('send cycle', () {
+    test(
+      'next is the oldest queued row and markSending counts the attempt',
+      () async {
+        final second = await _meal(db, photo: 'meal_2.jpg');
+        final later = await _analysisAt(
+          store,
+          mealId,
+          _target,
+          _now.add(const Duration(minutes: 5)),
+        );
+        final early = await _analysisAt(store, second, _target, _now);
+
+        expect((await store.next())!.id, early);
+        expect(await store.markSending(early, now: _now), isTrue);
+        expect(await store.markSending(early, now: _now), isFalse);
+        expect((await store.next())!.id, later);
+        expect((await store.byMeal(second)).single.attempts, 1);
+      },
+    );
+
+    test(
+      'requeue moves only a sending row back and undoes its attempt',
+      () async {
+        final id = await _analysisAt(store, mealId, _target, _now);
+        await store.markSending(id, now: _now);
+
+        expect(await store.requeue(id, now: _now), isTrue);
+        expect(await store.requeue(id, now: _now), isFalse);
+
+        final row = (await store.byMeal(mealId)).single;
+        expect((row.status, row.attempts), (MealAnalysisStatus.queued, 0));
+        expect((await store.next())!.id, id);
+      },
+    );
+
+    test('complete stores the answer and replaces only model items', () async {
+      final id = await _doneRow(store, mealId);
+      await _userItem(db, id, 'juice');
+      await store.enqueue(
+        mealId,
+        'meal_1.jpg',
+        _target,
+        now: _now,
+        again: true,
+      );
+      await store.markSending(id, now: _now);
+      const bread = MealPhotoItem(
+        name: 'bread',
+        measure: MealPhotoMeasure.slice,
+        countX2: 2,
+        grams: 50,
+      );
+
+      final written = await store.complete(
+        id,
+        _done(suggestion: _suggestion.withItems([bread])),
+        now: _now,
+      );
+
+      final row = (await store.byMeal(mealId)).single;
+      expect(written, isTrue);
+      expect(row.status, MealAnalysisStatus.done);
+      expect(row.sent, _sent);
+      expect(row.confidence, MealPhotoConfidence.medium);
+      final stored = await db.select(db.mealAnalyses).getSingle();
+      expect(
+        (stored.promptTokens, stored.cost, stored.costSource),
+        (900, 0.002, 'provider'),
+      );
+      expect(row.suggestion?.kind, MealPhotoKind.main);
+      expect(row.items.map((i) => i.name), ['bread', 'juice']);
+      expect(await rowCount(db, 'meal_items'), 2);
+    });
+
+    test('complete refuses a row that is not sending', () async {
+      final id = await _analysisAt(store, mealId, _target, _now);
+
+      expect(await store.complete(id, _done(), now: _now), isFalse);
+      expect(await rowCount(db, 'meal_items'), 0);
+    });
+
+    test('fail and skip write the status and reason', () async {
+      final second = await _meal(db, photo: 'meal_2.jpg');
+      final failed = await _analysisAt(store, mealId, _target, _now);
+      final skipped = await _analysisAt(store, second, _target, _now);
+      await store.markSending(failed, now: _now);
+
+      expect(await store.fail(failed, 'timeout', now: _now), isTrue);
+      expect(await store.skip(skipped, 'cancelled', now: _now), isTrue);
+      expect(await store.skip(failed, 'cancelled', now: _now), isFalse);
+
+      final a = (await store.byMeal(mealId)).single;
+      final b = (await store.byMeal(second)).single;
+      expect((a.status, a.errorKind), (MealAnalysisStatus.failed, 'timeout'));
+      expect(
+        (b.status, b.errorKind),
+        (MealAnalysisStatus.skipped, 'cancelled'),
+      );
+    });
+  });
+
+  group('resend and retry', () {
+    test('countResend adds an attempt to a sending row only', () async {
+      final id = await _analysisAt(store, mealId, _target, _now);
+      expect(await store.countResend(id, now: _now), isFalse);
+      await store.markSending(id, now: _now);
+
+      expect(await store.countResend(id, now: _now), isTrue);
+      expect((await store.byId(id))!.attempts, 2);
+    });
+
+    test('retry moves failed or rejected to queued, keeping attempts and '
+        'queued_at', () async {
+      final id = await _analysisAt(store, mealId, _target, _now);
+      await store.markSending(id, now: _now);
+      await store.fail(id, 'serverError', now: _now);
+      final later = _now.add(const Duration(hours: 2));
+
+      expect(await store.retry(id, now: later), isTrue);
+      final row = (await store.byId(id))!;
+      expect(
+        (row.status, row.errorKind, row.attempts),
+        (MealAnalysisStatus.queued, null, 1),
+      );
+      expect(row.queuedAt, _now);
+      expect(await store.retry(id, now: later), isFalse);
+    });
+
+    test('retry refuses a done row', () async {
+      final id = await _doneRow(store, mealId);
+
+      expect(await store.retry(id, now: _now), isFalse);
+    });
+  });
+
+  group('maintenance', () {
+    test('purgeRawBefore nulls raw_text only', () async {
+      await _doneRow(store, mealId);
+
+      final purged = await store.purgeRawBefore(
+        _now.add(const Duration(days: 30)),
+      );
+
+      final row = (await store.byMeal(mealId)).single;
+      expect(purged, 1);
+      expect(row.rawText, isNull);
+      expect(row.resultJson, isNotNull);
+      expect(row.status, MealAnalysisStatus.done);
+      expect(row.items, hasLength(1));
+      expect(await store.purgeRawBefore(_now), 0);
+    });
+
+    test('expireBefore skips only queued rows older than the cutoff', () async {
+      final second = await _meal(db, photo: 'meal_2.jpg');
+      final third = await _meal(db, photo: 'meal_3.jpg');
+      final old = await _analysisAt(store, mealId, _target, _now);
+      await _analysisAt(
+        store,
+        second,
+        _target,
+        _now.add(const Duration(days: 2)),
+      );
+      final sending = await _analysisAt(store, third, _target, _now);
+      await store.markSending(sending, now: _now);
+      final now = _now.add(const Duration(days: 7, minutes: 1));
+
+      final expired = await store.expireBefore(
+        now.subtract(const Duration(days: 7)),
+        now: now,
+      );
+
+      final row = (await store.byMeal(mealId)).single;
+      expect(expired, 1);
+      expect(row.id, old);
+      expect(
+        (row.status, row.errorKind),
+        (MealAnalysisStatus.skipped, 'expired'),
+      );
+      expect(
+        (await store.byMeal(second)).single.status,
+        MealAnalysisStatus.queued,
+      );
+      expect(
+        (await store.byMeal(third)).single.status,
+        MealAnalysisStatus.sending,
+      );
+    });
+
+    test('skipOffTarget skips only queued rows of another target', () async {
+      final second = await _meal(db, photo: 'meal_2.jpg');
+      final third = await _meal(db, photo: 'meal_3.jpg');
+      await _analysisAt(store, mealId, _target, _now);
+      await _analysisAt(store, second, _otherModel, _now);
+      final sending = await _analysisAt(store, third, _otherModel, _now);
+      await store.markSending(sending, now: _now);
+
+      final skipped = await store.skipOffTarget(
+        'api.example.com',
+        'vision-1',
+        now: _now,
+      );
+
+      final off = (await store.byMeal(second)).single;
+      expect(skipped, 1);
+      expect(
+        (await store.byMeal(mealId)).single.status,
+        MealAnalysisStatus.queued,
+      );
+      expect(
+        (off.status, off.errorKind),
+        (MealAnalysisStatus.skipped, 'target_changed'),
+      );
+      expect(
+        (await store.byMeal(third)).single.status,
+        MealAnalysisStatus.sending,
+      );
+    });
+
+    test('skipOffTarget skips a queued row of another host with the same '
+        'model', () async {
+      const otherHost = (
+        providerHost: 'other.example.com',
+        model: 'vision-1',
+        promptVersion: 1,
+        outputSchema: 1,
+      );
+      final id = await _analysisAt(store, mealId, otherHost, _now);
+
+      final skipped = await store.skipOffTarget(
+        'api.example.com',
+        'vision-1',
+        now: _now,
+      );
+
+      final row = (await store.byMeal(mealId)).single;
+      expect(skipped, 1);
+      expect(row.id, id);
+      expect(
+        (row.status, row.errorKind),
+        (MealAnalysisStatus.skipped, 'target_changed'),
+      );
+    });
+
+    test('recoverInterrupted fails sending rows as interrupted', () async {
+      final second = await _meal(db, photo: 'meal_2.jpg');
+      final sending = await _analysisAt(store, mealId, _target, _now);
+      await _analysisAt(store, second, _target, _now);
+      await store.markSending(sending, now: _now);
+
+      expect(await store.recoverInterrupted(now: _now), 1);
+
+      final row = (await store.byMeal(mealId)).single;
+      expect(
+        (row.status, row.errorKind),
+        (MealAnalysisStatus.failed, 'interrupted'),
+      );
+      expect(
+        (await store.byMeal(second)).single.status,
+        MealAnalysisStatus.queued,
+      );
+    });
+
+    test('countQueuedSince counts every status but skipped', () async {
+      final second = await _meal(db, photo: 'meal_2.jpg');
+      final third = await _meal(db, photo: 'meal_3.jpg');
+      final midnight = DateTime.utc(2026, 11, 24);
+      await _analysisAt(
+        store,
+        mealId,
+        _target,
+        midnight.subtract(const Duration(minutes: 1)),
+      );
+      final skipped = await _analysisAt(store, second, _target, _now);
+      await _analysisAt(store, third, _target, _now);
+      await store.skip(skipped, 'cancelled', now: _now);
+
+      expect(await store.countQueuedSince(midnight), 1);
+    });
+
+    test(
+      'countQueued counts queued rows of this target since the cutoff',
+      () async {
+        final ids = [
+          mealId,
+          for (final n in [2, 3, 4, 5, 6, 7])
+            await _meal(db, photo: 'meal_$n.jpg'),
+        ];
+        await _doneRow(store, ids[0]);
+        final sending = await _analysisAt(store, ids[1], _target, _now);
+        await store.markSending(sending, now: _now);
+        final failed = await _analysisAt(store, ids[2], _target, _now);
+        await store.fail(failed, 'timeout', now: _now);
+        final skipped = await _analysisAt(store, ids[3], _target, _now);
+        await store.skip(skipped, 'cancelled', now: _now);
+        await _analysisAt(store, ids[4], _target, _now);
+        await _analysisAt(store, ids[5], _otherModel, _now);
+        final week = _now.subtract(const Duration(days: 7));
+        await _analysisAt(
+          store,
+          ids[6],
+          _target,
+          week.subtract(const Duration(minutes: 1)),
+        );
+        final count = store.countQueued;
+
+        expect(await count('api.example.com', 'vision-1', since: week), 1);
+        expect(await count('api.example.com', 'vision-2', since: week), 1);
+        expect(await count('other.example.com', 'vision-1', since: week), 0);
+      },
+    );
+  });
+
+  group('keep on phone', () {
+    test('reads false by default and survives deleteAll', () async {
+      await _doneRow(store, mealId);
+      expect(await store.keepOnPhone(mealId), isFalse);
+
+      expect(await store.setKeepOnPhone(mealId, keep: true), isTrue);
+      await store.deleteAll();
+
+      expect(await store.keepOnPhone(mealId), isTrue);
+      expect(await rowCount(db, 'meal_analyses'), 0);
+      expect(await rowCount(db, 'meal_items'), 0);
+      expect(await store.setKeepOnPhone(999, keep: true), isFalse);
+    });
+  });
+
+  group('deletion', () {
+    test('deleting a meal deletes its analyses and items', () async {
+      final second = await _meal(db, photo: 'meal_2.jpg');
+      await _doneRow(store, mealId);
+      await _analysisAt(store, second, _target, _now);
+
+      await DriftMealStore(db).delete(mealId);
+
+      expect(await store.byMeal(mealId), isEmpty);
+      expect(await rowCount(db, 'meal_analyses'), 1);
+      expect(await rowCount(db, 'meal_items'), 0);
+    });
+
+    test('FoodDataEraser.clear leaves both tables empty', () async {
+      await _doneRow(store, mealId);
+      final container = ProviderContainer(
+        overrides: [
+          mealStoreProvider.overrideWithValue(DriftMealStore(db)),
+          photoStoreProvider.overrideWithValue(InMemoryPhotoStore()),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      expect(await container.read(foodDataEraserProvider).clear(), isTrue);
+
+      expect(await rowCount(db, 'meal_analyses'), 0);
+      expect(await rowCount(db, 'meal_items'), 0);
+    });
+
+    test('DeviceLocalDataEraser.eraseAll leaves both tables empty', () async {
+      SharedPreferencesAsyncPlatform.instance =
+          InMemorySharedPreferencesAsync.empty();
+      await _doneRow(store, mealId);
+
+      await DeviceLocalDataEraser(
+        db,
+        InMemoryPhotoStore(),
+        secrets: InMemorySecretStore(),
+      ).eraseAll();
+
+      expect(await rowCount(db, 'meal_analyses'), 0);
+      expect(await rowCount(db, 'meal_items'), 0);
+    });
+  });
+
+  group('items and hidden chips', () {
+    test('setItemCount steps the count, scales grams and confirms', () async {
+      final id = await _doneRow(store, mealId);
+      final item = (await store.byId(id))!.items.single;
+      expect(item.confirmed, isFalse);
+
+      expect(await store.setItemCount(item.id, 5), isTrue);
+
+      final stepped = (await store.byId(id))!.items.single;
+      expect((stepped.id, stepped.countX2, stepped.grams), (item.id, 5, 225));
+      expect(stepped.confirmed, isTrue);
+      expect(stepped.origin, MealItemOrigin.user);
+    });
+
+    Future<MealAnalysisItem> answered(
+      String name,
+      int countX2,
+      int grams,
+    ) async {
+      final id = await _analysisAt(store, mealId, _target, _now);
+      await store.markSending(id, now: _now);
+      final item = MealPhotoItem(
+        name: name,
+        measure: MealPhotoMeasure.tongs,
+        countX2: countX2,
+        grams: grams,
+      );
+      await store.complete(
+        id,
+        _done(suggestion: _suggestion.withItems([item])),
+        now: _now,
+      );
+      return (await store.byId(id))!.items.single;
+    }
+
+    Future<int> grams(int itemId, int countX2) async {
+      await store.setItemCount(itemId, countX2);
+      final rows = await store.byMeal(mealId);
+      return rows.single.items.single.grams;
+    }
+
+    test('grams scale from the model item, so steps never drift', () async {
+      final salad = await answered('salad', 2, 15);
+
+      expect(await grams(salad.id, 1), 8);
+      expect(await grams(salad.id, 2), 15);
+    });
+
+    test('a count that does not divide evenly rounds once', () async {
+      final beans = await answered('beans', 3, 50);
+
+      expect(await grams(beans.id, 4), 67);
+      expect(await grams(beans.id, 5), 83);
+    });
+
+    test('an edited item survives again and the next answer adds no '
+        'duplicate', () async {
+      final id = await _doneRow(store, mealId);
+      final rice = (await store.byId(id))!.items.single;
+      await store.setItemCount(rice.id, 6);
+
+      await store.enqueue(
+        mealId,
+        'meal_1.jpg',
+        _target,
+        now: _now,
+        again: true,
+      );
+      await store.markSending(id, now: _now);
+      await store.complete(id, _done(), now: _now);
+
+      final items = (await store.byId(id))!.items;
+      expect(items.map((i) => (i.name, i.countX2, i.grams, i.origin)), [
+        ('rice', 6, 270, MealItemOrigin.user),
+      ]);
+      expect(items.single.confirmed, isTrue);
+    });
+
+    test(
+      'setItemCount at 0 removes the item; a missing item is false',
+      () async {
+        final id = await _doneRow(store, mealId);
+        final item = (await store.byId(id))!.items.single;
+
+        expect(await store.setItemCount(item.id, 0), isTrue);
+
+        expect((await store.byId(id))!.items, isEmpty);
+        expect(await rowCount(db, 'meal_items'), 0);
+        expect(await store.setItemCount(item.id, 2), isFalse);
+      },
+    );
+
+    test('setHidden writes only the chips given and survives again', () async {
+      final id = await _doneRow(store, mealId);
+
+      expect(await store.setHidden(id, oil: true, sugar: true), isTrue);
+      expect(await store.setHidden(id, sugar: false), isTrue);
+      expect(await store.setHidden(id), isFalse);
+      expect(await store.setHidden(999, oil: true), isFalse);
+      final reset = await store.enqueue(
+        mealId,
+        'meal_1.jpg',
+        _target,
+        now: _now.add(const Duration(hours: 1)),
+        again: true,
+      );
+
+      expect(reset.status, MealAnalysisStatus.queued);
+      expect(
+        (reset.hiddenOil, reset.hiddenSauce, reset.hiddenSugar),
+        (true, false, false),
+      );
+    });
+
+    test('both bump the analysis revision, never dataRevision', () async {
+      final container = ProviderContainer(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          driftMealAnalysisStoreOverride,
+        ],
+      );
+      addTearDown(container.dispose);
+      final id = await _doneRow(store, mealId);
+      final item = (await store.byId(id))!.items.single;
+      final analyses = container.read(mealAnalysisStoreProvider);
+
+      await analyses.setHidden(id, sauce: true);
+      await analyses.setItemCount(item.id, 3);
+      await analyses.setItemCount(item.id, 0);
+
+      expect(container.read(mealAnalysisRevisionProvider), 3);
+      expect(container.read(dataRevisionProvider), 0);
+    });
+  });
+
+  test('the production wiring bumps the analysis revision on each write, '
+      'never dataRevision', () async {
+    final container = ProviderContainer(
+      overrides: [
+        appDatabaseProvider.overrideWithValue(db),
+        driftMealAnalysisStoreOverride,
+      ],
+    );
+    addTearDown(container.dispose);
+    final analyses = container.read(mealAnalysisStoreProvider);
+
+    final id = (await analyses.enqueue(
+      mealId,
+      'meal_1.jpg',
+      _target,
+      now: _now,
+    )).id;
+    await analyses.markSending(id, now: _now);
+    await analyses.complete(id, _done(), now: _now);
+    await analyses.setKeepOnPhone(mealId, keep: true);
+    await analyses.purgeRawBefore(_now.add(const Duration(days: 31)));
+    await analyses.deleteAll();
+    await analyses.recoverInterrupted(now: _now);
+
+    expect(container.read(mealAnalysisRevisionProvider), 6);
+    expect(container.read(dataRevisionProvider), 0);
+  });
+
+  group('food group, confirmItems and byMeals', () {
+    const chicken = MealPhotoItem(
+      name: 'chicken',
+      measure: MealPhotoMeasure.fillet,
+      countX2: 2,
+      grams: 120,
+      group: FoodGroup.poultry,
+    );
+    const beans = MealPhotoItem(
+      name: 'beans',
+      measure: MealPhotoMeasure.ladle,
+      countX2: 2,
+      grams: 140,
+      group: FoodGroup.legumeCooked,
+    );
+
+    Future<int> grouped() async {
+      final id = await _analysisAt(store, mealId, _withItems, _now);
+      await store.markSending(id, now: _now);
+      await store.complete(
+        id,
+        _done(suggestion: _suggestion.withItems([chicken, beans])),
+        now: _now,
+      );
+      return id;
+    }
+
+    test('complete writes each group and a step keeps it', () async {
+      final id = await grouped();
+      final items = (await store.byId(id))!.items;
+      expect(items.map((i) => (i.name, i.group)), [
+        ('chicken', FoodGroup.poultry),
+        ('beans', FoodGroup.legumeCooked),
+      ]);
+
+      await store.setItemCount(items.first.id, 4);
+
+      final stepped = (await store.byId(id))!.items.first;
+      expect((stepped.countX2, stepped.group), (4, FoodGroup.poultry));
+    });
+
+    test('an item with no stored group reads as other', () async {
+      final id = await grouped();
+      await _userItem(db, id, 'juice');
+
+      final juice = (await store.byId(id))!.items.last;
+
+      expect((juice.name, juice.group), ('juice', FoodGroup.other));
+    });
+
+    test('confirmItems confirms every item of the row only', () async {
+      final id = await grouped();
+      final otherMeal = await _meal(db, photo: 'meal_2.jpg');
+      final other = await _doneRow(store, otherMeal);
+
+      expect(await store.confirmItems(id), isTrue);
+
+      expect((await store.byId(id))!.items.map((i) => i.confirmed), [
+        true,
+        true,
+      ]);
+      expect((await store.byId(other))!.items.single.confirmed, isFalse);
+    });
+
+    test('confirmItems is false for a row with no items', () async {
+      final id = await _analysisAt(store, mealId, _target, _now);
+
+      expect(await store.confirmItems(id), isFalse);
+      expect(await store.confirmItems(999), isFalse);
+    });
+
+    test('confirmItems bumps only the analysis revision', () async {
+      final container = ProviderContainer(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          driftMealAnalysisStoreOverride,
+        ],
+      );
+      addTearDown(container.dispose);
+      final id = await grouped();
+
+      await container.read(mealAnalysisStoreProvider).confirmItems(id);
+
+      expect(container.read(mealAnalysisRevisionProvider), 1);
+      expect(container.read(dataRevisionProvider), 0);
+    });
+
+    test('byMeals groups every row by meal and leaves out meals with '
+        'none', () async {
+      final second = await _meal(db, photo: 'meal_2.jpg');
+      final empty = await _meal(db, photo: 'meal_3.jpg');
+      final a = await _analysisAt(store, mealId, _target, _now);
+      final b = await _analysisAt(store, mealId, _otherModel, _now);
+      final c = await _doneRow(store, second);
+
+      final rows = await store.byMeals({mealId, second, empty});
+
+      expect(rows.keys, unorderedEquals([mealId, second]));
+      expect(rows[mealId]!.map((r) => r.id), [a, b]);
+      expect(rows[second]!.single.id, c);
+      expect(rows[second]!.single.items.single.name, 'rice');
+      expect(await store.byMeals({}), isEmpty);
+    });
+  });
+}

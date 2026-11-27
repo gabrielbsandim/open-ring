@@ -9,6 +9,7 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
+import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/health_sync/application/health_status_providers.dart';
 import 'package:open_ring/features/health_sync/presentation/health_status_screen.dart';
 import 'package:open_ring/features/onboarding/presentation/onboarding_page.dart';
@@ -28,6 +29,7 @@ class SettingsScreen extends ConsumerWidget {
   static const exportKey = Key('settings_export');
   static const sourcesKey = Key('settings_sources');
   static const widgetsKey = Key('settings_widgets');
+  static const modulesKey = Key('settings_modules');
 
   static Key themeModeKey(ThemeMode mode) => Key('theme_mode_${mode.name}');
 
@@ -52,6 +54,17 @@ class SettingsScreen extends ConsumerWidget {
         SectionHeader(l10n.settingsGeneral),
         TileGroup(
           children: [
+            SettingsTile(
+              key: modulesKey,
+              leading: Icon(Icons.grid_view_rounded, color: colors.textPrimary),
+              title: l10n.modulesTitle,
+              detail: _modulesDetail(
+                l10n,
+                ref.watch(activeModulesProvider).length,
+              ),
+              chevron: true,
+              onTap: () => context.go(AppPaths.settingsModules),
+            ),
             _ChoiceTile<UnitSystem>(
               title: l10n.settingsUnits,
               values: UnitSystem.values,
@@ -121,6 +134,9 @@ class SettingsScreen extends ConsumerWidget {
       ],
     );
   }
+
+  String _modulesDetail(AppLocalizations l10n, int on) =>
+      on == 0 ? l10n.modulesNoneOn : l10n.modulesOnCount(on);
 
   void _selectTheme(WidgetRef ref, ThemeMode mode) =>
       unawaited(ref.read(themeModeProvider.notifier).select(mode));

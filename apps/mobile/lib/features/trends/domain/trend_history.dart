@@ -12,7 +12,9 @@ final class TrendHistory {
     required this.today,
     required Map<TrendMetric, List<DailyValue>> values,
     required Map<TrendMetric, TrendBand> bands,
+    Map<TrendMetric, List<DailyValue>> lead = const {},
   }) : _values = Map.unmodifiable(values),
+       _lead = Map.unmodifiable(lead),
        bands = Map.unmodifiable(bands);
 
   factory collect({
@@ -29,16 +31,25 @@ final class TrendHistory {
       for (final night in nights)
         if (_inHistory(today, night.date)) night,
     ];
-    List<DailyValue> nightly(double? Function(SleepNight night) measure) => [
-      for (final night in kept)
+    final before = [
+      for (final night in nights)
+        if (_inLead(today, night.date)) night,
+    ];
+    List<DailyValue> measured(
+      List<SleepNight> from,
+      double? Function(SleepNight night) measure,
+    ) => [
+      for (final night in from)
         if (measure(night) case final value?) (date: night.date, value: value),
     ];
-    final resting = nightly(
-      (n) => restingHeartRate(heartRate.where((s) => _during(s.at, n))),
-    );
-    final nightlyHrvValues = nightly(
-      (n) => nightlyHrv(hrv.where((r) => _during(r.at, n))),
-    );
+    List<DailyValue> nightly(double? Function(SleepNight night) measure) =>
+        measured(kept, measure);
+    double? restingOf(SleepNight n) =>
+        restingHeartRate(heartRate.where((s) => _during(s.at, n)));
+    double? hrvOf(SleepNight n) =>
+        nightlyHrv(hrv.where((r) => _during(r.at, n)));
+    final resting = nightly(restingOf);
+    final nightlyHrvValues = nightly(hrvOf);
     final values = <TrendMetric, List<DailyValue>>{
       TrendMetric.restingHeartRate: resting,
       TrendMetric.hrv: nightlyHrvValues,
@@ -67,14 +78,37 @@ final class TrendHistory {
         hrvBaseline(nightlyHrvValues, today: today),
       ),
     };
-    return TrendHistory(today: today, values: values, bands: bands);
+    return TrendHistory(
+      today: today,
+      values: values,
+      bands: bands,
+      lead: {
+        TrendMetric.restingHeartRate: measured(before, restingOf),
+        TrendMetric.hrv: measured(before, hrvOf),
+      },
+    );
   }
+
+  TrendHistory withValues(TrendMetric metric, List<DailyValue> values) =>
+      TrendHistory(
+        today: today,
+        values: {..._values, metric: values},
+        bands: bands,
+        lead: _lead,
+      );
 
   final LocalDate today;
   final Map<TrendMetric, List<DailyValue>> _values;
+  final Map<TrendMetric, List<DailyValue>> _lead;
   final Map<TrendMetric, TrendBand> bands;
 
   List<DailyValue> values(TrendMetric metric) => _values[metric] ?? const [];
+
+  /// The values plus the nights before the history that only feed a baseline.
+  List<DailyValue> withLead(TrendMetric metric) => [
+    ...?_lead[metric],
+    ...values(metric),
+  ];
 
   bool get isEmpty => _values.values.every((v) => v.isEmpty);
 
@@ -88,6 +122,12 @@ final class TrendHistory {
   static bool _inHistory(LocalDate today, LocalDate date) {
     final age = today.daysSince(date);
     return age >= 0 && age < trendHistoryDays;
+  }
+
+  static bool _inLead(LocalDate today, LocalDate date) {
+    final age = today.daysSince(date);
+    return age >= trendHistoryDays &&
+        age < trendHistoryDays + baselineWindowDays;
   }
 
   static bool _during(DateTime at, SleepNight night) =>

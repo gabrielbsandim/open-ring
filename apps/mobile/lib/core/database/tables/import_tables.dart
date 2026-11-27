@@ -39,6 +39,7 @@ class ImportedWorkouts extends Table {
   IntColumn get endUtcMs => integer()();
   IntColumn get offsetMinutes => integer()();
   IntColumn get importedAtUtcMs => integer()();
+  IntColumn get effortRating => integer().nullable()();
 
   @override
   Set<Column<Object>> get primaryKey => {recordId};

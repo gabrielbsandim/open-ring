@@ -1,7 +1,7 @@
 # Metrics
 
-Every number OpenRing derives from ring samples, with its formula, constants,
-inputs, minimum data rule and sources. The code lives in `packages/metrics`
+Every number OpenRing derives from ring samples or from what the user logs,
+with its formula, constants, inputs, minimum data rule and sources. The code lives in `packages/metrics`
 (pure Dart, no Flutter). The constants below are named constants or parameter
 defaults there, except the stress bands, `220 - age` and the accepted input
 ranges, which are literals in the function that applies them, so this file and
@@ -492,6 +492,10 @@ a population average for the activity scaled by body weight and time.
 active kcal = (MET - 1) * weight kg * elapsed hours
 ```
 
+The weight is read when the workout starts: the latest weigh-in when the Body
+module is on and has one, otherwise the profile weight. With neither there is
+no energy number.
+
 | Type | MET | GPS | Basis |
 | :--- | :--- | :--- | :--- |
 | running | 9.8 | on | **sourced**: Compendium code 12050, running 6 mph (Ainsworth 2011) |
@@ -613,6 +617,1927 @@ of section 5 as of today, one SD either side of the mean (on the log scale for
 HRV, then converted back to ms). The other series have no published baseline,
 so they show none.
 
+## 13. Weight (trend, rate, noise)
+
+Functions: `dailyWeights(weighIns)`, `weightTrend(weighIns)`,
+`weightRate(weighIns, today)`, `weightNoise(weighIns)`.
+
+Inputs: weigh-ins in kilograms, each with its local date. Values that are not
+finite are dropped.
+
+```
+daily   = one value per local date, the mean of that date's weigh-ins
+
+trend_1 = mean of the first min(7, n) daily values
+gap     = days since the previous daily value (>= 1)
+pull    = 1 - (1 - alpha)^gap
+trend_d = trend_prev + pull * (daily_d - trend_prev)
+
+window  = daily values with 0 <= today - date < 28
+t_i     = days since the first date of the window
+slope   = sum((t_i - mean t) * (w_i - mean w)) / sum((t_i - mean t)^2)
+se      = sqrt( sum(residual_i^2) / (n - 2) / sum((t_i - mean t)^2) )
+rate    = 7 * slope                              kg per week
+low, high = 7 * (slope -/+ t(0.975, n - 2) * se)
+stable  = low <= 0 <= high
+
+noise   = max( floor, sqrt( mean((daily_d - trend_d)^2) ) )
+```
+
+| Constant | Value | Basis |
+| :--- | :--- | :--- |
+| `weightTrendAlpha` | 0.1 per day | **sourced** method and value: Walker 1991, 10 percent smoothing. Half life 6.6 days. |
+| `weightTrendSeedDays` | 7 | **our choice**. Starting at the mean of the first week keeps one odd first weigh-in from setting the trend for a month. |
+| `weightRateWindowDays` | 28 days | **our choice**. With a day to day spread of 0.6 kg and daily weigh-ins the 95 percent interval of the slope is about 0.55 kg per week either side at 14 days and 0.19 at 28, so four weeks can tell 0.25 kg per week from nothing and two cannot. |
+| `weightRateMinDays` | 8 dates | **our choice**. Six degrees of freedom is the least we accept for an interval. |
+| `weightRateMinSpanDays` | 14 days | **our choice**. Eight dates inside one week measure water, not a rate. |
+| interval | Student t, 95 percent, n - 2 degrees of freedom | **sourced**: the standard interval of a least squares slope. The normal 1.96 would be too narrow at 8 dates (the t value is 2.447). |
+| `weightNoiseMinDays` | 3 dates | **our choice**. Below that the band is `weightNoiseDefault`. |
+| `weightNoiseDefault` | 0.5 kg | **our choice**, the low end of the 0.5 to 1 kg day to day spread of body weight from water, glycogen, gut content and sodium. |
+| `weightNoiseFloor` | 0.35 kg | **our choice**. A few close weigh-ins must not draw a band narrower than a scale and a glass of water can move. |
+
+Below `weightRateMinDays` dates or `weightRateMinSpanDays` of span the rate is
+`WeightRateBuilding(daysMissing, spanMissing)`, never a number. When the
+interval contains zero the rate is `stable`: the change is not larger than the
+noise, and the app shows no direction.
+
+Under a steady change the trend lags the true weight by
+`(1 - alpha) / alpha = 9` days of change. So the trend is for display and the
+rate comes from the raw daily values, not from the trend.
+
+The weigh-ins used for the first trend value are counted again by the
+following steps, and the noise is measured around that same trend, so the band
+of a short series is rough. It is a drawing aid, not an interval.
+
+The same noise widens the Trajectory scenario band (section 25) on both
+edges.
+
+## 14. Intensity minutes
+
+Functions: `heartRateIntensity(samples, maxHeartRate, maxHold)`,
+`metIntensity(met, elapsed)`, `workoutIntensity(met, elapsed, heartRate,
+maxHeartRate)`, `walkingIntensity(buckets, workouts)`,
+`weeklyIntensityMinutes(dailyEquivalent, today, windowDays, minDays)`.
+
+```
+equivalent = moderate + 2 * vigorous                       minutes
+
+by heart rate: a sample counts for the time to the next one, at most maxHold
+  moderate when 0.64 * max <= bpm < 0.77 * max
+  vigorous when bpm >= 0.77 * max
+
+by type:       met < 3 earns nothing
+               3 <= met < 6 is moderate for the whole elapsed time
+               met >= 6 is vigorous for the whole elapsed time
+
+workout      = the credit with the larger equivalent of the two
+               (by type alone when there is no max heart rate)
+
+walking      = minutes of every activity bucket with steps / minutes >= 100
+               that does not overlap a workout, all moderate
+
+weekly       = sum of the daily equivalents with 0 <= today - date < 7
+```
+
+`weeklyIntensityMinutes` takes one value for each day the ring reported
+activity, zero included, so a rest day counts as a day of data. A date given
+twice counts once.
+
+| Constant | Value | Basis |
+| :--- | :--- | :--- |
+| `vigorousMinuteWeight` | 2 | **sourced**, WHO 2020 treats one vigorous minute as two moderate ones. Checked against the source on 2026-11-15. |
+| `moderateFraction`, `vigorousFraction` | 0.64, 0.77 of max heart rate | **sourced**, Garber 2011 (ACSM). Checked on 2026-11-15 through a secondary table of the position stand, not the paper itself. Stricter than the 50 and 70 percent some apps use. |
+| `moderateMet`, `vigorousMet` | 3, 6 | **sourced**, the WHO 2020 definitions of moderate and vigorous. Checked against the source on 2026-11-15. |
+| larger of the two credits | | **our choice**: heart rate understates the load of resistance work |
+| `briskStepsPerMinute` | 100 | **sourced**, Tudor-Locke 2018, cadence of moderate walking. Checked against the source on 2026-11-15. |
+| heart rate outside workouts | not used | **our choice**: a raised heart rate without movement is stress or caffeine, not exercise |
+| `intensityWindowDays` | 7 | **our choice**: the target is weekly, so a rest day after training days costs nothing |
+| `intensityMinDays` | 4 | **our choice**, the same minimum as the acute load window |
+
+Minimum data: 4 days with activity data in the window, else null. A heart rate
+credit needs two valid samples.
+
+## 15. Day Score
+
+Function: `dayScore(sleepScore, steps, stepGoal, intensityMinutes, hrv,
+restingHeartRate, stress, spo2Mean, readiness)`, for one local date D. Also
+`dayScoreBand(score)` and `stressBaseline(dailyStressMean, today)`.
+
+Inputs: the sleep score (section 2) of the night that ended on D, the steps of
+D, the weekly intensity minutes ending on D (section 14), the z of last
+night's HRV and resting heart rate against their baselines (section 5), the z
+of the day's stress mean (section 8) against the stress baseline, and the mean
+SpO2 of the night (section 9). The readiness of D (section 7) is an optional
+input that only sets the step goal of the day, below.
+
+| Pillar | Factor | Subscore | Points |
+| :--- | :--- | :--- | :--- |
+| Sleep | sleep | `ramp(score, 0, 100)` | 30 |
+| Movement | steps | `ramp(steps, 0, dayStepGoal)` | 15 |
+| Movement | intensity | `ramp(minutes, 0, 150)` | 20 |
+| Recovery | HRV | `ramp(z, -3, +1)` | 10 |
+| Recovery | resting heart rate | `ramp(z, +3, -1)` | 10 |
+| Stress | stress | `ramp(z, +3, -1)` | 10 |
+| Oxygen | SpO2 | `ramp(mean, 90, 95)` | 5 |
+
+```
+coverage = sum of the points of the factors present
+score    = round(100 * sum(points_i * subscore_i) / coverage)
+```
+
+A missing factor is left out and the rest is rescaled, so it never costs
+points. Each contribution carries its rescaled weight; `coverage`, `isFull`
+and `missing` read the result. Steps above the goal earn nothing extra.
+
+### Low readiness day
+
+`dayStepGoal` is the step goal, except on a day whose readiness is below
+`readinessFairFrom` (55, the low band of section 7), where it is
+`round(stepGoal * lowReadinessStepGoalFactor)`, never below 1. Readiness 55
+and a day without a readiness value keep the full goal. Only the steps factor
+moves: the weekly intensity minutes and every other factor are scored the
+same, and the weights do not change.
+
+`fullGoalStepPoints` is what the steps would have earned against the full
+goal, `15 * ramp(steps, 0, stepGoal)`, and exists only on a low day with
+steps. The receipt prints it next to the goal of the day, so the easier goal
+is never hidden.
+
+The app computes the readiness of each of the 90 days of the history with the
+function and inputs of the Readiness card, so a past day reads the same as
+today. For that the history also reads the 28 nights before its first day,
+used only for the HRV and resting heart rate baselines, so the oldest day has
+the same 28 day baseline as today. The HRV and resting heart rate factors of
+the Day Score read the same baselines, so with those nights any day older
+than about 62 days, low or not, is scored against a full baseline where it
+used to have a short one or none, and its score can move up or down. Nothing
+is stored. Readiness reads active energy through the activity load, so on a
+low day active energy reaches the Day Score through the step goal and in no
+other way. Age reaches it only through the heart rate zones of a workout,
+when the profile has no maximum heart rate (section 14).
+
+A day at 54 and a day at 55 are scored against
+different goals: the step is one rule a person can check, and a ramp would be
+a second number to explain.
+
+The stress baseline is the personal baseline of section 5 on a linear scale,
+28 days, at least 7, with a minimum spread of `stressMinSpread`.
+
+| Band | Score |
+| :--- | :--- |
+| great | 85 to 100 |
+| good | 70 to 84 |
+| mixed | 55 to 69 |
+| low | 0 to 54 |
+
+| Constant | Value | Basis |
+| :--- | :--- | :--- |
+| weights | 30, 15, 20, 10, 10, 10, 5 | **our choice**: sleep and movement are measured best; recovery is capped at 20 so HRV and resting heart rate, which readiness already reads, do not dominate here too; stress is an unpublished vendor number and hourly finger SpO2 is noisy |
+| `intensityWeeklyTarget` | 150 min | **sourced**, the lower end of the WHO 2020 weekly range. Checked against the source on 2026-11-15. |
+| HRV and resting heart rate ramps | as readiness | the constants of section 7 |
+| `stressZeroZ`, `stressFullZ` | +3, -1 | **our choice**, the resting heart rate ramp, since higher is worse for both |
+| `stressMinSpread` | 3 points | **our choice**, so a flat history does not turn one point into a large z |
+| `spo2ZeroAt`, `spo2FullAt` | 90, 95 percent | **our choice**: 90 is the low threshold of section 9 and 95 is a usual sleeping value |
+| `dayScoreMinCoverage` | 60 points | **our choice** |
+| `lowReadinessStepGoalFactor` | 0.6 | **our choice**: on a day the body asks for less, a lighter walk still earns the steps in full. Not from a study. |
+| band cut points | 85, 70, 55 | **our choice**, the readiness cut points, so there is one scale to learn |
+
+Minimum data: the sleep score and at least one step, and 60 points of
+coverage. Zero steps reads as the ring off the finger. Otherwise the result is
+`InsufficientData` with every missing factor. The Day Score describes the day,
+not the person's health.
+
+### The step goal in force on a day
+
+The history scores each day against the step goal that was in force on that
+date, so changing the goal never moves an earlier day, the Level or the
+bests. `stepGoalOn(date, changes, current)` in
+`apps/mobile/lib/features/activity/domain/step_goal_history.dart` takes the
+last change dated on or before the day; with no change stored, every day
+uses the goal of the profile.
+
+The changes live in the table `step_goal_changes`, one row per date. A row is
+written when the profile is saved with a different step goal, dated with the
+phone's date at the save; a second change the same day replaces the row and
+a cleared goal is stored as the default of 8,000. No row is ever removed by
+a change. When the phone's date is behind the newest row, the change
+replaces that row instead of being dated before it. The first change also
+writes a row dated 1970-01-01 with the goal held until then, which is what
+keeps every day before it unchanged.
+
+Today, Activity and the widget show the goal of the profile. A save compares the new goal with the newest row, so that is also
+the goal in force from the newest row on, with two exceptions. When the
+profile fails to save after the row was written, the two differ until the
+next save of the profile. When the phone's date goes back behind the newest
+row, the days before that row are scored against the goal that was in force
+on them, whatever Today shows.
+
+What it cannot say: the goal a person had in mind before the app stored
+changes. Those days are scored against the goal held when the first change
+was made.
+
+## 16. Level
+
+The Level is the user's own recent average of Day Scores, shown with one decimal. It is the line a day is
+compared with. Code: `packages/metrics/lib/src/level.dart`.
+
+**Inputs.** Closed days, oldest first, each with its Day Score or none, and whether the user set the day aside
+(sick, travel or rest). Today is not an input until it closes.
+
+**Rule.**
+
+```
+alpha = 1 - exp(-1 / 28)            about 0.0351
+level = level + alpha * (score - level)
+```
+
+- A day counts when it has a score and was not set aside. A day that does not count leaves the Level exactly
+  where it was: no data, sickness, travel and rest never lower it.
+- There is no Level before 14 counted days. The first Level is the simple mean of those 14 scores.
+- A day 10 points above the line raises the Level by about 0.35; a day 10 points below lowers it by the same.
+- There is no window: a counted day keeps a weight of `alpha * (1 - alpha)^k`, where `k` is the number of counted
+  days after it. Once 28 days have counted after the first Level, those 28 carry about 63 percent of it.
+
+**The line and the side.** The line of a day is the Level as it stood before that day. A Day Score is a whole
+number and the Level has one decimal, so the score is compared with the Level rounded to a whole number: 71
+against 71.4 is on the line, 72 is above, 70 is below.
+
+**In the app.** Nothing is stored: the Level is walked again from the Day Score history the app keeps, with the
+tagged days set aside. The first 14 counted days of that history are the seed, so the seed moves forward as old
+days leave the history; by then it carries a few percent of the Level. Days inside the seed have no line of
+their own.
+
+**Weekly goal.** A week runs from Monday to Sunday. A closed day counts when its score is on its line or above,
+by the comparison above. The goal is a number of such days, from 3 to 7, 4 unless the user changes it. Today counts
+only once it has closed. A tagged day, a day without a score and a day inside the seed count neither for nor
+against. Nothing carries from one week to the next: there is no streak.
+
+**Personal bests.** Over the closed, counted days of the history the app keeps: the highest Day Score, the highest
+Level at one decimal, and the best week, which is the rounded mean of the counted scores of a whole week already
+over with at least 4 counted days. A tie keeps the earlier holder. Because they are read from the kept history, a
+best leaves when its day does.
+
+**Celebration.** The morning after, Today shows one card when yesterday completed the weekly goal, set a best
+day over an earlier one, or set a highest Level over an earlier one. The highest Level is celebrated once a week:
+only when the best it beat was set before that week's Monday. The app stores only the date of the last card the
+user closed, so a closed card stays closed for that day, unless that date is deleted (below).
+
+**Deleting it.** The module screen counts the stored day tags, shows the weekly goal when it is not the default,
+and can delete what the module stores in one confirmed step: every day tag, the weekly goal (it goes back to 4 of
+7) and the date of the last closed card, so a celebration card closed that day may show once more. The action is there with the module on or off, for as long as a tag is
+stored or the goal is not the default; turning the module off deletes nothing. When the stored tags cannot be
+read, the screen says so and offers no delete until they can be. A tag older than 6 days cannot be
+set again, so the Level, the bests and the usual lines count those days again for good.
+
+**What it is not.** Not a streak, not a rank against other people, not a health forecast. It is an average chosen
+by the product, not a published clinical formula, and it is stated as such on the screen that shows it.
+
+## 17. Overall
+
+Function: `OverallInputs(...).score`, with `overallBand(score)`. A slow number
+for "how am I in general", built from trailing windows and not from Day
+Scores. The formula comes first; the windows that feed it and the weekly cadence are
+under "Windows and weeks" below.
+
+| Group | Factor | Input | Subscore | Points |
+| :--- | :--- | :--- | :--- | :--- |
+| Heart | fitness | position among people of the same age and sex, 0 to 100 | `ramp(position, 0, 90)` | 30 |
+| Heart | resting heart rate | mean nightly value, bpm | `ramp(bpm, 80, 50)` | 15 |
+| Sleep | sleep duration | mean hours asleep | `ramp(hours, 5, 7)` | 10 |
+| Sleep | sleep regularity | Sleep Regularity Index | `ramp(sri, 50, 90)` | 15 |
+| Movement | movement | three habits, below | sum of the three, over 20 | 20 |
+| Body | body | waist to height ratio, or BMI | below | 10, or 5 with BMI |
+
+```
+coverage = sum of the points of the factors present
+score    = round(100 * sum(points_i * subscore_i) / coverage)
+```
+
+Movement adds three parts: weekly moderate equivalent minutes, 10 points,
+`0.75 * ramp(m, 0, 150) + 0.25 * ramp(m, 150, 300)`; strength sessions a
+week, 4 points, `ramp(sessions, 0, 2)`; mean daily steps, 6 points,
+`ramp(steps, 2500, 8000)`, or full at 7,000 for an older adult. It needs
+minutes and steps; no strength session counts as zero, not as missing.
+
+Body with a waist measure is `ramp(ratio, 0.65, 0.50)` over 10 points, full
+anywhere at or below 0.50. Without the waist it is BMI over 5 points: full
+from 18.5 to 25, then `ramp(bmi, 35, 25)`. A ratio under 0.40 or a BMI under
+18.5 removes the factor: it is neither scored low nor high, so the score
+never rewards getting leaner inside or below the healthy range.
+
+A missing factor is left out and the rest is rescaled, so it never costs
+points. HRV is not a factor.
+
+Minimum data: 50 points of coverage, with fitness or resting heart rate, and
+with one sleep factor. Otherwise the result is `InsufficientData` with every
+missing factor.
+
+| Band | Score |
+| :--- | :--- |
+| strong | 85 to 100 |
+| solid | 70 to 84 |
+| building | 55 to 69 |
+| start | 0 to 54 |
+
+| Constant | Value | Basis |
+| :--- | :--- | :--- |
+| weights | 30, 15, 10, 15, 20, 10 | **our choice** |
+| `fitnessFullPercentile` | 90 | **our choice**, so the score does not push people who are already fit toward extremes |
+| resting heart rate ramp | 80 to 50 bpm | **sourced**, the central range of Quer 2020. Not checked against the source. |
+| `sleepHoursFullAt` | 7 h | **sourced**, Watson 2015. Not checked against the source. Zero at 5 h is **our choice**. |
+| sleep regularity ramp | 50 to 90 | **our choice** |
+| movement minutes | 150 and 300 a week | **sourced**, the WHO 2020 range, as in section 14. The three quarters share is **our choice**. |
+| `movementStrengthTarget` | 2 a week | **sourced**, WHO 2020. Not checked against the source. |
+| steps ramp | 2,500 to 8,000, or 7,000 | **sourced** for the full mark, Paluch 2022, not checked against the source. The floor is **our choice**. |
+| waist to height | 0.40, 0.50, 0.65 | 0.40 and 0.50 from the NICE bands, not checked against the source. Zero at 0.65 is **our choice**. |
+| BMI | 18.5, 25, 35 | 18.5 and 25 from the WHO bands. Zero at 35 and the 5 points are **our choice**. |
+| `overallMinCoverage` | 50 points | **our choice** |
+| band cut points | 85, 70, 55 | **our choice**, the Day Score cut points |
+| `overallNoiseBelow` | 2 points | **our choice**: a weekly change smaller than this is not reported as a change |
+
+The Overall describes habits and measures, not the person's health.
+
+### Windows and weeks
+
+Functions: `overallMondays(today)` and `overallInputsOn(monday, ...)`. The
+app shows the Overall of the last 12 Mondays, oldest first, and the last one
+is the current value: it does not change until the next Monday. Nothing is
+stored. Each Monday is recomputed from the data, so a past Monday can move
+when a day is tagged, a weigh-in is edited or a late sync brings older
+samples.
+
+The first Overall does not wait for a Monday. While the last Monday has no
+score, the app shows the Overall of the first day after it on which the
+minimum was met, and keeps it until the next Monday. Before that the app counts, of the 14 it
+needs, the nights with a resting heart rate in the 28 days before today.
+Next to the score the
+screen says how far it is from the Monday before, and calls a change under
+2 points noise.
+
+The window of a Monday is the 28 days that end the day before it, without the
+days tagged Sick or Travel. Rest days stay: rest is part of a routine. A worn
+day is a day of the window with at least one heart rate sample.
+
+| Input | From | Needs |
+| :--- | :--- | :--- |
+| resting heart rate | mean of the nightly resting heart rate (section 3) of the nights that ended in the window | 14 nights |
+| sleep duration | mean time asleep of the main night of each date in the window | 14 nights |
+| sleep regularity | the index below over the worn days, naps included | 14 pairs |
+| weekly minutes | moderate equivalent minutes (section 14) of the worn days, times 7 over their count | 14 worn days |
+| daily steps | mean steps of the worn days; a worn day without steps counts as zero | 14 worn days |
+| strength | distinct days with a strength workout in the window, times 7 over its length | 14 days in the window |
+| body | the last waist and the last weight logged before the Monday, with the profile height; only while the Body module is on | a height and a weigh-in |
+| fitness | the position, by age and sex, of the best estimate among the outdoor runs and walks recorded in the 90 days before the Monday (below) | one estimate, a resting heart rate, a sex and an age from 20 to 79 |
+
+Sleep comes from one source per date, the first in the user's order that has
+any sleep on it, and that source's naps count for the regularity index. An
+older adult, for the steps rule, is 60 or more this year by the profile's
+birth year. The height, the birth year and the source order of today are
+applied to past Mondays too. The 28 days, the 14, the worn day rule and which
+tags leave are **our choice**.
+
+Each row of the Overall screen opens an evidence sheet with the value, the
+window, the rule, its source, what is our choice and the limits. The numbers
+of the rule in that sheet are the constants above, formatted, so the sheet
+cannot drift from the formula.
+
+The 12 weeks screen (`OverallTrend.of`) reads the same 12 Mondays. The
+typical week is the median of the scored weeks and the floor is their 10th
+percentile by nearest rank, which is the lowest week until there are 11 of
+them. A point is drawn hollow, and the line breaks, where a week was scored
+on other factors than the latest scored week: a missing factor rescales the
+rest, so those two scores do not compare exactly. It needs two scored
+weeks; an early first score counts as the last one, so "now" is the number
+of the Overall screen. The change of the Body points is not listed while the
+Body numbers are hidden. These choices are **our choice**.
+
+### Fitness estimate
+
+`packages/metrics/lib/src/fitness_estimate.dart` and
+`features/open_score/domain/fitness_efforts.dart`. The source is a workout of
+type running or walking recorded in the app with a route. Workouts imported
+from Health Connect carry no route here and are not read.
+
+1. A workout is cut at its pauses. Each pause free stretch loses its first
+   3 minutes, while the heart rate is still rising, and needs 10 minutes
+   after that and at least one heart rate sample a minute.
+2. The speed of a stretch is its distance over its time. The oxygen cost of
+   that speed on flat ground is `3.5 + 0.1 * speed` for a walk between 50 and
+   100 m/min and `3.5 + 0.2 * speed` for a run at 80 m/min or more, in
+   mL/kg/min with the speed in m/min. Grade is ignored, so a climb reads low.
+3. The share of the heart rate reserve used is
+   `(mean bpm - resting) / (maximum - resting)`. The resting value is the
+   Overall's own, the mean of the window; the maximum is the profile's, else
+   `220 - age`. A stretch counts between 60 and 90 percent of the reserve.
+4. `VO2max = 3.5 + (cost - 3.5) / share`.
+5. A workout is the median of its stretches, and the value of a Monday is the
+   highest workout of the 90 days before it.
+6. The position comes from the table below by linear interpolation, kept
+   between 5 and 95, for the age reached in the year of that Monday.
+
+VO2max in mL/kg/min at percentiles 5, 10, 25, 50, 75, 90 and 95:
+
+| Age | Men | Women |
+| :--- | :--- | :--- |
+| 20 to 29 | 29.0, 32.1, 40.1, 48.0, 55.2, 61.8, 66.3 | 21.7, 23.9, 30.5, 37.6, 44.7, 51.3, 56.0 |
+| 30 to 39 | 27.2, 30.2, 35.9, 42.4, 49.2, 56.5, 59.8 | 19.0, 20.9, 25.3, 30.2, 36.1, 41.4, 45.8 |
+| 40 to 49 | 24.2, 26.8, 31.9, 37.8, 45.0, 52.1, 55.6 | 17.0, 18.8, 22.1, 26.7, 32.4, 38.4, 41.7 |
+| 50 to 59 | 20.9, 22.8, 27.1, 32.6, 39.7, 45.6, 50.7 | 16.0, 17.3, 19.9, 23.4, 27.6, 32.0, 35.9 |
+| 60 to 69 | 17.4, 19.8, 23.7, 28.2, 34.5, 40.3, 43.0 | 13.4, 14.6, 17.2, 20.0, 23.8, 27.0, 29.4 |
+| 70 to 79 | 16.3, 17.1, 20.4, 24.4, 30.4, 36.6, 39.7 | 13.1, 13.6, 15.6, 18.3, 20.8, 23.1, 24.1 |
+
+| Part | Basis |
+| :--- | :--- |
+| the table | **sourced**, Kaminsky 2015, table 2 (FRIEND registry, treadmill tests in the United States), read from the paper at PMC4919021 |
+| the cost of walking and running | **sourced**, the ACSM metabolic equations. Not checked against the source. |
+| reserve share equals share of the oxygen reserve | **sourced**, Swain and Leutholtz 1997. Not checked against the source. |
+| speed limits of each equation, 3 and 10 minutes, 60 to 90 percent, one sample a minute | **our choice** |
+| best of 90 days, median inside a workout | **our choice**: a tired or hot day should not lower a capacity number |
+| no grade | **our choice**: phone altitude is noisy, and flat ground errs low |
+
+Known limits: the resting heart rate is measured asleep, lower than the awake
+value the reserve method assumes, which lowers the estimate a little; a
+maximum heart rate from age can be off by 10 beats or more; the table is not
+a sample of any population. The app never estimates fitness from the resting
+heart rate alone.
+
+### Sleep Regularity Index
+
+Function: `sleepRegularity(spans, days)`. The day is cut into 288 epochs of 5
+minutes on the wall clock of each sleep span. An epoch is asleep when its
+start falls inside a span that is not awake, so naps count. For every pair of
+consecutive days in `days`, each epoch is compared with the same clock time
+on the next day:
+
+```
+index = -100 + 200 * epochs with the same state / epochs compared
+```
+
+100 is every day repeating the one before, 0 is what chance gives, -100 is
+opposite days. The caller gives the valid days: a pair counts only when both
+days are in the set, and a valid day without any sleep is a real day awake.
+Fewer than `sleepRegularityMinPairs` (14) pairs give no index.
+
+The definition is the one of Phillips 2017, not checked against the source.
+It compares clock times, so across a daylight saving change the second day is
+read one hour off the 24 hours of the paper. The 5 minute epoch and the 14
+pairs are **our choice**.
+
+## 18. Energy (daily estimate)
+
+`packages/metrics/lib/src/energy.dart`. Pure functions for the Energy module.
+Today reads them through the row described at the end of this section. Every figure is an estimate for the average person
+of a given size, never a measurement and never a target for eating.
+
+| Part | Rule | Basis |
+| --- | --- | --- |
+| Resting | `9.99 * kg + 6.25 * cm - 4.92 * age + 5` for men, `- 161` for women, in kcal a day | Mifflin 1990, written from memory and not checked against the paper |
+| Base | resting times `energyBaseFactor` (1.3), spread evenly over the 24 hours | **our choice**: resting plus the small movements of a day without exercise; the factor is not sourced |
+| Steps | steps times `energyStepLengthFactor` (0.415) times height gives the distance (`stepKilometers`); `energyWalkCostPerKgKm` (0.5) kcal per kg per km above rest | both constants are common rules of thumb, **not sourced** |
+| Workout | `(MET - 1) * kg * hours`, never below zero | the rule of section 11 (Ainsworth 2011) |
+
+The owner decided on 2026-11-15 that the step distance always comes from the
+height, for both sexes, and never from the distance the ring reports: the
+ring's formula is not published, and this one can be redone by hand.
+
+`restingEnergy` gives no number without sex, age, weight and height, or under
+`energyAdultAge` (18): the equation was fitted on adults.
+
+A number is shown as a range. `energyRange` takes the margin on the total and
+rounds each end to `energyRangeStep` (50 kcal): `energyRestingMargin` (10
+percent) for the resting figure, `energyDayMargin` (15 percent) for a day.
+Frankenfield 2005 found the equation within 10 percent of the measured resting
+value for more people than the other common equations, which still leaves
+people outside it. The 15 percent of the day is **our choice**.
+
+### One day
+
+`apps/mobile/lib/features/energy/domain/energy_day.dart`, `energyDay`. A day
+is the sum of three parts. Base and workouts read the day between two local
+midnights at the offset the phone has now, so a day before a clock change or
+a trip is read that many hours off; the step buckets keep the date they were
+stored with.
+
+- **Base**: the day base for the time gone by, so today grows with the clock
+  and a past day holds 24 hours, also on the day the clocks change.
+- **Steps**: every 15 minute bucket of the day. The part of a bucket that a
+  workout covers is left out, in proportion to the time covered, because the
+  workout already counts that movement. Workouts over the same minutes cover
+  them once.
+- **Workouts**: the kcal stored with the workout when it has one, else the
+  workout rule above with the current weight (a workout read from another app
+  stores none). A workout counts whole on the day it started (owner decision
+  of 2026-11-15, the rule the Day Score uses); one that started the day before
+  adds nothing here and still removes the steps it covers, as does any
+  workout over a bucket of this date.
+
+An own workout and one from another app that overlap count once, by the
+source order of the workout list. The weight is the latest weigh-in when the
+Body module is on, else the profile weight. Without sex, birth year, height or
+weight the day has no number and names the missing fields; under 18 it has
+none either. Nothing is stored: the day is computed on every read.
+
+### On Today
+
+`apps/mobile/lib/features/energy/presentation/energy_row.dart`. With the
+Energy module on, Today shows one thin row under the Day Score: the day so far
+as a range in kcal, and the clock time it was computed at. The row is computed
+again when new data arrives and when the app comes back to the foreground, not
+on a timer, so the time on it says how old the number is. Today is the date of
+that instant, so a return after midnight starts the new day, and the age
+that hides the row uses the year of the same instant. While a new day loads
+the row keeps the last one with its own time, and a day that fails to load
+removes the row.
+
+While the low end of the range is under `energyRowFloor` (100 kcal, about the
+first hour after midnight for a person who has not moved) the row says the day is just starting and shows no
+range. With a profile field missing it names the field, or asks to complete
+the profile when more than one is missing, and a tap opens Settings; a person
+who chose not to state a sex is asked to choose Female or Male, because the
+equation has no third form. The row is absent for a person under 18, while
+the Body module hides the numbers, and until the modules, the profile and the
+hide choice have loaded (`energy_gate.dart`).
+
+A tap on the range or on the starting line opens the Energy screen.
+
+### The Energy screen
+
+`apps/mobile/lib/features/energy/presentation/energy_screen.dart`, at
+`/today/energy`. It reads the same day and the same instant as the row, and it
+is empty under the same conditions: module off, under 18, numbers hidden.
+
+The day card shows the range, the middle of the range (the total rounded to
+50 kcal), a bar and the three parts. Each part prints to the nearest 10 kcal
+with the word "about", because a finer figure would claim more than the
+estimate knows; the parts are single figures, and only the total is a range.
+The bar is as wide as 1.5 times a full day of Base (`energyBarBaseDays`), or
+as the top of the range once the day is past that, so it fills as the hours
+pass; the factor is a choice with no source. The thin line under the bar is
+the range. Under `energyRowFloor` the card says the day is just starting and
+shows no range, bar or parts.
+
+The resting card shows the resting burn as a range of 10 percent to each side
+and never the exact figure. With a profile fact missing the screen lists the
+four facts, marks the missing ones and offers Settings; it shows no number
+at all.
+
+The card "Through the day" (`energy_through_day.dart`) draws how today adds
+up. `energyCurve` computes the same day at each full hour and at the instant
+of the estimate, from the same inputs: at an hour it counts the step slots
+that ended by it and the workouts that started before it, so a slot or a
+workout shows up whole at a full hour and not minute by minute, and the total
+never falls from one hour to the next. The last point is the day itself. The band above the total and the line under it are the 15 percent
+margin. A tap picks the closest point; a screen reader steps hour by hour.
+The card is absent while the day is under `energyRowFloor`, and a picked hour
+under the floor shows the starting line and no range.
+
+The chart through the day also draws the usual day as a dashed line
+(`energyUsualByHour`, `energyUsualByHourProvider`): the mean total, at each
+elapsed hour, of the same past days that make the usual day of the week
+card, so its last point is that usual day. Under the readout one sentence
+says how far the picked hour is from the usual day at that hour
+(`energyUsualAt` reads between two hours on a straight line), to the nearest
+50 kcal, or that it is about the same. No line and no sentence with fewer
+than 3 past days, and no sentence while the picked hour is under the floor.
+A past day of 23 or 25 hours stays out of the line, and on such a day the
+chart shows no usual day, because the hours would not line up.
+
+The formula screen (`energy_formula_screen.dart`, `/today/energy/formula`)
+repeats the rule, the source, our choice and the limits of the four evidence
+sheets with no value of the person, then the two margins and the full
+references. It opens with any gate, because it reads nothing of the person.
+
+The module is turned on from the Modules screen, from the first run offer and
+from its own screen (`energy_module_screen.dart`,
+`/ring/settings/modules/energy`). `energyUnderageProvider` is true under
+`energyAdultAge`, false for an adult and for a profile with no birth year, and
+null while the profile loads. Only on false is the switch enabled, the offer
+shown and the button drawn. `activeModulesProvider` is the stored set without
+Energy unless that value is false, so a stored on under the adult age counts as
+off in the Settings count and in the hide numbers sentence, and is never
+erased. Turning Energy on while numbers are hidden shows no message.
+
+While the gate is on, the active energy the ring reports is named as coming
+from the ring on Activity and on the Today activity card, because the app
+then shows two energy figures that are not meant to be added. The hide
+numbers choice names the energy estimate only while the Energy module is on.
+
+The last 7 days (`energy_week.dart`, `energyWeekProvider`) are one range bar
+per day, with the middle marked and an axis that starts at zero, so the bars
+visibly overlap. A past day with no steps and no workout on record was most
+likely a day without the ring: it shows as no data and stays out of the usual
+day. The usual day is the mean total of the past days on record, without
+today, shown as a range with the same 15 percent margin, and only with 3 days
+or more (`energyUsualMinDays`, our choice). The card appears once one past day
+is on record. A past day is computed with the weight and the profile of today.
+
+A tap on the resting card or on a part of the day opens an evidence sheet
+(`energy_evidence_sheet.dart`): what it is, the value of the person, the rule
+with its constants printed from `packages/metrics`, the source, what is our
+choice and the limits. The sheet of the resting burn shows the range and never
+the exact figure, so it prints no worked sum. The figures it quotes from
+studies are the ones the science review checked: Frankenfield 2005 (within 10
+percent for more people than the other equations), the FAO, WHO and UNU 2001
+range of 1.40 to 1.69 for a seated lifestyle, and Shcherbina 2017 (the best of
+seven wrist devices 27 percent off on energy). The net cost of walking is
+given as close to 0.5 kcal per kg per km with no paper named.
+
+## 19. Effort (session load, load lines, coach rule)
+
+`packages/metrics/lib/src/effort.dart`. Pure functions for the Effort module.
+Effort Points are not defined here: they are the intensity minutes of section
+14 (`workoutIntensity`, `walkingIntensity`, `weeklyIntensityMinutes`), which
+this section does not change. Nothing here feeds the Day Score.
+
+### Session load
+
+Minutes are `duration.inSeconds / 60` and every figure is rounded with
+`.round()`.
+
+| Figure | Rule | Basis |
+| --- | --- | --- |
+| By heart rate | sum over zone n of the minutes in zone n times n; none when no time was spent in a zone | the zone weights 1 to 5 follow Edwards 1993, **not yet checked against its source** |
+| By rating | minutes times the rating (`effortMinRating` 1 to `effortMaxRating` 10) divided by `effortRatingDivisor` (2) | minutes times a rating is the session rating method of Foster 2001, **not yet checked against its source**; the divisor is **our choice**, it puts a rating of 10 on the weight of zone 5 |
+| By default | minutes times the default of the workout type, from the table below | **our choice** |
+| Walking | `effortWalkingLoadFactor` (1.5) times the brisk minutes outside a session | **our choice** |
+
+`sessionLoad` takes the higher of the heart rate figure and the rating figure,
+and a tie goes to the heart rate. With only one of the two it takes that one,
+even when it is below the default. With neither it takes the default.
+`LoadSource` says which one was taken, and the three figures stay readable on
+`SessionLoad`.
+
+The default a minute by workout type is `effortTypeDefault`, in the app
+(`apps/mobile/lib/features/effort/domain/effort_day.dart`). The owner chose
+the table on 2026-11-16; every value is **our choice**.
+
+| Type | Load a minute |
+| --- | --- |
+| running, treadmill | 3 |
+| strength, stationary bike, cycling | 2.5 |
+| hiking, elliptical, other | 2 |
+| walking | 1.5 |
+| yoga | 1 |
+
+A workout read from another app has no heart rate here, so it takes its
+rating when it has one and its default otherwise. A recorded workout has no
+heart rate figure when the profile gives no zones (no age and no maximum
+heart rate) or when no sample reaches zone 1, and then it follows the same
+rule. The rating is stored with the workout (`effort_rating`, 1 to 10, empty
+when nobody rated it); a stored value outside the scale reads as no rating.
+
+### From stored data
+
+`effort_providers.dart` reads what the functions above compute on. All of it
+is recomputed on each read and nothing is stored.
+
+- A workout counts whole on the day it started, in the offset it was recorded
+  with. When a recorded workout and one from another app overlap, the order
+  of sources picks one, as everywhere else.
+- The points of a workout are `workoutPoints`, the figure the Day Score
+  counts for it.
+- The daily load reads `effortLoadDays` (42) days that end yesterday. The
+  series starts on the first of those days with steps or a workout, and a
+  later day without data is 0. Under 14 days of series there is no line, so
+  a new user gets no hard day and no spike from an empty history. The seed
+  weighs on a line, so a line read over another length would be another
+  number: 42 is fixed, and it is **our choice**, as is where the series
+  starts.
+- The load of a day is the load of its sessions plus `walkingLoad` of its
+  brisk minutes: the minutes `walkingIntensity` counts outside every session,
+  summed over the day and rounded once.
+- Today is in the week and never in the load series.
+- A strength day is a day with a strength workout of at least 20 minutes,
+  recorded or read from another app.
+- The sick rule reads the Sick tag of today, and only while the Open Score
+  module is on: the tag belongs to that module. The owner decided this on
+  2026-11-16.
+- A day the ring was not worn counts as a load of 0, which the lines cannot
+  tell from a day of rest.
+
+### The week
+
+`effortWeek` reads the calendar week from `mondayOf(today)` to today: the sum
+of the points and the number of days with a strength session. It is covered
+with `effortWeekPoints` (150) and `effortWeekStrengthDays` (2).
+
+| Constant | Basis |
+| --- | --- |
+| `effortWeekPoints` 150 | the `intensityWeeklyTarget` of section 15 (150 minutes, Bull 2020), **sourced** |
+| `effortWeekStrengthDays` 2 | the same guideline asks for muscle strengthening on 2 or more days a week, **not yet checked against its source** |
+| `effortStrengthMinMinutes` 20 | **our choice**: `isStrengthSession` counts a session of at least 20 minutes |
+
+This week and the last 7 days of `weeklyIntensityMinutes` are two windows over
+the same points, so their totals differ on most days.
+
+### Load lines
+
+`loadLine` draws an exponential line over the daily load, oldest first: it
+starts at the mean of the first `effortLineSeedDays` (7) values, then for each
+later value `line = load * k + line * (1 - k)`, with `k = 2 / (days + 1)`.
+Under `effortMinLoadDays` (14) values there is no line.
+
+| Constant | Basis |
+| --- | --- |
+| `effortAcuteDays` 7, `effortChronicDays` 28, the weight `2 / (days + 1)` | Williams 2017, **not yet checked against its source** |
+| `effortLineSeedDays` 7, `effortMinLoadDays` 14 | **our choice** |
+
+These lines are separate from the acute and chronic means of
+`activity_load.dart`, which Readiness keeps using unchanged.
+
+### Hard and easy days
+
+- `hardDayFrom(line)` is the larger of `effortHardFloor` (120) and
+  `effortHardFactor` (1.5) times the 28 day line. A day is hard when its load
+  reaches the threshold of the line through the day before it, so a hard day
+  never raises its own threshold. With no line there is no hard day.
+- A day is easy when its load is under `effortEasyFraction` (0.5) of the 28 day
+  line through yesterday. With no line, or a line of zero, no day is counted
+  as not easy.
+
+All three constants are **our choice**.
+
+### Coach rule
+
+`coachAdvice` takes the readiness of the day (or none), the sick tag and the
+daily load ending yesterday, and answers with the first rule that matches:
+
+| # | Rule | When | Verdict |
+| --- | --- | --- | --- |
+| 1 | `sick` | the sick tag is set | recover |
+| 2 | `lowReadiness` | readiness under `readinessFairFrom` (55) | recover |
+| 3 | `hardRun` | `effortHardRunDays` (2) or more hard days in a row ending yesterday | recover |
+| 4 | `noEasyDay` | `effortNoEasyDays` (6) or more days in a row without an easy one | recover |
+| 5 | `fairReadiness` | readiness under `readinessGoodFrom` (70) | maintain |
+| 6 | `spike` | the 28 day line of a week ago times 7 is at least `effortSpikeMinWeekly` (150) and the 7 day line is above `effortSpikeFactor` (1.5) times it | maintain |
+| 7 | `hardYesterday` | yesterday was hard | maintain |
+| 8 | `goodReadiness` | there is a readiness, 70 or more | push |
+| 9 | `noReadiness` | there is no readiness | maintain |
+
+The readiness cuts are the bands of the Readiness score, not new constants.
+The order, the run of 2, the 6 days, the spike factor and its weekly floor are
+**our choice**. Letting the readiness of the morning decide between pushing
+and holding follows the idea of Kiviniemi 2007, **not yet checked against its
+source**. `CoachAdvice` carries every number the rule read (the two lines, the
+line of a week ago, the load of yesterday, the threshold it was tested
+against, the two counts), so a screen can show why.
+
+### The module
+
+Effort is off until a person turns it on, in Settings, Modules or in the
+first run offer; it has no age limit and needs no other module. Its module
+screen counts the workouts that carry a rating and can delete every rating in
+one step: `effort_rating` goes back to empty on recorded and imported
+workouts, the workouts stay, and each session load falls back to heart rate
+or the default of its type. Turning the module off deletes nothing, so the
+delete stays on that screen for as long as a rating is stored.
+
+## 20. Goals (rate as a loss, block, arrival, guards)
+
+`packages/metrics/lib/src/goal_rate.dart`. Pure functions for the Goals
+module. Nothing here feeds the Day Score, the Level or the Overall, and no
+screen reads them yet.
+
+Functions: `goalPacePercent(pace)`, `bmi(kg, heightCm)`,
+`lossCapPercent(bmi)`, `goalBlock(startKg, percentPerWeek, start)`,
+`lossRate(rate, trendKg)`, `pathState(rate, targetPercent, capPercent)`,
+`overCap(rate, capPercent)`,
+`arrivalRange(trendKg, referenceKg, rate, today, block)`,
+`referenceFloorKg(heightCm)`, `weightGoalRefusal(...)`, `softMode(yesCount)`.
+
+Inputs: the weight rate of section 13 (`WeightRateReady`, kilograms per week,
+negative for a loss), the trend weight in kilograms, height in centimeters,
+age in whole years. A percent is percent of body weight per week, written as
+a number (0.5). A loss is positive here.
+
+```
+bmi        = kg / (heightCm / 100)^2
+cap        = 0.5 under bmi 25, 0.75 from 25 to under 30, 1.0 from 30
+
+weeks      = min(12, floor(10 / percentPerWeek))
+weeklyKg   = startKg * percentPerWeek / 100
+blockKg    = weeklyKg * weeks
+end        = start + 7 * weeks - 1 days
+maintEnd   = end + 28 days
+
+loss       = -rate.perWeek
+lossLow    = -rate.high
+lossHigh   = -rate.low
+percent    = loss / trendKg * 100, the same for each end
+
+state      = building   when there is no rate yet
+             above      when percentLow > cap
+             below      when percentHigh < 0.5 * target
+             above      when percentLow > 1.5 * target
+             on track   otherwise
+overCap    = percentLow > cap
+
+left       = (block.end - today + 1) / 7, kept between 0 and block.weeks
+for each end r of the loss (lossHigh for the earliest, lossLow for the latest):
+  rem = trendKg - referenceKg, waited = 0
+  while rem / r > left, at most 6 times:
+    rem = rem - r * left, waited = waited + left + 4, left = block.weeks
+  no arrival when rem / r is still above left
+  weeks = waited + rem / r
+  date  = today + round(weeks * 7) days
+no arrival when lossLow <= 0, when trendKg <= referenceKg, when either end
+needs more than 6 blocks after the one under way, or when the year of the latest date is
+more than one above the year of the earliest
+
+floor      = ceil(18.5 * (heightCm / 100)^2 / 0.5) * 0.5
+```
+
+The state is read on the interval of the rate, not on its middle: an interval
+that only touches the band from half the target to one and a half times the
+target is on track. The cap is read first, so a loss that is too fast is
+never reported as slow. The arrival is a range of two dates, one for each end
+of the interval, and the part of the way that does not fit in the weeks left
+of a block waits out the four maintenance weeks before the next block.
+
+A weight goal is refused by the first of these that holds: the age is not
+known, the age is under 18, the height is not known, the person is pregnant
+or breastfeeding, the BMI of the trend weight is under 18.5 (exactly 18.5
+passes). Age comes from a birth year, so a person who turns 18 later in the
+year already counts as 18 when the year count is passed in. The intake does
+not pass that count (see "Before a weight goal starts"). Two or more "yes" answers to the five screening
+questions turn the soft mode on.
+
+| Constant | Value | Basis |
+| :--- | :--- | :--- |
+| `goalStandardPercent` | 0.5 percent a week | **our choice**. Loss of 0.5 to 1 kg a week as the usual range is from NHLBI 1998, **not yet checked against its source**. |
+| `goalGentlePercent` | 0.25 percent a week | **our choice** |
+| `goalCapBmiMid`, `goalCapBmiHigh` | 25 and 30 | the WHO classes of BMI; the caps of 0.5, 0.75 and 1.0 percent tied to them are **our choice** |
+| `goalBlockWeeks` | 12 weeks | **our choice** |
+| `goalBlockMaxLossPercent` | 10 percent of the start weight | **our choice**. It shortens a block only above 0.83 percent a week. |
+| `goalMaintenanceWeeks` | 4 weeks | **our choice** |
+| `goalBandLow`, `goalBandHigh` | 0.5 and 1.5 times the target | **our choice** |
+| `goalArrivalMaxBlocks` | 6 blocks | **our choice**. It counts the blocks after the one under way. An end that would need one more has no arrival: that is over two years away, further than a rate of 28 days can say anything about. |
+| arrival days | rounded to the nearest day | **our choice** |
+| year numbers of the two dates more than one apart | no arrival | **our choice**. The rule reads the year numbers, not the days between the dates: March 2027 to November 2028 is shown, December 2027 to January 2029 is not. |
+| `bmiFloor` | 18.5 | reused from section 17, the WHO lower bound of the normal class |
+| `goalReferenceStepKg` | 0.5 kg | **our choice**. The floor of a reference weight is rounded up to it. |
+| `goalMinAge` | 18 years | **our choice** |
+| `goalSoftModeYes` | 2 answers | the threshold of the SCOFF questionnaire, Morgan 1999, **not yet checked against its source** |
+
+What it cannot say: a scale does not tell fat from water or muscle, the rate
+of the last 28 days is not the rate of the next weeks, and none of the guards
+detects an illness.
+
+### Levers and the weekly review
+
+`packages/metrics/lib/src/goal_review.dart`. A goal is worked through at most
+three levers, and once a week a table of rules reads the closed week and
+answers with one action.
+
+Functions: `leverFits(week)`, `leverFitRatio(week)`, `adherence(levers)`,
+`goalLeverOrder(kind)`, `leverEntry(kind, goal, baseline)`,
+`startingLever(kind, baseline)`, `nextStep(...)`, `shrink(levers, kind)`,
+`reviewWeek(inputs)`.
+
+| Lever | Target | Fits the week when | Enters at | Raised by | Ceiling |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Strength days | days a week | the days done reach the target | the usual days plus 1, at least 2 under a weight goal and 1 otherwise | 1 day | 4 days |
+| Sleep window | bedtime, minutes after noon | 5 days of 7 met it | the median bedtime minus 15 minutes, never under 7 hours before the median wake time | 15 minutes earlier | 9 hours in bed |
+| Steps | steps a day | 5 days of 7 met it | the 14 day median rounded to 500, plus 1,000 | 1,000 | 10,000 |
+| Effort points | points a week | the points earned reach the target | the mean of the last 4 weeks, at least 15 | 10 percent, at least 15 | 300 |
+| Wake time | minutes after midnight | 5 days of 7 met it | the median wake time | never | none |
+
+Adherence is the levers that fit over the active levers. The fit ratio that
+ranks levers is the days over 7 for a daily lever and the achieved over the
+target, at most 1, for a weekly one.
+
+The next step adds a lever while fewer than three are active and one is left
+to add, in this order: strength days, sleep window, steps to lose fat; effort
+points, steps, strength days to get fitter; wake time, sleep window to sleep
+better. With nothing left to add it raises the first lever that fit this week
+and is under its ceiling: steps, sleep window, strength days to lose fat;
+effort points, steps, strength days to get fitter; the sleep window to sleep
+better. Effort points are raised only when the week before had an adherence
+of 0.8 or more, and after three raises in a row the next one is skipped.
+
+Shrinking keeps the two levers with the highest fit ratio, ties going to the
+order above. To lose fat, strength days always stay and the best of the other
+two stays with them.
+
+The rules are read in this order and the first that holds is the answer.
+Rules 1 to 4 are protections and apply without asking; a rule that changes a
+lever is a proposal the person accepts or declines. A week in the maintenance
+weeks after a block (`ReviewInputs.maintenance`) still reads rules 1 to 4,
+and any other case answers `holdOther`: nothing changes while maintaining.
+
+| # | Rule | Goals | Holds when | Answer |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | `end` | lose fat | BMI under 18.5, pregnancy or breastfeeding, or a positive screening | the goal ends |
+| 2 | `pauseFastLoss` | lose fat | the low end of the loss is above the cap now, and the low end of the previous review is above that same cap, the one of today | pause of 28 days |
+| 3 | `pauseCheckIn` | all | "yes" to the food or weight question two weeks in a row, or low energy two weeks in a row | pause, no length set here |
+| 4 | `recoveryWeek` | all | 4 or more days of the last 7 with a Readiness under 55 | a recovery week, or a pause of 14 days when the week before was one too |
+| 5 | `ease` | lose fat | Body is on and the path state is above | nothing is added, no lever changes |
+| 6 | `build` | all | adherence of 0.8 or more and a next step exists; to lose fat also Body on and week 4 or earlier | the next step |
+| 7 | `holdBuilding` | lose fat | Body is off, or there is no rate yet | hold |
+| 8 | `shrink` | all | three levers active and adherence under 0.6 | one lever is removed |
+| 9 | `holdOnTrack` | lose fat | the path state is on track | hold |
+| 10 | `stepSlow` | lose fat | the path state is below, adherence of 0.8 or more and a next step exists | the next step |
+| 11 | `holdOther` | all | anything else, and every week of maintenance after rules 1 to 4 | hold |
+
+A day with no Readiness and a question left unanswered count as neither low
+nor "yes". The week number is the week that starts on the review day, so the
+build rule proposes steps for weeks 2 to 4 of a weight goal.
+
+| Constant | Value | Basis |
+| :--- | :--- | :--- |
+| `goalDailyFitDays` | 5 days of 7 | **our choice** |
+| `goalShrinkBelow`, `goalStepFrom` | 0.6 and 0.8 | **our choice** |
+| `goalMaxLevers` | 3 levers | **our choice** |
+| `goalBuildWeeks` | 4 weeks | **our choice** |
+| `goalStepsStep`, `goalStepsRound` | 1,000 and 500 steps | **our choice** |
+| `goalStepsCeiling` | 10,000 steps | **our choice**. Paluch 2022 on steps and mortality is **not yet checked against its source**. |
+| `goalEffortStepPercent`, `goalEffortStepMin` | 10 percent, 15 points | **our choice**. 15 is also the lowest target an effort lever enters at, so a person with no effort yet does not get a target of 0. |
+| `goalEffortCeiling` | 300 points | **our choice**, twice the `effortWeekPoints` of section 19 |
+| `goalEffortRaisesBeforeHold` | 3 raises | **our choice** |
+| `goalStrengthFloor` | 2 days | two days of muscle strengthening a week is from WHO 2020, **not yet checked against its source**. Keeping strength under a loss follows Cava 2017, **not yet checked against its source**. |
+| `goalStrengthCeiling` | 4 days | **our choice** |
+| `goalSleepStepMinutes` | 15 minutes | **our choice** |
+| `goalSleepMinMinutes`, `goalSleepMaxMinutes` | 7 and 9 hours in bed | 7 to 9 hours of sleep is the adult range of Hirshkowitz 2015 and 7 hours the floor of Watson 2015, **not yet checked against its source**. Applying hours of sleep to time in bed is **our choice**. |
+| `goalWakeToleranceMinutes` | 30 minutes | **our choice**. Read by the count of the days a wake time was met, see The week in progress. |
+| `goalLowReadinessDays` | 4 days of 7 | **our choice**. The cut of 55 is `readinessFairFrom`. |
+| `goalFastLossPauseDays` | 28 days | **our choice** |
+| `goalRecoveryPauseDays` | 14 days | **our choice** |
+
+### The week in progress
+
+`packages/metrics/lib/src/goal_progress.dart` counts how far each lever of the
+active goal is in the calendar week of today, Monday to Sunday.
+`goalWeekProvider` in the app feeds it from the steps, the nights, the
+strength sessions and the effort points already on the phone, and of those
+four reads only the ones a lever of the goal counts from. Beside them it
+reads the goal and its reviewed weeks, the enabled modules for a goal of
+losing fat, and the weight for the base phase of that goal. It answers with one of seven
+states: off, no goal, paused, hold, base, recovery and running. The first
+check that holds decides, in this order, with paused checked twice:
+
+1. Off: the module is off, and the goal store is not read.
+2. No goal.
+3. Paused, while the pause has no last day or has not passed it. The view
+   carries the last day and the rule of the review that paused the goal,
+   read from the row of the Monday the pause started on; a pause the person
+   set has no rule.
+4. Hold: a goal of losing fat with Body off, with or without levers. The
+   view shows no lever and no count. The weekly review still runs for a goal
+   that has levers: it writes its row, proposes no change while Body is off,
+   and can still pause or end the goal.
+5. Paused, and marked over: the last day has passed and the next block has not
+   started. For most goals that lasts until the next pass of the reviewer;
+   for losing fat it lasts until the weight rate is ready. A pause with no
+   last day stays until the person ends it.
+6. Base: the goal has no lever yet. For losing fat the view carries the
+   weight rate as of today, the one the first block waits for; other goals
+   never read the weight.
+7. Recovery: the newest row is the one of this Monday, it was reviewed in
+   the running block, and it asked for a recovery week. Nothing is stored
+   for it; the state is read from the row.
+
+Otherwise the week is running, with the review of this Monday while its
+proposal waits for an answer. Hold comes after a running pause so that a
+safety pause still shows its rule and its last day, and before a pause that
+is over because with Body off that goal never restarts. Paused, hold, base
+and recovery read none of the lever sources, so they neither wait on them
+nor fail with them. Maintenance counts like a block, and recovery and
+running carry it (`GoalMaintenance`: the last day, and whether it has passed)
+when the goal is in maintenance with a last day. A proposal left from the
+block is not shown in maintenance, since maintenance takes no answer.
+
+Clock values are whole local minutes with the seconds dropped. A bedtime is
+the minutes after noon, so 23:30 is 690 and 00:05 is 725; a wake time is the
+minutes after midnight.
+
+| Lever | A day is met when | Counted |
+| --- | --- | --- |
+| Steps | the steps of the day reach the target | days met |
+| Sleep window | the first span asleep of the night that ended that day starts at or before the target, read with the offset of that span | days met |
+| Wake time | the end of the night that ended that day is within `goalWakeToleranceMinutes` of the target, either side, across midnight | days met |
+| Strength days | | days of the week with a strength session, up to today |
+| Effort points | | the sum of the points of the week up to today, rounded once; a value that is negative or not finite is left out |
+
+Each day of a daily lever carries a mark. A day after today is ahead. A day
+that met the target is met. Today, not met yet, is open. Any other day is
+missed, a day with no data included.
+
+The week number counts from the start of the block under way. Week 1 runs to
+the first Monday at least seven days after that start, so it lasts 7 to 13
+days; week 2 starts on that Monday.
+
+What it cannot say:
+
+- A day the ring has not synced yet reads as missed until it does.
+- A nap that is the only night of its date is read as that night: an onset at
+  14:00 is 120 minutes after noon and meets any bedtime target.
+- The end of a night is the end of its last span. When the ring records time
+  awake in bed after the last sleep, the wake time is the end of that span,
+  later than the last minute asleep.
+- A goal started midweek counts the days of that week before its start.
+- A recovery week shows only while its row is the one of this Monday. On
+  the next Monday, before the new review is written, the week reads as
+  running.
+- The rule of a pause is found by the date the pause started on. A person
+  who leaves a pause and sets one again on that same Monday gets the rule of
+  the review.
+- The base state does not say how many nights a sleep goal still lacks, and
+  a pause that is over does not say that losing fat waits for a weight rate.
+
+### The inputs of a review
+
+A review reads the week that closed the day before its Monday.
+`closedWeekInputs` in `apps/mobile/lib/features/goals/domain/review_inputs.dart`
+builds the inputs from plain data and the weeks reviewed before, and
+`packages/metrics/lib/src/goal_baseline.dart` holds the baseline. Writing
+the review, below, says who calls them.
+
+The levers are counted over the closed Monday to Sunday with the rules of
+The week in progress, so no day is open or ahead. The week number is the
+week of the block on the review Monday.
+
+The baseline is what the person usually does, read over the days that end on
+a given day:
+
+| Field | Rule |
+| --- | --- |
+| Step median | the median of the days with steps in the last `goalBaselineDays`, null under `goalBaselineMinDays` days |
+| Bedtime median | the median of the minutes after noon of the first span asleep of each night, same window and minimum; a night with no span asleep is left out |
+| Wake median | the median of the minutes after midnight of the end of each night, same window and minimum |
+| Effort mean | the points of the last `goalBaselineWeeks` weeks divided by `goalBaselineWeeks`, null with no point in them; a value that is negative or not finite adds nothing |
+| Usual strength days | the strength days of those weeks divided by `goalBaselineWeeks`, rounded down |
+
+A median of an even count is the mean of the two middle values, rounded.
+
+| Constant | Value | Basis |
+| --- | --- | --- |
+| `goalBaselineDays` | 14 days | **our choice** |
+| `goalBaselineMinDays` | 7 days | **our choice**, the same floor as `baselineMinDays` |
+| `goalBaselineWeeks` | 4 weeks | **our choice** |
+
+From the weeks reviewed before, only the one reviewed seven days earlier is
+the previous week: its adherence, the low end of its rate, whether it was a
+recovery week and its two check-in answers. After a gap nothing is carried
+over. The effort raises in a row are the reviews, going back week by week
+from the previous one, whose proposed change raised the effort points and was
+accepted; the first week that is missing, was declined, was not answered or
+changed something else stops the count.
+
+The readiness of a review is seven values, one per day. `weekReadiness`
+takes them from a run of daily values that ends on a known day, for the seven
+days from a given day; a day outside the run is null, and a day with no
+Readiness stays null. A review reads the closed Monday to Sunday, so two
+reviews never share a day.
+
+`closedWeekInputs` refuses, with an `ArgumentError`, a review day that is not
+a Monday and a readiness list that does not hold seven values.
+
+The pregnancy flag and the screening flag are each the newest answer stored;
+a screening that did not ask a question leaves the earlier answer standing,
+and no answer is no.
+
+The weight reading exists only for a goal of losing fat. The target is the
+pace of the goal. The BMI needs Body on, a trend and a height; the cap comes
+from it and is 0.5 percent without one. The rate needs Body on and a ready
+weight rate. With Body off the rate and the BMI are empty even when weigh-ins
+are stored, so no weight rule can fire.
+
+What it cannot say:
+
+- A person with under 7 days of steps or nights has no median, so no step or
+  sleep lever can be entered from it.
+- A change accepted in the middle of a week counts the whole closed week
+  against the new target.
+- The trend is the value at the last weigh-in on or before the closed
+  Sunday, up to 27 days old, so the BMI can rest on a weight of some weeks
+  while the rate is still building.
+- A week reviewed before a new block still counts as the previous week when
+  it is exactly seven days old.
+
+### Writing the review
+
+`GoalReviewer` in
+`apps/mobile/lib/features/goals/application/goal_reviewer.dart` writes the
+review of the week that closed before the current Monday, and starts the
+block a goal waits for.
+
+`goalReviewTriggerProvider`, kept alive from the app start, runs a pass when
+Goals turns on, on every change of the data revision, when the date changes
+and when the app comes back to the foreground. A pass checks the day, then
+calls `startDueBlock`, then `reviewDueWeek`. Only one pass runs at a time: a
+call that arrives during a pass asks for one more when it ends, so the bump
+of a write costs one extra pass that writes nothing. A step that fails is
+logged and the pass goes on, and the next pass tries it again. With Goals off
+nothing runs, and nothing runs in demo mode, whose sample history sits beside
+the real one and would be reviewed against the real goal. A pass stops before
+its next step when either changes while it runs.
+
+On a Monday the review waits for the ring: it runs only when the last sync
+is at or after the local midnight of that day, so the Sunday it reviews has
+arrived. Without a ring, or without such a sync, it runs on the Tuesday. The
+other days never wait, and the block start never waits. The row is dated
+its Monday whichever day it is written.
+
+The date the app reads follows the day: `dayRollProvider` checks it on every
+return to the foreground and at each local midnight, and a changed day
+rebuilds every reader of `currentDateProvider` once.
+
+`startDueBlock` starts a block today for a goal that waits for one: a goal
+with no lever yet, which is the base phase, or a goal whose pause had a last
+day that has passed, or whose maintenance weeks have passed. A goal of losing fat starts only with Body on and a
+ready weight rate, and the trend of today anchors the block; the other goals
+have no anchor and never read the weight. A goal with no lever gets its
+first from `startingLever` over the baseline that ends yesterday, and does
+not start while there is none, which is a sleep goal with fewer than seven
+nights. A goal that already has levers keeps them. A pause with no last day
+is ended only by the person.
+
+`reviewDueWeek` writes nothing and returns null when the module is off, when
+there is no goal or the goal is paused, when the goal has no lever yet, when
+the Monday is still in the first week of the block, and when that Monday
+already has a row. A block of losing fat closes at the first Monday reviewed
+after its last day, or at a Monday whose Sunday trend is 10 percent or more under
+the anchor of the block (`blockCloses`; a loss reached midweek waits for the
+Monday, and with Body off only the date closes it). The review then sets the
+goal in maintenance from that Monday for `goalMaintenanceWeeks`, through the
+Sunday 27 days later, before it writes the row, so a row never stands for a
+Monday whose close was lost. A pause during maintenance ends it, and the next
+block follows the pause. Otherwise it reads
+the steps, the nights, the strength days and the effort points, builds the
+baseline over the days that end on the closed Sunday, and stores the inputs
+with the review they give. A source that fails stops the review and nothing
+is written. Only the last closed week is reviewed: a Monday that passed with
+the app closed gets no row, and the gap resets what is carried over.
+
+The weight is read only for a goal of losing fat with Body on, as it stood
+on the closed Sunday: the rate is fitted over the window that ends that day,
+and the trend is built again from the weigh-ins up to that day, so a later
+weigh-in moves neither. Two reviews are then always seven days
+apart, which is what "too fast twice in a row" compares. A trend whose last
+point is `weightRateWindowDays` or more days before that Sunday is no trend,
+so it gives no BMI. The rate a screen shows is as of today and can differ.
+
+The row is written once per Monday. `checkIn` adds the two check-in answers
+to it afterwards, once: the review runs again on the stored inputs with the
+answers, and the row takes the rule, the action and the change that come
+out. The amend is refused for a week that is not the newest of the goal, for
+a week already answered, for a week that already holds a check-in answer,
+and when both answers are empty; `checkIn` itself also refuses in demo mode
+and for a weight goal with Body off. So a stored row always equals the review of
+its own inputs. Both calls bump the data revision when they write.
+
+A review that protects changes the goal in the same write as its row, so
+the two never disagree. A pause runs from the Monday of the row for the days
+the review gives, or with no last day when it gives none. An ending closes
+the goal on that Monday as ended by a protection, and its weeks are kept. An
+amend that turns one pause into another replaces the last day as well. A
+recovery week stores nothing on the goal.
+
+A week reviewed before the running block started takes no check-in and no
+answer: after a pause the goal is in a new block, and an old row can neither
+pause it again nor change its levers.
+
+`goalReviewProvider` gives the newest reviewed week with the review of its
+stored inputs.
+
+What it cannot say:
+
+- A week written before the ring synced its last day counts that day as
+  missed, and the row is not written again.
+- A proposal still waiting when the next Monday is written can no longer be
+  answered: only the newest week of a goal takes an answer.
+- A source that keeps failing stops every review, the protections included.
+- A pause counts from the Monday of its row, not from the day the row was
+  written, so a review written late in the week pauses for fewer days.
+- A goal in the base phase is never reviewed, so no protection can end it
+  before its first block.
+- The time of the last sync is stored even when part of that sync failed,
+  so a Monday review can run on a Sunday that did not fully arrive.
+- A goal reviewed on the Tuesday for want of a ring sync shows nothing new
+  on the Monday.
+- A process the system has suspended fires its midnight timer late; the
+  check on return covers it.
+- A step already running when demo mode is entered is not stopped: what it
+  reads after that instant can be demo history, and its row or block is
+  written on the real goal.
+
+### Before a weight goal starts
+
+`apps/mobile/lib/features/goals/domain/goal_intake.dart` and
+`application/goal_intake_providers.dart`. The goal picker
+(`presentation/goal_pick_screen.dart`) and the refusal screen
+(`presentation/goal_refusal_screen.dart`) read them, and so does the screen of
+the five questions (`presentation/goal_screening_screen.dart`).
+
+`weightGoalBlock` says why a goal of losing fat is not offered, the first of
+these that holds: Body is off, the soft mode is on, the age is not known, the
+age is under 18, the height is not known, the BMI of the trend weight is
+under 18.5. The age it is given is the youngest the birth year allows, one
+less than the year count, so nobody of 17 passes and a person who turns 18
+during the year waits for the next one. The BMI is checked only when a trend exists, so a person with no
+weigh-in passes this step. The order differs from `weightGoalRefusal` in two
+ways: Body and the soft mode come first, and pregnancy is not asked here.
+
+`weightGoalNext` says what follows when nothing blocks: the five questions
+when they were never answered, the setup when the newest answer is a no. The
+questions are asked once, and again only after the Goals data is deleted.
+`newestSoftMode` reads the newest screening row that holds an answer to
+them, so a later row that only records pregnancy does not erase it.
+
+`ScreeningController.submit` takes exactly five answers and writes one row
+with the date and the result, true for two or more "yes". The five answers
+are never stored.
+
+Only the person can leave soft mode: from a card that asks for a
+confirmation (`presentation/soft_mode_exit_card.dart`), or by deleting the
+Goals data, which removes the yes; the app never suggests either. The Goals
+module screen holds the card, above its data section.
+`SoftModeController.leave` writes one row with the result false, so the newest answer reads as a no: the next step is the setup
+and the questions are not asked again. The earlier yes stays in the history.
+The row is dated today, or the date of the newest row when that is later (a
+clock moved back), because rows sort by date first. It writes nothing while
+Goals is off, in demo mode, or when the newest answer is not a yes, and the
+card is hidden in demo mode. Leaving lifts only the soft mode: Body off, a
+missing age or height, an age under 18 or a BMI under the floor still hold,
+so the confirmation does not promise that weight goals open. The card
+ignores a second tap while the first is saving, and a save that fails or
+changes nothing keeps the card and says so.
+
+What it cannot say:
+
+- Whether the answer is still true. A no is kept for good. A yes ends when
+  the person leaves soft mode, or when every Goals row is deleted.
+- Anything about health. The questions are an adapted wording that nobody
+  validated, and the result is a rule of the app, not a diagnosis.
+- The real age. The profile holds a birth year and no month, so a person who
+  already turned 18 this year is still refused.
+- That a refused person stays refused: the age moves with the calendar year
+  and the BMI with the trend, and each is read again when asked.
+- That one tap wrote one row. Two calls write two rows, both with the same
+  result; the screen of the questions ignores a second tap while the first
+  is saving.
+
+### Starting a weight goal
+
+`domain/goal_setup.dart` and `GoalSetupController.start` hold the rules of
+the setup, and `GoalSetupScreen` (`/today/goals/setup`) is its screen. A lose
+fat goal starts only
+when the questions were answered with a no and nothing blocks it, with Goals
+on, outside demo mode and with a trend. It takes a pace, standard or gentle,
+and an optional reference weight, and starts with the trend as its anchor
+and no lever: the first block picks the lever once the weight rate is ready.
+
+The reference weight lies between the BMI floor for the height,
+`referenceFloorKg`, and the trend rounded down to 0.5 kg; with no room
+between them the setup offers none. The controller checks only those bounds,
+not a step, because a weight chosen in pounds is not a whole number of half
+kilograms.
+
+`asksPregnancy` says whether the setup asks about pregnancy and
+breastfeeding: always, unless the profile says male, and again whenever the
+newest answer was a yes. The answer is stored as a screening row with no soft
+mode answer, dated like the row that leaves soft mode. A yes starts nothing.
+
+What it cannot say:
+
+- That the block ends above the BMI floor. A pace that would carry the trend
+  under BMI 18.5 is not refused here. The weekly review ends the goal when the
+  trend gets there (rule 1), but only at a review that has Body on and so a
+  trend. The first review runs on the first Monday at least 7 days after the
+  first block starts, the block starts only once the weight rate is ready, and
+  starting it does not check the BMI again.
+- That the two writes happen together. The pregnancy row is written first,
+  so a failed start can leave a row with a no and no goal, which changes
+  nothing.
+
+### The setup screen
+
+The setup asks about pregnancy and breastfeeding first when `asksPregnancy`
+says so, and shows nothing else until the answer: no figure appears before
+it. A yes offers Continue, which stores the answer and opens the pregnancy
+refusal at `/today/goals/pregnancy`; that page shows only while the newest
+answer is a yes, so the way back is to choose Lose fat again and answer no.
+
+After a no, or when the question is not asked, the setup shows the pace
+(steady, the default, or gentle) with its share of the weight a week, the
+optional reference weight, the block in weeks with no dates, and one sentence
+on what the plan does not read: the plan does not read meals. The reference
+weight starts off; Add puts it at the top of `referenceBounds` and a stepper moves
+it by 0.5 kg or by 1 lb. Pounds are rounded inward, and `referenceKgFor`
+clamps the kilograms back into the bounds, so a value chosen in pounds never
+lands outside them. The choice is kept in kilograms, so a unit or trend
+change while the page stays open keeps the weight, and the value shown is
+the one sent. With numbers hidden the reference card and every weight
+go, and no reference is sent, even one added before hiding. With no trend
+the setup asks for a weigh-in in Body first. In demo mode Start, and
+Continue after a yes, are disabled, so nothing is stored.
+The screen shows only while the setup is the next step and no goal is
+active; otherwise it shows the picker.
+
+### The goal screen
+
+The goal screen, at `/today/goals`, follows `goalWeekProvider`. With the
+module off it says so in one line; with no goal it offers the picker and says
+that no goal is a state, not a pending step. Get fitter and sleep better show
+the week and no weight. With Body off a lose fat goal shows the hold and no
+weight. Otherwise a lose fat goal shows its path. In maintenance the line
+under the title gives the last day of maintenance in place of the week of the
+block, and once that day has passed, that a new block starts once there is a
+weight rate. Maintenance has no rate target: the pace tile reads none, and the
+rate row and its sheet give the rate and its range without a target or an on
+track word, with numbers shown or hidden; only a loss over the cap is still
+named.
+
+The path is read on `goalPathDay`: the Sunday before this Monday, the day the
+review reads, or the block start when the block began later; in the base
+phase it is today, since the block waits for today's rate. So it holds still
+between reviews, and the trend of each day stays in Body. On that day
+`goalPath` takes the weight snapshot (`weightSnapshot`, built from the
+weigh-ins up to that day only) and gives the block from the block anchor and
+the pace, the loss rate and its state from `pathState` (above the cap is told
+apart from above the band), and the arrival from `arrivalRange` when a
+reference weight was chosen. The chart runs from a week before the block to
+its end: weigh-ins, the trend, the band of half to one and a half times the
+pace from the anchor, the pace itself and the reference, both dashed. Below
+it come the start, the trend and the reference (or the pace target without
+one), the rate in 28 days with its interval as a share of the trend, and the
+arrival as months. The arrival reads paused while the goal is paused, reached
+when the trend is at or under the reference, and no range otherwise when
+`arrivalRange` gives none. In the base phase the screen shows the anchor, the
+rate or "not yet", and the reference, with no chart and no arrival.
+
+Each number opens a sheet (rate, trend, arrival) with the rule, the reader's
+own numbers and what is our choice. With numbers hidden there is no chart, no
+weight, no share and no arrival: the rate row shows the direction from Body
+and the state word, and the sheets show the hidden note in place of numbers.
+
+### The week card
+
+"This week" (`GoalWeekCard`) sits on Today right under the Day Score, and
+before the Effort tile when no ring is synced; on the goal screen it sits
+under the path, or under the no weight card for the other kinds. It is absent
+with the module off or no goal. A running week shows the week (of the block
+length for lose fat), the dates from Monday to Sunday and one row per lever:
+the name, the target in words, the count of the week against what it needs
+(5 of 7 days for a daily lever, the target for strength days and points),
+seven day marks for a daily lever (met, missed, open today, ahead), a dot per
+strength day and a bar for points. A day that did not fit takes nothing away,
+and the plan reaches the Day Score only through a step goal the person
+accepts at a review. A bedtime target is minutes after
+noon and a wake target minutes after midnight, shown as a wall clock time.
+The base phase counts the weigh-ins toward the rate for lose fat, says how
+many of the 14 days they cover while the spread is short, and fills its bar
+by whichever of the two is further from done; another kind names the days of
+data the plan waits for. A pause shows its end, or that it is
+over, and the levers as reminders with no count; in maintenance the week
+keeps its levers and counts, the tag says maintenance in place of the week,
+and a first line gives the last day or says maintenance is over; a recovery
+week asks nothing; with Body off the card says the weight plan holds. Lever counts are
+not weights, so hidden numbers leave them shown. While the review of this
+Monday waits for an answer, outside maintenance, the card says so with the
+levers that fit and opens the review screen in place of the week.
+
+### The review screen
+
+The review screen, at `/today/goals/review`, shows the newest reviewed week of
+the goal under way, from its stored row: the levers of the closed week with
+what each got against what it needs, how many fit, and for lose fat the rate
+in 28 days with its interval and the target (hidden with numbers hidden). The
+decision is the stored rule and change, never one recomputed. A protection
+(end, pause, recovery week), a hold and ease need no answer. A change (the
+next step, or a lever removed by the shrink rule) takes Accept or Keep, and
+the "This week" card says a review is waiting until it is answered. A change
+still waiting when the goal moves to maintenance lapses: the card no longer
+offers it and the screen shows no Accept or Keep.
+
+Two optional questions, energy and food or weight, are offered while the week
+of this Monday has no answer and no check-in. Sent with the answer, or alone
+for a week with no change, they go through `amendWeek` first; when they change
+the rule the screen shows the new review and nothing is answered.
+
+`GoalReviewer.answer` refuses in demo mode, with Goals off, for a weight
+goal with Body off, and in maintenance, before it writes anything. The week answer is written first, since the store refuses
+a second answer and that refusal keeps a double tap from writing twice. An
+accepted steps change then sets the profile step goal, through the profile
+save that dates a step goal change today, only when the new target is above
+the profile goal in force: the steps lever starts from the 14 day median, so
+it can sit under a goal the person set, and the plan never lowers that goal.
+When the profile read or save fails the week stays accepted, the failure is
+logged and the screen offers a retry, which writes no second change row and,
+like the answer, only raises the goal. The profile save dates its change row
+before it saves the profile, so a newest change row equal to the accepted
+target with the profile still under it marks a save that failed, and the
+screen offers the retry again when it is opened later.
+
+### The formula screen
+
+"How we calculate" (`GoalFormulaScreen`, `/today/goals/formula`) opens from
+the goal screen, with or without a goal. It prints every constant from the
+code, never a copy: the rate (`weightRateWindowDays`, `weightRateMinDays`
+over `weightRateMinSpanDays`, the band `goalBandLow` to `goalBandHigh` times
+the standard target), the target and the block (`goalStandardPercent`,
+`goalGentlePercent`, `lossCapPercent` by `goalCapBmiMid` and
+`goalCapBmiHigh`, `goalBlockWeeks`, `goalBlockMaxLossPercent`,
+`goalMaintenanceWeeks`), the levers with their steps, floors and ceilings,
+the eleven rules in the order of `ReviewRule` with the answer and the goals
+each applies to, the arrival, the protections, and what is sourced, our
+choice, not yet checked and what the module cannot say. The rule of the
+newest stored week is marked while Goals is on. Food levers are one sentence:
+the plan does not include food levers and only adjusts movement and sleep;
+Food is tracked separately.
+
+### Lever and rule sheets
+
+On the goal screen each lever of "This week" opens its evidence sheet (on
+Today the card opens the goal screen instead): what it counts, the reader's
+target and count so far (or that the plan holds), the rule with its fit days,
+starting point, step and ceiling from the code, the source, our choice and
+the limits. The review screen's "Why this rule" opens the sheet of the rule
+the stored week answered with: its condition and answer, and what the rules
+read from the stored inputs (the week, the levers that fit, the rate with its
+target and cap and the trend BMI for a weight goal, the days of the last 7
+with a Readiness under `readinessFairFrom`). Hidden numbers leave the rate
+and the BMI out.
+
+### Ending or switching a goal
+
+The goal screen links to "End or switch" whenever a goal is active. Both
+choices end the goal with `GoalStore.end` dated today, with reason `person`
+or `switched`, and keep its weeks; switching then opens the picker, which
+starts a new goal the same day. A week still waiting for an answer stays
+unanswered. `GoalEnder.end` refuses in demo mode, with Goals off and with no
+active goal, and when the store throws, which is logged and leaves the
+screen saying nothing changed; a weight goal with Body off can still be ended.
+
+A third choice, "Move to maintenance now", shows only for a running block of
+losing fat (`canMaintainNow`). After a confirm, `GoalEnder.maintainNow` sets
+the goal in maintenance from today through the day 27 days later, so the
+next block follows as after a block that closed on its own. It refuses in
+demo mode, with Goals off, with Body off, with no lever and for any phase but
+a block; a store error is logged and the screen says nothing changed. A week
+still waiting for an answer lapses unanswered, as with an end.
+
+When the plan raised the step goal, the confirmation asks once whether it
+stays or goes back. `planRaise` reads the goal in force the day before the
+goal started (`stepGoalOn`) and offers the question only when today's
+profile goal is above it and an accepted steps week of this goal went above
+it, so a raise by hand alone is not offered back as the plan's. A raise by
+hand after a plan raise goes back with it. Going back saves the profile
+after the end, through the save that dates a step goal change today, so
+earlier days keep their goal. When that save fails the goal stays ended, the
+failure is logged and the screen offers a retry, which needs no active goal,
+writes no second change row and only lowers the goal.
+
+### The Goals module
+
+Goals is the fifth row of Settings, Modules, and is not offered at
+onboarding, since Today shows nothing for it until a goal is chosen. Its
+screen at `/ring/settings/modules/goals` says what the module adds, stores
+and never does, links to the goal screen while it is on and to the formula
+screen, holds the soft mode card, and switches the module on or off; View on
+the turned on message opens the goal screen. Switching off deletes nothing.
+
+"Delete Goals data" (`GoalsDataEraser.clear`) empties the goals, their weeks
+and the screenings through `GoalStore.clear`, in one transaction, with Goals
+on or off and in demo mode, which seeds no Goals rows. Weigh-ins, the step
+goal changes and the profile step goal stay, so a step goal the plan raised
+stays raised. Deleting a screening that said yes ends soft mode, and the
+next weight goal asks the questions again. A store error is logged and the
+screen says nothing was deleted. The screen counts goals, reviewed weeks and screenings
+(`goalsDataCountProvider`, not gated on the module), adds the rows that no
+longer decode from the store's raw count with a sentence of their own, and
+shows the button only when one is kept; a count that cannot be read shows the load error, not the
+empty line. "Delete all data" empties the same three tables. The end screen
+links to the module screen and asks nothing itself.
+
+### The goal picker
+
+The picker offers four rows: no goal, lose fat, get fitter, sleep better.
+`pickStep` says what Continue does with the row chosen. No goal writes
+nothing. Get fitter and sleep better start at once with no lever, and the
+first block picks the lever (`GoalStartController.startWithoutWeight`); a second
+start while one is in flight, or with a goal already active, writes nothing.
+Lose fat runs `weightGoalBlock`: with Body off the button opens the Body
+module instead, and the other five blocks, the soft mode among them, open the
+refusal screen. A lose fat goal that passes opens the five questions when
+they were never answered, and the setup after a no.
+
+The questions screen asks the five questions with a no and a yes each, and
+Continue saves them only when all five are answered. Two or more yes open the
+soft mode screen; fewer open the setup. The third question names a loss of 6 kg, `goalScreeningLossKg`,
+in the person's unit (13 lb), and names no number when numbers are hidden.
+The screen shows only while the questions are still the next step, so a
+person who already answered, or is blocked, sees the picker. A failed save
+keeps the answers and says so.
+
+The soft mode screen says that the app builds no weight goal, that this is
+not a diagnosis and that help exists, and lists what changes: no weight goal,
+no pace or target, Get fitter and Sleep better still open. It shows only
+while the soft mode is the block, that is while the newest answer is a yes
+and Body is on; otherwise it shows the picker.
+
+The refusal screen says the rule with the person's own numbers:
+
+- Under 18: the age the profile shows this year and the year weight goals
+  open, `weightGoalsOpenYear`, the birth year plus 19, the first 1 January on
+  which every birth date of that year is 18.
+- Age or height missing: one state that sends to Settings.
+- BMI under the floor: the trend rounded down and the floor weight for the
+  height (BMI 18.5) rounded up, both to 0.1 in the display unit, and the BMI
+  from `shownBmi`, which never shows 18.5 for a BMI under it. With the numbers
+  hidden only the 18.5 is shown.
+
+The refusal names its block in the address, and the Today tab keeps that
+address while the profile is edited in another tab. So the screen checks the
+block against the current profile and trend on every build: when it no longer
+holds, including when the value the refusal names was cleared, the picker
+shows in its place, on Lose fat, and the numbers it shows are always the
+current ones. A failed read shows the load error, never a blank page. While
+the facts are being read again the screen keeps the refusal on show and
+waits to check the block, because until then the facts still predate the
+change, such as the answer that opened the soft screen, and would show the
+picker for a moment.
+
+## 21. Food (food day, eating window, Plate pattern)
+
+Code: `packages/metrics/lib/src/food_week.dart`. Pure functions; nothing here reads a photo or the network.
+
+**Food day.** A meal belongs to the food day of its local capture time, and the food day starts at 05:00 (`foodDayStartHour`), so a snack at 00:30 closes the evening before. The slot name comes from the same time: breakfast 05:00 to 10:29, lunch 10:30 to 14:59, afternoon snack 15:00 to 17:59, dinner 18:00 to 22:59, supper 23:00 to 04:59.
+
+**Tags.** A meal has ten optional tag groups, one of them the kind (main, snack, drink). On a meal with at least one tag or a kind, a yes or no tag left untapped reads as no. A meal with neither is untagged: it is still a record and opens the window, but it is never a main.
+
+**Complete day.** A food day is complete when one of its meals is marked as the last meal. Only complete days feed the window, the gap and the Plate pattern, and the count of complete days is always returned. A day with no photo is blank: nothing reminds, nothing counts a streak.
+
+**Eating window.** On a complete day, from the first to the last meal that opens the window. A drink with no sugar and no alcohol neither opens nor closes it, so a morning coffee does not set the window. The week reports the median over complete days, and the median of the time from the last window meal at or before the sleep onset of that food day to the onset (a meal eaten after falling asleep is not the last meal before sleep) (days with no onset leave only the gap median).
+
+**Plate pattern.** On the closed Monday to Sunday week (the function scores the week it is given; the week screen passes the last closed one), with at least 5 complete days (`plateMinCompleteDays`) and 10 mains (`plateMinMains`); short of that it is building. Five points, each a linear ramp clamped to 0 and 1, then the sum rounded to one decimal, 0 to 10:
+
+| Point | Input | 0 at | full at | Weight |
+| :--- | :--- | :--- | :--- | :--- |
+| Protein | share of mains tagged protein | 0.3 | 0.9 | 3 |
+| Veg | share of mains with any veg | 0.2 | 0.8 | 3 |
+| Processed | 1 minus the share of mains mostly ultra-processed | 0.4 | 0.9 | 2 |
+| Sugar | complete days with a sugary item, scaled to 7 days | 4 | 0 | 1 |
+| Drinks | drinks (1.5 for a 1 to 2 tag, 4 for 3 or more), scaled to 7 days | 10 | 2 | 1 |
+
+The week of 30 Nov to 6 Dec 2026 in the approved prototype: 6 of 7 complete days, 23 records, window 742.5 min, gap 177.5 min; 18 mains, protein 15, veg 13, processed 2, sugary days 2, drinks 4; points 2.67, 2.61, 1.96, 0.42, 0.67; Plate pattern 8.3. The number is shown with its five counts, with no band word and no colour, and it enters no score.
+
+Status: the ramps, the 05:00 start and the drink counts are our choice, carried from the approved prototype; no source sets them.
+
+## 22. Food comparisons (matched nights, meal time regularity)
+
+Code: `packages/metrics/lib/src/food_compare.dart`. Pure functions over meals and nights; nothing here reads a photo or the network.
+
+**Nights.** A night belongs to the food day it closes (`wake date - 1`), so the meals of a food day (from 05:00, section 21) are matched with the sleep that starts that evening. Comparisons update on Mondays over the 90 nights ending on the closed Sunday before the current week (`foodCompareNights`, `foodCompareLastNight`, `foodFirstNight`); `foodNightsProvider` keeps from that first night through yesterday so the current week's sleep onsets are also available to `foodWeek`. While Open Score is on, food days tagged Sick or Travel leave the nights list and Rest stays. Only a complete day (its last meal marked) can be exposed or a control, and a day with an untagged meal is neither, since an untagged meal leaves its alcohol and its other tags unknown. Nightly heart rate is `restingHeartRate`, nightly HRV is `nightlyHrv`, and onset is the sleep onset at its capture wall clock in minutes after midnight of the food day, so 00:30 is later than 23:50. Sleep stages never lead a comparison.
+
+**Links.** Five, each a night that is exposed, a control, or neither:
+
+| Link | Exposed | Control | Minimum pairs |
+| :--- | :--- | :--- | :--- |
+| Alcohol, 3 or more | a 3 or more tag on the food day | no alcohol | 10 |
+| Alcohol, 1 to 2 | a 1 to 2 tag and no 3 or more tag | no alcohol | 10 |
+| Last meal near sleep | last window meal under 2 h before onset | 3 h or more | 14 |
+| Caffeine after 14h | a caffeine tag at or after 14:00 of the food day | no such tag | 14 |
+| Heavy dinner | a heavy tag in the dinner or supper slot | no such tag | 14 |
+
+The three links that are not about alcohol use only nights with no alcohol, as exposed and as control. The late meal gap runs from the last window meal at or before onset, as in section 21. A night between 2 h and 3 h, or with no onset, is neither for the late meal link.
+
+**Matched pairs.** Exposed nights are taken oldest first; each takes the nearest free control at most 10 days away (`foodPairMaxDays`), the earlier one at equal distance, and a night is used once. A Friday or Saturday evening is a weekend night and pairs only with another one. A pair drops from an outcome when either night lacks it (no onset, no heart rate, HRV of 0), and stays in the others.
+
+**Numbers.** The mean of exposed minus control with its 99% interval, mean plus or minus `t99(n - 1)` times the SD over the square root of n. HRV is compared in logs and shown as a percent. Below the minimum pairs the link is collecting. It is a pattern when the interval excludes zero and the mean is at least the smallest meaningful difference (2 bpm, 5%, 15 min); otherwise there is no clear difference. `t99` is the two sided 99% Student t, found from the exact integer degrees of freedom distribution (Abramowitz and Stegun 26.7.3 and 26.7.4).
+
+The approved prototype's 90 nights: alcohol 3 or more, 12 pairs, heart rate +5.08 bpm (1.57 to 8.60) and HRV -19.5% (-25.2 to -13.4), both patterns; late last meal, 16 pairs, heart rate +4.19 bpm (1.59 to 6.78); caffeine after 14h, 16 pairs, onset -0.25 min (-13.56 to 13.06), no clear difference; heavy dinner 9 of 14 and alcohol 1 to 2 at 7 of 10 are collecting.
+
+**Meal time regularity.** Descriptive only, from meals alone: the SD of the first window meal time over the last 14 complete days, and how much later it comes on Saturday and Sunday than on weekdays (none when either side has no day). Under 10 complete days it is collecting. Prototype: SD 68.2 min, weekend 130.2 min later.
+
+Status: matched pairs, the 99% interval and the smallest meaningful differences are our choice, carried from the approved prototype; a pattern describes these nights and is never a cause.
+
+## 23. Weekly energy (Food with AI analysis)
+
+Code: `packages/metrics/lib/src/food_energy.dart` (pure functions) and `apps/mobile/lib/features/food/application/food_energy.dart` (the provider). It runs only with the Food and AI analysis modules on and the Weekly energy opt in given. The model never returns energy: per item it picks one of 23 food groups and a weight in grams, and the app turns those into a log value with a fixed table. The log is never shown as kcal; a per person factor calibrated against weight change and ring energy turns it into a range.
+
+**Food groups** (kcal per 100 g, `FoodGroup.kcalPer100g`):
+
+| Group | kcal | Source |
+| :--- | ---: | :--- |
+| grainCooked | 128 | TACO 3, Arroz, tipo 1, cozido |
+| bread | 300 | TACO 53, Pão, trigo, francês |
+| legumeCooked | 76 | TACO 561, Feijão, carioca, cozido |
+| rootCooked | 77 | TACO 88, Batata, doce, cozida |
+| vegetable | 25 | TACO 100, Brócolis, cozido |
+| leafySalad | 15 | TACO 157, Tomate, com semente, cru |
+| fruit | 56 | TACO 222, Maçã, Fuji, com casca, crua |
+| poultry | 159 | TACO 410, Frango, peito, sem pele, grelhado |
+| redMeat | 219 | TACO 377, Carne, bovina, patinho, sem gordura, grelhado |
+| processedMeat | 296 | TACO 423, Lingüiça, porco, grelhada |
+| fish | 122 | TACO 301, Merluza, filé, assado |
+| egg | 146 | TACO 488, Ovo, de galinha, inteiro, cozido |
+| cheese | 330 | TACO 463, Queijo, mozarela |
+| milkYogurt | 61 | FDC SR Legacy 171265, Milk, whole, 3.25% |
+| friedSnack | 283 | TACO 386, Coxinha de frango, frita |
+| mixedDish | 150 | ours, stews and casseroles |
+| pizzaSandwich | 260 | ours, from FDC pizza and sandwiches |
+| sweet | 400 | ours |
+| nutsSeeds | 606 | TACO 558, Amendoim, torrado, salgado |
+| fatSauce | 400 | ours |
+| sugaryDrink | 40 | ours, soda and juice |
+| alcoholicDrink | 60 | ours |
+| plainDrink | 0 | ours, water, plain coffee and tea |
+| other | 150 | ours |
+
+**Meal, in log units.** `mealLogKcal = sum(grams × kcalPer100g / 100)`, plus 88 for the hidden oil chip (10 g soybean oil, TACO 884), 60 for sauce (15 g at 400) and 39 for sugar (10 g refined sugar, TACO 387). Prototype lunch M1, oil on: rice 90 g, beans 80 g, chicken 100 g, salad 30 g gives `115.2 + 60.8 + 159 + 4.5 + 88 = 427.5`.
+
+**Day.** A food day (section 21) counts only when it is complete and every meal that opens the window has confirmed items; plain drinks with no items count 0. The day log is the sum of its meals. Each day carries the set of analysis targets (`host|model|prompt|schema`) behind its logs.
+
+**Week.** For the closed week ending Sunday `S`, the window is `S-34` to `S` (`foodEnergyWindowDays` 35) and the shown week is `S-6` to `S`.
+
+- `Lc`: mean day log over the window; `Lw`: over the shown week; `Lp`: over the window days before that Monday.
+- `slope`: least squares fit of the daily mean weight (`dailyWeights`) on days since `S-34`, in kg a day.
+- `E`: mean of the ring energy day totals in the window that are on record (`energyDayOnRecord`, section 18).
+
+```
+balance  = slope × 7700                       (foodEnergyKcalPerKg)
+expLog   = Lc - balance
+kLow     = 0.85 × E / expLog,  kHigh = 1.15 × E / expLog   (energyDayMargin 0.15)
+range    = energyRange(Lw × E / expLog, 0.15), each end rounded to 50
+gap      = (1 - 1/k) × 100 for kLow and kHigh: under if both > 0, over if both < 0, else none
+change   = (Lw - Lp) × kLow and × kHigh, widened by 150 on each side (foodEnergyChangeBand)
+           less if the top < 0, more if the bottom > 0, else no clear difference; shown rounded to 10
+```
+
+**Hold.** No new range is computed, in this order, when the window mixes more than one analysis target (model changed); a weight goal block started under 14 days ago (`foodEnergyGoalHoldDays`); fewer than 20 days with a weigh-in (`foodEnergyMinWeighIns`); fewer than 28 energy days in the window (`foodEnergyMinDays`) or 5 in the shown week (`foodEnergyMinWeekDays`); fewer than 20 ring days (`foodEnergyMinRingDays`); or `expLog` or `E` under 800 kcal (`foodEnergyMinExpenditure`, implausible). A held week still shows the newest ready week among the 4 Sundays before it (`foodEnergyLookbackWeeks`).
+
+**Worked examples** (`foodEnergyFigures`, pinned in `packages/metrics/test/food_energy_test.dart`):
+
+| # | slope | Lc | Lw | Lp | E | kLow to kHigh | range | gap | change shown |
+| :- | -: | -: | -: | -: | -: | :- | :- | :- | :- |
+| F1 | -0.03 | 1780 | 1700 | 1800 | 2500 | 1.056688 to 1.429637 | 1800 to 2450 | under, 5 to 30 | -290 to 40, none |
+| F2 | -0.03 | 1730 | 1450 | 1800 | 2500 | 1.083631 to 1.466089 | 1550 to 2150 | under, 8 to 32 | -660 to -230, less |
+| F3 | -0.0315 | 1720 | 1680 | 1745 | 2560 | 1.108762 to 1.500089 | 1850 to 2500 | under, 10 to 33 | -250 to 80, none |
+| F4 | 0 | 2600 | 2600 | 2600 | 2000 | 0.653846 to 0.884615 | 1700 to 2300 | over, 13 to 53 | -150 to 150, none |
+| F5 | 0 | 2400 | 2400 | 2400 | 2400 | 0.85 to 1.15 | 2050 to 2750 | none | -150 to 150, none |
+| F6 | 0 | 2000 | 2100 | 1800 | 2400 | 1.02 to 1.38 | 2150 to 2900 | under, 2 to 28 | 160 to 560, more |
+
+F3 is the approved prototype's week. The range is kcal a day on average for the week; no meal or day ever gets a calorie number.
+
+Status: the 23 group densities marked ours, the chip additions, the 35 day window, the minimum counts and the 150 kcal change band are our choice; 7700 kcal per kg is the usual energy content of body weight change and the 0.15 margin is the ring energy margin of the Energy module.
+
+## 24. AI readings (summary, facts, checks, confidence, cost)
+
+Code: `apps/mobile/lib/features/ai/domain` (`health_context_v2.dart`, `health_context_assembly.dart`, `ai_report_validator.dart`, `ai_prompt.dart`, `ai_cost.dart`). The model writes words; every number it may show comes from this app and is checked on the phone. The formula screen (`/heart/trends/ai/formula`) prints the same rules with these constants.
+
+**Summary.** One row per day and one per week, computed from the data already on the phone; scores go as the app shows them and missing data goes empty, never as zero. The window is compact (7 days, 4 weeks), standard (14 days, 12 weeks, the default) or extended (28 days, 26 weeks); only the Full detail level can use extended, any other level falls back to standard (`AiContextWindow`). A reading needs at least 5 days with data (`aiMinDaysWithData`). Minimal sends relative days, age in a 10 year band and weight only as a change; Standard adds stages, times rounded to 15 minutes and age in a 5 year band; Full sends calendar dates, exact age and times to the minute. GPS routes, the ring's name and address, raw samples, phone identifiers and the Goals questionnaire never enter it, and imported Health Connect records stay out while `aiImportedOfferedProvider` is false.
+
+**Facts.** The app numbers the facts it sends (latest value, baseline, averages, trends). A fact with fewer than 3 days of data (`aiMinFactDays`) is left out. The model may use a number only by citing a fact.
+
+**Checks.** A card is dropped unless all six hold: it cites existing facts; its theme matches a cited fact; every number is a cited fact (as is or rounded), the difference or percent change of two, or a count up to the days sent or one of 7, 12, 14 or 28 (`aiCitablePeriods`); the suggestion carries numbers only with a time or activity unit; it has no word of diagnosis, disease, medicine, supplement or dose; it has no link. At most 6 cards are kept (`aiMaxReportCards`).
+
+**Confidence.** Coverage is the fewest days of data among a card's cited facts: high from 10 (`aiCoverageHighDays`), medium from 5 (`aiCoverageMediumDays`), low below. The shown confidence is the lower of coverage and the model's own word.
+
+**Tokens and cost.** Before a send, tokens are estimated as the UTF-8 bytes of the text divided by 3, rounded up (`aiBytesPerToken`). Cost is what the service reports or, failing that, input tokens ÷ 1,000,000 × the input price plus output tokens ÷ 1,000,000 × the output price you entered (`aiPriceTokens`). Usage the service does not report shows as not reported, never as zero.
+
+**Keeping.** Each time a reading is saved, only the newest 60 are kept (`aiReportKeepCount`) and readings older than 30 days (`aiReportPayloadDays`) lose the summary that was sent and the raw answer, keeping their cards. Nothing trims them between saves.
+
+Status: the 5 and 10 day bands, 3 bytes per token, the 5 day minimum, the 6 card limit and the word lists are our choice, not a study's.
+
+## 25. Trajectory (weight scenario, band, fast loss guard, balance, what if, grading)
+
+Code: `packages/metrics/lib/src/trajectory.dart`. The scenario reads the trend,
+the 28 day rate interval and the noise of section 13; it adds no rate of its
+own, so Body, Goals and Trajectory print the same rate for the same weigh-ins.
+
+**Bend.** The burn falls as weight changes, so the rate is not run on as a
+straight line. After `t` days the rate counts for
+
+`F(t) = 365 × (1 - e^(-t/365))` days
+
+which is 26.95 days at 4 weeks and 75.03 days at 12 weeks. A straight line
+would overstate the change by about 0.5 kg at 12 weeks.
+
+**Band.** With the weekly rate `perWeek` and its interval `low..high`:
+
+- middle: `trend + perWeek / 7 × F(t)`
+- lower edge: `trend + low / 7 × F(t) - noise`
+- upper edge: `trend + high / 7 × F(t) + noise`
+
+A stable rate still opens both ways, and a rising weight bends the same way.
+Worked example: trend 77.60 kg, rate -0.348 kg a week (-0.435 to -0.262),
+noise 0.35 kg give 75.58 to 76.95 kg at 4 weeks and 72.60 to 75.15 kg at 12.
+
+**Fast loss guard.** `fastLossGuard` is true while the slow end of the loss
+interval is over 1% of the trend a week, and then the caller does not draw the
+scenario; `weightScenario` itself returns a band at any rate. The guard reads
+the same `percentLow` Goals uses for its cap (section 20), and exactly 1% does
+not trip it.
+
+| Constant | Value | Status |
+| --- | --- | --- |
+| `trajectoryAdaptationDays` | 365 days | sourced: approximates the adaptation time constant of Hall 2011. |
+| `trajectoryFirmDays` | 28 days | **our choice**. The firm horizon. |
+| `trajectoryBandDays` | 84 days | **our choice**. The lighter band, nothing further. |
+| `trajectoryFastLossPercent` | 1.0% a week | **our choice**. |
+
+Negative days or a negative noise throw `ArgumentError`.
+
+### Energy balance (28 days)
+
+Code: `packages/metrics/lib/src/trajectory_balance.dart`. The weight change of
+the 28 day rate window, read as kcal a day: `perWeek / 7 × 7,700`, with the low
+and high ends of the rate interval giving the ends of the range. Below zero
+means less was eaten than spent. The checks run in this order:
+
+1. No rate yet (section 13): no balance.
+2. Fewer than 20 days with a weigh-in in the window (`foodEnergyMinWeighIns`):
+   the count is shown instead.
+3. A goal block started 0 to 40 days ago: the balance waits until day 41
+   (`trajectoryBalanceHoldDays`), the first day whose 28 day window holds none
+   of the block's first 14 days (`foodEnergyGoalHoldDays`), when water and
+   glycogen move faster than tissue. A start after today does not hold it.
+
+Each end is shown rounded to 50 kcal, half away from zero (`energyStepped`).
+When the range contains zero it is `balanced`.
+
+The trajectory screen shows the balance in its kcal card
+(`trajectoryKcalProvider`), with resting burn today (the Energy day's range)
+and the 12 week change: `(band middle minus trend) × 9.99` at rest and `× 24` for
+the whole day, each rounded to 10 kcal. The card exists only on a Ready
+scenario while the Energy gate is on; with Energy off, under 18 or numbers
+hidden there is no kcal anywhere on the screen. The goal block start counts
+only in the block phase with an anchor weight (`energyBlockStart`).
+
+### Steps what if
+
+Code: `packages/metrics/lib/src/trajectory_steps.dart`. For a number of extra
+steps a day above the typical steps:
+
+- distance and kcal a day come from `stepKilometers` and `stepEnergy`
+  (section 18);
+- the weight it would move after `t` days is
+  `kcal / 24 × F(t) / 365`, with `F` the bend above, since the burn falls by
+  about 24 kcal a day per kilogram (`trajectoryKcalPerKgDay`) and settles in
+  365 days;
+- the cohort words compare the hazard at the typical and at the new steps,
+  `1 - hazard(new) / hazard(typical)`.
+
+The hazard follows Paluch 2022, the quartile medians against the lowest group:
+3,553 steps 1.00, 5,801 steps 0.60, 7,842 steps 0.55, 10,901 steps 0.47. It is
+log linear between them, 1.00 below the first and 0.47 above the last, so steps
+above 10,901 add nothing and the result is marked `clamped`. Under 5% lower reads as about
+the same, under 15% as slightly lower, under 30% as a fifth to a quarter lower,
+and more as much lower. The percentage feeds only these words.
+
+Worked example: 8,700 typical steps, 77.6 kg, 178 cm, 2,000 more steps give
+1.48 km, 57 kcal a day, 0.49 kg in 12 weeks and 9.8% lower, slightly lower.
+
+The what if screen (`whatIfProvider`, route `/today/trajectory/what-if`) shows
++1,000, +2,000 or +3,000 steps, one at a time, above the typical steps of the
+Ring levers (section below, rounded to whole steps). The weight row needs a
+Ready scenario and uses its trend weight; it shows kg whether the Energy gate
+is on or off, because the weight comes from the scenario model, and the screen
+never shows kcal. Hidden numbers turn it into words. Building and Guard show
+the cohort words with no weight scenario; a refusal shows only the refusal.
+
+### Projection grading
+
+Code: `packages/metrics/lib/src/trajectory_grade.dart`. A band stored on a
+Monday is graded 28 days later against the last trend value (section 13) on or
+before that day: below the band, inside it (both ends count as inside) or
+above it. Before that day, or with no weigh-in by then, there is no grade.
+
+| Constant | Value | Status |
+| --- | --- | --- |
+| `trajectoryBalanceHoldDays` | 41 days | follows from the 28 day rate window (section 13) and the 14 day hold (section 23). |
+| `trajectoryKcalPerKgDay` | 24 kcal a day per kg | sourced: approximates Hall 2011. With 7,700 kcal per kg over 365 days it is a little higher than 21; **our choice** of a round value. |
+| `paluchAnchors` | 3,553 to 10,901 steps | sourced: Paluch 2022, read from the abstract, **not yet checked against the full paper**. |
+| Cohort word cuts | 5, 15 and 30% | **our choice**. |
+
+### Stored Monday band
+
+Code: `apps/mobile/lib/features/trajectory/domain/monday_projection.dart`. When
+the card is ready, opening it stores the 28 day band of the current ISO week
+once, computed from the weigh-ins up to that Monday only (trend, rate and
+noise as of the Monday). A Monday that was still building or over the fast
+loss guard stores nothing, a stored row is never edited, no earlier Monday is
+filled in, and no band is stored from demo weigh-ins, in demo mode or while
+leaving it. Missing height refuses the module up front, because the drawn
+band needs it for the BMI floor below.
+
+The stored projections screen (`projections_screen.dart`) lists every stored
+row, newest Monday first, graded as above on each open: its 28 day band, the
+trend on the check day and the grade, or "checks <day>" before it. A past row
+with no weigh-in left by its check day reads "not checked". The Trajectory
+screen shows a summary card with the counts. Hidden numbers keep dates and
+grades only. Guarded Mondays are never stored, so they never appear.
+
+### BMI floor on the drawn band
+
+Code: `scenarioFloored` in `packages/metrics/lib/src/trajectory.dart`. The
+4 and 12 week bands that are drawn hold every edge at the weight of BMI 18.5
+(`bmiFloor`) for the profile height, `18.5 * m^2`, unrounded, unlike the Goals
+reference floor. When today's trend is already under that weight the floor is
+the trend, so no edge is pushed above the trend. The stored Monday
+band is not floored, so near BMI 18.5 it can sit under the drawn 4 week
+band. **our choice**.
+
+### Evidence sheets on the scenario card
+
+Code: `trajectory_evidence_sheet.dart` in the Trajectory presentation layer. On
+a Ready card the Now tile and the rate row open the rate sheet, the 4 and 12
+week tiles open a scenario sheet. "Your number" carries the math with the
+reader's values: trend, rate ends, `F(t)` with one decimal, middle, noise and
+the drawn range, plus a line when an edge sits more than 0.05 kg above the
+unfloored band, naming the BMI floor, or the trend when it is already
+under that weight. With numbers hidden no tile or rate
+row is drawn, so no sheet opens. The sheets never show kcal. **our choice**.
+
+The kcal card rows (resting burn, burn in the scenario, 28 day balance) and
+the what if rows (weight, cohort) open sheets too. The burn sheet multiplies
+the middle distance in kg by `mifflinPerKilogram` and by 24; the balance sheet
+shows the unrounded ends of rate times 7,700; a balance that is not ready
+repeats why. The what if weight sheet shows kcal only while Energy is on and no
+values while numbers are hidden; km and kg stay with Energy off. **our choice**.
+
+### Ring levers (Theil-Sen over 90 days)
+
+Code: `packages/metrics/lib/src/lever_trend.dart`. Steps, sleep regularity,
+resting heart rate and sleep duration each get a 90 day trend. Weight keeps
+the 28 day rate of section 13; Theil-Sen is only for the levers.
+
+**Window.** One value per date in the 90 days ending on the day read; a date
+seen twice keeps its last value, and a value that is not a finite number is
+dropped. Below 54 valid days (`leverTrendMinValidDays`) there is no trend.
+
+**Slope.** The median of the slopes between every pair of days. The change is
+the slope times 90, and the typical value is the median of the values.
+
+**Interval (90%).** With `n` days, `N` pairwise slopes sorted and `k` the size
+of each group of equal values:
+
+`sigma = sqrt((n(n - 1)(2n + 5) - sum k(k - 1)(2k + 5)) / 18)`
+
+the low end is slope number `max(round((N - 1.645 sigma) / 2) - 1, 0)` and the
+high end slope number `min(round((N + 1.645 sigma) / 2), N - 1)`, counted from
+0, the index form of `scipy.stats.theilslopes`; rounding half away from zero
+is **our choice**.
+
+**Direction.** Rising when the whole interval is above zero and the change is
+at least the lever's minimum; falling the same way below zero; otherwise
+stable. A change smaller than the minimum is stable even when the interval
+excludes zero.
+
+**Steps fan.** Only steps get one: the line through the median day and the
+typical value, read at the last day of the window, plus the low and high
+change.
+
+**Valid step day.** A day counts for steps when the ring reported at least
+10 hours of buckets (`validStepDayWaking`) outside sleep. Overlapping and
+repeated buckets count once, a bucket with zero steps counts, and only the
+minutes inside sleep are taken out.
+
+**Daily values.** Code: `apps/mobile/lib/features/trajectory/application/levers_providers.dart`.
+Steps are the sum of a valid day's buckets, each bucket dated on its own wall
+clock, and only asleep spans count as sleep. Sleep regularity is one index per
+pair of consecutive worn days (a day with ring heart rate, as in section 17),
+dated by the second day (`dailySleepRegularity`). Each day enters at most two
+pairs, against 28 in a trailing window, so neighbouring values share far less.
+A pair with no sleep on either day is left out, so a ring worn only by day
+never reads as perfectly regular; otherwise the mean of the values equals the
+index over the same days. Steps and regularity end yesterday, because today is
+partial; resting heart rate and sleep duration are the nightly values of the
+trends history and end today. **our choice**.
+
+| Constant | Value | Status |
+| --- | --- | --- |
+| `leverTrendWindowDays` | 90 days | **our choice**. |
+| `leverTrendMinValidDays` | 54 days (60%) | **our choice**. |
+| `leverTrendZ` | 1.645 (90%) | **our choice** of level; the form is Sen 1968, **not yet checked** against the paper. |
+| `RingLever.steps` | 500 steps | **our choice**. |
+| `RingLever.sleepRegularity` | 5 points | **our choice**. |
+| `RingLever.restingHeartRate` | 2 bpm | **our choice**. |
+| `RingLever.sleepDuration` | 20 min | **our choice**. |
+| `validStepDayWaking` | 10 h | **our choice**. |
+
+The estimator is Theil 1950 and Sen 1968, **not yet checked** against the
+papers.
+
+**Card and sheets.** Code: `apps/mobile/lib/features/trajectory/presentation/trajectory_levers_card.dart`.
+The Trajectory screen shows the four levers on every state but off, with the
+typical value, the direction and the change in 90 days; under 54 valid days it
+reads not yet with the count. Steps round to the nearest hundred, the others
+to whole units, and the direction comes from the unrounded trend. Each lever
+opens a sheet with its interval; moving steps add the fan, the line through the
+median day carried 90 more days with the change interval around it. The levers
+ignore hidden numbers, which hide weight only. Sources on the sheets: Paluch
+2022 (steps), Windred 2024 and Cribb 2023 (regularity), Zhang 2016 (resting
+heart rate, **not yet checked**), Yin 2017 (duration). **our choice**.
+
+**Module.** Code: `apps/mobile/lib/features/trajectory/presentation/trajectory_module_screen.dart`.
+Trajectory is offered on the Modules screen to a known adult, like Energy, and
+needs Body; the onboarding offer leaves it out. Its screen lists what it adds,
+uses, stores and never does, and deletes the stored projections after one
+confirm. Weigh-ins stay in Body and the module stays on, so the next open of
+the Trajectory screen in a week with a rate stores that Monday again.
+
 ## References
 
 - Ainsworth BE, Haskell WL, Herrmann SD, et al. 2011 Compendium of Physical
@@ -624,10 +2549,22 @@ so they show none.
   2019;40(14):1149-1157.
 - Buchheit M. Monitoring training status with HR measures: do all roads lead to
   Rome? Front Physiol. 2014;5:73.
+- Bull FC, Al-Ansari SS, Biddle S, et al. World Health Organization 2020
+  guidelines on physical activity and sedentary behaviour. Br J Sports Med.
+  2020;54(24):1451-1462.
 - Fox SM, Naughton JP, Haskell WL. Physical activity and the prevention of
   coronary heart disease. Ann Clin Res. 1971;3(6):404-432.
+- Frankenfield D, Roth-Yousey L, Compher C. Comparison of predictive equations
+  for resting metabolic rate in healthy nonobese and obese adults: a
+  systematic review. J Am Diet Assoc. 2005;105(5):775-789.
 - Gabbett TJ. The training-injury prevention paradox: should athletes be
   training smarter and harder? Br J Sports Med. 2016;50(5):273-280.
+- Garber CE, Blissmer B, Deschenes MR, et al. Quantity and quality of exercise
+  for developing and maintaining cardiorespiratory, musculoskeletal, and
+  neuromotor fitness in apparently healthy adults: guidance for prescribing
+  exercise. Med Sci Sports Exerc. 2011;43(7):1334-1359.
+- Hall KD, Sacks G, Chandramohan D, et al. Quantification of the effect of
+  energy imbalance on bodyweight. Lancet. 2011;378(9793):826-837.
 - Herrmann SD, Willis EA, Ainsworth BE, et al. 2024 Adult Compendium of
   Physical Activities: a third update of the energy costs of human activities.
   J Sport Health Sci. 2024;13(1):6-12.
@@ -637,27 +2574,42 @@ so they show none.
 - Impellizzeri FM, Tenan MS, Kempton T, Novak A, Coutts AJ. Acute:chronic
   workload ratio: conceptual issues and fundamental pitfalls. Int J Sports
   Physiol Perform. 2020;15(6):907-913.
+- Mifflin MD, St Jeor ST, Hill LA, Scott BJ, Daugherty SA, Koh YO. A new
+  predictive equation for resting energy expenditure in healthy individuals.
+  Am J Clin Nutr. 1990;51(2):241-247.
 - Moritz H. Geodetic Reference System 1980. J Geod. 2000;74(1):128-133.
+- Ohayon M, Wickwire EM, Hirshkowitz M, et al. National Sleep Foundation's
+  sleep quality recommendations: first report. Sleep Health. 2017;3(1):6-19.
 - Ohayon MM, Carskadon MA, Guilleminault C, Vitiello MV. Meta-analysis of
   quantitative sleep parameters from childhood to old age in healthy
   individuals: developing normative sleep values across the human lifespan.
   Sleep. 2004;27(7):1255-1273.
-- Ohayon M, Wickwire EM, Hirshkowitz M, et al. National Sleep Foundation's
-  sleep quality recommendations: first report. Sleep Health. 2017;3(1):6-19.
-- Plews DJ, Laursen PB, Stanley J, Kilding AE, Buchheit M. Training adaptation
-  and heart rate variability in elite endurance athletes: opening the door to
-  effective monitoring. Sports Med. 2013;43(9):773-781.
+- Paluch AE, Bajpai S, Bassett DR, et al. Daily steps and all-cause
+  mortality: a meta-analysis of 15 international cohorts. Lancet Public Health.
+  2022;7(3):e219-e228.
 - Plews DJ, Laursen PB, Le Meur Y, Hausswirth C, Kilding AE, Buchheit M.
   Monitoring training with heart rate variability: how much compliance is
   needed for valid assessment? Int J Sports Physiol Perform.
   2014;9(5):783-790.
+- Plews DJ, Laursen PB, Stanley J, Kilding AE, Buchheit M. Training adaptation
+  and heart rate variability in elite endurance athletes: opening the door to
+  effective monitoring. Sports Med. 2013;43(9):773-781.
+- Protocol slot sizes: `docs/protocols/realsil-colmi.md`, from Gadgetbridge
+  `YawellRingPacketHandler` (heart rate, HRV, stress and SpO2 logs).
 - Robergs RA, Landwehr R. The surprising history of the "HRmax = 220 - age"
   equation. J Exerc Physiol Online. 2002;5(2):1-10.
+- Sen PK. Estimates of the regression coefficient based on Kendall's tau. J
+  Am Stat Assoc. 1968;63(324):1379-1389.
 - Sinnott RW. Virtues of the haversine. Sky Telesc. 1984;68(2):159.
 - Tanaka H, Monahan KD, Seals DR. Age-predicted maximal heart rate revisited.
   J Am Coll Cardiol. 2001;37(1):153-156.
+- Theil H. A rank-invariant method of linear and polynomial regression
+  analysis. Proc K Ned Akad Wet. 1950;53:386-392.
+- Tudor-Locke C, Han H, Aguiar EJ, et al. How fast is fast enough? Walking
+  cadence (steps/min) as a practical estimate of intensity in adults: a
+  narrative review. Br J Sports Med. 2018;52(12):776-788.
+- Walker J. The Hacker's Diet. 1991. Chapter "Signal and noise": the
+  exponentially smoothed moving average with 10 percent smoothing.
 - Watson NF, Badr MS, Belenky G, et al. Recommended amount of sleep for a
   healthy adult: a joint consensus statement of the American Academy of Sleep
   Medicine and Sleep Research Society. Sleep. 2015;38(6):843-844.
-- Protocol slot sizes: `docs/protocols/realsil-colmi.md`, from Gadgetbridge
-  `YawellRingPacketHandler` (heart rate, HRV, stress and SpO2 logs).

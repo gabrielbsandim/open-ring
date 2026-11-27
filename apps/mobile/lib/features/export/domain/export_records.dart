@@ -85,6 +85,7 @@ final class WorkoutRecord extends ExportRecord {
     this.deviceId,
     this.distanceMeters,
     this.activeKilocalories,
+    this.effortRating,
   });
 
   final OffsetTime start;
@@ -94,6 +95,7 @@ final class WorkoutRecord extends ExportRecord {
   final String activityType;
   final double? distanceMeters;
   final double? activeKilocalories;
+  final int? effortRating;
 
   @override
   List<Object?> get values => [
@@ -108,6 +110,90 @@ final class WorkoutRecord extends ExportRecord {
     },
     distanceMeters,
     activeKilocalories,
+    effortRating,
+  ];
+}
+
+final class ImportedSleepStageRecord extends ExportRecord {
+  const new({
+    required this.sessionStart,
+    required this.start,
+    required this.end,
+    required this.recordId,
+    required this.source,
+    required this.stage,
+  });
+
+  final OffsetTime sessionStart;
+  final OffsetTime start;
+  final OffsetTime end;
+  final String recordId;
+  final String source;
+  final SleepStage stage;
+
+  @override
+  List<Object?> get values => [
+    sessionStart,
+    start,
+    end,
+    recordId,
+    source,
+    stage.name,
+    (end.utcMs - start.utcMs) ~/ Duration.millisecondsPerSecond,
+  ];
+}
+
+final class ImportedWorkoutRecord extends ExportRecord {
+  const new({
+    required this.start,
+    required this.end,
+    required this.recordId,
+    required this.source,
+    required this.activityType,
+    this.effortRating,
+  });
+
+  final OffsetTime start;
+  final OffsetTime end;
+  final String recordId;
+  final String source;
+  final String activityType;
+  final int? effortRating;
+
+  @override
+  List<Object?> get values => [
+    start,
+    end,
+    recordId,
+    source,
+    activityType,
+    (end.utcMs - start.utcMs) ~/ Duration.millisecondsPerSecond,
+    effortRating,
+  ];
+}
+
+final class WeighInRecord extends ExportRecord {
+  const new({
+    required this.at,
+    required this.kilograms,
+    required this.source,
+    this.bodyFatPercent,
+    this.waistCentimeters,
+  });
+
+  final OffsetTime at;
+  final double kilograms;
+  final double? bodyFatPercent;
+  final double? waistCentimeters;
+  final String source;
+
+  @override
+  List<Object?> get values => [
+    at,
+    kilograms,
+    bodyFatPercent,
+    waistCentimeters,
+    source,
   ];
 }
 
@@ -141,4 +227,14 @@ final class ExportHeader {
   final OffsetTime from;
   final OffsetTime to;
   final ExportDevice? device;
+}
+
+final class DayTagRecord extends ExportRecord {
+  const new({required this.date, required this.tag});
+
+  final String date;
+  final String tag;
+
+  @override
+  List<Object?> get values => [date, tag];
 }

@@ -161,22 +161,24 @@ void main() {
   });
 
   group('Without a ring action', () {
-    testWidgets('read access granted enables both reads and lands on today', (
-      tester,
-    ) async {
-      final rig = _Rig();
-      await rig.pump(tester);
+    testWidgets(
+      'read access granted enables both reads and moves to the modules step',
+      (tester) async {
+        final rig = _Rig();
+        await rig.pump(tester);
 
-      await tapAndSettle(tester, find.byKey(PairKeys.withoutRing));
+        await tapAndSettle(tester, find.byKey(PairKeys.withoutRing));
 
-      expect(await rig.enabled(HealthRecordKind.sleep), isTrue);
-      expect(await rig.enabled(HealthRecordKind.workout), isTrue);
-      // The fake grants every kind at once, so only the first ask is asserted.
-      expect(rig.fake.requests.first, HealthRecordKind.sleep);
-      expect(rig.onboarding.completed, isTrue);
-      expect(rig.container.read(onboardingProvider), isTrue);
-      expect(rig.location, AppTab.today.path);
-    }, variant: _android);
+        expect(await rig.enabled(HealthRecordKind.sleep), isTrue);
+        expect(await rig.enabled(HealthRecordKind.workout), isTrue);
+        // The fake grants every kind at once, so only the first ask is asserted.
+        expect(rig.fake.requests.first, HealthRecordKind.sleep);
+        expect(rig.onboarding.completed, isTrue);
+        expect(rig.container.read(onboardingProvider), isTrue);
+        expect(rig.location, AppPaths.onboardingModules);
+      },
+      variant: _android,
+    );
 
     testWidgets(
       'criterion 6: continuing asks for background read access once',
@@ -187,7 +189,7 @@ void main() {
         await tapAndSettle(tester, find.byKey(PairKeys.withoutRing));
 
         expect(rig.fake.backgroundRequests, 1);
-        expect(rig.location, AppTab.today.path);
+        expect(rig.location, AppPaths.onboardingModules);
       },
       variant: _android,
     );
@@ -215,7 +217,7 @@ void main() {
       expect(await rig.enabled(HealthRecordKind.sleep), isFalse);
       expect(await rig.enabled(HealthRecordKind.workout), isFalse);
       expect(rig.onboarding.completed, isTrue);
-      expect(rig.location, AppTab.today.path);
+      expect(rig.location, AppPaths.onboardingModules);
     }, variant: _android);
 
     testWidgets('Health Connect not installed still completes onboarding', (
@@ -233,7 +235,7 @@ void main() {
 
       expect(await rig.enabled(HealthRecordKind.sleep), isFalse);
       expect(rig.onboarding.completed, isTrue);
-      expect(rig.location, AppTab.today.path);
+      expect(rig.location, AppPaths.onboardingModules);
     }, variant: _android);
 
     testWidgets('a reader that throws still completes onboarding', (
@@ -252,7 +254,7 @@ void main() {
       await tapAndSettle(tester, find.byKey(PairKeys.withoutRing));
 
       expect(rig.onboarding.completed, isTrue);
-      expect(rig.location, AppTab.today.path);
+      expect(rig.location, AppPaths.onboardingModules);
     }, variant: _android);
 
     testWidgets('is disabled while it runs and a second tap does nothing', (
@@ -285,7 +287,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(rig.onboarding.writes, 1);
-      expect(rig.location, AppTab.today.path);
+      expect(rig.location, AppPaths.onboardingModules);
     }, variant: _android);
   });
   testWidgets('a search started mid-run still completes onboarding', (
@@ -321,7 +323,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(rig.onboarding.writes, 1);
-    expect(rig.location, AppTab.today.path);
+    expect(rig.location, AppPaths.onboardingModules);
   }, variant: _android);
   testWidgets('a ring tapped mid-run that fails to connect still completes', (
     tester,
@@ -361,6 +363,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(rig.onboarding.writes, 1);
-    expect(rig.location, AppTab.today.path);
+    expect(rig.location, AppPaths.onboardingModules);
   }, variant: _android);
 }

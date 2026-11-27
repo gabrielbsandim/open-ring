@@ -143,6 +143,7 @@ void main() {
         activityType: 'run, "easy"\nlap',
         distanceMeters: 6012.345,
         activeKilocalories: 402,
+        effortRating: 7,
       ),
       WorkoutRecord(
         start: _at(DateTime.utc(2026, 11, 10, 18), 0),
@@ -153,11 +154,32 @@ void main() {
 
     expect(
       csv,
-      'start,end,client_id,device_id,activity_type,duration_s,distance_m,active_kcal\r\n'
+      'start,end,client_id,device_id,activity_type,duration_s,distance_m,active_kcal,effort_rating\r\n'
       '2026-11-10T10:00:00+00:00,2026-11-10T10:42:30+00:00,w-1,R09_C0FE,'
-      '"run, ""easy""\nlap",2550,6012.35,402\r\n'
-      '2026-11-10T18:00:00+00:00,,w-2,,walk,,,\r\n',
+      '"run, ""easy""\nlap",2550,6012.35,402,7\r\n'
+      '2026-11-10T18:00:00+00:00,,w-2,,walk,,,,\r\n',
     );
+  });
+
+  test('the workouts header is the eight old columns plus effort_rating', () {
+    expect(
+      _csv(ExportKind.workouts, const []),
+      'start,end,client_id,device_id,activity_type,duration_s,distance_m,active_kcal,effort_rating\r\n',
+    );
+    expect(ExportKind.workouts.columns.last, 'effort_rating');
+  });
+
+  test('a stored rating outside the scale is exported as stored', () {
+    final csv = _csv(ExportKind.workouts, [
+      WorkoutRecord(
+        start: _at(DateTime.utc(2026, 11, 10, 10), 0),
+        clientId: 'w-1',
+        activityType: 'run',
+        effortRating: 42,
+      ),
+    ]);
+
+    expect(csv.trimRight().split('\r\n').last, endsWith(',42'));
   });
 
   test('an empty kind still writes its header row', () {

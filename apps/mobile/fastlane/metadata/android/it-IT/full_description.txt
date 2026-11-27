@@ -3,21 +3,26 @@ OpenRing è un'app gratuita e open source per l'anello smart COLMI R09. Tiene l'
 NESSUN ACCOUNT, NESSUN CLOUD
 • Nessuna registrazione, nessun accesso, nessuna email. Associa l'anello e inizia.
 • I tuoi dati restano in un database locale sul telefono, non su un server.
-• Nessuna analisi d'uso, nessuna pubblicità, nessun tracciamento. L'app usa internet solo per scaricare i propri aggiornamenti.
-• I dati escono dal telefono solo quando lo decidi tu: verso Health Connect, oppure in un file CSV, JSON o GPX che esporti.
+• Nessuna analisi d'uso, nessuna pubblicità, nessun tracciamento. L'app usa internet per i propri aggiornamenti e, solo se attivi Analisi IA, per il servizio di IA che scegli.
+• I dati escono dal telefono solo quando lo decidi tu: verso Health Connect, in un file CSV, JSON o GPX che esporti, in un trasferimento a un nuovo telefono che avvii tu oppure, con Analisi IA attivo, verso il servizio di IA che scegli.
 
 COSA VEDI
 • Il sonno su una linea del tempo con leggero, profondo, REM e sveglio.
 • Frequenza cardiaca durante il giorno, frequenza a riposo, HRV, ossigeno nel sangue (SpO2) e stress.
 • Passi, distanza ed energia attiva.
 • Un punteggio di prontezza che mostra i suoi dati di partenza: quanto ognuno ha aggiunto o tolto, rispetto alla tua base personale.
-• Widget nella schermata Home per prontezza, la giornata, la batteria dell'anello e l'avvio di un allenamento.
+• Widget nella schermata Home: prontezza, Oggi configurabile (fino a 6 campi), batteria dell'anello, Avvia allenamento (con schermata di blocco per Anello e Avvia allenamento) e Questa settimana quando Impegno o Obiettivi sono attivi.
+
+MODULI OPZIONALI (DISATTIVATI DI DEFAULT IN IMPOSTAZIONI > MODULI)
+• Corpo e Open Score: pesate manuali con tendenza a 28 giorni (con modalità opzionale per nascondere i numeri), Punteggio del giorno, Livello, Generale ed etichette del giorno.
+• Energia, Impegno e Obiettivi: intervallo di energia giornaliera, punti impegno e giorni di forza settimanali, e piani flessibili con revisione guidata.
+• Alimentazione, Traiettoria e Analisi IA: diario locale dei pasti con foto, proiezioni a 4 e 12 settimane e IA opzionale con la tua chiave, inviando riepiloghi o foto solo quando scegli tu.
 
 ALLENAMENTI CON GPS
 Il telefono tiene il tempo, l'anello invia la frequenza cardiaca dal vivo e, all'aperto, il GPS del telefono registra percorso, distanza, passo e parziali. La posizione viene usata solo durante un allenamento. Esporta qualsiasi percorso in GPX.
 
 HEALTH CONNECT
-Passi, energia attiva, frequenza cardiaca, SpO2, HRV, fasi del sonno e allenamenti con il percorso possono essere scritti in Health Connect, così le altre app che scegli possono usarli. Leggere il sonno scritto da altre app è facoltativo e disattivato di default.
+Passi, energia attiva, frequenza cardiaca, SpO2, HRV, fasi del sonno e allenamenti con il percorso possono essere scritti in Health Connect, così le altre app che scegli possono usarli. Leggere il sonno e gli allenamenti scritti da altre app è facoltativo e disattivato di default.
 
 SINCRONIZZA, NON TRASMETTE
 L'anello conserva la propria cronologia. Il telefono si collega a intervalli (ogni 60 minuti di default), scarica le novità e si scollega, risparmiando entrambe le batterie.

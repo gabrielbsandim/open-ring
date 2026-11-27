@@ -17,6 +17,22 @@ final class _Own implements WorkoutHistoryReader {
 
   @override
   Future<SavedWorkout?> byId(int id) async => null;
+
+  @override
+  Future<List<WorkoutListItem>> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async => [
+    for (final item in items)
+      if (item.end.isAfter(from) && item.start.isBefore(to)) item,
+  ]..sort((a, b) => a.start.compareTo(b.start));
+
+  @override
+  Future<List<SavedWorkout>> routed({
+    required DateTime from,
+    required DateTime to,
+    required Set<WorkoutType> types,
+  }) async => const [];
 }
 
 final class _Imported implements ImportedWorkoutReader {
@@ -29,6 +45,18 @@ final class _Imported implements ImportedWorkoutReader {
 
   @override
   Future<ImportedWorkout?> byRecordId(String recordId) async => null;
+
+  @override
+  Future<ImportedWorkouts> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async => (
+    priority: priority,
+    workouts: [
+      for (final workout in items)
+        if (workout.end.isAfter(from) && workout.start.isBefore(to)) workout,
+    ]..sort((a, b) => a.start.compareTo(b.start)),
+  );
 }
 
 WorkoutListItem _own(int id, DateTime start, {int minutes = 30}) =>

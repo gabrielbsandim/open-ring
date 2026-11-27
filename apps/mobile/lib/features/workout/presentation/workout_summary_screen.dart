@@ -12,6 +12,8 @@ import 'package:open_ring/core/widgets/app_page.dart';
 import 'package:open_ring/core/widgets/charts.dart';
 import 'package:open_ring/core/widgets/metric_card.dart';
 import 'package:open_ring/core/widgets/state_views.dart';
+import 'package:open_ring/features/effort/application/effort_gate.dart';
+import 'package:open_ring/features/effort/presentation/effort_rating_card.dart';
 import 'package:open_ring/features/settings/application/unit_format.dart';
 import 'package:open_ring/features/workout/application/workout_controller.dart';
 import 'package:open_ring/features/workout/application/workout_history_providers.dart';
@@ -100,6 +102,12 @@ class WorkoutSummaryScreen extends ConsumerStatefulWidget {
 
 class _WorkoutSummaryScreenState extends ConsumerState<WorkoutSummaryScreen> {
   bool _deleted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    ref.read(workoutProvider.notifier).summaryOpened();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -278,6 +286,10 @@ class _Summary extends ConsumerWidget {
         ],
         const SizedBox(height: cardGap),
         _PausesCard(pauses: workout.pauses, offset: offset),
+        if (workoutId case final id? when ref.watch(effortEnabledProvider)) ...[
+          const SizedBox(height: cardGap),
+          EffortRatingCard.recorded(workoutId: id),
+        ],
         const SizedBox(height: cardGap),
         status,
         const SizedBox(height: 20),

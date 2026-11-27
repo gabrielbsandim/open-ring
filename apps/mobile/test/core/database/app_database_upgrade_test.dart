@@ -25,6 +25,36 @@ CREATE TABLE health_outbox (
 )
 ''';
 
+const _createWorkoutsV9 = '''
+CREATE TABLE workouts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  client_id TEXT NOT NULL UNIQUE,
+  activity_type TEXT NOT NULL,
+  device_id TEXT NULL,
+  start_utc_ms INTEGER NOT NULL,
+  end_utc_ms INTEGER NULL,
+  offset_minutes INTEGER NOT NULL,
+  distance_meters REAL NULL,
+  active_kilocalories REAL NULL,
+  elapsed_ms INTEGER NULL,
+  average_heart_rate INTEGER NULL,
+  max_heart_rate INTEGER NULL
+)
+''';
+
+const _createImportedWorkoutsV9 = '''
+CREATE TABLE imported_workouts (
+  record_id TEXT NOT NULL,
+  source TEXT NOT NULL,
+  activity_type TEXT NOT NULL,
+  start_utc_ms INTEGER NOT NULL,
+  end_utc_ms INTEGER NOT NULL,
+  offset_minutes INTEGER NOT NULL,
+  imported_at_utc_ms INTEGER NOT NULL,
+  PRIMARY KEY (record_id)
+)
+''';
+
 class _Row {
   const new(this.id, this.kind, this.status, this.fromUtcMs);
 
@@ -34,14 +64,17 @@ class _Row {
   final int fromUtcMs;
 }
 
-// A real v9 file: the outbox as drift_schemas/app/drift_schema_v9.json
-// declares it, user_version 9, so drift runs the step from 9 on open.
+// A real v9 file: the tables later steps alter, as drift_schema_v9.json
+// declares them, user_version 9, so drift runs the step from 9 on open.
 AppDatabase _v9Database(List<_Row> rows) {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   final db = AppDatabase(
     NativeDatabase.memory(
       setup: (raw) {
-        raw.execute(_createOutboxV9);
+        raw
+          ..execute(_createOutboxV9)
+          ..execute(_createWorkoutsV9)
+          ..execute(_createImportedWorkoutsV9);
         for (final row in rows) {
           raw.execute(
             'INSERT INTO health_outbox (id, kind, device_id, from_utc_ms, '
@@ -119,14 +152,17 @@ void main() {
     },
   );
 
-  test('criterion 4: the upgrade lands on schema version 10', () async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.android;
-    final db = _v9Database(rows);
+  test(
+    'criterion 4: the upgrade lands on the current schema version',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final db = _v9Database(rows);
 
-    final version = await db.customSelect('PRAGMA user_version').getSingle();
+      final version = await db.customSelect('PRAGMA user_version').getSingle();
 
-    expect(version.read<int>('user_version'), 10);
-  });
+      expect(version.read<int>('user_version'), db.schemaVersion);
+    },
+  );
 
   test('criterion 4: older done workouts stay done', () async {
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
@@ -161,7 +197,7 @@ void main() {
   });
 
   test(
-    'criterion 5: iOS changes no row but still reaches version 10',
+    'criterion 5: iOS changes no row but still reaches the current version',
     () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
       final db = _v9Database(rows);
@@ -169,7 +205,7 @@ void main() {
       final outbox = await _outbox(db);
       final version = await db.customSelect('PRAGMA user_version').getSingle();
 
-      expect(version.read<int>('user_version'), 10);
+      expect(version.read<int>('user_version'), db.schemaVersion);
       _expectUntouched(outbox[1]!, 'done');
       _expectUntouched(outbox[2]!, 'done');
       _expectUntouched(outbox[3]!, 'done');
@@ -183,7 +219,7 @@ void main() {
     final outbox = await _outbox(db);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
 
-    expect(version.read<int>('user_version'), 10);
+    expect(version.read<int>('user_version'), db.schemaVersion);
     _expectUntouched(outbox[1]!, 'done');
     _expectUntouched(outbox[2]!, 'done');
   });

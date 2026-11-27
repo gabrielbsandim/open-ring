@@ -3,6 +3,7 @@ import 'package:open_ring/core/records/epoch.dart';
 import 'package:open_ring/core/records/health_record_kind.dart';
 import 'package:open_ring/features/workout/domain/workout_analysis.dart';
 import 'package:open_ring/features/workout/domain/workout_history.dart';
+import 'package:open_ring/features/workout/domain/workout_rating_store.dart';
 import 'package:open_ring/features/workout/domain/workout_route.dart';
 import 'package:open_ring/features/workout/domain/workout_session.dart';
 import 'package:open_ring/features/workout/domain/workout_type.dart';
@@ -16,7 +17,21 @@ final class DriftWorkoutHistoryReader implements WorkoutHistoryReader {
   @override
   Future<List<WorkoutListItem>> recent({required int limit}) async {
     if (limit <= 0) return const [];
-    final rows = await _dao.newestFinished(limit: limit);
+    return await _items(await _dao.newestFinished(limit: limit));
+  }
+
+  @override
+  Future<List<WorkoutListItem>> intersecting({
+    required DateTime from,
+    required DateTime to,
+  }) async => await _items(
+    await _dao.finishedIntersecting(
+      fromUtcMs: from.millisecondsSinceEpoch,
+      toUtcMs: to.millisecondsSinceEpoch,
+    ),
+  );
+
+  Future<List<WorkoutListItem>> _items(List<WorkoutRow> rows) async {
     final statuses = await _dao.outboxStatusOf(rows.map((r) => r.startUtcMs));
     return [
       for (final row in rows)
@@ -32,6 +47,7 @@ final class DriftWorkoutHistoryReader implements WorkoutHistoryReader {
             averageHeartRate: row.averageHeartRate,
             activeKilocalories: row.activeKilocalories,
             health: healthStatusOf(statuses[row.startUtcMs]),
+            rating: storedRatingOf(row.effortRating),
           ),
     ];
   }
@@ -59,6 +75,7 @@ final class DriftWorkoutHistoryReader implements WorkoutHistoryReader {
       id: row.id,
       utcOffset: offsetOf(row.offsetMinutes),
       health: healthStatusOf(statuses[row.startUtcMs]),
+      rating: storedRatingOf(row.effortRating),
       workout: FinishedWorkout(
         type: type,
         start: fromUtcMs(row.startUtcMs),
@@ -90,6 +107,25 @@ final class DriftWorkoutHistoryReader implements WorkoutHistoryReader {
         ),
       ),
     );
+  }
+
+  @override
+  Future<List<SavedWorkout>> routed({
+    required DateTime from,
+    required DateTime to,
+    required Set<WorkoutType> types,
+  }) async {
+    final ids = await _dao.routedIds(
+      fromUtcMs: from.utcMs,
+      toUtcMs: to.utcMs,
+      activityTypes: [for (final type in types) type.activityType],
+    );
+    final saved = <SavedWorkout>[];
+    for (final id in ids) {
+      final workout = await byId(id);
+      if (workout != null) saved.add(workout);
+    }
+    return saved;
   }
 
   static Duration _elapsed(WorkoutRow row, int endUtcMs) =>

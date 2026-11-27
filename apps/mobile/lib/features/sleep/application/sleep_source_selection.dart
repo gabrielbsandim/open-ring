@@ -22,6 +22,40 @@ Map<LocalDate, SleepNight> nightsBySourcePriority(
   return {for (final date in dates) date: chosen[date]!};
 }
 
+// Every stitched block of sleep, naps included: a date takes all the blocks
+// of the first source in the order that has any.
+List<SleepNight> sessionsBySourcePriority(
+  Map<String, List<SleepSpan>> spansBySource,
+  List<String> priority,
+) {
+  final owner = <LocalDate, String>{};
+  final chosen = <SleepNight>[];
+  for (final source in priority) {
+    for (final session in stitchSleep(spansBySource[source] ?? const [])) {
+      if (owner.putIfAbsent(session.date, () => source) == source) {
+        chosen.add(session);
+      }
+    }
+  }
+  return chosen..sort((a, b) => a.start.compareTo(b.start));
+}
+
+Future<List<SleepNight>> readSleepSessions({
+  required SleepHistoryReader ring,
+  required ImportedSleepReader imported,
+  required DateTime from,
+  required DateTime to,
+}) async {
+  final (ringSpans, other) = await (
+    ring.sleepSpans(from: from, to: to),
+    imported.importedSleep(from: from, to: to),
+  ).wait;
+  return sessionsBySourcePriority({
+    ...other.spans,
+    ringSource: ringSpans,
+  }, other.priority);
+}
+
 Future<Map<LocalDate, SleepNight>> readSleepNights({
   required SleepHistoryReader ring,
   required ImportedSleepReader imported,

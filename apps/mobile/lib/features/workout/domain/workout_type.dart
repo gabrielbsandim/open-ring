@@ -38,6 +38,8 @@ enum WorkoutType {
 
   bool get gpsChoosable => location != WorkoutLocation.indoor;
 
+  bool get showsSpeed => this == WorkoutType.cycling;
+
   bool allowsGps({required bool requested}) => requested && gpsChoosable;
 
   static WorkoutType ofActivityType(String activityType) => values.firstWhere(

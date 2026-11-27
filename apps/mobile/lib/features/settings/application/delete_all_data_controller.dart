@@ -2,14 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/ai/application/ai_config_providers.dart';
+import 'package:open_ring/features/ai/application/analysis_run_controller.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/demo/application/demo_mode_controller.dart';
+import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/onboarding/application/onboarding_controller.dart';
+import 'package:open_ring/features/open_score/application/celebration_providers.dart';
+import 'package:open_ring/features/open_score/application/week_goal_providers.dart';
 import 'package:open_ring/features/ring/application/ring_sync_controller.dart';
 import 'package:open_ring/features/ring/application/sync_interval_controller.dart';
 import 'package:open_ring/features/ring/domain/sync_interval.dart';
 import 'package:open_ring/features/settings/application/unit_system_controller.dart';
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
+import 'package:open_ring/features/workout/application/workout_alert_providers.dart';
+import 'package:open_ring/features/workout/application/workout_lock_providers.dart';
 
 // Health Connect and HealthKit records are never touched: the port only owns
 // what lives on this phone inside OpenRing.
@@ -36,6 +45,16 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
     if (state == DeletionStatus.deleting) return false;
     state = DeletionStatus.deleting;
     final alive = ref.keepAlive();
+    final runs = [
+      ref.read(analysisRunControllerProvider.notifier).idle,
+      ref.read(mealAnalysisQueueProvider.notifier).idle,
+    ];
+    ref
+      ..invalidate(analysisRunControllerProvider)
+      ..invalidate(mealAnalysisQueueProvider);
+    await Future.wait(runs)
+        .timeout(aiRunAbortWait, onTimeout: () => [])
+        .catchError((Object _) => <void>[]);
     try {
       await ref.read(localDataEraserProvider).eraseAll();
       await _resetInMemoryState();
@@ -57,8 +76,19 @@ class DeleteAllDataController extends Notifier<DeletionStatus> {
     await ref.read(todayWidgetConfigProvider.notifier).reset();
     ref
       ..invalidate(unitSystemProvider)
+      ..invalidate(enabledModulesProvider)
+      ..invalidate(modulesShortcutProvider)
+      ..invalidate(hideNumbersProvider)
+      ..invalidate(workoutLockHeartRateProvider)
+      ..invalidate(workoutRingLostAlertProvider)
+      ..invalidate(weekGoalProvider)
+      ..invalidate(celebrationClosedProvider)
       ..invalidate(userProfileProvider)
-      ..invalidate(ringSyncProvider);
+      ..invalidate(ringSyncProvider)
+      ..invalidate(aiConfigProvider)
+      ..invalidate(aiConsentProvider)
+      ..invalidate(aiMealPhotoConsentProvider)
+      ..invalidate(aiAvailabilityProvider);
     ref.read(dataRevisionProvider.notifier).bump();
   }
 }

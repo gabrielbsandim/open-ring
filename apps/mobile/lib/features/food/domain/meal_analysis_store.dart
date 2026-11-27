@@ -1,0 +1,90 @@
+import 'package:open_ring/features/food/domain/meal_analysis.dart';
+
+/// Analyses live and die with their meal and never touch a meal tag.
+abstract interface class MealAnalysisStore {
+  /// One row per (meal, host, model, prompt version). A stored answer comes
+  /// back as is unless the output schema or photo differs or [again] is set,
+  /// which resets the row to queued and keeps user items and hidden chips.
+  Future<MealAnalysis> enqueue(
+    int mealId,
+    String photoName,
+    MealAnalysisTarget target, {
+    required DateTime now,
+    bool again = false,
+  });
+
+  Future<List<MealAnalysis>> byMeal(int mealId);
+
+  /// Every row of each meal, keyed by meal id; a meal with none is absent.
+  Future<Map<int, List<MealAnalysis>>> byMeals(Set<int> mealIds);
+
+  Future<MealAnalysis?> byId(int id);
+
+  Future<MealAnalysis?> next();
+
+  /// Queued to sending, counting the attempt.
+  Future<bool> markSending(int id, {required DateTime now});
+
+  /// Sending back to queued, undoing the attempt [markSending] counted. The
+  /// queue calls it only before any resend, so that is the only attempt.
+  Future<bool> requeue(int id, {required DateTime now});
+
+  /// Counts one more attempt on a sending row before it is sent again.
+  Future<bool> countResend(int id, {required DateTime now});
+
+  /// Failed or rejected back to queued, keeping its attempts and queued time.
+  Future<bool> retry(int id, {required DateTime now});
+
+  /// Writes a sending row's answer and replaces its model items.
+  Future<bool> complete(
+    int id,
+    MealAnalysisAnswer answer, {
+    required DateTime now,
+  });
+
+  /// Queued or sending to failed.
+  Future<bool> fail(int id, String errorKind, {required DateTime now});
+
+  Future<bool> skip(int id, String reason, {required DateTime now});
+
+  /// Skipped rows excluded.
+  Future<int> countQueuedSince(DateTime since);
+
+  /// Queued rows for this host and model queued at or after [since]: the
+  /// ones the next pass would send rather than skip.
+  Future<int> countQueued(
+    String providerHost,
+    String model, {
+    required DateTime since,
+  });
+
+  Future<int> expireBefore(DateTime cutoff, {required DateTime now});
+
+  Future<int> skipOffTarget(
+    String providerHost,
+    String model, {
+    required DateTime now,
+  });
+
+  Future<int> recoverInterrupted({required DateTime now});
+
+  /// By the time each row was last written.
+  Future<int> purgeRawBefore(DateTime cutoff);
+
+  /// User set chips; a null one is left as it is.
+  Future<bool> setHidden(int id, {bool? oil, bool? sauce, bool? sugar});
+
+  /// Makes the item the person's own, confirmed, with the model's grams
+  /// scaled to the count; 0 removes it.
+  Future<bool> setItemCount(int itemId, int countX2);
+
+  /// Marks every item of the row confirmed; false when it has none.
+  Future<bool> confirmItems(int analysisId);
+
+  Future<bool> keepOnPhone(int mealId);
+
+  Future<bool> setKeepOnPhone(int mealId, {required bool keep});
+
+  /// `keep_on_phone` stays with the meal.
+  Future<void> deleteAll();
+}

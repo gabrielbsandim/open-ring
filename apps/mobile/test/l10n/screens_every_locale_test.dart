@@ -14,6 +14,10 @@ import 'package:open_ring/features/activity/domain/activity_history_reader.dart'
 import 'package:open_ring/features/activity/presentation/activity_screen.dart';
 import 'package:open_ring/features/export/application/export_controller.dart';
 import 'package:open_ring/features/export/presentation/export_screen.dart';
+import 'package:open_ring/features/food/application/meal_store_providers.dart';
+import 'package:open_ring/features/food/domain/photo_store.dart';
+import 'package:open_ring/features/food/presentation/food_module_screen.dart';
+import 'package:open_ring/features/food/presentation/food_storage_screen.dart';
 import 'package:open_ring/features/health_sync/application/health_read_controller.dart';
 import 'package:open_ring/features/health_sync/application/health_status_providers.dart';
 import 'package:open_ring/features/health_sync/application/health_sync_controller.dart';
@@ -24,6 +28,9 @@ import 'package:open_ring/features/heart/application/measure_state.dart';
 import 'package:open_ring/features/heart/domain/heart_history_reader.dart';
 import 'package:open_ring/features/heart/presentation/heart_screen.dart';
 import 'package:open_ring/features/heart/presentation/measure_screen.dart';
+import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
+import 'package:open_ring/features/modules/domain/module_store.dart';
+import 'package:open_ring/features/modules/presentation/modules_offer_screen.dart';
 import 'package:open_ring/features/onboarding/domain/app_permissions.dart';
 import 'package:open_ring/features/onboarding/presentation/first_sync_screen.dart';
 import 'package:open_ring/features/onboarding/presentation/health_permission_screen.dart';
@@ -56,9 +63,12 @@ import 'package:open_ring/features/trends/presentation/trends_screen.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_config_screen.dart';
+import 'package:open_ring/features/widgets/presentation/widgets_how_screen.dart';
 import 'package:open_ring/features/widgets/presentation/widgets_screen.dart';
+import 'package:open_ring/features/workout/presentation/workout_notification_how_screen.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
 
+import '../features/food/food_fakes.dart';
 import '../helpers/ble_fakes.dart';
 import '../helpers/fake_health_reader.dart';
 import '../helpers/fake_health_writer.dart';
@@ -207,6 +217,14 @@ List<Override> _sources(MetricsScenario scenario) => [
   healthSettingsOpenerProvider.overrideWithValue(FakeHealthSettingsOpener()),
 ];
 
+List<Override> _foodSettings() => [
+  ..._settings(),
+  moduleStoreProvider.overrideWithValue(InMemoryModuleStore()),
+  mealStoreProvider.overrideWithValue(TestMealStore()),
+  photoStoreProvider.overrideWithValue(InMemoryPhotoStore()),
+  mealCameraProvider.overrideWithValue(GatedMealCamera()),
+];
+
 List<Override> _widgets({
   MetricsScenario? scenario,
   FakeWidgetGateway? gateway,
@@ -333,7 +351,11 @@ final _cases = <String, _Case>{
       PairErrorScreen(failure: failure),
       _onboarding,
     ),
-  'First sync that fails': const _Case(FirstSyncScreen(), _onboarding),
+  'Modules offer': const _Case(ModulesOfferScreen(), _onboarding),
+  'First sync that fails': const _Case(
+    FirstSyncScreen(flow: PairFlow.onboarding),
+    _onboarding,
+  ),
   for (final (name, screen) in const [
     ('Today', TodayScreen()),
     ('Readiness', ReadinessScreen()),
@@ -445,6 +467,12 @@ final _cases = <String, _Case>{
   ),
   'Export': const _Case(ExportScreen(), _settings),
   'Privacy policy': const _Case(PrivacyPolicyScreen(), _settings),
+  'Food module': const _Case(FoodModuleScreen(), _foodSettings),
+  'Food photos': const _Case(FoodStorageScreen(), _foodSettings),
+  'Workout notification': const _Case(
+    WorkoutNotificationHowScreen(),
+    _settings,
+  ),
   'Widgets without a ring': _Case(
     const WidgetsScreen(),
     () => _widgets(scenario: noDataScenario),
@@ -476,6 +504,7 @@ final _cases = <String, _Case>{
         expect(find.text(l.sourcesReadSleep), findsOneWidget),
   ),
   'Widgets': const _Case(WidgetsScreen(), _widgets),
+  'Widgets how': const _Case(WidgetsHowScreen(), _widgets),
   'Today widget': const _Case(TodayWidgetConfigScreen(), _widgets),
   'Today widget without data': _Case(
     const TodayWidgetConfigScreen(),

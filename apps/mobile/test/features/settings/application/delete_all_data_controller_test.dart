@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
+import 'package:open_ring/core/clock/clock.dart';
 import 'package:open_ring/core/records/data_revision.dart';
+import 'package:open_ring/features/activity/application/activity_providers.dart';
 import 'package:open_ring/features/ai/application/ai_config_providers.dart';
 import 'package:open_ring/features/ai/application/ai_gate.dart';
 import 'package:open_ring/features/ai/application/ai_report_providers.dart';
@@ -21,8 +23,11 @@ import 'package:open_ring/features/ai/domain/analysis_run_state.dart';
 import 'package:open_ring/features/ai/domain/health_context_assembly.dart';
 import 'package:open_ring/features/ai/domain/health_context_models.dart';
 import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_run_marker_store.dart';
+import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
+import 'package:open_ring/features/body/domain/hide_numbers_store.dart';
 import 'package:open_ring/features/food/application/food_gate.dart';
 import 'package:open_ring/features/food/application/meal_analysis_queue.dart';
+import 'package:open_ring/features/heart/application/heart_providers.dart';
 import 'package:open_ring/features/modules/application/enabled_modules_controller.dart';
 import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/modules/domain/module_store.dart';
@@ -39,6 +44,9 @@ import 'package:open_ring/features/settings/application/unit_system_controller.d
 import 'package:open_ring/features/settings/application/user_profile_providers.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
 import 'package:open_ring/features/settings/domain/user_profile.dart';
+import 'package:open_ring/features/sleep/application/sleep_providers.dart';
+import 'package:open_ring/features/today/application/today_providers.dart';
+import 'package:open_ring/features/today/domain/ring_status_reader.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,9 +58,11 @@ import '../../../helpers/database.dart';
 import '../../../helpers/fake_sync_scheduler.dart';
 import '../../../helpers/in_memory_sync_interval_store.dart';
 import '../../../helpers/in_memory_theme_mode_store.dart';
+import '../../../helpers/metrics_fakes.dart';
 import '../../../helpers/onboarding_fakes.dart';
 import '../../../helpers/ring_fakes.dart' show FakeSyncStore;
 import '../../../helpers/settings_fakes.dart';
+import '../../../helpers/widget_fakes.dart';
 import '../../food/application/meal_analysis_harness.dart';
 
 void main() {
@@ -377,6 +387,122 @@ void main() {
 
     expect(await first, isTrue);
     expect(eraser.erased, 1);
+  });
+
+  test('erasing resets v2 widget config, disables This week availability, '
+      'and publishes an unpaired snapshot', () async {
+    final scenario = fullDataScenario;
+    final gateway = FakeWidgetGateway();
+    final ring = MutableRingStatusReader(freshRing);
+    final customModules = InMemoryModuleStore({
+      ModuleId.openScore,
+      ModuleId.body,
+      ModuleId.effort,
+      ModuleId.goals,
+    });
+    final customHideNumbers = InMemoryHideNumbersStore();
+    final customProfiles = InMemoryUserProfileStore(fullProfile);
+    final customUnits = InMemoryUnitSystemStore(UnitSystem.imperial);
+    final customWidgetConfig = InMemoryTodayWidgetConfigStore(
+      TodayWidgetConfig(
+        metrics: const [
+          WidgetMetric.dayScore,
+          WidgetMetric.weight,
+          WidgetMetric.sleep,
+          WidgetMetric.steps,
+          WidgetMetric.heartRate,
+          WidgetMetric.spo2,
+        ],
+      ).withTheme(WidgetTheme.dark),
+    );
+    final eraser = FakeLocalDataEraser(
+      onErase: () async {
+        await customModules.write({});
+        await customHideNumbers.write(hidden: false);
+        customProfiles.profile = null;
+        customUnits.units = null;
+        ring.value = RingStatus.unpaired;
+      },
+    );
+    final c = ProviderContainer(
+      overrides: [
+        localDataEraserProvider.overrideWithValue(eraser),
+        themeModeStoreProvider.overrideWithValue(
+          InMemoryThemeModeStore(ThemeMode.dark),
+        ),
+        syncIntervalStoreProvider.overrideWithValue(
+          InMemorySyncIntervalStore(SyncInterval.minutes15),
+        ),
+        syncSchedulerProvider.overrideWithValue(FakeSyncScheduler()),
+        syncStoreProvider.overrideWithValue(FakeSyncStore()),
+        unitSystemStoreProvider.overrideWithValue(customUnits),
+        userProfileStoreProvider.overrideWithValue(customProfiles),
+        onboardingStoreProvider.overrideWithValue(
+          InMemoryOnboardingStore(completed: true),
+        ),
+        todayWidgetConfigStoreProvider.overrideWithValue(customWidgetConfig),
+        moduleStoreProvider.overrideWithValue(customModules),
+        weekGoalStoreProvider.overrideWithValue(InMemoryWeekGoalStore(6)),
+        celebrationStoreProvider.overrideWithValue(
+          InMemoryCelebrationStore('2026-11-15'),
+        ),
+        clockProvider.overrideWithValue(() => metricsNow),
+        sleepHistoryReaderProvider.overrideWithValue(
+          FakeSleepHistoryReader(scenario.spans),
+        ),
+        heartHistoryReaderProvider.overrideWithValue(scenario.heart),
+        activityHistoryReaderProvider.overrideWithValue(
+          FakeActivityHistoryReader(scenario.activity, slots: scenario.slots),
+        ),
+        ringStatusReaderProvider.overrideWithValue(ring),
+        widgetGatewayProvider.overrideWithValue(gateway),
+        hideNumbersStoreProvider.overrideWithValue(customHideNumbers),
+      ],
+    );
+    addTearDown(c.dispose);
+    c.listen(deleteAllDataProvider, (_, _) {});
+    final sub = startWidgetPush(c);
+    addTearDown(sub.close);
+    await c.read(enabledModulesProvider.future);
+    await c.read(unitSystemProvider.future);
+    await c.read(widgetSnapshotProvider.future);
+    await pumpEventQueue();
+
+    expect(gateway.thisWeekAvailable.last, isTrue);
+    expect(gateway.appearances.last['todayMetrics'], [
+      'dayScore',
+      'weight',
+      'sleep',
+      'steps',
+      'heartRate',
+      'spo2',
+    ]);
+    expect(gateway.snapshots.last['paired'], isTrue);
+    expect(gateway.snapshots.last['dayScore'], isNotNull);
+    expect(gateway.snapshots.last['effort'], isNotNull);
+
+    expect(await c.read(deleteAllDataProvider.notifier).delete(), isTrue);
+    await c.read(enabledModulesProvider.future);
+    await c.read(unitSystemProvider.future);
+    await c.read(widgetSnapshotProvider.future);
+    await pumpEventQueue();
+
+    expect(c.read(todayWidgetConfigProvider), TodayWidgetConfig());
+    expect(customWidgetConfig.saved, isNull);
+    expect(gateway.thisWeekAvailable.last, isFalse);
+    expect(gateway.appearances.last, {
+      'appTheme': 'system',
+      'todayTheme': 'app',
+      'todayMetrics': ['sleep', 'steps', 'heartRate'],
+      'units': 'metric',
+    });
+    expect(gateway.snapshots.last['paired'], isFalse);
+    expect(gateway.snapshots.last['enabledModules'], isEmpty);
+    expect(gateway.snapshots.last['dayScore'], isNull);
+    expect(gateway.snapshots.last['weight'], isNull);
+    expect(gateway.snapshots.last['energy'], isNull);
+    expect(gateway.snapshots.last['effort'], isNull);
+    expect(gateway.snapshots.last['goals'], isNull);
   });
 }
 

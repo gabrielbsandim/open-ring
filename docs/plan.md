@@ -64,21 +64,34 @@ is ready, and a driver lands the day a second ring is on the desk.
 
 ```
 open-ring/
-  apps/mobile/                 Flutter app (Android + iOS)
+  apps/mobile/                 Flutter app (Android first; iOS deferred)
     lib/
       app/                     bootstrap, router, theme
       core/                    logging, clock, result types, shared widgets
       features/
+        activity/              steps, hourly slots, distance, active energy
+        ai/                    optional bring-your-own-key analysis & Goal reword
+        body/                  manual weigh-ins, 28-day trend, hide-numbers mode
+        demo/                  seeded 14-day demo experience
+        effort/                weekly effort points & strength days
+        energy/                daily resting + active energy range
+        export/                CSV, JSON, and GPX exports
+        food/                  local meal photo diary, Plate pattern, comparisons
+        goals/                 weekly lever plans, reviews, hold/pause/soft mode
+        health_sync/           Android Health Connect writers & opt-in readers
+        heart/                 HR, resting HR, HRV, SpO2, stress, Trends
+        modules/               Settings > Modules catalog & dependency cascades
+        onboarding/            initial setup & optional module offers
+        open_score/            Day Score, Level, Overall, day tags
         ring/                  pairing, connection, sync orchestration
+        settings/              theme, units, profile, data deletion, privacy
+        sleep/                 hypnogram, stages, sleep goal
         today/                 home dashboard
-        sleep/
-        heart/                 HR, HRV, SpO2, stress
-        activity/
-        workout/               phone-led workout recorder
-        health_sync/           Health Connect / HealthKit writers
-        export/
-        settings/
-      l10n/                    app_en.arb, app_pt.arb
+        trajectory/            4- and 12-week projections & 90-day levers
+        trends/                cross-metric baselines & patterns
+        widgets/               home & lock-screen widget snapshots & settings
+        workout/               phone-led workout recorder & GPS routes
+      l10n/                    11 ARB locales (en, pt, pt_PT, es, fr, de, it, ru, zh, ja, id)
   packages/
     ring_protocol/             pure Dart: framing, checksum, commands, parsers
     ring_driver/               SmartRingDriver interface + ColmiDriver over a BleTransport port
@@ -142,13 +155,14 @@ assumptions; ring-side workouts are gone; `BleTransport` is a port with a
   denied permission or a crash never loses data and never double-writes.
   Each record carries a stable client id for idempotent upserts.
 
-### Storage (drift)
+### Storage (drift, schemaVersion = 21)
 
 `ring_devices`, `sync_cursors`, `sync_locks`, `sync_runs`, `activity_buckets`, `hr_samples`, `spo2_samples`,
 `stress_samples`, `hrv_samples`, `sleep_sessions`, `sleep_segments`,
 `workouts`, `workout_hr_samples`, `workout_route_points`, `workout_pauses`, `health_outbox`,
 `source_priorities`, `user_profile`, `imported_sleep_sessions`, `imported_sleep_stages`, `health_reads`,
-`imported_workouts`, `weigh_ins`, `day_tags`, `step_goal_changes`, `goals`, `goal_weeks`, `goal_screenings`, `meals`.
+`imported_workouts`, `weigh_ins`, `day_tags`, `step_goal_changes`, `goals`, `goal_weeks`, `goal_screenings`, `meals`,
+`ai_reports`, `meal_analyses`, `meal_items`, `trajectory_projections`.
 All timestamps are UTC epoch milliseconds. Samples, sessions, workouts, weigh-ins and meals also store the device offset at
 capture; pauses, imported sleep stages and bookkeeping columns such as `updated_at_utc_ms` store none. `day_tags` is
 keyed by a local calendar date as text, because a tag belongs to a day and not to an instant.

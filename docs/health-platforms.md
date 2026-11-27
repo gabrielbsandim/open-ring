@@ -1,8 +1,8 @@
 # Health platforms: writes and opt-in reads
 
 How ring data leaves drift and lands in Health Connect (Android) and HealthKit
-(iOS), and how sleep other apps wrote is read back, opt-in, with a per-type
-source priority (see "The read side" below).
+(iOS), and how sleep and workouts other apps wrote are read back, opt-in, with a
+per-type source priority (see "The read side" below).
 
 Plugin: `health` 13.3.2 (carp-dk, current stable, the version Kapi uses). Every
 claim about it below was checked in its source under

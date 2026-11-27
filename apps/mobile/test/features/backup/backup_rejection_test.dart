@@ -12,7 +12,7 @@ import 'backup_fixtures.dart';
 typedef _Build = Future<File> Function(Directory scratch);
 
 class _Case {
-  const _Case(this.name, this.problem, this.build);
+  const new(this.name, this.problem, this.build);
 
   final String name;
   final BackupProblem problem;
@@ -67,39 +67,39 @@ void main() {
       return writeZip(s, 'in/backup.zip', {dbName: db});
     }),
     _Case('manifest of another app', BackupProblem.foreignApp, (s) async {
-      return _zipWith(s, manifest: manifestBytes(app: 'other'));
+      return await _zipWith(s, manifest: manifestBytes(app: 'other'));
     }),
     _Case('manifest format 2', BackupProblem.unsupportedFormat, (s) async {
-      return _zipWith(s, manifest: manifestBytes(format: 2));
+      return await _zipWith(s, manifest: manifestBytes(format: 2));
     }),
     _Case('manifest newer than the app', BackupProblem.newerSchema, (s) async {
-      return _zipWith(s, manifest: manifestBytes(schemaVersion: 9999));
+      return await _zipWith(s, manifest: manifestBytes(schemaVersion: 9999));
     }),
     _Case(
       'database user_version newer than the app',
       BackupProblem.newerSchema,
       (s) async {
         final db = await plainSqliteBytes(s, 'newer.db', userVersion: 9999);
-        return _zipWith(s, database: db);
+        return await _zipWith(s, database: db);
       },
     ),
     _Case('database entry is not SQLite', BackupProblem.notSqlite, (s) async {
       final db = Uint8List.fromList('definitely not a database'.codeUnits);
-      return _zipWith(s, database: db);
+      return await _zipWith(s, database: db);
     }),
     _Case('truncated SQLite file', BackupProblem.corrupt, (s) async {
       final full = await _bigDatabase(s);
       final cut = (full.length ~/ 8192) * 4096;
-      return _zipWith(s, database: full.sublist(0, cut));
+      return await _zipWith(s, database: full.sublist(0, cut));
     }),
     _Case('SQLite file with a damaged page', BackupProblem.corrupt, (s) async {
       final bytes = Uint8List.fromList(await _bigDatabase(s));
       final start = (bytes.length ~/ 8192) * 4096;
       bytes.fillRange(start, start + 4096, 0xAB);
-      return _zipWith(s, database: bytes);
+      return await _zipWith(s, database: bytes);
     }),
     _Case('entry name with ../', BackupProblem.unsafePath, (s) async {
-      return _zipWith(
+      return await _zipWith(
         s,
         extra: {
           '../evil.txt': [1],
@@ -109,7 +109,7 @@ void main() {
     _Case('photo entry escaping the photos dir', BackupProblem.unsafePath, (
       s,
     ) async {
-      return _zipWith(
+      return await _zipWith(
         s,
         extra: {
           'meal_photos/../../evil.jpg': [1],
@@ -117,7 +117,7 @@ void main() {
       );
     }),
     _Case('absolute entry name', BackupProblem.unsafePath, (s) async {
-      return _zipWith(
+      return await _zipWith(
         s,
         extra: {
           '/tmp/evil.txt': [1],

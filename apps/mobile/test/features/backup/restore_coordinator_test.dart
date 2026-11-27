@@ -9,7 +9,7 @@ import 'package:path/path.dart' as p;
 import 'backup_fixtures.dart';
 
 class _Background implements BackgroundWork {
-  _Background(this.log);
+  new(this.log);
 
   final List<String> log;
 
@@ -18,7 +18,7 @@ class _Background implements BackgroundWork {
 }
 
 class _Restarter implements AppRestarter {
-  _Restarter(this.log, [this.onRestart]);
+  new(this.log, [this.onRestart]);
 
   final List<String> log;
   final void Function()? onRestart;
@@ -144,7 +144,7 @@ void main() {
 }
 
 class _CapturingBackground implements BackgroundWork {
-  _CapturingBackground(this.log, this.onStop);
+  new(this.log, this.onStop);
 
   final List<String> log;
   final void Function() onStop;

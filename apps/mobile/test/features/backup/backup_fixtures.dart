@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:crypto/crypto.dart';
@@ -70,7 +69,7 @@ Future<Uint8List> appDatabaseBytes(
     }
   });
   await db.close();
-  return file.readAsBytes();
+  return await file.readAsBytes();
 }
 
 Future<Uint8List> v20DatabaseBytes(
@@ -84,7 +83,7 @@ Future<Uint8List> v20DatabaseBytes(
     await insertRing(db, id);
   }
   await db.close();
-  return file.readAsBytes();
+  return await file.readAsBytes();
 }
 
 Future<Uint8List> plainSqliteBytes(
@@ -96,11 +95,11 @@ Future<Uint8List> plainSqliteBytes(
   final db = _PlainDb(NativeDatabase(file));
   await db.customStatement('PRAGMA user_version = $userVersion');
   await db.close();
-  return file.readAsBytes();
+  return await file.readAsBytes();
 }
 
 class _PlainDb extends GeneratedDatabase {
-  _PlainDb(super.e);
+  new(super.executor);
 
   @override
   Iterable<TableInfo<Table, dynamic>> get allTables => const [];

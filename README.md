@@ -5,7 +5,7 @@
 [![Google Play](https://img.shields.io/badge/Google%20Play-OpenRing-414141.svg?logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=gbs.openring.app)
 [![Website](https://img.shields.io/badge/Website-gabrielbsandim.github.io%2Fopen--ring-brightgreen)](https://gabrielbsandim.github.io/open-ring/)
 
-A free, privacy-first, open-source companion app for budget smart rings (COLMI R09 and compatible hardware). OpenRing keeps the ring synced autonomously, displays sleep stages, heart metrics, and activity on calm, readable screens, and syncs with Apple Health and Android Health Connect while keeping 100% of your data local on your device.
+A free, privacy-first, open-source Android companion app for budget smart rings (COLMI R09). OpenRing keeps the ring synced autonomously, displays sleep stages, heart metrics, and activity on calm, readable screens, and syncs with Android Health Connect while keeping your data local on your device (iOS is deferred until a Mac is available).
 
 **No accounts. No cloud servers. No ads. No subscriptions.**
 
@@ -22,8 +22,8 @@ A free, privacy-first, open-source companion app for budget smart rings (COLMI R
 
 | Ring Model | Status | Notes |
 | :--- | :--- | :--- |
-| **COLMI R09** | **Fully Tested** | Hardware reference device. All BLE protocol commands are verified against it. |
-| **COLMI R02, R03, R06, R10** | Compatible | Share the same underlying Realtek/Colmi protocol; expected to work. |
+| **COLMI R09** | **Tested** | Hardware reference device. All BLE protocol commands are verified against it. |
+| **COLMI R02, R03, R06, R10** | **May work (untested)** | Share the same Colmi protocol; not tested on hardware yet. |
 | **Other Brands** | In progress | Modular driver interface is ready; new drivers are added as hardware is verified. |
 
 > **Important:** Smart rings talk to one client at a time. Disconnect and unpair the ring from official apps (e.g., QRing) before pairing with OpenRing.
@@ -36,10 +36,11 @@ A free, privacy-first, open-source companion app for budget smart rings (COLMI R
 - **Sleep Hypnogram:** Displays awake, REM, light, and deep sleep stages. Multi-segment nights with wake-ups are unified into a single coherent sleep record.
 - **Biometrics & Heart Metrics:** Continuous heart rate, resting heart rate, Heart Rate Variability (HRV), blood oxygen (SpO2), and stress estimation.
 - **Transparent Readiness & Sleep Scores:** Every score shows its exact weighted inputs. All formulas are openly documented in [`docs/metrics.md`](docs/metrics.md).
+- **Optional Modules (Off by Default):** Enable in Settings > Modules: **Body** (manual weigh-ins, 28-day trend, optional hide-numbers mode), **Open Score** (Day Score, Level, Overall, day tags), **Energy** (daily resting + active energy range, adult-only), **Effort** (weekly effort points and strength days), **Goals** (weekly lever plans, reviews, hold/pause/soft mode), **Food** (local meal photo diary with EXIF stripping, timing, Plate pattern, comparisons), **AI Analysis** (optional bring-your-own OpenAI-compatible endpoint/key, never offered during onboarding), and **Trajectory** (4- and 12-week scenarios and 90-day levers, adult-only, requires Body).
 - **Workouts with GPS:** Phone-led tracking with live heart rate stream from the ring, outdoor GPS route mapping, splits, pace, and elevation.
-- **Health Platforms (Health Connect & Apple Health):** Seamless health ecosystem integration. Writes sleep stages, heart rate, HRV, SpO2, steps, energy, and workouts with GPS routes to Health Connect and Apple Health (HealthKit).
-- **Data Portability:** Export full raw history to CSV or JSON anytime. Export workout routes to GPX ([`docs/export-format.md`](docs/export-format.md)).
-- **Home Screen Widgets:** Jetpack Glance widgets for Today summary, Ring battery/status, Readiness, and Quick Workout Start.
+- **Android Health Connect:** Writes sleep stages, heart rate series, HRV, SpO2, steps, active energy, and workouts with GPS routes to Android Health Connect, plus opt-in reads of sleep and workouts from other apps with source priority (iOS HealthKit is deferred with iOS).
+- **Data Portability:** Export full raw history to CSV or JSON anytime. Export workout routes to GPX ([`docs/export-format.md`](docs/export-format.md)). AI data and Trajectory projections are never exported.
+- **5 Android Widgets (Jetpack Glance):** **Today** (up to 6 configurable fields across Small, Medium, and Large sizes, including optional Day Score, Weight trend, and Energy), **This week** (Effort and Goals levers, enabled when Effort or Goals is on), **Readiness**, **Ring** battery/status (lock-screen capable), and **Start workout** (lock-screen capable).
 - **Accessibility & Internationalization:** 11 languages (English, Portuguese BR/PT, Spanish, French, German, Italian, Russian, Simplified Chinese, Japanese, Indonesian), high-contrast light and dark themes, dynamic font scaling up to 200%.
 
 > *Disclaimer: Metrics are estimates from consumer hardware for wellness and trend-tracking. OpenRing is not a medical device.*

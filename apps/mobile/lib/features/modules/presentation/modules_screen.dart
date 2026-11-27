@@ -58,6 +58,7 @@ Future<void> setModule(
     ..showSnackBar(
       SnackBar(
         content: Text(module.turnedOn(l10n)),
+        persist: false,
         action: router == null
             ? null
             : SnackBarAction(

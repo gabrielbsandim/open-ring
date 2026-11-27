@@ -848,4 +848,20 @@ void main() {
     expect(find.byType(AiConnectionScreen), findsOneWidget);
     expect(find.byType(TodayScreen), findsNothing);
   });
+
+  testWidgets('module toast with View action auto-dismisses after 4 seconds', (
+    tester,
+  ) async {
+    await _pump(tester, modules: InMemoryModuleStore());
+    await _openModules(tester);
+    await _tap(tester, ModulesKeys.bodySwitch);
+
+    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.text('View'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 4));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SnackBar), findsNothing);
+  });
 }

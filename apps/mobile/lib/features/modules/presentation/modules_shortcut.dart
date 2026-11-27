@@ -42,6 +42,7 @@ class _ModulesShortcut extends ConsumerWidget {
       ..showSnackBar(
         SnackBar(
           content: Text(l10n.todayModulesDismissed),
+          persist: false,
           action: SnackBarAction(
             label: l10n.bodyEntryUndo,
             onPressed: () => unawaited(shortcut.set(dismissed: false)),

@@ -11,11 +11,11 @@ COSA VEDI
 • Frequenza cardiaca durante il giorno, frequenza a riposo, HRV, ossigeno nel sangue (SpO2) e stress.
 • Passi, distanza ed energia attiva.
 • Un punteggio di prontezza che mostra i suoi dati di partenza: quanto ognuno ha aggiunto o tolto, rispetto alla tua base personale.
-• Widget nella schermata Home: prontezza, Oggi configurabile (fino a 6 campi), batteria dell'anello, Avvia allenamento (con schermata di blocco per Anello e Avvia allenamento) e Questa settimana quando Impegno o Obiettivi sono attivi.
+• Widget nella schermata Home: prontezza, Oggi configurabile (fino a 6 campi), batteria dell'anello, Inizia allenamento (con schermata di blocco per Anello e Inizia allenamento) e Questa settimana quando Sforzo o Obiettivi sono attivi.
 
 MODULI OPZIONALI (DISATTIVATI DI DEFAULT IN IMPOSTAZIONI > MODULI)
-• Corpo e Open Score: pesate manuali con tendenza a 28 giorni (con modalità opzionale per nascondere i numeri), Punteggio del giorno, Livello, Generale ed etichette del giorno.
-• Energia, Impegno e Obiettivi: intervallo di energia giornaliera, punti impegno e giorni di forza settimanali, e piani flessibili con revisione guidata.
+• Corpo e Open Score: pesate manuali con tendenza a 28 giorni (con modalità opzionale per nascondere i numeri), Voto del giorno, Livello, Voto generale e contrassegni dei giorni.
+• Energia, Sforzo e Obiettivi: intervallo di energia giornaliera, punti sforzo e giorni di forza settimanali, e piani flessibili con revisione guidata.
 • Alimentazione, Traiettoria e Analisi IA: diario locale dei pasti con foto, proiezioni a 4 e 12 settimane e IA opzionale con la tua chiave, inviando riepiloghi o foto solo quando scegli tu.
 
 ALLENAMENTI CON GPS

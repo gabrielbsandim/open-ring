@@ -8,6 +8,7 @@ import 'package:open_ring/features/settings/domain/unit_system.dart';
 import 'package:open_ring/features/today/application/today_view.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
 import 'package:open_ring/features/widgets/domain/widget_snapshot.dart';
+import 'package:open_ring/features/widgets/presentation/today_widget_preview.dart';
 import 'package:open_ring/features/widgets/presentation/widget_labels.dart';
 import 'package:open_ring/features/widgets/presentation/widget_previews.dart';
 import 'package:open_ring/l10n/generated/app_localizations_en.dart';
@@ -206,5 +207,188 @@ void main() {
       expect(find.text('Pair a ring to fill this widget.'), findsOneWidget);
       expect(find.text('No ring paired'), findsOneWidget);
     });
+  });
+
+  group('TodayWidgetPreview S/M/L and v2 states', () {
+    final fullConfig = TodayWidgetConfig(
+      metrics: const [
+        WidgetMetric.dayScore,
+        WidgetMetric.steps,
+        WidgetMetric.sleep,
+        WidgetMetric.effort,
+        WidgetMetric.energy,
+        WidgetMetric.weight,
+      ],
+    );
+
+    testWidgets('Small shows 1st metric, Medium 3, Large all 6', (
+      tester,
+    ) async {
+      final snap = v2Snapshot();
+      await pumpPreview(
+        tester,
+        TodayWidgetPreview(
+          config: fullConfig,
+          snapshot: snap,
+          brightness: Brightness.dark,
+          now: now,
+          size: TodayPreviewSize.small,
+        ),
+      );
+      expect(find.text('81'), findsOneWidget);
+      expect(find.text('77.6 kg'), findsNothing);
+
+      await pumpPreview(
+        tester,
+        TodayWidgetPreview(
+          config: fullConfig,
+          snapshot: snap,
+          brightness: Brightness.dark,
+          now: now,
+        ),
+      );
+      expect(find.text('81'), findsOneWidget);
+      expect(find.text('8,640'), findsOneWidget);
+      expect(find.text('140'), findsNothing);
+
+      await pumpPreview(
+        tester,
+        TodayWidgetPreview(
+          config: fullConfig,
+          snapshot: snap,
+          brightness: Brightness.dark,
+          now: now,
+          size: TodayPreviewSize.large,
+        ),
+      );
+      expect(find.text('81'), findsOneWidget);
+      expect(find.text('140'), findsOneWidget);
+      expect(find.text('1,900 to 2,600'), findsOneWidget);
+      expect(find.text('77.6 kg'), findsOneWidget);
+    });
+
+    testWidgets('Weight shows direction only when hideNumbers is true', (
+      tester,
+    ) async {
+      await pumpPreview(
+        tester,
+        TodayWidgetPreview(
+          config: TodayWidgetConfig(metrics: const [WidgetMetric.weight]),
+          snapshot: v2Snapshot(hideNumbers: true),
+          brightness: Brightness.light,
+          now: now,
+          size: TodayPreviewSize.small,
+          units: UnitSystem.imperial,
+        ),
+      );
+      expect(find.text('Going down'), findsOneWidget);
+      expect(find.textContaining('lb'), findsNothing);
+    });
+
+    testWidgets('Unpaired mixed keeps Weight and masks ring metrics', (
+      tester,
+    ) async {
+      await pumpPreview(
+        tester,
+        TodayWidgetPreview(
+          config: TodayWidgetConfig(
+            metrics: const [WidgetMetric.steps, WidgetMetric.weight],
+          ),
+          snapshot: v2Snapshot(freshness: SyncFreshness.unpaired),
+          brightness: Brightness.dark,
+          now: now,
+        ),
+      );
+      expect(find.text('77.6 kg'), findsOneWidget);
+      expect(find.text('--'), findsOneWidget);
+      expect(find.text('No ring paired'), findsOneWidget);
+    });
+
+    testWidgets(
+      'Day Score covers partial, firstDays, noScore, afterMidnight, stale',
+      (tester) async {
+        Future<void> pumpDayScore(
+          WidgetDayScore ds, {
+          SyncFreshness freshness = SyncFreshness.fresh,
+        }) => pumpPreview(
+          tester,
+          TodayWidgetPreview(
+            config: TodayWidgetConfig(metrics: const [WidgetMetric.dayScore]),
+            snapshot: v2Snapshot(freshness: freshness, dayScore: ds),
+            brightness: Brightness.dark,
+            now: now,
+            size: TodayPreviewSize.small,
+          ),
+        );
+
+        await pumpDayScore(
+          const WidgetDayScore(
+            kind: WidgetDayScoreKind.partial,
+            score: 83,
+            band: DayScoreBand.good,
+            coverage: 75,
+          ),
+        );
+        expect(find.textContaining('75 of 100'), findsOneWidget);
+
+        await pumpDayScore(
+          const WidgetDayScore(
+            kind: WidgetDayScoreKind.firstDays,
+            coverage: 45,
+          ),
+        );
+        expect(find.text('Your first score is on its way'), findsOneWidget);
+
+        await pumpDayScore(
+          const WidgetDayScore(
+            kind: WidgetDayScoreKind.noScore,
+            coverage: 20,
+            gap: DayScoreGap.night,
+          ),
+        );
+        expect(find.text('No score today'), findsOneWidget);
+
+        await pumpDayScore(
+          const WidgetDayScore(
+            kind: WidgetDayScoreKind.afterMidnight,
+            score: 83,
+            band: DayScoreBand.good,
+            coverage: 100,
+          ),
+        );
+        expect(find.textContaining('yesterday, final'), findsOneWidget);
+
+        await pumpDayScore(
+          WidgetDayScore(
+            kind: WidgetDayScoreKind.full,
+            score: 76,
+            band: DayScoreBand.good,
+            coverage: 100,
+            asOf: DateTime(2026, 12, 10, 14, 5),
+          ),
+          freshness: SyncFreshness.stale,
+        );
+        expect(find.byIcon(Icons.warning_amber_rounded), findsWidgets);
+      },
+    );
+
+    for (final layout in layoutMatrix()) {
+      testWidgets('Large preview with all 6 fields lays out at $layout', (
+        tester,
+      ) async {
+        await pumpPreview(
+          tester,
+          TodayWidgetPreview(
+            config: fullConfig,
+            snapshot: v2Snapshot(),
+            brightness: layout.brightness,
+            now: now,
+            size: TodayPreviewSize.large,
+          ),
+          layout: layout,
+        );
+        expect(find.byKey(TodayWidgetPreview.previewKey), findsOneWidget);
+      });
+    }
   });
 }

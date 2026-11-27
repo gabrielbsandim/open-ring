@@ -169,10 +169,10 @@ Answers derived from the privacy policy. Under Play's definitions, data is
 "collected" only when it is sent off the device by the app, and a transfer the
 user starts (sharing an export) is not "sharing".
 
-UNVERIFIED: these answers have not been checked against the current wording of
-Play's Data safety form, in particular how it treats data the user sends to a
-third party service the user chose and configured (the AI analysis module).
-Recheck every row against the form before each submission.
+Updated and saved in Play Console on 2026-11-27 against the current wording of
+Play's Data safety form (queued in Managed Publishing pending final submission
+in Publishing overview). Recheck every row against the form before each
+future submission.
 
 | Question | Answer | Reason |
 | :--- | :--- | :--- |
@@ -188,10 +188,13 @@ Recheck every row against the form before each submission.
 | Is all user data encrypted in transit? | No | The update check uses HTTPS, and so does any AI service on a public address. The AI module also allows http to a private or local network address (a service on the user's own network), which is not encrypted; the consent sheet says so. |
 | Can users request that data be deleted? | Clear storage or uninstall deletes everything on the device, the install identifier included; Delete all data and Remove key and readings delete the AI data on the device; Health Connect data is deleted in Health Connect. What an AI service received is deleted with that service's own tools. | |
 
-Before submitting a release in which the AI analysis module can be turned on
-(A14e and later), the owner updates the Data safety form with the rows above in
-Play Console (O13 in the A14 plan). Until then the published form still
-describes a build whose only network use is the update check.
+O13 was completed and saved in Play Console on 2026-11-27 for `v0.7.0`
+(`0.7.0+7`), covering Device or other IDs (required), Health info, Fitness info,
+and Photos (all three optional, user-initiated, not shared), and `No` for all
+data encrypted in transit (because the optional AI analysis module permits
+`http://` to a private or local network address). Both `FOREGROUND_SERVICE_CONNECTED_DEVICE`
+and `FOREGROUND_SERVICE_LOCATION` declarations were also verified active under
+App content with zero pending action items.
 
 Other App content answers: no ads, no account (so no account deletion URL),
 not directed at children, content rating questionnaire with no objectionable

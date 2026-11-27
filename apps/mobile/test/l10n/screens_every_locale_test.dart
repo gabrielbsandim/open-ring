@@ -63,6 +63,7 @@ import 'package:open_ring/features/trends/presentation/trends_screen.dart';
 import 'package:open_ring/features/widgets/application/widget_providers.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_config_screen.dart';
+import 'package:open_ring/features/widgets/presentation/widgets_how_screen.dart';
 import 'package:open_ring/features/widgets/presentation/widgets_screen.dart';
 import 'package:open_ring/features/workout/presentation/workout_notification_how_screen.dart';
 import 'package:open_ring/l10n/generated/app_localizations.dart';
@@ -503,6 +504,7 @@ final _cases = <String, _Case>{
         expect(find.text(l.sourcesReadSleep), findsOneWidget),
   ),
   'Widgets': const _Case(WidgetsScreen(), _widgets),
+  'Widgets how': const _Case(WidgetsHowScreen(), _widgets),
   'Today widget': const _Case(TodayWidgetConfigScreen(), _widgets),
   'Today widget without data': _Case(
     const TodayWidgetConfigScreen(),

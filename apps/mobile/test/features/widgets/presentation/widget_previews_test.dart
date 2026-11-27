@@ -3,11 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:metrics/metrics.dart';
 import 'package:open_ring/core/format/metric_format.dart';
+import 'package:open_ring/features/modules/domain/module_id.dart';
 import 'package:open_ring/features/open_score/application/day_score_view.dart';
 import 'package:open_ring/features/settings/domain/unit_system.dart';
 import 'package:open_ring/features/today/application/today_view.dart';
 import 'package:open_ring/features/widgets/domain/today_widget_config.dart';
 import 'package:open_ring/features/widgets/domain/widget_snapshot.dart';
+import 'package:open_ring/features/widgets/presentation/this_week_widget_preview.dart';
 import 'package:open_ring/features/widgets/presentation/today_widget_preview.dart';
 import 'package:open_ring/features/widgets/presentation/widget_labels.dart';
 import 'package:open_ring/features/widgets/presentation/widget_previews.dart';
@@ -43,6 +45,14 @@ void main() {
       strengthDays: 1,
       strengthTarget: 2,
     ),
+    WidgetGoals? goals,
+    Set<ModuleId> enabledModules = const {
+      ModuleId.openScore,
+      ModuleId.body,
+      ModuleId.energy,
+      ModuleId.effort,
+      ModuleId.goals,
+    },
   }) => WidgetSnapshot(
     date: today,
     freshness: freshness,
@@ -73,6 +83,39 @@ void main() {
     weight: weight,
     energy: energy,
     effort: effort,
+    enabledModules: enabledModules,
+    goals:
+        goals ??
+        const WidgetGoals(
+          state: WidgetGoalsState.running,
+          monday: LocalDate(2026, 12, 7),
+          sunday: LocalDate(2026, 12, 13),
+          weekNumber: 4,
+          blockWeeks: 12,
+          levers: [
+            WidgetGoalLever(
+              kind: LeverKind.strengthDays,
+              target: 2,
+              achieved: 1,
+              goal: 2,
+              days: [
+                LeverDayMark.met,
+                LeverDayMark.ahead,
+                LeverDayMark.ahead,
+                LeverDayMark.ahead,
+                LeverDayMark.ahead,
+                LeverDayMark.ahead,
+                LeverDayMark.ahead,
+              ],
+            ),
+            WidgetGoalLever(
+              kind: LeverKind.steps,
+              target: 10000,
+              achieved: 2,
+              goal: 5,
+            ),
+          ],
+        ),
   );
 
   Future<void> pumpPreview(
@@ -389,6 +432,116 @@ void main() {
         );
         expect(find.byKey(TodayWidgetPreview.previewKey), findsOneWidget);
       });
+    }
+  });
+
+  group('ThisWeekWidgetPreview', () {
+    testWidgets(
+      'renders running, review, paused, hold, recovery, unpaired, and modules-off',
+      (tester) async {
+        await pumpPreview(
+          tester,
+          ThisWeekWidgetPreview(
+            snapshot: v2Snapshot(),
+            now: now,
+            size: ThisWeekPreviewSize.large,
+          ),
+        );
+        expect(find.text('140'), findsOneWidget);
+        expect(find.text('of 150 · strength 1 of 2'), findsOneWidget);
+        expect(find.text('week 4 of 12'), findsOneWidget);
+
+        await pumpPreview(
+          tester,
+          ThisWeekWidgetPreview(
+            snapshot: v2Snapshot(
+              goals: const WidgetGoals(
+                state: WidgetGoalsState.review,
+                monday: LocalDate(2026, 12, 7),
+                sunday: LocalDate(2026, 12, 13),
+              ),
+            ),
+            now: now,
+          ),
+        );
+        expect(find.text('The review of the week is ready'), findsOneWidget);
+
+        for (final (state, expectedText) in [
+          (WidgetGoalsState.paused, 'The plan stopped asking for changes'),
+          (WidgetGoalsState.hold, 'The weight plan holds'),
+          (WidgetGoalsState.recovery, 'This week the plan asks nothing'),
+        ]) {
+          await pumpPreview(
+            tester,
+            ThisWeekWidgetPreview(
+              snapshot: v2Snapshot(
+                effort: null,
+                enabledModules: const {ModuleId.goals},
+                goals: WidgetGoals(
+                  state: state,
+                  monday: const LocalDate(2026, 12, 7),
+                  sunday: const LocalDate(2026, 12, 13),
+                ),
+              ),
+              now: now,
+              size: ThisWeekPreviewSize.small,
+            ),
+          );
+          expect(find.textContaining(expectedText), findsOneWidget);
+        }
+
+        await pumpPreview(
+          tester,
+          ThisWeekWidgetPreview(
+            snapshot: v2Snapshot(freshness: SyncFreshness.unpaired),
+            now: now,
+          ),
+        );
+        expect(find.text('No ring paired'), findsOneWidget);
+
+        await pumpPreview(
+          tester,
+          ThisWeekWidgetPreview(
+            snapshot: WidgetSnapshot(
+              date: today,
+              freshness: SyncFreshness.fresh,
+              syncedAt: syncedAt,
+              stepGoal: 10000,
+            ),
+            now: now,
+          ),
+        );
+        expect(
+          find.text('Effort and Goals are off. Tap to open Modules.'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    for (final layout in layoutMatrix()) {
+      for (final previewSize in [
+        ThisWeekPreviewSize.medium,
+        ThisWeekPreviewSize.large,
+      ]) {
+        testWidgets(
+          'ThisWeek ${previewSize.name} preview lays out at $layout',
+          (tester) async {
+            await pumpPreview(
+              tester,
+              ThisWeekWidgetPreview(
+                snapshot: v2Snapshot(),
+                now: now,
+                size: previewSize,
+              ),
+              layout: layout,
+            );
+            expect(
+              find.byKey(ThisWeekWidgetPreview.previewKey),
+              findsOneWidget,
+            );
+          },
+        );
+      }
     }
   });
 }

@@ -17,6 +17,7 @@ const _preRestore = '.pre-restore';
 const _restoring = '.restoring';
 const _sidecars = ['-wal', '-shm', '-journal'];
 const _sqliteHeader = 'SQLite format 3\u0000';
+const int _manifestMaxBytes = 64 * 1024;
 
 final class BackupArchive {
   new({
@@ -86,8 +87,8 @@ final class BackupArchive {
         _extract(entry, p.join(stagedPhotos.path, _photoName(entry.name)));
       }
       await _retireDatabase();
-      await _retirePhotos();
       await stagedDatabase.rename(_liveDatabase.path);
+      await _retirePhotos();
       await stagedPhotos.rename(_livePhotos.path);
       return Restored(check.schemaVersion!);
     } finally {
@@ -141,7 +142,7 @@ final class BackupArchive {
 
   Map<String, Object?>? _manifestOf(List<ArchiveFile> files) {
     final entries = files.where((f) => f.name == _manifestName);
-    if (entries.isEmpty) return null;
+    if (entries.isEmpty || entries.first.size > _manifestMaxBytes) return null;
     try {
       final decoded = jsonDecode(utf8.decode(entries.first.readBytes()!));
       return decoded is Map<String, Object?> ? decoded : null;
@@ -199,12 +200,11 @@ final class BackupArchive {
   Future<void> _retireDatabase() async {
     final retired = File('${_liveDatabase.path}$_preRestore');
     await _deleteFile(retired);
-    for (final suffix in _sidecars) {
-      await _deleteFile(File('${retired.path}$suffix'));
-    }
-    if (_liveDatabase.existsSync()) await _liveDatabase.rename(retired.path);
-    // The caller closed every connection, which checkpoints the WAL, so any
-    // sidecar left is stale and would be replayed into the restored file.
+    // A copy, not a rename: the live file must exist until the staged one
+    // replaces it in a single rename, so a kill never leaves no database.
+    if (_liveDatabase.existsSync()) await _liveDatabase.copy(retired.path);
+    // With every connection closed a sidecar is stale, and SQLite would
+    // replay it into the restored file.
     for (final suffix in _sidecars) {
       await _deleteFile(File('${_liveDatabase.path}$suffix'));
     }

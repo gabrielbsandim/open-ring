@@ -236,4 +236,21 @@ void main() {
       expect(pending.hasPending, isFalse);
     },
   );
+
+  test('a successful apply leaves no copy of the replaced data', () async {
+    final pending = PendingRestore(documents);
+    await pending.stage(await validZip());
+
+    final outcome = await pending.applyIfPending(archiveOf(documents));
+
+    expect(outcome, isA<Restored>());
+    expect(
+      File(p.join(documents.path, '$dbName.pre-restore')).existsSync(),
+      isFalse,
+    );
+    expect(
+      Directory(p.join(documents.path, 'meal_photos.pre-restore')).existsSync(),
+      isFalse,
+    );
+  });
 }

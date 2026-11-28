@@ -31,8 +31,13 @@ final class RestoreCoordinator {
     final check = await _archive.check(archive);
     if (!check.ok) return Rejected(check);
     await _pending.stage(archive);
-    await _background.stopAll();
-    await _restarter.restart();
+    try {
+      await _background.stopAll();
+      await _restarter.restart();
+    } on Object {
+      await _pending.discard();
+      rethrow;
+    }
     return Restored(check.schemaVersion!);
   }
 }

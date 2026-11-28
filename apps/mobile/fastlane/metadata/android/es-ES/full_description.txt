@@ -4,7 +4,7 @@ SIN CUENTA, SIN NUBE
 • Sin registro, sin inicio de sesión, sin correo. Empareja el anillo y empieza.
 • Tus datos se guardan en una base de datos local del teléfono, no en un servidor.
 • Sin análisis de uso, sin anuncios, sin rastreo. La app usa internet para sus propias actualizaciones y, solo si activas el Análisis con IA, para el servicio de IA que elijas.
-• Los datos solo salen del teléfono cuando tú decides: a Health Connect, en un archivo CSV, JSON o GPX que exportas, en una transferencia a otro teléfono que inicias o, con el Análisis con IA activo, al servicio de IA que elijas.
+• Los datos solo salen del teléfono cuando tú decides: a Health Connect, en un archivo CSV, JSON o GPX que exportas, en una copia de seguridad que creas, en una transferencia a otro teléfono que inicias o, con el Análisis con IA activo, al servicio de IA que elijas.
 
 LO QUE VES
 • El sueño en una línea de tiempo con ligero, profundo, REM y despierto.

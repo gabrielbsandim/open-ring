@@ -19,6 +19,8 @@ import 'package:ring_driver/ring_driver.dart';
 
 part 'app_database.g.dart';
 
+const appSchemaVersion = 21;
+
 @DriftDatabase(
   tables: [
     RingDevices,
@@ -56,8 +58,6 @@ part 'app_database.g.dart';
     TrajectoryProjections,
   ],
 )
-const appSchemaVersion = 21;
-
 class AppDatabase extends _$AppDatabase {
   new(super.e);
 

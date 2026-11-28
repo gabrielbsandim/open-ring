@@ -250,9 +250,9 @@ Restore from backup, in the same group, accepts a file only when the manifest
 names this app and format 1, its schema is not newer than the app's, the
 database passes `PRAGMA integrity_check` and every photo matches its CRC32. It
 copies the file aside, stops background sync and restarts the app, which swaps
-the database and the photos in before opening anything. The previous ones are
-kept as `open_ring.sqlite.pre-restore` and `meal_photos.pre-restore` until the
-next restore. Preferences kept outside the database (modules, units, theme,
+the database and the photos in before opening anything. The replaced database
+and photos are deleted once the swap succeeds; a file that fails there leaves
+the current data as it was. Preferences kept outside the database (modules, units, theme,
 alerts, the AI settings, consents and key) are not in the file.
 
 ## Never exported

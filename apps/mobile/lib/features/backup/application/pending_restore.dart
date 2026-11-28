@@ -21,6 +21,8 @@ final class PendingRestore {
 
   bool get hasPending => _pending.existsSync();
 
+  Future<void> discard() => _deleteIfPresent(_pending);
+
   Future<void> stage(File source) async {
     _documents.createSync(recursive: true);
     final part = File('${_pending.path}.part');
@@ -35,26 +37,15 @@ final class PendingRestore {
     if (!hasPending) return null;
     await _pending.rename(_applying.path);
     try {
-      _settle();
       final outcome = await archive.restore(_applying);
-      if (outcome is Restored) _releaseLocks();
+      if (outcome is! Restored) return outcome;
+      _releaseLocks();
+      await _dropPreRestoreCopies();
       return outcome;
     } on Object {
       return const Rejected(BackupCheck.rejected(BackupProblem.corrupt));
     } finally {
       await _deleteIfPresent(_applying);
-    }
-  }
-
-  // Opening and closing the live database rolls back a hot journal or folds a
-  // WAL left by the killed process, so the kept pre-restore copy is whole.
-  void _settle() {
-    if (!_liveDatabase.existsSync()) return;
-    final db = sqlite3.open(_liveDatabase.path);
-    try {
-      db.select('PRAGMA schema_version');
-    } finally {
-      db.close();
     }
   }
 
@@ -70,6 +61,15 @@ final class PendingRestore {
     } finally {
       db.close();
     }
+  }
+
+  // The replaced data would otherwise outlive every delete action in the app.
+  Future<void> _dropPreRestoreCopies() async {
+    await _deleteIfPresent(File('${_liveDatabase.path}.pre-restore'));
+    final photos = Directory(
+      p.join(_documents.path, 'meal_photos.pre-restore'),
+    );
+    if (photos.existsSync()) await photos.delete(recursive: true);
   }
 }
 

@@ -22,6 +22,11 @@ class _Background implements BackgroundWork {
   }
 }
 
+class _FailingRestarter implements AppRestarter {
+  @override
+  Future<void> restart() async => throw StateError('no restart');
+}
+
 class _Restarter implements AppRestarter {
   new(this.log, [this.onRestart]);
 
@@ -139,5 +144,14 @@ void main() {
     );
 
     expect(log, isEmpty);
+  });
+
+  test('a failed stop or restart discards the staged zip', () async {
+    final coordinator = coordinatorOf(restarter: _FailingRestarter());
+
+    await expectLater(coordinator.restore(validZip()), throwsStateError);
+
+    expect(log, ['stop']);
+    expect(pendingFile().existsSync(), isFalse);
   });
 }

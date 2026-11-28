@@ -86,9 +86,14 @@ final class BackupArchive {
       for (final entry in inspection.photos) {
         _extract(entry, p.join(stagedPhotos.path, _photoName(entry.name)));
       }
+      final retiredPhotos = Directory('${_livePhotos.path}$_preRestore');
+      // Deleted before the swap so only renames sit between the two halves.
+      await _deleteDirectory(retiredPhotos);
       await _retireDatabase();
       await stagedDatabase.rename(_liveDatabase.path);
-      await _retirePhotos();
+      if (_livePhotos.existsSync()) {
+        await _livePhotos.rename(retiredPhotos.path);
+      }
       await stagedPhotos.rename(_livePhotos.path);
       return Restored(check.schemaVersion!);
     } finally {
@@ -208,12 +213,6 @@ final class BackupArchive {
     for (final suffix in _sidecars) {
       await _deleteFile(File('${_liveDatabase.path}$suffix'));
     }
-  }
-
-  Future<void> _retirePhotos() async {
-    final retired = Directory('${_livePhotos.path}$_preRestore');
-    await _deleteDirectory(retired);
-    if (_livePhotos.existsSync()) await _livePhotos.rename(retired.path);
   }
 
   Future<List<File>> _photoFiles() async {

@@ -167,7 +167,7 @@ void main() {
     final outcome = await pending.applyIfPending(brokenArchive());
 
     expect(outcome, isA<Rejected>());
-    expect((outcome as Rejected).check.problem, BackupProblem.corrupt);
+    expect((outcome! as Rejected).check.problem, BackupProblem.corrupt);
     expect(pending.hasPending, isFalse);
     expect(pendingFile(documents).existsSync(), isFalse);
     expect(applyingFile(documents).existsSync(), isFalse);
@@ -213,19 +213,19 @@ void main() {
     () async {
       final killed = Directory(p.join(root.path, 'killed'));
       await seedDocuments(killed, ring: 'OLD', staleSidecars: false);
-      final raw = sqlite3.open(liveDb(killed).path);
-      raw.execute('PRAGMA journal_mode=WAL');
-      raw.execute('PRAGMA wal_autocheckpoint=0');
-      raw.execute(
-        'INSERT INTO ring_devices (device_id, name, paired_at_utc_ms) '
-        "VALUES ('WALROW', 'Ring WALROW', 1)",
-      );
+      final raw = sqlite3.open(liveDb(killed).path)
+        ..execute('PRAGMA journal_mode=WAL')
+        ..execute('PRAGMA wal_autocheckpoint=0')
+        ..execute(
+          'INSERT INTO ring_devices (device_id, name, paired_at_utc_ms) '
+          "VALUES ('WALROW', 'Ring WALROW', 1)",
+        );
       final copy = Directory(p.join(root.path, 'copy'))..createSync();
       for (final suffix in ['', '-wal']) {
         File('${liveDb(killed).path}$suffix')
             .copySync(p.join(copy.path, '$dbName$suffix'));
       }
-      raw.dispose();
+      raw.close();
       final pending = PendingRestore(copy);
       await pending.stage(await validZip());
 

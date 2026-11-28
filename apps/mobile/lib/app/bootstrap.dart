@@ -8,6 +8,7 @@ import 'package:open_ring/app/background/background_sync_dispatcher.dart';
 import 'package:open_ring/app/theme/shared_preferences_theme_mode_store.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/clock/clock.dart';
+import 'package:open_ring/core/database/app_database.dart';
 import 'package:open_ring/core/database/app_database_provider.dart';
 import 'package:open_ring/core/database/open_app_database.dart';
 import 'package:open_ring/features/activity/application/activity_providers.dart';
@@ -21,6 +22,9 @@ import 'package:open_ring/features/ai/infrastructure/drift_ai_report_store.dart'
 import 'package:open_ring/features/ai/infrastructure/secure_storage_secret_store.dart';
 import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_config_store.dart';
 import 'package:open_ring/features/ai/infrastructure/shared_preferences_ai_run_marker_store.dart';
+import 'package:open_ring/features/backup/application/backup_archive.dart';
+import 'package:open_ring/features/backup/application/backup_providers.dart';
+import 'package:open_ring/features/backup/application/pending_restore.dart';
 import 'package:open_ring/features/body/application/hide_numbers_controller.dart';
 import 'package:open_ring/features/body/application/weigh_in_providers.dart';
 import 'package:open_ring/features/body/infrastructure/drift_weigh_in_store.dart';
@@ -123,6 +127,7 @@ import 'package:open_ring/features/workout/infrastructure/ring_live_heart_rate_s
 import 'package:open_ring/features/workout/infrastructure/shared_preferences_workout_alert_preferences.dart';
 import 'package:open_ring/features/workout/infrastructure/shared_preferences_workout_lock_preferences.dart';
 import 'package:open_ring/features/workout/presentation/workout_labels.dart';
+import 'package:path_provider/path_provider.dart';
 
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -135,6 +140,10 @@ Future<void> bootstrap() async {
   final demoModeStore = await SharedPreferencesDemoModeStore.open();
   final widgetConfigStore =
       await SharedPreferencesTodayWidgetConfigStore.open();
+  final documents = await getApplicationDocumentsDirectory();
+  await PendingRestore(documents).applyIfPending(
+    BackupArchive(documents: documents, appSchemaVersion: appSchemaVersion),
+  );
   final database = openAppDatabase();
   final healthWriter = HealthPluginGateway.writer();
   final healthReader = HealthPluginGateway.reader();
@@ -144,6 +153,7 @@ Future<void> bootstrap() async {
         HomeWidgetPluginGateway.forPlatform(),
       ),
       todayWidgetConfigStoreProvider.overrideWithValue(widgetConfigStore),
+      backupDocumentsProvider.overrideWithValue(documents),
       themeModeStoreProvider.overrideWithValue(themeModeStore),
       onboardingStoreProvider.overrideWithValue(onboardingStore),
       demoModeStoreProvider.overrideWithValue(demoModeStore),

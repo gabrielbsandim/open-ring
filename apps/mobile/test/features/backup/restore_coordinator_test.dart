@@ -91,8 +91,9 @@ void main() {
           stagedAtStop.add(pendingFile().existsSync());
         }),
         restarter: _Restarter(log, () {
-          atRestart.add(pendingFile().existsSync());
-          atRestart.add(log.contains('stop'));
+          atRestart
+            ..add(pendingFile().existsSync())
+            ..add(log.contains('stop'));
         }),
       );
 

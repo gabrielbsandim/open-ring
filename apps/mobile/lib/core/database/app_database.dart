@@ -56,11 +56,13 @@ part 'app_database.g.dart';
     TrajectoryProjections,
   ],
 )
+const appSchemaVersion = 21;
+
 class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => appSchemaVersion;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

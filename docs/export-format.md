@@ -233,11 +233,34 @@ Exports are written into a fresh folder under the app's temporary directory
 are handed to the system share sheet. The OS may clear that directory at any
 time after sharing; OpenRing does not keep a copy.
 
+## Backup file
+
+Settings, Data, Back up data writes `open-ring-backup-YYYYMMDD-HHMMSS.zip` and
+hands it to the share sheet. Unlike the exports above it is meant to be read
+back by OpenRing, not by other tools:
+
+- `manifest.json`: `{"app": "open_ring", "format": 1, "schemaVersion": <n>,
+  "createdAtUtc": "<ISO 8601>"}`. `schemaVersion` is the drift schema of the
+  database inside.
+- `open_ring.sqlite`: a copy of the whole database made with `VACUUM INTO`, AI
+  readings, meal photo analyses and Trajectory projections included.
+- `meal_photos/<name>`: every saved meal photo.
+
+Restore from backup, in the same group, accepts a file only when the manifest
+names this app and format 1, its schema is not newer than the app's, the
+database passes `PRAGMA integrity_check` and every photo matches its CRC32. It
+copies the file aside, stops background sync and restarts the app, which swaps
+the database and the photos in before opening anything. The previous ones are
+kept as `open_ring.sqlite.pre-restore` and `meal_photos.pre-restore` until the
+next restore. Preferences kept outside the database (modules, units, theme,
+alerts, the AI settings, consents and key) are not in the file.
+
 ## Never exported
 
 The AI analysis and Trajectory modules keep their data out of every CSV, JSON
 and GPX file, and adding them changed no format, so the JSON `schema_version`
-stays 1:
+stays 1. Only the backup file above carries the tables below, never the key or
+the AI settings:
 
 - the AI service key, which lives in the phone's secure storage, outside the
   database;

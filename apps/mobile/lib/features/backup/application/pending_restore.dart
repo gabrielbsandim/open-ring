@@ -37,6 +37,7 @@ final class PendingRestore {
     if (!hasPending) return null;
     await _pending.rename(_applying.path);
     try {
+      _settle();
       final outcome = await archive.restore(_applying);
       if (outcome is! Restored) return outcome;
       _releaseLocks();
@@ -46,6 +47,18 @@ final class PendingRestore {
       return const Rejected(BackupCheck.rejected(BackupProblem.corrupt));
     } finally {
       await _deleteIfPresent(_applying);
+    }
+  }
+
+  // Opening and closing the live database rolls back a hot journal left by the
+  // killed process, so the swap never deletes a journal it still needs.
+  void _settle() {
+    if (!_liveDatabase.existsSync()) return;
+    final db = sqlite3.open(_liveDatabase.path);
+    try {
+      db.select('PRAGMA schema_version');
+    } finally {
+      db.close();
     }
   }
 

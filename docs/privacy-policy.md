@@ -1,6 +1,6 @@
 # OpenRing Privacy Policy
 
-Effective 2026-11-25. Applies to the OpenRing Android app, package
+Effective 2026-11-28. Applies to the OpenRing Android app, package
 `gbs.openring.app`, version 0.1.0 and later.
 
 ## Short version
@@ -9,7 +9,7 @@ Effective 2026-11-25. Applies to the OpenRing Android app, package
   OpenRing receives your health data.
 - Your data is stored on your phone, in the app's private storage.
 - The app uses the internet for two things: checking for and downloading app updates and, only with AI analysis on, reaching the AI service you chose, which receives only what you approved: a summary of your data, a Goals review decision or a meal photo. Your health data goes over the network in no other way.
-- Health data leaves your phone only when you send it: to Health Connect, if you allow it, in a file you export and share, in a transfer to a new phone you start, or to the AI service you chose, after you see what goes and agree.
+- Health data leaves your phone only when you send it: to Health Connect, if you allow it, in a file you export or back up and share, in a transfer to a new phone you start, or to the AI service you chose, after you see what goes and agree.
 
 ## Who we are
 
@@ -113,8 +113,10 @@ The key is stored with Android's secure storage, outside the database and every
 export. Android cloud backup is off for OpenRing, and the phone to phone
 transfer described below leaves the key out. A consent covers one address, one
 detail level, the kinds of data it named and the date of this policy; a change
-to any of them asks again. Readings, meal photo analyses, the AI settings and
-the key never go into an export. In demo mode nothing is sent.
+to any of them asks again. The AI settings, the consents and the key never go
+into an export or a backup file. Readings and meal photo analyses go only into
+a backup file you create, never into a CSV, JSON or GPX export. In demo mode
+nothing is sent.
 
 ## What leaves the phone
 
@@ -124,9 +126,15 @@ Apart from the update check above, only what you send, in four ways:
    above to Health Connect on the phone. Other apps you allow in Health Connect
    can then read them. Health Connect is part of Android; its own privacy terms
    apply, and you manage or delete that data in the Health Connect settings.
-2. **Export.** You can export CSV, JSON or a workout's GPX file. The file is
-   created on the phone and handed to the Android share sheet; you choose where
-   it goes.
+2. **Export and backup file.** You can export CSV, JSON or a workout's GPX
+   file, or create a backup file: a zip with the whole database, readings and
+   meal photo analyses included, and the meal photos. The file is created on
+   the phone and handed to the Android share sheet; you choose where it goes.
+   It is not encrypted, so keep it where only you can read it. Restoring a
+   backup file, in Settings, Data, replaces all the data on the phone with the
+   file's contents. The app's preferences (modules, units, theme, alerts) and
+   the AI settings, consents and key are not in it and are set again on the
+   phone.
 3. **Phone to phone transfer.** Android's cloud backup is turned off for
    OpenRing, so its data is not copied to your Google account. On Android 12 and
    later, a direct device to device transfer that you start when setting up a

@@ -4,7 +4,7 @@ TANPA AKUN, TANPA CLOUD
 • Tanpa pendaftaran, tanpa login, tanpa email. Sambungkan cincin dan mulai.
 • Data Anda tersimpan di database lokal di ponsel, bukan di server.
 • Tanpa analitik, tanpa iklan, tanpa pelacakan. Aplikasi ini memakai internet untuk pembaruannya sendiri dan, hanya jika Anda mengaktifkan Analisis AI, untuk layanan AI yang Anda pilih.
-• Data hanya keluar dari ponsel saat Anda memilihnya: ke Health Connect, dalam file CSV, JSON, atau GPX yang Anda ekspor, dalam pemindahan ke ponsel baru yang Anda mulai, atau, saat Analisis AI aktif, ke layanan AI yang Anda pilih.
+• Data hanya keluar dari ponsel saat Anda memilihnya: ke Health Connect, dalam file CSV, JSON, atau GPX yang Anda ekspor, dalam file cadangan yang Anda buat, dalam pemindahan ke ponsel baru yang Anda mulai, atau, saat Analisis AI aktif, ke layanan AI yang Anda pilih.
 
 YANG ANDA LIHAT
 • Tidur dalam garis waktu: ringan, nyenyak, REM, dan terjaga.

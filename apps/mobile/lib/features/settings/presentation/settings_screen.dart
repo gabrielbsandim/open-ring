@@ -9,6 +9,7 @@ import 'package:open_ring/app/theme/app_colors.dart';
 import 'package:open_ring/app/theme/theme_mode_controller.dart';
 import 'package:open_ring/core/format/metric_format.dart';
 import 'package:open_ring/core/widgets/app_page.dart';
+import 'package:open_ring/features/backup/presentation/backup_tiles.dart';
 import 'package:open_ring/features/energy/application/energy_gate.dart';
 import 'package:open_ring/features/health_sync/application/health_status_providers.dart';
 import 'package:open_ring/features/health_sync/presentation/health_status_screen.dart';
@@ -126,6 +127,7 @@ class SettingsScreen extends ConsumerWidget {
               chevron: true,
               onTap: () => context.go(AppPaths.settingsExport),
             ),
+            const BackupTiles(),
             const DeleteDataTile(),
           ],
         ),

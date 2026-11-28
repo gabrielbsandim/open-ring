@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_ring/features/backup/application/backup_archive.dart';
+import 'package:open_ring/features/backup/application/pending_restore.dart';
 import 'package:open_ring/features/backup/application/restore_coordinator.dart';
 import 'package:open_ring/features/backup/domain/backup_check.dart';
 import 'package:path/path.dart' as p;
@@ -9,12 +10,21 @@ import 'package:path/path.dart' as p;
 import 'backup_fixtures.dart';
 
 class _Background implements BackgroundWork {
-  new(this.log);
+  new(this.log, [this.onStop]);
 
   final List<String> log;
+  final void Function()? onStop;
 
   @override
-  Future<void> stopAll() async => log.add('stop');
+  Future<void> stopAll() async {
+    log.add('stop');
+    onStop?.call();
+  }
+}
+
+class _FailingRestarter implements AppRestarter {
+  @override
+  Future<void> restart() async => throw StateError('no restart');
 }
 
 class _Restarter implements AppRestarter {
@@ -61,97 +71,87 @@ void main() {
 
   File liveDb() => File(p.join(documents.path, dbName));
 
-  test('criterion 6: stop, close, restore, restart in that order', () async {
-    final before = hashTree(documents);
-    Map<String, String>? atStop;
-    Map<String, String>? atClose;
-    List<int>? atRestart;
-    final coordinator = RestoreCoordinator(
-      archive: archiveOf(documents),
-      background: _CapturingBackground(log, () => atStop = hashTree(documents)),
-      closeDatabase: () async {
-        log.add('close');
-        atClose = hashTree(documents);
-      },
-      restarter: _Restarter(log, () => atRestart = liveDb().readAsBytesSync()),
-    );
+  File pendingFile() => File(p.join(documents.path, 'pending_restore.zip'));
 
-    final outcome = await coordinator.restore(validZip());
+  RestoreCoordinator coordinatorOf({
+    BackgroundWork? background,
+    AppRestarter? restarter,
+    Directory? pendingDir,
+  }) => RestoreCoordinator(
+    archive: archiveOf(documents),
+    background: background ?? _Background(log),
+    restarter: restarter ?? _Restarter(log),
+    pending: PendingRestore(pendingDir ?? documents),
+  );
 
-    expect(outcome, isA<Restored>());
-    expect(log, ['stop', 'close', 'restart']);
-    expect(atStop, before);
-    expect(atClose, before);
-    expect(atRestart, archivedDatabase);
+  test(
+    'criterion 3: stage, then stopAll, then restart, in that order',
+    () async {
+      final liveBefore = liveDb().readAsBytesSync();
+      final zip = validZip();
+      final stagedAtStop = <bool>[];
+      final atRestart = <bool>[];
+      final coordinator = coordinatorOf(
+        background: _Background(log, () {
+          stagedAtStop.add(pendingFile().existsSync());
+        }),
+        restarter: _Restarter(log, () {
+          atRestart
+            ..add(pendingFile().existsSync())
+            ..add(log.contains('stop'));
+        }),
+      );
+
+      final outcome = await coordinator.restore(zip);
+
+      expect(outcome, isA<Restored>());
+      expect(log, ['stop', 'restart']);
+      expect(stagedAtStop, [true]);
+      expect(atRestart, [true, true]);
+      expect(pendingFile().readAsBytesSync(), zip.readAsBytesSync());
+      expect(liveDb().readAsBytesSync(), liveBefore);
+    },
+  );
+
+  test('criterion 3: a valid restore reports the archive schema', () async {
+    final outcome = await coordinatorOf().restore(validZip());
+
+    expect((outcome as Restored).fromSchemaVersion, currentSchemaVersion);
   });
 
-  test('criterion 6: a rejected archive touches nothing', () async {
+  test('criterion 2: a rejected archive stages and calls nothing', () async {
     final bad = File(p.join(scratch.path, 'bad.zip'))
       ..writeAsBytesSync(List.filled(64, 3));
     final before = hashTree(documents);
-    final coordinator = RestoreCoordinator(
-      archive: archiveOf(documents),
-      background: _Background(log),
-      closeDatabase: () async => log.add('close'),
-      restarter: _Restarter(log),
-    );
 
-    final outcome = await coordinator.restore(bad);
+    final outcome = await coordinatorOf().restore(bad);
 
     expect(outcome, isA<Rejected>());
     expect((outcome as Rejected).check.problem, BackupProblem.notZip);
     expect(log, isEmpty);
+    expect(pendingFile().existsSync(), isFalse);
     expect(hashTree(documents), before);
   });
 
-  test('criterion 6: a failing restore still restarts and rethrows', () async {
-    final notADirectory = File(p.join(root.path, 'not-a-directory'))
-      ..writeAsBytesSync([1]);
-    final coordinator = RestoreCoordinator(
-      archive: archiveOf(Directory(notADirectory.path)),
-      background: _Background(log),
-      closeDatabase: () async => log.add('close'),
-      restarter: _Restarter(log),
-    );
+  test('criterion 3: a failing stage stops and restarts nothing', () async {
+    final notADirectory = Directory(p.join(root.path, 'not-a-directory'));
+    File(notADirectory.path).writeAsBytesSync([1]);
+    final coordinator = coordinatorOf(pendingDir: notADirectory);
 
     await expectLater(
       coordinator.restore(validZip()),
       throwsA(isA<Exception>()),
     );
 
-    expect(log, ['stop', 'close', 'restart']);
+    expect(log, isEmpty);
   });
 
-  test(
-    'criterion 6: an error in closing the database is not swallowed',
-    () async {
-      final coordinator = RestoreCoordinator(
-        archive: archiveOf(documents),
-        background: _Background(log),
-        closeDatabase: () async => throw StateError('close failed'),
-        restarter: _Restarter(log),
-      );
-      final before = hashTree(documents);
+  test('a failed stop or restart discards the staged zip', () async {
+    final coordinator = coordinatorOf(restarter: _FailingRestarter());
 
-      await expectLater(
-        coordinator.restore(validZip()),
-        throwsA(isA<StateError>()),
-      );
+    await expectLater(coordinator.restore(validZip()), throwsStateError);
 
-      expect(hashTree(documents), before);
-    },
-  );
-}
-
-class _CapturingBackground implements BackgroundWork {
-  new(this.log, this.onStop);
-
-  final List<String> log;
-  final void Function() onStop;
-
-  @override
-  Future<void> stopAll() async {
-    log.add('stop');
-    onStop();
-  }
+    expect(log, ['stop']);
+    expect(pendingFile().existsSync(), isFalse);
+  });
 }

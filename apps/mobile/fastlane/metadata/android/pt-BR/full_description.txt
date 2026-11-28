@@ -4,7 +4,7 @@ SEM CONTA, SEM NUVEM
 • Sem cadastro, sem login, sem e-mail. Você pareia o anel e já usa.
 • Seus dados ficam num banco local no celular, não num servidor.
 • Sem análise de uso, sem anúncios, sem rastreamento. O app usa a internet para as próprias atualizações e, só se você ligar a Análise com IA, para o serviço de IA que você escolher.
-• Os dados só saem do celular quando você escolhe: para o Health Connect, num arquivo CSV, JSON ou GPX que você exporta, numa transferência para um celular novo que você inicia ou, com a Análise com IA ligada, para o serviço de IA que você escolher.
+• Os dados só saem do celular quando você escolhe: para o Health Connect, num arquivo CSV, JSON ou GPX que você exporta, num arquivo de backup que você cria, numa transferência para um celular novo que você inicia ou, com a Análise com IA ligada, para o serviço de IA que você escolher.
 
 O QUE VOCÊ VÊ
 • Sono numa linha do tempo com leve, profundo, REM e acordado.

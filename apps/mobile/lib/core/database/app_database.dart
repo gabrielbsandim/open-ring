@@ -19,6 +19,8 @@ import 'package:ring_driver/ring_driver.dart';
 
 part 'app_database.g.dart';
 
+const appSchemaVersion = 21;
+
 @DriftDatabase(
   tables: [
     RingDevices,
@@ -60,7 +62,7 @@ class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => appSchemaVersion;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

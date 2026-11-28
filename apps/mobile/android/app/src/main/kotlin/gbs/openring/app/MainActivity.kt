@@ -35,6 +35,7 @@ class MainActivity : FlutterFragmentActivity() {
         permissions.attach(flutterEngine.dartExecutor.binaryMessenger)
         HealthSettingsChannel(this).attach(flutterEngine.dartExecutor.binaryMessenger)
         WidgetComponentsChannel(this).attach(flutterEngine.dartExecutor.binaryMessenger)
+        RestartChannel(this).attach(flutterEngine.dartExecutor.binaryMessenger)
     }
 
     // Flutter's deep linking reads only the intent data, so the Health Connect

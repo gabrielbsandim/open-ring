@@ -102,7 +102,7 @@ final class BackupArchive {
   }
 
   Future<_Inspection> _inspect(File archive) async {
-    final scratch = await Directory.systemTemp.createTemp('open_ring_backup');
+    final scratch = Directory.systemTemp.createTempSync('open_ring_backup');
     final inspection = _Inspection(scratch);
     final check = await _validate(archive, inspection);
     return inspection..check = check;
@@ -132,7 +132,25 @@ final class BackupArchive {
     inspection
       ..database = database
       ..photos = files.where((f) => _isPhotoEntry(f.name)).toList();
-    return _checkDatabase(database);
+    final databaseCheck = _checkDatabase(database);
+    if (!databaseCheck.ok) return databaseCheck;
+    if (!_photosIntact(inspection)) {
+      return const BackupCheck.rejected(BackupProblem.corrupt);
+    }
+    return databaseCheck;
+  }
+
+  // The zip reader inflates without checking CRC32, so a damaged photo would
+  // otherwise restore as a truncated or empty file.
+  bool _photosIntact(_Inspection inspection) {
+    final probe = File(p.join(inspection.scratch.path, 'photo.probe'));
+    for (final entry in inspection.photos) {
+      _extract(entry, probe.path);
+      final intact = entry.crc32 == getCrc32(probe.readAsBytesSync());
+      probe.deleteSync();
+      if (!intact) return false;
+    }
+    return true;
   }
 
   Archive? _decode(File archive, _Inspection inspection) {
@@ -244,9 +262,10 @@ final class _Inspection {
   File? database;
   List<ArchiveFile> photos = const [];
 
+  // Synchronous, so a check finishes without waiting on the event loop.
   Future<void> dispose() async {
-    await input?.close();
-    await _deleteDirectory(scratch);
+    input?.closeSync();
+    if (scratch.existsSync()) scratch.deleteSync(recursive: true);
   }
 }
 

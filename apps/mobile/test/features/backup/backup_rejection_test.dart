@@ -36,6 +36,33 @@ Future<File> _zipWith(
 Future<Uint8List> _bigDatabase(Directory scratch) =>
     appDatabaseBytes(scratch, 'big.db', rings: ['R1'], padRows: 1500);
 
+Uint8List _flipEntryCrc(Uint8List zip, String entry) {
+  final bytes = Uint8List.fromList(zip);
+  final name = entry.codeUnits;
+  var flipped = 0;
+  for (var i = 0; i + 4 <= bytes.length; i++) {
+    final local =
+        bytes[i] == 0x50 &&
+        bytes[i + 1] == 0x4B &&
+        bytes[i + 2] == 3 &&
+        bytes[i + 3] == 4;
+    final central =
+        bytes[i] == 0x50 &&
+        bytes[i + 1] == 0x4B &&
+        bytes[i + 2] == 1 &&
+        bytes[i + 3] == 2;
+    if (!local && !central) continue;
+    final nameAt = i + (local ? 30 : 46);
+    final crcAt = i + (local ? 14 : 16);
+    final slice = bytes.sublist(nameAt, nameAt + name.length);
+    if (String.fromCharCodes(slice) != entry) continue;
+    bytes[crcAt] ^= 0xFF;
+    flipped++;
+  }
+  expect(flipped, greaterThan(0), reason: 'fixture must tamper the CRC');
+  return bytes;
+}
+
 void main() {
   late Directory root;
   late Directory documents;
@@ -169,6 +196,43 @@ void main() {
     expect(check.problem, BackupProblem.newerSchema);
     expect(check.schemaVersion, appVersion + 1);
   });
+
+  Future<File> zipWithBadPhotoCrc(Directory scratch) async {
+    final good = await _zipWith(
+      scratch,
+      extra: {'meal_photos/lunch.jpg': List.generate(512, (i) => i % 251)},
+    );
+    return File(p.join(scratch.path, 'in/tampered.zip'))..writeAsBytesSync(
+      _flipEntryCrc(good.readAsBytesSync(), 'meal_photos/lunch.jpg'),
+    );
+  }
+
+  test('criterion 5: check rejects a photo whose CRC mismatches', () async {
+    final scratch = Directory(p.join(root.path, 'scratch'))..createSync();
+    final zip = await zipWithBadPhotoCrc(scratch);
+    final before = hashTree(documents);
+
+    final check = await archiveOf().check(zip);
+
+    expect(check.ok, isFalse);
+    expect(check.problem, BackupProblem.corrupt);
+    expect(hashTree(documents), before);
+  });
+
+  test(
+    'criterion 5: restore of a bad photo CRC changes no live file',
+    () async {
+      final scratch = Directory(p.join(root.path, 'scratch'))..createSync();
+      final zip = await zipWithBadPhotoCrc(scratch);
+      final before = hashTree(documents);
+
+      final outcome = await archiveOf().restore(zip);
+
+      expect(outcome, isA<Rejected>());
+      expect((outcome as Rejected).check.problem, BackupProblem.corrupt);
+      expect(hashTree(documents), before);
+    },
+  );
 
   test('criterion 3: a valid archive is accepted without a change', () async {
     final scratch = Directory(p.join(root.path, 'scratch'))..createSync();
